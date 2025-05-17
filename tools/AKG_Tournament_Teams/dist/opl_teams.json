@@ -2032,8 +2032,8 @@
         "age": 24,
         "url": "https://www.opleague.pro/user/41064-FREE2WIN",
         "description": null,
-        "discord": null,
-        "discord_ID": null,
+        "discord": "free2win",
+        "discord_ID": 612243604639055882,
         "twitter": null,
         "twitch": null,
         "youtube": null,
@@ -2938,6 +2938,53 @@
             "launcher_ID": "13"
           }
         }
+      },
+      "40633": {
+        "ID": 40633,
+        "username": "Aldur",
+        "first_name": "Darius",
+        "last_name": null,
+        "residence_name": "Germany",
+        "age": 29,
+        "url": "https://www.opleague.pro/user/40633-Aldur",
+        "description": null,
+        "discord": null,
+        "discord_ID": null,
+        "twitter": null,
+        "twitch": null,
+        "youtube": null,
+        "website": null,
+        "logo_array": {
+          "on_error": null,
+          "original": null,
+          "compressed": null,
+          "background": null,
+          "is_on_error": true
+        },
+        "launcher": {
+          "6": {
+            "linked_on": {
+              "date": "2025-05-03 12:15:45.000000",
+              "timezone_type": 3,
+              "timezone": "Europe/Berlin"
+            },
+            "value": "h39xMi0WT6GEk2Yw6yf3lOwIvFHnvsN6D0tTLo9wDGX167cSLpMAxdA-hiIfOS-ACpx6AP4jVk2gVA",
+            "last_known_username": "Aldur#Zeri",
+            "name": "Riot ID (Valorant)",
+            "launcher_ID": "6"
+          },
+          "13": {
+            "linked_on": {
+              "date": "2025-05-03 12:15:45.000000",
+              "timezone_type": 3,
+              "timezone": "Europe/Berlin"
+            },
+            "value": "h39xMi0WT6GEk2Yw6yf3lOwIvFHnvsN6D0tTLo9wDGX167cSLpMAxdA-hiIfOS-ACpx6AP4jVk2gVA",
+            "last_known_username": "Aldur#Zeri",
+            "name": "Riot ID (League of Legends)",
+            "launcher_ID": "13"
+          }
+        }
       }
     }
   },
@@ -3177,7 +3224,7 @@
         "age": 21,
         "url": "https://www.opleague.pro/user/41205-Kiraikage",
         "description": null,
-        "discord": "hirashi17",
+        "discord": "hirashi812xx",
         "discord_ID": 931708573514346576,
         "twitter": null,
         "twitch": null,
@@ -3257,6 +3304,53 @@
             },
             "value": "8DsJJI9Ca4XpyRF-r-oPGta7hPg3hk8s9n90l0damLfDl5vNKTjX-T9dI6IvJGGcmaGu3Qz4A0iHhA",
             "last_known_username": "urducenter#EUW",
+            "name": "Riot ID (League of Legends)",
+            "launcher_ID": "13"
+          }
+        }
+      },
+      "41219": {
+        "ID": 41219,
+        "username": "JJK#1140",
+        "first_name": "Paul",
+        "last_name": null,
+        "residence_name": "Germany",
+        "age": 25,
+        "url": "https://www.opleague.pro/user/41219-JJK1140",
+        "description": null,
+        "discord": "theblackroseakiza",
+        "discord_ID": 833006467631939616,
+        "twitter": null,
+        "twitch": null,
+        "youtube": null,
+        "website": null,
+        "logo_array": {
+          "on_error": null,
+          "original": null,
+          "compressed": null,
+          "background": null,
+          "is_on_error": true
+        },
+        "launcher": {
+          "6": {
+            "linked_on": {
+              "date": "2025-05-17 13:14:23.000000",
+              "timezone_type": 3,
+              "timezone": "Europe/Berlin"
+            },
+            "value": "p3lP8cByp-2w1phWvKezWGXdlBe1nQMPZXDmIxS0WnfglXPt0rNP17z3xoA9Rd6KrhT7v3px0TpkyQ",
+            "last_known_username": "Jjk#1140",
+            "name": "Riot ID (Valorant)",
+            "launcher_ID": "6"
+          },
+          "13": {
+            "linked_on": {
+              "date": "2025-05-17 13:14:23.000000",
+              "timezone_type": 3,
+              "timezone": "Europe/Berlin"
+            },
+            "value": "p3lP8cByp-2w1phWvKezWGXdlBe1nQMPZXDmIxS0WnfglXPt0rNP17z3xoA9Rd6KrhT7v3px0TpkyQ",
+            "last_known_username": "Jjk#1140",
             "name": "Riot ID (League of Legends)",
             "launcher_ID": "13"
           }
