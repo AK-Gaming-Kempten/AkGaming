@@ -1,0 +1,66 @@
+/* marquee.css */
+
+.marquee-background {
+    background: linear-gradient(0deg, #286c3f, #0f221e);
+}
+
+.marquee-container {
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
+    overflow: hidden;
+    -webkit-mask-image: radial-gradient(circle, black 100%, rgba(255, 255, 255, 0.5) 100%);
+    mask-image: radial-gradient(circle at center, rgb(0, 0, 0) 70%, transparent 100%);
+}
+    
+.marquee-row {
+    display: flex;
+    justify-content: center;
+}
+
+.marquee {
+    display: flex;
+    flex-direction: row;
+    animation: scroll-left-right 180s linear infinite;
+}
+
+.marquee-img {
+    width: 60px;  
+    height: 60px;  
+    object-fit: contain;  
+    margin-right: 40px; 
+    animation: pulse 2s ease-in-out infinite;
+    transform-origin: center;
+    filter: brightness(70%);
+}
+
+@keyframes pulse {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.1); /* Make it 10% larger */
+    }
+}
+
+.marquee-img:nth-child(even) {
+    animation-delay: 1s;
+}
+
+@keyframes scroll-left {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+}
+
+@keyframes scroll-right {
+    0% { transform: translateX(-50%); }
+    100% { transform: translateX(0); }
+}
+
+.scroll-left {
+    animation-name: scroll-left;
+}
+
+.scroll-right {
+    animation-name: scroll-right;
+}
