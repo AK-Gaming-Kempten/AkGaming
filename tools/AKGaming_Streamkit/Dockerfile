@@ -5,22 +5,18 @@ EXPOSE 8080
 EXPOSE 8081
 
 # ─── build stage ─────────────────────────────────────────
-FROM mcr.microsoft.com/dotnet/sdk:7.0 AS build
-WORKDIR /src
+FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
+WORKDIR /app
 
-# copy and restore only csproj first for cache
 COPY *.csproj ./
 RUN dotnet restore
 
-# copy everything and publish
 COPY . .
 RUN dotnet publish -c Release -o /app/publish
 
 # ─── runtime stage ───────────────────────────────────────
 FROM nginx:alpine
 WORKDIR /usr/share/nginx/html
-
-# serve the published wwwroot
 COPY --from=build /app/publish/wwwroot .
 
 
