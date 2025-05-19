@@ -3,20 +3,23 @@ USER $APP_UID
 WORKDIR /app
 EXPOSE 8080
 EXPOSE 8081
+EXPOSE 80
 
-# ─── build stage ─────────────────────────────────────────
 FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
-WORKDIR /app
-
-COPY *.csproj ./
-RUN dotnet restore
-
+ARG BUILD_CONFIGURATION=Release
+WORKDIR /src
+COPY ["AKGaming_Streamkit.csproj", "./"]
+RUN dotnet restore "AKGaming_Streamkit.csproj"
 COPY . .
-RUN dotnet publish -c Release -o /app/publish
+WORKDIR "/src/"
+RUN dotnet build "./AKGaming_Streamkit.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
-# ─── runtime stage ───────────────────────────────────────
-FROM nginx:alpine
-WORKDIR /usr/share/nginx/html
-COPY --from=build /app/publish/wwwroot .
+FROM build AS publish
+ARG BUILD_CONFIGURATION=Release
+RUN dotnet publish "./AKGaming_Streamkit.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
 
+FROM base AS final
+WORKDIR /app
+COPY --from=publish /app/publish .
+ENTRYPOINT ["dotnet", "AKGaming_Streamkit.dll"]
 
