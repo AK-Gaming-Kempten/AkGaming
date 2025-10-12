@@ -29,3 +29,8 @@ main {
     flex: 1;
     margin: 1rem;
 }
+
+a {
+    color: var(--color-highlight-primary);
+    text-decoration: none;
+}

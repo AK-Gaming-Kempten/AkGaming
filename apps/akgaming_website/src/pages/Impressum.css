@@ -1,0 +1,10 @@
+.impressum {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+}
+
+.impressum h2 {
+    margin-bottom: -1rem;
+}
