@@ -1,14 +1,12 @@
 import { Link } from "react-router-dom";
+import "./Footer.css";
 
 export default function Footer() {
     return (
-        <footer style={{
-            marginTop: "2rem",
-            padding: "1rem",
-            borderTop: "1px solid #ccc",
-            textAlign: "center"
-        }}>
-            <p>© {new Date().getFullYear()} My Website — <Link to="/impressum">Impressum</Link></p>
+        <footer className="footer">
+            <p>
+                © {new Date().getFullYear()} AK Gaming e.V. — <Link to="/impressum">Impressum</Link>
+            </p>
         </footer>
     );
 }
