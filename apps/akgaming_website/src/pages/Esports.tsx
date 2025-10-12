@@ -17,8 +17,6 @@ import uniligaLogo from "../assets/uniliga.png";
 import dachcsLogo from "../assets/dachcs.svg";
 import defaultLogo from "../assets/akgaming_logo.png";
 
-
-
 export default function Esports() {
     const hsk_dragon = {
         name: "HSK Dragon",
@@ -135,8 +133,13 @@ export default function Esports() {
 
     return (
         <main>
-            <h1>Esports Teams</h1>
+            <h1>Esports</h1>
+            <p>Infos über unseren Esports-Bereich.</p>
 
+            <h1>EVB</h1>
+            <p>Wird sind stolzes Gründungsmitglied des E-Sport Verband Bayern.</p>
+
+            <h1>Esports Teams</h1>
             <EsportsGameSection
                 gameName="League of Legends"
                 gameLogo={lolLogo}
