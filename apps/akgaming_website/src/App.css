@@ -1,8 +1,11 @@
 html, body, #root {
     margin: 0;
     padding: 0;
-    height: 100%;
     width: 100%;
+}
+
+html, body {
+    min-height: 100%;
 }
 
 #root {
@@ -16,11 +19,13 @@ header, nav, footer {
 }
 
 body {
+    background-color: var(--color-background-primary);
+    color: var(--color-text-primary);
     font-family: system-ui, sans-serif;
-    background-color: #eeeeee;
-    color: #222222;
 }
 
+/* main content grows naturally */
 main {
     flex: 1;
+    margin: 1rem;
 }
