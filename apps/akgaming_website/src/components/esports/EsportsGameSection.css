@@ -44,7 +44,7 @@
 /* Team cards below */
 .teams-container {
     display: flex;
-    flex-wrap: wrap;
+    flex-direction: column;
     gap: 1rem;
     margin-top: 1rem;
 }

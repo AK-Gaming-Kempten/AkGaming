@@ -1,4 +1,5 @@
 import EsportsGameSection from "../components/esports/EsportsGameSection";
+import "./Esports.css"
 import lolLogo from "../assets/games/esports_lol.svg";
 import csLogo from "../assets/games/esports_cs2.webp";
 import valorantLogo from "../assets/games/esports_valorant.png";
@@ -132,7 +133,7 @@ export default function Esports() {
     };
 
     return (
-        <main>
+        <main className="esports">
             <h1>Esports</h1>
             <p>Infos über unseren Esports-Bereich.</p>
 
