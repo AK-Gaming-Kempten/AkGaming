@@ -13,6 +13,7 @@
   -moz-osx-font-smoothing: grayscale;
 
     --color-gray: #919d98;
+    --color-dark-grey: #1a1a1a;
     --color-dark-green: #0f221e;
     --color-green: #286c3f;
     --color-light-green: #48cb4f;
@@ -35,9 +36,9 @@
         --color-text-secondary: var(--color-white);
         --color-text-tertiary: var(--color-gray);
         --color-highlight-primary: var(--color-light-green);
-        --color-highlight-secondary: var(--color-white);
-        --color-background-primary: var(--color-dark-green);
-        --color-background-secondary: var(--color-green);
+        --color-highlight-secondary: var(--color-green);
+        --color-background-primary: var(--color-dark-grey);
+        --color-background-secondary: var(--color-dark-green);
     }
 }
 
@@ -56,9 +57,9 @@
     --color-text-secondary: var(--color-white);
     --color-text-tertiary: var(--color-gray);
     --color-highlight-primary: var(--color-light-green);
-    --color-highlight-secondary: var(--color-white);
-    --color-background-primary: var(--color-dark-green);
-    --color-background-secondary: var(--color-green);
+    --color-highlight-secondary: var(--color-green);
+    --color-background-primary: var(--color-dark-grey);
+    --color-background-secondary: var(--color-dark-green);
 }
 
 * {

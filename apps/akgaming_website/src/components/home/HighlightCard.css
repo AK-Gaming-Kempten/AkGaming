@@ -12,7 +12,7 @@
     width: 100%;
     aspect-ratio: 3 / 2;
     overflow: hidden;
-    background-color: var(--color-text-primary);
+    background-color: var(--color-background-primary);
 }
 
 .media-content,
