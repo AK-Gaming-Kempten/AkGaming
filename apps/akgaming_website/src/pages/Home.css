@@ -1,0 +1,97 @@
+.home-page {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2rem;
+    padding: 1rem;
+}
+
+/* Limit width and center content horizontally */
+.home-grid {
+    display: grid;
+    grid-template-columns: 1fr 2fr 1fr;
+    gap: 2rem;
+    align-items: flex-start;
+    max-width: 1400px; /* ✅ limits total width */
+    width: 100%;
+}
+
+/* --- Left column --- */
+.home-left {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.home-left h2 {
+    text-align: center;
+    margin-bottom: 1rem;
+}
+
+.home-left .highlight-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+/* --- Center column --- */
+.home-center {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.home-center h1 {
+    text-align: center;
+}
+
+/* --- Right column --- */
+.home-right {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+/* --- RESPONSIVE BEHAVIOR --- */
+
+/* Medium screens: 2 columns */
+@media (max-width: 1100px) {
+    .home-grid {
+        grid-template-columns: 1fr 1fr;
+        max-width: 1000px;
+    }
+
+    .home-right {
+        grid-column: span 2;
+        flex-direction: column;
+        justify-content: space-around;
+        flex-wrap: wrap;
+    }
+}
+
+/* Small screens: stacked (reversed order) */
+@media (max-width: 768px) {
+    .home-grid {
+        display: flex;
+        flex-direction: column; /* ✅ reverse stacking order */
+        align-items: stretch;
+    }
+
+    .home-left,
+    .home-center,
+    .home-right {
+        width: 100%;
+    }
+
+    .home-right {
+        order: 1; /* appears first */
+    }
+
+    .home-center {
+        order: 2;
+    }
+
+    .home-left {
+        order: 3;
+    }
+}
