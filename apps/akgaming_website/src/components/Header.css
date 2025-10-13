@@ -3,6 +3,7 @@
     color: var(--color-text-secondary);
     padding: 1rem 0;
     text-align: center;
+    position: relative; /* allow absolute positioning inside */
 }
 
 .header-content {
@@ -24,7 +25,37 @@
     font-weight: 600;
 }
 
-/* Hide header text on smaller screens */
+/* === Theme toggle button === */
+.theme-toggle {
+    position: absolute;
+    top: 0.5rem;
+    right: 1rem;
+    background: none;
+    border: none;
+    color: var(--color-text-secondary);
+    font-size: 1.6rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.2s ease, transform 0.2s ease;
+}
+
+.theme-toggle:hover {
+    color: var(--color-highlight-primary);
+    transform: scale(1.1);
+}
+
+@media (max-width: 768px) {
+    .theme-toggle {
+        font-size: 1.4rem;
+        top: 0.4rem;
+        right: 0.6rem;
+    }
+}
+
+
+/* === Responsive === */
 @media (max-width: 768px) {
     .header-content {
         flex-direction: column;
@@ -37,5 +68,11 @@
 
     .header-title {
         font-size: 1.4rem;
+    }
+
+    .theme-toggle {
+        font-size: 1.2rem;
+        top: 0.3rem;
+        right: 0.6rem;
     }
 }
