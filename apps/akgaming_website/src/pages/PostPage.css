@@ -1,0 +1,10 @@
+.post-page{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.post-content{
+    display: flex;
+    flex-direction: column;
+}

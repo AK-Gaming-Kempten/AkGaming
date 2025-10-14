@@ -1,44 +1,31 @@
 import "./EventCard.css";
 import { Link } from "react-router-dom";
 import { formatDateRange } from "../../utils/formatDateRange";
+import type { Event } from "../../data/types";
 
 interface EventCardProps {
-    id: string;
-    name: string;
-    dateStart: string;
-    dateEnd?: string;
-    description: string;
-    locationName: string;
-    locationUrl?: string;
+    event: Event;
 }
 
-export default function EventCard({
-                                      id,
-                                      name,
-                                      dateStart,
-                                      dateEnd,
-                                      description,
-                                      locationName,
-                                      locationUrl,
-                                  }: EventCardProps) {
-    const formattedDate = formatDateRange(dateStart, dateEnd);
+export default function EventCard({ event }: EventCardProps) {
+    const formattedDate = formatDateRange(event.startDate, event.endDate);
 
-    const locationElement = locationUrl ? (
-        <a href={locationUrl} target="_blank" rel="noopener noreferrer">
-            {locationName}
+    const locationElement = event.location.startsWith("http") ? (
+        <a href={event.location} target="_blank" rel="noopener noreferrer">
+            {event.location}
         </a>
     ) : (
-        <span>{locationName}</span>
+        <span>{event.location}</span>
     );
 
     return (
-        <Link to={`/events/${id}`} className="event-card">
+        <Link to={`/events/${event.id}`} className="event-card">
             <div className="event-card-header">
-                <h3 className="event-name">{name}</h3>
+                <h3 className="event-name">{event.title}</h3>
                 <p className="event-date">{formattedDate}</p>
             </div>
 
-            <p className="event-description">{description}</p>
+            <p className="event-description">{event.shortDescription}</p>
 
             <div className="event-location">
                 <span>📍 {locationElement}</span>

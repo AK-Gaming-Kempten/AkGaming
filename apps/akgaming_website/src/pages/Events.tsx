@@ -1,6 +1,9 @@
 import EventCard from "../components/events/EventCard";
 import "./Events.css";
 import EventInfoTabs from "../components/events/EventInfoTabs";
+import {loadPosts} from "../data/loadPosts";
+import { Event } from "../data/types";
+import {useEffect, useState} from "react";
 
 export default function Events() {
     const infoSections = [
@@ -31,42 +34,19 @@ export default function Events() {
         },
     ];
 
-    const events = [
-        {
-            id: "gamenight-5",
-            name: "Game Night Oktober 2025",
-            dateStart: "2025-10-25",
-            dateEnd: "2025-10-26",
-            description:
-                "Ein neues Semester hat begonnen und nun ist es endlich wieder soweit: Am Samstag den 25. Oktober. " +
-                "AK Gaming e.V. lädt ein zur ersten Game Night im Wintersemester 25/26, im S-Gebäude der Hochschule " +
-                "Kempten. Während draußen die Blätter fallen, fallen hier die Würfel. Es erwartet euch wieder ein Abend " +
-                "voller Brettspiele, aufregenden Turnieren und langen Stunden mit jede Menge Videogames.",
-            locationName: "Hochschule Kempten, S-Bau",
-            locationUrl: "https://maps.app.goo.gl/QLkFDmV9jni5X28R8",
-        },
-        {
-            id: "lol-tournament-6",
-            name: "LoL Turnier #6",
-            dateStart: "2025-11-22",
-            description: "Turnier - Wird Cool! OwO",
-            locationName: "Online: Discord",
-            locationUrl: "https://discord.gg/rCXy4pYYtG",
-        },
-        {
-            id: "game-jam-5",
-            name: "Game Jam #5",
-            dateStart: "2025-12-05",
-            dateEnd: "2025-12-12",
-            description: "Game Jam.",
-            locationName: "Online: Itch.io",
-            locationUrl: "https://itch.io",
-        },
-    ];
+    const [events, setEvents] = useState<Event[]>([]);
+
+    useEffect(() => {
+        loadPosts().then((data) => {
+            const found = data.filter((p) => p instanceof Event);
+            setEvents(found as Event[] ?? null);
+        });
+    }, []);
+
 
     // newest first
     const sortedEvents = [...events].sort(
-        (a, b) => new Date(b.dateStart).getTime() - new Date(a.dateStart).getTime()
+        (a, b) => new Date(b.startDate).getTime() - new Date(a.startDate).getTime()
     );
 
     return (
@@ -77,8 +57,8 @@ export default function Events() {
 
             <h1>Eventkalender</h1>
             <section className="events-feed">
-                {sortedEvents.map((ev) => (
-                    <EventCard key={ev.id} {...ev} />
+                {sortedEvents.map((e) => (
+                    <EventCard key={e.id} event={e} />
                 ))}
             </section>
         </main>
