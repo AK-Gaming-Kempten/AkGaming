@@ -5,7 +5,16 @@ import SponsorCard from "../components/home/SponsorCard";
 import SocialLinks from "../components/home/SocialLinks";
 import MiniCalendar from "../components/home/MiniCalendar";
 
+import { useEffect, useState } from "react";
+import { loadHighlights } from "../data/loadHighlights";
+import type { Highlight } from "../data/types";
+
 export default function Home() {
+    const [highlights, setHighlights] = useState<Highlight[]>([]);
+
+    useEffect(() => {
+        loadHighlights().then(setHighlights);
+    }, []);
     return (
         <main className="home-page">
             <div className="home-grid">
@@ -13,18 +22,17 @@ export default function Home() {
                 <aside className="home-left">
                     <h2>Vereinsleben</h2>
                     <div className="highlight-list">
-                        <HighlightCard
-                            title="Minecraft Server"
-                            description="Minecraft Server Info Info Server Minecraft Minecraft Minecraft Info Server Info Info Info Info"
-                            mediaSrc="/media/minecraft_banner.jpg"
-                        />
-
-                        <HighlightCard
-                            title="LAN Party 1994"
-                            description="Zur Party - Zur Party."
-                            mediaSrc="/media/lan2025_clip.mp4"
-                            mediaType="video"
-                        />
+                        {highlights.map((h) => (
+                            <HighlightCard
+                                key={h.postId}
+                                title={h.title ?? ""}
+                                description={h.description ?? ""}
+                                mediaSrc={h.mediaSrc}
+                                mediaType={h.mediaType}
+                                postId={h.postId}
+                                postType={h.postType}
+                            />
+                        ))}
                     </div>
                 </aside>
 

@@ -36,6 +36,14 @@ export class Event extends Post {
     }
 }
 
+export interface Highlight {
+    postId: string;
+    mediaSrc: string;
+    mediaType: "image" | "video";
+    title?: string;
+    description?: string;
+}
+
 export interface EsportsGame {
     id: string;
     displayName: string;

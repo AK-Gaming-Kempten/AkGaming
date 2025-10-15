@@ -60,4 +60,3 @@ export async function loadPosts(): Promise<(Post | Event)[]> {
     }
     return items;
 }
-
