@@ -1,0 +1,23 @@
+game: cs2
+name: AKG Zamrichten
+logo: /assets/akgaming_logo.png
+league:
+  name: DACH CS
+  logo: /assets/leagues/dachcs.svg
+  division: Div 3
+players:
+  - name: AKG Zamrichten
+    role: AKG Zamrichten
+    picture: /assets/akgaming_logo.png
+  - name: AKG Zamrichten
+    role: AKG Zamrichten
+    picture: /assets/akgaming_logo.png
+  - name: AKG Zamrichten
+    role: AKG Zamrichten
+    picture: /assets/akgaming_logo.png
+  - name: AKG Zamrichten
+    role: AKG Zamrichten
+    picture: /assets/akgaming_logo.png
+  - name: AKG Zamrichten
+    role: AKG Zamrichten
+    picture: /assets/akgaming_logo.png

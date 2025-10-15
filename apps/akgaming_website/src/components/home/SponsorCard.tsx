@@ -1,5 +1,5 @@
 import "./SponsorCard.css";
-import sponsorLogo from "../../assets/soloplan_mit_text.png";
+import sponsorLogo from "../../../public/assets/soloplan_mit_text.png";
 
 export default function SponsorCard() {
     return (

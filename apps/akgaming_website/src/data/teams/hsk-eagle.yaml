@@ -1,0 +1,23 @@
+game: cs2
+name: HSK Eagle
+logo: /assets/teams/HSK_Eagle_Logo.png
+league:
+  name: Uniliga
+  logo: /assets/leagues/uniliga.png
+  division: Div 3
+players:
+  - name: HSK Eagle
+    role: HSK Eagle
+    picture: /assets/teams/HSK_Eagle_Logo.png
+  - name: HSK Eagle
+    role: HSK Eagle
+    picture: /assets/teams/HSK_Eagle_Logo.png
+  - name: HSK Eagle
+    role: HSK Eagle
+    picture: /assets/teams/HSK_Eagle_Logo.png
+  - name: HSK Eagle
+    role: HSK Eagle
+    picture: /assets/teams/HSK_Eagle_Logo.png
+  - name: HSK Eagle
+    role: HSK Eagle
+    picture: /assets/teams/HSK_Eagle_Logo.png
