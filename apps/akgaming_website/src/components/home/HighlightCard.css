@@ -4,7 +4,15 @@
     border-radius: 8px;
     overflow: hidden;
     text-align: center;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
+
+.highlight-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    border-color: var(--color-highlight-primary);
+}
+
 
 /* --- media container with fixed aspect ratio --- */
 .highlight-media {

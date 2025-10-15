@@ -1,10 +1,12 @@
 import "./HighlightCard.css";
+import { Link } from "react-router-dom";
 
 interface HighlightCardProps {
     title: string;
     description: string;
-    mediaSrc?: string;   // URL to image/video/gif
-    mediaType?: "image" | "video"; // type hint for rendering
+    mediaSrc?: string;
+    mediaType?: "image" | "video";
+    postId?: string;
 }
 
 export default function HighlightCard({
@@ -12,8 +14,9 @@ export default function HighlightCard({
                                           description,
                                           mediaSrc,
                                           mediaType = "image",
+                                          postId,
                                       }: HighlightCardProps) {
-    return (
+    const content = (
         <div className="highlight-card">
             <div className="highlight-media">
                 {mediaSrc ? (
@@ -40,4 +43,7 @@ export default function HighlightCard({
             </div>
         </div>
     );
+
+    return postId ? ( <Link to={`/posts/${postId}`}>{content}</Link> ): content;
 }
+

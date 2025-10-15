@@ -1,0 +1,20 @@
+- postId: minecraft-server
+  mediaSrc: /media/blockcraft3d.jpg
+  mediaType: image
+
+- postId: guilds
+  mediaSrc: /media/gilden.jpg
+  mediaType: image
+  title: Gilden
+  description: Unsere Gilden in WoW, OwO und UwU
+
+- postId: gamenight-98
+  mediaSrc: /media/party.webp
+  mediaType: image
+  description: Zur Party - Zur Party
+
+- postId: twitch
+  mediaSrc: /media/twitch.png
+  mediaType: image
+  description: Gaming.
+  title: Twitch
