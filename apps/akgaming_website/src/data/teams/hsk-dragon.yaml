@@ -1,0 +1,23 @@
+game: lol
+name: HSK Dragon
+logo: /assets/teams/HSK_Dragon_Logo.png
+league:
+  name: Uniliga
+  logo: /assets/leagues/uniliga.png
+  division: Div 3
+players:
+  - name: Drag0n
+    role: Top
+    picture: /assets/teams/HSK_Dragon_Logo.png
+  - name: Fury
+    role: Jungle
+    picture: /assets/teams/HSK_Dragon_Logo.png
+  - name: Midy
+    role: Mid
+    picture: /assets/teams/HSK_Dragon_Logo.png
+  - name: Arrow
+    role: ADC
+    picture: /assets/teams/HSK_Dragon_Logo.png
+  - name: Shield
+    role: Support
+    picture: /assets/teams/HSK_Dragon_Logo.png

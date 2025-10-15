@@ -1,0 +1,23 @@
+game: ow2
+name: HSK Satyrus
+logo: /assets/akgaming_logo.png
+league:
+  name: Uniliga
+  logo: /assets/leagues/uniliga.png
+  division: Div 3
+players:
+  - name: HSK Satyrus
+    role: HSK Satyrus
+    picture: /assets/akgaming_logo.png
+  - name: HSK Satyrus
+    role: HSK Satyrus
+    picture: /assets/akgaming_logo.png
+  - name: HSK Satyrus
+    role: HSK Satyrus
+    picture: /assets/akgaming_logo.png
+  - name: HSK Satyrus
+    role: HSK Satyrus
+    picture: /assets/akgaming_logo.png
+  - name: HSK Satyrus
+    role: HSK Satyrus
+    picture: /assets/akgaming_logo.png

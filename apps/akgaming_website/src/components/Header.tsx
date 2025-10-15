@@ -1,4 +1,4 @@
-import logo from "../assets/akgaming_logo.png";
+import logo from "../../public/assets/akgaming_logo.png";
 import "./Header.css";
 import { useTheme } from "../utils/UseTheme";
 import { LuSunMedium, LuMoonStar, LuMonitor } from "react-icons/lu";

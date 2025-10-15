@@ -36,3 +36,29 @@ export class Event extends Post {
     }
 }
 
+export interface EsportsGame {
+    id: string;
+    displayName: string;
+    logo: string;
+}
+
+export interface EsportsPlayer {
+    name: string;
+    role: string;
+    picture: string;
+}
+
+export interface EsportsLeague {
+    name: string;
+    logo: string;
+    division: string;
+}
+
+export interface EsportsTeam {
+    game: string;
+    name: string;
+    logo: string;
+    league: EsportsLeague;
+    players: EsportsPlayer[];
+}
+
