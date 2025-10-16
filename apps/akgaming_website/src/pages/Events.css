@@ -1,13 +1,23 @@
 .events-page {
     display: flex;
     flex-direction: column;
-    gap: 2rem;
-    text-align: center;
+    align-items: center;
+    padding: 1rem;
 }
 
-.events-intro h1 {
+.events-page-grid {
+    display: grid;
+    grid-template-columns: 5fr 2fr;
+    align-items: flex-start;
+    gap: 2rem;
+    max-width: 1400px; /* ✅ limits total width */
+    width: 100%;
+}
+
+.events-page h1 {
     font-size: 2rem;
     color: var(--color-text-primary);
+    text-align: center;
 }
 
 .events-intro p {
@@ -15,11 +25,18 @@
     line-height: 1.6;
 }
 
+.events-intro{
+
+}
+
 .events-feed {
+
+}
+
+.events-list{
     display: flex;
     flex-direction: column;
-    gap: 1.5rem;
-    max-width: 800px;
+    gap: 1rem;
     margin: 0 auto 4rem auto;
     text-align: left;
 }

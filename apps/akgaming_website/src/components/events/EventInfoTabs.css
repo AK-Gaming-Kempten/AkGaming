@@ -52,3 +52,7 @@
     color: var(--color-text-primary);
     line-height: 1.6;
 }
+
+.info-gallery {
+    margin-top: 3rem;
+}

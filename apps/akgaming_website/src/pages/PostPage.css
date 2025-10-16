@@ -4,7 +4,12 @@
     align-items: center;
 }
 
+.post-short{
+    max-width: 800px;
+}
+
 .post-content{
     display: flex;
     flex-direction: column;
+    max-width: 1400px;
 }

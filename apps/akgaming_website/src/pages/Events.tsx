@@ -13,6 +13,7 @@ export default function Events() {
             content:
                 "Angefangen als LAN-Party, wurde das Event durch immer neue Angebote erweitert. Diese Entwicklungen führten dazu, dass der Name LAN-Party dem Event nicht mehr gerecht wurde, weshalb es zur Game Night umbenannt wurde.\n" +
                 "Auf der Game Night kommen Menschen zusammen, um einen Abend voller Spielspaß zu erleben und die Gemeinschaft zu stärken. Dafür bietet die Game Night ein vielseitiges Programm: Besucher können ihr eigenes Setup mitbringen und im LAN-Netzwerk gemeinsam spielen. Aber auch ohne eigene Hardware gibt es jede Menge zu erleben: Von Konsolen-Angeboten, einem dedizierten Brettspielraum mit Spielen aus der Heldenschmiede, über einen VR-Raum, gecastete Turniere, Projektpräsentationen, Karaoke bis hin zu Special Events – für jeden Besucher lohnt sich der Abend!",
+            album: "eventInfoGallery/gamenight",
         },
         {
             id: "gamejam",
@@ -25,6 +26,7 @@ export default function Events() {
             title: "LoL Tournament",
             content:
                 "Ist cool. Macht Spaß. Trust.",
+            album: "eventInfoGallery/lolTournament",
         },
         {
             id: "boardgames",
@@ -51,16 +53,21 @@ export default function Events() {
 
     return (
         <main className="events-page">
-            <h1>Über Unsere Events</h1>
+            <div className="events-page-grid">
+                <div className="events-intro">
+                    <h1>Über Unsere Events</h1>
+                    <EventInfoTabs sections={infoSections} />
+                </div>
 
-            <EventInfoTabs sections={infoSections} />
-
-            <h1>Eventkalender</h1>
-            <section className="events-feed">
-                {sortedEvents.map((e) => (
-                    <EventCard key={e.id} event={e} />
-                ))}
-            </section>
+                <div className="events-feed">
+                    <h1>Eventkalender</h1>
+                    <section className="events-list">
+                        {sortedEvents.map((e) => (
+                            <EventCard key={e.id} event={e} />
+                        ))}
+                    </section>
+                </div>
+            </div>
         </main>
     );
 }
