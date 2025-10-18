@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import PhotoAlbum, { type Photo } from "react-photo-album";
+import PhotoAlbum, { type Photo, } from "react-photo-album";
 import { loadImages } from "../../data/loadImages";
 import "react-photo-album/styles.css";
 
@@ -60,7 +60,11 @@ export default function EventInfoTabs({ sections }: EventInfoTabsProps) {
 
                     {photos.length > 0 && (
                         <div className="info-gallery">
-                            <PhotoAlbum photos={photos} layout="rows" />
+                            <PhotoAlbum
+                                photos={photos}
+                                layout="rows"
+                                skeleton={<div style={{ width: "100%", minHeight: 800 }} />}
+                            />
                         </div>
                     )}
                 </div>
