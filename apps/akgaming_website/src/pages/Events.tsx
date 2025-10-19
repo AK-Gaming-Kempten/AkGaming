@@ -11,28 +11,22 @@ export default function Events() {
             id: "gamenight",
             title: "Gamenight",
             content:
-                "Angefangen als LAN-Party, wurde das Event durch immer neue Angebote erweitert. Diese Entwicklungen führten dazu, dass der Name LAN-Party dem Event nicht mehr gerecht wurde, weshalb es zur Game Night umbenannt wurde.\n" +
-                "Auf der Game Night kommen Menschen zusammen, um einen Abend voller Spielspaß zu erleben und die Gemeinschaft zu stärken. Dafür bietet die Game Night ein vielseitiges Programm: Besucher können ihr eigenes Setup mitbringen und im LAN-Netzwerk gemeinsam spielen. Aber auch ohne eigene Hardware gibt es jede Menge zu erleben: Von Konsolen-Angeboten, einem dedizierten Brettspielraum mit Spielen aus der Heldenschmiede, über einen VR-Raum, gecastete Turniere, Projektpräsentationen, Karaoke bis hin zu Special Events – für jeden Besucher lohnt sich der Abend!",
+                "Auf der Game Night kommen Menschen zusammen, um einen Abend voller Spielspaß zu erleben und die Gemeinschaft zu stärken. Dafür bietet die Game Night ein vielseitiges Programm: Besucher können ihr eigenes Gaming-Setup mitbringen und im LAN-Netzwerk gemeinsam spielen. Auch ohne eigene Hardware gibt es jede Menge zu erleben: Wir stellen einige moderne sowie  Retro-Konsolen, eine riesige Auswahl an Brettspielen, einen VR-Raum, moderierte Turniere mit Sachpreisen, Projektpräsentationen, Karaoke und Special Events – da ist auf jeden Fall für Alle etwas dabei!",
             album: "eventInfoGallery/gamenight",
         },
         {
             id: "gamejam",
             title: "Game Jam",
             content:
-                "Die Game Jam ist eine Veranstaltung für jeden der schon immer mal ein Computerspiel entwickeln wollte. Interessierte treffen sich hier um in einem festen Zeitrahmen und einer thematischen Vorgabe ein Spiel zu entwickeln. Die fertigen Spiele werden im Anschluss bewertet und neben der einmaligen Erfahrung winken für tolle Ideen und Umsetzungen auch Preisgelder. Dabei ist jeder erwünscht von 3D Artist, Game Designer oder angehenden Spieleentwickler und oft finden sich dabei auch neue Kontakte. AK Gaming e. V. veranstaltet die Game Jam in Zusammenarbeit mit Professoren der Hochschule Kempten und der Soloplan GmbH zum dritten Mal in Folge. ",
-        },
-        {
-            id: "lol",
-            title: "LoL Tournament",
-            content:
-                "Ist cool. Macht Spaß. Trust.",
-            album: "eventInfoGallery/lolTournament",
+                "Unser Game Jam ist eine Veranstaltung für jeden, der schon immer mal ein Computerspiel entwickeln wollte, bereits Profi in der Disziplin ist oder sich dafür interessiert, was dabei rauskommt, wenn jemand in wenigen Tagen so etwas auf die Beine stellt. Interessierte treffen sich hier um in einem festen Zeitrahmen und einer thematischen Vorgabe ein Spiel zu entwickeln. Die fertigen Spiele werden im Anschluss bewertet und neben der einmaligen Erfahrung winken für tolle Ideen und Umsetzungen auch Preisgelder. Egal ob 3D Artist, Game Designer oder Programmierer, als Teil eines kleinen Teams oder ganz alleine kann jeder mitmachen.",
+            album: "eventInfoGallery/gamejam",
         },
         {
             id: "boardgames",
             title: "Brettspielabend",
             content:
-                "Die Brettspielabende sind vom AK Gaming e. V. und der Heldenschmiede organisierte Termine, an denen sich alles um Brettspiele dreht. Herzlich Willkommen sind alle Spielebegeisterten, die in entspannter Umgebung neue Spiele und neue Leute kennen lernen wollen, oder einfach mit Freunden die 100. Runde ihres Lieblingsspiels spielen wollen.",
+                "In Zusammenarbeit mit der Heldenschmiede stellen wir regelmäig eine riesige Auswahl an Brettspielen bei unserem Brettspielabend zur verfügung. Hier kann jeder vorbei kommen, Leute kennenlernen, neue Spiele ausprobieren oder die 1000ste Runde seines Lieblingsspiels starten.",
+            album: "eventInfoGallery/boardgames",
         },
     ];
 

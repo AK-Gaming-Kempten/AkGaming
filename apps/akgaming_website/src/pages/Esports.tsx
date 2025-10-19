@@ -7,119 +7,6 @@ import type { EsportsGame, EsportsTeam } from "../data/types";
 import EsportsGameSection from "../components/esports/EsportsGameSection";
 
 export default function Esports() {
-    // const hsk_dragon = {
-    //     name: "HSK Dragon",
-    //     logo: dragonLogo,
-    //     league: {
-    //         name: "Uniliga",
-    //         logo: uniligaLogo,
-    //         division: "Div 3"
-    //     },
-    //     players: [
-    //         { name: "HSK Dragon", role: "HSK Dragon", picture: dragonLogo },
-    //         { name: "HSK Dragon", role: "HSK Dragon", picture: dragonLogo },
-    //         { name: "HSK Dragon", role: "HSK Dragon", picture: dragonLogo },
-    //         { name: "HSK Dragon", role: "HSK Dragon", picture: dragonLogo },
-    //         { name: "HSK Dragon", role: "HSK Dragon", picture: dragonLogo },
-    //     ]
-    // };
-    // const hsk_phoenix = {
-    //     name: "HSK Phoenix",
-    //     logo: phoenixLogo,
-    //     league: {
-    //         name: "Uniliga",
-    //         logo: uniligaLogo,
-    //         division: "Div 2"
-    //     },
-    //     players: [
-    //         { name: "HSK Phoenix", role: "HSK Phoenix", picture: phoenixLogo },
-    //         { name: "HSK Phoenix", role: "HSK Phoenix", picture: phoenixLogo },
-    //         { name: "HSK Phoenix", role: "HSK Phoenix", picture: phoenixLogo },
-    //         { name: "HSK Phoenix", role: "HSK Phoenix", picture: phoenixLogo },
-    //         { name: "HSK Phoenix", role: "HSK Phoenix", picture: phoenixLogo },
-    //     ]
-    // };
-    // const hsk_centauri = {
-    //     name: "HSK Centauri",
-    //     logo: centauriLogo,
-    //     league: {
-    //         name: "Uniliga",
-    //         logo: uniligaLogo,
-    //         division: "Div 2"
-    //     },
-    //     players: [
-    //         { name: "HSK Centauri", role: "HSK Centauri", picture: centauriLogo },
-    //         { name: "HSK Centauri", role: "HSK Centauri", picture: centauriLogo },
-    //         { name: "HSK Centauri", role: "HSK Centauri", picture: centauriLogo },
-    //         { name: "HSK Centauri", role: "HSK Centauri", picture: centauriLogo },
-    //         { name: "HSK Centauri", role: "HSK Centauri", picture: centauriLogo },
-    //     ]
-    // };
-    // const hsk_satyrus = {
-    //     name: "HSK Satyrus",
-    //     logo: defaultLogo,
-    //     league: {
-    //         name: "Uniliga",
-    //         logo: uniligaLogo,
-    //         division: "Div 3"
-    //     },
-    //     players: [
-    //         { name: "HSK Satyrus", role: "HSK Satyrus", picture: defaultLogo },
-    //         { name: "HSK Satyrus", role: "HSK Satyrus", picture: defaultLogo },
-    //         { name: "HSK Satyrus", role: "HSK Satyrus", picture: defaultLogo },
-    //         { name: "HSK Satyrus", role: "HSK Satyrus", picture: defaultLogo },
-    //         { name: "HSK Satyrus", role: "HSK Satyrus", picture: defaultLogo },
-    //     ]
-    // };
-    // const hsk_eagle = {
-    //     name: "HSK Eagle",
-    //     logo: eagleLogo,
-    //     league: {
-    //         name: "Uniliga",
-    //         logo: uniligaLogo,
-    //         division: "Div 3"
-    //     },
-    //     players: [
-    //         { name: "HSK Eagle", role: "HSK Eagle", picture: eagleLogo },
-    //         { name: "HSK Eagle", role: "HSK Eagle", picture: eagleLogo },
-    //         { name: "HSK Eagle", role: "HSK Eagle", picture: eagleLogo },
-    //         { name: "HSK Eagle", role: "HSK Eagle", picture: eagleLogo },
-    //         { name: "HSK Eagle", role: "HSK Eagle", picture: eagleLogo },
-    //     ]
-    // };
-    // const akg_zamrichten = {
-    //     name: "AKG Zamrichten",
-    //     logo: defaultLogo,
-    //     league: {
-    //         name: "DACH CS",
-    //         logo: dachcsLogo,
-    //         division: "Div 3"
-    //     },
-    //     players: [
-    //         { name: "AKG Zamrichten", role: "AKG Zamrichten", picture: defaultLogo },
-    //         { name: "AKG Zamrichten", role: "AKG Zamrichten", picture: defaultLogo },
-    //         { name: "AKG Zamrichten", role: "AKG Zamrichten", picture: defaultLogo },
-    //         { name: "AKG Zamrichten", role: "AKG Zamrichten", picture: defaultLogo },
-    //         { name: "AKG Zamrichten", role: "AKG Zamrichten", picture: defaultLogo },
-    //     ]
-    // };
-    // const hsk_demon = {
-    //     name: "HSK Demon",
-    //     logo: demonLogo,
-    //     league: {
-    //         name: "Uniliga",
-    //         logo: uniligaLogo,
-    //         division: "Div 3"
-    //     },
-    //     players: [
-    //         { name: "HSK Demon", role: "HSK Demon", picture: demonLogo },
-    //         { name: "HSK Demon", role: "HSK Demon", picture: demonLogo },
-    //         { name: "HSK Demon", role: "HSK Demon", picture: demonLogo },
-    //         { name: "HSK Demon", role: "HSK Demon", picture: demonLogo },
-    //         { name: "HSK Demon", role: "HSK Demon", picture: demonLogo },
-    //     ]
-    // };
-
     const [games, setGames] = useState<EsportsGame[]>([]);
     const [teams, setTeams] = useState<EsportsTeam[]>([]);
 
@@ -132,13 +19,33 @@ export default function Esports() {
 
     return (
         <main className="esports">
-            <h1>Esports</h1>
-            <p>Infos über unseren Esports-Bereich.</p>
+            <p className="info-section">
+                <h1>Esports</h1>
+                <p>
+                    <b>E-Sports</b> bezeichnet den sportlichen Wettkampf zwischen mehreren Menschen, der in einem ausgewählten Computerspiel ausgetragen wird. Dabei kommt es besonders auf <b>Teamfähigkeit, Anpassungsfähigkeit, Koordinationsfähigkeit, strategisches Denken und Kommunikationsfähigkeit</b> unter den Teilnehmern an.
+                </p>
 
-            <h1>EVB</h1>
-            <p>Wird sind stolzes Gründungsmitglied des E-Sport Verband Bayern.</p>
+                <p>
+                    Bei uns gibt es Teams für die <b>meisten bekannten E-Sports-Titel</b> wie League of Legends, CS2, Overwatch und mehr. Unser Roster ist einer gewissen <b>Fluktuation</b> asgesetzt, weshalb wir teils zeitweise mehrere Teams pro Spiel oder kein Team für manche Spiele aufstellen. Wir sind immer offen gegenüber <b>Vorschlägen</b> für neue Disziplinen und Kooperationen.
+                </p>
 
-            <h1>Esports Teams</h1>
+                <p>
+                    Unsere Teams treten in <b>verschiedenen Ligen und Turnieren</b> an. Die meisten Teams sind teil der <b><a href="https://www.uniliga.gg/" >Uniliga</a></b>, die speziell für Studentische Teams eine kompetitive Umgebung bietet. Wer teil eines unserer Teams werden möchhte kann sich gern auf unserem <a href="https://discord.gg/akgaming">Discord</a> melden.
+                </p>
+            </p>
+
+
+            <p className="evb-section">
+                <h1>EVB</h1>
+                <p>
+                    Wird sind stolzes Gründungsmitglied des <b>E-Sport Verband Bayern</b>. Der EVB trägt dazu bei, den E-Sport in der Region Bayern zu <b>professionalisieren</b> und die Bedeutung von E-Sports in der Gesellschaft zu stärken und die Entwicklung von Talennten zu fördern.
+                </p>
+                <a href="https://esport.bayern/" target="_blank" rel="noopener noreferrer" >
+                    <img src="public/assets/EVB_LogoBlue.png" alt="EVB Logo" className="evb-logo"/>
+                </a>
+            </p>
+
+            <h1>Unsere Teams</h1>
             {games.map((game) => {
                 const gameTeams = teams.filter(
                     (t) => t.game.toLowerCase() === game.id.toLowerCase()

@@ -39,17 +39,20 @@ export default function Home() {
                 <section className="home-center">
                     <h1>Gaming at its best</h1>
                     <p>
-                        Unser Verein ist aus einem Arbeitskreis der Hochschule Kempten hervorgegangen und bietet spielebegeisterten Studierenden Events aus Gebieten wie E-Sports, analogen Spielen und Veranstaltungen rund ums Gaming, um diese Kultur zu stärken und die Gemeinschaft zu fördern.
+                        Der AK Gaming e.V. setzt sich für die Förderung der Gaming-Kultur in Kempten ein. Dazu gehören für uns lokale Events mit Fokus auf zwischenmenschliche Vernetzung, Online-Events bei denen wir den Zusammenhalt der gesamten Gaming-Community in Deutschland stärken und Engagement im E-Sports indem dem wir Talente fördern und Hobby-Sportlern einen einfachen Einstieg in die Szene bieten. Im Vordergrund stehen bei uns Menschen und das was wir für Spaß und ein starkes Miteinander in der Gaming-Community tun können.
                     </p>
                     <p>
-                        Beispielsweise organisieren wir Game Nights an der Hochschule. Durch die gemeinsamen Abende können sich viele neue Bekanntschaften zwischen den Studierenden bilden. Mehr Infos dazu unter: Game Night.
-                        Auch Public Viewing zu aktuellen Online-Events tragen zum studentischen Austausch bei.
+                        <h3>Ursprung</h3>
+                        Der AK Gaming e.V. ist aus dem gleichnamigen Arbeitskreis der Hochschule Kempten hervorgegangen und arbeitet weiter eng mit der Hochschule und der Fakultät für Informatik zusammen. So finden unsere Live-Events meist direkt an der Hochschule statt und richten sich insbesondere an die Studenten und bei Online-Events dürfen wir regelmäßig Professoren der Hochschule begrüßen, wie etwa als Jury beim Ak Gaming Game Jam.
                     </p>
                     <p>
-                        Als Spieler in einem unserer eSports-Teams lernt man zudem Studierende aus ganz Deutschland kennen, die ebenfalls unsere Leidenschaft fürs Gaming teilen. Hier kann man die eigene Fähigkeit unter Beweis stellen und als eSportler durchstarten.
+                        <h3>Programm</h3>
+                        Wir bieten regelmäßig Online sowie Offline-Events an, die unsere Vision einer starken lokalen sowie nationalen Community im Gaming-Bereich verfolgen. Unser Aushängeschild ist dabei die 4 mal jährlich stattfindende Game-Night, auf der oft über hundert Gaming-Begeisterte zusammenkommen und bei der von Brettspielen über LAN-Games und Turniere bis zu VR und Karaoke für so ziemlich jeden was dabei ist. Dazu veranstalten wir regelmäßige offene Brettspielabende, deutschlandweite Online-Turniere und Game-Jams.
                     </p>
                     <p>
-                        Bei uns gibt es Programm für jeden, der weiß, dass der Kuchen eine Lüge ist.
+                        <h3>E-Sports</h3>
+
+                        Im E-Sports-Bereich fördern wir gezielt Talente aus der Region und bieten motivierten Spielern die Möglichkeit, erste Turniererfahrungen zu sammeln. Unser Ziel ist es, sowohl ambitionierten Nachwuchstalenten als auch Hobby-Gamern eine Plattform zu geben, auf der sie sich weiterentwickeln, vernetzen und gemeinsam Erfolge feiern können. Neben den zahlreichen Teams, die wir betreuen, organisieren wir regelmäßig selbst Turniere und engagieren uns für eine großräumige Vernetzung als Mitglied des <a href="https://esport.bayern/" target="_blank">Esport Verbands Bayern</a>. Dabei stehen Fairness, Teamgeist und Freude am Spiel bei uns immer an erster Stelle.
                     </p>
                 </section>
 
