@@ -5,6 +5,7 @@ import { loadGames } from "../data/loadGames";
 import { loadTeams } from "../data/loadTeams";
 import type { EsportsGame, EsportsTeam } from "../data/types";
 import EsportsGameSection from "../components/esports/EsportsGameSection";
+import EvbIcon from "../../public/assets/EVB_LogoBlue.png";
 
 export default function Esports() {
     const [games, setGames] = useState<EsportsGame[]>([]);
@@ -41,7 +42,7 @@ export default function Esports() {
                     Wird sind stolzes Gründungsmitglied des <b>E-Sport Verband Bayern</b>. Der EVB trägt dazu bei, den E-Sport in der Region Bayern zu <b>professionalisieren</b> und die Bedeutung von E-Sports in der Gesellschaft zu stärken und die Entwicklung von Talennten zu fördern.
                 </p>
                 <a href="https://esport.bayern/" target="_blank" rel="noopener noreferrer" >
-                    <img src="public/assets/EVB_LogoBlue.png" alt="EVB Logo" className="evb-logo"/>
+                    <img src={EvbIcon} alt="EVB Logo" className="evb-logo"/>
                 </a>
             </p>
 
