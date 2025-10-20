@@ -11,6 +11,7 @@ import type { Highlight } from "../data/types";
 
 export default function Home() {
     const [highlights, setHighlights] = useState<Highlight[]>([]);
+    const [activeTab, setActiveTab] = useState<"left" | "center" | "right">("right");
 
     useEffect(() => {
         loadHighlights().then(setHighlights);
@@ -18,8 +19,34 @@ export default function Home() {
     return (
         <main className="home-page">
             <div className="home-grid">
+                {/* --- Mobile tab buttons --- */}
+                <div className="home-mobile-tabs">
+                    <button
+                        className={`tab-btn ${activeTab === "right" ? "active" : ""}`}
+                        onClick={() => setActiveTab("right")}
+                    >
+                        Quicklinks
+                    </button>
+                    <button
+                        className={`tab-btn ${activeTab === "center" ? "active" : ""}`}
+                        onClick={() => setActiveTab("center")}
+                    >
+                        Über uns
+                    </button>
+                    <button
+                        className={`tab-btn ${activeTab === "left" ? "active" : ""}`}
+                        onClick={() => setActiveTab("left")}
+                    >
+                        Vereinsleben
+                    </button>
+                </div>
+
                 {/* Left column */}
-                <aside className="home-left">
+                <aside
+                    className={`home-left ${
+                        activeTab === "left" ? "visible" : "hidden-on-mobile"
+                    }`}
+                >
                     <h2>Vereinsleben</h2>
                     <div className="highlight-list">
                         {highlights.map((h) => (
@@ -36,7 +63,9 @@ export default function Home() {
                 </aside>
 
                 {/* Center column */}
-                <section className="home-center">
+                <section className={`home-center ${
+                    activeTab === "center" ? "visible" : "hidden-on-mobile"
+                }`}>
                     <h1>Gaming at its best</h1>
                     <p>
                         Der AK Gaming e.V. setzt sich für die Förderung der Gaming-Kultur in Kempten ein. Dazu gehören für uns lokale Events mit Fokus auf zwischenmenschliche Vernetzung, Online-Events bei denen wir den Zusammenhalt der gesamten Gaming-Community in Deutschland stärken und Engagement im E-Sports indem dem wir Talente fördern und Hobby-Sportlern einen einfachen Einstieg in die Szene bieten. Im Vordergrund stehen bei uns Menschen und das was wir für Spaß und ein starkes Miteinander in der Gaming-Community tun können.
@@ -57,7 +86,9 @@ export default function Home() {
                 </section>
 
                 {/* Right column */}
-                <aside className="home-right">
+                <aside className={`home-right ${
+                    activeTab === "right" ? "visible" : "hidden-on-mobile"
+                }`}>
                     <SponsorCard />
                     <SocialLinks />
                     <MiniCalendar />

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { NavLink } from "react-router-dom";
+import { FaBars, FaTimes } from "react-icons/fa";
 import "./Navbar.css";
 
 export default function Navbar() {
@@ -12,13 +13,15 @@ export default function Navbar() {
         <nav className="navbar">
             <div className="container navbar-content">
                 <button
-                    className={`burger ${menuOpen ? "open" : ""}`}
+                    className="burger"
                     onClick={toggleMenu}
-                    aria-label="Toggle navigation"
+                    aria-label={menuOpen ? "Close navigation menu" : "Open navigation menu"}
                 >
-                    <span></span>
-                    <span></span>
-                    <span></span>
+                    {menuOpen ? (
+                        <FaTimes className="burger-icon" />
+                    ) : (
+                        <FaBars className="burger-icon" />
+                    )}
                 </button>
 
                 <ul className={`nav-links ${menuOpen ? "active" : ""}`}>

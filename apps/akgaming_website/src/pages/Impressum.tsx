@@ -4,7 +4,7 @@ export default function Impressum() {
     return (
         <main className="impressum">
             <h1>Impressum</h1>
-            <div>
+            <div className="impressum-content">
                 <div>
                     <h2>Satzung</h2>
                     <p>

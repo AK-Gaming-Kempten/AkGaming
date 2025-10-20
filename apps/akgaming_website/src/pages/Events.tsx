@@ -1,9 +1,9 @@
 import EventCard from "../components/events/EventCard";
 import "./Events.css";
 import EventInfoTabs from "../components/events/EventInfoTabs";
-import {loadPosts} from "../data/loadPosts";
+import { loadPosts } from "../data/loadPosts";
 import { Event } from "../data/types";
-import {useEffect, useState} from "react";
+import { useEffect, useState } from "react";
 
 export default function Events() {
     const infoSections = [
@@ -11,7 +11,7 @@ export default function Events() {
             id: "gamenight",
             title: "Gamenight",
             content:
-                "Auf der Game Night kommen Menschen zusammen, um einen Abend voller Spielspaß zu erleben und die Gemeinschaft zu stärken. Dafür bietet die Game Night ein vielseitiges Programm: Besucher können ihr eigenes Gaming-Setup mitbringen und im LAN-Netzwerk gemeinsam spielen. Auch ohne eigene Hardware gibt es jede Menge zu erleben: Wir stellen einige moderne sowie  Retro-Konsolen, eine riesige Auswahl an Brettspielen, einen VR-Raum, moderierte Turniere mit Sachpreisen, Projektpräsentationen, Karaoke und Special Events – da ist auf jeden Fall für Alle etwas dabei!",
+                "Auf der Game Night kommen Menschen zusammen, um einen Abend voller Spielspaß zu erleben und die Gemeinschaft zu stärken. Dafür bietet die Game Night ein vielseitiges Programm: Besucher können ihr eigenes Gaming-Setup mitbringen und im LAN-Netzwerk gemeinsam spielen. Auch ohne eigene Hardware gibt es jede Menge zu erleben: Wir stellen einige moderne sowie Retro-Konsolen, eine riesige Auswahl an Brettspielen, einen VR-Raum, moderierte Turniere mit Sachpreisen, Projektpräsentationen, Karaoke und Special Events – da ist auf jeden Fall für Alle etwas dabei!",
             album: "eventInfoGallery/gamenight",
         },
         {
@@ -31,16 +31,15 @@ export default function Events() {
     ];
 
     const [events, setEvents] = useState<Event[]>([]);
+    const [activeTab, setActiveTab] = useState<"info" | "calendar">("info");
 
     useEffect(() => {
         loadPosts().then((data) => {
             const found = data.filter((p) => p instanceof Event);
-            setEvents(found as Event[] ?? null);
+            setEvents(found as Event[] ?? []);
         });
     }, []);
 
-
-    // newest first
     const sortedEvents = [...events].sort(
         (a, b) => new Date(b.startDate).getTime() - new Date(a.startDate).getTime()
     );
@@ -48,12 +47,38 @@ export default function Events() {
     return (
         <main className="events-page">
             <div className="events-page-grid">
-                <div className="events-intro">
+                {/* Tab Navigation - visible only on mobile */}
+                <div className="events-mobile-tabs">
+                    <button
+                        className={`tab-btn ${activeTab === "info" ? "active" : ""}`}
+                        onClick={() => setActiveTab("info")}
+                    >
+                        Über unsere Events
+                    </button>
+                    <button
+                        className={`tab-btn ${activeTab === "calendar" ? "active" : ""}`}
+                        onClick={() => setActiveTab("calendar")}
+                    >
+                        Eventkalender
+                    </button>
+                </div>
+
+                {/* Left column */}
+                <div
+                    className={`events-intro ${
+                        activeTab === "info" ? "visible" : "hidden-on-mobile"
+                    }`}
+                >
                     <h1>Über Unsere Events</h1>
                     <EventInfoTabs sections={infoSections} />
                 </div>
 
-                <div className="events-feed">
+                {/* Right column */}
+                <div
+                    className={`events-feed ${
+                        activeTab === "calendar" ? "visible" : "hidden-on-mobile"
+                    }`}
+                >
                     <h1>Eventkalender</h1>
                     <section className="events-list">
                         {sortedEvents.map((e) => (
@@ -65,3 +90,4 @@ export default function Events() {
         </main>
     );
 }
+

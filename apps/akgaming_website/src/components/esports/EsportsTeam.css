@@ -9,13 +9,14 @@
     gap: 2rem;
     margin-bottom: 1.5rem;
     flex-wrap: wrap; /* responsive fallback */
+    max-width: 1030px;
 }
 
 /* --- Left side: Team info --- */
 .team-info {
     display: flex;
     flex-direction: column;
-    align-items: flex-start;
+    align-items: center;
     min-width: 220px;
 }
 
@@ -65,8 +66,9 @@
 /* --- Right side: Player cards --- */
 .players-row {
     display: flex;
-    flex-wrap: nowrap;
-    overflow-x: auto;
+    justify-content: center;
+    flex-wrap: wrap;
+    overflow-x: visible;
     gap: 1rem;
     flex: 1;
     padding-bottom: 0.5rem;
@@ -82,7 +84,7 @@
 }
 
 /* --- Responsive tweaks --- */
-@media (max-width: 900px) {
+@media (max-width: 1030px) {
     .team-slide {
         flex-direction: column;
         align-items: center;
@@ -94,8 +96,6 @@
     }
 
     .players-row {
-        justify-content: center;
-        flex-wrap: wrap;
-        overflow-x: visible;
+
     }
 }

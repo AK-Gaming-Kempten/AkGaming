@@ -7,6 +7,10 @@
     text-align: center;
     flex-shrink: 0;
     transition: transform 0.2s ease, box-shadow 0.2s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.3rem;
 }
 
 .player-card:hover {
@@ -18,7 +22,7 @@
     width: 100%;
     object-fit: cover;
     border-radius: 4px;
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.3rem;
 }
 
 .player-name {
@@ -31,4 +35,50 @@
     font-size: 0.85rem;
     color: var(--color-text-tertiary);
     margin: 0;
+}
+
+/* --- Responsive layout for very slim screens --- */
+@media (max-width: 600px) {
+    .player-card {
+        flex-direction: row;
+        width: 100%;
+        align-items: center;
+        text-align: left;
+        gap: 0.5rem;
+    }
+
+    .player-pic {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        margin: 0;
+        flex-shrink: 0;
+    }
+
+    .player-name,
+    .player-role {
+        margin: 0;
+    }
+
+    .player-card p {
+        line-height: 1.2;
+    }
+
+    .player-name {
+        font-size: 0.95rem;
+    }
+
+    .player-role {
+        font-size: 0.8rem;
+        color: var(--color-text-tertiary);
+    }
+
+    .player-card {
+        justify-content: flex-start;
+    }
+
+    .player-card > .text-wrapper {
+        display: flex;
+        flex-direction: column;
+    }
 }
