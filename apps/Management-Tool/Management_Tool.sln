@@ -1,20 +1,30 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{8AACE5E8-8C90-4092-957C-533052ABFF68}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "accounting", "accounting", "{D91CD05E-287B-4F51-B731-8DC36C19A246}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "common", "common", "{459A25AE-864E-468C-B941-964665C05A94}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "event-management", "event-management", "{084FF1B8-6DF4-4130-9EDD-30CA6ABD66EC}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "gameserver-management", "gameserver-management", "{F01C0861-BF3A-42FE-A3B4-0F0FEDB4B62C}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "GameserverManagement", "GameserverManagement", "{F01C0861-BF3A-42FE-A3B4-0F0FEDB4B62C}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "member-management", "member-management", "{4D2E8816-7E83-4B8E-A723-F29F3AFEB53C}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "MemberManagement", "MemberManagement", "{4D2E8816-7E83-4B8E-A723-F29F3AFEB53C}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "discord-connection", "discord-connection", "{000D614A-F5B1-4E55-86DB-BCB9C1081736}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "build", "build", "{65301058-8309-4E92-8439-9C1010168A95}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Membermanagement.Api", "src\modules\MemberManagement\Membermanagement.Api\Membermanagement.Api.csproj", "{AEE9135B-F5B5-4CEF-837C-046AEA69AF51}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MemberManagement.Application", "src\modules\MemberManagement\MemberManagement.Application\MemberManagement.Application.csproj", "{DF0CFE7D-70BF-4DDA-A517-7D6B74A18217}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MemberManagement.Domain", "src\modules\MemberManagement\MemberManagement.Domain\MemberManagement.Domain.csproj", "{D245B692-AEA6-4D1C-8815-80B575D7E737}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "UserManagement", "UserManagement", "{9E58987B-5CF1-4AB1-8BF3-F8D7A04E9544}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UserManagement.Domain", "src\modules\UserManagement\UserManagement.Domain\UserManagement.Domain.csproj", "{A494DE62-0209-4725-AAFC-6EAE91E107A7}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UserManagement.Application", "src\modules\UserManagement\UserManagement.Application\UserManagement.Application.csproj", "{28C1DC28-D291-4273-BD4A-3B2E8AF5052E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UserManagement.Contracts", "src\modules\UserManagement\UserManagement.Contracts\UserManagement.Contracts.csproj", "{AECAC8FB-9287-4F37-8B2F-B3728FECC051}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -22,11 +32,37 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{D91CD05E-287B-4F51-B731-8DC36C19A246} = {8AACE5E8-8C90-4092-957C-533052ABFF68}
-		{459A25AE-864E-468C-B941-964665C05A94} = {8AACE5E8-8C90-4092-957C-533052ABFF68}
-		{084FF1B8-6DF4-4130-9EDD-30CA6ABD66EC} = {8AACE5E8-8C90-4092-957C-533052ABFF68}
-		{F01C0861-BF3A-42FE-A3B4-0F0FEDB4B62C} = {8AACE5E8-8C90-4092-957C-533052ABFF68}
-		{4D2E8816-7E83-4B8E-A723-F29F3AFEB53C} = {8AACE5E8-8C90-4092-957C-533052ABFF68}
-		{000D614A-F5B1-4E55-86DB-BCB9C1081736} = {8AACE5E8-8C90-4092-957C-533052ABFF68}
+		{AEE9135B-F5B5-4CEF-837C-046AEA69AF51} = {4D2E8816-7E83-4B8E-A723-F29F3AFEB53C}
+		{DF0CFE7D-70BF-4DDA-A517-7D6B74A18217} = {4D2E8816-7E83-4B8E-A723-F29F3AFEB53C}
+		{D245B692-AEA6-4D1C-8815-80B575D7E737} = {4D2E8816-7E83-4B8E-A723-F29F3AFEB53C}
+		{A494DE62-0209-4725-AAFC-6EAE91E107A7} = {9E58987B-5CF1-4AB1-8BF3-F8D7A04E9544}
+		{28C1DC28-D291-4273-BD4A-3B2E8AF5052E} = {9E58987B-5CF1-4AB1-8BF3-F8D7A04E9544}
+		{AECAC8FB-9287-4F37-8B2F-B3728FECC051} = {9E58987B-5CF1-4AB1-8BF3-F8D7A04E9544}
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{AEE9135B-F5B5-4CEF-837C-046AEA69AF51}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AEE9135B-F5B5-4CEF-837C-046AEA69AF51}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AEE9135B-F5B5-4CEF-837C-046AEA69AF51}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AEE9135B-F5B5-4CEF-837C-046AEA69AF51}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DF0CFE7D-70BF-4DDA-A517-7D6B74A18217}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DF0CFE7D-70BF-4DDA-A517-7D6B74A18217}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DF0CFE7D-70BF-4DDA-A517-7D6B74A18217}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DF0CFE7D-70BF-4DDA-A517-7D6B74A18217}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D245B692-AEA6-4D1C-8815-80B575D7E737}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D245B692-AEA6-4D1C-8815-80B575D7E737}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D245B692-AEA6-4D1C-8815-80B575D7E737}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D245B692-AEA6-4D1C-8815-80B575D7E737}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A494DE62-0209-4725-AAFC-6EAE91E107A7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A494DE62-0209-4725-AAFC-6EAE91E107A7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A494DE62-0209-4725-AAFC-6EAE91E107A7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A494DE62-0209-4725-AAFC-6EAE91E107A7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{28C1DC28-D291-4273-BD4A-3B2E8AF5052E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{28C1DC28-D291-4273-BD4A-3B2E8AF5052E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{28C1DC28-D291-4273-BD4A-3B2E8AF5052E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{28C1DC28-D291-4273-BD4A-3B2E8AF5052E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AECAC8FB-9287-4F37-8B2F-B3728FECC051}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AECAC8FB-9287-4F37-8B2F-B3728FECC051}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AECAC8FB-9287-4F37-8B2F-B3728FECC051}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AECAC8FB-9287-4F37-8B2F-B3728FECC051}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

@@ -1,0 +1,15 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net9.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\..\UserManagement\UserManagement.Contracts\UserManagement.Contracts.csproj" />
+      <ProjectReference Include="..\..\UserManagement\UserManagement.Domain\UserManagement.Domain.csproj" />
+      <ProjectReference Include="..\MemberManagement.Domain\MemberManagement.Domain.csproj" />
+    </ItemGroup>
+
+</Project>
