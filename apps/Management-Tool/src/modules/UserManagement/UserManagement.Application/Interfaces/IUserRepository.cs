@@ -2,8 +2,7 @@ using UserManagement.Domain.Entities;
 
 namespace UserManagement.Application.Interfaces;
 
-public interface IUserRepository
-{
+public interface IUserRepository {
     Task<User?> GetByIdAsync(Guid id);
     Task<User?> GetByEmailAsync(string email);
     Task<List<User>> GetAllAsync();

@@ -26,6 +26,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UserManagement.Application"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UserManagement.Contracts", "src\modules\UserManagement\UserManagement.Contracts\UserManagement.Contracts.csproj", "{AECAC8FB-9287-4F37-8B2F-B3728FECC051}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Membermanagement.Contracts", "src\modules\MemberManagement\Membermanagement.Contracts\Membermanagement.Contracts.csproj", "{D78319CB-C002-48FC-84E3-4807F8212667}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Membermanagement.Infrastructure", "src\modules\MemberManagement\Membermanagement.Infrastructure\Membermanagement.Infrastructure.csproj", "{523002D1-4CED-48D7-85A4-77E7339385C4}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -38,6 +42,8 @@ Global
 		{A494DE62-0209-4725-AAFC-6EAE91E107A7} = {9E58987B-5CF1-4AB1-8BF3-F8D7A04E9544}
 		{28C1DC28-D291-4273-BD4A-3B2E8AF5052E} = {9E58987B-5CF1-4AB1-8BF3-F8D7A04E9544}
 		{AECAC8FB-9287-4F37-8B2F-B3728FECC051} = {9E58987B-5CF1-4AB1-8BF3-F8D7A04E9544}
+		{D78319CB-C002-48FC-84E3-4807F8212667} = {4D2E8816-7E83-4B8E-A723-F29F3AFEB53C}
+		{523002D1-4CED-48D7-85A4-77E7339385C4} = {4D2E8816-7E83-4B8E-A723-F29F3AFEB53C}
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{AEE9135B-F5B5-4CEF-837C-046AEA69AF51}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
@@ -64,5 +70,13 @@ Global
 		{AECAC8FB-9287-4F37-8B2F-B3728FECC051}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AECAC8FB-9287-4F37-8B2F-B3728FECC051}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{AECAC8FB-9287-4F37-8B2F-B3728FECC051}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D78319CB-C002-48FC-84E3-4807F8212667}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D78319CB-C002-48FC-84E3-4807F8212667}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D78319CB-C002-48FC-84E3-4807F8212667}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D78319CB-C002-48FC-84E3-4807F8212667}.Release|Any CPU.Build.0 = Release|Any CPU
+		{523002D1-4CED-48D7-85A4-77E7339385C4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{523002D1-4CED-48D7-85A4-77E7339385C4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{523002D1-4CED-48D7-85A4-77E7339385C4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{523002D1-4CED-48D7-85A4-77E7339385C4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

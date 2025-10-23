@@ -1,9 +1,13 @@
 using MemberManagement.Application.Interfaces;
+using Membermanagement.Contracts.Services;
 using UserManagement.Contracts.Services;
 
 namespace MemberManagement.Application.Services;
 
-public class MemberLinkingService {
+/// <summary>
+/// Service for linking a <see cref="Member"/> to a <see cref="User"/>
+/// </summary>
+public class MemberLinkingService : IMemberLinkingService {
     private readonly IMemberRepository _members;
     private readonly IUserService _users;
 
@@ -12,6 +16,7 @@ public class MemberLinkingService {
         _users = users;
     }
 
+    /// <inheritdoc/>
     public async Task LinkMemberToUserAsync(Guid memberId, Guid userId) {
         var member = await _members.GetByIdAsync(memberId);
         if (member is null)

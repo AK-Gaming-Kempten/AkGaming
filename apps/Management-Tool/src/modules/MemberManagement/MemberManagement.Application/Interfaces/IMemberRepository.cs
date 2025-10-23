@@ -2,6 +2,9 @@ using MemberManagement.Domain.Entities;
 
 namespace MemberManagement.Application.Interfaces;
 
+/// <summary>
+/// Interface for the member repository
+/// </summary>
 public interface IMemberRepository {
     Task<Member?> GetByIdAsync(Guid id);
     Task<List<Member>> GetAllAsync();

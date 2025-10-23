@@ -6,17 +6,28 @@ using MemberManagement.Domain.ValueObjects;
 public class Member {
     public Guid Id { get; set; }
     public Guid? UserId { get; set; }
-    public string FirstName { get; set; }
-    public string LastName { get; set; }
-    public string Email { get; set; }
-    public string PhoneNumber { get; set; }
+    public string? FirstName { get; set; }
+    public string? LastName { get; set; }
+    public string? Email { get; set; }
+    public string? PhoneNumber { get; set; }
+    public string? DiscordUsername { get; set; }
+    public DateTime BirthDate { get; set; }
     public Address Address { get; set; }
     public MembershipStatus Status { get; set; }
-    public DateOnly MembershipStartDate { get; set; }
-    public DateOnly? TrialEndDate { get; set; }
-    public DateOnly? ExpulsionDate { get; set; }
-    public DateOnly? SuspensionStartDate { get; set; }
-    public DateOnly? SuspensionEndDate { get; set; }
-    public DateOnly? WithdrawalDate { get; set; }
-    public DateOnly? HonoraryMemberDate { get; set; }
+    public ICollection<MembershipStatusChangeEvent> StatusChanges { get; set; } = new List<MembershipStatusChangeEvent>();
+    
+    public void ChangeStatus(MembershipStatus newStatus) {
+        if (newStatus == Status)
+            return;
+
+        var evt = new MembershipStatusChangeEvent {
+            MemberId = Id,
+            OldStatus = Status,
+            NewStatus = newStatus,
+            Timestamp = DateTime.UtcNow
+        };
+
+        Status = newStatus;
+        StatusChanges.Add(evt);
+    }
 }
