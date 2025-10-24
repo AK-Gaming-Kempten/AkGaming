@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using AKG.Common.Generics;
 using MemberManagement.Application.Interfaces;
 using Membermanagement.Contracts.Services;
 using MemberManagement.Domain.Constants;
@@ -16,21 +17,24 @@ public class MembershipUpdateService : IMembershipUpdateService {
     }
     
     /// <inheritdoc/>
-    public async Task UpdateMembershipStatusAsync(Guid memberId, ContractEnums.MembershipStatus newStatus) {
-        var member = await _members.GetByIdAsync(memberId);
-        if (member is null)
-            throw new NullReferenceException("Member not found");
+    public async Task<Result> UpdateMembershipStatusAsync(Guid memberId, ContractEnums.MembershipStatus newStatus) {
+        var memberResult = await _members.GetByMemberIdAsync(memberId);
+        if (!memberResult.IsSuccess)
+            return memberResult;
+        var member = memberResult.Value!;
 
         member.ChangeStatus((DomainEnums.MembershipStatus)newStatus);
         await _members.UpdateAsync(member);
         await _members.SaveChangesAsync();
+        return Result.Success();
     }
     
     /// <inheritdoc/>
-    public async Task<DateTime?> GetDefaultEndOfTrialPeriodAsync(Guid memberId) {
-        var member = await _members.GetByIdAsync(memberId);
-        if (member is null)
-            throw new NullReferenceException("Member not found");
+    public async Task<Result<DateTime?>> GetDefaultEndOfTrialPeriodAsync(Guid memberId) {
+        var memberResult = await _members.GetByMemberIdAsync(memberId);
+        if (!memberResult.IsSuccess)
+            return Result<DateTime?>.Failure("Error: Member not found");
+        var member = memberResult.Value!;
         
         var statusChanges = member.StatusChanges;
         var startOfTrialPeriod = statusChanges
@@ -39,16 +43,17 @@ public class MembershipUpdateService : IMembershipUpdateService {
             .FirstOrDefault();
         
         if (startOfTrialPeriod is null)
-            Debug.WriteLine($"[MembershipUpdateService.GetDefaultEndOfTrialPeriodAsync] Error: Member '{member}' is not in trial period");
+            return Result<DateTime?>.Failure($"Error: Member '{member}' did not start their trial period");
         
-        return startOfTrialPeriod?.Timestamp.AddDays(MemberManagementConstants.DefaultTrialPeriodInDays);
+        return Result<DateTime?>.Success(startOfTrialPeriod?.Timestamp.AddDays(MemberManagementConstants.DefaultTrialPeriodInDays));
     }
     
     /// <inheritdoc/>
-    public async Task InsertMembershipStatusChangeEventAsync(Guid memberId, ContractEnums.MembershipStatus oldStatus, ContractEnums.MembershipStatus newStatus, DateTime timestamp) {
-        var member = await _members.GetByIdAsync(memberId);
-        if (member is null)
-            throw new NullReferenceException("Member not found");
+    public async Task<Result> InsertMembershipStatusChangeEventAsync(Guid memberId, ContractEnums.MembershipStatus oldStatus, ContractEnums.MembershipStatus newStatus, DateTime timestamp) {
+        var memberResult = await _members.GetByMemberIdAsync(memberId);
+        if (!memberResult.IsSuccess)
+            return memberResult;
+        var member = memberResult.Value!;
         
         member.StatusChanges.Add(new MembershipStatusChangeEvent {
             MemberId = memberId,
@@ -59,5 +64,6 @@ public class MembershipUpdateService : IMembershipUpdateService {
         
         await _members.UpdateAsync(member);
         await _members.SaveChangesAsync();
+        return Result.Success();
     }
 }

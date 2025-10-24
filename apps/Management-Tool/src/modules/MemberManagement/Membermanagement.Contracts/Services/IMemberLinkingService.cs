@@ -1,3 +1,5 @@
+using AKG.Common.Generics;
+
 namespace Membermanagement.Contracts.Services;
 
 public interface IMemberLinkingService {
@@ -7,5 +9,5 @@ public interface IMemberLinkingService {
     /// </summary>
     /// <param name="memberId">The id of the <see cref="Member"/></param>
     /// <param name="userId">The id of the <see cref="User"/></param>
-    Task LinkMemberToUserAsync(Guid memberId, Guid userId);
+    Task<Result> LinkMemberToUserAsync(Guid memberId, Guid userId);
 }

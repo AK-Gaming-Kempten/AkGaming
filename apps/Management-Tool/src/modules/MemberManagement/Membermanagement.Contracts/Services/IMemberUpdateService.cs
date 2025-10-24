@@ -1,3 +1,4 @@
+using AKG.Common.Generics;
 using Membermanagement.Contracts.DTO;
 
 namespace Membermanagement.Contracts.Services;
@@ -9,5 +10,5 @@ public interface IMemberUpdateService {
     /// <param name="memberId"> The id of the Member to update </param>
     /// <param name="memberData"> The <see cref="MemberDto"/> storing the updated Member data </param>
     /// <returns></returns>
-    Task UpdateMemberAsync(Guid memberId, MemberDto memberData);
+    Task<Result> UpdateMemberAsync(Guid memberId, MemberDto memberData);
 }

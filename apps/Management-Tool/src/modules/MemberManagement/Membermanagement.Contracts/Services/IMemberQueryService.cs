@@ -1,3 +1,4 @@
+using AKG.Common.Generics;
 using Membermanagement.Contracts.DTO;
 using Membermanagement.Contracts.Enums;
 
@@ -5,11 +6,11 @@ namespace Membermanagement.Contracts.Services;
 
 public interface IMemberQueryService {
     
-    Task<MemberDto> GetMemberByGuidAsync(Guid id);
+    Task<Result<MemberDto>> GetMemberByGuidAsync(Guid id);
     
-    Task<ICollection<MemberDto>> GetAllMembersAsync();
+    Task<Result<ICollection<MemberDto>>> GetAllMembersAsync();
     
-    Task<ICollection<MemberDto>> GetMembersByStatusAsync(MembershipStatus status);
+    Task<Result<ICollection<MemberDto>>> GetMembersByStatusAsync(MembershipStatus status);
     
-    Task<ICollection<MemberDto>> GetMembersByStatusAsync(ICollection<MembershipStatus> statuses);
+    Task<Result<ICollection<MemberDto>>> GetMembersByStatusAsync(ICollection<MembershipStatus> statuses);
 }

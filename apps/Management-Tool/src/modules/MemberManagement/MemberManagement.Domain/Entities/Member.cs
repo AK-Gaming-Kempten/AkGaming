@@ -4,7 +4,7 @@ using MemberManagement.Domain.Enums;
 using MemberManagement.Domain.ValueObjects;
 
 public class Member {
-    public Guid Id { get; set; }
+    public Guid Id { get; set; } = Guid.NewGuid();
     public Guid? UserId { get; set; }
     public string? FirstName { get; set; }
     public string? LastName { get; set; }
@@ -12,10 +12,10 @@ public class Member {
     public string? PhoneNumber { get; set; }
     public string? DiscordUsername { get; set; }
     public DateTime BirthDate { get; set; }
-    public Address Address { get; set; }
+    public Address? Address { get; set; }
     public MembershipStatus Status { get; set; }
     public ICollection<MembershipStatusChangeEvent> StatusChanges { get; set; } = new List<MembershipStatusChangeEvent>();
-    
+
     public void ChangeStatus(MembershipStatus newStatus) {
         if (newStatus == Status)
             return;

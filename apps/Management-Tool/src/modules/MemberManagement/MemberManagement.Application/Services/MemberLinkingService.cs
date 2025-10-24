@@ -1,6 +1,9 @@
+using AKG.Common.Generics;
 using MemberManagement.Application.Interfaces;
 using Membermanagement.Contracts.Services;
+using MemberManagement.Domain.Entities;
 using UserManagement.Contracts.Services;
+using UserManagement.Domain.Entities;
 
 namespace MemberManagement.Application.Services;
 
@@ -17,16 +20,20 @@ public class MemberLinkingService : IMemberLinkingService {
     }
 
     /// <inheritdoc/>
-    public async Task LinkMemberToUserAsync(Guid memberId, Guid userId) {
-        var member = await _members.GetByIdAsync(memberId);
-        if (member is null)
-            throw new Exception("Member not found");
+    public async Task<Result> LinkMemberToUserAsync(Guid memberId, Guid userId) {
+        var memberResult = await _members.GetByMemberIdAsync(memberId);
+        if (!memberResult.IsSuccess)
+            return memberResult;
+        var member = memberResult.Value!;
 
-        var user = await _users.GetUserByIdAsync(userId);
-        if (user is null)
-            throw new Exception("User not found");
+        var userResult = await _users.GetUserByIdAsync(userId);
+        if (!userResult.IsSuccess)
+            return userResult;
+        var user = userResult.Value!;
 
         member.UserId = user.Id;
         await _members.UpdateAsync(member);
+        await _members.SaveChangesAsync();
+        return Result.Success();
     }
 }

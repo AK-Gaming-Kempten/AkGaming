@@ -1,3 +1,4 @@
+using AKG.Common.Generics;
 using Membermanagement.Contracts.Enums;
 
 namespace Membermanagement.Contracts.Services;
@@ -10,7 +11,7 @@ public interface IMembershipUpdateService {
     /// <param name="memberId"> The id of the member</param>
     /// <param name="newStatus"> The status that should be set for the member</param>
     /// <exception cref="NullReferenceException">If the member is not present in the database </exception>
-    Task UpdateMembershipStatusAsync(Guid memberId, MembershipStatus newStatus);
+    Task<Result> UpdateMembershipStatusAsync(Guid memberId, MembershipStatus newStatus);
     
     /// <summary>
     /// Returns the default end of trial period for a member
@@ -18,7 +19,7 @@ public interface IMembershipUpdateService {
     /// <param name="memberId"> The id of the member </param>
     /// <returns> The default end of trial period for the member </returns>
     /// <exception cref="NullReferenceException"> If the member is not present in the database </exception>
-    Task<DateTime?> GetDefaultEndOfTrialPeriodAsync(Guid memberId);
+    Task<Result<DateTime?>> GetDefaultEndOfTrialPeriodAsync(Guid memberId);
     
     /// <summary>
     /// Inserts a new <see cref="MembershipStatusChangeEvent"/> into the database without updating the member's status
@@ -28,5 +29,5 @@ public interface IMembershipUpdateService {
     /// <param name="newStatus"> The new status to be set in the event </param>
     /// <param name="timestamp"> The timestamp of the event </param>
     /// <returns></returns>
-    Task InsertMembershipStatusChangeEventAsync(Guid memberId, MembershipStatus oldStatus, MembershipStatus newStatus, DateTime timestamp);
+    Task<Result> InsertMembershipStatusChangeEventAsync(Guid memberId, MembershipStatus oldStatus, MembershipStatus newStatus, DateTime timestamp);
 }

@@ -1,3 +1,4 @@
+using AKG.Common.Generics;
 using MemberManagement.Domain.Entities;
 
 namespace MemberManagement.Application.Interfaces;
@@ -6,10 +7,11 @@ namespace MemberManagement.Application.Interfaces;
 /// Interface for the member repository
 /// </summary>
 public interface IMemberRepository {
-    Task<Member?> GetByIdAsync(Guid id);
-    Task<List<Member>> GetAllAsync();
-    Task AddAsync(Member member);
-    Task UpdateAsync(Member member);
-    Task DeleteAsync(Member member);
-    Task SaveChangesAsync();
+    Task<Result<Member>> GetByMemberIdAsync(Guid id);
+    Task<Result<Member>> GetByUserIdAsync(Guid id);
+    Task<Result<List<Member>>> GetAllAsync();
+    Task<Result> AddAsync(Member member);
+    Task<Result> UpdateAsync(Member member);
+    Task<Result> DeleteAsync(Member member);
+    Task<Result> SaveChangesAsync();
 }
