@@ -1,3 +1,4 @@
+using AKG.Common.Extensions;
 using AKG.Common.Generics;
 using MemberManagement.Application.Interfaces;
 using Membermanagement.Contracts.Services;
@@ -12,11 +13,9 @@ namespace MemberManagement.Application.Services;
 /// </summary>
 public class MemberLinkingService : IMemberLinkingService {
     private readonly IMemberRepository _members;
-    private readonly IUserService _users;
 
-    public MemberLinkingService(IMemberRepository members, IUserService users) {
+    public MemberLinkingService(IMemberRepository members) {
         _members = members;
-        _users = users;
     }
 
     /// <inheritdoc/>
@@ -25,15 +24,11 @@ public class MemberLinkingService : IMemberLinkingService {
         if (!memberResult.IsSuccess)
             return memberResult;
         var member = memberResult.Value!;
-
-        var userResult = await _users.GetUserByIdAsync(userId);
-        if (!userResult.IsSuccess)
-            return userResult;
-        var user = userResult.Value!;
-
-        member.UserId = user.Id;
-        await _members.UpdateAsync(member);
-        await _members.SaveChangesAsync();
-        return Result.Success();
+        
+        member.UserId = userId;
+        var result = await _members.UpdateAsync(member)
+            .Then( () => _members.SaveChangesAsync());
+        
+        return result;
     }
 }

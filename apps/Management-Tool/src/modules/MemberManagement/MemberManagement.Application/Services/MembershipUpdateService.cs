@@ -1,4 +1,4 @@
-using System.Diagnostics;
+using AKG.Common.Extensions;
 using AKG.Common.Generics;
 using MemberManagement.Application.Interfaces;
 using Membermanagement.Contracts.Services;
@@ -23,10 +23,11 @@ public class MembershipUpdateService : IMembershipUpdateService {
             return memberResult;
         var member = memberResult.Value!;
 
-        member.ChangeStatus((DomainEnums.MembershipStatus)newStatus);
-        await _members.UpdateAsync(member);
-        await _members.SaveChangesAsync();
-        return Result.Success();
+        var result = await member.ChangeStatus((DomainEnums.MembershipStatus)newStatus)
+            .Then(() => _members.UpdateAsync(member))
+            .Then(() => _members.SaveChangesAsync());
+        
+        return result;
     }
     
     /// <inheritdoc/>
@@ -45,7 +46,7 @@ public class MembershipUpdateService : IMembershipUpdateService {
         if (startOfTrialPeriod is null)
             return Result<DateTime?>.Failure($"Error: Member '{member}' did not start their trial period");
         
-        return Result<DateTime?>.Success(startOfTrialPeriod?.Timestamp.AddDays(MemberManagementConstants.DefaultTrialPeriodInDays));
+        return Result<DateTime?>.Success(startOfTrialPeriod?.Timestamp.AddDays(MemberManagementConstants.DefaultTrialPeriodInDays).Date);
     }
     
     /// <inheritdoc/>
@@ -62,8 +63,9 @@ public class MembershipUpdateService : IMembershipUpdateService {
             Timestamp = timestamp
         });
         
-        await _members.UpdateAsync(member);
-        await _members.SaveChangesAsync();
-        return Result.Success();
+        var result = await _members.UpdateAsync(member)
+            .Then(() => _members.SaveChangesAsync());
+        
+        return result;
     }
 }

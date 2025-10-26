@@ -10,5 +10,5 @@ public class MembershipStatusChangeEventDto {
     public Guid MemberId { get; set; }
     public MembershipStatus OldStatus { get; set; }
     public MembershipStatus NewStatus { get; set; }
-    public DateTime ChangeDate { get; set; }
+    public DateTime Timestamp { get; set; }
 }

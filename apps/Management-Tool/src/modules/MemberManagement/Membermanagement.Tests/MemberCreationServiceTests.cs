@@ -2,7 +2,6 @@ using MemberManagement.Application.Interfaces;
 using MemberManagement.Application.Services;
 using MemberManagement.Domain.Entities;
 using Moq;
-using UserManagement.Contracts.DTO;
 using AKG.Common.Generics;
 using Membermanagement.Contracts.DTO;
 
@@ -47,5 +46,36 @@ public class MemberCreationServiceTests {
             m.Address.City == memberCreationDto.Address.City &&
             m.Address.Country == memberCreationDto.Address.Country
         )), Times.Once);
+    }
+    
+    [Test]
+    public async Task CreateMemberAsync_Fails_WhenDatabaseFails() {
+        // Arrange
+        Mock<IMemberRepository> memberRepository = new Mock<IMemberRepository>();
+        MemberCreationService memberCreationService = new MemberCreationService(memberRepository.Object);
+        var memberCreationDto = new MemberCreationDto(
+            "FistName",
+            "LastName",
+            "test@example.com",
+            "1234567890",
+            "DiscordUsername",
+            DateTime.Now,
+            new AddressDto(
+                "Street",
+                "ZipCode",
+                "City",
+                "Country"
+            )
+        );
+        
+        memberRepository.Setup(x => x.AddAsync(It.IsAny<Member>())).Returns(Task.FromResult(Result.Failure("Database failed. Member was not added.")));
+        memberRepository.Setup(x => x.SaveChangesAsync()).Returns(Task.FromResult(Result.Success()));
+    
+        // Act
+        var result = await memberCreationService.CreateMemberAsync(memberCreationDto);
+    
+        // Assert
+        memberRepository.Verify(x => x.SaveChangesAsync(), Times.Never);
+        Assert.That(result, Has.Property("IsSuccess").False);
     }
 }

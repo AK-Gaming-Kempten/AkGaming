@@ -1,3 +1,5 @@
+using AKG.Common.Generics;
+
 namespace MemberManagement.Domain.Entities;
 
 using MemberManagement.Domain.Enums;
@@ -16,9 +18,9 @@ public class Member {
     public MembershipStatus Status { get; set; }
     public ICollection<MembershipStatusChangeEvent> StatusChanges { get; set; } = new List<MembershipStatusChangeEvent>();
 
-    public void ChangeStatus(MembershipStatus newStatus) {
+    public Result ChangeStatus(MembershipStatus newStatus) {
         if (newStatus == Status)
-            return;
+            return Result.Failure("Member is already in the given status");
 
         var evt = new MembershipStatusChangeEvent {
             MemberId = Id,
@@ -29,5 +31,6 @@ public class Member {
 
         Status = newStatus;
         StatusChanges.Add(evt);
+        return Result.Success();
     }
 }

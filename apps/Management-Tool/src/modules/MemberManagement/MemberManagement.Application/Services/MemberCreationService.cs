@@ -25,15 +25,19 @@ public class MemberCreationService : IMemberCreationService {
         member.PhoneNumber = memberCreationData.Phone;
         member.DiscordUsername = memberCreationData.DiscordUsername;
         member.BirthDate = memberCreationData.BirthDate;
-        member.Address = new Address(
-            memberCreationData.Address.Street,
-            memberCreationData.Address.ZipCode,
-            memberCreationData.Address.City,
-            memberCreationData.Address.Country
-        );
+        member.Address = new Address()
+        {
+            Street = memberCreationData.Address.Street,
+            ZipCode = memberCreationData.Address.ZipCode,
+            City = memberCreationData.Address.City,
+            Country = memberCreationData.Address.Country
+        };
         
-        await _memberRepository.AddAsync(member);
-        await _memberRepository.SaveChangesAsync();
-        return Result.Success();
+        var result = await _memberRepository.AddAsync(member);
+        if (!result.IsSuccess)
+            return result;
+        result = await _memberRepository.SaveChangesAsync();
+        
+        return result;
     }
 }

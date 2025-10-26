@@ -25,12 +25,13 @@ public class MemberUpdateService : IMemberUpdateService {
         member.PhoneNumber = memberData.Phone;
         member.DiscordUsername = memberData.DiscordUserName;
         member.BirthDate = memberData.BirthDate;
-        member.Address = new Address(
-            memberData.Address.Street,
-            memberData.Address.ZipCode,
-            memberData.Address.City,
-            memberData.Address.Country
-        );
+        member.Address = new Address()
+        {
+            Street = memberData.Address.Street,
+            ZipCode = memberData.Address.ZipCode,
+            City = memberData.Address.City,
+            Country = memberData.Address.Country
+        };
 
         var updateResult = await _memberRepository.UpdateAsync(member);
         if(!updateResult.IsSuccess)

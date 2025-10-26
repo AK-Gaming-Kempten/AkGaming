@@ -10,7 +10,7 @@ public interface IMemberQueryService {
     
     Task<Result<ICollection<MemberDto>>> GetAllMembersAsync();
     
-    Task<Result<ICollection<MemberDto>>> GetMembersByStatusAsync(MembershipStatus status);
+    Task<Result<ICollection<MemberDto>>> GetMembersWithStatusAsync(MembershipStatus status);
     
-    Task<Result<ICollection<MemberDto>>> GetMembersByStatusAsync(ICollection<MembershipStatus> statuses);
+    Task<Result<ICollection<MemberDto>>> GetMembersWithStatusAsync(ICollection<MembershipStatus> statuses);
 }

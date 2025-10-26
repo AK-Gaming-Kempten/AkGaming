@@ -39,7 +39,13 @@ public class MemberUpdateServiceTests {
             PhoneNumber = "000000",
             DiscordUsername = "OldDiscord",
             BirthDate = new DateTime(2000, 1, 1),
-            Address = new Address("OldStreet", "OldZip", "OldCity", "OldCountry")
+            Address = new Address()
+            {
+                Street = "OldStreet",
+                ZipCode = "OldZipCode",
+                City = "OldCity",
+                Country = "OldCountry"
+            }
         };
 
         memberRepository.Setup(x => x.GetByMemberIdAsync(guid))
