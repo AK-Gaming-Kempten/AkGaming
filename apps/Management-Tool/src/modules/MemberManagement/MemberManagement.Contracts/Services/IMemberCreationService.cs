@@ -1,5 +1,5 @@
 using AKG.Common.Generics;
-using Membermanagement.Contracts.DTO;
+using MemberManagement.Contracts.DTO;
 
 namespace MemberManagement.Contracts.Services;
 

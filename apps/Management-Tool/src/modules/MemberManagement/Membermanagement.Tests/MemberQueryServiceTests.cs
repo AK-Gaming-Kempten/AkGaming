@@ -4,12 +4,12 @@ using MemberManagement.Domain.Entities;
 using Moq;
 using UserManagement.Contracts.DTO;
 using AKG.Common.Generics;
-using Membermanagement.Contracts.DTO;
-using ContractEnums = Membermanagement.Contracts.Enums;
+using MemberManagement.Contracts.DTO;
+using ContractEnums = MemberManagement.Contracts.Enums;
 using DomainEnums = MemberManagement.Domain.Enums;
 using MemberManagement.Domain.ValueObjects;
 
-namespace Membermanagement.Tests;
+namespace MemberManagement.Tests;
 
 public class MemberQueryServiceTests {
     [Test]

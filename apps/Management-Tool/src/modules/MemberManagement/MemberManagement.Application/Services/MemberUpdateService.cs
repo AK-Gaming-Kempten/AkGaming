@@ -1,7 +1,7 @@
 using AKG.Common.Generics;
 using MemberManagement.Application.Interfaces;
-using Membermanagement.Contracts.DTO;
-using Membermanagement.Contracts.Services;
+using MemberManagement.Contracts.DTO;
+using MemberManagement.Contracts.Services;
 using MemberManagement.Domain.ValueObjects;
 
 namespace MemberManagement.Application.Services;

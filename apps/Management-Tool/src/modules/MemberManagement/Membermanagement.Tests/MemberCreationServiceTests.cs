@@ -3,9 +3,9 @@ using MemberManagement.Application.Services;
 using MemberManagement.Domain.Entities;
 using Moq;
 using AKG.Common.Generics;
-using Membermanagement.Contracts.DTO;
+using MemberManagement.Contracts.DTO;
 
-namespace Membermanagement.Tests;
+namespace MemberManagement.Tests;
 
 public class MemberCreationServiceTests {
     

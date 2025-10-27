@@ -1,8 +1,11 @@
-namespace Membermanagement.Contracts.Enums;
+using System.Text.Json.Serialization;
+
+namespace MemberManagement.Contracts.Enums;
 
 /// <summary>
-/// Mirror of <see cref="MemberManagement.Domain.Enums.MembershipStatus"/> used for contracts
+/// Mirror of <see cref="MembershipStatus"/> used for contracts
 /// </summary>
+/// 
 public enum MembershipStatus {
     None,
     Expelled,

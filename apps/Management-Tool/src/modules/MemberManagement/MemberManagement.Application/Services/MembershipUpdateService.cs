@@ -1,10 +1,10 @@
 using AKG.Common.Extensions;
 using AKG.Common.Generics;
 using MemberManagement.Application.Interfaces;
-using Membermanagement.Contracts.Services;
+using MemberManagement.Contracts.Services;
 using MemberManagement.Domain.Constants;
 using MemberManagement.Domain.Entities;
-using ContractEnums = Membermanagement.Contracts.Enums ; 
+using ContractEnums = MemberManagement.Contracts.Enums ; 
 using DomainEnums = MemberManagement.Domain.Enums;
 
 namespace MemberManagement.Application.Services;

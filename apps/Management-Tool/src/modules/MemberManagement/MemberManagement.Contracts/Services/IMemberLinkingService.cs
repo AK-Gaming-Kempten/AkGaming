@@ -1,6 +1,6 @@
 using AKG.Common.Generics;
 
-namespace Membermanagement.Contracts.Services;
+namespace MemberManagement.Contracts.Services;
 
 public interface IMemberLinkingService {
     

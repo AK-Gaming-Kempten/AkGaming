@@ -1,6 +1,6 @@
-using Membermanagement.Contracts.Enums;
+using MemberManagement.Contracts.Enums;
 
-namespace Membermanagement.Contracts.DTO;
+namespace MemberManagement.Contracts.DTO;
 
 /// <summary>
 /// DTO for <see cref="MemberManagement.Domain.Entities.Member"/>, used for data transmission

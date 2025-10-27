@@ -1,12 +1,12 @@
 using AKG.Common.Generics;
 using MemberManagement.Application.Interfaces;
 using MemberManagement.Application.Services;
-using Membermanagement.Contracts.DTO;
+using MemberManagement.Contracts.DTO;
 using MemberManagement.Domain.Entities;
 using MemberManagement.Domain.ValueObjects;
 using Moq;
 
-namespace Membermanagement.Tests;
+namespace MemberManagement.Tests;
 
 public class MemberUpdateServiceTests {
     

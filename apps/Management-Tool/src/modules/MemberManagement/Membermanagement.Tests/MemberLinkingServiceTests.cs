@@ -4,9 +4,9 @@ using MemberManagement.Domain.Entities;
 using Moq;
 using UserManagement.Contracts.DTO;
 using AKG.Common.Generics;
-using Membermanagement.Contracts.DTO;
+using MemberManagement.Contracts.DTO;
 
-namespace Membermanagement.Tests;
+namespace MemberManagement.Tests;
 
 public class MemberLinkingServiceTests {
     public async Task MemberLinkingService_LinksMemberToUser() {

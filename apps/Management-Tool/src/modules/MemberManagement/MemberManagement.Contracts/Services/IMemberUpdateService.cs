@@ -1,7 +1,7 @@
 using AKG.Common.Generics;
-using Membermanagement.Contracts.DTO;
+using MemberManagement.Contracts.DTO;
 
-namespace Membermanagement.Contracts.Services;
+namespace MemberManagement.Contracts.Services;
 
 public interface IMemberUpdateService {
     /// <summary>

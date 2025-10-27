@@ -4,10 +4,10 @@ using MemberManagement.Domain.Entities;
 using Moq;
 using AKG.Common.Generics;
 using MemberManagement.Domain.Constants;
-using ContractEnums = Membermanagement.Contracts.Enums;
+using ContractEnums = MemberManagement.Contracts.Enums;
 using DomainEnums = MemberManagement.Domain.Enums;
 
-namespace Membermanagement.Tests;
+namespace MemberManagement.Tests;
 
 public class MemberShipUpdateServiceTests {
 

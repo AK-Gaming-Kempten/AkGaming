@@ -7,14 +7,19 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\..\UserManagement\UserManagement.Contracts\UserManagement.Contracts.csproj" />
-      <ProjectReference Include="..\..\UserManagement\UserManagement.Domain\UserManagement.Domain.csproj" />
-      <ProjectReference Include="..\MemberManagement.Contracts\MemberManagement.Contracts.csproj" />
-      <ProjectReference Include="..\MemberManagement.Domain\MemberManagement.Domain.csproj" />
+        <FrameworkReference Include="Microsoft.AspNetCore.App" />
     </ItemGroup>
 
     <ItemGroup>
-      <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.10" />
+      <ProjectReference Include="..\MemberManagement.Application\MemberManagement.Application.csproj" />
+      <ProjectReference Include="..\MemberManagement.Contracts\MemberManagement.Contracts.csproj" />
+      <ProjectReference Include="..\MemberManagement.Domain\MemberManagement.Domain.csproj" />
+      <ProjectReference Include="..\MemberManagement.Infrastructure\MemberManagement.Infrastructure.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Microsoft.AspNetCore.Http" Version="2.3.0" />
+      <PackageReference Include="Microsoft.AspNetCore.Routing" Version="2.3.0" />
     </ItemGroup>
 
 </Project>

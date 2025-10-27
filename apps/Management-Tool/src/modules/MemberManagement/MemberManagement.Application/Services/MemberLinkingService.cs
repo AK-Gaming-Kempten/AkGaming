@@ -1,7 +1,7 @@
 using AKG.Common.Extensions;
 using AKG.Common.Generics;
 using MemberManagement.Application.Interfaces;
-using Membermanagement.Contracts.Services;
+using MemberManagement.Contracts.Services;
 using MemberManagement.Domain.Entities;
 using UserManagement.Contracts.Services;
 using UserManagement.Domain.Entities;

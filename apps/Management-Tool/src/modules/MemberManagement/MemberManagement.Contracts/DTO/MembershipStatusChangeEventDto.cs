@@ -1,6 +1,6 @@
-using Membermanagement.Contracts.Enums;
+using MemberManagement.Contracts.Enums;
 
-namespace Membermanagement.Contracts.DTO;
+namespace MemberManagement.Contracts.DTO;
 
 /// <summary>
 /// DTO responsible for <see cref="MemberManagement.Domain.Entities.MembershipStatusChangeEvent"/>, used for data transmission

@@ -1,4 +1,4 @@
-namespace Membermanagement.Contracts.DTO;
+namespace MemberManagement.Contracts.DTO;
 
 /// <summary>
 /// Dto responsible for transferring member creation data

@@ -1,4 +1,4 @@
-namespace Membermanagement.Contracts.DTO;
+namespace MemberManagement.Contracts.DTO;
 
 /// <summary>
 /// Mirror of <see cref="MemberManagement.Domain.Entities.Address"/> used for data transmission

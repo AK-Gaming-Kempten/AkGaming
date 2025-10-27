@@ -1,8 +1,8 @@
 using AKG.Common.Generics;
-using Membermanagement.Contracts.DTO;
-using Membermanagement.Contracts.Enums;
+using MemberManagement.Contracts.DTO;
+using MemberManagement.Contracts.Enums;
 
-namespace Membermanagement.Contracts.Services;
+namespace MemberManagement.Contracts.Services;
 
 public interface IMemberQueryService {
     
