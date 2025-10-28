@@ -5,13 +5,17 @@ EXPOSE 8080
 FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 WORKDIR /src
 
-COPY . .
+# Copy everything
+COPY . ./
 
-RUN dotnet restore ./ManagementTool.sln
-RUN dotnet build ./src/ManagementTool.WebApi/ManagementTool.WebApi.csproj -c Release -o /app/build
+# Restore solution
+RUN dotnet restore /src/ManagementTool.sln
+
+# Build
+RUN dotnet build /src/src/ManagementTool.WebApi/ManagementTool.WebApi.csproj -c Release -o /app/build
 
 FROM build AS publish
-RUN dotnet publish ./src/ManagementTool.WebApi/ManagementTool.WebApi.csproj -c Release -o /app/publish /p:UseAppHost=false
+RUN dotnet publish /src/src/ManagementTool.WebApi/ManagementTool.WebApi.csproj -c Release -o /app/publish /p:UseAppHost=false
 
 FROM base AS final
 WORKDIR /app
