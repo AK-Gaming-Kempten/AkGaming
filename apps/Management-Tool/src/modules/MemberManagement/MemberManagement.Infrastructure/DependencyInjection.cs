@@ -15,7 +15,7 @@ public static class DependencyInjection {
         var connectionString = configuration.GetConnectionString("DefaultConnection");
 
         services.AddDbContext<MemberManagementDbContext>(options =>
-            options.UseSqlServer(connectionString));
+            options.UseNpgsql(connectionString));
 
         services.AddScoped<IMemberRepository, EfMemberRepository>();
 
