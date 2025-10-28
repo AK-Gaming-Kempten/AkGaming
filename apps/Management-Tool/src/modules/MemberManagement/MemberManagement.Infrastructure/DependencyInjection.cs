@@ -15,7 +15,8 @@ public static class DependencyInjection {
         var connectionString = configuration.GetConnectionString("DefaultConnection");
 
         services.AddDbContext<MemberManagementDbContext>(options =>
-            options.UseNpgsql(connectionString));
+            options.UseNpgsql(connectionString, npgsql =>
+                npgsql.MigrationsAssembly(typeof(MemberManagementDbContext).Assembly.FullName)));
 
         services.AddScoped<IMemberRepository, EfMemberRepository>();
 
