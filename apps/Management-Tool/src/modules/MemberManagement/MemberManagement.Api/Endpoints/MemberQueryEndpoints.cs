@@ -9,7 +9,8 @@ namespace MemberManagement.Api.Endpoints;
 public static class MemberQueryEndpoints {
     public static IEndpointRouteBuilder MapMemberQueryEndpoints(this IEndpointRouteBuilder endpoints) {
         var group = endpoints.MapGroup("/api/members")
-            .WithTags("Members - Queries");
+            .WithTags("Members - Queries")
+            .RequireAuthorization("AdminOnly");
 
         group.MapGet("/", async (IMemberQueryService service) => {
             var result = await service.GetAllMembersAsync();
