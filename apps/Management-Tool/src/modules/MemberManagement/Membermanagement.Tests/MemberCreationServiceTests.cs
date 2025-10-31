@@ -14,20 +14,22 @@ public class MemberCreationServiceTests {
         // Arrange
         Mock<IMemberRepository> memberRepository = new Mock<IMemberRepository>();
         MemberCreationService memberCreationService = new MemberCreationService(memberRepository.Object);
-        var memberCreationDto = new MemberCreationDto(
-            "FistName",
-            "LastName",
-            "test@example.com",
-            "1234567890",
-            "DiscordUsername",
-            DateTime.Now,
-            new AddressDto(
-                "Street",
-                "ZipCode",
-                "City",
-                "Country"
-            )
-        );
+        var memberCreationDto = new MemberCreationDto()
+        {
+            FirstName = "FistName",
+            LastName = "LastName",
+            Email = "test@example.com",
+            Phone = "1234567890",
+            DiscordUsername = "DiscordUsername",
+            BirthDate = DateTime.Now,
+            Address = new AddressDto()
+            {
+                Street = "Street",
+                ZipCode = "ZipCode",
+                City = "City",
+                Country = "Country"
+            }
+        };
         
         memberRepository.Setup(x => x.AddAsync(It.IsAny<Member>())).Returns(Task.FromResult(Result.Success()));
         memberRepository.Setup(x => x.SaveChangesAsync()).Returns(Task.FromResult(Result.Success()));
@@ -53,20 +55,22 @@ public class MemberCreationServiceTests {
         // Arrange
         Mock<IMemberRepository> memberRepository = new Mock<IMemberRepository>();
         MemberCreationService memberCreationService = new MemberCreationService(memberRepository.Object);
-        var memberCreationDto = new MemberCreationDto(
-            "FistName",
-            "LastName",
-            "test@example.com",
-            "1234567890",
-            "DiscordUsername",
-            DateTime.Now,
-            new AddressDto(
-                "Street",
-                "ZipCode",
-                "City",
-                "Country"
-            )
-        );
+        var memberCreationDto = new MemberCreationDto()
+        {
+            FirstName = "FistName",
+            LastName = "LastName",
+            Email = "test@example.com",
+            Phone = "1234567890",
+            DiscordUsername = "DiscordUsername",
+            BirthDate = DateTime.Now,
+            Address = new AddressDto()
+            {
+                Street = "Street",
+                ZipCode = "ZipCode",
+                City = "City",
+                Country = "Country"
+            }
+        };
         
         memberRepository.Setup(x => x.AddAsync(It.IsAny<Member>())).Returns(Task.FromResult(Result.Failure("Database failed. Member was not added.")));
         memberRepository.Setup(x => x.SaveChangesAsync()).Returns(Task.FromResult(Result.Success()));

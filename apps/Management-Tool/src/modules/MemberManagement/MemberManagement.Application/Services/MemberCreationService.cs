@@ -27,10 +27,10 @@ public class MemberCreationService : IMemberCreationService {
         member.BirthDate = memberCreationData.BirthDate;
         member.Address = new Address()
         {
-            Street = memberCreationData.Address.Street,
-            ZipCode = memberCreationData.Address.ZipCode,
-            City = memberCreationData.Address.City,
-            Country = memberCreationData.Address.Country
+            Street = memberCreationData.Address?.Street,
+            ZipCode = memberCreationData.Address?.ZipCode,
+            City = memberCreationData.Address?.City,
+            Country = memberCreationData.Address?.Country
         };
         
         var result = await _memberRepository.AddAsync(member);
