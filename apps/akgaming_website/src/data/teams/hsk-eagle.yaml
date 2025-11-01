@@ -6,18 +6,27 @@ league:
   logo: /assets/leagues/uniliga.png
   division: Div 3
 players:
-  - name: HSK Eagle
-    role: HSK Eagle
+  - name: 叔叔我啊
+    role:
     picture: /assets/teams/HSK_Eagle_Logo.png
-  - name: HSK Eagle
-    role: HSK Eagle
+  - name: misticfasi
+    role:
     picture: /assets/teams/HSK_Eagle_Logo.png
-  - name: HSK Eagle
-    role: HSK Eagle
+  - name: Xandii
+    role:
     picture: /assets/teams/HSK_Eagle_Logo.png
-  - name: HSK Eagle
-    role: HSK Eagle
+  - name: nicht schlagen mich
+    role:
     picture: /assets/teams/HSK_Eagle_Logo.png
-  - name: HSK Eagle
-    role: HSK Eagle
+  - name: YeeeetMaster
+    role:
+    picture: /assets/teams/HSK_Eagle_Logo.png
+  - name: papyrus
+    role:
+    picture: /assets/teams/HSK_Eagle_Logo.png
+  - name: Intro
+    role:
+    picture: /assets/teams/HSK_Eagle_Logo.png
+  - name: vGNS
+    role:
     picture: /assets/teams/HSK_Eagle_Logo.png

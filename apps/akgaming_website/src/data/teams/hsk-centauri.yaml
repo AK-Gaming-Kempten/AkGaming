@@ -6,18 +6,18 @@ league:
   logo: /assets/leagues/uniliga.png
   division: Div 2
 players:
-  - name: HSK Centauri
-    role: HSK Centauri
+  - name: Luca17
+    role: Tank
     picture: /assets/teams/HSK_Centauri_Logo.png
-  - name: HSK Centauri
-    role: HSK Centauri
+  - name: Heitzi
+    role: DPS
     picture: /assets/teams/HSK_Centauri_Logo.png
-  - name: HSK Centauri
-    role: HSK Centauri
+  - name: R4SNiklas
+    role: DPS
     picture: /assets/teams/HSK_Centauri_Logo.png
-  - name: HSK Centauri
-    role: HSK Centauri
+  - name: HornNr1
+    role: Support
     picture: /assets/teams/HSK_Centauri_Logo.png
-  - name: HSK Centauri
-    role: HSK Centauri
+  - name: PinkHazel
+    role: Support
     picture: /assets/teams/HSK_Centauri_Logo.png

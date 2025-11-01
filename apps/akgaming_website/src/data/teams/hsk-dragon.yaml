@@ -4,20 +4,23 @@ logo: /assets/teams/HSK_Dragon_Logo.png
 league:
   name: Uniliga
   logo: /assets/leagues/uniliga.png
-  division: Div 3
+  division: Div 2
 players:
-  - name: Drag0n
+  - name: juju304
     role: Top
     picture: /assets/teams/HSK_Dragon_Logo.png
-  - name: Fury
+  - name: Void Maevix
     role: Jungle
     picture: /assets/teams/HSK_Dragon_Logo.png
-  - name: Midy
+  - name: Void Shaqui
     role: Mid
     picture: /assets/teams/HSK_Dragon_Logo.png
-  - name: Arrow
+  - name: v9r Montagne
     role: ADC
     picture: /assets/teams/HSK_Dragon_Logo.png
-  - name: Shield
-    role: Support
+  - name: Captain Bubz
+    role: Support / Mid
+    picture: /assets/teams/HSK_Dragon_Logo.png
+  - name: Touya
+    role: ADC / Support
     picture: /assets/teams/HSK_Dragon_Logo.png

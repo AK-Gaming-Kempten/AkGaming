@@ -1,23 +1,26 @@
 game: ow2
 name: HSK Satyrus
-logo: /assets/akgaming_logo.png
+logo: /assets/teams/HSK_Satyrus_Logo.png
 league:
   name: Uniliga
   logo: /assets/leagues/uniliga.png
-  division: Div 3
+  division: Div 4
 players:
-  - name: HSK Satyrus
-    role: HSK Satyrus
-    picture: /assets/akgaming_logo.png
-  - name: HSK Satyrus
-    role: HSK Satyrus
-    picture: /assets/akgaming_logo.png
-  - name: HSK Satyrus
-    role: HSK Satyrus
-    picture: /assets/akgaming_logo.png
-  - name: HSK Satyrus
-    role: HSK Satyrus
-    picture: /assets/akgaming_logo.png
-  - name: HSK Satyrus
-    role: HSK Satyrus
-    picture: /assets/akgaming_logo.png
+  - name: Player
+    role: Tank
+    picture: /assets/teams/HSK_Satyrus_Logo.png
+  - name: DarkMiow
+    role: DPS
+    picture: /assets/teams/HSK_Satyrus_Logo.png
+  - name: SensenEngel
+    role: DPS
+    picture: /assets/teams/HSK_Satyrus_Logo.png
+  - name: OpAnderson
+    role: Support
+    picture: /assets/teams/HSK_Satyrus_Logo.png
+  - name: eze
+    role: Support
+    picture: /assets/teams/HSK_Satyrus_Logo.png
+  - name: RobsiZockt
+    role: Substitute
+    picture: /assets/teams/HSK_Satyrus_Logo.png

@@ -1,23 +1,29 @@
 game: cs2
 name: AKG Zamrichten
-logo: /assets/akgaming_logo.png
+logo: /assets/teams/AKG_Zamrichten_Logo.png
 league:
   name: DACH CS
   logo: /assets/leagues/dachcs.svg
-  division: Div 3
+  division: Div 5
 players:
-  - name: AKG Zamrichten
-    role: AKG Zamrichten
-    picture: /assets/akgaming_logo.png
-  - name: AKG Zamrichten
-    role: AKG Zamrichten
-    picture: /assets/akgaming_logo.png
-  - name: AKG Zamrichten
-    role: AKG Zamrichten
-    picture: /assets/akgaming_logo.png
-  - name: AKG Zamrichten
-    role: AKG Zamrichten
-    picture: /assets/akgaming_logo.png
-  - name: AKG Zamrichten
-    role: AKG Zamrichten
-    picture: /assets/akgaming_logo.png
+  - name: papyrus
+    role:
+    picture: /assets/teams/AKG_Zamrichten_Logo.png
+  - name: DoctorMe
+    role:
+    picture: /assets/teams/AKG_Zamrichten_Logo.png
+  - name: itsBenni
+    role:
+    picture: /assets/teams/AKG_Zamrichten_Logo.png
+  - name: Potato
+    role:
+    picture: /assets/teams/AKG_Zamrichten_Logo.png
+  - name: mindstorm00
+    role:
+    picture: /assets/teams/AKG_Zamrichten_Logo.png
+  - name: Neri
+    role:
+    picture: /assets/teams/AKG_Zamrichten_Logo.png
+  - name: Daniel Jung
+    role:
+    picture: /assets/teams/AKG_Zamrichten_Logo.png

@@ -6,15 +6,21 @@ league:
   logo: /assets/leagues/uniliga.png
   division: Div 3
 players:
-  - name: HSK Demon
-    role: HSK Demon
+  - name: mgrmx
+    role:
     picture: /assets/teams/HSK_Demon_Logo.png
-  - name: HSK Demon
-    role: HSK Demon
+  - name: SilentCrow
+    role:
     picture: /assets/teams/HSK_Demon_Logo.png
-  - name: HSK Demon
-    role: HSK Demon
+  - name: p55y
+    role:
     picture: /assets/teams/HSK_Demon_Logo.png
-  - name: HSK Demon
-    role: HSK Demon
+  - name: KybA25
+    role:
+    picture: /assets/teams/HSK_Demon_Logo.png
+  - name: LuXas
+    role:
+    picture: /assets/teams/HSK_Demon_Logo.png
+  - name: ontonerd
+    role:
     picture: /assets/teams/HSK_Demon_Logo.png
