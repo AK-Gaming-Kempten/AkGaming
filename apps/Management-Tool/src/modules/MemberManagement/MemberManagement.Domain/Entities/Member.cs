@@ -13,7 +13,7 @@ public class Member {
     public string? Email { get; set; }
     public string? PhoneNumber { get; set; }
     public string? DiscordUsername { get; set; }
-    public DateTime? BirthDate { get; set; }
+    public DateOnly? BirthDate { get; set; }
     public Address? Address { get; set; }
     public MembershipStatus Status { get; set; }
     public ICollection<MembershipStatusChangeEvent> StatusChanges { get; set; } = new List<MembershipStatusChangeEvent>();

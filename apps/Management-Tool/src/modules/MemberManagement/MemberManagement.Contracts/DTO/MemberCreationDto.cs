@@ -10,6 +10,6 @@ public class MemberCreationDto()
     public string? Email { get; set; }
     public string? Phone { get; set; }
     public string? DiscordUsername { get; set; }
-    public DateTime? BirthDate { get; set; }
+    public DateOnly? BirthDate { get; set; }
     public AddressDto? Address { get; set; }
 }

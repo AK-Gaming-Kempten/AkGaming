@@ -26,7 +26,7 @@ public class MemberUpdateServiceTests {
             Email = "NewTest@example.com",
             Phone = "New1234567890",
             DiscordUserName = "NewDiscordUsername",
-            BirthDate = new DateTime(2024, 1, 1),
+            BirthDate = DateOnly.FromDateTime(new DateTime(2024, 1, 1)),
             Address = new AddressDto("NewStreet", "NewZipCode", "NewCity", "NewCountry")
         };
 
@@ -38,7 +38,7 @@ public class MemberUpdateServiceTests {
             Email = "old@example.com",
             PhoneNumber = "000000",
             DiscordUsername = "OldDiscord",
-            BirthDate = new DateTime(2000, 1, 1),
+            BirthDate = DateOnly.FromDateTime(new DateTime(2024, 1, 1)),
             Address = new Address()
             {
                 Street = "OldStreet",
@@ -98,7 +98,7 @@ public class MemberUpdateServiceTests {
             Email = "NewTest@example.com",
             Phone = "New1234567890",
             DiscordUserName = "NewDiscordUsername",
-            BirthDate = new DateTime(2024, 1, 1),
+            BirthDate = DateOnly.FromDateTime(new DateTime(2024, 1, 1)),
             Address = new AddressDto("NewStreet", "NewZipCode", "NewCity", "NewCountry")
         };
 

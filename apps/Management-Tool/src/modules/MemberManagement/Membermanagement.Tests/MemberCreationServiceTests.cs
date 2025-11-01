@@ -21,7 +21,7 @@ public class MemberCreationServiceTests {
             Email = "test@example.com",
             Phone = "1234567890",
             DiscordUsername = "DiscordUsername",
-            BirthDate = DateTime.Now,
+            BirthDate = DateOnly.FromDateTime(DateTime.Now),
             Address = new AddressDto()
             {
                 Street = "Street",
@@ -62,7 +62,7 @@ public class MemberCreationServiceTests {
             Email = "test@example.com",
             Phone = "1234567890",
             DiscordUsername = "DiscordUsername",
-            BirthDate = DateTime.Now,
+            BirthDate = DateOnly.FromDateTime(DateTime.Now),
             Address = new AddressDto()
             {
                 Street = "Street",

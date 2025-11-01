@@ -22,6 +22,11 @@ public static class MemberQueryEndpoints {
             return result.IsSuccess ? Results.Ok(result.Value) : Results.NotFound(result.Error);
         });
         
+        group.MapGet("/user/{id:guid}", async (Guid id, IMemberQueryService service) => {
+            var result = await service.GetMemberByUserGuidAsync(id);
+            return result.IsSuccess ? Results.Ok(result.Value) : Results.NotFound(result.Error);
+        });
+        
         group.MapGet("/status/{status}", async (ContractEnums.MembershipStatus status, IMemberQueryService service) => {
             var result = await service.GetMembersWithStatusAsync(new[] { status });
             return result.IsSuccess ? Results.Ok(result.Value) : Results.NotFound(result.Error);

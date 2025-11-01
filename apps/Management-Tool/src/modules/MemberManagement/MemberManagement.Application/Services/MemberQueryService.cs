@@ -24,6 +24,15 @@ public class MemberQueryService : IMemberQueryService {
         return Result<MemberDto>.Success(member.ToDto());
     }
     
+    public async Task<Result<MemberDto>> GetMemberByUserGuidAsync(Guid id) {
+        var memberResult = await _memberRepository.GetByUserIdAsync(id);
+        if (!memberResult.IsSuccess)
+            return Result<MemberDto>.Failure(memberResult.Error ?? "Member not found");
+        var member = memberResult.Value!;
+        
+        return Result<MemberDto>.Success(member.ToDto());
+    }
+    
     public async Task<Result<ICollection<MemberDto>>> GetAllMembersAsync() {
         var membersResult = await _memberRepository.GetAllAsync();
         if (!membersResult.IsSuccess)

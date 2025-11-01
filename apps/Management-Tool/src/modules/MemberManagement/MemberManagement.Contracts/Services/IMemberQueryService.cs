@@ -8,6 +8,8 @@ public interface IMemberQueryService {
     
     Task<Result<MemberDto>> GetMemberByGuidAsync(Guid id);
     
+    Task<Result<MemberDto>> GetMemberByUserGuidAsync(Guid id);
+    
     Task<Result<ICollection<MemberDto>>> GetAllMembersAsync();
     
     Task<Result<ICollection<MemberDto>>> GetMembersWithStatusAsync(MembershipStatus status);
