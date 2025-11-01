@@ -26,7 +26,7 @@ builder.Services
         option.RequireHttpsMetadata = true;
         option.TokenValidationParameters = new TokenValidationParameters {
             NameClaimType = "preferred_username",
-            RoleClaimType = "roles"
+            RoleClaimType = "role"
         };
         option.Events = new JwtBearerEvents {
             OnTokenValidated = context => {
