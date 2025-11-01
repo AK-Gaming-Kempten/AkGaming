@@ -1,3 +1,4 @@
+using AKG.Common.Extensions;
 using AKG.Common.Generics;
 using MemberManagement.Application.Interfaces;
 using MemberManagement.Contracts.DTO;
@@ -33,10 +34,8 @@ public class MemberCreationService : IMemberCreationService {
             Country = memberCreationData.Address?.Country
         };
         
-        var result = await _memberRepository.AddAsync(member);
-        if (!result.IsSuccess)
-            return result;
-        result = await _memberRepository.SaveChangesAsync();
+        var result = await _memberRepository.AddAsync(member)
+            .Then(() => _memberRepository.SaveChangesAsync());
         
         return result;
     }

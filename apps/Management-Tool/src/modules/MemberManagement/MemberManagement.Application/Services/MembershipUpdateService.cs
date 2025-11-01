@@ -1,6 +1,8 @@
 using AKG.Common.Extensions;
 using AKG.Common.Generics;
 using MemberManagement.Application.Interfaces;
+using MemberManagement.Application.Mapping;
+using MemberManagement.Contracts.DTO;
 using MemberManagement.Contracts.Services;
 using MemberManagement.Domain.Constants;
 using MemberManagement.Domain.Entities;
@@ -67,5 +69,15 @@ public class MembershipUpdateService : IMembershipUpdateService {
             .Then(() => _members.SaveChangesAsync());
         
         return result;
+    }
+    
+    /// <inheritdoc/>
+    public async Task<Result<List<MembershipStatusChangeEventDto>>> GetMembershipStatusChangesAsync(Guid memberId) {
+        var memberResult = await _members.GetByMemberIdAsync(memberId);
+        if (!memberResult.IsSuccess)
+            return Result<List<MembershipStatusChangeEventDto>>.Failure("Error: Member not found");
+        var member = memberResult.Value!;
+        
+        return Result<List<MembershipStatusChangeEventDto>>.Success(member.StatusChanges.Select(sc => sc.ToDto()).ToList());
     }
 }

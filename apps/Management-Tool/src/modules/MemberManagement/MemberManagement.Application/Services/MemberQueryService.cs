@@ -15,6 +15,7 @@ public class MemberQueryService : IMemberQueryService {
         _memberRepository = memberRepository;
     }
     
+    /// <inheritdoc/>
     public async Task<Result<MemberDto>> GetMemberByGuidAsync(Guid id) {
         var memberResult = await _memberRepository.GetByMemberIdAsync(id);
         if (!memberResult.IsSuccess)
@@ -24,6 +25,7 @@ public class MemberQueryService : IMemberQueryService {
         return Result<MemberDto>.Success(member.ToDto());
     }
     
+    /// <inheritdoc/>
     public async Task<Result<MemberDto>> GetMemberByUserGuidAsync(Guid id) {
         var memberResult = await _memberRepository.GetByUserIdAsync(id);
         if (!memberResult.IsSuccess)
@@ -33,6 +35,7 @@ public class MemberQueryService : IMemberQueryService {
         return Result<MemberDto>.Success(member.ToDto());
     }
     
+    /// <inheritdoc/>
     public async Task<Result<ICollection<MemberDto>>> GetAllMembersAsync() {
         var membersResult = await _memberRepository.GetAllAsync();
         if (!membersResult.IsSuccess)
@@ -42,6 +45,7 @@ public class MemberQueryService : IMemberQueryService {
         return Result<ICollection<MemberDto>>.Success(members.Select(m => m.ToDto()).ToList());
     }
     
+    /// <inheritdoc/>
     public async Task<Result<ICollection<MemberDto>>> GetMembersWithStatusAsync(ContractEnums.MembershipStatus status) {
         var membersResult = await _memberRepository.GetAllAsync();
         if (!membersResult.IsSuccess)
@@ -53,6 +57,7 @@ public class MemberQueryService : IMemberQueryService {
             .Select(m => m.ToDto()).ToList());
     }
     
+    /// <inheritdoc/>
     public async Task<Result<ICollection<MemberDto>>> GetMembersWithStatusAsync(ICollection<ContractEnums.MembershipStatus> statuses) {
         var membersResult = await _memberRepository.GetAllAsync();
         if (!membersResult.IsSuccess)

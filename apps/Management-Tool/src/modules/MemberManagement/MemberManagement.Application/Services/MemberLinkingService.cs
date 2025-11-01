@@ -31,4 +31,18 @@ public class MemberLinkingService : IMemberLinkingService {
         
         return result;
     }
+    
+    /// <inheritdoc/>
+    public async Task<Result> UnlinkMemberFromUserAsync(Guid memberId, Guid userId) {
+        var memberResult = await _members.GetByMemberIdAsync(memberId);
+        if (!memberResult.IsSuccess)
+            return memberResult;
+        var member = memberResult.Value!;
+        
+        member.UserId = null;
+        var result = await _members.UpdateAsync(member)
+            .Then( () => _members.SaveChangesAsync());
+        
+        return result;
+    }
 }

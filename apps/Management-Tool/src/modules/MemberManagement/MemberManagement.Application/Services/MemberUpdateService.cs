@@ -1,3 +1,4 @@
+using AKG.Common.Extensions;
 using AKG.Common.Generics;
 using MemberManagement.Application.Interfaces;
 using MemberManagement.Contracts.DTO;
@@ -13,6 +14,7 @@ public class MemberUpdateService : IMemberUpdateService {
         _memberRepository = memberRepository;
     }
     
+    /// <inheritdoc/>
     public async Task<Result> UpdateMemberAsync(Guid memberId, MemberDto memberData) {
         var memberResult = await _memberRepository.GetByMemberIdAsync(memberId);
         if (!memberResult.IsSuccess)
@@ -33,14 +35,9 @@ public class MemberUpdateService : IMemberUpdateService {
             Country = memberData.Address.Country
         };
 
-        var updateResult = await _memberRepository.UpdateAsync(member);
-        if(!updateResult.IsSuccess)
-            return updateResult;
+        var result = await _memberRepository.UpdateAsync(member)
+            .Then(() => _memberRepository.SaveChangesAsync());
         
-        var saveResult = await _memberRepository.SaveChangesAsync();
-        if(!saveResult.IsSuccess)
-            return saveResult;
-        
-        return Result.Success();
+        return result;
     }
 }

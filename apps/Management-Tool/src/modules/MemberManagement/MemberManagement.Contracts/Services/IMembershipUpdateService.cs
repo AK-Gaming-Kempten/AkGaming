@@ -1,4 +1,5 @@
 using AKG.Common.Generics;
+using MemberManagement.Contracts.DTO;
 using MemberManagement.Contracts.Enums;
 
 namespace MemberManagement.Contracts.Services;
@@ -30,4 +31,12 @@ public interface IMembershipUpdateService {
     /// <param name="timestamp"> The timestamp of the event </param>
     /// <returns></returns>
     Task<Result> InsertMembershipStatusChangeEventAsync(Guid memberId, MembershipStatus oldStatus, MembershipStatus newStatus, DateTime timestamp);
+    
+    /// <summary>
+    /// Returns the status changes of a member
+    /// </summary>
+    /// <param name="memberId"> The id of the member </param>
+    /// <returns> The status changes of the member </returns>
+    /// <exception cref="NullReferenceException"> If the member is not present in the database </exception>
+    Task<Result<List<MembershipStatusChangeEventDto>>> GetMembershipStatusChangesAsync(Guid memberId);
 }

@@ -17,22 +17,22 @@ public static class MemberQueryEndpoints {
             return result.IsSuccess ? Results.Ok(result.Value) : Results.NotFound(result.Error);
         });
 
-        group.MapGet("/{id:guid}", async (Guid id, IMemberQueryService service) => {
-            var result = await service.GetMemberByGuidAsync(id);
+        group.MapGet("/{memberId:guid}", async (Guid memberId, IMemberQueryService service) => {
+            var result = await service.GetMemberByGuidAsync(memberId);
             return result.IsSuccess ? Results.Ok(result.Value) : Results.NotFound(result.Error);
         });
         
-        group.MapGet("/user/{id:guid}", async (Guid id, IMemberQueryService service) => {
-            var result = await service.GetMemberByUserGuidAsync(id);
+        group.MapGet("/user/{memberId:guid}", async (Guid memberId, IMemberQueryService service) => {
+            var result = await service.GetMemberByUserGuidAsync(memberId);
             return result.IsSuccess ? Results.Ok(result.Value) : Results.NotFound(result.Error);
         });
         
-        group.MapGet("/status/{status}", async (ContractEnums.MembershipStatus status, IMemberQueryService service) => {
+        group.MapGet("/byStatus/{status}", async (ContractEnums.MembershipStatus status, IMemberQueryService service) => {
             var result = await service.GetMembersWithStatusAsync(new[] { status });
             return result.IsSuccess ? Results.Ok(result.Value) : Results.NotFound(result.Error);
         });
         
-        group.MapGet("/status", async (ContractEnums.MembershipStatus[] statuses, IMemberQueryService service) => {
+        group.MapGet("/byStatus", async (ContractEnums.MembershipStatus[] statuses, IMemberQueryService service) => {
             var result = await service.GetMembersWithStatusAsync(statuses);
             return result.IsSuccess ? Results.Ok(result.Value) : Results.NotFound(result.Error);
         });
