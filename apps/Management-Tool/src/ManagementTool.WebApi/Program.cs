@@ -61,6 +61,14 @@ builder.Services.AddMemberManagementModule(builder.Configuration);
 var app = builder.Build();
 app.MapMemberManagementEndpoints();
 app.MapGet("/test-auth", [Authorize] () => "ok!");
+app.MapGet("/debug/claims", [Authorize] (HttpContext http) =>
+{
+    var claims = http.User.Claims
+        .Select(c => new { c.Type, c.Value })
+        .ToList();
+
+    return Results.Ok(claims);
+});
 
 using (var scope = app.Services.CreateScope())
 {
