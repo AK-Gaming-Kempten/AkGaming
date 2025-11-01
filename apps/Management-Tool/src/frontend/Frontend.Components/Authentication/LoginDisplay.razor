@@ -1,0 +1,12 @@
+@using Microsoft.AspNetCore.Components.Authorization
+@inject NavigationManager Navigation
+@inject AuthenticationStateProvider AuthStateProvider
+
+@if (user?.Identity?.IsAuthenticated ?? false)
+{
+    <span>Hello, @user.Identity!.Name</span>
+}
+else
+{
+    <a href="authentication/login">Login</a>
+}

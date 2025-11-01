@@ -1,0 +1,32 @@
+@page "/Debug"
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize(Roles = "Admin")]
+
+@inject IHttpClientFactory ClientFactory
+
+<h3>Debug</h3>
+
+<h4>Auth Check</h4>
+<button @onclick="TestAuth">Test Auth</button>
+<p>@_authResult</p>
+
+<h4>Claims</h4>
+<button @onclick="TestClaims">Test Claims</button>
+<p>@_claimsResult</p>
+
+@code {
+    private string? _authResult;
+    private string? _claimsResult;
+
+    private async Task TestAuth()
+    {
+        var api = ClientFactory.CreateClient("ManagementApi");
+        _authResult = await api.GetStringAsync("/test-auth");
+    }
+
+    private async Task TestClaims()
+    {
+        var api = ClientFactory.CreateClient("ManagementApi");
+        _claimsResult = await api.GetStringAsync("/debug/claims");
+    }
+}
