@@ -1,6 +1,7 @@
 using System.Text.Json.Serialization;
 using MemberManagement.Api;
 using MemberManagement.Infrastructure.Persistence;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 
@@ -17,11 +18,11 @@ builder.Services.AddSwaggerGen(options => {
 
 builder.Services
     .AddAuthentication("Bearer")
-    .AddJwtBearer("Bearer", o => {
-        o.Authority = builder.Configuration["Jwt:Authority"];
-        o.Audience = builder.Configuration["Jwt:Audience"];
-        o.RequireHttpsMetadata = true;
-        o.TokenValidationParameters = new TokenValidationParameters {
+    .AddJwtBearer("Bearer", option => {
+        option.Authority = builder.Configuration["Jwt:Authority"];
+        option.Audience = builder.Configuration["Jwt:Audience"];
+        option.RequireHttpsMetadata = true;
+        option.TokenValidationParameters = new TokenValidationParameters {
             NameClaimType = "preferred_username",
             RoleClaimType = "roles"
         };
@@ -39,6 +40,7 @@ builder.Services.AddMemberManagementModule(builder.Configuration);
 
 var app = builder.Build();
 app.MapMemberManagementEndpoints();
+app.MapGet("/test-auth", [Authorize] () => "ok!");
 
 using (var scope = app.Services.CreateScope())
 {
