@@ -10,6 +10,8 @@ using Frontend.Blazor.Handlers;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+using Microsoft.AspNetCore.DataProtection;
+using Microsoft.AspNetCore.HttpOverrides;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -28,6 +30,12 @@ builder.Services
         options.Audience  = builder.Configuration["Jwt:Audience"];
         options.RequireHttpsMetadata = true;
     });
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
+{
+    options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+    options.KnownNetworks.Clear();
+    options.KnownProxies.Clear();
+});
 
 builder.Services.AddAuthentication(options =>
     {
@@ -68,6 +76,10 @@ builder.Services.AddHttpClient<MemberManagementApiClient>(client =>
 })
 .AddHttpMessageHandler<ApiAuthorizationHandler>();
 
+builder.Services.AddDataProtection()
+    .PersistKeysToFileSystem(new DirectoryInfo("/app/keys"))
+    .SetApplicationName("ManagementTool");
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -79,6 +91,7 @@ if (!app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+app.UseForwardedHeaders();
 app.UseAuthentication();
 app.UseAuthorization();
 
