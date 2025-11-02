@@ -8,7 +8,7 @@ namespace MemberManagement.Api.Endpoints;
 
 public static class MemberUpdateEndpoints {
     public static IEndpointRouteBuilder MapMemberUpdateEndpoints(this IEndpointRouteBuilder endpoints) {
-        var group = endpoints.MapGroup("/api/members")
+        var group = endpoints.MapGroup("/members")
             .WithTags("Members - Commands")
             .RequireAuthorization("AdminOnly");
 

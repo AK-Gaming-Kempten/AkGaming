@@ -9,7 +9,7 @@ namespace MemberManagement.Api.Endpoints;
 public static class MemberLinkingEndpoints {
     public static IEndpointRouteBuilder MapMemberLinkingEndpoints(this IEndpointRouteBuilder endpoints) {
      
-        var group = endpoints.MapGroup("/api/members")
+        var group = endpoints.MapGroup("/members")
             .WithTags("Members - Linking")
             .RequireAuthorization("AdminOnly");
 

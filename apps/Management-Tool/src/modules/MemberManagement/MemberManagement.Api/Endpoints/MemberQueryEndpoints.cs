@@ -8,7 +8,7 @@ namespace MemberManagement.Api.Endpoints;
 
 public static class MemberQueryEndpoints {
     public static IEndpointRouteBuilder MapMemberQueryEndpoints(this IEndpointRouteBuilder endpoints) {
-        var group = endpoints.MapGroup("/api/members")
+        var group = endpoints.MapGroup("/members")
             .WithTags("Members - Queries")
             .RequireAuthorization("AdminOnly");
 
