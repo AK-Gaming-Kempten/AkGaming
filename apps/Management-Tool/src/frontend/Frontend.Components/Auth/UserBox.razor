@@ -1,0 +1,39 @@
+@using Microsoft.AspNetCore.Components.Authorization
+@namespace Frontend.Components.Auth
+@inject NavigationManager Nav
+
+<CascadingAuthenticationState>
+    <AuthorizeView>
+        <Authorized>
+            <div class="user-box">
+                Logged in as: <strong>@DisplayName</strong>
+                <button @onclick="Logout">Logout</button>
+            </div>
+        </Authorized>
+
+        <NotAuthorized>
+            <div class="user-box">
+                <button @onclick="Login">Login</button>
+            </div>
+        </NotAuthorized>
+    </AuthorizeView>
+</CascadingAuthenticationState>
+
+@code {
+    [CascadingParameter]
+    public Task<AuthenticationState> AuthenticationStateTask { get; set; } = default!;
+
+    private string? DisplayName;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        var authState = await AuthenticationStateTask;
+        DisplayName = authState.User.Identity?.Name;
+    }
+
+    private void Login()
+        => Nav.NavigateTo("Authentication/Login", forceLoad: true);
+
+    private void Logout()
+        => Nav.NavigateTo("Authentication/logout", forceLoad: true);
+}

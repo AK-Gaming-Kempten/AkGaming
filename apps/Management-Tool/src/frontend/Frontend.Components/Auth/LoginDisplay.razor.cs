@@ -2,7 +2,7 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.WebAssembly.Authentication;
 
-namespace Frontend.Components.Authentication;
+namespace Frontend.Components.Auth;
 
 public partial class LoginDisplay : ComponentBase {
     

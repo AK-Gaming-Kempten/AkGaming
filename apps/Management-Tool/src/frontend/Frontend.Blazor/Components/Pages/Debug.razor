@@ -21,12 +21,12 @@
     private async Task TestAuth()
     {
         var api = ClientFactory.CreateClient("ManagementApi");
-        _authResult = await api.GetStringAsync("/test-auth");
+        _authResult = await api.GetStringAsync("/api/test-auth");
     }
 
     private async Task TestClaims()
     {
         var api = ClientFactory.CreateClient("ManagementApi");
-        _claimsResult = await api.GetStringAsync("/debug/claims");
+        _claimsResult = await api.GetStringAsync("/api/debug/claims");
     }
 }

@@ -50,6 +50,7 @@ builder.Services.AddAuthentication(options =>
         options.ClientSecret = builder.Configuration["Oidc:ClientSecret"];
         options.ResponseType = "code";
         options.SaveTokens = true;
+        options.GetClaimsFromUserInfoEndpoint = true;
         
         options.CallbackPath = builder.Configuration["Oidc:CallbackPath"];
         options.SignedOutCallbackPath = builder.Configuration["Oidc:SignedOutCallbackPath"];
@@ -57,6 +58,7 @@ builder.Services.AddAuthentication(options =>
         options.Scope.Add("openid");
         options.Scope.Add("profile");
         options.Scope.Add("email");
+        options.Scope.Add("offline_access");
     });
 
 builder.Services.AddAuthorization();
@@ -76,9 +78,17 @@ builder.Services.AddHttpClient<MemberManagementApiClient>(client =>
 })
 .AddHttpMessageHandler<ApiAuthorizationHandler>();
 
-builder.Services.AddDataProtection()
-    .PersistKeysToFileSystem(new DirectoryInfo("/app/keys"))
-    .SetApplicationName("ManagementTool");
+
+if (builder.Environment.IsProduction()) {
+    builder.Services.AddDataProtection()
+        .PersistKeysToFileSystem(new DirectoryInfo("/app/keys"))
+        .SetApplicationName("ManagementTool");
+}
+else {
+    builder.Services.AddDataProtection()
+        .SetApplicationName("ManagementTool");
+}
+
 
 var app = builder.Build();
 
@@ -103,10 +113,10 @@ app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
 app.MapGroup("/api/members")
     .RequireAuthorization();
-app.MapGet("/logout", async (HttpContext context) =>
-{
-    var props = new AuthenticationProperties
-    {
+
+var auth = app.MapGroup("/authentication");
+auth.MapGet("/logout", async (HttpContext context) => {
+    var props = new AuthenticationProperties {
         RedirectUri = "/"   // after logout
     };
 
@@ -115,13 +125,19 @@ app.MapGet("/logout", async (HttpContext context) =>
 
     return Results.Empty;
 });
-app.MapGet("/debug/token", [Authorize] async (HttpContext ctx) =>
-{
+
+auth.MapGet("/login", async (HttpContext context) => {
+    return Results.Challenge(
+        new AuthenticationProperties { RedirectUri = "/" },
+        new[] { "oidc" }
+    );
+});
+
+app.MapGet("/debug/token", [Authorize] async (HttpContext ctx) => {
     var accessToken = await ctx.GetTokenAsync("access_token");
     var idToken     = await ctx.GetTokenAsync("id_token");
 
-    string Decode(string? token)
-    {
+    string Decode(string? token) {
         if (token is null) return "(null)";
 
         var handler = new JwtSecurityTokenHandler();
@@ -133,8 +149,7 @@ app.MapGet("/debug/token", [Authorize] async (HttpContext ctx) =>
         );
     }
 
-    return new
-    {
+    return new {
         accessToken = Decode(accessToken),
         idToken = Decode(idToken)
     };

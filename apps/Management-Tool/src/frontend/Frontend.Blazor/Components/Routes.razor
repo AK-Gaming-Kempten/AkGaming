@@ -5,8 +5,9 @@
         <Found Context="routeData">
             <AuthorizeRouteView RouteData="@routeData" DefaultLayout="@typeof(Layout.MainLayout)">
                 <NotAuthorized>
-                    <p>Access denied. You must log in.</p>
-                    <a href="authentication/login">Log in</a>
+                    <UnauthorizedPanel ImageUrl="images/icons/red.png">
+                        <p>Access denied. You must log in.</p>
+                    </UnauthorizedPanel>
                 </NotAuthorized>
             </AuthorizeRouteView>
         </Found>
