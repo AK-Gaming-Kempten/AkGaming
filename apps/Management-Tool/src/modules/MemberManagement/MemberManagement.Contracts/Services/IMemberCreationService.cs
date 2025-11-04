@@ -9,5 +9,5 @@ public interface IMemberCreationService {
     /// Creates a new <see cref="Member"/>
     /// </summary>
     /// <param name="memberCreationData">The data for the new <see cref="Member"/></param>
-    Task<Result> CreateMemberAsync(MemberCreationDto memberCreationData);
+    Task<Result<Guid>> CreateMemberAsync(MemberCreationDto memberCreationData);
 }

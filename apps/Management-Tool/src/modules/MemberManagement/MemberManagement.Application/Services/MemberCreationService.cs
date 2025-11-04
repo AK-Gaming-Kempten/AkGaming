@@ -17,7 +17,7 @@ public class MemberCreationService : IMemberCreationService {
     }
     
     /// <inheritdoc/>
-    public async Task<Result> CreateMemberAsync(MemberCreationDto memberCreationData) {
+    public async Task<Result<Guid>> CreateMemberAsync(MemberCreationDto memberCreationData) {
         var member = new Member();
         
         member.FirstName = memberCreationData.FirstName;
@@ -33,9 +33,13 @@ public class MemberCreationService : IMemberCreationService {
             City = memberCreationData.Address?.City,
             Country = memberCreationData.Address?.Country
         };
-        
-        var result = await _memberRepository.AddAsync(member)
-            .Then(() => _memberRepository.SaveChangesAsync());
+
+        var result = await _memberRepository.AddAsync(member);
+        if (!result.IsSuccess)
+            return result;
+        var saveResult = await _memberRepository.SaveChangesAsync();
+        if (!saveResult.IsSuccess)
+            return Result<Guid>.Failure(saveResult.Error);
         
         return result;
     }

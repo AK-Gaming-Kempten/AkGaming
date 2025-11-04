@@ -81,13 +81,32 @@ public class MemberManagementApiClient
         return Result<ICollection<MemberDto>>.Success(dtos);
     }
     
-    public async Task<Result> CreateMemberAsync(MemberCreationDto dto) {
+    public async Task<Result<Guid>> CreateMemberAsync(MemberCreationDto dto) {
         var httpResult = await _httpClient.PostAsJsonAsync("members", dto);
-        return httpResult.IsSuccessStatusCode ? Result.Success() : Result<MemberDto>.Failure(httpResult.ReasonPhrase);
+        return httpResult.IsSuccessStatusCode ? 
+            Result<Guid>.Success(await httpResult.Content.ReadFromJsonAsync<Guid>()) : 
+            Result<Guid>.Failure(httpResult.ReasonPhrase);
     }
     
     public async Task<Result> UpdateMemberAsync(MemberDto dto) {
         var httpResult = await _httpClient.PutAsJsonAsync($"members/{dto.Id}", dto);
         return httpResult.IsSuccessStatusCode ? Result.Success() : Result<MemberDto>.Failure(httpResult.ReasonPhrase);
+    }
+    
+    public async Task<Result> LinkMemberToUserAsync(Guid userId, Guid memberId) {
+        var httpResult = await _httpClient.PostAsJsonAsync($"members/{memberId}/linkToUser", userId);
+        return httpResult.IsSuccessStatusCode ? Result.Success() : Result.Failure(httpResult.ReasonPhrase);
+    }
+    
+    public async Task<Result> UnlinkMemberFromUserAsync(Guid userId, Guid memberId) {
+        var httpResult = await _httpClient.PostAsJsonAsync($"members/{memberId}/unlinkFromUser", userId);
+        return httpResult.IsSuccessStatusCode ? Result.Success() : Result.Failure(httpResult.ReasonPhrase);
+    }
+    
+    public async Task<Result<Guid>> ApplyForMembershipAsync(Guid userId, MemberCreationDto dto) {
+        var httpResult = await _httpClient.PostAsJsonAsync("members/applyForMembership", dto);
+        return httpResult.IsSuccessStatusCode ? 
+            Result<Guid>.Success(await httpResult.Content.ReadFromJsonAsync<Guid>()) : 
+            Result<Guid>.Failure(httpResult.ReasonPhrase);
     }
 }

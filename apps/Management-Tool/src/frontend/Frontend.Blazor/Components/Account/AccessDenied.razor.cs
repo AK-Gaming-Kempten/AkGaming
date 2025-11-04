@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Components;
 
-namespace Frontend.Blazor.Components.Pages.Account;
+namespace Frontend.Blazor.Components.Account;
 
 public partial class AccessDenied : ComponentBase
 {

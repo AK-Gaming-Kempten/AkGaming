@@ -2,7 +2,7 @@ using Frontend.Blazor.ApiClients;
 using MemberManagement.Contracts.DTO;
 using Microsoft.AspNetCore.Components;
 
-namespace Frontend.Blazor.Components.Pages;
+namespace Frontend.Blazor.Components.Administration;
 
 public partial class MemberManagement : ComponentBase {
     

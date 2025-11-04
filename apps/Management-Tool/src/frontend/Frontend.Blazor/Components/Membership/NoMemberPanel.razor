@@ -1,0 +1,32 @@
+<div class="no-member container text-center">
+
+    <h3>No linked member found</h3>
+    <p>Your account is not linked to a member profile.</p>
+
+    <div class="d-flex flex-column gap-2 align-items-center">
+
+        <button class="btn btn-primary"
+                @onclick="ShowRequestLink">
+            Request linking to an existing member
+        </button>
+
+        <button class="btn btn-secondary"
+                @onclick="ShowApply">
+            Apply for membership
+        </button>
+
+    </div>
+
+    <div class="mt-4">
+        @switch (_mode) {
+            case PanelMode.RequestLink:
+                <RequestLinkPanel UserGuid="@UserId" />
+                break;
+
+            case PanelMode.Apply:
+                <ApplyForMembershipPanel UserGuid="@UserId" />
+                break;
+        }
+    </div>
+
+</div>

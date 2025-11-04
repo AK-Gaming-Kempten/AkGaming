@@ -57,13 +57,13 @@ public class EfMemberRepository : IMemberRepository {
         }
     }
 
-    public Task<Result> AddAsync(Member member) {
+    public Task<Result<Guid>> AddAsync(Member member) {
         try {
             _dbContext.Members.Add(member);
-            return Task.FromResult(Result.Success());
+            return Task.FromResult(Result<Guid>.Success(member.Id));
         }
         catch (Exception ex) {
-            return Task.FromResult(Result.Failure($"Failed to add member: {ex.Message}"));
+            return Task.FromResult(Result<Guid>.Failure($"Failed to add member: {ex.Message}"));
         }
     }
 

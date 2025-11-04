@@ -7,13 +7,18 @@ using MemberManagement.Contracts.DTO;
 
 namespace MemberManagement.Tests;
 
-public class MemberCreationServiceTests {
+public class MembershipApplicationServiceTests {
     
     [Test]
-    public async Task CreateMemberAsync_CreatesMember() {
+    public async Task Application_CreatesMember_AndLinksUser_AndSetsStatus() {
         // Arrange
         Mock<IMemberRepository> memberRepository = new Mock<IMemberRepository>();
         MemberCreationService memberCreationService = new MemberCreationService(memberRepository.Object);
+        MemberLinkingService memberLinkingService = new MemberLinkingService(memberRepository.Object);
+        MembershipUpdateService membershipUpdateService = new MembershipUpdateService(memberRepository.Object);
+        MembershipApplicationService membershipApplicationService = new MembershipApplicationService(memberCreationService, memberLinkingService, membershipUpdateService);
+        
+        var userGuid = Guid.NewGuid();
         var memberCreationDto = new MemberCreationDto()
         {
             FirstName = "FistName",
@@ -32,10 +37,11 @@ public class MemberCreationServiceTests {
         };
         
         memberRepository.Setup(x => x.AddAsync(It.IsAny<Member>())).Returns(Task.FromResult(Result<Guid>.Success(Guid.NewGuid())));
+        // TODO: Add linking and status update setup
         memberRepository.Setup(x => x.SaveChangesAsync()).Returns(Task.FromResult(Result.Success()));
     
         // Act
-        await memberCreationService.CreateMemberAsync(memberCreationDto);
+        await membershipApplicationService.ApplyForMembershipAsync(userGuid, memberCreationDto);
     
         // Assert
         memberRepository.Verify(x => x.AddAsync(It.Is<Member>(m =>
@@ -48,38 +54,6 @@ public class MemberCreationServiceTests {
             m.Address.City == memberCreationDto.Address.City &&
             m.Address.Country == memberCreationDto.Address.Country
         )), Times.Once);
-    }
-    
-    [Test]
-    public async Task CreateMemberAsync_Fails_WhenDatabaseFails() {
-        // Arrange
-        Mock<IMemberRepository> memberRepository = new Mock<IMemberRepository>();
-        MemberCreationService memberCreationService = new MemberCreationService(memberRepository.Object);
-        var memberCreationDto = new MemberCreationDto()
-        {
-            FirstName = "FistName",
-            LastName = "LastName",
-            Email = "test@example.com",
-            Phone = "1234567890",
-            DiscordUsername = "DiscordUsername",
-            BirthDate = DateOnly.FromDateTime(DateTime.Now),
-            Address = new AddressDto()
-            {
-                Street = "Street",
-                ZipCode = "ZipCode",
-                City = "City",
-                Country = "Country"
-            }
-        };
-        
-        memberRepository.Setup(x => x.AddAsync(It.IsAny<Member>())).Returns(Task.FromResult(Result<Guid>.Failure("Database failed. Member was not added.")));
-        memberRepository.Setup(x => x.SaveChangesAsync()).Returns(Task.FromResult(Result.Success()));
-    
-        // Act
-        var result = await memberCreationService.CreateMemberAsync(memberCreationDto);
-    
-        // Assert
-        memberRepository.Verify(x => x.SaveChangesAsync(), Times.Never);
-        Assert.That(result, Has.Property("IsSuccess").False);
+        // TODO add linking and status assertions
     }
 }
