@@ -14,7 +14,7 @@ public static class MembershipUpdateEndpoints {
             .WithTags("Members - Commands")
             .RequireAuthorization("AdminOnly");
 
-        group.MapPut("/{memberId}/updateStatus", async ([FromRoute] Guid memberId, MembershipStatus status, IMembershipUpdateService service) => {
+        group.MapPut("/{memberId}/updateStatus", async ([FromRoute] Guid memberId, MembershipStatus status, [FromServices] IMembershipUpdateService service) => {
             var result = await service.UpdateMembershipStatusAsync(memberId, status);
             return result.IsSuccess ? Results.Created() : Results.BadRequest(result.Error);
         });
@@ -27,12 +27,12 @@ public static class MembershipUpdateEndpoints {
             return result.IsSuccess ? Results.Created() : Results.BadRequest(result.Error);
         });
         
-        group.MapGet("/{memberId}/endOfTrial", async ([FromRoute] Guid memberId, IMembershipUpdateService service) => {
+        group.MapGet("/{memberId}/endOfTrial", async ([FromRoute] Guid memberId, [FromServices] IMembershipUpdateService service) => {
             var result = await service.GetDefaultEndOfTrialPeriodAsync(memberId);
             return result.IsSuccess ? Results.Ok(result.Value) : Results.BadRequest(result.Error);
         });
         
-        group.MapGet("/{memberId}/statusChanges", async ([FromRoute] Guid memberId, IMembershipUpdateService service) => {
+        group.MapGet("/{memberId}/statusChanges", async ([FromRoute] Guid memberId, [FromServices] IMembershipUpdateService service) => {
             var result = await service.GetMembershipStatusChangesAsync(memberId);
             return result.IsSuccess ? Results.Ok(result.Value) : Results.BadRequest(result.Error);
         });

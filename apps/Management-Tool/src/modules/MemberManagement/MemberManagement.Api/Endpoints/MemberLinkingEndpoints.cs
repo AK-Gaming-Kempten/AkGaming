@@ -14,12 +14,12 @@ public static class MemberLinkingEndpoints {
             .WithTags("Members - Linking")
             .RequireAuthorization("AdminOnly");
 
-        group.MapPost("/{memberId}/linkToUser", async ([FromRoute] Guid memberId, Guid userId, IMemberLinkingService service) => {
+        group.MapPost("/{memberId}/linkToUser", async ([FromRoute] Guid memberId, Guid userId, [FromServices] IMemberLinkingService service) => {
             var result = await service.LinkMemberToUserAsync(memberId, userId);
             return result.IsSuccess ? Results.Ok() : Results.BadRequest(result.Error);
         });
 
-        group.MapPost("/{memberId}/unlinkFromUser", async ([FromRoute] Guid memberId, Guid userId, IMemberLinkingService service) => {
+        group.MapPost("/{memberId}/unlinkFromUser", async ([FromRoute] Guid memberId, Guid userId, [FromServices] IMemberLinkingService service) => {
             var result = await service.UnlinkMemberFromUserAsync(memberId, userId);
             return result.IsSuccess ? Results.Ok() : Results.BadRequest(result.Error);
         });

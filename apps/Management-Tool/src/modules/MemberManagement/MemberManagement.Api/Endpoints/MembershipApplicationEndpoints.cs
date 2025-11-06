@@ -13,7 +13,7 @@ public static class MembershipApplicationEndpoints {
             .WithTags("Members - Commands")
             .RequireAuthorization("UserOnly");
 
-        group.MapPut("/{userId}/applyForMembership", async ([FromRoute] Guid userId, MemberCreationDto memberDto, IMembershipApplicationService service) => {
+        group.MapPut("/{userId}/applyForMembership", async ([FromRoute] Guid userId,[FromBody] MemberCreationDto memberDto, [FromServices] IMembershipApplicationService service) => {
             var result = await service.ApplyForMembershipAsync(userId, memberDto);
             return result.IsSuccess ? Results.Created($"/members/{result.Value}",result.Value) : Results.BadRequest(result.Error);
         });
