@@ -11,6 +11,7 @@ public static class MemberManagementApiModule {
         endpoints.MapMemberDeletionEndpoints();
         endpoints.MapMemberLinkingEndpoints();
         endpoints.MapMembershipUpdateEndpoints();
+        endpoints.MapMembershipApplicationEndpoints();
         return endpoints;
     }
 }

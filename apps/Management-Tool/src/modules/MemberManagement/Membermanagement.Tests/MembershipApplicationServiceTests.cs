@@ -1,9 +1,10 @@
-using MemberManagement.Application.Interfaces;
 using MemberManagement.Application.Services;
-using MemberManagement.Domain.Entities;
 using Moq;
 using AKG.Common.Generics;
+using MemberManagement.Application.Mapping;
 using MemberManagement.Contracts.DTO;
+using MemberManagement.Contracts.Services;
+using ContractEnums = MemberManagement.Contracts.Enums;
 
 namespace MemberManagement.Tests;
 
@@ -12,20 +13,18 @@ public class MembershipApplicationServiceTests {
     [Test]
     public async Task Application_CreatesMember_AndLinksUser_AndSetsStatus() {
         // Arrange
-        Mock<IMemberRepository> memberRepository = new Mock<IMemberRepository>();
-        MemberCreationService memberCreationService = new MemberCreationService(memberRepository.Object);
-        MemberLinkingService memberLinkingService = new MemberLinkingService(memberRepository.Object);
-        MembershipUpdateService membershipUpdateService = new MembershipUpdateService(memberRepository.Object);
-        MembershipApplicationService membershipApplicationService = new MembershipApplicationService(memberCreationService, memberLinkingService, membershipUpdateService);
+        Mock<IMemberCreationService> memberCreationService = new Mock<IMemberCreationService>();
+        Mock<IMemberLinkingService> memberLinkingService = new Mock<IMemberLinkingService>();
+        Mock<IMembershipUpdateService> membershipUpdateService = new Mock<IMembershipUpdateService>();
+        MembershipApplicationService membershipApplicationService = new MembershipApplicationService(memberCreationService.Object, memberLinkingService.Object, membershipUpdateService.Object);
         
         var userGuid = Guid.NewGuid();
-        var memberCreationDto = new MemberCreationDto()
-        {
+        var memberCreationDto = new MemberCreationDto {
             FirstName = "FistName",
             LastName = "LastName",
             Email = "test@example.com",
             Phone = "1234567890",
-            DiscordUsername = "DiscordUsername",
+            DiscordUserName = "DiscordUsername",
             BirthDate = DateOnly.FromDateTime(DateTime.Now),
             Address = new AddressDto()
             {
@@ -35,25 +34,18 @@ public class MembershipApplicationServiceTests {
                 Country = "Country"
             }
         };
-        
-        memberRepository.Setup(x => x.AddAsync(It.IsAny<Member>())).Returns(Task.FromResult(Result<Guid>.Success(Guid.NewGuid())));
-        // TODO: Add linking and status update setup
-        memberRepository.Setup(x => x.SaveChangesAsync()).Returns(Task.FromResult(Result.Success()));
-    
+        var member = memberCreationDto.ToMember();
+
+        memberCreationService.Setup(x => x.CreateMemberAsync(memberCreationDto)).Returns(Task.FromResult(Result<Guid>.Success(member.Id)));
+        memberLinkingService.Setup(x => x.LinkMemberToUserAsync(member.Id, userGuid)).Returns(Task.FromResult(Result.Success()));
+        membershipUpdateService.Setup(x => x.UpdateMembershipStatusAsync(member.Id, ContractEnums.MembershipStatus.Applicant)).Returns(Task.FromResult(Result.Success()));
+
         // Act
         await membershipApplicationService.ApplyForMembershipAsync(userGuid, memberCreationDto);
-    
+
         // Assert
-        memberRepository.Verify(x => x.AddAsync(It.Is<Member>(m =>
-            m.Email == memberCreationDto.Email &&
-            m.FirstName == memberCreationDto.FirstName &&
-            m.LastName == memberCreationDto.LastName &&
-            m.BirthDate == memberCreationDto.BirthDate &&
-            m.Address.Street == memberCreationDto.Address.Street &&
-            m.Address.ZipCode == memberCreationDto.Address.ZipCode &&
-            m.Address.City == memberCreationDto.Address.City &&
-            m.Address.Country == memberCreationDto.Address.Country
-        )), Times.Once);
-        // TODO add linking and status assertions
+        memberCreationService.Verify(x => x.CreateMemberAsync(memberCreationDto), Times.Once);
+        memberLinkingService.Verify(x => x.LinkMemberToUserAsync(member.Id, userGuid), Times.Once);
+        membershipUpdateService.Verify(x => x.UpdateMembershipStatusAsync(member.Id, ContractEnums.MembershipStatus.Applicant), Times.Once);
     }
 }

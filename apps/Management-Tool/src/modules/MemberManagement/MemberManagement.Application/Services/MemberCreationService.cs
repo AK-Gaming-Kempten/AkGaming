@@ -1,6 +1,7 @@
 using AKG.Common.Extensions;
 using AKG.Common.Generics;
 using MemberManagement.Application.Interfaces;
+using MemberManagement.Application.Mapping;
 using MemberManagement.Contracts.DTO;
 using MemberManagement.Contracts.Services;
 using MemberManagement.Domain.Entities;
@@ -18,21 +19,7 @@ public class MemberCreationService : IMemberCreationService {
     
     /// <inheritdoc/>
     public async Task<Result<Guid>> CreateMemberAsync(MemberCreationDto memberCreationData) {
-        var member = new Member();
-        
-        member.FirstName = memberCreationData.FirstName;
-        member.LastName = memberCreationData.LastName;
-        member.Email = memberCreationData.Email;
-        member.PhoneNumber = memberCreationData.Phone;
-        member.DiscordUsername = memberCreationData.DiscordUsername;
-        member.BirthDate = memberCreationData.BirthDate;
-        member.Address = new Address()
-        {
-            Street = memberCreationData.Address?.Street,
-            ZipCode = memberCreationData.Address?.ZipCode,
-            City = memberCreationData.Address?.City,
-            Country = memberCreationData.Address?.Country
-        };
+        var member = memberCreationData.ToMember();
 
         var result = await _memberRepository.AddAsync(member);
         if (!result.IsSuccess)

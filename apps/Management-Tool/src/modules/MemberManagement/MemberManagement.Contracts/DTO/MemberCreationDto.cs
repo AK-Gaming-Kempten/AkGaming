@@ -9,7 +9,7 @@ public class MemberCreationDto()
     public string? LastName { get; set; }
     public string? Email { get; set; }
     public string? Phone { get; set; }
-    public string? DiscordUsername { get; set; }
+    public string? DiscordUserName { get; set; }
     public DateOnly? BirthDate { get; set; }
     public AddressDto? Address { get; set; }
 }

@@ -104,7 +104,7 @@ public class MemberManagementApiClient
     }
     
     public async Task<Result<Guid>> ApplyForMembershipAsync(Guid userId, MemberCreationDto dto) {
-        var httpResult = await _httpClient.PostAsJsonAsync("members/applyForMembership", dto);
+        var httpResult = await _httpClient.PostAsJsonAsync($"members/{userId}/applyForMembership", dto);
         return httpResult.IsSuccessStatusCode ? 
             Result<Guid>.Success(await httpResult.Content.ReadFromJsonAsync<Guid>()) : 
             Result<Guid>.Failure(httpResult.ReasonPhrase);
