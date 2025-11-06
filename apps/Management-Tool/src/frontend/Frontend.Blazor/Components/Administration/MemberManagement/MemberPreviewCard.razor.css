@@ -1,0 +1,23 @@
+
+.member-preview-card {
+    cursor: pointer;
+}
+
+.member-preview-card-content {
+    display: grid;
+    grid-template-columns: 2fr 3fr 1fr;
+    gap: 1rem;
+    align-items: center;
+    width: 100%;
+}
+
+.member-preview-card-content > div {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.member-preview-card-status {
+    justify-self: end;
+    text-align: right;
+}

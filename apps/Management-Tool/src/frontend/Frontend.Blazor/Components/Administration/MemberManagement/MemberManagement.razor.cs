@@ -2,7 +2,7 @@ using Frontend.Blazor.ApiClients;
 using MemberManagement.Contracts.DTO;
 using Microsoft.AspNetCore.Components;
 
-namespace Frontend.Blazor.Components.Administration;
+namespace Frontend.Blazor.Components.Administration.MemberManagement;
 
 public partial class MemberManagement : ComponentBase {
     
@@ -12,6 +12,8 @@ public partial class MemberManagement : ComponentBase {
     private List<MemberDto>? _members;
     private MemberCreationDto _newMember = new MemberCreationDto() { Address = new AddressDto() };
     private string? _createError;
+
+    private MemberDto? _selectedMember = null;
 
     protected override async Task OnInitializedAsync() {
         await LoadMembersAsync();
@@ -29,15 +31,21 @@ public partial class MemberManagement : ComponentBase {
         }
         StateHasChanged();
     }
-
-    private async Task CreateMemberAsync() {
-        _createError = null;
-
+    
+    private void SelectMember(MemberDto member) {
+        _selectedMember = member;
+        StateHasChanged();
+    }
+    
+    private async Task UpdateSelectedMemberAsync() {
         try {
-            var response = await MemberApi.CreateMemberAsync(_newMember);
+            var result = await MemberApi.UpdateMemberAsync(_selectedMember!);
+            if(result.IsSuccess) {
+                StateHasChanged();
+            }
         }
         catch (Exception ex) {
-            _createError = ex.Message;
+            Console.WriteLine("Error updating member: " + ex);
         }
     }
 }

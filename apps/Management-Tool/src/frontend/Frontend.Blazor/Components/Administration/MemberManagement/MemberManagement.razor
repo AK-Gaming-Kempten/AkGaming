@@ -1,0 +1,30 @@
+@page "/member-management"
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize(Roles = "Admin")]
+@inject HttpClient Api
+
+
+<h3>Member Management</h3>
+<hr />
+<MemberCard Member="_selectedMember" IsEditable="true" OnSave="UpdateSelectedMemberAsync" />
+
+@if (_createError != null) {
+    <p class="text-danger">@_createError</p>
+}
+
+<hr />
+<h4>Existing Members</h4>
+
+@if (_members == null) {
+    <p>Loading…</p>
+}
+else if (!_members.Any()) {
+    <p>No members found.</p>
+}
+else {
+    <div class="col d-grid gap-2">
+        @foreach (var m in _members) {
+            <MemberPreviewCard Member="m" OnSelect="SelectMember" />
+        }
+    </div>
+}
