@@ -1,32 +1,43 @@
-<div class="no-member container text-center">
-
+<div class="no-member">
     <h3>No linked member found</h3>
     <p>Your account is not linked to a member profile.</p>
 
-    <div class="d-flex flex-column gap-2 align-items-center">
+    <div class="choice-buttons">
+        <div class="choice-button" @onclick="ShowRequestLink">
+            <div class="choice-icon bi-person-check"></div>
+            <div class="choice-text">
+                <div class="choice-flavor">
+                    You already are a member of AK Gaming e.V.?
+                </div>
+                <div class="choice-action">
+                    Request linking to an existing member profile
+                </div>
+            </div>
+        </div>
 
-        <button class="btn btn-primary"
-                @onclick="ShowRequestLink">
-            Request linking to an existing member
-        </button>
-
-        <button class="btn btn-secondary"
-                @onclick="ShowApply">
-            Apply for membership
-        </button>
-
+        <div class="choice-button" @onclick="ShowApply">
+            <div class="choice-icon bi-person-plus"></div>
+            <div class="choice-text">
+                <div class="choice-flavor">
+                    You came here to become a member of AK Gaming e.V.?
+                </div>
+                <div class="choice-action">
+                    Apply for Membership
+                </div>
+            </div>
+        </div>
+        
     </div>
 
-    <div class="mt-4">
-        @switch (_mode) {
+    <div class="panel-container">
+        @switch (_mode)
+        {
             case PanelMode.RequestLink:
                 <RequestLinkPanel UserGuid="@UserId" />
                 break;
-
             case PanelMode.Apply:
                 <ApplyForMembershipPanel UserGuid="@UserId" />
                 break;
         }
     </div>
-
 </div>

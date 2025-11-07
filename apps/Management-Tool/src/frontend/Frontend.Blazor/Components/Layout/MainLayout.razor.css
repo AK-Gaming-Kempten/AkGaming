@@ -123,3 +123,43 @@ main {
     top: 0.5rem;
 }
 
+
+/* Hidden by default */
+.mobile-warning {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: var(--color-background-primary);
+    color: var(--color-text-primary);
+    z-index: 9999;
+    font-size: 1.2rem;
+    text-align: center;
+    padding: 2rem;
+    box-sizing: border-box;
+}
+
+.mobile-warning > div {
+    max-width: 400px;
+    margin: 40vh auto 0;
+}
+
+/* Show only on narrow screens */
+@media (max-width: 640px) {
+    .mobile-warning {
+        display: block;
+    }
+
+    /* Optional: hide all regular content when warning is shown */
+    body > *:not(.mobile-warning) {
+        display: none !important;
+    }
+    
+    .mobile-warning-logo {
+        width: 100px;
+        height: 100px;
+    }  
+}
+

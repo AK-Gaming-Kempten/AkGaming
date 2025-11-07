@@ -1,56 +1,52 @@
 ﻿@using Frontend.Components.Auth
 
-<div class="top-row ps-3 navbar navbar-dark">
-    <div class="container-fluid">
-        <a class="navbar-brand" href="">Frontend.Blazor</a>
+<div class="sidebar">
+    <div class="sidebar-header">
+        <img src="images/icons/AKG_Logos/default.png" alt="AKGaming Logo" class="sidebar-logo">
+        <span class="sidebar-title">Management Tool</span>
     </div>
-</div>
 
-<input type="checkbox" title="Navigation menu" class="navbar-toggler"/>
+    <div class="sidebar-content">
+        <UserBox />
 
-<div class="nav-scrollable" onclick="document.querySelector('.navbar-toggler').click()">
-    <UserBox />
-    <nav class="nav flex-column">
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
-                <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Home
+        <nav class="sidebar-nav">
+            <NavLink href="" Match="NavLinkMatch.All" class="nav-item level-1">
+                <span class="nav-icon bi-house-door-fill"></span>
+                <span>Home</span>
             </NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="membership/user">
-                <span class="nav-icon bi-person-fill" aria-hidden="true"></span> Membership
+
+            <NavLink href="membership/user" class="nav-item level-1">
+                <span class="nav-icon bi-person-fill"></span>
+                <span>Membership</span>
             </NavLink>
-        </div>
-    </nav>
-    <hr/>
-    
-    <div class="text-center text-white px-3 d-flex justify-content-center align-items-center">
-        <span class="nav-icon bi-shield-lock-fill" aria-hidden="true"></span> Administration
+
+            <div class="nav-section">
+                <span class="nav-section-title">
+                    <span class="nav-icon bi-shield-lock-fill"></span>
+                    Administration
+                </span>
+
+                <NavLink href="member-management" class="nav-item level-2">
+                    <span class="nav-icon bi-people-fill"></span>
+                    <span>Member Management</span>
+                </NavLink>
+            </div>
+            <div class="nav-section">
+                <span class="nav-section-title">
+                    <span class="nav-icon bi-bug-fill"></span>
+                    Debug
+                </span>
+
+                <NavLink href="debug" class="nav-item level-2">
+                    <span class="nav-icon bi-diagram-3-fill"></span>
+                    <span>API</span>
+                </NavLink>
+                <NavLink href="debug/token" class="nav-item level-2">
+                    <span class="nav-icon bi-key-fill"></span>
+                    <span>Token</span>
+                </NavLink>
+            </div>
+        </nav>
+
     </div>
-    
-    <nav class="nav flex-column">
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="member-management">
-                <span class="nav-icon bi-people-fill" aria-hidden="true"></span> Member Management
-            </NavLink>
-        </div>
-    </nav>
-    
-    <hr/>
-    
-    <div class="text-center text-white px-3 d-flex justify-content-center align-items-center">
-        <span class="nav-icon bi-bug-fill" aria-hidden="true"></span> Debug
-    </div>
-    <nav class="nav flex-column">
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="debug">
-                <span class="nav-icon bi-diagram-3-fill" aria-hidden="true"></span> Api
-            </NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="debug/token">
-                <span class="nav-icon bi-key-fill" aria-hidden="true"></span> Token
-            </NavLink>
-        </div>
-    </nav>
 </div>

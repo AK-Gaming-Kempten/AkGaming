@@ -1,15 +1,20 @@
 ﻿@inherits LayoutComponentBase
 
+<div class="mobile-warning">
+    <div>
+        <img src="images/icons/AKG_Logos/Red.png" alt="AKGaming Logo" class="mobile-warning-logo" />
+        <h2>Oh No!</h2>
+        <strong>Mobile view is still in the works.</strong><br/>
+        Please open this site on a larger screen.
+    </div>
+</div>
+
 <div class="page">
     <div class="sidebar">
         <NavMenu/>
     </div>
 
     <main>
-        <div class="top-row px-4">
-            <a href="https://learn.microsoft.com/aspnet/core/" target="_blank">About</a>
-        </div>
-
         <article class="content px-4">
             @Body
         </article>

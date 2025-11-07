@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Components;
 
 namespace Frontend.Blazor.Components.Administration.MemberManagement;
 
-public partial class MemberManagement : ComponentBase {
+public partial class MemberManagementPage : ComponentBase {
     
     [Inject] 
     private MemberManagementApiClient MemberApi { get; set; } = default!;

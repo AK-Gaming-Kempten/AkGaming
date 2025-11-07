@@ -1,8 +1,37 @@
-
 .member-preview-card {
+    background-color: var(--color-card-bg);
+    border: 1px solid var(--color-card-border);
+    color: var(--color-card-text);
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
     cursor: pointer;
+    transition: background-color 0.2s ease, border-color 0.2s ease, transform 0.1s ease;
+    user-select: none;
 }
 
+.member-preview-card:hover {
+    background: linear-gradient(
+            90deg,
+            var(--color-card-hover-bg) 0%,
+            rgba(255, 255, 255, 0.05) 100%
+    );
+    border-color: var(--color-card-highlight);
+}
+
+.member-preview-card:active {
+    transform: scale(0.99);
+}
+
+.member-preview-card.selected {
+    background: linear-gradient(
+            90deg,
+            var(--color-highlight-secondary) 0%,
+            var(--color-card-bg) 100%
+    );
+    color: var(--color-text-secondary);
+}
+
+/* layout */
 .member-preview-card-content {
     display: grid;
     grid-template-columns: 2fr 3fr 1fr;
@@ -17,7 +46,10 @@
     text-overflow: ellipsis;
 }
 
+/* right-aligned status */
 .member-preview-card-status {
     justify-self: end;
     text-align: right;
+    font-weight: 500;
+    color: var(--color-card-highlight);
 }
