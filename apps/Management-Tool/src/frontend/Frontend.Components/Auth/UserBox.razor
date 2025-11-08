@@ -6,34 +6,35 @@
     <AuthorizeView>
         <Authorized>
             <div class="user-box">
-                Logged in as: <strong>@DisplayName</strong>
-                <button @onclick="Logout">Logout</button>
+                <div class="user-info">
+                    <div class="user-label">Logged in as</div>
+                    <div class="user-name">@DisplayName</div>
+                </div>
+                <button class="user-btn" @onclick="Logout">Logout</button>
             </div>
         </Authorized>
 
         <NotAuthorized>
             <div class="user-box">
-                <button @onclick="Login">Login</button>
+                <div class="user-info">
+                    <div class="user-label">Not logged in</div>
+                </div>
+                <button class="user-btn" @onclick="Login">Login</button>
             </div>
         </NotAuthorized>
     </AuthorizeView>
 </CascadingAuthenticationState>
 
 @code {
-    [CascadingParameter]
-    public Task<AuthenticationState> AuthenticationStateTask { get; set; } = default!;
-
+    [CascadingParameter] public Task<AuthenticationState> AuthenticationStateTask { get; set; } = default!;
     private string? DisplayName;
 
     protected override async Task OnParametersSetAsync()
     {
         var authState = await AuthenticationStateTask;
-        DisplayName = authState.User.Identity?.Name;
+        DisplayName = authState.User.Claims.FirstOrDefault(claim => claim.Type == "preferred_username")?.Value;
     }
 
-    private void Login()
-        => Nav.NavigateTo("Authentication/Login", forceLoad: true);
-
-    private void Logout()
-        => Nav.NavigateTo("Authentication/logout", forceLoad: true);
+    private void Login() => Nav.NavigateTo("Authentication/Login", forceLoad: true);
+    private void Logout() => Nav.NavigateTo("Authentication/logout", forceLoad: true);
 }

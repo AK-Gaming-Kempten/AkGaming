@@ -13,17 +13,6 @@ main {
     color: var(--color-text-primary);
 }
 
-/* Sidebar */
-.sidebar {
-    /* Example: gradient using theme colors */
-    background: linear-gradient(
-            180deg,
-            var(--color-background-secondary) 0%,
-            var(--color-background-primary) 70%
-    );
-    color: var(--color-text-secondary);
-}
-
 /* Top navigation bar */
 .top-row {
     background: var(--color-background-secondary);
@@ -69,14 +58,6 @@ main {
 @media (min-width: 641px) {
     .page {
         flex-direction: row;
-    }
-
-    .sidebar {
-        width: 250px;
-        height: 100vh;
-        position: sticky;
-        top: 0;
-        border-right: 1px solid var(--color-text-tertiary);
     }
 
     .top-row {
