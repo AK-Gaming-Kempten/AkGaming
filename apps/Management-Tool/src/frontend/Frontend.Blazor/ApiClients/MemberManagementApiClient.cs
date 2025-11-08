@@ -125,11 +125,10 @@ public class MemberManagementApiClient
         if(!httpResult.IsSuccessStatusCode)
             return Result<ICollection<MembershipStatusChangeEventDto>>.Failure(httpResult.ReasonPhrase);
         
-        var result = await httpResult.Content.ReadFromJsonAsync<Result<ICollection<MembershipStatusChangeEventDto>>>();
-        if( result == null)
-            return Result<ICollection<MembershipStatusChangeEventDto>>.Failure("Unable to read status history from response");
-
-        return result;
+        var updateEvents = await httpResult.Content.ReadFromJsonAsync<ICollection<MembershipStatusChangeEventDto>>();
+        return updateEvents == null ? 
+            Result<ICollection<MembershipStatusChangeEventDto>>.Failure("Unable to read status history from response") : 
+            Result<ICollection<MembershipStatusChangeEventDto>>.Success(updateEvents);
     }
     
     public async Task<Result<DateTime>> GetDefaultEndOfTrialPeriodAsync(Guid memberId) {

@@ -37,7 +37,7 @@ public static class MembershipUpdateEndpoints {
             [FromServices] IMembershipUpdateService service) => 
         {
             var result = await service.GetDefaultEndOfTrialPeriodAsync(memberId);
-            return result.IsSuccess ? Results.Ok(result) : Results.BadRequest(result.Error);
+            return result.IsSuccess ? Results.Ok(result.Value) : Results.BadRequest(result.Error);
         });
         
         group.MapGet("/{memberId}/statusChanges", async (
@@ -45,7 +45,7 @@ public static class MembershipUpdateEndpoints {
             [FromServices] IMembershipUpdateService service) => 
         {
             var result = await service.GetMembershipStatusChangesAsync(memberId);
-            return result.IsSuccess ? Results.Ok(result) : Results.BadRequest(result.Error);
+            return result.IsSuccess ? Results.Ok(result.Value) : Results.BadRequest(result.Error);
         });
 
         return endpoints;
