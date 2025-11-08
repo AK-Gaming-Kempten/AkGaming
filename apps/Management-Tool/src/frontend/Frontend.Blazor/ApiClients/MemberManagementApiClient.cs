@@ -1,4 +1,7 @@
+using System.Text;
+using System.Text.Json;
 using AKG.Common.Generics;
+using Frontend.Blazor.Handlers;
 using MemberManagement.Contracts.DTO;
 using MemberManagement.Contracts.Enums;
 
@@ -26,7 +29,7 @@ public class MemberManagementApiClient
         if(!httpResult.IsSuccessStatusCode)
             return Result<MemberDto>.Failure(httpResult.ReasonPhrase);
         
-        var dto = await httpResult.Content.ReadFromJsonAsync<MemberDto>();
+        var dto = await httpResult.Content.ReadFromJsonAsync<MemberDto>(JsonDefaults.Options);
         if( dto == null)
             return Result<MemberDto>.Failure("Unable to read member from response");
 
@@ -38,7 +41,7 @@ public class MemberManagementApiClient
         if(!httpResult.IsSuccessStatusCode)
             return Result<MemberDto>.Failure(httpResult.ReasonPhrase);
         
-        var dto = await httpResult.Content.ReadFromJsonAsync<MemberDto>();
+        var dto = await httpResult.Content.ReadFromJsonAsync<MemberDto>(JsonDefaults.Options);
         if( dto == null)
             return Result<MemberDto>.Failure("Unable to read member from response");
 
@@ -50,7 +53,7 @@ public class MemberManagementApiClient
         if(!httpResult.IsSuccessStatusCode)
             return Result<ICollection<MemberDto>>.Failure(httpResult.ReasonPhrase);
         
-        var dtos = await httpResult.Content.ReadFromJsonAsync<List<MemberDto>>();
+        var dtos = await httpResult.Content.ReadFromJsonAsync<List<MemberDto>>(JsonDefaults.Options);
         if( dtos == null)
             return Result<ICollection<MemberDto>>.Failure("Unable to read members from response");
 
@@ -62,7 +65,7 @@ public class MemberManagementApiClient
         if(!httpResult.IsSuccessStatusCode)
             return Result<ICollection<MemberDto>>.Failure(httpResult.ReasonPhrase);
         
-        var dtos = await httpResult.Content.ReadFromJsonAsync<List<MemberDto>>();
+        var dtos = await httpResult.Content.ReadFromJsonAsync<List<MemberDto>>(JsonDefaults.Options);
         if( dtos == null)
             return Result<ICollection<MemberDto>>.Failure("Unable to read members from response");
 
@@ -74,7 +77,7 @@ public class MemberManagementApiClient
         if(!httpResult.IsSuccessStatusCode)
             return Result<ICollection<MemberDto>>.Failure(httpResult.ReasonPhrase);
         
-        var dtos = await httpResult.Content.ReadFromJsonAsync<List<MemberDto>>();
+        var dtos = await httpResult.Content.ReadFromJsonAsync<List<MemberDto>>(JsonDefaults.Options);
         if( dtos == null)
             return Result<ICollection<MemberDto>>.Failure("Unable to read members from response");
 
@@ -82,41 +85,43 @@ public class MemberManagementApiClient
     }
     
     public async Task<Result<Guid>> CreateMemberAsync(MemberCreationDto dto) {
-        var httpResult = await _httpClient.PostAsJsonAsync("members", dto);
+        var httpResult = await _httpClient.PostAsJsonAsync("members", dto, options: JsonDefaults.Options);
         return httpResult.IsSuccessStatusCode ? 
-            Result<Guid>.Success(await httpResult.Content.ReadFromJsonAsync<Guid>()) : 
+            Result<Guid>.Success(await httpResult.Content.ReadFromJsonAsync<Guid>(JsonDefaults.Options)) : 
             Result<Guid>.Failure(httpResult.ReasonPhrase);
     }
     
     public async Task<Result> UpdateMemberAsync(MemberDto dto) {
-        var httpResult = await _httpClient.PutAsJsonAsync($"members/{dto.Id}", dto);
+        var httpResult = await _httpClient.PutAsJsonAsync($"members/{dto.Id}", dto, options: JsonDefaults.Options);
         return httpResult.IsSuccessStatusCode ? Result.Success() : Result<MemberDto>.Failure(httpResult.ReasonPhrase);
     }
     
     public async Task<Result> LinkMemberToUserAsync(Guid userId, Guid memberId) {
-        var httpResult = await _httpClient.PostAsJsonAsync($"members/{memberId}/linkToUser", userId);
+        var httpResult = await _httpClient.PostAsJsonAsync($"members/{memberId}/linkToUser", userId, options: JsonDefaults.Options);
         return httpResult.IsSuccessStatusCode ? Result.Success() : Result.Failure(httpResult.ReasonPhrase);
     }
     
     public async Task<Result> UnlinkMemberFromUserAsync(Guid userId, Guid memberId) {
-        var httpResult = await _httpClient.PostAsJsonAsync($"members/{memberId}/unlinkFromUser", userId);
+        var httpResult = await _httpClient.PostAsJsonAsync($"members/{memberId}/unlinkFromUser", userId, options: JsonDefaults.Options);
         return httpResult.IsSuccessStatusCode ? Result.Success() : Result.Failure(httpResult.ReasonPhrase);
     }
     
     public async Task<Result<Guid>> ApplyForMembershipAsync(Guid userId, MemberCreationDto dto) {
-        var httpResult = await _httpClient.PostAsJsonAsync($"members/{userId}/applyForMembership", dto);
+        var httpResult = await _httpClient.PostAsJsonAsync($"members/{userId}/applyForMembership", dto, options: JsonDefaults.Options);
         return httpResult.IsSuccessStatusCode ? 
-            Result<Guid>.Success(await httpResult.Content.ReadFromJsonAsync<Guid>()) : 
+            Result<Guid>.Success(await httpResult.Content.ReadFromJsonAsync<Guid>(JsonDefaults.Options)) : 
             Result<Guid>.Failure(httpResult.ReasonPhrase);
     }
     
     public async Task<Result> UpdateMembershipStatusAsync(Guid memberId, MembershipStatus status) {
-        var httpResult = await _httpClient.PutAsJsonAsync($"members/{memberId}/updateStatus", status);
+        var json = JsonSerializer.Serialize(status, JsonDefaults.Options);
+        var content = new StringContent(json, Encoding.UTF8, "application/json");
+        var httpResult = await _httpClient.PutAsync($"members/{memberId}/updateStatus", content);
         return httpResult.IsSuccessStatusCode ? Result.Success() : Result.Failure(httpResult.ReasonPhrase);
     }
     
     public async Task<Result> InsertMembershipStatusChangeAsync(Guid memberId, MembershipStatusChangeEventDto changeEvent) {
-        var httpResult = await _httpClient.PutAsJsonAsync($"members/{memberId}/insertStatusChangeEvent", changeEvent);
+        var httpResult = await _httpClient.PutAsJsonAsync($"members/{memberId}/insertStatusChangeEvent", changeEvent, options: JsonDefaults.Options);
         return httpResult.IsSuccessStatusCode ? Result.Success() : Result.Failure(httpResult.ReasonPhrase);
     }
     
@@ -125,7 +130,7 @@ public class MemberManagementApiClient
         if(!httpResult.IsSuccessStatusCode)
             return Result<ICollection<MembershipStatusChangeEventDto>>.Failure(httpResult.ReasonPhrase);
         
-        var updateEvents = await httpResult.Content.ReadFromJsonAsync<ICollection<MembershipStatusChangeEventDto>>();
+        var updateEvents = await httpResult.Content.ReadFromJsonAsync<ICollection<MembershipStatusChangeEventDto>>(JsonDefaults.Options);
         return updateEvents == null ? 
             Result<ICollection<MembershipStatusChangeEventDto>>.Failure("Unable to read status history from response") : 
             Result<ICollection<MembershipStatusChangeEventDto>>.Success(updateEvents);
@@ -136,6 +141,6 @@ public class MemberManagementApiClient
         if(!httpResult.IsSuccessStatusCode)
             return Result<DateTime>.Failure(httpResult.ReasonPhrase);
         
-        return Result<DateTime>.Success(await httpResult.Content.ReadFromJsonAsync<DateTime>());
+        return Result<DateTime>.Success(await httpResult.Content.ReadFromJsonAsync<DateTime>(JsonDefaults.Options));
     }
 }
