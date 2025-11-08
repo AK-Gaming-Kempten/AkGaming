@@ -26,11 +26,9 @@ public interface IMembershipUpdateService {
     /// Inserts a new <see cref="MembershipStatusChangeEvent"/> into the database without updating the member's status
     /// </summary>
     /// <param name="memberId"> The id of the member </param>
-    /// <param name="oldStatus"> The old status to be set in the event </param>
-    /// <param name="newStatus"> The new status to be set in the event </param>
-    /// <param name="timestamp"> The timestamp of the event </param>
+    /// <param name="changeEvent"> The event to be inserted </param>
     /// <returns></returns>
-    Task<Result> InsertMembershipStatusChangeEventAsync(Guid memberId, MembershipStatus oldStatus, MembershipStatus newStatus, DateTime timestamp);
+    Task<Result> InsertMembershipStatusChangeEventAsync(Guid memberId, MembershipStatusChangeEventDto changeEvent);
     
     /// <summary>
     /// Returns the status changes of a member

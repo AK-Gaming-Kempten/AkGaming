@@ -36,16 +36,4 @@ public partial class MemberManagementPage : ComponentBase {
         _selectedMember = member;
         StateHasChanged();
     }
-    
-    private async Task UpdateSelectedMemberAsync() {
-        try {
-            var result = await MemberApi.UpdateMemberAsync(_selectedMember!);
-            if(result.IsSuccess) {
-                StateHasChanged();
-            }
-        }
-        catch (Exception ex) {
-            Console.WriteLine("Error updating member: " + ex);
-        }
-    }
 }

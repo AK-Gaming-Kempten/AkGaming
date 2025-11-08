@@ -52,7 +52,7 @@ public class MembershipUpdateService : IMembershipUpdateService {
     }
     
     /// <inheritdoc/>
-    public async Task<Result> InsertMembershipStatusChangeEventAsync(Guid memberId, ContractEnums.MembershipStatus oldStatus, ContractEnums.MembershipStatus newStatus, DateTime timestamp) {
+    public async Task<Result> InsertMembershipStatusChangeEventAsync(Guid memberId, MembershipStatusChangeEventDto changeEvent) {
         var memberResult = await _members.GetByMemberIdAsync(memberId);
         if (!memberResult.IsSuccess)
             return memberResult;
@@ -60,9 +60,9 @@ public class MembershipUpdateService : IMembershipUpdateService {
         
         member.StatusChanges.Add(new MembershipStatusChangeEvent {
             MemberId = memberId,
-            OldStatus = (DomainEnums.MembershipStatus)oldStatus,
-            NewStatus = (DomainEnums.MembershipStatus)newStatus,
-            Timestamp = timestamp
+            OldStatus = (DomainEnums.MembershipStatus)changeEvent.OldStatus,
+            NewStatus = (DomainEnums.MembershipStatus)changeEvent.NewStatus,
+            Timestamp = changeEvent.Timestamp
         });
         
         var result = await _members.UpdateAsync(member)

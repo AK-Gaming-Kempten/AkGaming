@@ -1,0 +1,77 @@
+.status-section{
+    --status-bg: var(--color-background-secondary);
+    --status-border: var(--color-text-tertiary);
+    --status-text: var(--color-text-primary);
+    --status-accent: var(--color-highlight-primary);
+}
+
+.status-section h5 {
+    margin: 0 0 0.5rem 0;
+    color: var(--color-text-secondary);
+}
+
+.status-history {
+    border: 1px solid var(--status-border);
+    border-radius: 6px;
+    background-color: var(--status-bg);
+    padding: 0.75rem;
+    max-height: 220px;
+    overflow-y: auto;
+}
+
+.status-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.status-list li {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+.status-list li:last-child { border-bottom: none; }
+
+.status-forms {
+    margin-top: 1rem;
+    display: grid;
+    gap: 1rem;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px,1fr));
+    gap: 0.75rem 1rem;
+}
+
+label {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--color-text-secondary);
+    margin-bottom: 0.25rem;
+}
+
+::deep(input),
+::deep(select) {
+    width: 100%;
+    border: 1px solid var(--status-border);
+    border-radius: 6px;
+    background-color: var(--color-background-primary);
+    color: var(--color-text-primary);
+    padding: 0.4rem 0.6rem;
+    font-size: 0.95rem;
+    transition: border-color .2s, background-color .2s;
+}
+
+::deep(input:focus),
+::deep(select:focus) {
+    border-color: var(--status-accent);
+    outline: none;
+}
+
+::deep(.validation-message) {
+    display: block;
+    font-size: 0.8rem;
+    color: var(--color-error, #ff6b6b);
+    margin-top: 0.2rem;
+}

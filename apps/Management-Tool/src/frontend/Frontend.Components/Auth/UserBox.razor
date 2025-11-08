@@ -10,7 +10,7 @@
                     <div class="user-label">Logged in as</div>
                     <div class="user-name">@DisplayName</div>
                 </div>
-                <button class="user-btn" @onclick="Logout">Logout</button>
+                <button class="btn btn-primary" @onclick="Logout">Logout</button>
             </div>
         </Authorized>
 
@@ -19,7 +19,7 @@
                 <div class="user-info">
                     <div class="user-label">Not logged in</div>
                 </div>
-                <button class="user-btn" @onclick="Login">Login</button>
+                <button class="btn btn-primary" @onclick="Login">Login</button>
             </div>
         </NotAuthorized>
     </AuthorizeView>

@@ -26,11 +26,13 @@
         }
     </div>
     <div class="member-management-page-right">
-        <hr/>
-        <MemberCard Member="_selectedMember" IsEditable="true" OnSave="UpdateSelectedMemberAsync"/>
-        @if (_createError != null)
-        {
-            <p class="text-danger">@_createError</p>
-        }
+        <CascadingValue Value="MemberApi" Name="MemberManagementApi" IsFixed="true">
+            <hr/>
+            <MemberCard Member="_selectedMember" IsEditable="true"/>
+            @if (_createError != null)
+            {
+                <p class="text-danger">@_createError</p>
+            }
+        </CascadingValue>  
     </div>
 </div>

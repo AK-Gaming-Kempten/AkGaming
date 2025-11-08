@@ -109,4 +109,34 @@ public class MemberManagementApiClient
             Result<Guid>.Success(await httpResult.Content.ReadFromJsonAsync<Guid>()) : 
             Result<Guid>.Failure(httpResult.ReasonPhrase);
     }
+    
+    public async Task<Result> UpdateMembershipStatusAsync(Guid memberId, MembershipStatus status) {
+        var httpResult = await _httpClient.PutAsJsonAsync($"members/{memberId}/updateStatus", status);
+        return httpResult.IsSuccessStatusCode ? Result.Success() : Result.Failure(httpResult.ReasonPhrase);
+    }
+    
+    public async Task<Result> InsertMembershipStatusChangeAsync(Guid memberId, MembershipStatusChangeEventDto changeEvent) {
+        var httpResult = await _httpClient.PutAsJsonAsync($"members/{memberId}/insertStatusChangeEvent", changeEvent);
+        return httpResult.IsSuccessStatusCode ? Result.Success() : Result.Failure(httpResult.ReasonPhrase);
+    }
+    
+    public async Task<Result<ICollection<MembershipStatusChangeEventDto>>> GetMembershipStatusChangesAsync(Guid memberId) {
+        var httpResult = await _httpClient.GetAsync($"members/{memberId}/statusChanges");
+        if(!httpResult.IsSuccessStatusCode)
+            return Result<ICollection<MembershipStatusChangeEventDto>>.Failure(httpResult.ReasonPhrase);
+        
+        var result = await httpResult.Content.ReadFromJsonAsync<Result<ICollection<MembershipStatusChangeEventDto>>>();
+        if( result == null)
+            return Result<ICollection<MembershipStatusChangeEventDto>>.Failure("Unable to read status history from response");
+
+        return result;
+    }
+    
+    public async Task<Result<DateTime>> GetDefaultEndOfTrialPeriodAsync(Guid memberId) {
+        var httpResult = await _httpClient.GetAsync($"members/{memberId}/endOfTrial");
+        if(!httpResult.IsSuccessStatusCode)
+            return Result<DateTime>.Failure(httpResult.ReasonPhrase);
+        
+        return Result<DateTime>.Success(await httpResult.Content.ReadFromJsonAsync<DateTime>());
+    }
 }

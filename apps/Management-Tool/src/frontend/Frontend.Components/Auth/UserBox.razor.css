@@ -41,27 +41,6 @@
     font-size: 0.95rem;
 }
 
-/* === Button === */
-.user-btn {
-    background: var(--user-btn-bg);
-    color: var(--color-text-secondary);
-    border: none;
-    border-radius: 5px;
-    padding: 0.4rem 0.8rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background-color 0.2s, transform 0.1s;
-    white-space: nowrap;
-}
-
-.user-btn:hover {
-    background-color: var(--user-btn-hover-bg);
-}
-
-.user-btn:active {
-    transform: scale(0.96);
-}
-
 /* Small screen adjustment */
 @media (max-width: 640px) {
     .user-box {

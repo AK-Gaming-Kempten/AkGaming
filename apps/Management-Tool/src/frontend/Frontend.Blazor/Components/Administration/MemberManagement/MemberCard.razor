@@ -77,34 +77,10 @@
                 </div>
             }
 
-            <!-- Status panel -->
-            <div class="status-section">
-                <h5>Status History</h5>
-
-                <div class="status-history scrollable">
-                    @if (_localMember.StatusChanges?.Any() ?? false)
-                    {
-                        <ul class="status-list">
-                            @foreach (var evt in _localMember.StatusChanges.OrderByDescending(e => e.Timestamp))
-                            {
-                                <li>
-                                    <strong>@evt.NewStatus</strong><br />
-                                    <small>@evt.Timestamp.ToString("g")</small>
-                                </li>
-                            }
-                        </ul>
-                    }
-                    else
-                    {
-                        <em>No history available</em>
-                    }
-                </div>
-
-                @if (EditMode && IsEditable)
-                {
-                    <StatusUpdateForm OnSubmit="SubmitStatusChange" />
-                }
-            </div>
+            <StatusUpdatePanel
+                Editable="@(EditMode && IsEditable)"
+                Member="@Member"/>
         </div>
     }
 </div>
+

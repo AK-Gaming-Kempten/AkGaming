@@ -3,6 +3,7 @@ using MemberManagement.Application.Services;
 using MemberManagement.Domain.Entities;
 using Moq;
 using AKG.Common.Generics;
+using MemberManagement.Contracts.DTO;
 using MemberManagement.Domain.Constants;
 using ContractEnums = MemberManagement.Contracts.Enums;
 using DomainEnums = MemberManagement.Domain.Enums;
@@ -108,10 +109,12 @@ public class MemberShipUpdateServiceTests {
             Status = currentStatus,
             StatusChanges = new List<MembershipStatusChangeEvent>()
         };
-
-        var oldStatusToInsert = ContractEnums.MembershipStatus.None;
-        var newStatusToInsert = ContractEnums.MembershipStatus.Applicant;
-        var timestampToInsert = DateTime.UtcNow;
+        
+        var changeEvent = new MembershipStatusChangeEventDto {
+            OldStatus = ContractEnums.MembershipStatus.None,
+            NewStatus = ContractEnums.MembershipStatus.Applicant,
+            Timestamp = DateTime.UtcNow
+        };
         
         memberRepository.Setup(x => x.GetByMemberIdAsync(guid))
             .ReturnsAsync(Result<Member>.Success(member));
@@ -123,16 +126,16 @@ public class MemberShipUpdateServiceTests {
             .ReturnsAsync(Result.Success());
         
         //Act
-        var result = await membershipUpdateService.InsertMembershipStatusChangeEventAsync(guid, oldStatusToInsert, newStatusToInsert, timestampToInsert);
+        var result = await membershipUpdateService.InsertMembershipStatusChangeEventAsync(guid, changeEvent);
         
         //Assert
         memberRepository.Verify(x => x.UpdateAsync(It.IsAny<Member>()), Times.Once);
         Assert.That(result, Has.Property("IsSuccess").True);
         Assert.That(member.Status, Is.EqualTo(currentStatus));
         Assert.That(member.StatusChanges.Count, Is.EqualTo(1));
-        Assert.That(member.StatusChanges.First().OldStatus, Is.EqualTo((DomainEnums.MembershipStatus)oldStatusToInsert));
-        Assert.That(member.StatusChanges.First().NewStatus, Is.EqualTo((DomainEnums.MembershipStatus)newStatusToInsert));
-        Assert.That(member.StatusChanges.First().Timestamp, Is.EqualTo(timestampToInsert));
+        Assert.That(member.StatusChanges.First().OldStatus, Is.EqualTo((DomainEnums.MembershipStatus)changeEvent.OldStatus));
+        Assert.That(member.StatusChanges.First().NewStatus, Is.EqualTo((DomainEnums.MembershipStatus)changeEvent.NewStatus));
+        Assert.That(member.StatusChanges.First().Timestamp, Is.EqualTo(changeEvent.Timestamp));
     }
     
     [Test]

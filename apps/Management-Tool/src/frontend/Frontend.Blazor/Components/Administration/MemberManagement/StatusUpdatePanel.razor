@@ -1,0 +1,86 @@
+@using global::MemberManagement.Contracts.Enums
+
+@if (Member is null) {
+    <div class="status-section">
+        <em>Loading member…</em>
+    </div>
+} else {
+    <div class="status-section">
+        <h5>Status History</h5>
+
+        <div class="status-history scrollable">
+            @if (_statusChanges is null) {
+                <p>Loading status history…</p>
+            } else if (!_statusChanges.Any()) {
+                <em>No history available</em>
+            } else {
+                <ul class="status-list">
+                    @foreach (var evt in _statusChanges.OrderByDescending(e => e.Timestamp)) {
+                        <li>
+                            <strong>@evt.NewStatus</strong><br />
+                            <small>@evt.Timestamp.ToString("g")</small>
+                        </li>
+                    }
+                </ul>
+            }
+        </div>
+
+        @if (Editable) {
+            <div class="status-forms">
+
+                <!-- Form A: Set current status -->
+                <div class="form-grid">
+                    <div class="form-col">
+                        <label>Set New Status</label>
+                        <InputSelect @bind-Value="_updateStatus">
+                            @foreach (var s in Enum.GetValues<MembershipStatus>()) {
+                                <option value="@s">@s</option>
+                            }
+                        </InputSelect>
+                        <small class="hint">Select a status and click Update.</small>
+                    </div>
+                    <div class="form-col" style="align-self:end;">
+                        <button class="btn-success" @onclick="UpdateStatusAsync" disabled="@(_updateStatus == MembershipStatus.None)">
+                            Update Status
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Form B: Insert a status-change event (manual entry) -->
+                <div class="form-grid">
+                    <div class="form-col">
+                        <label>Old Status</label>
+                        <InputSelect @bind-Value="_insertModel.OldStatus">
+                            @foreach (var s in Enum.GetValues<MembershipStatus>()) {
+                                <option value="@s">@s</option>
+                            }
+                        </InputSelect>
+                    </div>
+
+                    <div class="form-col">
+                        <label>New Status</label>
+                        <InputSelect @bind-Value="_insertModel.NewStatus">
+                            @foreach (var s in Enum.GetValues<MembershipStatus>()) {
+                                <option value="@s">@s</option>
+                            }
+                        </InputSelect>
+                    </div>
+
+                    <div class="form-col">
+                        <label>Timestamp</label>
+                        <!-- If left default, your submit can set DateTime.UtcNow server-side -->
+                        <InputDate @bind-Value="_insertModel.Timestamp" />
+                        <small class="hint">Leave empty to use current time.</small>
+                    </div>
+
+                    <div class="form-col" style="align-self:end;">
+                        <button class="btn-secondary" @onclick="InsertStatusChangeEventAsync">
+                            Insert Status Event
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+        }
+    </div>
+}
