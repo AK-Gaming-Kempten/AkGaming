@@ -11,6 +11,9 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
         options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
+builder.Services.ConfigureHttpJsonOptions(options =>
+    options.SerializerOptions.Converters.Add(new JsonStringEnumConverter()));
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options => {
     options.SchemaGeneratorOptions = new() {
@@ -59,6 +62,14 @@ builder.Services.AddAuthorization(options =>
 builder.Services.AddMemberManagementModule(builder.Configuration);
 
 var app = builder.Build();
+app.Use(async (context, next) => {
+    context.Request.EnableBuffering();
+    using var reader = new StreamReader(context.Request.Body, leaveOpen: true);
+    var body = await reader.ReadToEndAsync();
+    context.Request.Body.Position = 0;
+    Console.WriteLine(body);
+    await next();
+});
 app.MapMemberManagementEndpoints();
 app.MapGet("/test-auth", [Authorize] () => "ok!");
 app.MapGet("/debug/claims", [Authorize] (HttpContext http) =>
