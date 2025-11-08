@@ -92,8 +92,14 @@ public class EfMemberRepository : IMemberRepository {
             await _dbContext.SaveChangesAsync();
             return Result.Success();
         }
+        catch (DbUpdateConcurrencyException ex) {
+            foreach (var entry in ex.Entries)
+                Console.WriteLine($"[EF] Concurrency issue on {entry.Entity.GetType().Name} (state: {entry.State})");
+            return Result.Failure($"Concurrency conflict on {string.Join(", ", ex.Entries.Select(e => e.Entity.GetType().Name))}");
+        }
         catch (Exception ex) {
             return Result.Failure($"Failed to save changes: {ex.Message}");
         }
     }
+
 }

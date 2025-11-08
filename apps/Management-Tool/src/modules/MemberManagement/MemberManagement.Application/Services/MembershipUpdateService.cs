@@ -26,7 +26,6 @@ public class MembershipUpdateService : IMembershipUpdateService {
         var member = memberResult.Value!;
 
         var result = await member.ChangeStatus((DomainEnums.MembershipStatus)newStatus)
-            .Then(() => _members.UpdateAsync(member))
             .Then(() => _members.SaveChangesAsync());
         
         return result;
@@ -65,8 +64,7 @@ public class MembershipUpdateService : IMembershipUpdateService {
             Timestamp = changeEvent.Timestamp
         });
         
-        var result = await _members.UpdateAsync(member)
-            .Then(() => _members.SaveChangesAsync());
+        var result = await _members.SaveChangesAsync();
         
         return result;
     }

@@ -8,6 +8,15 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
+
+if (builder.Environment.IsDevelopment())
+    builder.Configuration.AddUserSecrets<Program>();
+
+builder.Configuration.AddEnvironmentVariables();if (builder.Environment.IsDevelopment())
+    builder.Configuration.AddUserSecrets<Program>();
+
+builder.Configuration.AddEnvironmentVariables();
+
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
         options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
@@ -71,8 +80,8 @@ app.Use(async (context, next) => {
     await next();
 });
 app.MapMemberManagementEndpoints();
-app.MapGet("/test-auth", [Authorize] () => "ok!");
-app.MapGet("/debug/claims", [Authorize] (HttpContext http) =>
+app.MapGet("/debug/test-auth", [Authorize] () => "ok!");
+app.MapGet("/debug/token", [Authorize] (HttpContext http) =>
 {
     var claims = http.User.Claims
         .Select(c => new { c.Type, c.Value })
