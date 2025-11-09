@@ -7,11 +7,19 @@ using MemberManagement.Contracts.Enums;
 namespace Frontend.Blazor.Components.Administration.MemberManagement;
 
 public partial class StatusUpdatePanel : ComponentBase {
+    [CascadingParameter(Name = "MemberManagementApi")]
+    public MemberManagementApiClient Api { get; set; } = default!;
     [Parameter] public MemberDto? Member { get; set; }
     [Parameter] public bool Editable { get; set; }
 
-    [CascadingParameter(Name = "MemberManagementApi")]
-    public MemberManagementApiClient Api { get; set; } = default!;
+    [Parameter] public EventCallback<MemberDto> OnStatusUpdated { get; set; }
+
+    private enum StatusTab {
+        SetStatus,
+        InsertEvent
+    }
+
+    private StatusTab _activeTab = StatusTab.SetStatus;
 
     private IEnumerable<MembershipStatusChangeEventDto>? _statusChanges;
     
@@ -43,6 +51,7 @@ public partial class StatusUpdatePanel : ComponentBase {
         }
         _updateStatus = MembershipStatus.None;
         await LoadStatusHistoryAsync();
+        await OnStatusUpdated.InvokeAsync(Member);
     }
     
     private async Task InsertStatusChangeEventAsync() {
@@ -53,5 +62,6 @@ public partial class StatusUpdatePanel : ComponentBase {
         }
         _insertModel = new();
         await LoadStatusHistoryAsync();
+        await OnStatusUpdated.InvokeAsync(Member);
     }
 }

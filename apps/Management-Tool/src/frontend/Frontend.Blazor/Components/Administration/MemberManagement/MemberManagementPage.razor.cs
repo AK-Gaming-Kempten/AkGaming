@@ -22,8 +22,10 @@ public partial class MemberManagementPage : ComponentBase {
     private async Task LoadMembersAsync() {
         try {
             var result = await MemberApi.GetAllMembersAsync();
-            if(result.IsSuccess)
+            if (result.IsSuccess) {
                 _members = result.Value?.ToList();
+            }
+                
         }
         catch (Exception ex) {
             Console.WriteLine("Error fetching members: " + ex);
@@ -35,5 +37,31 @@ public partial class MemberManagementPage : ComponentBase {
     private void SelectMember(MemberDto member) {
         _selectedMember = member;
         StateHasChanged();
+    }
+    
+    private void SelectMember(Guid id) {
+        _selectedMember = _members?.FirstOrDefault(m => m.Id == id);
+        StateHasChanged();
+    }
+    
+    private async Task Reload(MemberDto member) {
+        await LoadMembersAsync();
+        StateHasChanged();
+        SelectMember(member.Id);
+    }
+    
+    private async Task CreateMember() {
+        var creationResult = await MemberApi.CreateMemberAsync(_newMember);
+        if (!creationResult.IsSuccess) {
+            _createError = creationResult.Error;
+            return;
+        }
+        var newMemberId = creationResult.Value;
+        await LoadMembersAsync();
+        SelectMember(newMemberId);
+    }
+    
+    private void OpenFilters() {
+        // TODO
     }
 }

@@ -3,6 +3,11 @@
     --status-border: var(--color-text-tertiary);
     --status-text: var(--color-text-primary);
     --status-accent: var(--color-highlight-primary);
+    
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
 }
 
 .status-section h5 {
@@ -11,12 +16,13 @@
 }
 
 .status-history {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
     border: 1px solid var(--status-border);
-    border-radius: 6px;
+    border-radius: 2px;
     background-color: var(--status-bg);
     padding: 0.75rem;
-    max-height: 220px;
-    overflow-y: auto;
 }
 
 .status-list {
@@ -33,8 +39,35 @@
 
 .status-forms {
     margin-top: 1rem;
+    margin-bottom: 1rem;
     display: grid;
     gap: 1rem;
+    flex-shrink: 0;
+}
+
+.status-tabs {
+    display: flex;
+    gap: .5rem;
+    border-bottom: 1px solid var(--status-border);
+}
+
+.status-tabs .tab {
+    border: none;
+    background: transparent;
+    padding: .5rem .75rem;
+    font: inherit;
+    color: var(--status-text);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+}
+
+.status-tabs .tab:hover {
+    background: color-mix(in oklab, var(--status-bg) 85%, black 15%);
+}
+
+.status-tabs .tab.active {
+    border-bottom-color: var(--status-accent);
+    font-weight: 600;
 }
 
 .form-grid {

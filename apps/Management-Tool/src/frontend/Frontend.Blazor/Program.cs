@@ -10,6 +10,7 @@ builder.Services.AddDataProtectionForEnvironment(builder.Environment);
 
 var app = builder.Build();
 
+app.ConfigureCultureAndLocalization();
 app.ConfigureRequestPipeline();
 app.ConfigureAuthenticationEndpoints();
 app.ConfigureDebugEndpoints();

@@ -1,46 +1,19 @@
 @page "/membership/user/{UserId}"
-@using MemberManagement.Contracts.DTO
-@using Frontend.Blazor.ApiClients
+<PageTitle>My Membership</PageTitle>
 @using Microsoft.AspNetCore.Authorization
-@using Microsoft.AspNetCore.Components.Authorization
+@using Frontend.Blazor.Components.Administration.MemberManagement;
 @attribute [Authorize]
 
-<PageTitle>User Membership</PageTitle>
+<PageTitle>My Membership</PageTitle>
 
-@if (_loading) {
-    <p>Loading...</p>
-}
-else if (_member != null) {
-    <MemberInfoPanel Member="_member" />
-}
-else {
-    <NoMemberPanel UserId="_userGuid" />
-}
-
-@code {
-    [Parameter] public string? UserId { get; set; } = string.Empty;
-    
-    [Inject] MemberManagementApiClient ApiClient { get; set; } = default!;
-    [Inject] AuthenticationStateProvider AuthStateProvider { get; set; } = default!;
-    [Inject] NavigationManager Nav { get; set; } = default!;
-
-    private bool _loading = true;
-    private MemberDto? _member;
-    Guid _userGuid;
-
-    protected override async Task OnInitializedAsync() {
-        _loading = true;
-        
-        if (UserId is null)
-            throw new ArgumentNullException(nameof(UserId));
-        
-        _userGuid = Guid.Parse(UserId);
-        
-        var result = await ApiClient.GetMemberByUserGuidAsync(_userGuid);
-
-        if (result.IsSuccess)
-            _member = result.Value;
-
-        _loading = false;
+<CascadingValue Value="MemberApi" Name="MemberManagementApi" IsFixed="true">
+    @if (_loading) {
+        <p>Loading...</p>
     }
-}
+    else if (_member != null) {
+        <MemberCard Member="_member" IsEditable="true" IsStatusEditable="false" />
+    }
+    else {
+        <NoMemberPanel UserId="_userGuid" />
+    }
+</CascadingValue>

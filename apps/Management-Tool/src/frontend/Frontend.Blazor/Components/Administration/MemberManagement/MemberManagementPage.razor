@@ -1,34 +1,41 @@
 @page "/member-management"
+<PageTitle>Member Management</PageTitle>
 @using Microsoft.AspNetCore.Authorization
 @attribute [Authorize(Roles = "Admin")]
 @inject HttpClient Api
 
-<h3>Member Management</h3>
 <div class="member-management-page-container">
     <div class="member-management-page-left">
-        <hr />
-        <h4>Existing Members</h4>
-
-        @if (_members == null) {
-            <p>Loading…</p>
-        }
-        else if (!_members.Any()) {
-            <p>No members found.</p>
-        }
-        else {
-            <div class="member-list-scroll-container">
-                <div class="member-list">
-                    @foreach (var member in _members) {
-                        <MemberPreviewCard Member="member" IsSelected="member == _selectedMember" OnSelect="SelectMember" />
-                    }
+        <div class="member-list-buttons">
+            <h4>Existing Members</h4>
+            <button class="btn btn-secondary" @onclick="OpenFilters" disabled="@true">Filters</button>
+            <button class="btn btn-primary" @onclick="CreateMember">Create Member</button>
+        </div>
+        <div class="existing-members">
+            @if (_members == null)
+            {
+                <p>Loading…</p>
+            }
+            else if (!_members.Any())
+            {
+                <p>No members found.</p>
+            }
+            else
+            {
+                <div class="member-list-scroll-container">
+                    <div class="member-list">
+                        @foreach (var member in _members)
+                        {
+                            <MemberPreviewCard Member="member" IsSelected="member == _selectedMember" OnSelect="SelectMember"/>
+                        }
+                    </div>
                 </div>
-            </div>
-        }
+            }
+        </div>
     </div>
     <div class="member-management-page-right">
         <CascadingValue Value="MemberApi" Name="MemberManagementApi" IsFixed="true">
-            <hr/>
-            <MemberCard Member="_selectedMember" IsEditable="true"/>
+            <MemberCard Member="_selectedMember" IsEditable="true" IsStatusEditable="true" OnMemberUpdated="Reload" />
             @if (_createError != null)
             {
                 <p class="text-danger">@_createError</p>

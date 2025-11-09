@@ -1,11 +1,31 @@
+using System.Globalization;
 using System.IdentityModel.Tokens.Jwt;
 using System.Text.Json;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Localization;
 
 namespace Frontend.Blazor.Startup;
 
 public static class WebApplicationExtensions {
+    public static void ConfigureCultureAndLocalization(this WebApplication app) {
+        var defaultCulture = new CultureInfo("en-GB");
+        var localizationOptions = new RequestLocalizationOptions {
+            DefaultRequestCulture = new RequestCulture(defaultCulture),
+            SupportedCultures = new List<CultureInfo> { defaultCulture },
+            SupportedUICultures = new List<CultureInfo> { defaultCulture }
+        };
+        app.UseRequestLocalization(localizationOptions);
+        CultureInfo.DefaultThreadCurrentCulture = new CultureInfo("en-GB");
+        CultureInfo.DefaultThreadCurrentUICulture = new CultureInfo("en-GB");
+        app.Use(async (context, next) => {
+            var culture = new CultureInfo("en-GB");
+            CultureInfo.CurrentCulture = culture;
+            CultureInfo.CurrentUICulture = culture;
+            await next();
+        });
+    }
+
     public static void ConfigureRequestPipeline(this WebApplication app) {
         if (!app.Environment.IsDevelopment()) {
             app.UseExceptionHandler("/Error", createScopeForErrors: true);
