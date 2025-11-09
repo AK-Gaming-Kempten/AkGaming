@@ -1,16 +1,24 @@
 .page {
-    position: relative;
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
+    height: 100vh;
+    overflow: hidden; /* prevents the sidebar from scrolling away */
     background: var(--color-background-primary);
     color: var(--color-text-primary);
 }
 
-/* Main content grows to fill space */
 main {
     flex: 1;
+    height: 100vh;
+    overflow-y: auto; /* scrolls only the content area */
     background: var(--color-background-primary);
     color: var(--color-text-primary);
+}
+
+.content {
+    padding: 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
 }
 
 /* Top navigation bar */
