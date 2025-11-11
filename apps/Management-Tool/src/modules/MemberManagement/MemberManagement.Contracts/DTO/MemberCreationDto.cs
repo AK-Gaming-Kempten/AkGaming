@@ -3,8 +3,7 @@ namespace MemberManagement.Contracts.DTO;
 /// <summary>
 /// Dto responsible for transferring member creation data
 /// </summary>
-public class MemberCreationDto()
-{
+public class MemberCreationDto() {
     public string? FirstName { get; set; }
     public string? LastName { get; set; }
     public string? Email { get; set; }

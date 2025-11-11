@@ -1,9 +1,9 @@
-using MemberManagement.Contracts.Enums;
+using MemberManagement.Domain.Enums;
 
-namespace MemberManagement.Contracts.DTO;
+namespace MemberManagement.Domain.Entities;
 
-public class MemberLinkingRequestDto {
-    public Guid Id { get; set; } = Guid.NewGuid();
+public class MemberLinkingRequest {
+    public Guid Id { get; set; }
     public Guid IssuingUserId { get; set; }
     public string FirstName { get; set; } = string.Empty;
     public string LastName { get; set; } = string.Empty;

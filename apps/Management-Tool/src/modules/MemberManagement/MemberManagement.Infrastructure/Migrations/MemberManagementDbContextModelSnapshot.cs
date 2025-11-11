@@ -57,6 +57,81 @@ namespace Membermanagement.Infrastructure.Migrations
                     b.ToTable("Members");
                 });
 
+            modelBuilder.Entity("MemberManagement.Domain.Entities.MemberLinkingRequest", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("DiscordUserName")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("FirstName")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<bool>("IsResolved")
+                        .HasColumnType("boolean");
+
+                    b.Property<Guid>("IssuingUserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("LastName")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("Reason")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("MemberLinkingRequest");
+                });
+
+            modelBuilder.Entity("MemberManagement.Domain.Entities.MembershipApplicationRequest", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("ApplicationText")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateOnly?>("BirthDate")
+                        .HasColumnType("date");
+
+                    b.Property<string>("DiscordUserName")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Email")
+                        .HasColumnType("text");
+
+                    b.Property<string>("FirstName")
+                        .HasColumnType("text");
+
+                    b.Property<bool>("IsResolved")
+                        .HasColumnType("boolean");
+
+                    b.Property<Guid>("IssuingUserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("LastName")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Phone")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("MembershipApplicationRequest");
+                });
+
             modelBuilder.Entity("MemberManagement.Domain.Entities.MembershipStatusChangeEvent", b =>
                 {
                     b.Property<Guid>("Id")
@@ -107,6 +182,36 @@ namespace Membermanagement.Infrastructure.Migrations
 
                             b1.WithOwner()
                                 .HasForeignKey("MemberId");
+                        });
+
+                    b.Navigation("Address");
+                });
+
+            modelBuilder.Entity("MemberManagement.Domain.Entities.MembershipApplicationRequest", b =>
+                {
+                    b.OwnsOne("MemberManagement.Domain.ValueObjects.Address", "Address", b1 =>
+                        {
+                            b1.Property<Guid>("MembershipApplicationRequestId")
+                                .HasColumnType("uuid");
+
+                            b1.Property<string>("City")
+                                .HasColumnType("text");
+
+                            b1.Property<string>("Country")
+                                .HasColumnType("text");
+
+                            b1.Property<string>("Street")
+                                .HasColumnType("text");
+
+                            b1.Property<string>("ZipCode")
+                                .HasColumnType("text");
+
+                            b1.HasKey("MembershipApplicationRequestId");
+
+                            b1.ToTable("MembershipApplicationRequest");
+
+                            b1.WithOwner()
+                                .HasForeignKey("MembershipApplicationRequestId");
                         });
 
                     b.Navigation("Address");
