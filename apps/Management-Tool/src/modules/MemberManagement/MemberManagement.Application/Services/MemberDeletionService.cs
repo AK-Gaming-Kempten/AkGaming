@@ -14,12 +14,7 @@ public class MemberDeletionService : IMemberDeletionService {
     
     /// <inheritdoc/>
     public async Task<Result> DeleteMemberAsync(Guid memberId) {
-        var memberResult = await _memberRepository.GetByMemberIdAsync(memberId);
-        if (!memberResult.IsSuccess)
-            return memberResult;
-        var member = memberResult.Value!;
-        
-        var deleteResult = await _memberRepository.DeleteAsync(member)
+        var deleteResult = await _memberRepository.TryDelete(memberId)
             .Then(() => _memberRepository.SaveChangesAsync());
         
         return deleteResult;

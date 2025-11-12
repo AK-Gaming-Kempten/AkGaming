@@ -21,13 +21,13 @@ public class MemberCreationService : IMemberCreationService {
     public async Task<Result<Guid>> CreateMemberAsync(MemberCreationDto memberCreationData) {
         var member = memberCreationData.ToMember();
 
-        var result = await _memberRepository.AddAsync(member);
+        var result = _memberRepository.Add(member);
         if (!result.IsSuccess)
-            return result;
+            return Result<Guid>.Failure(result.Error ?? "Member could not be created");
         var saveResult = await _memberRepository.SaveChangesAsync();
         if (!saveResult.IsSuccess)
-            return Result<Guid>.Failure(saveResult.Error);
+            return Result<Guid>.Failure(saveResult.Error ?? "Member could not be saved");
         
-        return result;
+        return Result<Guid>.Success(member.Id);
     }
 }

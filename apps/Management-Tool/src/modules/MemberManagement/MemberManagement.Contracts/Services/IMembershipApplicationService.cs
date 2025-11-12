@@ -4,8 +4,11 @@ using MemberManagement.Contracts.DTO;
 namespace MemberManagement.Contracts.Services;
 
 public interface IMembershipApplicationService {
-    Task<Result<Guid>> ApplyForMembershipAsync(
-        Guid userId,
-        MemberCreationDto dto
-    );
+    Task<Result> ApplyForMembershipAsync(MembershipApplicationRequestDto request);
+    
+    Task<Result<ICollection<MembershipApplicationRequestDto>>> GetAllRequestFromUserAsync(Guid userId);
+    
+    Task<Result<ICollection<MembershipApplicationRequestDto>>> GetAllRequestAsync();
+    
+    Task<Result> AcceptMembershipApplicationAsync(Guid id);
 }

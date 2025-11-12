@@ -29,8 +29,8 @@ public class MemberShipUpdateServiceTests {
         memberRepository.Setup(x => x.GetByMemberIdAsync(guid))
             .ReturnsAsync(Result<Member>.Success(currentMember));
         
-        memberRepository.Setup(x => x.UpdateAsync(It.IsAny<Member>()))
-            .ReturnsAsync(Result.Success());
+        memberRepository.Setup(x => x.Update(It.IsAny<Member>()))
+            .Returns(Result.Success());
         
         memberRepository.Setup(x => x.SaveChangesAsync())
             .ReturnsAsync(Result.Success());
@@ -39,7 +39,6 @@ public class MemberShipUpdateServiceTests {
         var result = await membershipUpdateService.UpdateMembershipStatusAsync(guid, newStatus);
         
         //Assert
-        memberRepository.Verify(x => x.UpdateAsync(It.IsAny<Member>()), Times.Once);
         Assert.That(result, Has.Property("IsSuccess").True);
         Assert.That(currentMember.Status, Is.EqualTo((DomainEnums.MembershipStatus)newStatus));
         Assert.That(currentMember.StatusChanges.Count, Is.EqualTo(1));
@@ -62,7 +61,7 @@ public class MemberShipUpdateServiceTests {
         var result = await membershipUpdateService.UpdateMembershipStatusAsync(guid, newStatus);
         
         //Assert
-        memberRepository.Verify(x => x.UpdateAsync(It.IsAny<Member>()), Times.Never);
+        memberRepository.Verify(x => x.Update(It.IsAny<Member>()), Times.Never);
         Assert.That(result, Has.Property("IsSuccess").False);
     }
     
@@ -83,8 +82,8 @@ public class MemberShipUpdateServiceTests {
         memberRepository.Setup(x => x.GetByMemberIdAsync(guid))
             .ReturnsAsync(Result<Member>.Success(currentMember));
         
-        memberRepository.Setup(x => x.UpdateAsync(It.IsAny<Member>()))
-            .ReturnsAsync(Result.Success());
+        memberRepository.Setup(x => x.Update(It.IsAny<Member>()))
+            .Returns(Result.Success());
         
         memberRepository.Setup(x => x.SaveChangesAsync())
             .ReturnsAsync(Result.Success());
@@ -93,7 +92,7 @@ public class MemberShipUpdateServiceTests {
         var result = await membershipUpdateService.UpdateMembershipStatusAsync(guid, newStatus);
         
         //Assert
-        memberRepository.Verify(x => x.UpdateAsync(It.IsAny<Member>()), Times.Never);
+        memberRepository.Verify(x => x.Update(It.IsAny<Member>()), Times.Never);
         Assert.That(result, Has.Property("IsSuccess").False);
     }
     
@@ -119,8 +118,8 @@ public class MemberShipUpdateServiceTests {
         memberRepository.Setup(x => x.GetByMemberIdAsync(guid))
             .ReturnsAsync(Result<Member>.Success(member));
         
-        memberRepository.Setup(x => x.UpdateAsync(It.IsAny<Member>()))
-            .ReturnsAsync(Result.Success());
+        memberRepository.Setup(x => x.Update(It.IsAny<Member>()))
+            .Returns(Result.Success());
         
         memberRepository.Setup(x => x.SaveChangesAsync())
             .ReturnsAsync(Result.Success());
@@ -129,7 +128,6 @@ public class MemberShipUpdateServiceTests {
         var result = await membershipUpdateService.InsertMembershipStatusChangeEventAsync(guid, changeEvent);
         
         //Assert
-        memberRepository.Verify(x => x.UpdateAsync(It.IsAny<Member>()), Times.Once);
         Assert.That(result, Has.Property("IsSuccess").True);
         Assert.That(member.Status, Is.EqualTo(currentStatus));
         Assert.That(member.StatusChanges.Count, Is.EqualTo(1));

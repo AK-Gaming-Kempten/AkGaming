@@ -52,9 +52,9 @@ public class MemberUpdateServiceTests {
             .ReturnsAsync(Result<Member>.Success(currentMember));
 
         Member? updatedMember = null;
-        memberRepository.Setup(x => x.UpdateAsync(It.IsAny<Member>()))
+        memberRepository.Setup(x => x.Update(It.IsAny<Member>()))
             .Callback<Member>(m => updatedMember = m)
-            .ReturnsAsync(Result.Success());
+            .Returns(Result.Success());
 
         memberRepository.Setup(x => x.SaveChangesAsync())
             .ReturnsAsync(Result.Success());
@@ -63,7 +63,7 @@ public class MemberUpdateServiceTests {
         var result = await memberUpdateService.UpdateMemberAsync(guid, memberDto);
 
         // Assert
-        memberRepository.Verify(x => x.UpdateAsync(It.IsAny<Member>()), Times.Once);
+        memberRepository.Verify(x => x.Update(It.IsAny<Member>()), Times.Once);
 
         Assert.That(updatedMember, Is.Not.Null);
         Assert.That(result, Has.Property("IsSuccess").True);
@@ -106,9 +106,9 @@ public class MemberUpdateServiceTests {
             .ReturnsAsync(Result<Member>.Failure("Member not found"));
 
         Member? updatedMember = null;
-        memberRepository.Setup(x => x.UpdateAsync(It.IsAny<Member>()))
+        memberRepository.Setup(x => x.Update(It.IsAny<Member>()))
             .Callback<Member>(m => updatedMember = m)
-            .ReturnsAsync(Result.Success());
+            .Returns(Result.Success());
 
         memberRepository.Setup(x => x.SaveChangesAsync())
             .ReturnsAsync(Result.Success());
@@ -117,7 +117,7 @@ public class MemberUpdateServiceTests {
         var result = await memberUpdateService.UpdateMemberAsync(guid, memberDto);
 
         // Assert
-        memberRepository.Verify(x => x.UpdateAsync(It.IsAny<Member>()), Times.Never);
+        memberRepository.Verify(x => x.Update(It.IsAny<Member>()), Times.Never);
 
         Assert.That(updatedMember, Is.Null);
         Assert.That(result, Has.Property("IsSuccess").False);

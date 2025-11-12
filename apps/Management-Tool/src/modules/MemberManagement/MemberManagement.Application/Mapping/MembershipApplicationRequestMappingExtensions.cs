@@ -18,7 +18,7 @@ public static class MembershipApplicationRequestMappingExtensions {
         IsResolved = dto.IsResolved
     };
     
-    public static MembershipApplicationRequestDto ToMembershipApplicationRequestDto(this MembershipApplicationRequest request) => new() {
+    public static MembershipApplicationRequestDto ToDto(this MembershipApplicationRequest request) => new() {
         Id = request.Id,
         IssuingUserId = request.IssuingUserId,
         MemberCreationInfo = new MemberCreationDto() {

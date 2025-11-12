@@ -16,7 +16,7 @@ public static class MemberLinkingRequestMappingExtensions {
         Reason =  (DomainEnums.MemberLinkingRequestReason)dto.Reason,
         IsResolved = dto.IsResolved
     };
-    public static MemberLinkingRequestDto ToMemberLinkingRequestDto(this MemberLinkingRequest request) => new() {
+    public static MemberLinkingRequestDto ToDto(this MemberLinkingRequest request) => new() {
         Id = request.Id,
         IssuingUserId = request.IssuingUserId,
         FirstName = request.FirstName,

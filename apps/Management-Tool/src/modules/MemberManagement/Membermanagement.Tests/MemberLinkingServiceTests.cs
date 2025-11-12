@@ -12,7 +12,8 @@ public class MemberLinkingServiceTests {
     public async Task MemberLinkingService_LinksMemberToUser() {
         // Arrange
         var memberRepository = new Mock<IMemberRepository>();
-        var memberLinkingService = new MemberLinkingService(memberRepository.Object);
+        var memberLinkingRequestRepository = new Mock<IMemberLinkingRequestRepository>();
+        var memberLinkingService = new MemberLinkingService(memberRepository.Object, memberLinkingRequestRepository.Object);
         var memberId = Guid.NewGuid();
         var userId = Guid.NewGuid();
         var member = new Member()
@@ -24,8 +25,8 @@ public class MemberLinkingServiceTests {
         memberRepository.Setup(x => x.GetByMemberIdAsync(memberId))
             .ReturnsAsync(Result<Member>.Success(member));
         
-        memberRepository.Setup(x => x.UpdateAsync(member))
-            .ReturnsAsync(Result.Success());
+        memberRepository.Setup(x => x.Update(member))
+            .Returns(Result.Success());
         
         memberRepository.Setup(x => x.SaveChangesAsync())
             .ReturnsAsync(Result.Success());
@@ -35,7 +36,7 @@ public class MemberLinkingServiceTests {
         
         // Assert
         memberRepository.Verify(x => x.GetByMemberIdAsync(memberId), Times.Once);
-        memberRepository.Verify(x => x.UpdateAsync(member), Times.Once);
+        memberRepository.Verify(x => x.Update(member), Times.Once);
         memberRepository.Verify(x => x.SaveChangesAsync(), Times.Once);
         
         Assert.That(result, Has.Property("IsSuccess").True);

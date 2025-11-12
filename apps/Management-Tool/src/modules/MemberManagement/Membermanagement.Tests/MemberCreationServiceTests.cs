@@ -31,14 +31,14 @@ public class MemberCreationServiceTests {
             }
         };
         
-        memberRepository.Setup(x => x.AddAsync(It.IsAny<Member>())).Returns(Task.FromResult(Result<Guid>.Success(Guid.NewGuid())));
+        memberRepository.Setup(x => x.Add(It.IsAny<Member>())).Returns(Result<Guid>.Success(Guid.NewGuid()));
         memberRepository.Setup(x => x.SaveChangesAsync()).Returns(Task.FromResult(Result.Success()));
     
         // Act
         await memberCreationService.CreateMemberAsync(memberCreationDto);
     
         // Assert
-        memberRepository.Verify(x => x.AddAsync(It.Is<Member>(m =>
+        memberRepository.Verify(x => x.Add(It.Is<Member>(m =>
             m.Email == memberCreationDto.Email &&
             m.FirstName == memberCreationDto.FirstName &&
             m.LastName == memberCreationDto.LastName &&
@@ -72,7 +72,7 @@ public class MemberCreationServiceTests {
             }
         };
         
-        memberRepository.Setup(x => x.AddAsync(It.IsAny<Member>())).Returns(Task.FromResult(Result<Guid>.Failure("Database failed. Member was not added.")));
+        memberRepository.Setup(x => x.Add(It.IsAny<Member>())).Returns(Result<Guid>.Failure("Database failed. Member was not added."));
         memberRepository.Setup(x => x.SaveChangesAsync()).Returns(Task.FromResult(Result.Success()));
     
         // Act

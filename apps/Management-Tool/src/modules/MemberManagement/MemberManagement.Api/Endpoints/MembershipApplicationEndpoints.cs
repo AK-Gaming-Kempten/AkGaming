@@ -13,9 +13,19 @@ public static class MembershipApplicationEndpoints {
             .WithTags("Members - Commands")
             .RequireAuthorization("UserOnly");
 
-        group.MapPost("/{userId}/applyForMembership", async ([FromRoute] Guid userId,[FromBody] MemberCreationDto memberDto, [FromServices] IMembershipApplicationService service) => {
-            var result = await service.ApplyForMembershipAsync(userId, memberDto);
-            return result.IsSuccess ? Results.Created($"/members/{result.Value}",result.Value) : Results.BadRequest(result.Error);
+        group.MapPost("/applyForMembership", async ([FromBody] MembershipApplicationRequestDto request, [FromServices] IMembershipApplicationService service) => {
+            var result = await service.ApplyForMembershipAsync(request);
+            return result.IsSuccess ? Results.Created() : Results.BadRequest(result.Error);
+        });
+        
+        group.MapGet("/{userId}/membershipApplicationRequests", async ([FromRoute] Guid userId, [FromServices] IMembershipApplicationService service) => {
+            var result = await service.GetAllRequestFromUserAsync(userId);
+            return result.IsSuccess ? Results.Ok(result.Value) : Results.BadRequest(result.Error);
+        });
+
+        group.MapGet("/membershipApplicationRequests", async ([FromServices] IMembershipApplicationService service) => {
+            var result = await service.GetAllRequestAsync();
+            return result.IsSuccess ? Results.Ok(result.Value) : Results.BadRequest(result.Error);
         });
 
         return endpoints;

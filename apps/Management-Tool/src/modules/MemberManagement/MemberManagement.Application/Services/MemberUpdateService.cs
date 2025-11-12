@@ -35,7 +35,7 @@ public class MemberUpdateService : IMemberUpdateService {
             Country = memberData.Address.Country
         };
 
-        var result = await _memberRepository.UpdateAsync(member)
+        var result = await _memberRepository.Update(member)
             .Then(() => _memberRepository.SaveChangesAsync());
         
         return result;

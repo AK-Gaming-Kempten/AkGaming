@@ -57,33 +57,49 @@ public class EfMemberRepository : IMemberRepository {
         }
     }
 
-    public Task<Result<Guid>> AddAsync(Member member) {
+    public Result Add(Member member) {
         try {
             _dbContext.Members.Add(member);
-            return Task.FromResult(Result<Guid>.Success(member.Id));
+            return Result.Success();
         }
         catch (Exception ex) {
-            return Task.FromResult(Result<Guid>.Failure($"Failed to add member: {ex.Message}"));
+            return Result.Failure($"Failed to add member: {ex.Message}");
         }
     }
 
-    public Task<Result> UpdateAsync(Member member) {
+    public Result Update(Member member) {
         try {
             _dbContext.Members.Update(member);
-            return Task.FromResult(Result.Success());
+            return Result.Success();
         }
         catch (Exception ex) {
-            return Task.FromResult(Result.Failure($"Failed to update member: {ex.Message}"));
+            return Result.Failure($"Failed to update member: {ex.Message}");
         }
     }
 
-    public Task<Result> DeleteAsync(Member member) {
+    public Result Delete(Member member) {
         try {
             _dbContext.Members.Remove(member);
-            return Task.FromResult(Result.Success());
+            return Result.Success();
         }
         catch (Exception ex) {
-            return Task.FromResult(Result.Failure($"Failed to delete member: {ex.Message}"));
+            return Result.Failure($"Failed to delete member: {ex.Message}");
+        }
+    }
+    
+    public Result TryDelete(Guid id) {
+        try {
+            var member = _dbContext.Members
+                .FirstOrDefault(m => m.Id == id);
+
+            if (member is null)
+                return Result.Failure("Member not found.");
+
+            _dbContext.Members.Remove(member);
+            return Result.Success();
+        }
+        catch (Exception ex) {
+            return Result.Failure($"Failed to delete member: {ex.Message}");
         }
     }
 

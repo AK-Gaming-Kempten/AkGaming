@@ -10,8 +10,8 @@ public interface IMemberRepository {
     Task<Result<Member>> GetByMemberIdAsync(Guid id);
     Task<Result<Member>> GetByUserIdAsync(Guid id);
     Task<Result<List<Member>>> GetAllAsync();
-    Task<Result<Guid>> AddAsync(Member member);
-    Task<Result> UpdateAsync(Member member);
-    Task<Result> DeleteAsync(Member member);
+    Result Add(Member member);
+    Result Update(Member member);
+    Result TryDelete(Guid id);
     Task<Result> SaveChangesAsync();
 }

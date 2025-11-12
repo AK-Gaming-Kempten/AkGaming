@@ -16,12 +16,12 @@ public class MemberManagementDbContext : DbContext {
 
     public DbSet<Member> Members => Set<Member>();
     public DbSet<MembershipStatusChangeEvent> MembershipStatusChangeEvents => Set<MembershipStatusChangeEvent>();
+    public DbSet<MemberLinkingRequest> MemberLinkingRequests => Set<MemberLinkingRequest>();
+    public DbSet<MembershipApplicationRequest> MembershipApplicationRequests => Set<MembershipApplicationRequest>();
 
     /// <inheritdoc/>
     protected override void OnModelCreating(ModelBuilder modelBuilder) {
         base.OnModelCreating(modelBuilder);
-
-        // apply separate configuration classes (cleaner)
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(MemberManagementDbContext).Assembly);
     }
 }
