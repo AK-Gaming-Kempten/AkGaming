@@ -1,0 +1,31 @@
+.panels {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2rem;
+    width: 100%;
+    max-width: 1200px;
+}
+
+.panels h2 {
+    margin-top: 0;
+    color: var(--color-highlight-primary);
+}
+
+.panels h4{
+    margin-top: 0;
+    color: var(--color-highlight-secondary);
+}
+
+.panels .section-header {
+    color: var(--color-text-primary);
+}
+
+.card {
+    height: 130px;
+    margin-bottom: 1rem;
+    cursor: pointer;
+}
+
+.card p {
+    margin-top: 0;
+}

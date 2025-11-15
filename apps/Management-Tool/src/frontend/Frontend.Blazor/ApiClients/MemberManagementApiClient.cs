@@ -1,146 +1,85 @@
-using System.Text;
 using System.Text.Json;
 using AKG.Common.Generics;
-using Frontend.Blazor.Handlers;
 using MemberManagement.Contracts.DTO;
 using MemberManagement.Contracts.Enums;
 
 namespace Frontend.Blazor.ApiClients;
 
-public class MemberManagementApiClient
-{
-    private readonly HttpClient _httpClient;
+public sealed class MemberManagementApiClient : ApiClientBase {
+    public MemberManagementApiClient(HttpClient http) : base(http) { }
 
-    public MemberManagementApiClient(HttpClient http)
-    {
-        _httpClient = http;
-    }
-    
-    public async Task<Result<string>> TestAuth() {
-        var httpResult = await _httpClient.GetAsync("/test-auth");
-        if(!httpResult.IsSuccessStatusCode)
-            return Result<string>.Failure(httpResult.ReasonPhrase);
-        
-        return Result<string>.Success(await httpResult.Content.ReadAsStringAsync());
-    }
-    
-    public async Task<Result<MemberDto>> GetMemberByGuidAsync(Guid id) {
-        var httpResult = await _httpClient.GetAsync($"members/{id}");
-        if(!httpResult.IsSuccessStatusCode)
-            return Result<MemberDto>.Failure(httpResult.ReasonPhrase);
-        
-        var dto = await httpResult.Content.ReadFromJsonAsync<MemberDto>(JsonDefaults.Options);
-        if( dto == null)
-            return Result<MemberDto>.Failure("Unable to read member from response");
+    // ---- Health/Auth --------------------------------------------------------
+    public Task<Result<string>> TestAuth(CancellationToken ct = default) =>
+        GetAsync<string>("/test-auth", ct);
 
-        return Result<MemberDto>.Success(dto);
-    }
-    
-    public async Task<Result<MemberDto>> GetMemberByUserGuidAsync(Guid id) {
-        var httpResult = await _httpClient.GetAsync($"members/user/{id}");
-        if(!httpResult.IsSuccessStatusCode)
-            return Result<MemberDto>.Failure(httpResult.ReasonPhrase);
-        
-        var dto = await httpResult.Content.ReadFromJsonAsync<MemberDto>(JsonDefaults.Options);
-        if( dto == null)
-            return Result<MemberDto>.Failure("Unable to read member from response");
+    // ---- Members ------------------------------------------------------------
+    public Task<Result<MemberDto>> GetMemberByGuidAsync(Guid id, CancellationToken ct = default) =>
+        GetAsync<MemberDto>($"members/{id}", ct);
 
-        return Result<MemberDto>.Success(dto);
-    }
-    
-    public async Task<Result<ICollection<MemberDto>>> GetAllMembersAsync() {
-        var httpResult = await _httpClient.GetAsync("members");
-        if(!httpResult.IsSuccessStatusCode)
-            return Result<ICollection<MemberDto>>.Failure(httpResult.ReasonPhrase);
-        
-        var dtos = await httpResult.Content.ReadFromJsonAsync<List<MemberDto>>(JsonDefaults.Options);
-        if( dtos == null)
-            return Result<ICollection<MemberDto>>.Failure("Unable to read members from response");
+    public Task<Result<MemberDto>> GetMemberByUserGuidAsync(Guid userId, CancellationToken ct = default) =>
+        GetAsync<MemberDto>($"members/user/{userId}", ct);
 
-        return Result<ICollection<MemberDto>>.Success(dtos);
-    }
-    
-    public async Task<Result<ICollection<MemberDto>>> GetMembersWithStatusAsync(MembershipStatus status) {
-        var httpResult = await _httpClient.GetAsync($"members?status={status}");
-        if(!httpResult.IsSuccessStatusCode)
-            return Result<ICollection<MemberDto>>.Failure(httpResult.ReasonPhrase);
-        
-        var dtos = await httpResult.Content.ReadFromJsonAsync<List<MemberDto>>(JsonDefaults.Options);
-        if( dtos == null)
-            return Result<ICollection<MemberDto>>.Failure("Unable to read members from response");
+    public Task<Result<ICollection<MemberDto>>> GetAllMembersAsync(CancellationToken ct = default) =>
+        GetAsync<ICollection<MemberDto>>("members", ct);
 
-        return Result<ICollection<MemberDto>>.Success(dtos);
-    }
-    
-    public async Task<Result<ICollection<MemberDto>>> GetMembersWithStatusAsync(ICollection<MembershipStatus> statuses) {
-        var httpResult = await _httpClient.GetAsync($"members?status={string.Join(",", statuses)}");
-        if(!httpResult.IsSuccessStatusCode)
-            return Result<ICollection<MemberDto>>.Failure(httpResult.ReasonPhrase);
-        
-        var dtos = await httpResult.Content.ReadFromJsonAsync<List<MemberDto>>(JsonDefaults.Options);
-        if( dtos == null)
-            return Result<ICollection<MemberDto>>.Failure("Unable to read members from response");
+    public Task<Result<ICollection<MemberDto>>> GetMembersWithStatusAsync(MembershipStatus status, CancellationToken ct = default) =>
+        GetAsync<ICollection<MemberDto>>($"members?status={status}", ct);
 
-        return Result<ICollection<MemberDto>>.Success(dtos);
+    public Task<Result<ICollection<MemberDto>>> GetMembersWithStatusAsync(ICollection<MembershipStatus> statuses, CancellationToken ct = default) {
+        var q = string.Join(",", statuses);
+        return GetAsync<ICollection<MemberDto>>($"members?status={q}", ct);
     }
+
+    public Task<Result<Guid>> CreateMemberAsync(MemberCreationDto dto, CancellationToken ct = default) =>
+        PostJsonAsync<MemberCreationDto, Guid>("members", dto, ct);
+
+    public Task<Result> UpdateMemberAsync(MemberDto dto, CancellationToken ct = default) =>
+        PutJsonAsync("members/" + dto.Id, dto, ct);
+
+    // ---- User linking -------------------------------------------------------
+    public Task<Result> LinkMemberToUserAsync(Guid userId, Guid memberId, CancellationToken ct = default) =>
+        PostJsonAsync($"members/{memberId}/linkToUser", userId, ct);
+
+    public Task<Result> UnlinkMemberFromUserAsync(Guid userId, Guid memberId, CancellationToken ct = default) =>
+        PostJsonAsync($"members/{memberId}/unlinkFromUser", userId, ct);
     
-    public async Task<Result<Guid>> CreateMemberAsync(MemberCreationDto dto) {
-        var httpResult = await _httpClient.PostAsJsonAsync("members", dto, options: JsonDefaults.Options);
-        return httpResult.IsSuccessStatusCode ? 
-            Result<Guid>.Success(await httpResult.Content.ReadFromJsonAsync<Guid>(JsonDefaults.Options)) : 
-            Result<Guid>.Failure(httpResult.ReasonPhrase);
-    }
+    public Task<Result> SendMemberLinkingRequestAsync(MemberLinkingRequestDto request, CancellationToken ct = default) =>
+        PostJsonAsync($"members/memberLinkingRequests", request, ct);
     
-    public async Task<Result> UpdateMemberAsync(MemberDto dto) {
-        var httpResult = await _httpClient.PutAsJsonAsync($"members/{dto.Id}", dto, options: JsonDefaults.Options);
-        return httpResult.IsSuccessStatusCode ? Result.Success() : Result<MemberDto>.Failure(httpResult.ReasonPhrase);
-    }
+    public Task<Result> MarkMemberLinkingRequestResolvedAsync(Guid requestId, CancellationToken ct = default) =>
+        PostJsonAsync($"members/memberLinkingRequests/{requestId}/markResolved",new {}, ct);
     
-    public async Task<Result> LinkMemberToUserAsync(Guid userId, Guid memberId) {
-        var httpResult = await _httpClient.PostAsJsonAsync($"members/{memberId}/linkToUser", userId, options: JsonDefaults.Options);
-        return httpResult.IsSuccessStatusCode ? Result.Success() : Result.Failure(httpResult.ReasonPhrase);
-    }
+    public Task<Result<ICollection<MemberLinkingRequestDto>>> GetAllMemberLinkingRequestAsync(CancellationToken ct = default) =>
+        GetAsync<ICollection<MemberLinkingRequestDto>>("members/memberLinkingRequests", ct);
     
-    public async Task<Result> UnlinkMemberFromUserAsync(Guid userId, Guid memberId) {
-        var httpResult = await _httpClient.PostAsJsonAsync($"members/{memberId}/unlinkFromUser", userId, options: JsonDefaults.Options);
-        return httpResult.IsSuccessStatusCode ? Result.Success() : Result.Failure(httpResult.ReasonPhrase);
-    }
+    public Task<Result<ICollection<MemberLinkingRequestDto>>> GetAllMemberLinkingRequestsByUserAsync(Guid userId, CancellationToken ct = default) =>
+        GetAsync<ICollection<MemberLinkingRequestDto>>($"members/{userId}/memberLinkingRequests/", ct);
+
+    // ---- Membership lifecycle ----------------------------------------------
+    public Task<Result> ApplyForMembershipAsync(MembershipApplicationRequestDto request, CancellationToken ct = default) =>
+        PostJsonAsync($"members/applyForMembership", request, ct);
+
+    public Task<Result> UpdateMembershipStatusAsync(Guid memberId, MembershipStatus status, CancellationToken ct = default) =>
+        PutValueAsync($"members/{memberId}/updateStatus", status, ct);
+
+    public Task<Result> InsertMembershipStatusChangeAsync(Guid memberId, MembershipStatusChangeEventDto changeEvent, CancellationToken ct = default) =>
+        PutJsonAsync($"members/{memberId}/insertStatusChangeEvent", changeEvent, ct);
     
-    public async Task<Result<Guid>> ApplyForMembershipAsync(Guid userId, MemberCreationDto dto) {
-        var httpResult = await _httpClient.PostAsJsonAsync($"members/{userId}/applyForMembership", dto, options: JsonDefaults.Options);
-        return httpResult.IsSuccessStatusCode ? 
-            Result<Guid>.Success(await httpResult.Content.ReadFromJsonAsync<Guid>(JsonDefaults.Options)) : 
-            Result<Guid>.Failure(httpResult.ReasonPhrase);
-    }
+    public Task<Result> AcceptMembershipApplicationAsync(Guid requestId, CancellationToken ct = default) =>
+        PostJsonAsync($"members/membershipApplicationRequests/{requestId}/accept", new {}, ct);
     
-    public async Task<Result> UpdateMembershipStatusAsync(Guid memberId, MembershipStatus status) {
-        var json = JsonSerializer.Serialize(status, JsonDefaults.Options);
-        var content = new StringContent(json, Encoding.UTF8, "application/json");
-        var httpResult = await _httpClient.PutAsync($"members/{memberId}/updateStatus", content);
-        return httpResult.IsSuccessStatusCode ? Result.Success() : Result.Failure(httpResult.ReasonPhrase);
-    }
+    public Task<Result> RejectMembershipApplicationAsync(Guid requestId, CancellationToken ct = default) =>
+        PostJsonAsync($"members/membershipApplicationRequests/{requestId}/reject", new {}, ct);
     
-    public async Task<Result> InsertMembershipStatusChangeAsync(Guid memberId, MembershipStatusChangeEventDto changeEvent) {
-        var httpResult = await _httpClient.PutAsJsonAsync($"members/{memberId}/insertStatusChangeEvent", changeEvent, options: JsonDefaults.Options);
-        return httpResult.IsSuccessStatusCode ? Result.Success() : Result.Failure(httpResult.ReasonPhrase);
-    }
-    
-    public async Task<Result<ICollection<MembershipStatusChangeEventDto>>> GetMembershipStatusChangesAsync(Guid memberId) {
-        var httpResult = await _httpClient.GetAsync($"members/{memberId}/statusChanges");
-        if(!httpResult.IsSuccessStatusCode)
-            return Result<ICollection<MembershipStatusChangeEventDto>>.Failure(httpResult.ReasonPhrase);
-        
-        var updateEvents = await httpResult.Content.ReadFromJsonAsync<ICollection<MembershipStatusChangeEventDto>>(JsonDefaults.Options);
-        return updateEvents == null ? 
-            Result<ICollection<MembershipStatusChangeEventDto>>.Failure("Unable to read status history from response") : 
-            Result<ICollection<MembershipStatusChangeEventDto>>.Success(updateEvents);
-    }
-    
-    public async Task<Result<DateTime>> GetDefaultEndOfTrialPeriodAsync(Guid memberId) {
-        var httpResult = await _httpClient.GetAsync($"members/{memberId}/endOfTrial");
-        if(!httpResult.IsSuccessStatusCode)
-            return Result<DateTime>.Failure(httpResult.ReasonPhrase);
-        
-        return Result<DateTime>.Success(await httpResult.Content.ReadFromJsonAsync<DateTime>(JsonDefaults.Options));
-    }
+    public Task<Result<ICollection<MembershipApplicationRequestDto>>> GetAllMembershipApplicationRequestsAsync(CancellationToken ct = default) =>
+        GetAsync<ICollection<MembershipApplicationRequestDto>>("members/membershipApplicationRequests", ct);
+
+    public Task<Result<ICollection<MembershipApplicationRequestDto>>> GetAllMembershipApplicationRequestsByUserAsync(Guid userId, CancellationToken ct = default) =>
+        GetAsync<ICollection<MembershipApplicationRequestDto>>($"members/{userId}/membershipApplicationRequests/", ct);
+
+    public Task<Result<ICollection<MembershipStatusChangeEventDto>>> GetMembershipStatusChangesAsync(Guid memberId, CancellationToken ct = default) =>
+        GetAsync<ICollection<MembershipStatusChangeEventDto>>($"members/{memberId}/statusChanges", ct);
+
+    public Task<Result<DateTime>> GetDefaultEndOfTrialPeriodAsync(Guid memberId, CancellationToken ct = default) =>
+        GetAsync<DateTime>($"members/{memberId}/endOfTrial", ct);
 }

@@ -17,6 +17,22 @@ public partial class RequestMemberLinkingPanel : ComponentBase {
     private string? _requestError;
 
     private async Task RequestMemberLinkingAsync() {
-        _requestError = "Linking service not implemented yet!";
+        _requestError = null;
+        if(UserGuid == Guid.Empty) {
+            _requestError = "Can not apply for membership without a valid user ID!";
+            return;
+        }
+        
+        _request.IssuingUserId = UserGuid;
+        
+        try {
+            var response = await MemberApi.SendMemberLinkingRequestAsync(_request);
+            if (response.IsSuccess) {
+                Nav.NavigateTo($"/membership");
+            }
+        }
+        catch (Exception ex) {
+            _requestError = ex.Message;
+        }
     }
 }

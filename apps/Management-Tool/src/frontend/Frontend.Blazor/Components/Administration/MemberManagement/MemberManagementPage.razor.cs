@@ -10,7 +10,7 @@ public partial class MemberManagementPage : ComponentBase {
     private MemberManagementApiClient MemberApi { get; set; } = default!;
     
     private List<MemberDto>? _members;
-    private MemberCreationDto _newMember = new MemberCreationDto() { Address = new AddressDto() };
+
     private string? _createError;
 
     private MemberDto? _selectedMember = null;
@@ -51,7 +51,7 @@ public partial class MemberManagementPage : ComponentBase {
     }
     
     private async Task CreateMember() {
-        var creationResult = await MemberApi.CreateMemberAsync(_newMember);
+        var creationResult = await MemberApi.CreateMemberAsync(new MemberCreationDto() { Address = new AddressDto() });
         if (!creationResult.IsSuccess) {
             _createError = creationResult.Error;
             return;

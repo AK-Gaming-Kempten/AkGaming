@@ -1,0 +1,19 @@
+<div class="theme-switcher-box">
+    <button type="button"
+            class="btn @( _currentTheme == Theme.System ? "btn-selected" : null )"
+            @onclick="() => SetTheme(Theme.System)">
+        <i class="bi bi-display"></i>
+    </button>
+
+    <button type="button"
+            class="btn @( _currentTheme == Theme.Light ? "btn-selected" : null )"
+            @onclick="() => SetTheme(Theme.Light)">
+        <i class="bi bi-sun"></i>
+    </button>
+
+    <button type="button"
+            class="btn @( _currentTheme == Theme.Dark ? "btn-selected" : null )"
+            @onclick="() => SetTheme(Theme.Dark)">
+        <i class="bi bi-moon"></i>
+    </button>
+</div>

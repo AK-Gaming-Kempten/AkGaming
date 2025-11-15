@@ -13,7 +13,11 @@ public partial class ApplyForMembershipPanel : ComponentBase {
     [Parameter] 
     public Guid UserGuid { get; set; } = Guid.Empty;
     
-    private readonly MemberCreationDto _newMember = new() {Address = new AddressDto()};
+    private readonly MembershipApplicationRequestDto _application = new() {
+        MemberCreationInfo = new MemberCreationDto() {
+            Address = new AddressDto()
+        }
+    };
     private string? _createError;
 
     private async Task ApplyForMembershipAsync() {
@@ -22,11 +26,13 @@ public partial class ApplyForMembershipPanel : ComponentBase {
             _createError = "Can not apply for membership without a valid user ID!";
             return;
         }
-
+        
+        _application.IssuingUserId = UserGuid;
+        
         try {
-            var response = await MemberApi.ApplyForMembershipAsync(UserGuid, _newMember);
+            var response = await MemberApi.ApplyForMembershipAsync(_application);
             if (response.IsSuccess) {
-                Nav.NavigateTo($"/Membership/User/{UserGuid}");
+                Nav.NavigateTo($"/membership");
             }
         }
         catch (Exception ex) {

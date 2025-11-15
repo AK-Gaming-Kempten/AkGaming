@@ -11,4 +11,6 @@ public interface IMembershipApplicationService {
     Task<Result<ICollection<MembershipApplicationRequestDto>>> GetAllRequestAsync();
     
     Task<Result> AcceptMembershipApplicationAsync(Guid id);
+    
+    Task<Result> RejectMembershipApplicationAsync(Guid id);
 }

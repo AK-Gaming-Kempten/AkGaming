@@ -8,5 +8,6 @@ public enum MembershipStatus {
     Applicant,
     InTrial,
     Member,
-    HonoraryMember
+    HonoraryMember,
+    ApplicationRejected
 }

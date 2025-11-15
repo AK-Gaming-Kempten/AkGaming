@@ -4,14 +4,14 @@
 @attribute [Authorize(Roles = "Admin")]
 @inject HttpClient Api
 
-<div class="member-management-page-container">
-    <div class="member-management-page-left">
-        <div class="member-list-buttons">
+<div class="two-column-layout">
+    <div class="two-column-layout-left">
+        <div class="list-buttons">
             <h4>Existing Members</h4>
             <button class="btn btn-secondary" @onclick="OpenFilters" disabled="@true">Filters</button>
             <button class="btn btn-primary" @onclick="CreateMember">Create Member</button>
         </div>
-        <div class="existing-members">
+        <div class="list-main">
             @if (_members == null)
             {
                 <p>Loading…</p>
@@ -22,8 +22,8 @@
             }
             else
             {
-                <div class="member-list-scroll-container">
-                    <div class="member-list">
+                <div class="list-scroll-container">
+                    <div class="preview-card-list">
                         @foreach (var member in _members)
                         {
                             <MemberPreviewCard Member="member" IsSelected="member == _selectedMember" OnSelect="SelectMember"/>
@@ -33,7 +33,7 @@
             }
         </div>
     </div>
-    <div class="member-management-page-right">
+    <div class="two-column-layout-right">
         <CascadingValue Value="MemberApi" Name="MemberManagementApi" IsFixed="true">
             <MemberCard Member="_selectedMember" IsEditable="true" IsStatusEditable="true" OnMemberUpdated="Reload" />
             @if (_createError != null)

@@ -14,6 +14,9 @@ public partial class MemberPage : ComponentBase {
 
     private bool _loading = true;
     private MemberDto? _member;
+    private MemberLinkingRequestDto? _linkingRequest;
+    private MembershipApplicationRequestDto? _applicationRequest;
+    
     Guid _userGuid;
 
     protected override async Task OnInitializedAsync() {
@@ -24,10 +27,17 @@ public partial class MemberPage : ComponentBase {
         
         _userGuid = Guid.Parse(UserId);
         
-        var result = await MemberApi.GetMemberByUserGuidAsync(_userGuid);
+        var memberResult = await MemberApi.GetMemberByUserGuidAsync(_userGuid);
+        if (memberResult.IsSuccess)
+            _member = memberResult.Value;
 
-        if (result.IsSuccess)
-            _member = result.Value;
+        var linkingRequestsResult = await MemberApi.GetAllMemberLinkingRequestsByUserAsync(_userGuid);
+        if (linkingRequestsResult.IsSuccess)
+            _linkingRequest = linkingRequestsResult.Value!.FirstOrDefault(x => !x.IsResolved);
+
+        var applicationRequestsResult = await MemberApi.GetAllMembershipApplicationRequestsByUserAsync(_userGuid);
+        if (applicationRequestsResult.IsSuccess)
+            _applicationRequest = applicationRequestsResult.Value!.FirstOrDefault(x => !x.IsResolved);
 
         _loading = false;
     }

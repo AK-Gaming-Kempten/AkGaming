@@ -1,0 +1,16 @@
+.pending-application-card {
+    margin-bottom: 1rem;
+    padding: 1rem;
+    background-color: var(--color-background-secondary);
+    border: 1px solid var(--color-text-tertiary);
+    border-radius: 6px;
+}
+
+.pending-application-card h3 {
+    margin: 0;
+}
+
+.pending-application-card p {
+    margin: 0;
+    color: var(--color-text-tertiary);
+}

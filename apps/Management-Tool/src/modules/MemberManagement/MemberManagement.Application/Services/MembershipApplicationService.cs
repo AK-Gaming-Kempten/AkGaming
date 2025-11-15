@@ -32,6 +32,19 @@ public class MembershipApplicationService : IMembershipApplicationService {
     }
 
     public async Task<Result> ApplyForMembershipAsync(MembershipApplicationRequestDto request) {
+        // Check if user is already a member or has a pending application / linking request
+        var memberResult = await _memberQueryService.GetMemberByUserGuidAsync(request.IssuingUserId);
+        if (memberResult.IsSuccess)
+            return Result.Failure("User is already a member");
+        
+        var pendingRequestResult = await _membershipApplicationRequestRepository.GetAllRequestFromUserAsync(request.IssuingUserId);
+        if (pendingRequestResult.IsSuccess && pendingRequestResult.Value!.Count > 0)
+            return Result.Failure("User has a pending application");
+        
+        var linkingRequestResult = await _linkingService.GetMemberLinkingRequestsFromUserAsync(request.IssuingUserId);
+        if (linkingRequestResult.IsSuccess && linkingRequestResult.Value!.Count > 0)
+            return Result.Failure("User has a pending linking request");
+        
         // Create Request
         var requestResult = await CreateMembershipApplicationRequestAsync(request);
         if (!requestResult.IsSuccess)
@@ -70,7 +83,7 @@ public class MembershipApplicationService : IMembershipApplicationService {
     }
 
     public async Task<Result<ICollection<MembershipApplicationRequestDto>>> GetAllRequestFromUserAsync(Guid userId) {
-        var result = await _membershipApplicationRequestRepository.GetAllAsync();
+        var result = await _membershipApplicationRequestRepository.GetAllRequestFromUserAsync(userId);
         if (!result.IsSuccess)
             return Result<ICollection<MembershipApplicationRequestDto>>.Failure(result.Error ?? "Membership application requests not found");
         var requests = result.Value!;
@@ -97,6 +110,29 @@ public class MembershipApplicationService : IMembershipApplicationService {
             return statusResult;
         
         // Set Request as accepted
+        request.IsResolved = true;
+        return await _membershipApplicationRequestRepository.SaveChangesAsync();
+    }
+    
+    public async Task<Result> RejectMembershipApplicationAsync(Guid id) {
+        // Get Request by Id
+        var requestResult = await _membershipApplicationRequestRepository.GetByIdAsync(id);
+        if (!requestResult.IsSuccess)
+            return requestResult;
+        var request = requestResult.Value!;
+        
+        // Get Member from request
+        var memberResult = await _memberQueryService.GetMemberByUserGuidAsync(request.IssuingUserId);
+        if (!memberResult.IsSuccess)
+            return memberResult;
+        var member = memberResult.Value!;
+        
+        // Update Status
+        var statusResult = await _membershipUpdateService.UpdateMembershipStatusAsync(member.Id, ContractEnums.MembershipStatus.ApplicationRejected);
+        if (!statusResult.IsSuccess)
+            return statusResult;
+        
+        // Set Request as rejected
         request.IsResolved = true;
         return await _membershipApplicationRequestRepository.SaveChangesAsync();
     }

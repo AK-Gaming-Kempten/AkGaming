@@ -1,4 +1,5 @@
-﻿@using Frontend.Components.Auth
+﻿@using Microsoft.AspNetCore.Components.Authorization
+@inject AuthenticationStateProvider AuthenticationStateProvider
 
 <div class="sidebar">
     <div class="sidebar-header">
@@ -13,38 +14,63 @@
                 <span>Home</span>
             </NavLink>
 
-            <NavLink href="membership/user" class="nav-item level-1">
+            <NavLink href="membership" class="nav-item level-1">
                 <span class="nav-icon bi-person-fill"></span>
                 <span>Membership</span>
             </NavLink>
 
-            <div class="nav-section">
-                <span class="nav-section-title">
-                    <span class="nav-icon bi-shield-lock-fill"></span>
-                    Administration
-                </span>
+            @if (isAuthenticated && isAdmin) {
+                <div class="nav-section">
+                    <span class="nav-section-title">
+                        <span class="nav-icon bi-shield-lock-fill"></span>
+                        Administration
+                    </span>
 
-                <NavLink href="member-management" class="nav-item level-2">
-                    <span class="nav-icon bi-people-fill"></span>
-                    <span>Member Management</span>
-                </NavLink>
-            </div>
-            <div class="nav-section">
-                <span class="nav-section-title">
-                    <span class="nav-icon bi-bug-fill"></span>
-                    Debug
-                </span>
+                    <NavLink href="member-management" class="nav-item level-1">
+                        <span class="nav-icon bi-people-fill"></span>
+                        <span>Member Management</span>
+                    </NavLink>
+                    
+                    <NavLink href="member-management/requests" class="nav-item level-2">
+                        <span class="nav-icon bi-envelope-fill"></span>
+                        <span>Applications & Linking Requests</span>
+                    </NavLink>
+                </div>
+            }
 
-                <NavLink href="debug" class="nav-item level-2">
-                    <span class="nav-icon bi-diagram-3-fill"></span>
-                    <span>API</span>
-                </NavLink>
-                <NavLink href="debug/token" class="nav-item level-2">
-                    <span class="nav-icon bi-key-fill"></span>
-                    <span>Token</span>
-                </NavLink>
-            </div>
+            @if (isAuthenticated && isAdmin) {
+                <div class="nav-section">
+                    <span class="nav-section-title">
+                        <span class="nav-icon bi-bug-fill"></span>
+                        Debug
+                    </span>
+
+                    <NavLink href="debug" class="nav-item level-1">
+                        <span class="nav-icon bi-diagram-3-fill"></span>
+                        <span>API</span>
+                    </NavLink>
+
+                    <NavLink href="debug/token" class="nav-item level-1">
+                        <span class="nav-icon bi-key-fill"></span>
+                        <span>Token</span>
+                    </NavLink>
+                </div>
+            }
         </nav>
     </div>
+    <ThemeSwitcherBox />
     <UserBox />
 </div>
+
+@code {
+    private bool isAuthenticated;
+    private bool isAdmin;
+
+    protected override async Task OnInitializedAsync() {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+
+        isAuthenticated = user.Identity?.IsAuthenticated ?? false;
+        isAdmin = isAuthenticated && user.IsInRole("Admin"); // adjust the role name to match your Keycloak setup
+    }
+}

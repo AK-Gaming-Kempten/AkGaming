@@ -90,7 +90,7 @@ namespace Membermanagement.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("MemberLinkingRequest");
+                    b.ToTable("MemberLinkingRequests");
                 });
 
             modelBuilder.Entity("MemberManagement.Domain.Entities.MembershipApplicationRequest", b =>
@@ -129,7 +129,7 @@ namespace Membermanagement.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("MembershipApplicationRequest");
+                    b.ToTable("MembershipApplicationRequests");
                 });
 
             modelBuilder.Entity("MemberManagement.Domain.Entities.MembershipStatusChangeEvent", b =>
@@ -208,7 +208,7 @@ namespace Membermanagement.Infrastructure.Migrations
 
                             b1.HasKey("MembershipApplicationRequestId");
 
-                            b1.ToTable("MembershipApplicationRequest");
+                            b1.ToTable("MembershipApplicationRequests");
 
                             b1.WithOwner()
                                 .HasForeignKey("MembershipApplicationRequestId");

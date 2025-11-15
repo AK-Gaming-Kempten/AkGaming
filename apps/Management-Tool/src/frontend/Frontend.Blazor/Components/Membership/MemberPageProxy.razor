@@ -1,4 +1,4 @@
-@page "/membership/user"
+@page "/membership"
 @using System.Security.Claims
 @using Microsoft.AspNetCore.Authorization
 @using Microsoft.AspNetCore.Components.Authorization
@@ -18,6 +18,6 @@
         var sub = user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
         
         if (sub != null)
-            Nav.NavigateTo($"/Membership/User/{sub}", forceLoad: false);
+            Nav.NavigateTo($"/membership/user/{sub}", forceLoad: false);
     }
 }

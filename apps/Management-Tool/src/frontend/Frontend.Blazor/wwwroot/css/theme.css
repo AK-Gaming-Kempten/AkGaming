@@ -13,22 +13,28 @@
     -moz-osx-font-smoothing: grayscale;
 
     /* === FUNDAMENTAL COLOR SCHEME === */
+    --color-light-gray: #eeeeee;
     --color-gray: #919d98;
     --color-dark-grey: #1a1a1a;
     --color-dark-green: #0f221e;
     --color-green: #286c3f;
     --color-light-green: #48cb4f;
-    --color-white: #eefff2;
+    --color-white: #ffffff;
     --color-black: #000000;
+    
+    --color-red: #ff3333;
+    --color-red-light: #ff7777;
 
     /* === TEXT COLORS === */
     --color-text-primary: var(--color-black);
     --color-text-secondary: var(--color-white);
     --color-text-tertiary: var(--color-gray);
+    --color-text-special: var(--color-white);
     --color-highlight-primary: var(--color-light-green);
     --color-highlight-secondary: var(--color-green);
     --color-background-primary: var(--color-white);
-    --color-background-secondary: var(--color-dark-green);
+    --color-background-secondary: var(--color-light-gray);
+    --color-background-special: var(--color-dark-green);
     
     /* === BUTTON COLORS === */
     --color-button-primary-bg: var(--color-highlight-secondary);
@@ -42,6 +48,10 @@
     --color-button-secondary-bg: var(--color-gray);
     --color-button-secondary-text: var(--color-black);
     --color-button-secondary-hover-bg: var(--color-text-tertiary);
+    
+    --color-button-danger-bg: var(--color-red-light);
+    --color-button-danger-text: var(--color-text-secondary);
+    --color-button-danger-hover-bg: var(--color-red);
 
     --color-button-disabled-bg: var(--color-dark-grey);
     --color-button-disabled-text: var(--color-text-tertiary);
@@ -71,10 +81,12 @@
         --color-text-primary: var(--color-white);
         --color-text-secondary: var(--color-white);
         --color-text-tertiary: var(--color-gray);
+        --color-text-special: var(--color-white);
         --color-highlight-primary: var(--color-light-green);
         --color-highlight-secondary: var(--color-green);
         --color-background-primary: var(--color-dark-grey);
         --color-background-secondary: var(--color-dark-green);
+        --color-background-special: var(--color-dark-green);
     }
 }
 
@@ -82,20 +94,24 @@
     --color-text-primary: var(--color-black);
     --color-text-secondary: var(--color-white);
     --color-text-tertiary: var(--color-gray);
+    --color-text-special: var(--color-white);
     --color-highlight-primary: var(--color-light-green);
     --color-highlight-secondary: var(--color-green);
     --color-background-primary: var(--color-white);
-    --color-background-secondary: var(--color-dark-green);
+    --color-background-secondary: var(--color-light-gray);
+    --color-background-special: var(--color-dark-green);
 }
 
 :root[data-theme="dark"] {
     --color-text-primary: var(--color-white);
     --color-text-secondary: var(--color-white);
     --color-text-tertiary: var(--color-gray);
+    --color-text-special: var(--color-white);
     --color-highlight-primary: var(--color-light-green);
     --color-highlight-secondary: var(--color-green);
     --color-background-primary: var(--color-dark-grey);
     --color-background-secondary: var(--color-dark-green);
+    --color-background-special: var(--color-dark-green);
 }
 
 * {

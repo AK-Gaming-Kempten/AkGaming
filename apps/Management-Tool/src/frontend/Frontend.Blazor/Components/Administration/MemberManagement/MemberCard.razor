@@ -1,7 +1,7 @@
 <div class="member-card @(EditMode ? "edit-mode" : "readonly-mode")">
     @if (Member is null)
     {
-        <div class="text-muted">Loading member…</div>
+        <div class="no-member-selected">No member selected</div>
     }
     else
     {
@@ -11,12 +11,12 @@
                 <div class="form-actions">
                     @if (!EditMode)
                     {
-                        <button class="btn-primary" @onclick="EnableEditing">Edit</button>
+                        <button class="btn btn-primary" @onclick="EnableEditing">Edit</button>
                     }
                     else
                     {
-                        <button class="btn-success" @onclick="SaveChanges">Save</button>
-                        <button class="btn-secondary" @onclick="CancelChanges">Cancel</button>
+                        <button class="btn btn-primary" @onclick="SaveChanges">Save</button>
+                        <button class="btn btn-danger" @onclick="CancelChanges">Cancel</button>
                     }
                 </div>
             }

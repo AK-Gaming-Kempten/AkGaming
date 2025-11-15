@@ -50,6 +50,16 @@ public static class ServiceCollectionExtensions {
             options.AddPolicy("UserOnly", p => p.RequireRole("User", "Admin"));
             options.AddPolicy("MemberOnly", p => p.RequireRole("Member", "Admin"));
             options.AddPolicy("AdminOnly", p => p.RequireRole("Admin"));
+            options.AddPolicy("AdminOrSelfRouteUserId", p => p.RequireAssertion(ctx => {
+                if (ctx.User.IsInRole("Admin")) return true;
+                if (ctx.Resource is not HttpContext http) return false;
+                
+                var routeVal = http.Request.RouteValues.TryGetValue("userId", out var v) ? v?.ToString() : null;
+                if (!Guid.TryParse(routeVal, out var routeUserId)) return false;
+                
+                var claim = ctx.User.FindFirstValue(ClaimTypes.NameIdentifier) ?? ctx.User.FindFirstValue("sub");
+                return Guid.TryParse(claim, out var currentUserId) && currentUserId == routeUserId;
+            }));
         });
         return services;
     }

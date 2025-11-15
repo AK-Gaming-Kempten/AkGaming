@@ -5,10 +5,10 @@ using Microsoft.EntityFrameworkCore;
 
 namespace MemberManagement.Infrastructure.Persistence.Repositories;
 
-public class MemberLinkingRequestRepository : IMemberLinkingRequestRepository {
+public class EfMemberLinkingRequestRepository : IMemberLinkingRequestRepository {
     private readonly MemberManagementDbContext _dbContext;
     
-    public MemberLinkingRequestRepository(MemberManagementDbContext dbContext) {
+    public EfMemberLinkingRequestRepository(MemberManagementDbContext dbContext) {
         _dbContext = dbContext;
     }
     

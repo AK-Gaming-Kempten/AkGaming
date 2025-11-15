@@ -49,7 +49,7 @@ public class EfMemberRepository : IMemberRepository {
             var members = await _dbContext.Members
                 .Include(m => m.StatusChanges)
                 .ToListAsync();
-
+            members.Sort((m1, m2) => String.Compare(m1.LastName?.ToLower(), m2.LastName?.ToLower(), StringComparison.Ordinal));
             return Result<List<Member>>.Success(members);
         }
         catch (Exception ex) {

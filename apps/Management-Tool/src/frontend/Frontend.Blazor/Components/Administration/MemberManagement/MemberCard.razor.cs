@@ -19,7 +19,7 @@ public partial class MemberCard : ComponentBase {
     protected override void OnParametersSet() {
         _localMember = JsonSerializer.Deserialize<MemberDto>(JsonSerializer.Serialize(Member))!;
         if( _localMember != null && _localMember.Address == null)
-        _localMember.Address = new AddressDto();
+            _localMember.Address = new AddressDto();
     }
 
     private void EnableEditing() => EditMode = true;

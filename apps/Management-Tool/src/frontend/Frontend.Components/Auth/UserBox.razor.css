@@ -1,6 +1,6 @@
 /* === User Box container === */
 .user-box {
-    --user-box-bg: var(--color-background-secondary);
+    --user-box-bg: var(--color-background-special);
     --user-box-border: rgba(255, 255, 255, 0.1);
     --user-text: var(--color-text-secondary);
     --user-name: var(--color-highlight-primary);

@@ -1,0 +1,39 @@
+.theme-switcher-box {
+    --theme-switcher-box-bg: var(--color-background-special);
+    --theme-switcher-box-border: rgba(255, 255, 255, 0.1);
+
+    display: grid;
+    grid-template-columns: repeat(3, 1fr); /* three equal columns */
+    gap: 0.5rem;
+
+    background-color: var(--theme-switcher-box-bg);
+    border-top: 1px solid var(--theme-switcher-box-border);
+    padding: 0.8rem 1rem;
+    color: var(--color-text-special);
+    font-size: 0.9rem;
+    position: sticky;
+    bottom: 0;
+    left: 0;
+    right: 0;
+}
+
+/* Center button content & make them fill cells */
+.theme-switcher-box .btn {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    padding: 0.8rem 0;
+    background-color: var(--color-background-special);
+    color: var(--color-text-special);
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.theme-switcher-box .btn:hover {
+    background-color: var(--color-highlight-primary);
+}
+
+.theme-switcher-box .btn-selected {
+    background-color: var(--color-highlight-secondary);
+}

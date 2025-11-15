@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using MemberManagement.Contracts.DTO;
 using MemberManagement.Contracts.Services;
 using Microsoft.AspNetCore.Builder;
@@ -10,23 +11,47 @@ namespace MemberManagement.Api.Endpoints;
 public static class MembershipApplicationEndpoints {
     public static IEndpointRouteBuilder MapMembershipApplicationEndpoints(this IEndpointRouteBuilder endpoints) {
         var group = endpoints.MapGroup("/members")
-            .WithTags("Members - Commands")
-            .RequireAuthorization("UserOnly");
-
-        group.MapPost("/applyForMembership", async ([FromBody] MembershipApplicationRequestDto request, [FromServices] IMembershipApplicationService service) => {
-            var result = await service.ApplyForMembershipAsync(request);
-            return result.IsSuccess ? Results.Created() : Results.BadRequest(result.Error);
-        });
+            .WithTags("Members - Commands");
         
-        group.MapGet("/{userId}/membershipApplicationRequests", async ([FromRoute] Guid userId, [FromServices] IMembershipApplicationService service) => {
+        group.MapPost("/applyForMembership", async (
+            [FromBody] MembershipApplicationRequestDto request,
+            ClaimsPrincipal user,
+            [FromServices] IMembershipApplicationService service
+        ) => {
+            if (!user.IsInRole("Admin")) {
+                var claim = user.FindFirstValue(ClaimTypes.NameIdentifier) ?? user.FindFirstValue("sub");
+                if (!Guid.TryParse(claim, out var currentUserId)) return Results.Forbid();
+                if (request.IssuingUserId != currentUserId) return Results.Forbid();
+            }
+
+            var result = await service.ApplyForMembershipAsync(request);
+            return result.IsSuccess
+                ? Results.Created($"/members/{request.IssuingUserId}/membershipApplicationRequests", null)
+                : Results.BadRequest(result.Error);
+        }).RequireAuthorization(); 
+        
+        group.MapGet("/{userId:guid}/membershipApplicationRequests", async (
+            [FromRoute] Guid userId,
+            [FromServices] IMembershipApplicationService service
+        ) => {
             var result = await service.GetAllRequestFromUserAsync(userId);
             return result.IsSuccess ? Results.Ok(result.Value) : Results.BadRequest(result.Error);
-        });
-
+        }).RequireAuthorization("AdminOrSelfRouteUserId");
+        
         group.MapGet("/membershipApplicationRequests", async ([FromServices] IMembershipApplicationService service) => {
             var result = await service.GetAllRequestAsync();
             return result.IsSuccess ? Results.Ok(result.Value) : Results.BadRequest(result.Error);
-        });
+        }).RequireAuthorization("AdminOnly");
+        
+        group.MapPost("/membershipApplicationRequests/{requestId:guid}/accept", async ([FromRoute] Guid requestId, [FromServices] IMembershipApplicationService service) => {
+            var result = await service.AcceptMembershipApplicationAsync(requestId);
+            return result.IsSuccess ? Results.Created($"/members/{requestId}/membershipApplicationRequests", null) : Results.BadRequest(result.Error);
+        }).RequireAuthorization("AdminOnly");
+
+        group.MapPost("/membershipApplicationRequests/{requestId:guid}/reject", async ([FromRoute] Guid requestId, [FromServices] IMembershipApplicationService service) => {
+            var result = await service.RejectMembershipApplicationAsync(requestId);
+            return result.IsSuccess ? Results.Created($"/members/{requestId}/membershipApplicationRequests", null) : Results.BadRequest(result.Error);
+        }).RequireAuthorization("AdminOnly");
 
         return endpoints;
     }

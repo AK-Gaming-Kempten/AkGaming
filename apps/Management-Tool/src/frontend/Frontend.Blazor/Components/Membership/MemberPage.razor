@@ -11,9 +11,15 @@
         <p>Loading...</p>
     }
     else if (_member != null) {
+        @if (_applicationRequest != null) {
+            <div class="card pending-application-card">
+                <h3>Membership Application Pending</h3>
+                <p>Thanks for your application! We will review it as soon as possible.</p>
+            </div>
+        }
         <MemberCard Member="_member" IsEditable="true" IsStatusEditable="false" />
     }
     else {
-        <NoMemberPanel UserId="_userGuid" />
+        <NoMemberPanel UserId="_userGuid" PendingApplication="_applicationRequest" PendingLinkingRequest="_linkingRequest" />
     }
 </CascadingValue>

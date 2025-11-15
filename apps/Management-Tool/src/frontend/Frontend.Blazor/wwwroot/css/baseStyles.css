@@ -1,3 +1,7 @@
+*, *::before, *::after {
+    box-sizing: border-box;
+}
+
 /* ==== FORM ELEMENTS ==== */
 
 input,
@@ -97,6 +101,14 @@ button:disabled, .btn:disabled {
     background-color: var(--color-button-secondary-hover-bg);
 }
 
+.btn-danger {
+    background-color: var(--color-button-danger-bg);
+    color: var(--color-button-danger-text);
+}
+.btn-danger:hover {
+    background-color: var(--color-button-danger-hover-bg);
+}
+
 /* ==== CARD / PANEL ==== */
 
 .card,
@@ -157,7 +169,7 @@ button:disabled, .btn:disabled {
 /* ==== TYPOGRAPHY & CONTAINERS ==== */
 
 h1, h2, h3, h4, h5, h6 {
-    color: var(--color-text-secondary);
+    color: var(--color-text-primary);
     font-weight: 600;
     margin-top: 1rem;
     margin-bottom: 0.5rem;

@@ -1,0 +1,10 @@
+<div class="linking-request-preview-card @(IsSelected ? "selected" : "")" @onclick="SelectRequest">
+    <div class="linking-request-preview-card-content">
+        <div>@Request.FirstName @Request.LastName</div>
+        <div>@Request.DiscordUserName</div>
+        <div>@Request.Reason</div>
+        <div class="linking-request-preview-card-status @(Request.IsResolved ? "status-resolved" : "status-pending")">
+            @(Request.IsResolved ? "Resolved" : "Pending")
+        </div>
+    </div>
+</div>
