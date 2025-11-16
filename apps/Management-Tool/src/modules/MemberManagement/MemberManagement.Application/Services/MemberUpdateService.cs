@@ -22,7 +22,7 @@ public class MemberUpdateService : IMemberUpdateService {
             return memberResult;
         var member = memberResult.Value!;
 
-        member = memberData.ToMember();
+        member.UpdateMemberFromDto(memberData);
 
         var result = await _memberRepository.Update(member)
             .Then(() => _memberRepository.SaveChangesAsync());

@@ -70,4 +70,14 @@ public static class MemberMappingExtensions {
         BirthDate = dto.BirthDate,
         Address = dto.Address?.ToAddress()
     };
+    
+    public static void UpdateMemberFromDto(this Member member, MemberDto dto) {
+        member.FirstName = dto.FirstName;
+        member.LastName = dto.LastName;
+        member.Email = dto.Email;
+        member.PhoneNumber = dto.Phone;
+        member.DiscordUsername = dto.DiscordUserName;
+        member.BirthDate = dto.BirthDate;
+        member.Address = dto.Address?.ToAddress();
+    }
 }
