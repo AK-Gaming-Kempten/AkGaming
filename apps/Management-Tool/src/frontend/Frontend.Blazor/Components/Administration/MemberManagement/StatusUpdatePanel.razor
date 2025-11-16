@@ -68,7 +68,7 @@
                             <div class="form-col" style="align-self:end;">
                                 <button type="button" class="btn btn-primary"
                                         @onclick="InsertStatusChangeEventAsync"
-                                        disabled="@(_insertModel.OldStatus == MembershipStatus.None || _insertModel.NewStatus == MembershipStatus.None || _insertModel.Timestamp == DateTime.MinValue)">
+                                        disabled="@(_insertModel.NewStatus == MembershipStatus.None || _insertModel.Timestamp == DateTime.MinValue)">
                                     Insert Status Event
                                 </button>
                             </div>

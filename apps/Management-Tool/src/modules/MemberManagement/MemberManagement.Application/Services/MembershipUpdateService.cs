@@ -57,12 +57,7 @@ public class MembershipUpdateService : IMembershipUpdateService {
             return memberResult;
         var member = memberResult.Value!;
         
-        member.StatusChanges.Add(new MembershipStatusChangeEvent {
-            MemberId = memberId,
-            OldStatus = (DomainEnums.MembershipStatus)changeEvent.OldStatus,
-            NewStatus = (DomainEnums.MembershipStatus)changeEvent.NewStatus,
-            Timestamp = changeEvent.Timestamp
-        });
+        member.StatusChanges.Add(changeEvent.ToMembershipStatusChangeEvent());
         
         var result = await _members.SaveChangesAsync();
         

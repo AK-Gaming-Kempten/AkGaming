@@ -31,7 +31,7 @@ public static class MemberMappingExtensions {
     public static MembershipStatusChangeEventDto ToDto(this MembershipStatusChangeEvent e) => new() {
         OldStatus = (ContractEnums.MembershipStatus)e.OldStatus,
         NewStatus = (ContractEnums.MembershipStatus)e.NewStatus,
-        Timestamp = e.Timestamp
+        Timestamp = e.Timestamp.ToUniversalTime()
     };
     
     public static Member ToMember(this MemberDto dto) => new() {
@@ -58,7 +58,7 @@ public static class MemberMappingExtensions {
     public static MembershipStatusChangeEvent ToMembershipStatusChangeEvent(this MembershipStatusChangeEventDto dto) => new() {
         OldStatus = (DomainEnums.MembershipStatus)dto.OldStatus,
         NewStatus = (DomainEnums.MembershipStatus)dto.NewStatus,
-        Timestamp = dto.Timestamp
+        Timestamp = dto.Timestamp.ToUniversalTime()
     };
     
     public static Member ToMember(this MemberCreationDto dto) => new() {

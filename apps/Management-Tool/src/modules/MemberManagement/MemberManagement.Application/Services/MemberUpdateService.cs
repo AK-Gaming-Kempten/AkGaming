@@ -1,6 +1,7 @@
 using AKG.Common.Extensions;
 using AKG.Common.Generics;
 using MemberManagement.Application.Interfaces;
+using MemberManagement.Application.Mapping;
 using MemberManagement.Contracts.DTO;
 using MemberManagement.Contracts.Services;
 using MemberManagement.Domain.ValueObjects;
@@ -21,19 +22,7 @@ public class MemberUpdateService : IMemberUpdateService {
             return memberResult;
         var member = memberResult.Value!;
 
-        member.FirstName = memberData.FirstName;
-        member.LastName = memberData.LastName;
-        member.Email = memberData.Email;
-        member.PhoneNumber = memberData.Phone;
-        member.DiscordUsername = memberData.DiscordUserName;
-        member.BirthDate = memberData.BirthDate;
-        member.Address = new Address()
-        {
-            Street = memberData.Address.Street,
-            ZipCode = memberData.Address.ZipCode,
-            City = memberData.Address.City,
-            Country = memberData.Address.Country
-        };
+        member = memberData.ToMember();
 
         var result = await _memberRepository.Update(member)
             .Then(() => _memberRepository.SaveChangesAsync());

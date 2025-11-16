@@ -38,11 +38,11 @@ public class MembershipApplicationService : IMembershipApplicationService {
             return Result.Failure("User is already a member");
         
         var pendingRequestResult = await _membershipApplicationRequestRepository.GetAllRequestFromUserAsync(request.IssuingUserId);
-        if (pendingRequestResult.IsSuccess && pendingRequestResult.Value!.Count > 0)
+        if (pendingRequestResult.IsSuccess && pendingRequestResult.Value!.Where(x => !x.IsResolved).ToList().Count > 0)
             return Result.Failure("User has a pending application");
         
         var linkingRequestResult = await _linkingService.GetMemberLinkingRequestsFromUserAsync(request.IssuingUserId);
-        if (linkingRequestResult.IsSuccess && linkingRequestResult.Value!.Count > 0)
+        if (linkingRequestResult.IsSuccess && linkingRequestResult.Value!.Where(x => !x.IsResolved).ToList().Count > 0)
             return Result.Failure("User has a pending linking request");
         
         // Create Request
