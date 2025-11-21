@@ -1,7 +1,7 @@
 .highlight-card {
     background-color: var(--color-background-primary);
     border: 2px solid var(--color-highlight-secondary);
-    border-radius: 8px;
+    border-radius: 4px;
     overflow: hidden;
     text-align: center;
     transition: transform 0.2s ease, box-shadow 0.2s ease;
