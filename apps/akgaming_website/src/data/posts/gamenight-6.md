@@ -35,7 +35,7 @@ und blockiert auf keinen fall die Tür, da sonst der Alarm losgeht
 
 📲​ Damit wir besser planen können was Essen und Set-Up Plätze angeht und dass es beim Einlass schneller geht,
 meldest du dich mit deinen Freunden hier an:
-ANMELDUNGLINKEINFÜGEN
+[Anmeldung](https://docs.google.com/forms/d/e/1FAIpQLSc_KswZ1fXPMtqPMJ6s5lR7jVCjiROZ-nEyW6uLXkrxQM1i1w/viewform?usp=sharing&ouid=109816263274873805912)
 
 ---
 
@@ -129,4 +129,4 @@ Frühbucher bis zum 10.12.2025
 ---
 
 ## Anmeldung
-Hier geht's zur Anmeldung:
+[Hier geht's zur Anmeldung](https://docs.google.com/forms/d/e/1FAIpQLSc_KswZ1fXPMtqPMJ6s5lR7jVCjiROZ-nEyW6uLXkrxQM1i1w/viewform?usp=sharing&ouid=109816263274873805912)
