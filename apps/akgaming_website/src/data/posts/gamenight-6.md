@@ -125,7 +125,7 @@ Frühbucher bis zum 10.12.2025
 - Heldenschmiede
 - Die Techniker
 - Ristorante Pizzeria Bel Mare
-
+- Skyforger e.V.
 ---
 
 ## Anmeldung
