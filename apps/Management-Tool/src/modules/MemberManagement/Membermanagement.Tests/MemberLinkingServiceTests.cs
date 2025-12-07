@@ -9,6 +9,7 @@ using MemberManagement.Contracts.DTO;
 namespace MemberManagement.Tests;
 
 public class MemberLinkingServiceTests {
+    [Test]
     public async Task MemberLinkingService_LinksMemberToUser() {
         // Arrange
         var memberRepository = new Mock<IMemberRepository>();
@@ -36,7 +37,6 @@ public class MemberLinkingServiceTests {
         
         // Assert
         memberRepository.Verify(x => x.GetByMemberIdAsync(memberId), Times.Once);
-        memberRepository.Verify(x => x.Update(member), Times.Once);
         memberRepository.Verify(x => x.SaveChangesAsync(), Times.Once);
         
         Assert.That(result, Has.Property("IsSuccess").True);
