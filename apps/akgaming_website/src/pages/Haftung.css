@@ -1,0 +1,16 @@
+.haftung {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.haftung-content{
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    width: min(90vw, 800px)
+}
+
+.haftung h2 {
+    margin-bottom: -1rem;
+}

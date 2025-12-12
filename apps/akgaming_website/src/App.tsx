@@ -9,6 +9,7 @@ import Impressum from "./pages/Impressum";
 import PostPage from "./pages/PostPage";
 import EventPage from "./pages/EventPage.tsx";
 import "./App.css";
+import Haftung from "./pages/Haftung.tsx";
 
 export default function App() {
     return (
@@ -21,6 +22,7 @@ export default function App() {
                         <Route path="/" element={<Home />} />
                         <Route path="/events" element={<Events />} />
                         <Route path="/esports" element={<Esports />} />
+                        <Route path="/haftung" element={<Haftung />} />
                         <Route path="/impressum" element={<Impressum />} />
                         <Route path="/posts/:postId" element={<PostPage />} />
                         <Route path="/events/:postId" element={<EventPage />} />
