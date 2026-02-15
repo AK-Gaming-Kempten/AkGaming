@@ -7,6 +7,7 @@ internal sealed class InMemoryIdentityRepository : IIdentityRepository
 {
     public List<User> Users { get; } = [];
     public List<Role> Roles { get; } = [];
+    public List<ExternalLogin> ExternalLogins { get; } = [];
     public List<RefreshToken> RefreshTokens { get; } = [];
 
     public Task<User?> GetUserByEmailAsync(string email, CancellationToken cancellationToken)
@@ -22,6 +23,11 @@ internal sealed class InMemoryIdentityRepository : IIdentityRepository
     public Task<Role?> GetRoleByNameAsync(string roleName, CancellationToken cancellationToken)
     {
         return Task.FromResult(Roles.SingleOrDefault(x => x.Name == roleName));
+    }
+
+    public Task<ExternalLogin?> GetExternalLoginAsync(string provider, string providerUserId, CancellationToken cancellationToken)
+    {
+        return Task.FromResult(ExternalLogins.SingleOrDefault(x => x.Provider == provider && x.ProviderUserId == providerUserId));
     }
 
     public Task<RefreshToken?> GetRefreshTokenByHashAsync(string tokenHash, CancellationToken cancellationToken)
@@ -44,6 +50,12 @@ internal sealed class InMemoryIdentityRepository : IIdentityRepository
     public Task AddRoleAsync(Role role, CancellationToken cancellationToken)
     {
         Roles.Add(role);
+        return Task.CompletedTask;
+    }
+
+    public Task AddExternalLoginAsync(ExternalLogin externalLogin, CancellationToken cancellationToken)
+    {
+        ExternalLogins.Add(externalLogin);
         return Task.CompletedTask;
     }
 

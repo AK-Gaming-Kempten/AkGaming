@@ -34,6 +34,12 @@ public sealed class IdentityRepository : IIdentityRepository
         return _dbContext.Roles.SingleOrDefaultAsync(x => x.Name == roleName, cancellationToken);
     }
 
+    public Task<ExternalLogin?> GetExternalLoginAsync(string provider, string providerUserId, CancellationToken cancellationToken)
+    {
+        return _dbContext.ExternalLogins
+            .SingleOrDefaultAsync(x => x.Provider == provider && x.ProviderUserId == providerUserId, cancellationToken);
+    }
+
     public Task<RefreshToken?> GetRefreshTokenByHashAsync(string tokenHash, CancellationToken cancellationToken)
     {
         return _dbContext.RefreshTokens
@@ -58,6 +64,11 @@ public sealed class IdentityRepository : IIdentityRepository
     public async Task AddRoleAsync(Role role, CancellationToken cancellationToken)
     {
         await _dbContext.Roles.AddAsync(role, cancellationToken);
+    }
+
+    public async Task AddExternalLoginAsync(ExternalLogin externalLogin, CancellationToken cancellationToken)
+    {
+        await _dbContext.ExternalLogins.AddAsync(externalLogin, cancellationToken);
     }
 
     public async Task AddRefreshTokenAsync(RefreshToken refreshToken, CancellationToken cancellationToken)

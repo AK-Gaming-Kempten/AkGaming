@@ -1,4 +1,5 @@
 using System.Text;
+using System.Security.Claims;
 using AkGaming.Identity.Application;
 using AkGaming.Identity.Application.Abstractions;
 using AkGaming.Identity.Application.Auth;
@@ -6,6 +7,7 @@ using AkGaming.Identity.Application.Common;
 using AkGaming.Identity.Infrastructure;
 using AkGaming.Identity.Infrastructure.Persistence;
 using AkGaming.Identity.Infrastructure.Security;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -119,19 +121,35 @@ auth.MapPost("/logout", async (LogoutRequest request, IAuthService authService, 
     return Results.NoContent();
 });
 
-auth.MapGet("/discord/start", () =>
+auth.MapGet("/discord/start", async (IAuthService authService, CancellationToken cancellationToken) =>
 {
-    return Results.Problem(statusCode: StatusCodes.Status501NotImplemented, detail: "Discord OAuth is planned for Phase 2.");
+    var response = await authService.GetDiscordStartUrlAsync(cancellationToken);
+    return Results.Redirect(response.AuthorizationUrl);
 });
 
-auth.MapGet("/discord/callback", () =>
+auth.MapGet("/discord/callback", async (string code, string state, IAuthService authService, HttpContext httpContext, CancellationToken cancellationToken) =>
 {
-    return Results.Problem(statusCode: StatusCodes.Status501NotImplemented, detail: "Discord OAuth is planned for Phase 2.");
+    try
+    {
+        var response = await authService.HandleDiscordCallbackAsync(code, state, GetIp(httpContext), cancellationToken);
+        return Results.Ok(response);
+    }
+    catch (AuthException exception)
+    {
+        return Results.Problem(statusCode: exception.StatusCode, detail: exception.Message);
+    }
 });
 
-auth.MapPost("/discord/link", () =>
+auth.MapPost("/discord/link", [Authorize] async (ClaimsPrincipal user, IAuthService authService, CancellationToken cancellationToken) =>
 {
-    return Results.Problem(statusCode: StatusCodes.Status501NotImplemented, detail: "Discord account linking is planned for Phase 2.");
+    var userIdClaim = user.FindFirstValue(ClaimTypes.NameIdentifier) ?? user.FindFirstValue("sub");
+    if (!Guid.TryParse(userIdClaim, out var userId))
+    {
+        return Results.Unauthorized();
+    }
+
+    var response = await authService.GetDiscordLinkUrlAsync(userId, cancellationToken);
+    return Results.Ok(response);
 });
 
 app.Run();

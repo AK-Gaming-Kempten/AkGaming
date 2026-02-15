@@ -1,6 +1,8 @@
 using AkGaming.Identity.Application.Abstractions;
+using AkGaming.Identity.Infrastructure.ExternalAuth;
 using AkGaming.Identity.Infrastructure.Persistence;
 using AkGaming.Identity.Infrastructure.Security;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -12,6 +14,7 @@ public static class DependencyInjection
     public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
     {
         services.Configure<JwtOptions>(configuration.GetSection(JwtOptions.SectionName));
+        services.Configure<DiscordOptions>(configuration.GetSection(DiscordOptions.SectionName));
 
         var provider = configuration["Database:Provider"]?.Trim().ToLowerInvariant() ?? "sqlite";
         var connectionString = configuration.GetConnectionString("IdentityDb");
@@ -36,6 +39,10 @@ public static class DependencyInjection
         services.AddScoped<IPasswordHasherService, PasswordHasherService>();
         services.AddScoped<IJwtTokenService, JwtTokenService>();
         services.AddSingleton<IRefreshTokenService, RefreshTokenService>();
+        services.AddDataProtection();
+        services.AddHttpClient<IDiscordOAuthService, DiscordOAuthService>();
+        services.AddSingleton<IDiscordStateService, DiscordStateService>();
+        services.AddSingleton<IDiscordAuthSettings>(sp => sp.GetRequiredService<Microsoft.Extensions.Options.IOptions<DiscordOptions>>().Value);
 
         return services;
     }

@@ -1,6 +1,7 @@
 using System.Net.Mail;
 using AkGaming.Identity.Application.Abstractions;
 using AkGaming.Identity.Application.Common;
+using AkGaming.Identity.Application.ExternalAuth;
 using AkGaming.Identity.Domain.Constants;
 using AkGaming.Identity.Domain.Entities;
 
@@ -10,22 +11,33 @@ public sealed class AuthService : IAuthService
 {
     private const int AccessDeniedStatusCode = 401;
     private const int BadRequestStatusCode = 400;
+    private const int ConflictStatusCode = 409;
+    private const string DiscordProvider = "discord";
 
     private readonly IIdentityRepository _repository;
     private readonly IPasswordHasherService _passwordHasher;
     private readonly IJwtTokenService _jwtTokenService;
     private readonly IRefreshTokenService _refreshTokenService;
+    private readonly IDiscordOAuthService _discordOAuthService;
+    private readonly IDiscordStateService _discordStateService;
+    private readonly IDiscordAuthSettings _discordAuthSettings;
 
     public AuthService(
         IIdentityRepository repository,
         IPasswordHasherService passwordHasher,
         IJwtTokenService jwtTokenService,
-        IRefreshTokenService refreshTokenService)
+        IRefreshTokenService refreshTokenService,
+        IDiscordOAuthService discordOAuthService,
+        IDiscordStateService discordStateService,
+        IDiscordAuthSettings discordAuthSettings)
     {
         _repository = repository;
         _passwordHasher = passwordHasher;
         _jwtTokenService = jwtTokenService;
         _refreshTokenService = refreshTokenService;
+        _discordOAuthService = discordOAuthService;
+        _discordStateService = discordStateService;
+        _discordAuthSettings = discordAuthSettings;
     }
 
     public async Task<AuthResponse> RegisterAsync(RegisterRequest request, string? ipAddress, CancellationToken cancellationToken)
@@ -39,12 +51,7 @@ public sealed class AuthService : IAuthService
             throw new AuthException(BadRequestStatusCode, "A user with this email already exists.");
         }
 
-        var role = await _repository.GetRoleByNameAsync(RoleNames.User, cancellationToken);
-        if (role is null)
-        {
-            role = new Role { Name = RoleNames.User };
-            await _repository.AddRoleAsync(role, cancellationToken);
-        }
+        var role = await GetOrCreateDefaultRoleAsync(cancellationToken);
 
         var user = new User
         {
@@ -162,6 +169,211 @@ public sealed class AuthService : IAuthService
         await _repository.SaveChangesAsync(cancellationToken);
     }
 
+    public Task<DiscordStartResponse> GetDiscordStartUrlAsync(CancellationToken cancellationToken)
+    {
+        var state = _discordStateService.CreateState(new DiscordOAuthState(
+            "login",
+            null,
+            DateTime.UtcNow.AddMinutes(10),
+            Guid.NewGuid().ToString("N")));
+
+        string authorizationUrl;
+        try
+        {
+            authorizationUrl = _discordOAuthService.BuildAuthorizationUrl(state);
+        }
+        catch (InvalidOperationException exception)
+        {
+            throw new AuthException(500, exception.Message);
+        }
+
+        return Task.FromResult(new DiscordStartResponse(authorizationUrl));
+    }
+
+    public Task<DiscordStartResponse> GetDiscordLinkUrlAsync(Guid userId, CancellationToken cancellationToken)
+    {
+        var state = _discordStateService.CreateState(new DiscordOAuthState(
+            "link",
+            userId,
+            DateTime.UtcNow.AddMinutes(10),
+            Guid.NewGuid().ToString("N")));
+
+        string authorizationUrl;
+        try
+        {
+            authorizationUrl = _discordOAuthService.BuildAuthorizationUrl(state);
+        }
+        catch (InvalidOperationException exception)
+        {
+            throw new AuthException(500, exception.Message);
+        }
+
+        return Task.FromResult(new DiscordStartResponse(authorizationUrl));
+    }
+
+    public async Task<DiscordCallbackResponse> HandleDiscordCallbackAsync(string code, string state, string? ipAddress, CancellationToken cancellationToken)
+    {
+        if (string.IsNullOrWhiteSpace(code) || string.IsNullOrWhiteSpace(state))
+        {
+            throw new AuthException(BadRequestStatusCode, "Discord callback is missing required parameters.");
+        }
+
+        var oauthState = _discordStateService.ReadState(state);
+        if (oauthState is null || oauthState.ExpiresAtUtc <= DateTime.UtcNow)
+        {
+            throw new AuthException(BadRequestStatusCode, "Discord state is invalid or expired.");
+        }
+
+        DiscordIdentity discordIdentity;
+        try
+        {
+            discordIdentity = await _discordOAuthService.GetIdentityFromAuthorizationCodeAsync(code, cancellationToken);
+        }
+        catch (InvalidOperationException exception)
+        {
+            throw new AuthException(AccessDeniedStatusCode, exception.Message);
+        }
+
+        var existingExternalLogin = await _repository.GetExternalLoginAsync(DiscordProvider, discordIdentity.UserId, cancellationToken);
+
+        if (oauthState.Purpose == "link")
+        {
+            return await LinkDiscordToExistingUserAsync(oauthState, discordIdentity, existingExternalLogin, cancellationToken);
+        }
+
+        return await LoginOrRegisterWithDiscordAsync(discordIdentity, existingExternalLogin, ipAddress, cancellationToken);
+    }
+
+    private async Task<DiscordCallbackResponse> LinkDiscordToExistingUserAsync(
+        DiscordOAuthState oauthState,
+        DiscordIdentity discordIdentity,
+        ExternalLogin? existingExternalLogin,
+        CancellationToken cancellationToken)
+    {
+        if (oauthState.UserId is null)
+        {
+            throw new AuthException(BadRequestStatusCode, "Link state is missing the target user.");
+        }
+
+        var targetUser = await _repository.GetUserByIdAsync(oauthState.UserId.Value, cancellationToken);
+        if (targetUser is null)
+        {
+            throw new AuthException(AccessDeniedStatusCode, "Target user account was not found.");
+        }
+
+        if (existingExternalLogin is not null && existingExternalLogin.UserId != targetUser.Id)
+        {
+            throw new AuthException(ConflictStatusCode, "This Discord account is already linked to another account.");
+        }
+
+        if (existingExternalLogin is null)
+        {
+            await _repository.AddExternalLoginAsync(new ExternalLogin
+            {
+                UserId = targetUser.Id,
+                Provider = DiscordProvider,
+                ProviderUserId = discordIdentity.UserId,
+                ProviderUsername = discordIdentity.Username
+            }, cancellationToken);
+
+            await _repository.SaveChangesAsync(cancellationToken);
+        }
+
+        return new DiscordCallbackResponse(
+            true,
+            false,
+            discordIdentity.UserId,
+            discordIdentity.Username,
+            null,
+            "Discord account linked successfully.");
+    }
+
+    private async Task<DiscordCallbackResponse> LoginOrRegisterWithDiscordAsync(
+        DiscordIdentity discordIdentity,
+        ExternalLogin? existingExternalLogin,
+        string? ipAddress,
+        CancellationToken cancellationToken)
+    {
+        User user;
+        var createdUser = false;
+
+        if (existingExternalLogin is not null)
+        {
+            user = await _repository.GetUserByIdAsync(existingExternalLogin.UserId, cancellationToken)
+                ?? throw new AuthException(AccessDeniedStatusCode, "Linked user account was not found.");
+        }
+        else
+        {
+            var normalizedDiscordEmail = NormalizeEmailOptional(discordIdentity.Email);
+            User? resolvedUser = null;
+            if (normalizedDiscordEmail is not null)
+            {
+                resolvedUser = await _repository.GetUserByEmailAsync(normalizedDiscordEmail, cancellationToken);
+            }
+
+            if (resolvedUser is not null && _discordAuthSettings.RequireManualLinkForExistingEmail)
+            {
+                throw new AuthException(ConflictStatusCode, "An account with this email already exists. Sign in with your existing method and use /auth/discord/link.");
+            }
+
+            if (resolvedUser is null)
+            {
+                if (!_discordAuthSettings.AutoCreateUser)
+                {
+                    throw new AuthException(ConflictStatusCode, "No linked account found. Link Discord from an existing account first.");
+                }
+
+                var role = await GetOrCreateDefaultRoleAsync(cancellationToken);
+                var email = normalizedDiscordEmail ?? $"discord-{discordIdentity.UserId}@users.akgaming.local";
+
+                resolvedUser = new User
+                {
+                    Email = email,
+                    PasswordHash = null,
+                    IsEmailVerified = normalizedDiscordEmail is not null
+                };
+
+                resolvedUser.UserRoles.Add(new UserRole { User = resolvedUser, Role = role });
+
+                await _repository.AddUserAsync(resolvedUser, cancellationToken);
+                createdUser = true;
+            }
+
+            user = resolvedUser;
+            await _repository.AddExternalLoginAsync(new ExternalLogin
+            {
+                UserId = user.Id,
+                Provider = DiscordProvider,
+                ProviderUserId = discordIdentity.UserId,
+                ProviderUsername = discordIdentity.Username
+            }, cancellationToken);
+        }
+
+        var tokens = await IssueTokensAsync(user, ipAddress, cancellationToken);
+        await _repository.SaveChangesAsync(cancellationToken);
+
+        return new DiscordCallbackResponse(
+            true,
+            createdUser,
+            discordIdentity.UserId,
+            discordIdentity.Username,
+            tokens,
+            createdUser ? "Discord login succeeded and a new account was created." : "Discord login succeeded.");
+    }
+
+    private async Task<Role> GetOrCreateDefaultRoleAsync(CancellationToken cancellationToken)
+    {
+        var role = await _repository.GetRoleByNameAsync(RoleNames.User, cancellationToken);
+        if (role is not null)
+        {
+            return role;
+        }
+
+        role = new Role { Name = RoleNames.User };
+        await _repository.AddRoleAsync(role, cancellationToken);
+        return role;
+    }
+
     private async Task<AuthResponse> IssueTokensAsync(User user, string? ipAddress, CancellationToken cancellationToken)
     {
         var access = _jwtTokenService.GenerateAccessToken(user);
@@ -207,6 +419,23 @@ public sealed class AuthService : IAuthService
         catch
         {
             throw new AuthException(BadRequestStatusCode, "Invalid email address.");
+        }
+    }
+
+    private static string? NormalizeEmailOptional(string? email)
+    {
+        if (string.IsNullOrWhiteSpace(email))
+        {
+            return null;
+        }
+
+        try
+        {
+            return NormalizeEmail(email);
+        }
+        catch
+        {
+            return null;
         }
     }
 

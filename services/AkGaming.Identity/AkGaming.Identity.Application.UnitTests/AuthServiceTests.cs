@@ -89,15 +89,66 @@ public sealed class AuthServiceTests
         Assert.Equal("Refresh token reuse detected.", activeToken.RevocationReason);
     }
 
+    [Fact]
+    public async Task GetDiscordStartUrlAsync_ReturnsAuthorizationUrl()
+    {
+        var repository = new InMemoryIdentityRepository();
+        var discordOAuth = new DiscordOAuthServiceStub();
+        var service = BuildService(repository, discordOAuthService: discordOAuth);
+
+        var response = await service.GetDiscordStartUrlAsync(CancellationToken.None);
+
+        Assert.StartsWith("https://discord.test/authorize", response.AuthorizationUrl);
+    }
+
+    [Fact]
+    public async Task HandleDiscordCallbackAsync_LoginPurpose_AutoCreatesUserAndIssuesTokens()
+    {
+        var repository = new InMemoryIdentityRepository();
+        var discordOAuth = new DiscordOAuthServiceStub
+        {
+            Identity = new("discord-42", "DiscordUser", "discord-42@example.com")
+        };
+        var discordState = new DiscordStateServiceStub
+        {
+            State = new("login", null, DateTime.UtcNow.AddMinutes(5), "nonce")
+        };
+
+        var service = BuildService(
+            repository,
+            discordOAuthService: discordOAuth,
+            discordStateService: discordState,
+            discordAuthSettings: new DiscordAuthSettingsStub
+            {
+                AutoCreateUser = true,
+                RequireManualLinkForExistingEmail = true
+            });
+
+        var response = await service.HandleDiscordCallbackAsync("code", "state", "127.0.0.1", CancellationToken.None);
+
+        Assert.True(response.Linked);
+        Assert.True(response.CreatedUser);
+        Assert.NotNull(response.Tokens);
+        Assert.Single(repository.Users);
+        Assert.Single(repository.ExternalLogins);
+        Assert.Equal("discord-42", repository.ExternalLogins.Single().ProviderUserId);
+    }
+
     private static AuthService BuildService(
         InMemoryIdentityRepository repository,
         PasswordHasherStub? passwordHasher = null,
-        RefreshTokenServiceStub? refreshTokenService = null)
+        RefreshTokenServiceStub? refreshTokenService = null,
+        DiscordOAuthServiceStub? discordOAuthService = null,
+        DiscordStateServiceStub? discordStateService = null,
+        DiscordAuthSettingsStub? discordAuthSettings = null)
     {
         return new AuthService(
             repository,
             passwordHasher ?? new PasswordHasherStub(),
             new JwtTokenServiceStub(),
-            refreshTokenService ?? new RefreshTokenServiceStub());
+            refreshTokenService ?? new RefreshTokenServiceStub(),
+            discordOAuthService ?? new DiscordOAuthServiceStub(),
+            discordStateService ?? new DiscordStateServiceStub(),
+            discordAuthSettings ?? new DiscordAuthSettingsStub());
     }
 }
