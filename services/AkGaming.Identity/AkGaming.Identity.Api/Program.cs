@@ -71,8 +71,14 @@ if (!app.Environment.IsEnvironment("Testing"))
 {
     app.UseHttpsRedirection();
 }
+app.UseDefaultFiles();
+app.UseStaticFiles();
 app.UseAuthentication();
 app.UseAuthorization();
+
+app.MapGet("/", () => Results.Redirect("/ui/index.html"));
+app.MapGet("/login", () => Results.Redirect("/ui/login.html"));
+app.MapGet("/register", () => Results.Redirect("/ui/register.html"));
 
 var auth = app.MapGroup("/auth");
 
@@ -132,11 +138,24 @@ auth.MapGet("/discord/callback", async (string code, string state, IAuthService 
     try
     {
         var response = await authService.HandleDiscordCallbackAsync(code, state, GetIp(httpContext), cancellationToken);
-        return Results.Ok(response);
+        var fragment = BuildDiscordCallbackFragment(
+            success: true,
+            message: response.Message,
+            accessToken: response.Tokens?.AccessToken,
+            refreshToken: response.Tokens?.RefreshToken,
+            linked: response.Linked,
+            createdUser: response.CreatedUser);
+
+        return Results.Redirect($"/ui/callback.html#{fragment}");
     }
     catch (AuthException exception)
     {
-        return Results.Problem(statusCode: exception.StatusCode, detail: exception.Message);
+        var fragment = BuildDiscordCallbackFragment(
+            success: false,
+            message: exception.Message,
+            errorCode: exception.StatusCode.ToString());
+
+        return Results.Redirect($"/ui/callback.html#{fragment}");
     }
 });
 
@@ -157,6 +176,49 @@ app.Run();
 static string? GetIp(HttpContext context)
 {
     return context.Connection.RemoteIpAddress?.ToString();
+}
+
+static string BuildDiscordCallbackFragment(
+    bool success,
+    string message,
+    string? accessToken = null,
+    string? refreshToken = null,
+    bool? linked = null,
+    bool? createdUser = null,
+    string? errorCode = null)
+{
+    var parts = new List<string>
+    {
+        $"success={(success ? "1" : "0")}",
+        $"message={Uri.EscapeDataString(message)}"
+    };
+
+    if (!string.IsNullOrWhiteSpace(accessToken))
+    {
+        parts.Add($"accessToken={Uri.EscapeDataString(accessToken)}");
+    }
+
+    if (!string.IsNullOrWhiteSpace(refreshToken))
+    {
+        parts.Add($"refreshToken={Uri.EscapeDataString(refreshToken)}");
+    }
+
+    if (linked.HasValue)
+    {
+        parts.Add($"linked={(linked.Value ? "1" : "0")}");
+    }
+
+    if (createdUser.HasValue)
+    {
+        parts.Add($"createdUser={(createdUser.Value ? "1" : "0")}");
+    }
+
+    if (!string.IsNullOrWhiteSpace(errorCode))
+    {
+        parts.Add($"errorCode={Uri.EscapeDataString(errorCode)}");
+    }
+
+    return string.Join("&", parts);
 }
 
 public partial class Program;

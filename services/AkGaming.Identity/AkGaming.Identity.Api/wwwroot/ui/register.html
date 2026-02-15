@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>AKG Identity | Register</title>
+  <link rel="stylesheet" href="/ui/theme.css" />
+  <link rel="stylesheet" href="/ui/baseStyles.css" />
+  <link rel="stylesheet" href="/ui/styles.css" />
+  <script src="/ui/common.js" defer></script>
+</head>
+<body>
+  <main class="shell">
+    <div class="topbar">
+      <select class="theme-picker" data-theme-picker aria-label="Theme">
+        <option value="system">System Theme</option>
+        <option value="light">Light Theme</option>
+        <option value="dark">Dark Theme</option>
+      </select>
+    </div>
+    <div class="brand">
+      <img src="/ui/AkGaming_Identity.png" alt="AK Gaming" />
+      <div class="brand-title">AK Gaming <span class="identity">Identity</span></div>
+    </div>
+    <h1>Create Account</h1>
+    <p class="sub">Register with email/password, then link Discord anytime.</p>
+
+    <form id="register-form">
+      <label for="email">Email</label>
+      <input id="email" name="email" type="email" autocomplete="email" required />
+
+      <label for="password">Password</label>
+      <input id="password" name="password" type="password" autocomplete="new-password" minlength="8" required />
+
+      <button class="primary" type="submit">Create Account</button>
+    </form>
+
+    <a class="button secondary" href="/auth/discord/start">
+      <img class="button-icon" src="/ui/Discord-Symbol-Blurple.svg" alt="" />
+      Continue with Discord
+    </a>
+    <a class="switch" href="/login">Already have an account? Sign in</a>
+    <div class="status" id="status"></div>
+  </main>
+
+  <script>
+    const form = document.getElementById("register-form");
+    const statusEl = document.getElementById("status");
+
+    function setStatus(msg, ok = false) {
+      statusEl.textContent = msg;
+      statusEl.className = `status ${ok ? "ok" : "error"}`;
+    }
+
+    function saveTokens(payload) {
+      localStorage.setItem("accessToken", payload.accessToken);
+      localStorage.setItem("refreshToken", payload.refreshToken);
+      localStorage.setItem("accessTokenExpiresAtUtc", payload.accessTokenExpiresAtUtc);
+    }
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      statusEl.className = "status";
+      statusEl.textContent = "Creating account...";
+
+      const body = {
+        email: form.email.value.trim(),
+        password: form.password.value
+      };
+
+      const response = await fetch("/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body)
+      });
+
+      if (!response.ok) {
+        const error = await response.json().catch(() => ({}));
+        setStatus(error.detail || "Registration failed.");
+        return;
+      }
+
+      const payload = await response.json();
+      saveTokens(payload);
+      setStatus("Account created.", true);
+
+      const returnUrl = new URLSearchParams(window.location.search).get("returnUrl");
+      window.location.href = returnUrl || "/";
+    });
+  </script>
+</body>
+</html>
