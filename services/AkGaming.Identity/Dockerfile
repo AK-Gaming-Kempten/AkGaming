@@ -2,14 +2,13 @@
 FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 WORKDIR /src
 
-COPY AkGaming.Identity.sln ./
 COPY global.json ./
 COPY AkGaming.Identity.Api/*.csproj AkGaming.Identity.Api/
 COPY AkGaming.Identity.Application/*.csproj AkGaming.Identity.Application/
 COPY AkGaming.Identity.Domain/*.csproj AkGaming.Identity.Domain/
 COPY AkGaming.Identity.Infrastructure/*.csproj AkGaming.Identity.Infrastructure/
 
-RUN dotnet restore AkGaming.Identity.sln
+RUN dotnet restore AkGaming.Identity.Api/AkGaming.Identity.Api.csproj
 
 COPY . .
 RUN dotnet publish AkGaming.Identity.Api/AkGaming.Identity.Api.csproj -c Release -o /app/publish --no-restore
