@@ -7,11 +7,14 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.1" />
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.1" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="10.0.1" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\AkGaming.Identity.Application\AkGaming.Identity.Application.csproj" />
+    <ProjectReference Include="..\AkGaming.Identity.Infrastructure\AkGaming.Identity.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>
