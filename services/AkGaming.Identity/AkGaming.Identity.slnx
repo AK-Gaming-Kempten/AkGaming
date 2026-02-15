@@ -1,6 +1,8 @@
 <Solution>
   <Project Path="AkGaming.Identity.Api/AkGaming.Identity.Api.csproj" />
   <Project Path="AkGaming.Identity.Application/AkGaming.Identity.Application.csproj" />
+  <Project Path="AkGaming.Identity.Application.UnitTests/AkGaming.Identity.Application.UnitTests.csproj" />
+  <Project Path="AkGaming.Identity.Api.IntegrationTests/AkGaming.Identity.Api.IntegrationTests.csproj" />
   <Project Path="AkGaming.Identity.Domain/AkGaming.Identity.Domain.csproj" />
   <Project Path="AkGaming.Identity.Infrastructure/AkGaming.Identity.Infrastructure.csproj" />
 </Solution>
