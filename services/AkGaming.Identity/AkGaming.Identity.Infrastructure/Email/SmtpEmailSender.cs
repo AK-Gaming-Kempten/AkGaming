@@ -48,13 +48,20 @@ public sealed class SmtpEmailSender : IEmailSender
 
             using var client = new SmtpClient(_options.Host, _options.Port)
             {
-                EnableSsl = _options.UseSsl
+                EnableSsl = _options.UseSsl,
+                Timeout = _options.TimeoutSeconds * 1000
             };
 
             client.UseDefaultCredentials = false;
             client.Credentials = new NetworkCredential(_options.Username, _options.Password);
 
-            await client.SendMailAsync(message);
+            await client.SendMailAsync(message).WaitAsync(TimeSpan.FromSeconds(_options.TimeoutSeconds), cancellationToken);
+        }
+        catch (TimeoutException exception)
+        {
+            _logger.LogError(exception, "SMTP send timed out after {TimeoutSeconds}s. Host={Host}, Port={Port}, Recipient={Recipient}",
+                _options.TimeoutSeconds, _options.Host, _options.Port, toEmail);
+            throw new SmtpException($"SMTP send timed out after {_options.TimeoutSeconds} seconds.");
         }
         catch (Exception exception)
         {
@@ -84,6 +91,11 @@ public sealed class SmtpEmailSender : IEmailSender
         if (string.IsNullOrWhiteSpace(_options.Password))
         {
             throw new InvalidOperationException("Smtp:Password must be configured when SMTP is enabled.");
+        }
+
+        if (_options.TimeoutSeconds <= 0)
+        {
+            throw new InvalidOperationException("Smtp:TimeoutSeconds must be greater than zero.");
         }
     }
 }

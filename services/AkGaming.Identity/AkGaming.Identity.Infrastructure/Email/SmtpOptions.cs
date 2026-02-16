@@ -12,4 +12,5 @@ public sealed class SmtpOptions
     public string? Password { get; set; }
     public string FromEmail { get; set; } = string.Empty;
     public string FromName { get; set; } = "AK Gaming Identity";
+    public int TimeoutSeconds { get; set; } = 15;
 }

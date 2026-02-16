@@ -196,6 +196,20 @@ auth.MapPost("/email/verify", async (VerifyEmailRequest request, IAuthService au
     }
 });
 
+auth.MapGet("/email/verify-link", async (string token, IAuthService authService, HttpContext httpContext, CancellationToken cancellationToken) =>
+{
+    try
+    {
+        await authService.VerifyEmailAsync(new VerifyEmailRequest(token), GetIp(httpContext), cancellationToken);
+        return Results.Redirect("/ui/index.html?emailVerified=1");
+    }
+    catch (AuthException exception)
+    {
+        var message = Uri.EscapeDataString(exception.Message);
+        return Results.Redirect($"/ui/index.html?emailVerified=0&message={message}");
+    }
+});
+
 auth.MapGet("/discord/start", async (IAuthService authService, CancellationToken cancellationToken) =>
 {
     var response = await authService.GetDiscordStartUrlAsync(cancellationToken);

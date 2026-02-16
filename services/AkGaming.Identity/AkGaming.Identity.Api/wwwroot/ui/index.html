@@ -9,13 +9,24 @@
   <link rel="stylesheet" href="/ui/styles.css" />
   <script src="/ui/common.js" defer></script>
   <style>
+    .shell.shell-wide { width: min(96vw, 1100px); }
     .meta { margin-top: 10px; color: var(--color-text-tertiary); font-size: 14px; }
     .panel {
       margin-top: 16px;
-      padding: 12px;
+      padding: 16px;
       border: 1px solid var(--color-card-border);
       border-radius: 4px;
       background: var(--color-background-primary);
+    }
+    .panel h2 {
+      margin: 0 0 12px;
+      font-size: 18px;
+      font-weight: 700;
+    }
+    .account-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
     }
     .row { display: flex; justify-content: space-between; gap: 10px; margin-top: 8px; }
     .k { color: var(--color-text-tertiary); }
@@ -23,21 +34,39 @@
     .v.ok { color: var(--color-highlight-secondary); }
     .v.warn { color: #f4b942; }
     .actions { display: grid; gap: 10px; margin-top: 14px; }
+    .method-actions { display: grid; gap: 10px; margin-top: 14px; }
     .inline-actions { display: flex; gap: 8px; margin-top: 12px; }
-    .inline-actions button { margin-top: 0; }
+    .inline-actions button {
+      margin-top: 0;
+      width: auto;
+      flex: 0 0 auto;
+      padding: 0.55rem 0.9rem;
+    }
     .inline-actions input {
       flex: 1;
       min-width: 0;
       border: 1px solid var(--color-card-border);
       border-radius: 2px;
-      padding: 0.5rem 0.6rem;
+      padding: 0.7rem 0.8rem;
+      min-height: 44px;
+      font-size: 15px;
       background: var(--color-background-primary);
       color: var(--color-text-primary);
     }
-    .discord-details {
+    .method-block {
       margin-top: 12px;
-      padding-top: 10px;
+      padding-top: 12px;
       border-top: 1px dashed var(--color-card-border);
+    }
+    .method-title {
+      margin: 0 0 8px;
+      font-size: 14px;
+      color: var(--color-text-tertiary);
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      font-weight: 700;
+    }
+    .discord-details {
       color: var(--color-text-secondary);
       font-size: 14px;
     }
@@ -47,6 +76,10 @@
     }
     button.secondary:hover {
       background: var(--color-button-secondary-hover-bg);
+    }
+    @media (max-width: 860px) {
+      .account-grid { grid-template-columns: 1fr; }
+      .shell.shell-wide { width: min(96vw, 760px); }
     }
   </style>
 </head>
@@ -67,30 +100,47 @@
     <p class="sub" id="subtitle">Checking session...</p>
 
     <div id="auth-panel" style="display:none;">
-      <div class="panel">
-        <div class="row"><span class="k">User Id</span><span class="v" id="sub"></span></div>
-        <div class="row"><span class="k">Email</span><span class="v" id="email"></span></div>
-        <div class="row"><span class="k">Roles</span><span class="v" id="roles"></span></div>
-        <div class="row"><span class="k">Email Verified</span><span class="v" id="email-verified"></span></div>
-        <div id="verify-block" style="display:none;">
-          <div class="inline-actions">
-            <button class="secondary" id="send-verify" type="button">Send Verification</button>
+      <div class="account-grid">
+        <div class="panel">
+          <h2>General Info</h2>
+          <div class="row"><span class="k">User Id</span><span class="v" id="sub"></span></div>
+          <div class="row"><span class="k">Email</span><span class="v" id="email"></span></div>
+          <div class="row"><span class="k">Roles</span><span class="v" id="roles"></span></div>
+          <div class="meta" id="exp"></div>
+        </div>
+
+        <div class="panel">
+          <h2>Login Methods</h2>
+
+          <div class="method-block">
+            <div class="method-title">Email / Password</div>
+            <div class="row"><span class="k">Email Verified</span><span class="v" id="email-verified"></span></div>
+            <div id="verify-block" style="display:none;">
+              <div class="inline-actions">
+                <button class="secondary" id="send-verify" type="button">Send Verification Email</button>
+              </div>
+              <div class="inline-actions">
+                <input id="verify-token" type="text" autocomplete="off" spellcheck="false" placeholder="Paste verification token here" />
+                <button class="secondary" id="verify-email" type="button">Verify Token</button>
+              </div>
+            </div>
           </div>
-          <div class="inline-actions">
-            <input id="verify-token" type="text" placeholder="Verification token" />
-            <button class="secondary" id="verify-email" type="button">Verify</button>
+
+          <div class="method-block">
+            <div class="method-title">Discord</div>
+            <div id="discord-linked" class="discord-details" style="display:none;">
+              <div><span class="k">Discord</span>: <span id="discord-name"></span></div>
+              <div><span class="k">Discord Id</span>: <span id="discord-id"></span></div>
+              <div><span class="k">Linked At</span>: <span id="discord-linked-at"></span></div>
+            </div>
+            <div class="method-actions">
+              <button class="primary" id="discord-link" type="button"><img class="button-icon" src="/ui/Discord-Symbol-Blurple.svg" alt="" />Link Discord</button>
+            </div>
           </div>
         </div>
-        <div id="discord-linked" class="discord-details" style="display:none;">
-          <div><span class="k">Discord</span>: <span id="discord-name"></span></div>
-          <div><span class="k">Discord Id</span>: <span id="discord-id"></span></div>
-          <div><span class="k">Linked At</span>: <span id="discord-linked-at"></span></div>
-        </div>
-        <div class="meta" id="exp"></div>
       </div>
 
       <div class="actions">
-        <button class="primary" id="discord-link" type="button"><img class="button-icon" src="/ui/Discord-Symbol-Blurple.svg" alt="" />Link Discord</button>
         <button class="secondary" id="refresh" type="button">Refresh Session</button>
         <button class="secondary" id="logout" type="button">Logout</button>
       </div>
@@ -136,6 +186,23 @@
     function clearStatus() {
       statusEl.textContent = "";
       statusEl.className = "status";
+    }
+
+    function consumeRedirectStatus() {
+      const params = new URLSearchParams(window.location.search);
+      const emailVerified = params.get("emailVerified");
+      const message = params.get("message");
+
+      if (emailVerified === "1") {
+        setStatus("Email was verified successfully.", true);
+      } else if (emailVerified === "0") {
+        setStatus(message || "Email verification link failed.");
+      }
+
+      if (emailVerified !== null) {
+        const cleanUrl = `${window.location.pathname}${window.location.hash || ""}`;
+        window.history.replaceState({}, document.title, cleanUrl);
+      }
     }
 
     function base64UrlToJson(payload) {
@@ -386,6 +453,8 @@
     verifyEmailBtn.addEventListener("click", verifyEmail);
 
     (async function init() {
+      consumeRedirectStatus();
+
       const accessToken = localStorage.getItem("accessToken");
       if (!accessToken) {
         renderGuest();

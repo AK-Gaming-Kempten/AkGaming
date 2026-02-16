@@ -26,6 +26,7 @@ public sealed class AuthService : IAuthService
     private readonly IDiscordStateService _discordStateService;
     private readonly IDiscordAuthSettings _discordAuthSettings;
     private readonly IAuthHardeningSettings _hardeningSettings;
+    private readonly IAppUrlSettings _appUrlSettings;
     private readonly ILogger<AuthService> _logger;
 
     public AuthService(
@@ -38,6 +39,7 @@ public sealed class AuthService : IAuthService
         IDiscordStateService discordStateService,
         IDiscordAuthSettings discordAuthSettings,
         IAuthHardeningSettings hardeningSettings,
+        IAppUrlSettings appUrlSettings,
         ILogger<AuthService> logger)
     {
         _repository = repository;
@@ -49,6 +51,7 @@ public sealed class AuthService : IAuthService
         _discordStateService = discordStateService;
         _discordAuthSettings = discordAuthSettings;
         _hardeningSettings = hardeningSettings;
+        _appUrlSettings = appUrlSettings;
         _logger = logger;
     }
 
@@ -284,6 +287,7 @@ public sealed class AuthService : IAuthService
 
         var rawToken = _refreshTokenService.GenerateToken();
         var tokenHash = _refreshTokenService.HashToken(rawToken);
+        var verifyLink = BuildEmailVerificationLink(rawToken);
 
         await _repository.AddEmailVerificationTokenAsync(new EmailVerificationToken
         {
@@ -295,12 +299,23 @@ public sealed class AuthService : IAuthService
 
         var subject = "Verify your AK Gaming Identity email";
         var textBody =
-            "Use the following verification token to verify your email:\n\n" +
+            "Hello,\n\n" +
+            "Please verify your AK Gaming Identity email address.\n\n" +
+            $"Verify instantly: {verifyLink}\n\n" +
+            "Or enter this verification token in the identity page:\n" +
             $"{rawToken}\n\n" +
-            $"This token expires in {_hardeningSettings.EmailVerificationTokenHours} hour(s).";
+            $"This token expires in {_hardeningSettings.EmailVerificationTokenHours} hour(s).\n\n" +
+            "If you did not request this, you can ignore this email.";
         var htmlBody =
-            $"<p>Use the following verification token to verify your email:</p><p><strong>{rawToken}</strong></p>" +
-            $"<p>This token expires in {_hardeningSettings.EmailVerificationTokenHours} hour(s).</p>";
+            "<div style=\"font-family:Arial,Helvetica,sans-serif;color:#222;line-height:1.6\">" +
+            "<h2 style=\"margin:0 0 12px;color:#1f2937\">Verify your AK Gaming Identity email</h2>" +
+            "<p style=\"margin:0 0 12px\">Please confirm your email address to secure your account.</p>" +
+            $"<p style=\"margin:20px 0\"><a href=\"{verifyLink}\" style=\"background:#286c3f;color:#fff;text-decoration:none;padding:10px 16px;border-radius:4px;display:inline-block;font-weight:600\">Verify Email</a></p>" +
+            "<p style=\"margin:0 0 8px\">If the button does not work, use this verification token on the identity page:</p>" +
+            $"<p style=\"margin:0 0 12px;font-size:18px;font-weight:700;letter-spacing:0.5px\">{rawToken}</p>" +
+            $"<p style=\"margin:0 0 8px;color:#4b5563\">Token expiry: {_hardeningSettings.EmailVerificationTokenHours} hour(s).</p>" +
+            "<p style=\"margin:0;color:#6b7280\">If you did not request this, you can ignore this email.</p>" +
+            "</div>";
 
         try
         {
@@ -676,5 +691,16 @@ public sealed class AuthService : IAuthService
         {
             throw new AuthException(BadRequestStatusCode, "Password must be at least 8 characters long.");
         }
+    }
+
+    private string BuildEmailVerificationLink(string rawToken)
+    {
+        var baseUrl = _appUrlSettings.PublicBaseUrl?.Trim();
+        if (string.IsNullOrWhiteSpace(baseUrl))
+        {
+            throw new AuthException(500, "App public base URL is not configured.");
+        }
+
+        return $"{baseUrl.TrimEnd('/')}/auth/email/verify-link?token={Uri.EscapeDataString(rawToken)}";
     }
 }

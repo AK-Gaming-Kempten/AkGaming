@@ -201,7 +201,8 @@ public sealed class AuthServiceTests
         DiscordOAuthServiceStub? discordOAuthService = null,
         DiscordStateServiceStub? discordStateService = null,
         DiscordAuthSettingsStub? discordAuthSettings = null,
-        AuthHardeningSettingsStub? hardeningSettings = null)
+        AuthHardeningSettingsStub? hardeningSettings = null,
+        AppUrlSettingsStub? appUrlSettings = null)
     {
         return new AuthService(
             repository,
@@ -213,6 +214,7 @@ public sealed class AuthServiceTests
             discordStateService ?? new DiscordStateServiceStub(),
             discordAuthSettings ?? new DiscordAuthSettingsStub(),
             hardeningSettings ?? new AuthHardeningSettingsStub(),
+            appUrlSettings ?? new AppUrlSettingsStub(),
             NullLogger<AuthService>.Instance);
     }
 }
