@@ -28,33 +28,42 @@ public sealed class SmtpEmailSender : IEmailSender
         ValidateOptions();
         cancellationToken.ThrowIfCancellationRequested();
 
-        using var message = new MailMessage
+        try
         {
-            From = new MailAddress(_options.FromEmail, _options.FromName),
-            Subject = subject,
-            Body = textBody,
-            IsBodyHtml = false
-        };
+            using var message = new MailMessage
+            {
+                From = new MailAddress(_options.FromEmail, _options.FromName),
+                Subject = subject,
+                Body = textBody,
+                IsBodyHtml = false
+            };
 
-        message.To.Add(new MailAddress(toEmail));
+            message.To.Add(new MailAddress(toEmail));
 
-        if (!string.IsNullOrWhiteSpace(htmlBody))
-        {
-            message.AlternateViews.Add(AlternateView.CreateAlternateViewFromString(textBody, null, "text/plain"));
-            message.AlternateViews.Add(AlternateView.CreateAlternateViewFromString(htmlBody, null, "text/html"));
+            if (!string.IsNullOrWhiteSpace(htmlBody))
+            {
+                message.AlternateViews.Add(AlternateView.CreateAlternateViewFromString(textBody, null, "text/plain"));
+                message.AlternateViews.Add(AlternateView.CreateAlternateViewFromString(htmlBody, null, "text/html"));
+            }
+
+            using var client = new SmtpClient(_options.Host, _options.Port)
+            {
+                EnableSsl = _options.UseSsl
+            };
+
+            if (!string.IsNullOrWhiteSpace(_options.Username))
+            {
+                client.Credentials = new NetworkCredential(_options.Username, _options.Password);
+            }
+
+            await client.SendMailAsync(message);
         }
-
-        using var client = new SmtpClient(_options.Host, _options.Port)
+        catch (Exception exception)
         {
-            EnableSsl = _options.UseSsl
-        };
-
-        if (!string.IsNullOrWhiteSpace(_options.Username))
-        {
-            client.Credentials = new NetworkCredential(_options.Username, _options.Password);
+            _logger.LogError(exception, "SMTP send failed. Host={Host}, Port={Port}, UseSsl={UseSsl}, Recipient={Recipient}, From={FromEmail}",
+                _options.Host, _options.Port, _options.UseSsl, toEmail, _options.FromEmail);
+            throw;
         }
-
-        await client.SendMailAsync(message);
     }
 
     private void ValidateOptions()

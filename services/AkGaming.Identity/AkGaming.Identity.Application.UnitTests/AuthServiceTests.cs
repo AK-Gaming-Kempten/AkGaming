@@ -2,6 +2,7 @@ using AkGaming.Identity.Application.Auth;
 using AkGaming.Identity.Application.Common;
 using AkGaming.Identity.Application.UnitTests.Fakes;
 using AkGaming.Identity.Domain.Constants;
+using Microsoft.Extensions.Logging.Abstractions;
 
 namespace AkGaming.Identity.Application.UnitTests;
 
@@ -211,6 +212,7 @@ public sealed class AuthServiceTests
             discordOAuthService ?? new DiscordOAuthServiceStub(),
             discordStateService ?? new DiscordStateServiceStub(),
             discordAuthSettings ?? new DiscordAuthSettingsStub(),
-            hardeningSettings ?? new AuthHardeningSettingsStub());
+            hardeningSettings ?? new AuthHardeningSettingsStub(),
+            NullLogger<AuthService>.Instance);
     }
 }

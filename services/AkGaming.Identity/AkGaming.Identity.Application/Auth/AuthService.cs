@@ -4,6 +4,7 @@ using AkGaming.Identity.Application.Common;
 using AkGaming.Identity.Application.ExternalAuth;
 using AkGaming.Identity.Domain.Constants;
 using AkGaming.Identity.Domain.Entities;
+using Microsoft.Extensions.Logging;
 
 namespace AkGaming.Identity.Application.Auth;
 
@@ -25,6 +26,7 @@ public sealed class AuthService : IAuthService
     private readonly IDiscordStateService _discordStateService;
     private readonly IDiscordAuthSettings _discordAuthSettings;
     private readonly IAuthHardeningSettings _hardeningSettings;
+    private readonly ILogger<AuthService> _logger;
 
     public AuthService(
         IIdentityRepository repository,
@@ -35,7 +37,8 @@ public sealed class AuthService : IAuthService
         IDiscordOAuthService discordOAuthService,
         IDiscordStateService discordStateService,
         IDiscordAuthSettings discordAuthSettings,
-        IAuthHardeningSettings hardeningSettings)
+        IAuthHardeningSettings hardeningSettings,
+        ILogger<AuthService> logger)
     {
         _repository = repository;
         _passwordHasher = passwordHasher;
@@ -46,6 +49,7 @@ public sealed class AuthService : IAuthService
         _discordStateService = discordStateService;
         _discordAuthSettings = discordAuthSettings;
         _hardeningSettings = hardeningSettings;
+        _logger = logger;
     }
 
     public async Task<AuthResponse> RegisterAsync(RegisterRequest request, string? ipAddress, CancellationToken cancellationToken)
@@ -302,9 +306,10 @@ public sealed class AuthService : IAuthService
         {
             await _emailSender.SendAsync(user.Email, subject, textBody, htmlBody, cancellationToken);
         }
-        catch (Exception)
+        catch (Exception exception)
         {
-            await WriteAuditAsync("email_verification.email_send_failed", user.Id, user.Email, ipAddress, false, "smtp_send_failed", cancellationToken);
+            _logger.LogError(exception, "Failed to send verification email to {Email}.", user.Email);
+            await WriteAuditAsync("email_verification.email_send_failed", user.Id, user.Email, ipAddress, false, $"smtp_send_failed:{exception.GetType().Name}", cancellationToken);
             await _repository.SaveChangesAsync(cancellationToken);
             throw new AuthException(500, "Verification email could not be sent.");
         }
