@@ -35,6 +35,7 @@ public sealed class IdentityRepository : IIdentityRepository
             .Include(x => x.UserRoles)
             .ThenInclude(x => x.Role)
             .Include(x => x.ExternalLogins)
+            .AsSplitQuery()
             .SingleOrDefaultAsync(x => x.Id == userId, cancellationToken);
     }
 

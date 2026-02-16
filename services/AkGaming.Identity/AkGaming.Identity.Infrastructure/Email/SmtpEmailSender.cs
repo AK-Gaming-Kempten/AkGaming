@@ -51,10 +51,8 @@ public sealed class SmtpEmailSender : IEmailSender
                 EnableSsl = _options.UseSsl
             };
 
-            if (!string.IsNullOrWhiteSpace(_options.Username))
-            {
-                client.Credentials = new NetworkCredential(_options.Username, _options.Password);
-            }
+            client.UseDefaultCredentials = false;
+            client.Credentials = new NetworkCredential(_options.Username, _options.Password);
 
             await client.SendMailAsync(message);
         }
@@ -76,6 +74,16 @@ public sealed class SmtpEmailSender : IEmailSender
         if (string.IsNullOrWhiteSpace(_options.FromEmail))
         {
             throw new InvalidOperationException("Smtp:FromEmail must be configured when SMTP is enabled.");
+        }
+
+        if (string.IsNullOrWhiteSpace(_options.Username))
+        {
+            throw new InvalidOperationException("Smtp:Username must be configured when SMTP is enabled.");
+        }
+
+        if (string.IsNullOrWhiteSpace(_options.Password))
+        {
+            throw new InvalidOperationException("Smtp:Password must be configured when SMTP is enabled.");
         }
     }
 }
