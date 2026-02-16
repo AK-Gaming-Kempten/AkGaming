@@ -46,6 +46,39 @@ public sealed class AuthServiceTests
     }
 
     [Fact]
+    public async Task LoginAsync_AfterThreshold_LocksUser()
+    {
+        var repository = new InMemoryIdentityRepository();
+        var hasher = new PasswordHasherStub();
+        var user = new AkGaming.Identity.Domain.Entities.User
+        {
+            Email = "lock@test.local",
+            PasswordHash = hasher.HashPassword(new AkGaming.Identity.Domain.Entities.User(), "Password123")
+        };
+
+        repository.Users.Add(user);
+
+        var service = BuildService(
+            repository,
+            hasher,
+            hardeningSettings: new AuthHardeningSettingsStub { MaxFailedLoginAttempts = 2, LockoutMinutes = 5 });
+
+        await Assert.ThrowsAsync<AuthException>(() =>
+            service.LoginAsync(new LoginRequest("lock@test.local", "wrong"), "127.0.0.1", CancellationToken.None));
+
+        var second = await Assert.ThrowsAsync<AuthException>(() =>
+            service.LoginAsync(new LoginRequest("lock@test.local", "wrong"), "127.0.0.1", CancellationToken.None));
+
+        Assert.Equal(401, second.StatusCode);
+        Assert.NotNull(user.LockoutEndUtc);
+
+        var locked = await Assert.ThrowsAsync<AuthException>(() =>
+            service.LoginAsync(new LoginRequest("lock@test.local", "Password123"), "127.0.0.1", CancellationToken.None));
+
+        Assert.Equal(423, locked.StatusCode);
+    }
+
+    [Fact]
     public async Task RefreshAsync_WhenRevokedTokenIsReused_RevokesAllActiveTokens()
     {
         var repository = new InMemoryIdentityRepository();
@@ -87,6 +120,28 @@ public sealed class AuthServiceTests
         Assert.Equal(401, exception.StatusCode);
         Assert.NotNull(activeToken.RevokedAtUtc);
         Assert.Equal("Refresh token reuse detected.", activeToken.RevocationReason);
+    }
+
+    [Fact]
+    public async Task EmailVerification_Flow_Works()
+    {
+        var repository = new InMemoryIdentityRepository();
+        var service = BuildService(repository);
+
+        await service.RegisterAsync(new RegisterRequest("verify@test.local", "Password123"), "127.0.0.1", CancellationToken.None);
+        var user = repository.Users.Single();
+
+        var issued = await service.RequestEmailVerificationAsync(
+            new EmailVerificationRequest("verify@test.local"),
+            "127.0.0.1",
+            CancellationToken.None);
+
+        Assert.NotNull(issued.VerificationToken);
+        Assert.False(user.IsEmailVerified);
+
+        await service.VerifyEmailAsync(new VerifyEmailRequest(issued.VerificationToken!), "127.0.0.1", CancellationToken.None);
+
+        Assert.True(user.IsEmailVerified);
     }
 
     [Fact]
@@ -140,7 +195,8 @@ public sealed class AuthServiceTests
         RefreshTokenServiceStub? refreshTokenService = null,
         DiscordOAuthServiceStub? discordOAuthService = null,
         DiscordStateServiceStub? discordStateService = null,
-        DiscordAuthSettingsStub? discordAuthSettings = null)
+        DiscordAuthSettingsStub? discordAuthSettings = null,
+        AuthHardeningSettingsStub? hardeningSettings = null)
     {
         return new AuthService(
             repository,
@@ -149,6 +205,7 @@ public sealed class AuthServiceTests
             refreshTokenService ?? new RefreshTokenServiceStub(),
             discordOAuthService ?? new DiscordOAuthServiceStub(),
             discordStateService ?? new DiscordStateServiceStub(),
-            discordAuthSettings ?? new DiscordAuthSettingsStub());
+            discordAuthSettings ?? new DiscordAuthSettingsStub(),
+            hardeningSettings ?? new AuthHardeningSettingsStub());
     }
 }

@@ -14,6 +14,8 @@ public sealed class AuthDbContext : DbContext
     public DbSet<UserRole> UserRoles => Set<UserRole>();
     public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
     public DbSet<ExternalLogin> ExternalLogins => Set<ExternalLogin>();
+    public DbSet<EmailVerificationToken> EmailVerificationTokens => Set<EmailVerificationToken>();
+    public DbSet<AuditLog> AuditLogs => Set<AuditLog>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -54,6 +56,25 @@ public sealed class AuthDbContext : DbContext
             entity.Property(x => x.ProviderUserId).IsRequired().HasMaxLength(256);
             entity.HasIndex(x => new { x.Provider, x.ProviderUserId }).IsUnique();
             entity.HasOne(x => x.User).WithMany(x => x.ExternalLogins).HasForeignKey(x => x.UserId);
+        });
+
+        modelBuilder.Entity<EmailVerificationToken>(entity =>
+        {
+            entity.HasKey(x => x.Id);
+            entity.Property(x => x.TokenHash).IsRequired().HasMaxLength(128);
+            entity.HasIndex(x => x.TokenHash).IsUnique();
+            entity.HasOne(x => x.User).WithMany(x => x.EmailVerificationTokens).HasForeignKey(x => x.UserId);
+        });
+
+        modelBuilder.Entity<AuditLog>(entity =>
+        {
+            entity.HasKey(x => x.Id);
+            entity.Property(x => x.EventType).IsRequired().HasMaxLength(128);
+            entity.Property(x => x.SubjectEmail).HasMaxLength(320);
+            entity.Property(x => x.IpAddress).HasMaxLength(128);
+            entity.Property(x => x.Details).HasMaxLength(4000);
+            entity.HasIndex(x => x.CreatedAtUtc);
+            entity.HasOne(x => x.User).WithMany(x => x.AuditLogs).HasForeignKey(x => x.UserId).IsRequired(false);
         });
     }
 }

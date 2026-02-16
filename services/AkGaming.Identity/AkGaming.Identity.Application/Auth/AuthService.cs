@@ -11,6 +11,8 @@ public sealed class AuthService : IAuthService
 {
     private const int AccessDeniedStatusCode = 401;
     private const int BadRequestStatusCode = 400;
+    private const int ForbiddenStatusCode = 403;
+    private const int LockedStatusCode = 423;
     private const int ConflictStatusCode = 409;
     private const string DiscordProvider = "discord";
 
@@ -21,6 +23,7 @@ public sealed class AuthService : IAuthService
     private readonly IDiscordOAuthService _discordOAuthService;
     private readonly IDiscordStateService _discordStateService;
     private readonly IDiscordAuthSettings _discordAuthSettings;
+    private readonly IAuthHardeningSettings _hardeningSettings;
 
     public AuthService(
         IIdentityRepository repository,
@@ -29,7 +32,8 @@ public sealed class AuthService : IAuthService
         IRefreshTokenService refreshTokenService,
         IDiscordOAuthService discordOAuthService,
         IDiscordStateService discordStateService,
-        IDiscordAuthSettings discordAuthSettings)
+        IDiscordAuthSettings discordAuthSettings,
+        IAuthHardeningSettings hardeningSettings)
     {
         _repository = repository;
         _passwordHasher = passwordHasher;
@@ -38,6 +42,7 @@ public sealed class AuthService : IAuthService
         _discordOAuthService = discordOAuthService;
         _discordStateService = discordStateService;
         _discordAuthSettings = discordAuthSettings;
+        _hardeningSettings = hardeningSettings;
     }
 
     public async Task<AuthResponse> RegisterAsync(RegisterRequest request, string? ipAddress, CancellationToken cancellationToken)
@@ -48,6 +53,8 @@ public sealed class AuthService : IAuthService
         var existingUser = await _repository.GetUserByEmailAsync(email, cancellationToken);
         if (existingUser is not null)
         {
+            await WriteAuditAsync("register.failed", null, email, ipAddress, false, "email_exists", cancellationToken);
+            await _repository.SaveChangesAsync(cancellationToken);
             throw new AuthException(BadRequestStatusCode, "A user with this email already exists.");
         }
 
@@ -66,6 +73,7 @@ public sealed class AuthService : IAuthService
         await _repository.AddUserAsync(user, cancellationToken);
 
         var response = await IssueTokensAsync(user, ipAddress, cancellationToken);
+        await WriteAuditAsync("register.success", user.Id, user.Email, ipAddress, true, null, cancellationToken);
         await _repository.SaveChangesAsync(cancellationToken);
 
         return response;
@@ -78,16 +86,37 @@ public sealed class AuthService : IAuthService
         var user = await _repository.GetUserByEmailAsync(email, cancellationToken);
         if (user is null || string.IsNullOrWhiteSpace(user.PasswordHash))
         {
+            await WriteAuditAsync("login.failed", null, email, ipAddress, false, "invalid_credentials", cancellationToken);
+            await _repository.SaveChangesAsync(cancellationToken);
             throw new AuthException(AccessDeniedStatusCode, "Invalid credentials.");
+        }
+
+        if (user.LockoutEndUtc.HasValue && user.LockoutEndUtc.Value > DateTime.UtcNow)
+        {
+            await WriteAuditAsync("login.locked", user.Id, user.Email, ipAddress, false, $"locked_until:{user.LockoutEndUtc:O}", cancellationToken);
+            await _repository.SaveChangesAsync(cancellationToken);
+            throw new AuthException(LockedStatusCode, "Account is temporarily locked due to repeated failed login attempts.");
         }
 
         var passwordValid = _passwordHasher.VerifyPassword(user, request.Password, user.PasswordHash);
         if (!passwordValid)
         {
+            await HandleFailedLoginAttemptAsync(user, ipAddress, cancellationToken);
             throw new AuthException(AccessDeniedStatusCode, "Invalid credentials.");
         }
 
+        if (_hardeningSettings.RequireVerifiedEmailForLogin && !user.IsEmailVerified)
+        {
+            await WriteAuditAsync("login.unverified", user.Id, user.Email, ipAddress, false, "email_not_verified", cancellationToken);
+            await _repository.SaveChangesAsync(cancellationToken);
+            throw new AuthException(ForbiddenStatusCode, "Email verification is required before login.");
+        }
+
+        user.AccessFailedCount = 0;
+        user.LockoutEndUtc = null;
+
         var response = await IssueTokensAsync(user, ipAddress, cancellationToken);
+        await WriteAuditAsync("login.success", user.Id, user.Email, ipAddress, true, null, cancellationToken);
         await _repository.SaveChangesAsync(cancellationToken);
 
         return response;
@@ -105,12 +134,15 @@ public sealed class AuthService : IAuthService
 
         if (existingToken is null)
         {
+            await WriteAuditAsync("refresh.failed", null, null, ipAddress, false, "token_not_found", cancellationToken);
+            await _repository.SaveChangesAsync(cancellationToken);
             throw new AuthException(AccessDeniedStatusCode, "Invalid refresh token.");
         }
 
         if (existingToken.RevokedAtUtc is not null)
         {
             await RevokeAllActiveRefreshTokensAsync(existingToken.UserId, ipAddress, "Refresh token reuse detected.", cancellationToken);
+            await WriteAuditAsync("refresh.reuse_detected", existingToken.UserId, existingToken.User.Email, ipAddress, false, "reuse_detected", cancellationToken);
             await _repository.SaveChangesAsync(cancellationToken);
             throw new AuthException(AccessDeniedStatusCode, "Refresh token is no longer valid.");
         }
@@ -120,6 +152,7 @@ public sealed class AuthService : IAuthService
             existingToken.RevokedAtUtc = DateTime.UtcNow;
             existingToken.RevokedByIp = ipAddress;
             existingToken.RevocationReason = "Expired token.";
+            await WriteAuditAsync("refresh.expired", existingToken.UserId, existingToken.User.Email, ipAddress, false, "token_expired", cancellationToken);
             await _repository.SaveChangesAsync(cancellationToken);
             throw new AuthException(AccessDeniedStatusCode, "Refresh token expired.");
         }
@@ -142,6 +175,7 @@ public sealed class AuthService : IAuthService
         }, cancellationToken);
 
         var access = _jwtTokenService.GenerateAccessToken(user);
+        await WriteAuditAsync("refresh.success", user.Id, user.Email, ipAddress, true, null, cancellationToken);
         await _repository.SaveChangesAsync(cancellationToken);
 
         return new AuthResponse(access.Token, access.ExpiresAtUtc, newRefreshTokenRaw);
@@ -166,6 +200,81 @@ public sealed class AuthService : IAuthService
         existingToken.RevokedByIp = ipAddress;
         existingToken.RevocationReason = "User logout.";
 
+        await WriteAuditAsync("logout.success", existingToken.UserId, existingToken.User.Email, ipAddress, true, null, cancellationToken);
+        await _repository.SaveChangesAsync(cancellationToken);
+    }
+
+    public async Task<EmailVerificationResponse> RequestEmailVerificationAsync(EmailVerificationRequest request, string? ipAddress, CancellationToken cancellationToken)
+    {
+        var email = NormalizeEmail(request.Email);
+        var user = await _repository.GetUserByEmailAsync(email, cancellationToken);
+
+        if (user is null)
+        {
+            await WriteAuditAsync("email_verification.request", null, email, ipAddress, true, "user_not_found", cancellationToken);
+            await _repository.SaveChangesAsync(cancellationToken);
+            return new EmailVerificationResponse("If the account exists, a verification message has been issued.");
+        }
+
+        if (user.IsEmailVerified)
+        {
+            await WriteAuditAsync("email_verification.request", user.Id, user.Email, ipAddress, true, "already_verified", cancellationToken);
+            await _repository.SaveChangesAsync(cancellationToken);
+            return new EmailVerificationResponse("Email is already verified.");
+        }
+
+        var activeTokens = await _repository.GetActiveEmailVerificationTokensByUserIdAsync(user.Id, cancellationToken);
+        foreach (var activeToken in activeTokens)
+        {
+            activeToken.ConsumedAtUtc = DateTime.UtcNow;
+        }
+
+        var rawToken = _refreshTokenService.GenerateToken();
+        var tokenHash = _refreshTokenService.HashToken(rawToken);
+
+        await _repository.AddEmailVerificationTokenAsync(new EmailVerificationToken
+        {
+            UserId = user.Id,
+            TokenHash = tokenHash,
+            ExpiresAtUtc = DateTime.UtcNow.AddHours(_hardeningSettings.EmailVerificationTokenHours),
+            CreatedByIp = ipAddress
+        }, cancellationToken);
+
+        await WriteAuditAsync("email_verification.issued", user.Id, user.Email, ipAddress, true, null, cancellationToken);
+        await _repository.SaveChangesAsync(cancellationToken);
+
+        var exposedToken = _hardeningSettings.ExposeEmailVerificationToken ? rawToken : null;
+        return new EmailVerificationResponse("Verification token created.", exposedToken);
+    }
+
+    public async Task VerifyEmailAsync(VerifyEmailRequest request, string? ipAddress, CancellationToken cancellationToken)
+    {
+        if (string.IsNullOrWhiteSpace(request.Token))
+        {
+            throw new AuthException(BadRequestStatusCode, "Verification token is required.");
+        }
+
+        var tokenHash = _refreshTokenService.HashToken(request.Token);
+        var verificationToken = await _repository.GetEmailVerificationTokenByHashAsync(tokenHash, cancellationToken);
+
+        if (verificationToken is null)
+        {
+            await WriteAuditAsync("email_verification.failed", null, null, ipAddress, false, "token_not_found", cancellationToken);
+            await _repository.SaveChangesAsync(cancellationToken);
+            throw new AuthException(BadRequestStatusCode, "Verification token is invalid.");
+        }
+
+        if (verificationToken.ConsumedAtUtc.HasValue || verificationToken.ExpiresAtUtc <= DateTime.UtcNow)
+        {
+            await WriteAuditAsync("email_verification.failed", verificationToken.UserId, verificationToken.User.Email, ipAddress, false, "token_invalid_or_expired", cancellationToken);
+            await _repository.SaveChangesAsync(cancellationToken);
+            throw new AuthException(BadRequestStatusCode, "Verification token is invalid or expired.");
+        }
+
+        verificationToken.ConsumedAtUtc = DateTime.UtcNow;
+        verificationToken.User.IsEmailVerified = true;
+
+        await WriteAuditAsync("email_verification.success", verificationToken.UserId, verificationToken.User.Email, ipAddress, true, null, cancellationToken);
         await _repository.SaveChangesAsync(cancellationToken);
     }
 
@@ -238,7 +347,7 @@ public sealed class AuthService : IAuthService
 
         if (oauthState.Purpose == "link")
         {
-            return await LinkDiscordToExistingUserAsync(oauthState, discordIdentity, existingExternalLogin, cancellationToken);
+            return await LinkDiscordToExistingUserAsync(oauthState, discordIdentity, existingExternalLogin, ipAddress, cancellationToken);
         }
 
         return await LoginOrRegisterWithDiscordAsync(discordIdentity, existingExternalLogin, ipAddress, cancellationToken);
@@ -248,6 +357,7 @@ public sealed class AuthService : IAuthService
         DiscordOAuthState oauthState,
         DiscordIdentity discordIdentity,
         ExternalLogin? existingExternalLogin,
+        string? ipAddress,
         CancellationToken cancellationToken)
     {
         if (oauthState.UserId is null)
@@ -263,6 +373,8 @@ public sealed class AuthService : IAuthService
 
         if (existingExternalLogin is not null && existingExternalLogin.UserId != targetUser.Id)
         {
+            await WriteAuditAsync("discord.link.failed", targetUser.Id, targetUser.Email, ipAddress, false, "already_linked_elsewhere", cancellationToken);
+            await _repository.SaveChangesAsync(cancellationToken);
             throw new AuthException(ConflictStatusCode, "This Discord account is already linked to another account.");
         }
 
@@ -276,6 +388,7 @@ public sealed class AuthService : IAuthService
                 ProviderUsername = discordIdentity.Username
             }, cancellationToken);
 
+            await WriteAuditAsync("discord.link.success", targetUser.Id, targetUser.Email, ipAddress, true, $"discord_user:{discordIdentity.UserId}", cancellationToken);
             await _repository.SaveChangesAsync(cancellationToken);
         }
 
@@ -313,6 +426,8 @@ public sealed class AuthService : IAuthService
 
             if (resolvedUser is not null && _discordAuthSettings.RequireManualLinkForExistingEmail)
             {
+                await WriteAuditAsync("discord.login.failed", resolvedUser.Id, resolvedUser.Email, ipAddress, false, "manual_link_required", cancellationToken);
+                await _repository.SaveChangesAsync(cancellationToken);
                 throw new AuthException(ConflictStatusCode, "An account with this email already exists. Sign in with your existing method and use /auth/discord/link.");
             }
 
@@ -320,6 +435,8 @@ public sealed class AuthService : IAuthService
             {
                 if (!_discordAuthSettings.AutoCreateUser)
                 {
+                    await WriteAuditAsync("discord.login.failed", null, normalizedDiscordEmail, ipAddress, false, "auto_create_disabled", cancellationToken);
+                    await _repository.SaveChangesAsync(cancellationToken);
                     throw new AuthException(ConflictStatusCode, "No linked account found. Link Discord from an existing account first.");
                 }
 
@@ -349,7 +466,11 @@ public sealed class AuthService : IAuthService
             }, cancellationToken);
         }
 
+        user.AccessFailedCount = 0;
+        user.LockoutEndUtc = null;
+
         var tokens = await IssueTokensAsync(user, ipAddress, cancellationToken);
+        await WriteAuditAsync("discord.login.success", user.Id, user.Email, ipAddress, true, createdUser ? "created_user" : "existing_user", cancellationToken);
         await _repository.SaveChangesAsync(cancellationToken);
 
         return new DiscordCallbackResponse(
@@ -359,6 +480,22 @@ public sealed class AuthService : IAuthService
             discordIdentity.Username,
             tokens,
             createdUser ? "Discord login succeeded and a new account was created." : "Discord login succeeded.");
+    }
+
+    private async Task HandleFailedLoginAttemptAsync(User user, string? ipAddress, CancellationToken cancellationToken)
+    {
+        user.AccessFailedCount++;
+
+        var details = "invalid_credentials";
+
+        if (user.AccessFailedCount >= _hardeningSettings.MaxFailedLoginAttempts)
+        {
+            user.LockoutEndUtc = DateTime.UtcNow.AddMinutes(_hardeningSettings.LockoutMinutes);
+            details = $"locked_until:{user.LockoutEndUtc:O}";
+        }
+
+        await WriteAuditAsync("login.failed", user.Id, user.Email, ipAddress, false, details, cancellationToken);
+        await _repository.SaveChangesAsync(cancellationToken);
     }
 
     private async Task<Role> GetOrCreateDefaultRoleAsync(CancellationToken cancellationToken)
@@ -400,6 +537,26 @@ public sealed class AuthService : IAuthService
             token.RevokedByIp = ipAddress;
             token.RevocationReason = reason;
         }
+    }
+
+    private async Task WriteAuditAsync(
+        string eventType,
+        Guid? userId,
+        string? subjectEmail,
+        string? ipAddress,
+        bool success,
+        string? details,
+        CancellationToken cancellationToken)
+    {
+        await _repository.AddAuditLogAsync(new AuditLog
+        {
+            UserId = userId,
+            EventType = eventType,
+            SubjectEmail = subjectEmail,
+            IpAddress = ipAddress,
+            Success = success,
+            Details = details
+        }, cancellationToken);
     }
 
     private static string NormalizeEmail(string email)

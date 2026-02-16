@@ -14,6 +14,7 @@ public static class DependencyInjection
     public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
     {
         services.Configure<JwtOptions>(configuration.GetSection(JwtOptions.SectionName));
+        services.Configure<AuthHardeningOptions>(configuration.GetSection(AuthHardeningOptions.SectionName));
         services.Configure<DiscordOptions>(configuration.GetSection(DiscordOptions.SectionName));
 
         var provider = configuration["Database:Provider"]?.Trim().ToLowerInvariant() ?? "sqlite";
@@ -43,6 +44,7 @@ public static class DependencyInjection
         services.AddHttpClient<IDiscordOAuthService, DiscordOAuthService>();
         services.AddSingleton<IDiscordStateService, DiscordStateService>();
         services.AddSingleton<IDiscordAuthSettings>(sp => sp.GetRequiredService<Microsoft.Extensions.Options.IOptions<DiscordOptions>>().Value);
+        services.AddSingleton<IAuthHardeningSettings>(sp => sp.GetRequiredService<Microsoft.Extensions.Options.IOptions<AuthHardeningOptions>>().Value);
 
         return services;
     }

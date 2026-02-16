@@ -9,6 +9,8 @@ internal sealed class InMemoryIdentityRepository : IIdentityRepository
     public List<Role> Roles { get; } = [];
     public List<ExternalLogin> ExternalLogins { get; } = [];
     public List<RefreshToken> RefreshTokens { get; } = [];
+    public List<EmailVerificationToken> EmailVerificationTokens { get; } = [];
+    public List<AuditLog> AuditLogs { get; } = [];
 
     public Task<User?> GetUserByEmailAsync(string email, CancellationToken cancellationToken)
     {
@@ -35,9 +37,20 @@ internal sealed class InMemoryIdentityRepository : IIdentityRepository
         return Task.FromResult(RefreshTokens.SingleOrDefault(x => x.TokenHash == tokenHash));
     }
 
+    public Task<EmailVerificationToken?> GetEmailVerificationTokenByHashAsync(string tokenHash, CancellationToken cancellationToken)
+    {
+        return Task.FromResult(EmailVerificationTokens.SingleOrDefault(x => x.TokenHash == tokenHash));
+    }
+
     public Task<List<RefreshToken>> GetActiveRefreshTokensByUserIdAsync(Guid userId, CancellationToken cancellationToken)
     {
         var tokens = RefreshTokens.Where(x => x.UserId == userId && x.RevokedAtUtc == null && x.ExpiresAtUtc > DateTime.UtcNow).ToList();
+        return Task.FromResult(tokens);
+    }
+
+    public Task<List<EmailVerificationToken>> GetActiveEmailVerificationTokensByUserIdAsync(Guid userId, CancellationToken cancellationToken)
+    {
+        var tokens = EmailVerificationTokens.Where(x => x.UserId == userId && x.ConsumedAtUtc == null && x.ExpiresAtUtc > DateTime.UtcNow).ToList();
         return Task.FromResult(tokens);
     }
 
@@ -56,6 +69,20 @@ internal sealed class InMemoryIdentityRepository : IIdentityRepository
     public Task AddExternalLoginAsync(ExternalLogin externalLogin, CancellationToken cancellationToken)
     {
         ExternalLogins.Add(externalLogin);
+        return Task.CompletedTask;
+    }
+
+    public Task AddEmailVerificationTokenAsync(EmailVerificationToken emailVerificationToken, CancellationToken cancellationToken)
+    {
+        var user = Users.Single(x => x.Id == emailVerificationToken.UserId);
+        emailVerificationToken.User = user;
+        EmailVerificationTokens.Add(emailVerificationToken);
+        return Task.CompletedTask;
+    }
+
+    public Task AddAuditLogAsync(AuditLog auditLog, CancellationToken cancellationToken)
+    {
+        AuditLogs.Add(auditLog);
         return Task.CompletedTask;
     }
 

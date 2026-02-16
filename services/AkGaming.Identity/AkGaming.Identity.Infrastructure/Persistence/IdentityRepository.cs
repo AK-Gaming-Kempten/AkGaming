@@ -40,6 +40,13 @@ public sealed class IdentityRepository : IIdentityRepository
             .SingleOrDefaultAsync(x => x.Provider == provider && x.ProviderUserId == providerUserId, cancellationToken);
     }
 
+    public Task<EmailVerificationToken?> GetEmailVerificationTokenByHashAsync(string tokenHash, CancellationToken cancellationToken)
+    {
+        return _dbContext.EmailVerificationTokens
+            .Include(x => x.User)
+            .SingleOrDefaultAsync(x => x.TokenHash == tokenHash, cancellationToken);
+    }
+
     public Task<RefreshToken?> GetRefreshTokenByHashAsync(string tokenHash, CancellationToken cancellationToken)
     {
         return _dbContext.RefreshTokens
@@ -56,6 +63,13 @@ public sealed class IdentityRepository : IIdentityRepository
             .ToListAsync(cancellationToken);
     }
 
+    public Task<List<EmailVerificationToken>> GetActiveEmailVerificationTokensByUserIdAsync(Guid userId, CancellationToken cancellationToken)
+    {
+        return _dbContext.EmailVerificationTokens
+            .Where(x => x.UserId == userId && x.ConsumedAtUtc == null && x.ExpiresAtUtc > DateTime.UtcNow)
+            .ToListAsync(cancellationToken);
+    }
+
     public async Task AddUserAsync(User user, CancellationToken cancellationToken)
     {
         await _dbContext.Users.AddAsync(user, cancellationToken);
@@ -69,6 +83,16 @@ public sealed class IdentityRepository : IIdentityRepository
     public async Task AddExternalLoginAsync(ExternalLogin externalLogin, CancellationToken cancellationToken)
     {
         await _dbContext.ExternalLogins.AddAsync(externalLogin, cancellationToken);
+    }
+
+    public async Task AddEmailVerificationTokenAsync(EmailVerificationToken emailVerificationToken, CancellationToken cancellationToken)
+    {
+        await _dbContext.EmailVerificationTokens.AddAsync(emailVerificationToken, cancellationToken);
+    }
+
+    public async Task AddAuditLogAsync(AuditLog auditLog, CancellationToken cancellationToken)
+    {
+        await _dbContext.AuditLogs.AddAsync(auditLog, cancellationToken);
     }
 
     public async Task AddRefreshTokenAsync(RefreshToken refreshToken, CancellationToken cancellationToken)
