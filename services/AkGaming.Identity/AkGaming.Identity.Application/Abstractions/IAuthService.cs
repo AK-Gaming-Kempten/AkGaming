@@ -8,7 +8,9 @@ public interface IAuthService
     Task<AuthResponse> LoginAsync(LoginRequest request, string? ipAddress, CancellationToken cancellationToken);
     Task<AuthResponse> RefreshAsync(RefreshRequest request, string? ipAddress, CancellationToken cancellationToken);
     Task LogoutAsync(LogoutRequest request, string? ipAddress, CancellationToken cancellationToken);
+    Task<CurrentUserResponse> GetCurrentUserAsync(Guid userId, CancellationToken cancellationToken);
     Task<EmailVerificationResponse> RequestEmailVerificationAsync(EmailVerificationRequest request, string? ipAddress, CancellationToken cancellationToken);
+    Task<EmailVerificationResponse> RequestEmailVerificationForUserAsync(Guid userId, string? ipAddress, CancellationToken cancellationToken);
     Task VerifyEmailAsync(VerifyEmailRequest request, string? ipAddress, CancellationToken cancellationToken);
     Task<DiscordStartResponse> GetDiscordStartUrlAsync(CancellationToken cancellationToken);
     Task<DiscordStartResponse> GetDiscordLinkUrlAsync(Guid userId, CancellationToken cancellationToken);

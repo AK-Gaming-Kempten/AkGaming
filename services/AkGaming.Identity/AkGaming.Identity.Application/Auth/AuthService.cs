@@ -20,6 +20,7 @@ public sealed class AuthService : IAuthService
     private readonly IPasswordHasherService _passwordHasher;
     private readonly IJwtTokenService _jwtTokenService;
     private readonly IRefreshTokenService _refreshTokenService;
+    private readonly IEmailSender _emailSender;
     private readonly IDiscordOAuthService _discordOAuthService;
     private readonly IDiscordStateService _discordStateService;
     private readonly IDiscordAuthSettings _discordAuthSettings;
@@ -30,6 +31,7 @@ public sealed class AuthService : IAuthService
         IPasswordHasherService passwordHasher,
         IJwtTokenService jwtTokenService,
         IRefreshTokenService refreshTokenService,
+        IEmailSender emailSender,
         IDiscordOAuthService discordOAuthService,
         IDiscordStateService discordStateService,
         IDiscordAuthSettings discordAuthSettings,
@@ -39,6 +41,7 @@ public sealed class AuthService : IAuthService
         _passwordHasher = passwordHasher;
         _jwtTokenService = jwtTokenService;
         _refreshTokenService = refreshTokenService;
+        _emailSender = emailSender;
         _discordOAuthService = discordOAuthService;
         _discordStateService = discordStateService;
         _discordAuthSettings = discordAuthSettings;
@@ -204,6 +207,29 @@ public sealed class AuthService : IAuthService
         await _repository.SaveChangesAsync(cancellationToken);
     }
 
+    public async Task<CurrentUserResponse> GetCurrentUserAsync(Guid userId, CancellationToken cancellationToken)
+    {
+        var user = await _repository.GetUserByIdWithExternalLoginsAsync(userId, cancellationToken);
+        if (user is null)
+        {
+            throw new AuthException(AccessDeniedStatusCode, "User account was not found.");
+        }
+
+        var discordLink = user.ExternalLogins
+            .Where(x => x.Provider == DiscordProvider)
+            .OrderByDescending(x => x.LinkedAtUtc)
+            .FirstOrDefault();
+
+        return new CurrentUserResponse(
+            user.Id,
+            user.Email,
+            user.IsEmailVerified,
+            user.UserRoles.Select(x => x.Role.Name).ToArray(),
+            discordLink is null
+                ? null
+                : new DiscordLinkInfo(discordLink.ProviderUserId, discordLink.ProviderUsername, discordLink.LinkedAtUtc));
+    }
+
     public async Task<EmailVerificationResponse> RequestEmailVerificationAsync(EmailVerificationRequest request, string? ipAddress, CancellationToken cancellationToken)
     {
         var email = NormalizeEmail(request.Email);
@@ -223,6 +249,29 @@ public sealed class AuthService : IAuthService
             return new EmailVerificationResponse("Email is already verified.");
         }
 
+        return await IssueEmailVerificationTokenAsync(user, ipAddress, cancellationToken);
+    }
+
+    public async Task<EmailVerificationResponse> RequestEmailVerificationForUserAsync(Guid userId, string? ipAddress, CancellationToken cancellationToken)
+    {
+        var user = await _repository.GetUserByIdAsync(userId, cancellationToken);
+        if (user is null)
+        {
+            throw new AuthException(AccessDeniedStatusCode, "User account was not found.");
+        }
+
+        if (user.IsEmailVerified)
+        {
+            await WriteAuditAsync("email_verification.request", user.Id, user.Email, ipAddress, true, "already_verified", cancellationToken);
+            await _repository.SaveChangesAsync(cancellationToken);
+            return new EmailVerificationResponse("Email is already verified.");
+        }
+
+        return await IssueEmailVerificationTokenAsync(user, ipAddress, cancellationToken);
+    }
+
+    private async Task<EmailVerificationResponse> IssueEmailVerificationTokenAsync(User user, string? ipAddress, CancellationToken cancellationToken)
+    {
         var activeTokens = await _repository.GetActiveEmailVerificationTokensByUserIdAsync(user.Id, cancellationToken);
         foreach (var activeToken in activeTokens)
         {
@@ -239,6 +288,26 @@ public sealed class AuthService : IAuthService
             ExpiresAtUtc = DateTime.UtcNow.AddHours(_hardeningSettings.EmailVerificationTokenHours),
             CreatedByIp = ipAddress
         }, cancellationToken);
+
+        var subject = "Verify your AK Gaming Identity email";
+        var textBody =
+            "Use the following verification token to verify your email:\n\n" +
+            $"{rawToken}\n\n" +
+            $"This token expires in {_hardeningSettings.EmailVerificationTokenHours} hour(s).";
+        var htmlBody =
+            $"<p>Use the following verification token to verify your email:</p><p><strong>{rawToken}</strong></p>" +
+            $"<p>This token expires in {_hardeningSettings.EmailVerificationTokenHours} hour(s).</p>";
+
+        try
+        {
+            await _emailSender.SendAsync(user.Email, subject, textBody, htmlBody, cancellationToken);
+        }
+        catch (Exception)
+        {
+            await WriteAuditAsync("email_verification.email_send_failed", user.Id, user.Email, ipAddress, false, "smtp_send_failed", cancellationToken);
+            await _repository.SaveChangesAsync(cancellationToken);
+            throw new AuthException(500, "Verification email could not be sent.");
+        }
 
         await WriteAuditAsync("email_verification.issued", user.Id, user.Email, ipAddress, true, null, cancellationToken);
         await _repository.SaveChangesAsync(cancellationToken);

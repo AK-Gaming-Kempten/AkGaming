@@ -6,6 +6,7 @@ public interface IIdentityRepository
 {
     Task<User?> GetUserByEmailAsync(string email, CancellationToken cancellationToken);
     Task<User?> GetUserByIdAsync(Guid userId, CancellationToken cancellationToken);
+    Task<User?> GetUserByIdWithExternalLoginsAsync(Guid userId, CancellationToken cancellationToken);
     Task<Role?> GetRoleByNameAsync(string roleName, CancellationToken cancellationToken);
     Task<ExternalLogin?> GetExternalLoginAsync(string provider, string providerUserId, CancellationToken cancellationToken);
     Task<EmailVerificationToken?> GetEmailVerificationTokenByHashAsync(string tokenHash, CancellationToken cancellationToken);

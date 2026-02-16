@@ -62,14 +62,7 @@ var app = builder.Build();
 using (var scope = app.Services.CreateScope())
 {
     var dbContext = scope.ServiceProvider.GetRequiredService<AuthDbContext>();
-    if (dbContext.Database.IsSqlite())
-    {
-        await dbContext.Database.EnsureCreatedAsync();
-    }
-    else
-    {
-        await dbContext.Database.MigrateAsync();
-    }
+    await dbContext.Database.MigrateAsync();
 }
 
 if (app.Environment.IsDevelopment())
@@ -141,11 +134,47 @@ auth.MapPost("/logout", async (LogoutRequest request, IAuthService authService, 
     return Results.NoContent();
 });
 
+auth.MapGet("/me", [Authorize] async (ClaimsPrincipal user, IAuthService authService, CancellationToken cancellationToken) =>
+{
+    if (!TryGetUserId(user, out var userId))
+    {
+        return Results.Unauthorized();
+    }
+
+    try
+    {
+        var response = await authService.GetCurrentUserAsync(userId, cancellationToken);
+        return Results.Ok(response);
+    }
+    catch (AuthException exception)
+    {
+        return Results.Problem(statusCode: exception.StatusCode, detail: exception.Message);
+    }
+});
+
 auth.MapPost("/email/send-verification", async (EmailVerificationRequest request, IAuthService authService, HttpContext httpContext, CancellationToken cancellationToken) =>
 {
     try
     {
         var response = await authService.RequestEmailVerificationAsync(request, GetIp(httpContext), cancellationToken);
+        return Results.Ok(response);
+    }
+    catch (AuthException exception)
+    {
+        return Results.Problem(statusCode: exception.StatusCode, detail: exception.Message);
+    }
+});
+
+auth.MapPost("/email/send-verification/me", [Authorize] async (ClaimsPrincipal user, IAuthService authService, HttpContext httpContext, CancellationToken cancellationToken) =>
+{
+    if (!TryGetUserId(user, out var userId))
+    {
+        return Results.Unauthorized();
+    }
+
+    try
+    {
+        var response = await authService.RequestEmailVerificationForUserAsync(userId, GetIp(httpContext), cancellationToken);
         return Results.Ok(response);
     }
     catch (AuthException exception)
@@ -201,8 +230,7 @@ auth.MapGet("/discord/callback", async (string code, string state, IAuthService 
 
 auth.MapPost("/discord/link", [Authorize] async (ClaimsPrincipal user, IAuthService authService, CancellationToken cancellationToken) =>
 {
-    var userIdClaim = user.FindFirstValue(ClaimTypes.NameIdentifier) ?? user.FindFirstValue("sub");
-    if (!Guid.TryParse(userIdClaim, out var userId))
+    if (!TryGetUserId(user, out var userId))
     {
         return Results.Unauthorized();
     }
@@ -216,6 +244,12 @@ app.Run();
 static string? GetIp(HttpContext context)
 {
     return context.Connection.RemoteIpAddress?.ToString();
+}
+
+static bool TryGetUserId(ClaimsPrincipal user, out Guid userId)
+{
+    var userIdClaim = user.FindFirstValue(ClaimTypes.NameIdentifier) ?? user.FindFirstValue("sub");
+    return Guid.TryParse(userIdClaim, out userId);
 }
 
 static string BuildDiscordCallbackFragment(

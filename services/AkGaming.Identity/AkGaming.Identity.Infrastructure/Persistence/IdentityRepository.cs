@@ -29,6 +29,15 @@ public sealed class IdentityRepository : IIdentityRepository
             .SingleOrDefaultAsync(x => x.Id == userId, cancellationToken);
     }
 
+    public Task<User?> GetUserByIdWithExternalLoginsAsync(Guid userId, CancellationToken cancellationToken)
+    {
+        return _dbContext.Users
+            .Include(x => x.UserRoles)
+            .ThenInclude(x => x.Role)
+            .Include(x => x.ExternalLogins)
+            .SingleOrDefaultAsync(x => x.Id == userId, cancellationToken);
+    }
+
     public Task<Role?> GetRoleByNameAsync(string roleName, CancellationToken cancellationToken)
     {
         return _dbContext.Roles.SingleOrDefaultAsync(x => x.Name == roleName, cancellationToken);

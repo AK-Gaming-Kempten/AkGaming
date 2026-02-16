@@ -1,9 +1,11 @@
 using AkGaming.Identity.Application.Abstractions;
+using AkGaming.Identity.Infrastructure.Email;
 using AkGaming.Identity.Infrastructure.ExternalAuth;
 using AkGaming.Identity.Infrastructure.Persistence;
 using AkGaming.Identity.Infrastructure.Security;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -16,6 +18,7 @@ public static class DependencyInjection
         services.Configure<JwtOptions>(configuration.GetSection(JwtOptions.SectionName));
         services.Configure<AuthHardeningOptions>(configuration.GetSection(AuthHardeningOptions.SectionName));
         services.Configure<DiscordOptions>(configuration.GetSection(DiscordOptions.SectionName));
+        services.Configure<SmtpOptions>(configuration.GetSection(SmtpOptions.SectionName));
 
         var provider = configuration["Database:Provider"]?.Trim().ToLowerInvariant() ?? "sqlite";
         var connectionString = configuration.GetConnectionString("IdentityDb");
@@ -30,6 +33,8 @@ public static class DependencyInjection
                     break;
                 case "sqlite":
                     options.UseSqlite(connectionString ?? "Data Source=identity.db");
+                    options.ConfigureWarnings(warnings =>
+                        warnings.Ignore(RelationalEventId.PendingModelChangesWarning));
                     break;
                 default:
                     throw new InvalidOperationException($"Unsupported database provider '{provider}'. Supported values: Sqlite, Postgres.");
@@ -37,6 +42,7 @@ public static class DependencyInjection
         });
 
         services.AddScoped<IIdentityRepository, IdentityRepository>();
+        services.AddSingleton<IEmailSender, SmtpEmailSender>();
         services.AddScoped<IPasswordHasherService, PasswordHasherService>();
         services.AddScoped<IJwtTokenService, JwtTokenService>();
         services.AddSingleton<IRefreshTokenService, RefreshTokenService>();

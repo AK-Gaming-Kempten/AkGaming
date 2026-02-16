@@ -20,7 +20,27 @@
     .row { display: flex; justify-content: space-between; gap: 10px; margin-top: 8px; }
     .k { color: var(--color-text-tertiary); }
     .v { word-break: break-all; text-align: right; }
+    .v.ok { color: var(--color-highlight-secondary); }
+    .v.warn { color: #f4b942; }
     .actions { display: grid; gap: 10px; margin-top: 14px; }
+    .inline-actions { display: flex; gap: 8px; margin-top: 12px; }
+    .inline-actions button { margin-top: 0; }
+    .inline-actions input {
+      flex: 1;
+      min-width: 0;
+      border: 1px solid var(--color-card-border);
+      border-radius: 2px;
+      padding: 0.5rem 0.6rem;
+      background: var(--color-background-primary);
+      color: var(--color-text-primary);
+    }
+    .discord-details {
+      margin-top: 12px;
+      padding-top: 10px;
+      border-top: 1px dashed var(--color-card-border);
+      color: var(--color-text-secondary);
+      font-size: 14px;
+    }
     button.secondary {
       background: var(--color-button-secondary-bg);
       color: var(--color-button-secondary-text);
@@ -51,6 +71,21 @@
         <div class="row"><span class="k">User Id</span><span class="v" id="sub"></span></div>
         <div class="row"><span class="k">Email</span><span class="v" id="email"></span></div>
         <div class="row"><span class="k">Roles</span><span class="v" id="roles"></span></div>
+        <div class="row"><span class="k">Email Verified</span><span class="v" id="email-verified"></span></div>
+        <div id="verify-block" style="display:none;">
+          <div class="inline-actions">
+            <button class="secondary" id="send-verify" type="button">Send Verification</button>
+          </div>
+          <div class="inline-actions">
+            <input id="verify-token" type="text" placeholder="Verification token" />
+            <button class="secondary" id="verify-email" type="button">Verify</button>
+          </div>
+        </div>
+        <div id="discord-linked" class="discord-details" style="display:none;">
+          <div><span class="k">Discord</span>: <span id="discord-name"></span></div>
+          <div><span class="k">Discord Id</span>: <span id="discord-id"></span></div>
+          <div><span class="k">Linked At</span>: <span id="discord-linked-at"></span></div>
+        </div>
         <div class="meta" id="exp"></div>
       </div>
 
@@ -78,7 +113,16 @@
     const subEl = document.getElementById("sub");
     const emailEl = document.getElementById("email");
     const rolesEl = document.getElementById("roles");
+    const emailVerifiedEl = document.getElementById("email-verified");
     const expEl = document.getElementById("exp");
+    const verifyBlockEl = document.getElementById("verify-block");
+    const sendVerifyBtn = document.getElementById("send-verify");
+    const verifyTokenEl = document.getElementById("verify-token");
+    const verifyEmailBtn = document.getElementById("verify-email");
+    const discordLinkedEl = document.getElementById("discord-linked");
+    const discordNameEl = document.getElementById("discord-name");
+    const discordIdEl = document.getElementById("discord-id");
+    const discordLinkedAtEl = document.getElementById("discord-linked-at");
 
     const linkBtn = document.getElementById("discord-link");
     const refreshBtn = document.getElementById("refresh");
@@ -145,6 +189,80 @@
       }
     }
 
+    function renderProfile(profile) {
+      const verified = !!profile?.isEmailVerified;
+      emailVerifiedEl.textContent = verified ? "Yes" : "No";
+      emailVerifiedEl.className = `v ${verified ? "ok" : "warn"}`;
+      verifyBlockEl.style.display = verified ? "none" : "block";
+
+      const discord = profile?.discord;
+      if (!discord) {
+        discordLinkedEl.style.display = "none";
+        linkBtn.style.display = "inline-flex";
+        return;
+      }
+
+      discordNameEl.textContent = discord.providerUsername || "Discord User";
+      discordIdEl.textContent = discord.providerUserId;
+      discordLinkedAtEl.textContent = new Date(discord.linkedAtUtc).toISOString();
+      discordLinkedEl.style.display = "block";
+      linkBtn.style.display = "none";
+    }
+
+    async function authorizedFetch(path, options = {}) {
+      let accessToken = localStorage.getItem("accessToken");
+      if (!accessToken) {
+        return { response: null, unauthorized: true };
+      }
+
+      const requestOptions = {
+        ...options,
+        headers: {
+          ...(options.headers || {}),
+          Authorization: `Bearer ${accessToken}`
+        }
+      };
+
+      let response = await fetch(path, requestOptions);
+      if (response.status !== 401) {
+        return { response, unauthorized: false };
+      }
+
+      const refreshed = await refreshSession();
+      if (!refreshed) {
+        return { response: null, unauthorized: true };
+      }
+
+      accessToken = localStorage.getItem("accessToken");
+      response = await fetch(path, {
+        ...options,
+        headers: {
+          ...(options.headers || {}),
+          Authorization: `Bearer ${accessToken}`
+        }
+      });
+
+      return { response, unauthorized: response.status === 401 };
+    }
+
+    async function loadProfile() {
+      const { response, unauthorized } = await authorizedFetch("/auth/me", { method: "GET" });
+      if (unauthorized || !response) {
+        clearTokens();
+        renderGuest();
+        return;
+      }
+
+      if (!response.ok) {
+        const error = await response.json().catch(() => ({}));
+        setStatus(error.detail || "Could not load account profile.");
+        return;
+      }
+
+      const profile = await response.json();
+      renderProfile(profile);
+    }
+
     function renderGuest() {
       subtitle.textContent = "No active session.";
       authPanel.style.display = "none";
@@ -175,31 +293,17 @@
       saveTokens(payload);
       const claims = getClaims(payload.accessToken);
       renderAuthenticated(claims);
+      await loadProfile();
       setStatus("Session refreshed.", true);
       return true;
     }
 
     async function linkDiscord() {
       clearStatus();
-      let accessToken = localStorage.getItem("accessToken");
-      if (!accessToken) {
+      const { response, unauthorized } = await authorizedFetch("/auth/discord/link", { method: "POST" });
+      if (unauthorized || !response) {
         setStatus("Please sign in first.");
         return;
-      }
-
-      let response = await fetch("/auth/discord/link", {
-        method: "POST",
-        headers: { Authorization: `Bearer ${accessToken}` }
-      });
-
-      if (response.status === 401) {
-        const refreshed = await refreshSession();
-        if (!refreshed) return;
-        accessToken = localStorage.getItem("accessToken");
-        response = await fetch("/auth/discord/link", {
-          method: "POST",
-          headers: { Authorization: `Bearer ${accessToken}` }
-        });
       }
 
       if (!response.ok) {
@@ -228,11 +332,60 @@
       setStatus("Logged out.", true);
     }
 
+    async function sendVerification() {
+      clearStatus();
+      const { response, unauthorized } = await authorizedFetch("/auth/email/send-verification/me", { method: "POST" });
+      if (unauthorized || !response) {
+        setStatus("Please sign in first.");
+        return;
+      }
+
+      const body = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        setStatus(body.detail || "Could not issue verification token.");
+        return;
+      }
+
+      if (body.verificationToken) {
+        verifyTokenEl.value = body.verificationToken;
+        setStatus("Verification token generated. Use it below to verify.", true);
+      } else {
+        setStatus(body.message || "Verification request submitted.", true);
+      }
+    }
+
+    async function verifyEmail() {
+      clearStatus();
+      const token = verifyTokenEl.value.trim();
+      if (!token) {
+        setStatus("Enter a verification token first.");
+        return;
+      }
+
+      const response = await fetch("/auth/email/verify", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token })
+      });
+
+      if (!response.ok) {
+        const body = await response.json().catch(() => ({}));
+        setStatus(body.detail || "Email verification failed.");
+        return;
+      }
+
+      verifyTokenEl.value = "";
+      await loadProfile();
+      setStatus("Email verified.", true);
+    }
+
     refreshBtn.addEventListener("click", refreshSession);
     linkBtn.addEventListener("click", linkDiscord);
     logoutBtn.addEventListener("click", logout);
+    sendVerifyBtn.addEventListener("click", sendVerification);
+    verifyEmailBtn.addEventListener("click", verifyEmail);
 
-    (function init() {
+    (async function init() {
       const accessToken = localStorage.getItem("accessToken");
       if (!accessToken) {
         renderGuest();
@@ -247,6 +400,7 @@
       }
 
       renderAuthenticated(claims);
+      await loadProfile();
     })();
   </script>
 </body>

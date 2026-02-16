@@ -22,6 +22,11 @@ internal sealed class InMemoryIdentityRepository : IIdentityRepository
         return Task.FromResult(Users.SingleOrDefault(x => x.Id == userId));
     }
 
+    public Task<User?> GetUserByIdWithExternalLoginsAsync(Guid userId, CancellationToken cancellationToken)
+    {
+        return Task.FromResult(Users.SingleOrDefault(x => x.Id == userId));
+    }
+
     public Task<Role?> GetRoleByNameAsync(string roleName, CancellationToken cancellationToken)
     {
         return Task.FromResult(Roles.SingleOrDefault(x => x.Name == roleName));
@@ -68,6 +73,9 @@ internal sealed class InMemoryIdentityRepository : IIdentityRepository
 
     public Task AddExternalLoginAsync(ExternalLogin externalLogin, CancellationToken cancellationToken)
     {
+        var user = Users.Single(x => x.Id == externalLogin.UserId);
+        externalLogin.User = user;
+        user.ExternalLogins.Add(externalLogin);
         ExternalLogins.Add(externalLogin);
         return Task.CompletedTask;
     }

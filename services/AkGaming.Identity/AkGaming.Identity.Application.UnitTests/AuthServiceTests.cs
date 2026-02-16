@@ -126,7 +126,8 @@ public sealed class AuthServiceTests
     public async Task EmailVerification_Flow_Works()
     {
         var repository = new InMemoryIdentityRepository();
-        var service = BuildService(repository);
+        var emailSender = new EmailSenderStub();
+        var service = BuildService(repository, emailSender: emailSender);
 
         await service.RegisterAsync(new RegisterRequest("verify@test.local", "Password123"), "127.0.0.1", CancellationToken.None);
         var user = repository.Users.Single();
@@ -142,6 +143,8 @@ public sealed class AuthServiceTests
         await service.VerifyEmailAsync(new VerifyEmailRequest(issued.VerificationToken!), "127.0.0.1", CancellationToken.None);
 
         Assert.True(user.IsEmailVerified);
+        Assert.Single(emailSender.SentEmails);
+        Assert.Equal("verify@test.local", emailSender.SentEmails[0].ToEmail);
     }
 
     [Fact]
@@ -193,6 +196,7 @@ public sealed class AuthServiceTests
         InMemoryIdentityRepository repository,
         PasswordHasherStub? passwordHasher = null,
         RefreshTokenServiceStub? refreshTokenService = null,
+        EmailSenderStub? emailSender = null,
         DiscordOAuthServiceStub? discordOAuthService = null,
         DiscordStateServiceStub? discordStateService = null,
         DiscordAuthSettingsStub? discordAuthSettings = null,
@@ -203,6 +207,7 @@ public sealed class AuthServiceTests
             passwordHasher ?? new PasswordHasherStub(),
             new JwtTokenServiceStub(),
             refreshTokenService ?? new RefreshTokenServiceStub(),
+            emailSender ?? new EmailSenderStub(),
             discordOAuthService ?? new DiscordOAuthServiceStub(),
             discordStateService ?? new DiscordStateServiceStub(),
             discordAuthSettings ?? new DiscordAuthSettingsStub(),
