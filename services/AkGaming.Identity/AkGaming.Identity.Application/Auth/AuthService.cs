@@ -13,6 +13,7 @@ public sealed class AuthService : IAuthService
     private const int AccessDeniedStatusCode = 401;
     private const int BadRequestStatusCode = 400;
     private const int ForbiddenStatusCode = 403;
+    private const int NotFoundStatusCode = 404;
     private const int LockedStatusCode = 423;
     private const int ConflictStatusCode = 409;
     private const string DiscordProvider = "discord";
@@ -235,6 +236,168 @@ public sealed class AuthService : IAuthService
             discordLink is null
                 ? null
                 : new DiscordLinkInfo(discordLink.ProviderUserId, discordLink.ProviderUsername, discordLink.LinkedAtUtc));
+    }
+
+    public async Task<UserRolesResponse> GetUserRolesAsync(Guid userId, CancellationToken cancellationToken)
+    {
+        var user = await _repository.GetUserByIdAsync(userId, cancellationToken);
+        if (user is null)
+        {
+            throw new AuthException(NotFoundStatusCode, "User account was not found.");
+        }
+
+        return new UserRolesResponse(user.Id, user.UserRoles.Select(x => x.Role.Name).OrderBy(x => x).ToArray());
+    }
+
+    public async Task<UserRolesResponse> SetUserRolesAsync(Guid actorUserId, Guid userId, AdminSetUserRolesRequest request, string? ipAddress, CancellationToken cancellationToken)
+    {
+        var requestedRoleNames = (request.Roles ?? [])
+            .Select(x => x?.Trim())
+            .Where(x => !string.IsNullOrWhiteSpace(x))
+            .Select(x => x!)
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToArray();
+
+        if (requestedRoleNames.Length == 0)
+        {
+            throw new AuthException(BadRequestStatusCode, "At least one role is required.");
+        }
+
+        var targetUser = await _repository.GetUserByIdAsync(userId, cancellationToken);
+        if (targetUser is null)
+        {
+            throw new AuthException(NotFoundStatusCode, "Target user account was not found.");
+        }
+
+        var requestedRoles = await _repository.GetRolesByNamesAsync(requestedRoleNames, cancellationToken);
+        if (requestedRoles.Count != requestedRoleNames.Length)
+        {
+            var existingRoleNames = requestedRoles.Select(x => x.Name).ToHashSet(StringComparer.OrdinalIgnoreCase);
+            var unknownRoles = requestedRoleNames.Where(x => !existingRoleNames.Contains(x!));
+            throw new AuthException(BadRequestStatusCode, $"Unknown role(s): {string.Join(", ", unknownRoles)}");
+        }
+
+        var currentRoleNames = targetUser.UserRoles.Select(x => x.Role.Name).ToHashSet(StringComparer.OrdinalIgnoreCase);
+        var requestedRoleNameSet = requestedRoles.Select(x => x.Name).ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+        var removingAdmin = currentRoleNames.Contains(RoleNames.Admin) && !requestedRoleNameSet.Contains(RoleNames.Admin);
+        if (removingAdmin)
+        {
+            var adminCount = await _repository.CountUsersInRoleAsync(RoleNames.Admin, cancellationToken);
+            if (adminCount <= 1)
+            {
+                throw new AuthException(ConflictStatusCode, "Cannot remove the Admin role from the last remaining admin.");
+            }
+        }
+
+        var rolesToRemove = targetUser.UserRoles.Where(x => !requestedRoleNameSet.Contains(x.Role.Name)).ToList();
+        foreach (var roleToRemove in rolesToRemove)
+        {
+            targetUser.UserRoles.Remove(roleToRemove);
+        }
+
+        var currentRoleIdSet = targetUser.UserRoles.Select(x => x.RoleId).ToHashSet();
+        foreach (var role in requestedRoles)
+        {
+            if (currentRoleIdSet.Contains(role.Id))
+            {
+                continue;
+            }
+
+            targetUser.UserRoles.Add(new UserRole
+            {
+                UserId = targetUser.Id,
+                User = targetUser,
+                RoleId = role.Id,
+                Role = role
+            });
+        }
+
+        var updatedRoleNames = targetUser.UserRoles.Select(x => x.Role.Name).OrderBy(x => x).ToArray();
+        await WriteAuditAsync(
+            "admin.roles.updated",
+            actorUserId,
+            targetUser.Email,
+            ipAddress,
+            true,
+            $"target_user:{targetUser.Id};roles:{string.Join(",", updatedRoleNames)}",
+            cancellationToken);
+
+        await _repository.SaveChangesAsync(cancellationToken);
+        return new UserRolesResponse(targetUser.Id, updatedRoleNames);
+    }
+
+    public async Task<IReadOnlyList<RoleResponse>> GetRolesAsync(CancellationToken cancellationToken)
+    {
+        var roles = await _repository.GetAllRolesAsync(cancellationToken);
+        return roles.Select(x => new RoleResponse(x.Id, x.Name)).ToArray();
+    }
+
+    public async Task<RoleResponse> CreateRoleAsync(Guid actorUserId, AdminCreateRoleRequest request, string? ipAddress, CancellationToken cancellationToken)
+    {
+        var normalizedName = NormalizeRoleName(request.Name);
+        var existingRole = await _repository.GetRoleByNameAsync(normalizedName, cancellationToken);
+        if (existingRole is not null)
+        {
+            throw new AuthException(ConflictStatusCode, "A role with this name already exists.");
+        }
+
+        var role = new Role { Name = normalizedName };
+        await _repository.AddRoleAsync(role, cancellationToken);
+
+        await WriteAuditAsync("admin.roles.created", actorUserId, null, ipAddress, true, $"role:{role.Name};role_id:{role.Id}", cancellationToken);
+        await _repository.SaveChangesAsync(cancellationToken);
+        return new RoleResponse(role.Id, role.Name);
+    }
+
+    public async Task<RoleResponse> RenameRoleAsync(Guid actorUserId, Guid roleId, AdminRenameRoleRequest request, string? ipAddress, CancellationToken cancellationToken)
+    {
+        var role = await _repository.GetRoleByIdAsync(roleId, cancellationToken);
+        if (role is null)
+        {
+            throw new AuthException(NotFoundStatusCode, "Role was not found.");
+        }
+
+        if (IsSystemRole(role.Name))
+        {
+            throw new AuthException(ConflictStatusCode, "System roles cannot be renamed.");
+        }
+
+        var normalizedName = NormalizeRoleName(request.Name);
+        var existingRole = await _repository.GetRoleByNameAsync(normalizedName, cancellationToken);
+        if (existingRole is not null && existingRole.Id != role.Id)
+        {
+            throw new AuthException(ConflictStatusCode, "A role with this name already exists.");
+        }
+
+        role.Name = normalizedName;
+        await WriteAuditAsync("admin.roles.renamed", actorUserId, null, ipAddress, true, $"role_id:{role.Id};new_name:{role.Name}", cancellationToken);
+        await _repository.SaveChangesAsync(cancellationToken);
+        return new RoleResponse(role.Id, role.Name);
+    }
+
+    public async Task DeleteRoleAsync(Guid actorUserId, Guid roleId, string? ipAddress, CancellationToken cancellationToken)
+    {
+        var role = await _repository.GetRoleByIdAsync(roleId, cancellationToken);
+        if (role is null)
+        {
+            throw new AuthException(NotFoundStatusCode, "Role was not found.");
+        }
+
+        if (IsSystemRole(role.Name))
+        {
+            throw new AuthException(ConflictStatusCode, "System roles cannot be deleted.");
+        }
+
+        var assignmentCount = await _repository.CountUsersWithRoleIdAsync(roleId, cancellationToken);
+        if (assignmentCount > 0)
+        {
+            throw new AuthException(ConflictStatusCode, "Role is assigned to one or more users and cannot be deleted.");
+        }
+
+        _repository.RemoveRole(role);
+        await WriteAuditAsync("admin.roles.deleted", actorUserId, null, ipAddress, true, $"role_id:{role.Id};name:{role.Name}", cancellationToken);
+        await _repository.SaveChangesAsync(cancellationToken);
     }
 
     public async Task<EmailVerificationResponse> RequestEmailVerificationAsync(EmailVerificationRequest request, string? ipAddress, CancellationToken cancellationToken)
@@ -691,6 +854,28 @@ public sealed class AuthService : IAuthService
         {
             throw new AuthException(BadRequestStatusCode, "Password must be at least 8 characters long.");
         }
+    }
+
+    private static string NormalizeRoleName(string roleName)
+    {
+        if (string.IsNullOrWhiteSpace(roleName))
+        {
+            throw new AuthException(BadRequestStatusCode, "Role name is required.");
+        }
+
+        var normalized = roleName.Trim();
+        if (normalized.Length is < 2 or > 64)
+        {
+            throw new AuthException(BadRequestStatusCode, "Role name must be between 2 and 64 characters.");
+        }
+
+        return normalized;
+    }
+
+    private static bool IsSystemRole(string roleName)
+    {
+        return roleName.Equals(RoleNames.Admin, StringComparison.OrdinalIgnoreCase)
+               || roleName.Equals(RoleNames.User, StringComparison.OrdinalIgnoreCase);
     }
 
     private string BuildEmailVerificationLink(string rawToken)

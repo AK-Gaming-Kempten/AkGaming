@@ -193,6 +193,111 @@ public sealed class AuthServiceTests
         Assert.Equal("discord-42", repository.ExternalLogins.Single().ProviderUserId);
     }
 
+    [Fact]
+    public async Task SetUserRolesAsync_UpdatesRoles_WhenRolesAreValid()
+    {
+        var repository = new InMemoryIdentityRepository();
+        var userRole = new AkGaming.Identity.Domain.Entities.Role { Name = RoleNames.User };
+        var adminRole = new AkGaming.Identity.Domain.Entities.Role { Name = RoleNames.Admin };
+        repository.Roles.Add(userRole);
+        repository.Roles.Add(adminRole);
+
+        var targetUser = new AkGaming.Identity.Domain.Entities.User { Email = "target@test.local", PasswordHash = "hash" };
+        targetUser.UserRoles.Add(new AkGaming.Identity.Domain.Entities.UserRole { UserId = targetUser.Id, User = targetUser, RoleId = userRole.Id, Role = userRole });
+        repository.Users.Add(targetUser);
+
+        var service = BuildService(repository);
+        var actorUserId = Guid.NewGuid();
+
+        var result = await service.SetUserRolesAsync(
+            actorUserId,
+            targetUser.Id,
+            new AdminSetUserRolesRequest([RoleNames.User, RoleNames.Admin]),
+            "127.0.0.1",
+            CancellationToken.None);
+
+        Assert.Equal(targetUser.Id, result.UserId);
+        Assert.Contains(RoleNames.Admin, result.Roles);
+        Assert.Contains(RoleNames.User, result.Roles);
+    }
+
+    [Fact]
+    public async Task SetUserRolesAsync_RemovingLastAdmin_ThrowsConflict()
+    {
+        var repository = new InMemoryIdentityRepository();
+        var userRole = new AkGaming.Identity.Domain.Entities.Role { Name = RoleNames.User };
+        var adminRole = new AkGaming.Identity.Domain.Entities.Role { Name = RoleNames.Admin };
+        repository.Roles.Add(userRole);
+        repository.Roles.Add(adminRole);
+
+        var onlyAdmin = new AkGaming.Identity.Domain.Entities.User { Email = "admin@test.local", PasswordHash = "hash" };
+        onlyAdmin.UserRoles.Add(new AkGaming.Identity.Domain.Entities.UserRole { UserId = onlyAdmin.Id, User = onlyAdmin, RoleId = adminRole.Id, Role = adminRole });
+        repository.Users.Add(onlyAdmin);
+
+        var service = BuildService(repository);
+
+        var exception = await Assert.ThrowsAsync<AuthException>(() =>
+            service.SetUserRolesAsync(
+                onlyAdmin.Id,
+                onlyAdmin.Id,
+                new AdminSetUserRolesRequest([RoleNames.User]),
+                "127.0.0.1",
+                CancellationToken.None));
+
+        Assert.Equal(409, exception.StatusCode);
+    }
+
+    [Fact]
+    public async Task CreateRoleAsync_AddsRole()
+    {
+        var repository = new InMemoryIdentityRepository();
+        var service = BuildService(repository);
+
+        var created = await service.CreateRoleAsync(Guid.NewGuid(), new AdminCreateRoleRequest("Moderator"), "127.0.0.1", CancellationToken.None);
+
+        Assert.Equal("Moderator", created.Name);
+        Assert.Contains(repository.Roles, x => x.Name == "Moderator");
+    }
+
+    [Fact]
+    public async Task RenameRoleAsync_UpdatesName()
+    {
+        var repository = new InMemoryIdentityRepository();
+        var role = new AkGaming.Identity.Domain.Entities.Role { Name = "Support" };
+        repository.Roles.Add(role);
+        var service = BuildService(repository);
+
+        var renamed = await service.RenameRoleAsync(Guid.NewGuid(), role.Id, new AdminRenameRoleRequest("GameMaster"), "127.0.0.1", CancellationToken.None);
+
+        Assert.Equal("GameMaster", renamed.Name);
+        Assert.Equal("GameMaster", repository.Roles.Single(x => x.Id == role.Id).Name);
+    }
+
+    [Fact]
+    public async Task DeleteRoleAsync_WhenAssigned_ThrowsConflict()
+    {
+        var repository = new InMemoryIdentityRepository();
+        var role = new AkGaming.Identity.Domain.Entities.Role { Name = "Member" };
+        repository.Roles.Add(role);
+        var user = new AkGaming.Identity.Domain.Entities.User { Email = "member@test.local", PasswordHash = "hash" };
+        user.UserRoles.Add(new AkGaming.Identity.Domain.Entities.UserRole
+        {
+            UserId = user.Id,
+            User = user,
+            RoleId = role.Id,
+            Role = role
+        });
+        repository.Users.Add(user);
+
+        var service = BuildService(repository);
+
+        var exception = await Assert.ThrowsAsync<AuthException>(() =>
+            service.DeleteRoleAsync(Guid.NewGuid(), role.Id, "127.0.0.1", CancellationToken.None));
+
+        Assert.Equal(409, exception.StatusCode);
+        Assert.Contains(repository.Roles, x => x.Id == role.Id);
+    }
+
     private static AuthService BuildService(
         InMemoryIdentityRepository repository,
         PasswordHasherStub? passwordHasher = null,

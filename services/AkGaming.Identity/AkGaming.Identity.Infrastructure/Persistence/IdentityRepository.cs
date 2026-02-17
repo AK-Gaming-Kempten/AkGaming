@@ -43,9 +43,46 @@ public sealed class IdentityRepository : IIdentityRepository
             .SingleOrDefaultAsync(x => x.Id == userId, cancellationToken);
     }
 
+    public Task<List<Role>> GetAllRolesAsync(CancellationToken cancellationToken)
+    {
+        return _dbContext.Roles
+            .OrderBy(x => x.Name)
+            .ToListAsync(cancellationToken);
+    }
+
+    public Task<Role?> GetRoleByIdAsync(Guid roleId, CancellationToken cancellationToken)
+    {
+        return _dbContext.Roles.SingleOrDefaultAsync(x => x.Id == roleId, cancellationToken);
+    }
+
     public Task<Role?> GetRoleByNameAsync(string roleName, CancellationToken cancellationToken)
     {
         return _dbContext.Roles.SingleOrDefaultAsync(x => x.Name == roleName, cancellationToken);
+    }
+
+    public Task<List<Role>> GetRolesByNamesAsync(IReadOnlyCollection<string> roleNames, CancellationToken cancellationToken)
+    {
+        return _dbContext.Roles
+            .Where(x => roleNames.Contains(x.Name))
+            .ToListAsync(cancellationToken);
+    }
+
+    public Task<int> CountUsersInRoleAsync(string roleName, CancellationToken cancellationToken)
+    {
+        return _dbContext.UserRoles
+            .Where(x => x.Role.Name == roleName)
+            .Select(x => x.UserId)
+            .Distinct()
+            .CountAsync(cancellationToken);
+    }
+
+    public Task<int> CountUsersWithRoleIdAsync(Guid roleId, CancellationToken cancellationToken)
+    {
+        return _dbContext.UserRoles
+            .Where(x => x.RoleId == roleId)
+            .Select(x => x.UserId)
+            .Distinct()
+            .CountAsync(cancellationToken);
     }
 
     public Task<ExternalLogin?> GetExternalLoginAsync(string provider, string providerUserId, CancellationToken cancellationToken)
@@ -95,6 +132,11 @@ public sealed class IdentityRepository : IIdentityRepository
     public async Task AddRoleAsync(Role role, CancellationToken cancellationToken)
     {
         await _dbContext.Roles.AddAsync(role, cancellationToken);
+    }
+
+    public void RemoveRole(Role role)
+    {
+        _dbContext.Roles.Remove(role);
     }
 
     public async Task AddExternalLoginAsync(ExternalLogin externalLogin, CancellationToken cancellationToken)

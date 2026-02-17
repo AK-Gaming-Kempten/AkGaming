@@ -27,9 +27,37 @@ internal sealed class InMemoryIdentityRepository : IIdentityRepository
         return Task.FromResult(Users.SingleOrDefault(x => x.Id == userId));
     }
 
+    public Task<List<Role>> GetAllRolesAsync(CancellationToken cancellationToken)
+    {
+        return Task.FromResult(Roles.OrderBy(x => x.Name).ToList());
+    }
+
+    public Task<Role?> GetRoleByIdAsync(Guid roleId, CancellationToken cancellationToken)
+    {
+        return Task.FromResult(Roles.SingleOrDefault(x => x.Id == roleId));
+    }
+
     public Task<Role?> GetRoleByNameAsync(string roleName, CancellationToken cancellationToken)
     {
         return Task.FromResult(Roles.SingleOrDefault(x => x.Name == roleName));
+    }
+
+    public Task<List<Role>> GetRolesByNamesAsync(IReadOnlyCollection<string> roleNames, CancellationToken cancellationToken)
+    {
+        var roles = Roles.Where(x => roleNames.Contains(x.Name)).ToList();
+        return Task.FromResult(roles);
+    }
+
+    public Task<int> CountUsersInRoleAsync(string roleName, CancellationToken cancellationToken)
+    {
+        var count = Users.Count(user => user.UserRoles.Any(x => x.Role.Name == roleName));
+        return Task.FromResult(count);
+    }
+
+    public Task<int> CountUsersWithRoleIdAsync(Guid roleId, CancellationToken cancellationToken)
+    {
+        var count = Users.Count(user => user.UserRoles.Any(x => x.RoleId == roleId));
+        return Task.FromResult(count);
     }
 
     public Task<ExternalLogin?> GetExternalLoginAsync(string provider, string providerUserId, CancellationToken cancellationToken)
@@ -69,6 +97,11 @@ internal sealed class InMemoryIdentityRepository : IIdentityRepository
     {
         Roles.Add(role);
         return Task.CompletedTask;
+    }
+
+    public void RemoveRole(Role role)
+    {
+        Roles.Remove(role);
     }
 
     public Task AddExternalLoginAsync(ExternalLogin externalLogin, CancellationToken cancellationToken)
