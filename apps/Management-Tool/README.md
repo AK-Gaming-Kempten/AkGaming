@@ -32,7 +32,7 @@ src/
 
 ## 🧠 Key Technologies
 
-* **.NET 9.0** (ASP.NET Core Minimal APIs)
+* **.NET 10.0** (ASP.NET Core Minimal APIs)
 * **Entity Framework Core** (per-module DbContexts)
 * **Swashbuckle / Swagger** for interactive API docs
 * **Coolify** for CI/CD deployment management
@@ -86,7 +86,7 @@ Each environment has its own configuration (connection string, JWT settings, etc
 
 ### Prerequisites
 
-* .NET 9 SDK
+* .NET 10 SDK
 * Docker (for local database)
 * Rider (Recommended) / Visual Studio / VS Code
 
