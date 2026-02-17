@@ -32,7 +32,13 @@
     protected override async Task OnParametersSetAsync()
     {
         var authState = await AuthenticationStateTask;
-        DisplayName = authState.User.Claims.FirstOrDefault(claim => claim.Type == "preferred_username")?.Value;
+        var user = authState.User;
+        DisplayName =
+            user.Claims.FirstOrDefault(claim => claim.Type == "discord_username")?.Value
+            ?? user.Claims.FirstOrDefault(claim => claim.Type == "preferred_username")?.Value
+            ?? user.Claims.FirstOrDefault(claim => claim.Type == "email")?.Value
+            ?? user.Claims.FirstOrDefault(claim => claim.Type == "sub")?.Value
+            ?? "Unknown user";
     }
 
     private void Login() => Nav.NavigateTo("Authentication/Login", forceLoad: true);

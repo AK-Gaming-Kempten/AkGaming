@@ -15,7 +15,7 @@
         var state = await AuthStateProvider.GetAuthenticationStateAsync();
         var user = state.User;
 
-        var sub = user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        var sub = user.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? user.FindFirst("sub")?.Value;
         
         if (sub != null)
             Nav.NavigateTo($"/membership/user/{sub}", forceLoad: false);

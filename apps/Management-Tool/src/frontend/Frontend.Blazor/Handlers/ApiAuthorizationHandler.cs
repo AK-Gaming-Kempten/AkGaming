@@ -39,7 +39,13 @@ public class ApiAuthorizationHandler : DelegatingHandler {
         if (IsExpired(accessToken)) {
             _log.LogInformation("Access token expired, refreshing...");
 
-            var tokenEndpoint = $"{_cfg["Oidc:Authority"]}/protocol/openid-connect/token";
+            var tokenEndpoint = await ResolveTokenEndpointAsync(ct);
+            if (string.IsNullOrWhiteSpace(tokenEndpoint)) {
+                _log.LogWarning("No token endpoint configured/discovered. Signing out user.");
+                await context.SignOutAsync();
+                return new HttpResponseMessage(System.Net.HttpStatusCode.Unauthorized);
+            }
+
             var client = _factory.CreateClient();
 
             var form = new Dictionary<string, string> {
@@ -89,6 +95,30 @@ public class ApiAuthorizationHandler : DelegatingHandler {
 
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
         return await base.SendAsync(request, ct);
+    }
+
+    private async Task<string?> ResolveTokenEndpointAsync(CancellationToken ct) {
+        var configuredTokenEndpoint = _cfg["Oidc:TokenEndpoint"];
+        if (!string.IsNullOrWhiteSpace(configuredTokenEndpoint))
+            return configuredTokenEndpoint;
+
+        var authority = _cfg["Oidc:Authority"]?.TrimEnd('/');
+        if (string.IsNullOrWhiteSpace(authority))
+            return null;
+
+        var discoveryUrl = $"{authority}/.well-known/openid-configuration";
+        try {
+            var client = _factory.CreateClient();
+            var response = await client.GetAsync(discoveryUrl, ct);
+            if (!response.IsSuccessStatusCode) return null;
+
+            using var json = JsonDocument.Parse(await response.Content.ReadAsStringAsync(ct));
+            return json.RootElement.TryGetProperty("token_endpoint", out var tokenEndpoint)
+                ? tokenEndpoint.GetString()
+                : null;
+        } catch {
+            return null;
+        }
     }
 
     private static bool IsExpired(string token) {

@@ -71,6 +71,6 @@
         var user = authState.User;
 
         isAuthenticated = user.Identity?.IsAuthenticated ?? false;
-        isAdmin = isAuthenticated && user.IsInRole("Admin"); // adjust the role name to match your Keycloak setup
+        isAdmin = isAuthenticated && user.IsInRole("Admin");
     }
 }

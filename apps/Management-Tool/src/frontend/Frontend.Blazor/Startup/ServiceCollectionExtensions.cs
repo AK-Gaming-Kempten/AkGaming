@@ -1,9 +1,12 @@
 using Frontend.Blazor.ApiClients;
 using Frontend.Blazor.Handlers;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.HttpOverrides;
+using Microsoft.IdentityModel.Tokens;
 
 namespace Frontend.Blazor.Startup;
 
@@ -40,6 +43,13 @@ public static class ServiceCollectionExtensions {
                 options.Scope.Add("email");
                 options.Scope.Add("offline_access");
                 options.Scope.Add("managementtool-api-dedicated");
+
+                options.TokenValidationParameters = new TokenValidationParameters {
+                    NameClaimType = "email",
+                    RoleClaimType = ClaimTypes.Role
+                };
+
+                options.ClaimActions.MapUniqueJsonKey("discord_username", "discord_username");
             });
 
         services.AddAuthorization();

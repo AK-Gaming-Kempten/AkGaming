@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using System.Text;
 using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
@@ -16,29 +17,30 @@ public static class ServiceCollectionExtensions {
     }
     
     public static IServiceCollection AddJwtAuthentication(this IServiceCollection services, IConfiguration config) {
+        var authority = config["Jwt:Authority"];
+        var issuer = config["Jwt:Issuer"];
+        var audience = config["Jwt:Audience"];
+        var signingKey = config["Jwt:SigningKey"];
+
         services
             .AddAuthentication("Bearer")
             .AddJwtBearer("Bearer", option => {
-                option.Authority = config["Jwt:Authority"];
-                option.Audience = config["Jwt:Audience"];
-                option.RequireHttpsMetadata = true;
+                if (!string.IsNullOrWhiteSpace(authority)) {
+                    option.Authority = authority;
+                    option.RequireHttpsMetadata = true;
+                }
+
                 option.TokenValidationParameters = new TokenValidationParameters {
-                    NameClaimType = "preferred_username",
+                    ValidateIssuer = !string.IsNullOrWhiteSpace(issuer),
+                    ValidIssuer = issuer,
+                    ValidateAudience = !string.IsNullOrWhiteSpace(audience),
+                    ValidAudience = audience,
+                    ValidateIssuerSigningKey = !string.IsNullOrWhiteSpace(signingKey),
+                    IssuerSigningKey = string.IsNullOrWhiteSpace(signingKey)
+                        ? null
+                        : new SymmetricSecurityKey(Encoding.UTF8.GetBytes(signingKey)),
+                    NameClaimType = "email",
                     RoleClaimType = ClaimTypes.Role
-                };
-                option.Events = new JwtBearerEvents {
-                    OnTokenValidated = context => {
-                        var identity = (ClaimsIdentity)context.Principal!.Identity!;
-                        var realmRoles = context.Principal.FindAll("realm_access.roles");
-                        foreach (var r in realmRoles)
-                            identity.AddClaim(new Claim(ClaimTypes.Role, r.Value));
-
-                        var resourceRoles = context.Principal.FindAll("resource_access.managementtool-api.roles");
-                        foreach (var r in resourceRoles)
-                            identity.AddClaim(new Claim(ClaimTypes.Role, r.Value));
-
-                        return Task.CompletedTask;
-                    }
                 };
             });
 
