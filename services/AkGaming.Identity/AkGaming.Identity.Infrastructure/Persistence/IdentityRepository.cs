@@ -18,6 +18,8 @@ public sealed class IdentityRepository : IIdentityRepository
         return _dbContext.Users
             .Include(x => x.UserRoles)
             .ThenInclude(x => x.Role)
+            .Include(x => x.ExternalLogins)
+            .AsSplitQuery()
             .SingleOrDefaultAsync(x => x.Email == email, cancellationToken);
     }
 
@@ -26,6 +28,8 @@ public sealed class IdentityRepository : IIdentityRepository
         return _dbContext.Users
             .Include(x => x.UserRoles)
             .ThenInclude(x => x.Role)
+            .Include(x => x.ExternalLogins)
+            .AsSplitQuery()
             .SingleOrDefaultAsync(x => x.Id == userId, cancellationToken);
     }
 
@@ -63,6 +67,9 @@ public sealed class IdentityRepository : IIdentityRepository
             .Include(x => x.User)
             .ThenInclude(x => x.UserRoles)
             .ThenInclude(x => x.Role)
+            .Include(x => x.User)
+            .ThenInclude(x => x.ExternalLogins)
+            .AsSplitQuery()
             .SingleOrDefaultAsync(x => x.TokenHash == tokenHash, cancellationToken);
     }
 

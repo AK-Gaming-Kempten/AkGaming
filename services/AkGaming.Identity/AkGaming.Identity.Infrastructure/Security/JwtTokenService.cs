@@ -33,8 +33,20 @@ public sealed class JwtTokenService : IJwtTokenService
         {
             new(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
             new(JwtRegisteredClaimNames.Email, user.Email),
+            new("email_verified", user.IsEmailVerified ? "true" : "false"),
             new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
         };
+
+        var discordUsername = user.ExternalLogins
+            .Where(x => x.Provider == "discord")
+            .OrderByDescending(x => x.LinkedAtUtc)
+            .Select(x => x.ProviderUsername)
+            .FirstOrDefault();
+
+        if (!string.IsNullOrWhiteSpace(discordUsername))
+        {
+            claims.Add(new Claim("discord_username", discordUsername));
+        }
 
         claims.AddRange(user.UserRoles.Select(userRole => new Claim(ClaimTypes.Role, userRole.Role.Name)));
 
