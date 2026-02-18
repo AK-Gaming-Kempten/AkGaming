@@ -1,10 +1,8 @@
 using System.Globalization;
 using System.IdentityModel.Tokens.Jwt;
 using System.Net.Http.Headers;
-using System.Net.Http.Json;
 using System.Text.Json;
 using Microsoft.AspNetCore.Authentication;
-using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 
 namespace Frontend.Blazor.Handlers;
 
@@ -29,8 +27,8 @@ public class ApiAuthorizationHandler : DelegatingHandler {
         var context = _http.HttpContext;
         if (context == null) return await base.SendAsync(request, ct);
 
-        var accessToken = await context.GetTokenAsync(OpenIdConnectParameterNames.AccessToken);
-        var refreshToken = await context.GetTokenAsync(OpenIdConnectParameterNames.RefreshToken);
+        var accessToken = await context.GetTokenAsync("access_token");
+        var refreshToken = await context.GetTokenAsync("refresh_token");
 
         if (string.IsNullOrEmpty(accessToken))
             return await base.SendAsync(request, ct);
@@ -39,7 +37,7 @@ public class ApiAuthorizationHandler : DelegatingHandler {
         if (IsExpired(accessToken)) {
             _log.LogInformation("Access token expired, refreshing...");
 
-            var tokenEndpoint = await ResolveTokenEndpointAsync(ct);
+            var tokenEndpoint = ResolveTokenEndpoint();
             if (string.IsNullOrWhiteSpace(tokenEndpoint)) {
                 _log.LogWarning("No token endpoint configured/discovered. Signing out user.");
                 await context.SignOutAsync();
@@ -47,21 +45,21 @@ public class ApiAuthorizationHandler : DelegatingHandler {
             }
 
             var client = _factory.CreateClient();
-
-            var form = new Dictionary<string, string> {
-                ["grant_type"] = "refresh_token",
-                ["client_id"] = _cfg["Oidc:ClientId"]!,
-                ["refresh_token"] = refreshToken!
+            var payload = new Dictionary<string, string?> {
+                ["refresh_token"] = refreshToken,
+                ["refreshToken"] = refreshToken,
+                ["access_token"] = accessToken,
+                ["accessToken"] = accessToken
             };
-
-            // include secret if this is a confidential client
-            var secret = _cfg["Oidc:ClientSecret"];
-            if (!string.IsNullOrWhiteSpace(secret))
-                form["client_secret"] = secret;
 
             HttpResponseMessage resp;
             try {
-                resp = await client.PostAsync(tokenEndpoint, new FormUrlEncodedContent(form), ct);
+                using var refreshRequest = new HttpRequestMessage(HttpMethod.Post, tokenEndpoint) {
+                    Content = new StringContent(JsonSerializer.Serialize(payload))
+                };
+                refreshRequest.Content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
+                refreshRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+                resp = await client.SendAsync(refreshRequest, ct);
             } catch (Exception ex) {
                 _log.LogError(ex, "Failed to call token endpoint");
                 await context.SignOutAsync();
@@ -77,18 +75,32 @@ public class ApiAuthorizationHandler : DelegatingHandler {
             using var json = JsonDocument.Parse(await resp.Content.ReadAsStringAsync(ct));
             var root = json.RootElement;
 
-            var newAccess = root.GetProperty("access_token").GetString();
-            var newRefresh = root.TryGetProperty("refresh_token", out var r) ? r.GetString() : refreshToken;
-            var expiresIn = root.GetProperty("expires_in").GetInt32();
+            var newAccess = GetTokenValue(root, "access_token", "accessToken");
+            var newRefresh = GetTokenValue(root, "refresh_token", "refreshToken") ?? refreshToken;
+            var expiresIn = GetIntegerValue(root, "expires_in", "expiresIn");
+
+            if (string.IsNullOrWhiteSpace(newAccess)) {
+                _log.LogWarning("Token refresh succeeded but response did not contain an access token.");
+                await context.SignOutAsync();
+                return new HttpResponseMessage(System.Net.HttpStatusCode.Unauthorized);
+            }
+
+            var newExpiry = expiresIn.HasValue
+                ? DateTime.UtcNow.AddSeconds(expiresIn.Value)
+                : ReadExpiry(newAccess);
 
             // Save updated tokens in cookie
-            var auth = await context.AuthenticateAsync();
+            var auth = await context.AuthenticateAsync("Cookies");
+            if (!auth.Succeeded || auth.Principal == null || auth.Properties == null) {
+                _log.LogWarning("Cookie authentication state missing during token refresh.");
+                await context.SignOutAsync();
+                return new HttpResponseMessage(System.Net.HttpStatusCode.Unauthorized);
+            }
+
             auth.Properties.UpdateTokenValue("access_token", newAccess);
             auth.Properties.UpdateTokenValue("refresh_token", newRefresh);
-            auth.Properties.UpdateTokenValue("expires_at",
-                DateTime.UtcNow.AddSeconds(expiresIn)
-                    .ToString("o", CultureInfo.InvariantCulture));
-            await context.SignInAsync(auth.Principal, auth.Properties);
+            auth.Properties.UpdateTokenValue("expires_at", newExpiry.ToString("o", CultureInfo.InvariantCulture));
+            await context.SignInAsync("Cookies", auth.Principal, auth.Properties);
 
             accessToken = newAccess!;
         }
@@ -97,33 +109,57 @@ public class ApiAuthorizationHandler : DelegatingHandler {
         return await base.SendAsync(request, ct);
     }
 
-    private async Task<string?> ResolveTokenEndpointAsync(CancellationToken ct) {
-        var configuredTokenEndpoint = _cfg["Oidc:TokenEndpoint"];
+    private string? ResolveTokenEndpoint() {
+        var configuredTokenEndpoint = _cfg["Auth:RefreshEndpoint"];
         if (!string.IsNullOrWhiteSpace(configuredTokenEndpoint))
             return configuredTokenEndpoint;
 
-        var authority = _cfg["Oidc:Authority"]?.TrimEnd('/');
-        if (string.IsNullOrWhiteSpace(authority))
+        var baseUrl = _cfg["Auth:BaseUrl"]?.TrimEnd('/');
+        var refreshPath = _cfg["Auth:RefreshPath"]?.Trim();
+        if (string.IsNullOrWhiteSpace(baseUrl) || string.IsNullOrWhiteSpace(refreshPath))
             return null;
-
-        var discoveryUrl = $"{authority}/.well-known/openid-configuration";
-        try {
-            var client = _factory.CreateClient();
-            var response = await client.GetAsync(discoveryUrl, ct);
-            if (!response.IsSuccessStatusCode) return null;
-
-            using var json = JsonDocument.Parse(await response.Content.ReadAsStringAsync(ct));
-            return json.RootElement.TryGetProperty("token_endpoint", out var tokenEndpoint)
-                ? tokenEndpoint.GetString()
-                : null;
-        } catch {
-            return null;
-        }
+        if (!refreshPath.StartsWith('/'))
+            refreshPath = "/" + refreshPath;
+        return $"{baseUrl}{refreshPath}";
     }
 
     private static bool IsExpired(string token) {
         var jwt = new JwtSecurityTokenHandler().ReadJwtToken(token);
         // refresh 30 seconds before actual expiry
         return jwt.ValidTo.ToUniversalTime() <= DateTime.UtcNow.AddSeconds(30);
+    }
+
+    private static DateTime ReadExpiry(string token) {
+        var jwt = new JwtSecurityTokenHandler().ReadJwtToken(token);
+        var validTo = jwt.ValidTo.ToUniversalTime();
+        return validTo > DateTime.UnixEpoch ? validTo : DateTime.UtcNow.AddMinutes(10);
+    }
+
+    private static string? GetTokenValue(JsonElement root, params string[] names) {
+        foreach (var name in names) {
+            if (root.TryGetProperty(name, out var value) && value.ValueKind == JsonValueKind.String)
+                return value.GetString();
+        }
+
+        if (root.TryGetProperty("tokens", out var tokens) && tokens.ValueKind == JsonValueKind.Object) {
+            foreach (var name in names) {
+                if (tokens.TryGetProperty(name, out var value) && value.ValueKind == JsonValueKind.String)
+                    return value.GetString();
+            }
+        }
+
+        return null;
+    }
+
+    private static int? GetIntegerValue(JsonElement root, params string[] names) {
+        foreach (var name in names) {
+            if (!root.TryGetProperty(name, out var value)) continue;
+            if (value.ValueKind == JsonValueKind.Number && value.TryGetInt32(out var asInt))
+                return asInt;
+            if (value.ValueKind == JsonValueKind.String && int.TryParse(value.GetString(), out var parsed))
+                return parsed;
+        }
+
+        return null;
     }
 }

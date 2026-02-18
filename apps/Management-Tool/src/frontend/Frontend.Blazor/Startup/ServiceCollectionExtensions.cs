@@ -1,12 +1,8 @@
 using Frontend.Blazor.ApiClients;
 using Frontend.Blazor.Handlers;
-using System.Security.Claims;
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.HttpOverrides;
-using Microsoft.IdentityModel.Tokens;
 
 namespace Frontend.Blazor.Startup;
 
@@ -24,32 +20,13 @@ public static class ServiceCollectionExtensions {
     public static IServiceCollection AddAuthenticationAndAuthorization(this IServiceCollection services, IConfiguration config) {
         services.AddAuthentication(options => {
                 options.DefaultScheme = "Cookies";
-                options.DefaultChallengeScheme = "oidc";
+                options.DefaultChallengeScheme = "Cookies";
             })
-            .AddCookie("Cookies")
-            .AddOpenIdConnect("oidc", options => {
-                options.Authority = config["Oidc:Authority"];
-                options.ClientId = config["Oidc:ClientId"];
-                options.ClientSecret = config["Oidc:ClientSecret"];
-                options.ResponseType = "code";
-                options.SaveTokens = true;
-                options.GetClaimsFromUserInfoEndpoint = true;
-
-                options.CallbackPath = config["Oidc:CallbackPath"];
-                options.SignedOutCallbackPath = config["Oidc:SignedOutCallbackPath"];
-
-                options.Scope.Add("openid");
-                options.Scope.Add("profile");
-                options.Scope.Add("email");
-                options.Scope.Add("offline_access");
-                options.Scope.Add("managementtool-api-dedicated");
-
-                options.TokenValidationParameters = new TokenValidationParameters {
-                    NameClaimType = "email",
-                    RoleClaimType = ClaimTypes.Role
-                };
-
-                options.ClaimActions.MapUniqueJsonKey("discord_username", "discord_username");
+            .AddCookie("Cookies", options => {
+                options.LoginPath = "/authentication/login";
+                options.LogoutPath = "/authentication/logout";
+                options.AccessDeniedPath = "/account/accessdenied";
+                options.ClaimsIssuer = "AkGaming.Identity";
             });
 
         services.AddAuthorization();
