@@ -61,18 +61,83 @@ internal static class EndpointUtilities
 
     internal static bool IsAllowedRedirectUri(string redirectUri, IConfiguration configuration)
     {
-        if (!Uri.TryCreate(redirectUri, UriKind.Absolute, out var uri))
+        if (!Uri.TryCreate(redirectUri, UriKind.Absolute, out var candidate))
         {
             return false;
         }
 
-        if (uri.Scheme is not ("https" or "http"))
+        if (candidate.Scheme is not ("https" or "http"))
         {
             return false;
         }
 
         var allowed = configuration.GetSection("Bridge:AllowedRedirectUris").Get<string[]>() ?? [];
-        return allowed.Any(x => string.Equals(x?.Trim(), redirectUri.Trim(), StringComparison.OrdinalIgnoreCase));
+        return allowed.Any(entry => MatchesAllowedRedirect(candidate, entry));
+    }
+
+    private static bool MatchesAllowedRedirect(Uri candidate, string? allowedEntryRaw)
+    {
+        var allowedEntry = allowedEntryRaw?.Trim();
+        if (string.IsNullOrWhiteSpace(allowedEntry))
+        {
+            return false;
+        }
+
+        if (!Uri.TryCreate(allowedEntry, UriKind.Absolute, out var allowedUri))
+        {
+            return false;
+        }
+
+        if (!string.Equals(candidate.Scheme, allowedUri.Scheme, StringComparison.OrdinalIgnoreCase))
+        {
+            return false;
+        }
+
+        if (HasWildcardHost(allowedUri.Host))
+        {
+            return MatchesWildcardHost(candidate, allowedUri);
+        }
+
+        return string.Equals(
+            candidate.GetLeftPart(UriPartial.Path).TrimEnd('/'),
+            allowedUri.GetLeftPart(UriPartial.Path).TrimEnd('/'),
+            StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static bool HasWildcardHost(string host)
+    {
+        return host.StartsWith("*.", StringComparison.Ordinal) && host.Count(ch => ch == '*') == 1;
+    }
+
+    private static bool MatchesWildcardHost(Uri candidate, Uri allowedUri)
+    {
+        var wildcardBaseHost = allowedUri.Host[2..];
+
+        if (!candidate.Host.EndsWith("." + wildcardBaseHost, StringComparison.OrdinalIgnoreCase))
+        {
+            return false;
+        }
+
+        if (string.Equals(candidate.Host, wildcardBaseHost, StringComparison.OrdinalIgnoreCase))
+        {
+            return false;
+        }
+
+        if (candidate.Port != allowedUri.Port)
+        {
+            return false;
+        }
+
+        var allowedPath = allowedUri.AbsolutePath.TrimEnd('/');
+        if (string.IsNullOrEmpty(allowedPath) || allowedPath == "/")
+        {
+            return true;
+        }
+
+        return string.Equals(
+            candidate.AbsolutePath.TrimEnd('/'),
+            allowedPath,
+            StringComparison.OrdinalIgnoreCase);
     }
 
     internal static string BuildExternalRedirectUrl(RedirectFinalizeRequest request)
