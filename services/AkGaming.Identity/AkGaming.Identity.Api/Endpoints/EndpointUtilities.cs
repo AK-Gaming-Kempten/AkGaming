@@ -208,6 +208,11 @@ internal static class EndpointUtilities
 
     internal static string BuildExternalRedirectUrl(RedirectFinalizeRequest request)
     {
+        if (!Uri.TryCreate(request.RedirectUri, UriKind.Absolute, out var baseUri))
+        {
+            throw new InvalidOperationException("redirectUri must be absolute.");
+        }
+
         var pairs = new List<string>
         {
             $"access_token={Uri.EscapeDataString(request.AccessToken)}",
@@ -220,7 +225,12 @@ internal static class EndpointUtilities
             pairs.Add($"state={Uri.EscapeDataString(request.State)}");
         }
 
-        var separator = request.RedirectUri.Contains('#') ? "&" : "#";
-        return $"{request.RedirectUri}{separator}{string.Join("&", pairs)}";
+        var builder = new UriBuilder(baseUri);
+        var existingFragment = baseUri.Fragment.TrimStart('#');
+        var newFragment = string.IsNullOrWhiteSpace(existingFragment)
+            ? string.Join("&", pairs)
+            : $"{existingFragment}&{string.Join("&", pairs)}";
+        builder.Fragment = newFragment;
+        return builder.Uri.AbsoluteUri;
     }
 }

@@ -93,7 +93,7 @@ internal static class AuthEndpoints
             }
 
             var redirectUrl = EndpointUtilities.BuildExternalRedirectUrl(request);
-            logger.LogInformation("Redirect finalize accepted: redirectUri={RedirectUri}.", request.RedirectUri);
+            logger.LogInformation("Redirect finalize accepted: redirectUri={RedirectUri}, redirectUrl={RedirectUrl}.", request.RedirectUri, redirectUrl);
             return Results.Ok(new { redirectUrl });
         });
 
