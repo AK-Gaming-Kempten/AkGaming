@@ -107,6 +107,36 @@ internal static class EndpointUtilities
             return false;
         }
 
+        if (TryParseWildcardAllowedEntry(allowedEntry, out var wildcard))
+        {
+            if (!string.Equals(candidate.Scheme, wildcard.Scheme, StringComparison.OrdinalIgnoreCase))
+            {
+                return false;
+            }
+
+            if (wildcard.Port.HasValue && candidate.Port != wildcard.Port.Value)
+            {
+                return false;
+            }
+
+            if (!candidate.Host.EndsWith("." + wildcard.BaseHost, StringComparison.OrdinalIgnoreCase))
+            {
+                return false;
+            }
+
+            if (string.Equals(candidate.Host, wildcard.BaseHost, StringComparison.OrdinalIgnoreCase))
+            {
+                return false;
+            }
+
+            if (wildcard.Path == "/" || string.IsNullOrWhiteSpace(wildcard.Path))
+            {
+                return true;
+            }
+
+            return string.Equals(candidate.AbsolutePath.TrimEnd('/'), wildcard.Path.TrimEnd('/'), StringComparison.OrdinalIgnoreCase);
+        }
+
         if (!Uri.TryCreate(allowedEntry, UriKind.Absolute, out var allowedUri))
         {
             return false;
@@ -117,52 +147,64 @@ internal static class EndpointUtilities
             return false;
         }
 
-        if (HasWildcardHost(allowedUri.Host))
-        {
-            return MatchesWildcardHost(candidate, allowedUri);
-        }
-
         return string.Equals(
             candidate.GetLeftPart(UriPartial.Path).TrimEnd('/'),
             allowedUri.GetLeftPart(UriPartial.Path).TrimEnd('/'),
             StringComparison.OrdinalIgnoreCase);
     }
 
-    private static bool HasWildcardHost(string host)
+    private static bool TryParseWildcardAllowedEntry(string allowedEntry, out WildcardAllowedEntry wildcard)
     {
-        return host.StartsWith("*.", StringComparison.Ordinal) && host.Count(ch => ch == '*') == 1;
+        wildcard = default;
+
+        var schemeSeparator = allowedEntry.IndexOf("://", StringComparison.Ordinal);
+        if (schemeSeparator <= 0)
+        {
+            return false;
+        }
+
+        var scheme = allowedEntry[..schemeSeparator];
+        if (!scheme.Equals("https", StringComparison.OrdinalIgnoreCase)
+            && !scheme.Equals("http", StringComparison.OrdinalIgnoreCase))
+        {
+            return false;
+        }
+
+        var authorityAndPath = allowedEntry[(schemeSeparator + 3)..];
+        var pathSeparator = authorityAndPath.IndexOf('/');
+        var authority = pathSeparator >= 0 ? authorityAndPath[..pathSeparator] : authorityAndPath;
+        var path = pathSeparator >= 0 ? authorityAndPath[pathSeparator..] : "/";
+
+        if (!authority.StartsWith("*.", StringComparison.Ordinal))
+        {
+            return false;
+        }
+
+        var hostWithOptionalPort = authority[2..];
+        string baseHost;
+        int? port = null;
+
+        var lastColon = hostWithOptionalPort.LastIndexOf(':');
+        if (lastColon > 0 && int.TryParse(hostWithOptionalPort[(lastColon + 1)..], out var parsedPort))
+        {
+            baseHost = hostWithOptionalPort[..lastColon];
+            port = parsedPort;
+        }
+        else
+        {
+            baseHost = hostWithOptionalPort;
+        }
+
+        if (string.IsNullOrWhiteSpace(baseHost))
+        {
+            return false;
+        }
+
+        wildcard = new WildcardAllowedEntry(scheme, baseHost, port, string.IsNullOrWhiteSpace(path) ? "/" : path);
+        return true;
     }
 
-    private static bool MatchesWildcardHost(Uri candidate, Uri allowedUri)
-    {
-        var wildcardBaseHost = allowedUri.Host[2..];
-
-        if (!candidate.Host.EndsWith("." + wildcardBaseHost, StringComparison.OrdinalIgnoreCase))
-        {
-            return false;
-        }
-
-        if (string.Equals(candidate.Host, wildcardBaseHost, StringComparison.OrdinalIgnoreCase))
-        {
-            return false;
-        }
-
-        if (candidate.Port != allowedUri.Port)
-        {
-            return false;
-        }
-
-        var allowedPath = allowedUri.AbsolutePath.TrimEnd('/');
-        if (string.IsNullOrEmpty(allowedPath) || allowedPath == "/")
-        {
-            return true;
-        }
-
-        return string.Equals(
-            candidate.AbsolutePath.TrimEnd('/'),
-            allowedPath,
-            StringComparison.OrdinalIgnoreCase);
-    }
+    private readonly record struct WildcardAllowedEntry(string Scheme, string BaseHost, int? Port, string Path);
 
     internal static string BuildExternalRedirectUrl(RedirectFinalizeRequest request)
     {
