@@ -59,6 +59,37 @@
       localStorage.setItem("accessTokenExpiresAtUtc", payload.accessTokenExpiresAtUtc);
     }
 
+    async function completeExternalRedirect(payload) {
+      const params = new URLSearchParams(window.location.search);
+      const redirectUri = params.get("redirect_uri");
+      const state = params.get("state");
+      if (!redirectUri) {
+        return false;
+      }
+
+      const response = await fetch("/auth/redirect/finalize", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          redirectUri,
+          state,
+          accessToken: payload.accessToken,
+          refreshToken: payload.refreshToken,
+          accessTokenExpiresAtUtc: payload.accessTokenExpiresAtUtc
+        })
+      });
+
+      if (!response.ok) {
+        const error = await response.json().catch(() => ({}));
+        setStatus(error.detail || "Could not redirect back to the application.");
+        return true;
+      }
+
+      const body = await response.json();
+      window.location.href = body.redirectUrl;
+      return true;
+    }
+
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
       statusEl.className = "status";
@@ -85,8 +116,18 @@
       saveTokens(payload);
       setStatus("Login successful.", true);
 
+      const redirectedExternally = await completeExternalRedirect(payload);
+      if (redirectedExternally) {
+        return;
+      }
+
       const returnUrl = new URLSearchParams(window.location.search).get("returnUrl");
-      window.location.href = returnUrl || "/";
+      if (returnUrl && returnUrl.startsWith("/")) {
+        window.location.href = returnUrl;
+        return;
+      }
+
+      window.location.href = "/";
     });
   </script>
 </body>

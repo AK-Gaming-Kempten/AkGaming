@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using AkGaming.Identity.Application.Auth;
 
 namespace AkGaming.Identity.Api.Endpoints;
 
@@ -56,5 +57,39 @@ internal static class EndpointUtilities
         }
 
         return string.Join("&", parts);
+    }
+
+    internal static bool IsAllowedRedirectUri(string redirectUri, IConfiguration configuration)
+    {
+        if (!Uri.TryCreate(redirectUri, UriKind.Absolute, out var uri))
+        {
+            return false;
+        }
+
+        if (uri.Scheme is not ("https" or "http"))
+        {
+            return false;
+        }
+
+        var allowed = configuration.GetSection("Bridge:AllowedRedirectUris").Get<string[]>() ?? [];
+        return allowed.Any(x => string.Equals(x?.Trim(), redirectUri.Trim(), StringComparison.OrdinalIgnoreCase));
+    }
+
+    internal static string BuildExternalRedirectUrl(RedirectFinalizeRequest request)
+    {
+        var pairs = new List<string>
+        {
+            $"access_token={Uri.EscapeDataString(request.AccessToken)}",
+            $"refresh_token={Uri.EscapeDataString(request.RefreshToken)}",
+            $"expires_at={Uri.EscapeDataString(request.AccessTokenExpiresAtUtc.ToString("O"))}"
+        };
+
+        if (!string.IsNullOrWhiteSpace(request.State))
+        {
+            pairs.Add($"state={Uri.EscapeDataString(request.State)}");
+        }
+
+        var separator = request.RedirectUri.Contains('#') ? "&" : "#";
+        return $"{request.RedirectUri}{separator}{string.Join("&", pairs)}";
     }
 }

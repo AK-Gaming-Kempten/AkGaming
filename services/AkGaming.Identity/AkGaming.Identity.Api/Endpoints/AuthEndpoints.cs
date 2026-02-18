@@ -58,6 +58,27 @@ internal static class AuthEndpoints
             return Results.NoContent();
         });
 
+        auth.MapPost("/redirect/finalize", (RedirectFinalizeRequest request, IConfiguration configuration) =>
+        {
+            if (string.IsNullOrWhiteSpace(request.RedirectUri))
+            {
+                return Results.Problem(statusCode: 400, detail: "redirectUri is required.");
+            }
+
+            if (!EndpointUtilities.IsAllowedRedirectUri(request.RedirectUri, configuration))
+            {
+                return Results.Problem(statusCode: 400, detail: "redirectUri is not allowed.");
+            }
+
+            if (string.IsNullOrWhiteSpace(request.AccessToken) || string.IsNullOrWhiteSpace(request.RefreshToken))
+            {
+                return Results.Problem(statusCode: 400, detail: "accessToken and refreshToken are required.");
+            }
+
+            var redirectUrl = EndpointUtilities.BuildExternalRedirectUrl(request);
+            return Results.Ok(new { redirectUrl });
+        });
+
         auth.MapGet("/me", [Authorize] async (ClaimsPrincipal user, IAuthService authService, CancellationToken cancellationToken) =>
         {
             if (!EndpointUtilities.TryGetUserId(user, out var userId))
