@@ -41,6 +41,6 @@
             ?? "Unknown user";
     }
 
-    private void Login() => Nav.NavigateTo("Authentication/Login", forceLoad: true);
-    private void Logout() => Nav.NavigateTo("Authentication/logout", forceLoad: true);
+    private void Login() => Nav.NavigateTo("/authentication/login", forceLoad: true);
+    private void Logout() => Nav.NavigateTo("/authentication/logout", forceLoad: true);
 }

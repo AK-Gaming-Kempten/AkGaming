@@ -14,11 +14,11 @@ public partial class LoginDisplay : ComponentBase {
     }
     private async Task Login()
     {
-        Navigation.NavigateTo("authentication/login", true);
+        Navigation.NavigateTo("/authentication/login", true);
     }
 
     private async Task Logout()
     {
-        Navigation.NavigateTo("authentication/logout", true);
+        Navigation.NavigateTo("/authentication/logout", true);
     }
 }

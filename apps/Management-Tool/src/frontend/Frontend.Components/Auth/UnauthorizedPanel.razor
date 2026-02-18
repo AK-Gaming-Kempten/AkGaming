@@ -20,5 +20,5 @@
     [Inject] NavigationManager Nav { get; set; } = default!;
 
     private void Login()
-        => Nav.NavigateTo("authentication/login", forceLoad: true);
+        => Nav.NavigateTo("/authentication/login", forceLoad: true);
 }

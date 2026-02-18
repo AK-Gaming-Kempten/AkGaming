@@ -187,7 +187,7 @@ public static class WebApplicationExtensions {
             if (string.IsNullOrWhiteSpace(providerLogoutUrl))
                 return Results.Redirect("/");
 
-            var returnUrl = $"{context.Request.Scheme}://{context.Request.Host}/";
+            var returnUrl = $"{GetAppBaseUrl(context, config)}/";
             var providerReturnUrlParam = config["Auth:LogoutReturnUrlParam"] ?? "returnUrl";
             var redirectUrl = QueryHelpers.AddQueryString(providerLogoutUrl, providerReturnUrlParam, returnUrl);
             return Results.Redirect(redirectUrl);
@@ -228,7 +228,7 @@ public static class WebApplicationExtensions {
         if (string.IsNullOrWhiteSpace(providerUrl))
             return Results.Problem($"Auth endpoint not configured ({providerPathKey}).", statusCode: StatusCodes.Status500InternalServerError);
 
-        var callbackUrl = $"{context.Request.Scheme}://{context.Request.Host}/authentication/callback";
+        var callbackUrl = $"{GetAppBaseUrl(context, config)}/authentication/callback";
         var appReturnUrl = context.Request.Query["returnUrl"].FirstOrDefault();
         if (!string.IsNullOrWhiteSpace(appReturnUrl) && Uri.IsWellFormedUriString(appReturnUrl, UriKind.Relative))
             callbackUrl = QueryHelpers.AddQueryString(callbackUrl, "returnUrl", appReturnUrl);
@@ -249,6 +249,14 @@ public static class WebApplicationExtensions {
         redirectUrl = QueryHelpers.AddQueryString(redirectUrl, stateParam, state);
 
         return Results.Redirect(redirectUrl);
+    }
+
+    private static string GetAppBaseUrl(HttpContext context, IConfiguration config) {
+        var configuredBaseUrl = config["Auth:AppBaseUrl"]?.TrimEnd('/');
+        if (!string.IsNullOrWhiteSpace(configuredBaseUrl) && Uri.TryCreate(configuredBaseUrl, UriKind.Absolute, out _))
+            return configuredBaseUrl;
+
+        return $"{context.Request.Scheme}://{context.Request.Host}";
     }
 
     private static DateTime? ParseProviderExpiresAt(string? raw) {
