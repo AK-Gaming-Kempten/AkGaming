@@ -59,20 +59,44 @@ internal static class EndpointUtilities
         return string.Join("&", parts);
     }
 
-    internal static bool IsAllowedRedirectUri(string redirectUri, IConfiguration configuration)
+    internal static bool IsAllowedRedirectUri(
+        string redirectUri,
+        IConfiguration configuration,
+        out string reason,
+        out IReadOnlyList<string> evaluations)
     {
+        var checks = new List<string>();
+
         if (!Uri.TryCreate(redirectUri, UriKind.Absolute, out var candidate))
         {
+            reason = "invalid_uri";
+            evaluations = checks;
             return false;
         }
 
         if (candidate.Scheme is not ("https" or "http"))
         {
+            reason = "invalid_scheme";
+            evaluations = checks;
             return false;
         }
 
         var allowed = configuration.GetSection("Bridge:AllowedRedirectUris").Get<string[]>() ?? [];
-        return allowed.Any(entry => MatchesAllowedRedirect(candidate, entry));
+        foreach (var entry in allowed)
+        {
+            var matched = MatchesAllowedRedirect(candidate, entry);
+            checks.Add($"[{entry}]=>{(matched ? "match" : "no_match")}");
+            if (matched)
+            {
+                reason = "matched_allowlist";
+                evaluations = checks;
+                return true;
+            }
+        }
+
+        reason = "not_in_allowlist";
+        evaluations = checks;
+        return false;
     }
 
     private static bool MatchesAllowedRedirect(Uri candidate, string? allowedEntryRaw)

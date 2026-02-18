@@ -58,24 +58,42 @@ internal static class AuthEndpoints
             return Results.NoContent();
         });
 
-        auth.MapPost("/redirect/finalize", (RedirectFinalizeRequest request, IConfiguration configuration) =>
+        auth.MapPost("/redirect/finalize", (RedirectFinalizeRequest request, IConfiguration configuration, ILoggerFactory loggerFactory) =>
         {
+            var logger = loggerFactory.CreateLogger("RedirectFinalize");
+
             if (string.IsNullOrWhiteSpace(request.RedirectUri))
             {
+                logger.LogWarning("Redirect finalize rejected: missing redirectUri.");
                 return Results.Problem(statusCode: 400, detail: "redirectUri is required.");
             }
 
-            if (!EndpointUtilities.IsAllowedRedirectUri(request.RedirectUri, configuration))
+            var allowed = EndpointUtilities.IsAllowedRedirectUri(
+                request.RedirectUri,
+                configuration,
+                out var reason,
+                out var evaluations);
+
+            logger.LogInformation(
+                "Redirect finalize check: redirectUri={RedirectUri}, allowed={Allowed}, reason={Reason}, evaluations={Evaluations}",
+                request.RedirectUri,
+                allowed,
+                reason,
+                string.Join(" | ", evaluations));
+
+            if (!allowed)
             {
                 return Results.Problem(statusCode: 400, detail: "redirectUri is not allowed.");
             }
 
             if (string.IsNullOrWhiteSpace(request.AccessToken) || string.IsNullOrWhiteSpace(request.RefreshToken))
             {
+                logger.LogWarning("Redirect finalize rejected: token payload missing for redirectUri={RedirectUri}.", request.RedirectUri);
                 return Results.Problem(statusCode: 400, detail: "accessToken and refreshToken are required.");
             }
 
             var redirectUrl = EndpointUtilities.BuildExternalRedirectUrl(request);
+            logger.LogInformation("Redirect finalize accepted: redirectUri={RedirectUri}.", request.RedirectUri);
             return Results.Ok(new { redirectUrl });
         });
 
