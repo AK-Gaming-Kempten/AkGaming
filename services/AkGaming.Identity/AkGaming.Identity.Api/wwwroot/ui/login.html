@@ -59,6 +59,27 @@
       localStorage.setItem("accessTokenExpiresAtUtc", payload.accessTokenExpiresAtUtc);
     }
 
+    async function tryRefreshSession() {
+      const refreshToken = localStorage.getItem("refreshToken");
+      if (!refreshToken) {
+        return null;
+      }
+
+      const response = await fetch("/auth/refresh", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ refreshToken })
+      });
+
+      if (!response.ok) {
+        return null;
+      }
+
+      const payload = await response.json();
+      saveTokens(payload);
+      return payload;
+    }
+
     async function completeExternalRedirect(payload) {
       const params = new URLSearchParams(window.location.search);
       const redirectUri = params.get("redirect_uri");
@@ -88,6 +109,32 @@
       const body = await response.json();
       window.location.href = body.redirectUrl;
       return true;
+    }
+
+    async function tryAutoRedirectForExistingSession() {
+      const params = new URLSearchParams(window.location.search);
+      if (!params.get("redirect_uri")) {
+        return;
+      }
+
+      const accessToken = localStorage.getItem("accessToken");
+      const refreshToken = localStorage.getItem("refreshToken");
+      if (!accessToken || !refreshToken) {
+        return;
+      }
+
+      let payload = {
+        accessToken,
+        refreshToken,
+        accessTokenExpiresAtUtc: localStorage.getItem("accessTokenExpiresAtUtc") || new Date().toISOString()
+      };
+
+      const refreshed = await tryRefreshSession();
+      if (refreshed) {
+        payload = refreshed;
+      }
+
+      await completeExternalRedirect(payload);
     }
 
     form.addEventListener("submit", async (e) => {
@@ -129,6 +176,8 @@
 
       window.location.href = "/";
     });
+
+    tryAutoRedirectForExistingSession().catch(() => undefined);
   </script>
 </body>
 </html>

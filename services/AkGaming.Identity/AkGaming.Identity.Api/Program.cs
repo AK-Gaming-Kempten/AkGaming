@@ -78,9 +78,9 @@ app.UseRateLimiter();
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.MapGet("/", () => Results.Redirect("/ui/index.html"));
-app.MapGet("/login", () => Results.Redirect("/ui/login.html"));
-app.MapGet("/register", () => Results.Redirect("/ui/register.html"));
+app.MapGet("/", (HttpContext context) => Results.Redirect($"/ui/index.html{context.Request.QueryString}"));
+app.MapGet("/login", (HttpContext context) => Results.Redirect($"/ui/login.html{context.Request.QueryString}"));
+app.MapGet("/register", (HttpContext context) => Results.Redirect($"/ui/register.html{context.Request.QueryString}"));
 app.MapAuthEndpoints();
 app.MapAdminEndpoints();
 
