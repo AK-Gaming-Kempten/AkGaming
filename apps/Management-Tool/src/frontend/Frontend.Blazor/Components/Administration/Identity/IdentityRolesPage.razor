@@ -1,0 +1,81 @@
+@page "/identity/roles"
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize(Roles = "Admin")]
+
+<PageTitle>Identity Roles</PageTitle>
+
+<div class="identity-roles-page">
+    <div class="roles-list-pane">
+        <div class="pane-header">
+            <h4>Roles</h4>
+            <button class="btn btn-secondary" @onclick="ReloadAsync">Refresh</button>
+        </div>
+
+        <div class="create-role card">
+            <label for="new-role-name">Create role</label>
+            <div class="inline-controls">
+                <InputText id="new-role-name" @bind-Value="_newRoleName" placeholder="Role name" />
+                <button class="btn btn-primary" @onclick="CreateRoleAsync" disabled="@_isBusy">Create</button>
+            </div>
+        </div>
+
+        <div class="roles-list card">
+            @if (_roles is null)
+            {
+                <p>Loading roles...</p>
+            }
+            else if (_roles.Count == 0)
+            {
+                <p>No roles found.</p>
+            }
+            else
+            {
+                @foreach (var role in _roles.OrderBy(r => r.Name, StringComparer.OrdinalIgnoreCase))
+                {
+                    <button type="button"
+                            class="role-item @(role.Id == _selectedRoleId ? "selected" : string.Empty)"
+                            @onclick="() => SelectRole(role)">
+                        <span>@role.Name</span>
+                        <small>@role.Id</small>
+                    </button>
+                }
+            }
+        </div>
+    </div>
+
+    <div class="role-editor-pane card">
+        <h4>Role Details</h4>
+
+        @if (_selectedRole is null)
+        {
+            <p>Select a role to rename or delete it.</p>
+        }
+        else
+        {
+            <div class="form-col">
+                <label>Role Id</label>
+                <input value="@_selectedRole.Id.ToString()" disabled />
+            </div>
+
+            <div class="form-col">
+                <label for="rename-role-name">Role name</label>
+                <InputText id="rename-role-name" @bind-Value="_renameRoleName" />
+            </div>
+
+            <div class="editor-actions">
+                <button class="btn btn-primary" @onclick="RenameRoleAsync" disabled="@_isBusy">Save name</button>
+                <button class="btn btn-danger" @onclick="DeleteRoleAsync" disabled="@_isBusy">Delete role</button>
+            </div>
+        }
+
+        @if (!string.IsNullOrWhiteSpace(_error))
+        {
+            <p class="text-danger">@_error</p>
+        }
+
+        @if (!string.IsNullOrWhiteSpace(_success))
+        {
+            <p class="text-success">@_success</p>
+        }
+    </div>
+</div>

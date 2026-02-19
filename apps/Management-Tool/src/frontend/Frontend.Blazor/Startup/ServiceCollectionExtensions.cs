@@ -49,11 +49,15 @@ public static class ServiceCollectionExtensions {
         services.AddTransient<ApiAuthorizationHandler>();
 
         var apiBaseUrl = new Uri(config["Api:BaseUrl"]!);
+        var identityApiBaseUrl = new Uri(config["IdentityApi:BaseUrl"] ?? config["Auth:BaseUrl"]!);
 
         services.AddHttpClient("ManagementApi", client => client.BaseAddress = apiBaseUrl)
             .AddHttpMessageHandler<ApiAuthorizationHandler>();
 
         services.AddHttpClient<MemberManagementApiClient>(client => client.BaseAddress = apiBaseUrl)
+            .AddHttpMessageHandler<ApiAuthorizationHandler>();
+
+        services.AddHttpClient<IdentityApiClient>(client => client.BaseAddress = identityApiBaseUrl)
             .AddHttpMessageHandler<ApiAuthorizationHandler>();
 
         return services;
