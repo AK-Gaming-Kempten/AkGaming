@@ -51,7 +51,44 @@
       }
     }
 
-    (function run() {
+    async function finalizeExternalRedirect(params) {
+      const redirectUri = params.get("redirectUri");
+      const accessToken = params.get("accessToken");
+      const refreshToken = params.get("refreshToken");
+      const accessTokenExpiresAtUtc = params.get("accessTokenExpiresAtUtc");
+      const state = params.get("state");
+
+      if (!redirectUri || !accessToken || !refreshToken || !accessTokenExpiresAtUtc) {
+        return false;
+      }
+
+      const response = await fetch("/auth/redirect/finalize", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          redirectUri,
+          state,
+          accessToken,
+          refreshToken,
+          accessTokenExpiresAtUtc
+        })
+      });
+
+      if (!response.ok) {
+        const error = await response.json().catch(() => ({}));
+        setStatus(error.detail || "Could not redirect back to the application.", false);
+        continueEl.href = "/";
+        continueEl.textContent = "Back to account";
+        continueEl.style.display = "inline-flex";
+        return true;
+      }
+
+      const body = await response.json();
+      window.location.href = body.redirectUrl;
+      return true;
+    }
+
+    (async function run() {
       const params = parseHash();
       const success = params.get("success") === "1";
       const message = params.get("message") || (success ? "Authentication complete." : "Authentication failed.");
@@ -59,8 +96,14 @@
       if (success) {
         saveToken("accessToken", params.get("accessToken"));
         saveToken("refreshToken", params.get("refreshToken"));
+        saveToken("accessTokenExpiresAtUtc", params.get("accessTokenExpiresAtUtc"));
 
         setStatus(message, true);
+
+        const redirectedExternally = await finalizeExternalRedirect(params);
+        if (redirectedExternally) {
+          return;
+        }
 
         const linked = params.get("linked") === "1";
         const createdUser = params.get("createdUser") === "1";
@@ -90,7 +133,12 @@
         continueEl.textContent = "Back to login";
         continueEl.style.display = "inline-flex";
       }
-    })();
+    })().catch(() => {
+      setStatus("Unexpected callback error.", false);
+      continueEl.href = "/login";
+      continueEl.textContent = "Back to login";
+      continueEl.style.display = "inline-flex";
+    });
   </script>
 </body>
 </html>

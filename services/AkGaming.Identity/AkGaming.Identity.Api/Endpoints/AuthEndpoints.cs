@@ -204,9 +204,14 @@ internal static class AuthEndpoints
             }
         });
 
-        auth.MapGet("/discord/start", async (IAuthService authService, CancellationToken cancellationToken) =>
+        auth.MapGet("/discord/start", async (HttpContext httpContext, IAuthService authService, CancellationToken cancellationToken) =>
         {
-            var response = await authService.GetDiscordStartUrlAsync(cancellationToken);
+            var redirectUri = httpContext.Request.Query["redirect_uri"].ToString();
+            var state = httpContext.Request.Query["state"].ToString();
+            var response = await authService.GetDiscordStartUrlAsync(
+                string.IsNullOrWhiteSpace(redirectUri) ? null : redirectUri,
+                string.IsNullOrWhiteSpace(state) ? null : state,
+                cancellationToken);
             return Results.Redirect(response.AuthorizationUrl);
         });
 
@@ -220,6 +225,9 @@ internal static class AuthEndpoints
                     message: response.Message,
                     accessToken: response.Tokens?.AccessToken,
                     refreshToken: response.Tokens?.RefreshToken,
+                    accessTokenExpiresAtUtc: response.Tokens?.AccessTokenExpiresAtUtc,
+                    redirectUri: response.RedirectUri,
+                    state: response.State,
                     linked: response.Linked,
                     createdUser: response.CreatedUser);
 

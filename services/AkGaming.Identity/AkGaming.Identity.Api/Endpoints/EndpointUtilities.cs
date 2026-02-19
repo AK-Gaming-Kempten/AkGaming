@@ -21,6 +21,9 @@ internal static class EndpointUtilities
         string message,
         string? accessToken = null,
         string? refreshToken = null,
+        DateTime? accessTokenExpiresAtUtc = null,
+        string? redirectUri = null,
+        string? state = null,
         bool? linked = null,
         bool? createdUser = null,
         string? errorCode = null)
@@ -39,6 +42,21 @@ internal static class EndpointUtilities
         if (!string.IsNullOrWhiteSpace(refreshToken))
         {
             parts.Add($"refreshToken={Uri.EscapeDataString(refreshToken)}");
+        }
+
+        if (accessTokenExpiresAtUtc.HasValue)
+        {
+            parts.Add($"accessTokenExpiresAtUtc={Uri.EscapeDataString(accessTokenExpiresAtUtc.Value.ToString("O"))}");
+        }
+
+        if (!string.IsNullOrWhiteSpace(redirectUri))
+        {
+            parts.Add($"redirectUri={Uri.EscapeDataString(redirectUri)}");
+        }
+
+        if (!string.IsNullOrWhiteSpace(state))
+        {
+            parts.Add($"state={Uri.EscapeDataString(state)}");
         }
 
         if (linked.HasValue)

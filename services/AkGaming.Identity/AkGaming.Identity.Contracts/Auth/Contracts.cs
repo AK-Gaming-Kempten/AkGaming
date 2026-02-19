@@ -18,7 +18,9 @@ public sealed record DiscordCallbackResponse(
     string DiscordUserId,
     string? DiscordUsername,
     AuthResponse? Tokens,
-    string Message);
+    string Message,
+    string? RedirectUri = null,
+    string? State = null);
 
 public sealed record CurrentUserResponse(
     Guid UserId,

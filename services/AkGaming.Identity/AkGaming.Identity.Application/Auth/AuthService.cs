@@ -585,18 +585,20 @@ public sealed class AuthService : IAuthService
         await _repository.SaveChangesAsync(cancellationToken);
     }
 
-    public Task<DiscordStartResponse> GetDiscordStartUrlAsync(CancellationToken cancellationToken)
+    public Task<DiscordStartResponse> GetDiscordStartUrlAsync(string? redirectUri, string? bridgeState, CancellationToken cancellationToken)
     {
-        var state = _discordStateService.CreateState(new DiscordOAuthState(
+        var protectedState = _discordStateService.CreateState(new DiscordOAuthState(
             "login",
             null,
             DateTime.UtcNow.AddMinutes(10),
-            Guid.NewGuid().ToString("N")));
+            Guid.NewGuid().ToString("N"),
+            redirectUri,
+            bridgeState));
 
         string authorizationUrl;
         try
         {
-            authorizationUrl = _discordOAuthService.BuildAuthorizationUrl(state);
+            authorizationUrl = _discordOAuthService.BuildAuthorizationUrl(protectedState);
         }
         catch (InvalidOperationException exception)
         {
@@ -657,7 +659,7 @@ public sealed class AuthService : IAuthService
             return await LinkDiscordToExistingUserAsync(oauthState, discordIdentity, existingExternalLogin, ipAddress, cancellationToken);
         }
 
-        return await LoginOrRegisterWithDiscordAsync(discordIdentity, existingExternalLogin, ipAddress, cancellationToken);
+        return await LoginOrRegisterWithDiscordAsync(oauthState, discordIdentity, existingExternalLogin, ipAddress, cancellationToken);
     }
 
     private async Task<DiscordCallbackResponse> LinkDiscordToExistingUserAsync(
@@ -709,6 +711,7 @@ public sealed class AuthService : IAuthService
     }
 
     private async Task<DiscordCallbackResponse> LoginOrRegisterWithDiscordAsync(
+        DiscordOAuthState oauthState,
         DiscordIdentity discordIdentity,
         ExternalLogin? existingExternalLogin,
         string? ipAddress,
@@ -786,7 +789,9 @@ public sealed class AuthService : IAuthService
             discordIdentity.UserId,
             discordIdentity.Username,
             tokens,
-            createdUser ? "Discord login succeeded and a new account was created." : "Discord login succeeded.");
+            createdUser ? "Discord login succeeded and a new account was created." : "Discord login succeeded.",
+            oauthState.RedirectUri,
+            oauthState.State);
     }
 
     private async Task HandleFailedLoginAttemptAsync(User user, string? ipAddress, CancellationToken cancellationToken)

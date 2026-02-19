@@ -36,7 +36,7 @@
       <button class="primary" type="submit">Create Account</button>
     </form>
 
-    <a class="button secondary" href="/auth/discord/start">
+    <a id="discord-start-link" class="button secondary" href="/auth/discord/start">
       <img class="button-icon" src="/ui/Discord-Symbol-Blurple.svg" alt="" />
       Continue with Discord
     </a>
@@ -46,6 +46,7 @@
 
   <script>
     const form = document.getElementById("register-form");
+    const discordStartLinkEl = document.getElementById("discord-start-link");
     const statusEl = document.getElementById("status");
 
     function setStatus(msg, ok = false) {
@@ -57,6 +58,23 @@
       localStorage.setItem("accessToken", payload.accessToken);
       localStorage.setItem("refreshToken", payload.refreshToken);
       localStorage.setItem("accessTokenExpiresAtUtc", payload.accessTokenExpiresAtUtc);
+    }
+
+    function configureDiscordStartLink() {
+      const params = new URLSearchParams(window.location.search);
+      const redirectUri = params.get("redirect_uri");
+      const state = params.get("state");
+      const target = new URL("/auth/discord/start", window.location.origin);
+
+      if (redirectUri) {
+        target.searchParams.set("redirect_uri", redirectUri);
+      }
+
+      if (state) {
+        target.searchParams.set("state", state);
+      }
+
+      discordStartLinkEl.href = `${target.pathname}${target.search}`;
     }
 
     async function completeExternalRedirect(payload) {
@@ -129,6 +147,8 @@
 
       window.location.href = "/";
     });
+
+    configureDiscordStartLink();
   </script>
 </body>
 </html>

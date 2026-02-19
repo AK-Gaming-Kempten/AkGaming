@@ -20,7 +20,7 @@ public interface IAuthService
     Task<EmailVerificationResponse> RequestEmailVerificationAsync(EmailVerificationRequest request, string? ipAddress, CancellationToken cancellationToken);
     Task<EmailVerificationResponse> RequestEmailVerificationForUserAsync(Guid userId, string? ipAddress, CancellationToken cancellationToken);
     Task VerifyEmailAsync(VerifyEmailRequest request, string? ipAddress, CancellationToken cancellationToken);
-    Task<DiscordStartResponse> GetDiscordStartUrlAsync(CancellationToken cancellationToken);
+    Task<DiscordStartResponse> GetDiscordStartUrlAsync(string? redirectUri, string? state, CancellationToken cancellationToken);
     Task<DiscordStartResponse> GetDiscordLinkUrlAsync(Guid userId, CancellationToken cancellationToken);
     Task<DiscordCallbackResponse> HandleDiscordCallbackAsync(string code, string state, string? ipAddress, CancellationToken cancellationToken);
 }

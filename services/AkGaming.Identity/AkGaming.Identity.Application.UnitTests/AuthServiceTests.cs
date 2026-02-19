@@ -156,7 +156,7 @@ public sealed class AuthServiceTests
         var discordOAuth = new DiscordOAuthServiceStub();
         var service = BuildService(repository, discordOAuthService: discordOAuth);
 
-        var response = await service.GetDiscordStartUrlAsync(CancellationToken.None);
+        var response = await service.GetDiscordStartUrlAsync("https://management.akgaming.de/authentication/callback", "state-123", CancellationToken.None);
 
         Assert.StartsWith("https://discord.test/authorize", response.AuthorizationUrl);
     }
