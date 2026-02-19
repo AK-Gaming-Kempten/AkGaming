@@ -1,4 +1,4 @@
-using AkGaming.Identity.Application.Auth;
+using AkGaming.Identity.Contracts.Auth;
 
 namespace AkGaming.Identity.Application.Abstractions;
 

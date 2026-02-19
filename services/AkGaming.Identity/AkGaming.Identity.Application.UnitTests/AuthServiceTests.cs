@@ -1,6 +1,7 @@
 using AkGaming.Identity.Application.Auth;
 using AkGaming.Identity.Application.Common;
 using AkGaming.Identity.Application.UnitTests.Fakes;
+using AkGaming.Identity.Contracts.Auth;
 using AkGaming.Identity.Domain.Constants;
 using Microsoft.Extensions.Logging.Abstractions;
 

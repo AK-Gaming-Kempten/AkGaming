@@ -2,6 +2,7 @@ using System.Net.Mail;
 using AkGaming.Identity.Application.Abstractions;
 using AkGaming.Identity.Application.Common;
 using AkGaming.Identity.Application.ExternalAuth;
+using AkGaming.Identity.Contracts.Auth;
 using AkGaming.Identity.Domain.Constants;
 using AkGaming.Identity.Domain.Entities;
 using Microsoft.Extensions.Logging;

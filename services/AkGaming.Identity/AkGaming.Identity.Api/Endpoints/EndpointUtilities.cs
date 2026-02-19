@@ -1,5 +1,5 @@
 using System.Security.Claims;
-using AkGaming.Identity.Application.Auth;
+using AkGaming.Identity.Contracts.Auth;
 
 namespace AkGaming.Identity.Api.Endpoints;
 

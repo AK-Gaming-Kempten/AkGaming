@@ -1,7 +1,7 @@
 using System.Security.Claims;
 using AkGaming.Identity.Application.Abstractions;
-using AkGaming.Identity.Application.Auth;
 using AkGaming.Identity.Application.Common;
+using AkGaming.Identity.Contracts.Auth;
 using AkGaming.Identity.Domain.Constants;
 
 namespace AkGaming.Identity.Api.Endpoints;

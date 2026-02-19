@@ -17,6 +17,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\AkGaming.Identity.Contracts\AkGaming.Identity.Contracts.csproj" />
     <ProjectReference Include="..\AkGaming.Identity.Application\AkGaming.Identity.Application.csproj" />
     <ProjectReference Include="..\AkGaming.Identity.Infrastructure\AkGaming.Identity.Infrastructure.csproj" />
   </ItemGroup>
