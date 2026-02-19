@@ -5,6 +5,7 @@ WORKDIR /src
 COPY global.json ./
 COPY AkGaming.Identity.Api/*.csproj AkGaming.Identity.Api/
 COPY AkGaming.Identity.Application/*.csproj AkGaming.Identity.Application/
+COPY AkGaming.Identity.Contracts/*.csproj AkGaming.Identity.Contracts/
 COPY AkGaming.Identity.Domain/*.csproj AkGaming.Identity.Domain/
 COPY AkGaming.Identity.Infrastructure/*.csproj AkGaming.Identity.Infrastructure/
 
