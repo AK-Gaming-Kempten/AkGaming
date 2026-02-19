@@ -108,8 +108,14 @@ a.secondary {
   color: var(--color-button-secondary-text);
 }
 
-a.secondary:hover {
+a.secondary:hover,
+button.secondary:hover {
   background: var(--color-button-secondary-hover-bg);
+}
+
+button.secondary {
+  background: var(--color-button-secondary-bg);
+  color: var(--color-button-secondary-text);
 }
 
 a.switch {
@@ -128,6 +134,19 @@ a.switch {
 
 .status.error { color: var(--color-button-danger-bg); }
 .status.ok { color: var(--color-highlight-secondary); }
+
+.redirect-choice {
+  margin-bottom: 4px;
+}
+
+.redirect-choice-sub {
+  margin-bottom: 10px;
+}
+
+.redirect-choice-account {
+  margin-bottom: 14px;
+  color: var(--color-text-secondary);
+}
 
 @media (max-width: 520px) {
   .shell { padding: 20px; }

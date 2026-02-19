@@ -26,27 +26,42 @@
     <h1>Welcome Back</h1>
     <p class="sub">Sign in with email/password or Discord.</p>
 
-    <form id="login-form">
-      <label for="email">Email</label>
-      <input id="email" name="email" type="email" autocomplete="email" required />
+    <section id="redirect-account-choice" class="redirect-choice" hidden>
+      <p class="sub redirect-choice-sub">You are already signed in to AK Gaming Identity.</p>
+      <div class="redirect-choice-account">Current account: <strong id="current-account-label">your current account</strong></div>
+      <button id="continue-current-account" class="primary" type="button">Continue with this account</button>
+      <button id="use-different-account" class="secondary" type="button">Use a different account</button>
+    </section>
 
-      <label for="password">Password</label>
-      <input id="password" name="password" type="password" autocomplete="current-password" required />
+    <div id="login-actions">
+      <form id="login-form">
+        <label for="email">Email</label>
+        <input id="email" name="email" type="email" autocomplete="email" required />
 
-      <button class="primary" type="submit">Sign In</button>
-    </form>
+        <label for="password">Password</label>
+        <input id="password" name="password" type="password" autocomplete="current-password" required />
 
-    <a class="button secondary" href="/auth/discord/start">
-      <img class="button-icon" src="/ui/Discord-Symbol-Blurple.svg" alt="" />
-      Continue with Discord
-    </a>
-    <a class="switch" href="/register">No account yet? Create one</a>
+        <button class="primary" type="submit">Sign In</button>
+      </form>
+
+      <a class="button secondary" href="/auth/discord/start">
+        <img class="button-icon" src="/ui/Discord-Symbol-Blurple.svg" alt="" />
+        Continue with Discord
+      </a>
+      <a class="switch" href="/register">No account yet? Create one</a>
+    </div>
     <div class="status" id="status"></div>
   </main>
 
   <script>
     const form = document.getElementById("login-form");
+    const loginActionsEl = document.getElementById("login-actions");
+    const redirectAccountChoiceEl = document.getElementById("redirect-account-choice");
+    const currentAccountLabelEl = document.getElementById("current-account-label");
+    const continueCurrentAccountBtn = document.getElementById("continue-current-account");
+    const useDifferentAccountBtn = document.getElementById("use-different-account");
     const statusEl = document.getElementById("status");
+    let pendingRedirectPayload = null;
 
     function setStatus(msg, ok = false) {
       statusEl.textContent = msg;
@@ -57,6 +72,18 @@
       localStorage.setItem("accessToken", payload.accessToken);
       localStorage.setItem("refreshToken", payload.refreshToken);
       localStorage.setItem("accessTokenExpiresAtUtc", payload.accessTokenExpiresAtUtc);
+    }
+
+    async function getCurrentUserEmail(accessToken) {
+      const response = await fetch("/auth/me", {
+        headers: { Authorization: `Bearer ${accessToken}` }
+      });
+      if (!response.ok) {
+        return null;
+      }
+
+      const payload = await response.json().catch(() => null);
+      return payload && payload.email ? payload.email : null;
     }
 
     async function tryRefreshSession() {
@@ -111,7 +138,13 @@
       return true;
     }
 
-    async function tryAutoRedirectForExistingSession() {
+    function showRedirectAccountChoice(email) {
+      currentAccountLabelEl.textContent = email || "your current account";
+      loginActionsEl.hidden = true;
+      redirectAccountChoiceEl.hidden = false;
+    }
+
+    async function prepareRedirectSessionChoice() {
       const params = new URLSearchParams(window.location.search);
       if (!params.get("redirect_uri")) {
         return;
@@ -134,8 +167,29 @@
         payload = refreshed;
       }
 
-      await completeExternalRedirect(payload);
+      pendingRedirectPayload = payload;
+      const email = await getCurrentUserEmail(payload.accessToken).catch(() => null);
+      showRedirectAccountChoice(email);
     }
+
+    continueCurrentAccountBtn.addEventListener("click", async () => {
+      if (!pendingRedirectPayload) {
+        return;
+      }
+
+      statusEl.className = "status";
+      statusEl.textContent = "Continuing with current account...";
+      await completeExternalRedirect(pendingRedirectPayload);
+    });
+
+    useDifferentAccountBtn.addEventListener("click", () => {
+      pendingRedirectPayload = null;
+      redirectAccountChoiceEl.hidden = true;
+      loginActionsEl.hidden = false;
+      statusEl.className = "status";
+      statusEl.textContent = "Please sign in with a different account.";
+      form.email.focus();
+    });
 
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
@@ -177,7 +231,7 @@
       window.location.href = "/";
     });
 
-    tryAutoRedirectForExistingSession().catch(() => undefined);
+    prepareRedirectSessionChoice().catch(() => undefined);
   </script>
 </body>
 </html>
