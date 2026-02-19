@@ -43,6 +43,39 @@ public sealed class IdentityRepository : IIdentityRepository
             .SingleOrDefaultAsync(x => x.Id == userId, cancellationToken);
     }
 
+    public Task<List<User>> GetUsersPageAsync(int skip, int take, string? search, CancellationToken cancellationToken)
+    {
+        var query = _dbContext.Users
+            .Include(x => x.UserRoles)
+            .ThenInclude(x => x.Role)
+            .AsSplitQuery()
+            .AsQueryable();
+
+        if (!string.IsNullOrWhiteSpace(search))
+        {
+            var needle = search.Trim().ToLowerInvariant();
+            query = query.Where(x => x.Email.ToLower().Contains(needle));
+        }
+
+        return query
+            .OrderByDescending(x => x.CreatedAtUtc)
+            .Skip(skip)
+            .Take(take)
+            .ToListAsync(cancellationToken);
+    }
+
+    public Task<int> CountUsersAsync(string? search, CancellationToken cancellationToken)
+    {
+        var query = _dbContext.Users.AsQueryable();
+        if (!string.IsNullOrWhiteSpace(search))
+        {
+            var needle = search.Trim().ToLowerInvariant();
+            query = query.Where(x => x.Email.ToLower().Contains(needle));
+        }
+
+        return query.CountAsync(cancellationToken);
+    }
+
     public Task<List<Role>> GetAllRolesAsync(CancellationToken cancellationToken)
     {
         return _dbContext.Roles

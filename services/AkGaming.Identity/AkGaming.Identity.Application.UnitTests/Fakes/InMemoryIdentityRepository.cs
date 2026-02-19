@@ -27,6 +27,36 @@ internal sealed class InMemoryIdentityRepository : IIdentityRepository
         return Task.FromResult(Users.SingleOrDefault(x => x.Id == userId));
     }
 
+    public Task<List<User>> GetUsersPageAsync(int skip, int take, string? search, CancellationToken cancellationToken)
+    {
+        var query = Users.AsEnumerable();
+        if (!string.IsNullOrWhiteSpace(search))
+        {
+            var needle = search.Trim();
+            query = query.Where(x => x.Email.Contains(needle, StringComparison.OrdinalIgnoreCase));
+        }
+
+        var page = query
+            .OrderByDescending(x => x.CreatedAtUtc)
+            .Skip(skip)
+            .Take(take)
+            .ToList();
+
+        return Task.FromResult(page);
+    }
+
+    public Task<int> CountUsersAsync(string? search, CancellationToken cancellationToken)
+    {
+        var query = Users.AsEnumerable();
+        if (!string.IsNullOrWhiteSpace(search))
+        {
+            var needle = search.Trim();
+            query = query.Where(x => x.Email.Contains(needle, StringComparison.OrdinalIgnoreCase));
+        }
+
+        return Task.FromResult(query.Count());
+    }
+
     public Task<List<Role>> GetAllRolesAsync(CancellationToken cancellationToken)
     {
         return Task.FromResult(Roles.OrderBy(x => x.Name).ToList());

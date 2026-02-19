@@ -13,6 +13,32 @@ internal static class AdminEndpoints
         var admin = app.MapGroup("/admin").RequireAuthorization(policy => policy.RequireRole(RoleNames.Admin));
         admin.RequireRateLimiting("auth");
 
+        admin.MapGet("/users", async (int page, int pageSize, string? search, IAuthService authService, CancellationToken cancellationToken) =>
+        {
+            try
+            {
+                var response = await authService.GetUsersAsync(page <= 0 ? 1 : page, pageSize <= 0 ? 25 : pageSize, search, cancellationToken);
+                return Results.Ok(response);
+            }
+            catch (AuthException exception)
+            {
+                return Results.Problem(statusCode: exception.StatusCode, detail: exception.Message);
+            }
+        });
+
+        admin.MapGet("/users/{userId:guid}", async (Guid userId, IAuthService authService, CancellationToken cancellationToken) =>
+        {
+            try
+            {
+                var response = await authService.GetUserDetailsAsync(userId, cancellationToken);
+                return Results.Ok(response);
+            }
+            catch (AuthException exception)
+            {
+                return Results.Problem(statusCode: exception.StatusCode, detail: exception.Message);
+            }
+        });
+
         admin.MapGet("/users/{userId:guid}/roles", async (Guid userId, IAuthService authService, CancellationToken cancellationToken) =>
         {
             try

@@ -298,6 +298,70 @@ public sealed class AuthServiceTests
         Assert.Contains(repository.Roles, x => x.Id == role.Id);
     }
 
+    [Fact]
+    public async Task GetUsersAsync_ReturnsPagedUsers()
+    {
+        var repository = new InMemoryIdentityRepository();
+        var userRole = new AkGaming.Identity.Domain.Entities.Role { Name = RoleNames.User };
+        repository.Roles.Add(userRole);
+
+        for (var i = 0; i < 3; i++)
+        {
+            var user = new AkGaming.Identity.Domain.Entities.User { Email = $"user{i}@test.local", PasswordHash = "hash" };
+            user.UserRoles.Add(new AkGaming.Identity.Domain.Entities.UserRole
+            {
+                UserId = user.Id,
+                User = user,
+                RoleId = userRole.Id,
+                Role = userRole
+            });
+            repository.Users.Add(user);
+        }
+
+        var service = BuildService(repository);
+        var page = await service.GetUsersAsync(1, 2, null, CancellationToken.None);
+
+        Assert.Equal(1, page.Page);
+        Assert.Equal(2, page.PageSize);
+        Assert.Equal(3, page.TotalCount);
+        Assert.Equal(2, page.Items.Count);
+    }
+
+    [Fact]
+    public async Task GetUserDetailsAsync_ReturnsDiscordInfo_WhenLinked()
+    {
+        var repository = new InMemoryIdentityRepository();
+        var userRole = new AkGaming.Identity.Domain.Entities.Role { Name = RoleNames.User };
+        repository.Roles.Add(userRole);
+
+        var user = new AkGaming.Identity.Domain.Entities.User { Email = "detail@test.local", PasswordHash = "hash", IsEmailVerified = true };
+        user.UserRoles.Add(new AkGaming.Identity.Domain.Entities.UserRole
+        {
+            UserId = user.Id,
+            User = user,
+            RoleId = userRole.Id,
+            Role = userRole
+        });
+        user.ExternalLogins.Add(new AkGaming.Identity.Domain.Entities.ExternalLogin
+        {
+            UserId = user.Id,
+            User = user,
+            Provider = "discord",
+            ProviderUserId = "12345",
+            ProviderUsername = "DiscordTester"
+        });
+        repository.Users.Add(user);
+
+        var service = BuildService(repository);
+        var details = await service.GetUserDetailsAsync(user.Id, CancellationToken.None);
+
+        Assert.Equal(user.Id, details.UserId);
+        Assert.Equal("detail@test.local", details.Email);
+        Assert.True(details.IsEmailVerified);
+        Assert.NotNull(details.Discord);
+        Assert.Equal("DiscordTester", details.Discord!.ProviderUsername);
+    }
+
     private static AuthService BuildService(
         InMemoryIdentityRepository repository,
         PasswordHasherStub? passwordHasher = null,

@@ -238,6 +238,60 @@ public sealed class AuthService : IAuthService
                 : new DiscordLinkInfo(discordLink.ProviderUserId, discordLink.ProviderUsername, discordLink.LinkedAtUtc));
     }
 
+    public async Task<AdminUsersResponse> GetUsersAsync(int page, int pageSize, string? search, CancellationToken cancellationToken)
+    {
+        if (page < 1)
+        {
+            throw new AuthException(BadRequestStatusCode, "page must be at least 1.");
+        }
+
+        if (pageSize is < 1 or > 200)
+        {
+            throw new AuthException(BadRequestStatusCode, "pageSize must be between 1 and 200.");
+        }
+
+        var skip = (page - 1) * pageSize;
+        var totalCount = await _repository.CountUsersAsync(search, cancellationToken);
+        var users = await _repository.GetUsersPageAsync(skip, pageSize, search, cancellationToken);
+
+        var items = users
+            .Select(user => new AdminUserListItemResponse(
+                user.Id,
+                user.Email,
+                user.IsEmailVerified,
+                user.UserRoles.Select(x => x.Role.Name).OrderBy(x => x).ToArray(),
+                user.CreatedAtUtc,
+                user.LockoutEndUtc))
+            .ToArray();
+
+        return new AdminUsersResponse(page, pageSize, totalCount, items);
+    }
+
+    public async Task<AdminUserDetailsResponse> GetUserDetailsAsync(Guid userId, CancellationToken cancellationToken)
+    {
+        var user = await _repository.GetUserByIdWithExternalLoginsAsync(userId, cancellationToken);
+        if (user is null)
+        {
+            throw new AuthException(NotFoundStatusCode, "User account was not found.");
+        }
+
+        var discordLink = user.ExternalLogins
+            .Where(x => x.Provider == DiscordProvider)
+            .OrderByDescending(x => x.LinkedAtUtc)
+            .FirstOrDefault();
+
+        return new AdminUserDetailsResponse(
+            user.Id,
+            user.Email,
+            user.IsEmailVerified,
+            user.UserRoles.Select(x => x.Role.Name).OrderBy(x => x).ToArray(),
+            user.CreatedAtUtc,
+            user.LockoutEndUtc,
+            discordLink is null
+                ? null
+                : new DiscordLinkInfo(discordLink.ProviderUserId, discordLink.ProviderUsername, discordLink.LinkedAtUtc));
+    }
+
     public async Task<UserRolesResponse> GetUserRolesAsync(Guid userId, CancellationToken cancellationToken)
     {
         var user = await _repository.GetUserByIdAsync(userId, cancellationToken);
