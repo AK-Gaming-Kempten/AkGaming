@@ -30,7 +30,8 @@ public sealed class TestApiFactory : WebApplicationFactory<Program>
                 ["Database:Provider"] = "Sqlite",
                 ["ConnectionStrings:IdentityDb"] = $"Data Source={_dbPath}",
                 ["Jwt:SecretKey"] = "integration-tests-secret-key-1234567890-abcdefghij",
-                ["AllowedHosts"] = "*"
+                ["AllowedHosts"] = "*",
+                ["Bridge:AllowedRedirectUris:0"] = "https://management.akgaming.de"
             };
 
             configurationBuilder.AddInMemoryCollection(overrides);

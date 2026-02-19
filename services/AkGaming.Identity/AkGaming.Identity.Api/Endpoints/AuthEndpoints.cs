@@ -58,6 +58,37 @@ internal static class AuthEndpoints
             return Results.NoContent();
         });
 
+        auth.MapGet("/logout", async (string? returnUrl, string? refreshToken, IAuthService authService, IConfiguration configuration, HttpContext httpContext, CancellationToken cancellationToken) =>
+        {
+            if (!string.IsNullOrWhiteSpace(refreshToken))
+            {
+                await authService.LogoutAsync(new LogoutRequest(refreshToken), EndpointUtilities.GetIp(httpContext), cancellationToken);
+            }
+
+            if (string.IsNullOrWhiteSpace(returnUrl))
+            {
+                return Results.Redirect("/ui/login.html");
+            }
+
+            if (returnUrl.StartsWith("/", StringComparison.Ordinal) && !returnUrl.StartsWith("//", StringComparison.Ordinal))
+            {
+                return Results.Redirect(returnUrl);
+            }
+
+            var allowed = EndpointUtilities.IsAllowedRedirectUri(
+                returnUrl,
+                configuration,
+                out _,
+                out _);
+
+            if (!allowed)
+            {
+                return Results.Problem(statusCode: 400, detail: "returnUrl is not allowed.");
+            }
+
+            return Results.Redirect(returnUrl);
+        });
+
         auth.MapPost("/redirect/finalize", (RedirectFinalizeRequest request, IConfiguration configuration, ILoggerFactory loggerFactory) =>
         {
             var logger = loggerFactory.CreateLogger("RedirectFinalize");

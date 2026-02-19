@@ -6,9 +6,11 @@ namespace AkGaming.Identity.Api.IntegrationTests;
 public sealed class AuthEndpointsTests : IClassFixture<TestApiFactory>
 {
     private readonly HttpClient _client;
+    private readonly TestApiFactory _factory;
 
     public AuthEndpointsTests(TestApiFactory factory)
     {
+        _factory = factory;
         _client = factory.CreateClient(new Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactoryClientOptions
         {
             BaseAddress = new Uri("https://localhost")
@@ -67,6 +69,32 @@ public sealed class AuthEndpointsTests : IClassFixture<TestApiFactory>
 
         var body = await response.Content.ReadAsStringAsync();
         Assert.True(response.StatusCode == HttpStatusCode.Unauthorized, $"Expected 401, got {(int)response.StatusCode}: {body}");
+    }
+
+    [Fact]
+    public async Task Logout_Get_WithAllowedExternalReturnUrl_Redirects()
+    {
+        using var noRedirectClient = _factory.CreateClient(new Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactoryClientOptions
+        {
+            BaseAddress = new Uri("https://localhost"),
+            AllowAutoRedirect = false
+        });
+
+        var encodedReturnUrl = Uri.EscapeDataString("https://management.akgaming.de/");
+        var response = await noRedirectClient.GetAsync($"/auth/logout?returnUrl={encodedReturnUrl}");
+
+        Assert.True(response.StatusCode == HttpStatusCode.Redirect, $"Expected 302, got {(int)response.StatusCode}");
+        Assert.Equal("https://management.akgaming.de/", response.Headers.Location?.ToString());
+    }
+
+    [Fact]
+    public async Task Logout_Get_WithDisallowedExternalReturnUrl_ReturnsBadRequest()
+    {
+        var encodedReturnUrl = Uri.EscapeDataString("https://evil.example.com/");
+        var response = await _client.GetAsync($"/auth/logout?returnUrl={encodedReturnUrl}");
+
+        var body = await response.Content.ReadAsStringAsync();
+        Assert.True(response.StatusCode == HttpStatusCode.BadRequest, $"Expected 400, got {(int)response.StatusCode}: {body}");
     }
 
     private sealed record AuthPayload(string AccessToken, DateTime AccessTokenExpiresAtUtc, string RefreshToken);
