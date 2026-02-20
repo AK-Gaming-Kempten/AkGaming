@@ -1,15 +1,10 @@
-using System.Text.Json;
 using AKG.Common.Generics;
 using AkGaming.Identity.Contracts.Auth;
 
 namespace Frontend.Blazor.ApiClients;
 
 public sealed class IdentityApiClient : ApiClientBase {
-    private readonly string _defaultAuditLogPath;
-
-    public IdentityApiClient(HttpClient http, IConfiguration config) : base(http) {
-        _defaultAuditLogPath = config["IdentityApi:AuditLogPath"] ?? "/admin/audit-log";
-    }
+    public IdentityApiClient(HttpClient http, IConfiguration config) : base(http) { }
 
     public Task<Result<ICollection<RoleResponse>>> GetRolesAsync(CancellationToken ct = default) =>
         GetAsync<ICollection<RoleResponse>>("admin/roles", ct);
@@ -51,12 +46,20 @@ public sealed class IdentityApiClient : ApiClientBase {
     public Task<Result<AdminUserDetailsResponse>> GetAdminUserDetailsAsync(Guid userId, CancellationToken ct = default) =>
         GetAsync<AdminUserDetailsResponse>($"admin/users/{userId}", ct);
 
-    public Task<Result<JsonElement>> GetAuditLogAsync(string? path = null, CancellationToken ct = default) {
-        var effectivePath = string.IsNullOrWhiteSpace(path) ? _defaultAuditLogPath : path.Trim();
-        if (!effectivePath.StartsWith('/')) {
-            effectivePath = "/" + effectivePath;
+    public Task<Result<AdminAuditLogsResponse>> GetAdminAuditLogsAsync(
+        int page = 1,
+        int pageSize = 25,
+        string? search = null,
+        CancellationToken ct = default) {
+        var queryParts = new List<string> {
+            $"page={page}",
+            $"pageSize={pageSize}"
+        };
+
+        if (!string.IsNullOrWhiteSpace(search)) {
+            queryParts.Add($"search={Uri.EscapeDataString(search.Trim())}");
         }
 
-        return GetAsync<JsonElement>(effectivePath, ct);
+        return GetAsync<AdminAuditLogsResponse>($"admin/audit-logs?{string.Join("&", queryParts)}", ct);
     }
 }

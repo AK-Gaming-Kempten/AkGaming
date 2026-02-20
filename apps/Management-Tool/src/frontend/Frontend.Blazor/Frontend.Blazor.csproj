@@ -7,7 +7,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="AkGaming.Identity.Contracts" Version="1.0.1" />
+      <PackageReference Include="AkGaming.Identity.Contracts" Version="1.0.2" />
       <PackageReference Include="BootstrapIcons.AspNetCore" Version="1.13.0" />
       <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.3" />
       <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="10.0.3" />

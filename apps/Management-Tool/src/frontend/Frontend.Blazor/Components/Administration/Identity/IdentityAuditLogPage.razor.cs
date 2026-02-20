@@ -1,4 +1,4 @@
-using System.Text.Json;
+using AkGaming.Identity.Contracts.Auth;
 using Frontend.Blazor.ApiClients;
 using Microsoft.AspNetCore.Components;
 
@@ -8,43 +8,76 @@ public partial class IdentityAuditLogPage : ComponentBase {
     [Inject]
     private IdentityApiClient IdentityApi { get; set; } = default!;
 
-    private string _auditPath = string.Empty;
+    private AdminAuditLogsResponse? _auditLogs;
 
-    private string? _prettyJson;
-    private string? _metaText;
+    private int _page = 1;
+    private int _pageSize = 25;
+    private int _totalPages = 1;
+    private string _search = string.Empty;
+
     private string? _error;
     private string? _success;
     private bool _isBusy;
 
     protected override async Task OnInitializedAsync() {
-        await LoadAuditLogAsync();
+        await LoadAuditLogsAsync();
     }
 
-    private async Task LoadAuditLogAsync() {
+    private async Task ReloadAsync() {
+        await LoadAuditLogsAsync();
+    }
+
+    private async Task SearchAsync() {
+        _page = 1;
+        await LoadAuditLogsAsync();
+    }
+
+    private async Task PrevPageAsync() {
+        if (_page <= 1) {
+            return;
+        }
+
+        _page -= 1;
+        await LoadAuditLogsAsync();
+    }
+
+    private async Task NextPageAsync() {
+        if (_page >= _totalPages) {
+            return;
+        }
+
+        _page += 1;
+        await LoadAuditLogsAsync();
+    }
+
+    private async Task LoadAuditLogsAsync() {
         _isBusy = true;
         _error = null;
         _success = null;
 
-        var result = await IdentityApi.GetAuditLogAsync(_auditPath);
+        if (_pageSize <= 0) {
+            _pageSize = 25;
+        }
+
+        if (_pageSize > 200) {
+            _pageSize = 200;
+        }
+
+        var result = await IdentityApi.GetAdminAuditLogsAsync(_page, _pageSize, _search);
 
         _isBusy = false;
 
-        if (!result.IsSuccess) {
-            _prettyJson = null;
-            _metaText = null;
+        if (!result.IsSuccess || result.Value is null) {
+            _auditLogs = new AdminAuditLogsResponse(1, _pageSize, 0, Array.Empty<AdminAuditLogItemResponse>());
+            _totalPages = 1;
             _error = result.Error;
             return;
         }
 
-        var json = JsonSerializer.Serialize(result.Value, new JsonSerializerOptions { WriteIndented = true });
-        _prettyJson = json;
-
-        _metaText = result.Value.ValueKind switch {
-            JsonValueKind.Array => $"Received array with {result.Value.GetArrayLength()} entries.",
-            JsonValueKind.Object => "Received object payload.",
-            _ => $"Received {result.Value.ValueKind} payload."
-        };
-
-        _success = "Audit log loaded.";
+        _auditLogs = result.Value;
+        _page = _auditLogs.Page <= 0 ? 1 : _auditLogs.Page;
+        _pageSize = _auditLogs.PageSize <= 0 ? _pageSize : _auditLogs.PageSize;
+        _totalPages = Math.Max(1, (int)Math.Ceiling(_auditLogs.TotalCount / (double)Math.Max(1, _pageSize)));
+        _success = "Audit logs loaded.";
     }
 }

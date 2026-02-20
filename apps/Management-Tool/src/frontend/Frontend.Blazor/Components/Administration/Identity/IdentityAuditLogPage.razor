@@ -8,11 +8,10 @@
     <h4>Identity Audit Log</h4>
 
     <div class="query-controls">
-        <div class="form-col">
-            <label for="audit-path">Audit endpoint path</label>
-            <InputText id="audit-path" @bind-Value="_auditPath" placeholder="/admin/audit-log" />
-        </div>
-        <button class="btn btn-secondary" @onclick="LoadAuditLogAsync" disabled="@_isBusy">Load</button>
+        <InputText @bind-Value="_search" placeholder="Search (email, details, event...)" />
+        <InputNumber @bind-Value="_pageSize" min="1" max="200" />
+        <button class="btn btn-secondary" @onclick="SearchAsync" disabled="@_isBusy">Search</button>
+        <button class="btn btn-secondary" @onclick="ReloadAsync" disabled="@_isBusy">Refresh</button>
     </div>
 
     @if (!string.IsNullOrWhiteSpace(_error))
@@ -25,13 +24,50 @@
         <p class="text-success">@_success</p>
     }
 
-    @if (!string.IsNullOrWhiteSpace(_prettyJson))
+    @if (_auditLogs is null)
     {
-        <div class="result-meta">@_metaText</div>
-        <pre class="json-output">@_prettyJson</pre>
+        <p>Loading audit logs...</p>
+    }
+    else if (_auditLogs.Items.Count == 0)
+    {
+        <p>No audit logs found.</p>
     }
     else
     {
-        <p>No audit payload loaded yet.</p>
+        <div class="table-wrapper">
+            <table class="audit-table">
+                <thead>
+                <tr>
+                    <th>Created (UTC)</th>
+                    <th>Event</th>
+                    <th>Success</th>
+                    <th>Subject Email</th>
+                    <th>User Id</th>
+                    <th>IP</th>
+                    <th>Details</th>
+                </tr>
+                </thead>
+                <tbody>
+                @foreach (var item in _auditLogs.Items)
+                {
+                    <tr>
+                        <td>@item.CreatedAtUtc.ToString("u")</td>
+                        <td>@item.EventType</td>
+                        <td>@(item.Success ? "Yes" : "No")</td>
+                        <td>@(string.IsNullOrWhiteSpace(item.SubjectEmail) ? "-" : item.SubjectEmail)</td>
+                        <td>@(item.UserId?.ToString() ?? "-")</td>
+                        <td>@(string.IsNullOrWhiteSpace(item.IpAddress) ? "-" : item.IpAddress)</td>
+                        <td>@(string.IsNullOrWhiteSpace(item.Details) ? "-" : item.Details)</td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+
+        <div class="pager">
+            <button class="btn btn-secondary" @onclick="PrevPageAsync" disabled="@(_isBusy || _page <= 1)">Previous</button>
+            <span>Page @_page of @_totalPages (Total @_auditLogs.TotalCount)</span>
+            <button class="btn btn-secondary" @onclick="NextPageAsync" disabled="@(_isBusy || _page >= _totalPages)">Next</button>
+        </div>
     }
 </div>

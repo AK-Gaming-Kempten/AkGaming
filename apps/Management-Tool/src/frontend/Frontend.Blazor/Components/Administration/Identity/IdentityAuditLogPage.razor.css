@@ -10,30 +10,51 @@
 
 .query-controls {
     display: grid;
-    grid-template-columns: 1fr auto;
+    grid-template-columns: 1fr 110px auto auto;
     align-items: end;
     gap: 0.5rem;
 }
 
-.result-meta {
-    font-size: 0.9rem;
-    color: var(--color-text-tertiary);
-}
-
-.json-output {
-    margin: 0;
-    padding: 0.85rem;
-    background: color-mix(in oklab, var(--color-background-secondary) 80%, black 20%);
+.table-wrapper {
+    overflow: auto;
     border: 1px solid var(--color-text-tertiary);
     border-radius: 4px;
-    max-height: 68vh;
-    overflow: auto;
-    white-space: pre-wrap;
-    word-break: break-word;
 }
 
-@media (max-width: 700px) {
+.audit-table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 980px;
+}
+
+.audit-table th,
+.audit-table td {
+    padding: 0.45rem 0.55rem;
+    border-bottom: 1px solid var(--color-text-tertiary);
+    text-align: left;
+    vertical-align: top;
+}
+
+.audit-table th {
+    background: color-mix(in oklab, var(--color-background-secondary) 85%, black 15%);
+    position: sticky;
+    top: 0;
+}
+
+.pager {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+@media (max-width: 900px) {
     .query-controls {
         grid-template-columns: 1fr;
+    }
+
+    .pager {
+        flex-direction: column;
+        align-items: stretch;
     }
 }
