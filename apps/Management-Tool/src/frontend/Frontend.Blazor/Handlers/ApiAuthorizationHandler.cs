@@ -1,6 +1,7 @@
 using System.Globalization;
 using System.IdentityModel.Tokens.Jwt;
 using System.Net.Http.Headers;
+using System.Security.Claims;
 using System.Text.Json;
 using Microsoft.AspNetCore.Authentication;
 
@@ -40,7 +41,7 @@ public class ApiAuthorizationHandler : DelegatingHandler {
             var tokenEndpoint = ResolveTokenEndpoint();
             if (string.IsNullOrWhiteSpace(tokenEndpoint)) {
                 _log.LogWarning("No token endpoint configured/discovered. Signing out user.");
-                await context.SignOutAsync();
+                await TrySignOutAsync(context, "No token endpoint configured/discovered.");
                 return new HttpResponseMessage(System.Net.HttpStatusCode.Unauthorized);
             }
 
@@ -62,13 +63,13 @@ public class ApiAuthorizationHandler : DelegatingHandler {
                 resp = await client.SendAsync(refreshRequest, ct);
             } catch (Exception ex) {
                 _log.LogError(ex, "Failed to call token endpoint");
-                await context.SignOutAsync();
+                await TrySignOutAsync(context, "Failed to call token endpoint.");
                 return new HttpResponseMessage(System.Net.HttpStatusCode.Unauthorized);
             }
 
             if (!resp.IsSuccessStatusCode) {
                 _log.LogWarning("Token refresh failed: {Status}", resp.StatusCode);
-                await context.SignOutAsync();
+                await TrySignOutAsync(context, $"Token refresh failed with status {(int)resp.StatusCode}.");
                 return new HttpResponseMessage(System.Net.HttpStatusCode.Unauthorized);
             }
 
@@ -81,7 +82,7 @@ public class ApiAuthorizationHandler : DelegatingHandler {
 
             if (string.IsNullOrWhiteSpace(newAccess)) {
                 _log.LogWarning("Token refresh succeeded but response did not contain an access token.");
-                await context.SignOutAsync();
+                await TrySignOutAsync(context, "Token refresh response missing access token.");
                 return new HttpResponseMessage(System.Net.HttpStatusCode.Unauthorized);
             }
 
@@ -93,14 +94,14 @@ public class ApiAuthorizationHandler : DelegatingHandler {
             var auth = await context.AuthenticateAsync("Cookies");
             if (!auth.Succeeded || auth.Principal == null || auth.Properties == null) {
                 _log.LogWarning("Cookie authentication state missing during token refresh.");
-                await context.SignOutAsync();
+                await TrySignOutAsync(context, "Cookie authentication state missing during token refresh.");
                 return new HttpResponseMessage(System.Net.HttpStatusCode.Unauthorized);
             }
 
             auth.Properties.UpdateTokenValue("access_token", newAccess);
             auth.Properties.UpdateTokenValue("refresh_token", newRefresh);
             auth.Properties.UpdateTokenValue("expires_at", newExpiry.ToString("o", CultureInfo.InvariantCulture));
-            await context.SignInAsync("Cookies", auth.Principal, auth.Properties);
+            await TrySignInAsync(context, auth.Principal, auth.Properties);
 
             accessToken = newAccess!;
         }
@@ -161,5 +162,23 @@ public class ApiAuthorizationHandler : DelegatingHandler {
         }
 
         return null;
+    }
+
+    private async Task TrySignOutAsync(HttpContext context, string reason) {
+        if (context.Response.HasStarted) {
+            _log.LogWarning("Skipping cookie sign-out because response has already started. Reason: {Reason}", reason);
+            return;
+        }
+
+        await context.SignOutAsync("Cookies");
+    }
+
+    private async Task TrySignInAsync(HttpContext context, ClaimsPrincipal principal, AuthenticationProperties properties) {
+        if (context.Response.HasStarted) {
+            _log.LogWarning("Skipping cookie token persistence because response has already started.");
+            return;
+        }
+
+        await context.SignInAsync("Cookies", principal, properties);
     }
 }
