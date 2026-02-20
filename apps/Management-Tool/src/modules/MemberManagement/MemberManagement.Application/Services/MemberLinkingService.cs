@@ -5,13 +5,11 @@ using MemberManagement.Application.Mapping;
 using MemberManagement.Contracts.DTO;
 using MemberManagement.Contracts.Services;
 using MemberManagement.Domain.Entities;
-using UserManagement.Contracts.Services;
-using UserManagement.Domain.Entities;
 
 namespace MemberManagement.Application.Services;
 
 /// <summary>
-/// Service for linking a <see cref="Member"/> to a <see cref="User"/>
+/// Service for linking a <see cref="Member"/> to a user
 /// </summary>
 public class MemberLinkingService : IMemberLinkingService {
     private readonly IMemberRepository _memberRepository;

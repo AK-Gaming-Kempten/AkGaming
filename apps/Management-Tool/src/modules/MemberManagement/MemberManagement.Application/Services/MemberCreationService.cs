@@ -6,7 +6,6 @@ using MemberManagement.Contracts.DTO;
 using MemberManagement.Contracts.Services;
 using MemberManagement.Domain.Entities;
 using MemberManagement.Domain.ValueObjects;
-using UserManagement.Contracts.Services;
 
 namespace MemberManagement.Application.Services;
 

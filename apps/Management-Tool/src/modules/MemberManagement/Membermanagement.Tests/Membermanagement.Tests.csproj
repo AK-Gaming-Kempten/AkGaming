@@ -28,7 +28,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\..\UserManagement\UserManagement.Application\UserManagement.Application.csproj" />
       <ProjectReference Include="..\MemberManagement.Application\MemberManagement.Application.csproj" />
     </ItemGroup>
 
