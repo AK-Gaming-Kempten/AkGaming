@@ -69,3 +69,19 @@ public sealed record AdminUserDetailsResponse(
     DateTime CreatedAtUtc,
     DateTime? LockoutEndUtc,
     DiscordLinkInfo? Discord);
+
+public sealed record AdminAuditLogsResponse(
+    int Page,
+    int PageSize,
+    int TotalCount,
+    IReadOnlyList<AdminAuditLogItemResponse> Items);
+
+public sealed record AdminAuditLogItemResponse(
+    Guid Id,
+    Guid? UserId,
+    string EventType,
+    bool Success,
+    string? IpAddress,
+    string? SubjectEmail,
+    string? Details,
+    DateTime CreatedAtUtc);

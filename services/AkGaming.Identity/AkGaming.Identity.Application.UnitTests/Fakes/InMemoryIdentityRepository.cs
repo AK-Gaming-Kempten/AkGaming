@@ -57,6 +57,42 @@ internal sealed class InMemoryIdentityRepository : IIdentityRepository
         return Task.FromResult(query.Count());
     }
 
+    public Task<List<AuditLog>> GetAuditLogsPageAsync(int skip, int take, string? search, CancellationToken cancellationToken)
+    {
+        var query = AuditLogs.AsEnumerable();
+        if (!string.IsNullOrWhiteSpace(search))
+        {
+            var needle = search.Trim();
+            query = query.Where(x =>
+                x.EventType.Contains(needle, StringComparison.OrdinalIgnoreCase)
+                || (!string.IsNullOrWhiteSpace(x.SubjectEmail) && x.SubjectEmail.Contains(needle, StringComparison.OrdinalIgnoreCase))
+                || (!string.IsNullOrWhiteSpace(x.Details) && x.Details.Contains(needle, StringComparison.OrdinalIgnoreCase)));
+        }
+
+        var page = query
+            .OrderByDescending(x => x.CreatedAtUtc)
+            .Skip(skip)
+            .Take(take)
+            .ToList();
+
+        return Task.FromResult(page);
+    }
+
+    public Task<int> CountAuditLogsAsync(string? search, CancellationToken cancellationToken)
+    {
+        var query = AuditLogs.AsEnumerable();
+        if (!string.IsNullOrWhiteSpace(search))
+        {
+            var needle = search.Trim();
+            query = query.Where(x =>
+                x.EventType.Contains(needle, StringComparison.OrdinalIgnoreCase)
+                || (!string.IsNullOrWhiteSpace(x.SubjectEmail) && x.SubjectEmail.Contains(needle, StringComparison.OrdinalIgnoreCase))
+                || (!string.IsNullOrWhiteSpace(x.Details) && x.Details.Contains(needle, StringComparison.OrdinalIgnoreCase)));
+        }
+
+        return Task.FromResult(query.Count());
+    }
+
     public Task<List<Role>> GetAllRolesAsync(CancellationToken cancellationToken)
     {
         return Task.FromResult(Roles.OrderBy(x => x.Name).ToList());

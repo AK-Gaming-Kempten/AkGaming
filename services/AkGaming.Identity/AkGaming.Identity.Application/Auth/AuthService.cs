@@ -268,6 +268,37 @@ public sealed class AuthService : IAuthService
         return new AdminUsersResponse(page, pageSize, totalCount, items);
     }
 
+    public async Task<AdminAuditLogsResponse> GetAuditLogsAsync(int page, int pageSize, string? search, CancellationToken cancellationToken)
+    {
+        if (page < 1)
+        {
+            throw new AuthException(BadRequestStatusCode, "page must be at least 1.");
+        }
+
+        if (pageSize is < 1 or > 200)
+        {
+            throw new AuthException(BadRequestStatusCode, "pageSize must be between 1 and 200.");
+        }
+
+        var skip = (page - 1) * pageSize;
+        var totalCount = await _repository.CountAuditLogsAsync(search, cancellationToken);
+        var auditLogs = await _repository.GetAuditLogsPageAsync(skip, pageSize, search, cancellationToken);
+
+        var items = auditLogs
+            .Select(x => new AdminAuditLogItemResponse(
+                x.Id,
+                x.UserId,
+                x.EventType,
+                x.Success,
+                x.IpAddress,
+                x.SubjectEmail,
+                x.Details,
+                x.CreatedAtUtc))
+            .ToArray();
+
+        return new AdminAuditLogsResponse(page, pageSize, totalCount, items);
+    }
+
     public async Task<AdminUserDetailsResponse> GetUserDetailsAsync(Guid userId, CancellationToken cancellationToken)
     {
         var user = await _repository.GetUserByIdWithExternalLoginsAsync(userId, cancellationToken);

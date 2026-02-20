@@ -26,6 +26,19 @@ internal static class AdminEndpoints
             }
         });
 
+        admin.MapGet("/audit-logs", async (int page, int pageSize, string? search, IAuthService authService, CancellationToken cancellationToken) =>
+        {
+            try
+            {
+                var response = await authService.GetAuditLogsAsync(page <= 0 ? 1 : page, pageSize <= 0 ? 25 : pageSize, search, cancellationToken);
+                return Results.Ok(response);
+            }
+            catch (AuthException exception)
+            {
+                return Results.Problem(statusCode: exception.StatusCode, detail: exception.Message);
+            }
+        });
+
         admin.MapGet("/users/{userId:guid}", async (Guid userId, IAuthService authService, CancellationToken cancellationToken) =>
         {
             try

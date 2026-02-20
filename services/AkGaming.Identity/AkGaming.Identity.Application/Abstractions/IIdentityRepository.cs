@@ -9,6 +9,8 @@ public interface IIdentityRepository
     Task<User?> GetUserByIdWithExternalLoginsAsync(Guid userId, CancellationToken cancellationToken);
     Task<List<User>> GetUsersPageAsync(int skip, int take, string? search, CancellationToken cancellationToken);
     Task<int> CountUsersAsync(string? search, CancellationToken cancellationToken);
+    Task<List<AuditLog>> GetAuditLogsPageAsync(int skip, int take, string? search, CancellationToken cancellationToken);
+    Task<int> CountAuditLogsAsync(string? search, CancellationToken cancellationToken);
     Task<List<Role>> GetAllRolesAsync(CancellationToken cancellationToken);
     Task<Role?> GetRoleByIdAsync(Guid roleId, CancellationToken cancellationToken);
     Task<Role?> GetRoleByNameAsync(string roleName, CancellationToken cancellationToken);

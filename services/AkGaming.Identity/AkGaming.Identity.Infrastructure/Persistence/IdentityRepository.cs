@@ -76,6 +76,40 @@ public sealed class IdentityRepository : IIdentityRepository
         return query.CountAsync(cancellationToken);
     }
 
+    public Task<List<AuditLog>> GetAuditLogsPageAsync(int skip, int take, string? search, CancellationToken cancellationToken)
+    {
+        var query = _dbContext.AuditLogs.AsQueryable();
+        if (!string.IsNullOrWhiteSpace(search))
+        {
+            var needle = search.Trim().ToLowerInvariant();
+            query = query.Where(x =>
+                x.EventType.ToLower().Contains(needle)
+                || (x.SubjectEmail != null && x.SubjectEmail.ToLower().Contains(needle))
+                || (x.Details != null && x.Details.ToLower().Contains(needle)));
+        }
+
+        return query
+            .OrderByDescending(x => x.CreatedAtUtc)
+            .Skip(skip)
+            .Take(take)
+            .ToListAsync(cancellationToken);
+    }
+
+    public Task<int> CountAuditLogsAsync(string? search, CancellationToken cancellationToken)
+    {
+        var query = _dbContext.AuditLogs.AsQueryable();
+        if (!string.IsNullOrWhiteSpace(search))
+        {
+            var needle = search.Trim().ToLowerInvariant();
+            query = query.Where(x =>
+                x.EventType.ToLower().Contains(needle)
+                || (x.SubjectEmail != null && x.SubjectEmail.ToLower().Contains(needle))
+                || (x.Details != null && x.Details.ToLower().Contains(needle)));
+        }
+
+        return query.CountAsync(cancellationToken);
+    }
+
     public Task<List<Role>> GetAllRolesAsync(CancellationToken cancellationToken)
     {
         return _dbContext.Roles

@@ -10,6 +10,7 @@ public interface IAuthService
     Task LogoutAsync(LogoutRequest request, string? ipAddress, CancellationToken cancellationToken);
     Task<CurrentUserResponse> GetCurrentUserAsync(Guid userId, CancellationToken cancellationToken);
     Task<AdminUsersResponse> GetUsersAsync(int page, int pageSize, string? search, CancellationToken cancellationToken);
+    Task<AdminAuditLogsResponse> GetAuditLogsAsync(int page, int pageSize, string? search, CancellationToken cancellationToken);
     Task<AdminUserDetailsResponse> GetUserDetailsAsync(Guid userId, CancellationToken cancellationToken);
     Task<UserRolesResponse> GetUserRolesAsync(Guid userId, CancellationToken cancellationToken);
     Task<UserRolesResponse> SetUserRolesAsync(Guid actorUserId, Guid userId, AdminSetUserRolesRequest request, string? ipAddress, CancellationToken cancellationToken);
