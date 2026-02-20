@@ -37,6 +37,11 @@ public class ApiAuthorizationHandler : DelegatingHandler {
         // Refresh if token expired or nearly expired
         if (IsExpired(accessToken)) {
             _log.LogInformation("Access token expired, refreshing...");
+            if (context.Response.HasStarted) {
+                _log.LogWarning("Cannot refresh token because response has already started and refreshed tokens cannot be persisted.");
+                return new HttpResponseMessage(System.Net.HttpStatusCode.Unauthorized);
+            }
+
             if (string.IsNullOrWhiteSpace(refreshToken)) {
                 _log.LogWarning("Access token is expired but no refresh token is present. Signing out user.");
                 await TrySignOutAsync(context, "Access token expired and refresh token is missing.");
