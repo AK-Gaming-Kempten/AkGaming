@@ -38,6 +38,15 @@
             <ValidationMessage For="@(() => _request.Reason)" />
         </div>
     </div>
+    <div class="form-grid">
+        <div class="form-col">
+            <label>
+                <InputCheckbox @bind-Value="_request.PrivacyPolicyAccepted" />
+                I accept the <a href="https://akgaming.de/datenschutz" target="_blank" rel="noopener noreferrer">privacy policy</a>.
+            </label>
+            <ValidationMessage For="@(() => _request.PrivacyPolicyAccepted)" />
+        </div>
+    </div>
     <hr class="spacer" />
     <button type="submit" class="btn btn-primary ">Apply</button>
     <p>@_requestError</p>

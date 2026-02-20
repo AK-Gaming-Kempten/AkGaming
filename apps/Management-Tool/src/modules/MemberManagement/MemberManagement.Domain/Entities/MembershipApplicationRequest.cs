@@ -13,5 +13,6 @@ public class MembershipApplicationRequest {
     public DateOnly? BirthDate { get; set; }
     public Address? Address { get; set; }
     public string ApplicationText { get; set; } = string.Empty;
+    public bool PrivacyPolicyAccepted { get; set; }
     public bool IsResolved { get; set; }
 }

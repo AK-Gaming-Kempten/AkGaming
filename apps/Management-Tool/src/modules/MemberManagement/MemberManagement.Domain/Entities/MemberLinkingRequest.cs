@@ -10,5 +10,6 @@ public class MemberLinkingRequest {
     public string Email { get; set; } = string.Empty;
     public string DiscordUserName { get; set; } = string.Empty;
     public MemberLinkingRequestReason Reason { get; set; }
+    public bool PrivacyPolicyAccepted { get; set; }
     public bool IsResolved { get; set; }
 }

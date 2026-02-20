@@ -1,4 +1,5 @@
 using MemberManagement.Contracts.Enums;
+using System.ComponentModel.DataAnnotations;
 
 namespace MemberManagement.Contracts.DTO;
 
@@ -10,5 +11,7 @@ public class MemberLinkingRequestDto {
     public string Email { get; set; } = string.Empty;
     public string DiscordUserName { get; set; } = string.Empty;
     public MemberLinkingRequestReason Reason { get; set; }
+    [Range(typeof(bool), "true", "true", ErrorMessage = "Please accept the privacy policy.")]
+    public bool PrivacyPolicyAccepted { get; set; }
     public bool IsResolved { get; set; }
 }

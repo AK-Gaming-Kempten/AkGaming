@@ -48,6 +48,9 @@ public class MemberLinkingService : IMemberLinkingService {
     
     /// <inheritdoc/>
     public async Task<Result> CreateMemberLinkingRequestAsync(MemberLinkingRequestDto request) {
+        if (!request.PrivacyPolicyAccepted)
+            return Result.Failure("Privacy policy must be accepted.");
+
         return await _linkingRequestRepository.Add(request.ToMemberLinkingRequest())
             .Then(() => _linkingRequestRepository.SaveChangesAsync());
     }

@@ -55,6 +55,7 @@ public class MembershipApplicationServiceTests {
                 }
             },
             ApplicationText = "",
+            PrivacyPolicyAccepted = true,
             IsResolved = false
         };
         

@@ -15,6 +15,7 @@ public static class MembershipApplicationRequestMappingExtensions {
         BirthDate = dto.MemberCreationInfo.BirthDate,
         Address = (dto.MemberCreationInfo.Address ?? new AddressDto()).ToAddress(),
         ApplicationText = dto.ApplicationText,
+        PrivacyPolicyAccepted = dto.PrivacyPolicyAccepted,
         IsResolved = dto.IsResolved
     };
     
@@ -31,6 +32,7 @@ public static class MembershipApplicationRequestMappingExtensions {
             Address = request.Address?.ToDto()
         },
         ApplicationText = request.ApplicationText,
+        PrivacyPolicyAccepted = request.PrivacyPolicyAccepted,
         IsResolved = request.IsResolved
     };
 }

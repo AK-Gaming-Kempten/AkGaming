@@ -14,6 +14,7 @@ public static class MemberLinkingRequestMappingExtensions {
         Email = dto.Email,
         DiscordUserName = dto.DiscordUserName,
         Reason =  (DomainEnums.MemberLinkingRequestReason)dto.Reason,
+        PrivacyPolicyAccepted = dto.PrivacyPolicyAccepted,
         IsResolved = dto.IsResolved
     };
     public static MemberLinkingRequestDto ToDto(this MemberLinkingRequest request) => new() {
@@ -24,6 +25,7 @@ public static class MemberLinkingRequestMappingExtensions {
         Email = request.Email,
         DiscordUserName = request.DiscordUserName,
         Reason =  (ContractEnums.MemberLinkingRequestReason)request.Reason,
+        PrivacyPolicyAccepted = request.PrivacyPolicyAccepted,
         IsResolved = request.IsResolved
     };
 }

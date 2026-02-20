@@ -32,6 +32,9 @@ public class MembershipApplicationService : IMembershipApplicationService {
     }
 
     public async Task<Result> ApplyForMembershipAsync(MembershipApplicationRequestDto request) {
+        if (!request.PrivacyPolicyAccepted)
+            return Result.Failure("Privacy policy must be accepted.");
+
         // Check if user is already a member or has a pending application / linking request
         var memberResult = await _memberQueryService.GetMemberByUserGuidAsync(request.IssuingUserId);
         if (memberResult.IsSuccess)

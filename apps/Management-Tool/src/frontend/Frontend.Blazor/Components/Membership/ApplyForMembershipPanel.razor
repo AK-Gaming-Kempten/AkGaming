@@ -67,11 +67,20 @@
             <ValidationMessage For="@(() => _application.MemberCreationInfo.Address.Country)" />
         </div>
     </div>
-    <divc lass="form-grid">
+    <div class="form-grid">
         <label>Application Message</label>
         <InputTextArea @bind-Value="_application.ApplicationText" required />
         <ValidationMessage For="@(() => _application.ApplicationText)" />
-    </divc>
+    </div>
+    <div class="form-grid">
+        <div class="form-col">
+            <label>
+                <InputCheckbox @bind-Value="_application.PrivacyPolicyAccepted" />
+                I accept the <a href="https://akgaming.de/datenschutz" target="_blank" rel="noopener noreferrer">privacy policy</a>.
+            </label>
+            <ValidationMessage For="@(() => _application.PrivacyPolicyAccepted)" />
+        </div>
+    </div>
     <hr class="spacer" />
     <button type="submit" class="btn btn-primary ">Apply</button>
 </EditForm>
