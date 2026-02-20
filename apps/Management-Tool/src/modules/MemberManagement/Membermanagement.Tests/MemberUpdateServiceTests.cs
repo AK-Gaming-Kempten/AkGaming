@@ -14,7 +14,8 @@ public class MemberUpdateServiceTests {
     public async Task UpdateMemberAsync_UpdatesMember() {
         // Arrange
         var memberRepository = new Mock<IMemberRepository>();
-        var memberUpdateService = new MemberUpdateService(memberRepository.Object);
+        var auditLogWriter = new Mock<IMemberAuditLogWriter>();
+        var memberUpdateService = new MemberUpdateService(memberRepository.Object, auditLogWriter.Object);
         var guid = Guid.NewGuid();
         var userGuid = Guid.NewGuid();
 
@@ -58,6 +59,8 @@ public class MemberUpdateServiceTests {
 
         memberRepository.Setup(x => x.SaveChangesAsync())
             .ReturnsAsync(Result.Success());
+        auditLogWriter.Setup(x => x.Add(It.IsAny<MemberAuditLog>()))
+            .Returns(Result.Success());
 
         // Act
         var result = await memberUpdateService.UpdateMemberAsync(guid, memberDto);
@@ -86,7 +89,8 @@ public class MemberUpdateServiceTests {
     public async Task UpdateMemberAsync_Fails_WhenMemberDoesNotExist() {
         // Arrange
         var memberRepository = new Mock<IMemberRepository>();
-        var memberUpdateService = new MemberUpdateService(memberRepository.Object);
+        var auditLogWriter = new Mock<IMemberAuditLogWriter>();
+        var memberUpdateService = new MemberUpdateService(memberRepository.Object, auditLogWriter.Object);
         var guid = Guid.NewGuid();
         var userGuid = Guid.NewGuid();
 
@@ -112,6 +116,8 @@ public class MemberUpdateServiceTests {
 
         memberRepository.Setup(x => x.SaveChangesAsync())
             .ReturnsAsync(Result.Success());
+        auditLogWriter.Setup(x => x.Add(It.IsAny<MemberAuditLog>()))
+            .Returns(Result.Success());
 
         // Act
         var result = await memberUpdateService.UpdateMemberAsync(guid, memberDto);

@@ -25,8 +25,8 @@ public static class MemberLinkingEndpoints {
             return result.IsSuccess ? Results.Ok() : Results.BadRequest(result.Error);
         }).RequireAuthorization("AdminOnly");
 
-        group.MapPost("/memberLinkingRequests/{requestId:guid}/markResolved", async ([FromRoute] Guid requestId, [FromServices] IMemberLinkingService service) => {
-            var result = await service.MarkMemberLinkingRequestResolvedAsync(requestId);
+        group.MapPost("/memberLinkingRequests/{requestId:guid}/markResolved", async ([FromRoute] Guid requestId, ClaimsPrincipal user, [FromServices] IMemberLinkingService service) => {
+            var result = await service.MarkMemberLinkingRequestResolvedAsync(requestId, GetCurrentUserIdOrNull(user));
             // Keeping this admin-only; adjust if needed.
             return result.IsSuccess ? Results.Created() : Results.BadRequest(result.Error);
         }).RequireAuthorization("AdminOnly");
@@ -56,10 +56,15 @@ public static class MemberLinkingEndpoints {
                 if (request.IssuingUserId != currentUserId) return Results.Forbid();
             }
 
-            var result = await service.CreateMemberLinkingRequestAsync(request);
+            var result = await service.CreateMemberLinkingRequestAsync(request, GetCurrentUserIdOrNull(user));
             return result.IsSuccess ? Results.Created($"/members/{request.IssuingUserId}/memberLinkingRequests", null) : Results.BadRequest(result.Error);
         }).RequireAuthorization();
 
         return endpoints;
+    }
+
+    private static Guid? GetCurrentUserIdOrNull(ClaimsPrincipal user) {
+        var claim = user.FindFirstValue(ClaimTypes.NameIdentifier) ?? user.FindFirstValue("sub");
+        return Guid.TryParse(claim, out var currentUserId) ? currentUserId : null;
     }
 }

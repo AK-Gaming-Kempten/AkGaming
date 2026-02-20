@@ -23,7 +23,7 @@ public interface IMemberLinkingService {
     /// Creates a <see cref="MemberLinkingRequest"/> from a <see cref="MemberLinkingRequestDto"/>/>
     /// </summary>
     /// <param name="request">The <see cref="MemberLinkingRequestDto"/></param>
-    Task<Result> CreateMemberLinkingRequestAsync(MemberLinkingRequestDto request);
+    Task<Result> CreateMemberLinkingRequestAsync(MemberLinkingRequestDto request, Guid? performedByUserId = null);
     
     /// <summary>
     /// Gets all <see cref="MemberLinkingRequest"/>
@@ -42,5 +42,5 @@ public interface IMemberLinkingService {
     /// </summary>
     /// <param name="id"></param>
     /// <returns></returns>
-    Task<Result> MarkMemberLinkingRequestResolvedAsync(Guid id);
+    Task<Result> MarkMemberLinkingRequestResolvedAsync(Guid id, Guid? performedByUserId = null);
 }

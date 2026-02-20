@@ -13,7 +13,8 @@ public class MemberLinkingServiceTests {
         // Arrange
         var memberRepository = new Mock<IMemberRepository>();
         var memberLinkingRequestRepository = new Mock<IMemberLinkingRequestRepository>();
-        var memberLinkingService = new MemberLinkingService(memberRepository.Object, memberLinkingRequestRepository.Object);
+        var auditLogWriter = new Mock<IMemberAuditLogWriter>();
+        var memberLinkingService = new MemberLinkingService(memberRepository.Object, memberLinkingRequestRepository.Object, auditLogWriter.Object);
         var memberId = Guid.NewGuid();
         var userId = Guid.NewGuid();
         var member = new Member()
@@ -30,6 +31,8 @@ public class MemberLinkingServiceTests {
         
         memberRepository.Setup(x => x.SaveChangesAsync())
             .ReturnsAsync(Result.Success());
+        auditLogWriter.Setup(x => x.Add(It.IsAny<MemberAuditLog>()))
+            .Returns(Result.Success());
         
         // Act
         var result = await memberLinkingService.LinkMemberToUserAsync(memberId, userId);

@@ -27,12 +27,14 @@ public class MembershipApplicationServiceTests {
         Mock<IMembershipUpdateService> membershipUpdateService = new Mock<IMembershipUpdateService>();
         Mock<IMemberQueryService> memberQueryService = new Mock<IMemberQueryService>();
         Mock<IMembershipApplicationRequestRepository> membershipApplicationRequestRepository = new Mock<IMembershipApplicationRequestRepository>();
+        Mock<IMemberAuditLogWriter> auditLogWriter = new Mock<IMemberAuditLogWriter>();
         MembershipApplicationService membershipApplicationService = new MembershipApplicationService(
             memberCreationService.Object, 
             memberLinkingService.Object, 
             membershipUpdateService.Object,
             memberQueryService.Object,
-            membershipApplicationRequestRepository.Object
+            membershipApplicationRequestRepository.Object,
+            auditLogWriter.Object
         );
         
         var userGuid = Guid.NewGuid();
@@ -69,6 +71,7 @@ public class MembershipApplicationServiceTests {
         membershipUpdateService.Setup(x => x.UpdateMembershipStatusAsync(member.Id, ContractEnums.MembershipStatus.Applicant)).Returns(Task.FromResult(Result.Success()));
         membershipApplicationRequestRepository.Setup(x => x.Add(It.IsAny<MembershipApplicationRequest>())).Returns(Result.Success());
         membershipApplicationRequestRepository.Setup(x => x.SaveChangesAsync()).Returns(Task.FromResult(Result.Success()));
+        auditLogWriter.Setup(x => x.Add(It.IsAny<MemberAuditLog>())).Returns(Result.Success());
         
         // Act
         await membershipApplicationService.ApplyForMembershipAsync(membershipApplicationRequestDto);

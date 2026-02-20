@@ -24,7 +24,7 @@ public static class MembershipApplicationEndpoints {
                 if (request.IssuingUserId != currentUserId) return Results.Forbid();
             }
 
-            var result = await service.ApplyForMembershipAsync(request);
+            var result = await service.ApplyForMembershipAsync(request, GetCurrentUserIdOrNull(user));
             return result.IsSuccess
                 ? Results.Created($"/members/{request.IssuingUserId}/membershipApplicationRequests", null)
                 : Results.BadRequest(result.Error);
@@ -43,8 +43,8 @@ public static class MembershipApplicationEndpoints {
             return result.IsSuccess ? Results.Ok(result.Value) : Results.BadRequest(result.Error);
         }).RequireAuthorization("AdminOnly");
         
-        group.MapPost("/membershipApplicationRequests/{requestId:guid}/accept", async ([FromRoute] Guid requestId, [FromServices] IMembershipApplicationService service) => {
-            var result = await service.AcceptMembershipApplicationAsync(requestId);
+        group.MapPost("/membershipApplicationRequests/{requestId:guid}/accept", async ([FromRoute] Guid requestId, ClaimsPrincipal user, [FromServices] IMembershipApplicationService service) => {
+            var result = await service.AcceptMembershipApplicationAsync(requestId, GetCurrentUserIdOrNull(user));
             return result.IsSuccess ? Results.Created($"/members/{requestId}/membershipApplicationRequests", null) : Results.BadRequest(result.Error);
         }).RequireAuthorization("AdminOnly");
 
@@ -54,5 +54,10 @@ public static class MembershipApplicationEndpoints {
         }).RequireAuthorization("AdminOnly");
 
         return endpoints;
+    }
+
+    private static Guid? GetCurrentUserIdOrNull(ClaimsPrincipal user) {
+        var claim = user.FindFirstValue(ClaimTypes.NameIdentifier) ?? user.FindFirstValue("sub");
+        return Guid.TryParse(claim, out var currentUserId) ? currentUserId : null;
     }
 }

@@ -18,6 +18,7 @@ public class MemberManagementDbContext : DbContext {
     public DbSet<MembershipStatusChangeEvent> MembershipStatusChangeEvents => Set<MembershipStatusChangeEvent>();
     public DbSet<MemberLinkingRequest> MemberLinkingRequests => Set<MemberLinkingRequest>();
     public DbSet<MembershipApplicationRequest> MembershipApplicationRequests => Set<MembershipApplicationRequest>();
+    public DbSet<MemberAuditLog> MemberAuditLogs => Set<MemberAuditLog>();
 
     /// <inheritdoc/>
     protected override void OnModelCreating(ModelBuilder modelBuilder) {

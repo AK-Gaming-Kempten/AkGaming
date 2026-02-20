@@ -21,6 +21,7 @@ public static class DependencyInjection {
         services.AddScoped<IMemberRepository, EfMemberRepository>();
         services.AddScoped<IMembershipApplicationRequestRepository, EfMembershipApplicationRequestRepository>();
         services.AddScoped<IMemberLinkingRequestRepository, EfMemberLinkingRequestRepository>();
+        services.AddScoped<IMemberAuditLogWriter, EfMemberAuditLogWriter>();
 
         return services;
     }

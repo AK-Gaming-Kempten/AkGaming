@@ -5,6 +5,7 @@ using MemberManagement.Application.Mapping;
 using MemberManagement.Contracts.DTO;
 using MemberManagement.Contracts.Services;
 using MemberManagement.Domain.Entities;
+using System.Text.Json;
 
 namespace MemberManagement.Application.Services;
 
@@ -14,10 +15,16 @@ namespace MemberManagement.Application.Services;
 public class MemberLinkingService : IMemberLinkingService {
     private readonly IMemberRepository _memberRepository;
     private readonly IMemberLinkingRequestRepository _linkingRequestRepository;
+    private readonly IMemberAuditLogWriter _auditLogWriter;
 
-    public MemberLinkingService(IMemberRepository memberRepository, IMemberLinkingRequestRepository linkingRequestRepository) {
+    public MemberLinkingService(
+        IMemberRepository memberRepository,
+        IMemberLinkingRequestRepository linkingRequestRepository,
+        IMemberAuditLogWriter auditLogWriter)
+    {
         _memberRepository = memberRepository;
         _linkingRequestRepository = linkingRequestRepository;
+        _auditLogWriter = auditLogWriter;
     }
 
     /// <inheritdoc/>
@@ -47,11 +54,26 @@ public class MemberLinkingService : IMemberLinkingService {
     }
     
     /// <inheritdoc/>
-    public async Task<Result> CreateMemberLinkingRequestAsync(MemberLinkingRequestDto request) {
+    public async Task<Result> CreateMemberLinkingRequestAsync(MemberLinkingRequestDto request, Guid? performedByUserId = null) {
         if (!request.PrivacyPolicyAccepted)
             return Result.Failure("Privacy policy must be accepted.");
 
-        return await _linkingRequestRepository.Add(request.ToMemberLinkingRequest())
+        var linkingRequest = request.ToMemberLinkingRequest();
+        return await _linkingRequestRepository.Add(linkingRequest)
+            .Then(() => _auditLogWriter.Add(new MemberAuditLog {
+                ActionType = "MemberLinkingRequestCreated",
+                PerformedByUserId = performedByUserId,
+                EntityType = nameof(MemberLinkingRequest),
+                EntityId = linkingRequest.Id,
+                NewValuesJson = JsonSerializer.Serialize(new {
+                    linkingRequest.IssuingUserId,
+                    linkingRequest.FirstName,
+                    linkingRequest.LastName,
+                    linkingRequest.Email,
+                    linkingRequest.DiscordUserName,
+                    linkingRequest.Reason
+                })
+            }))
             .Then(() => _linkingRequestRepository.SaveChangesAsync());
     }
     
@@ -72,13 +94,23 @@ public class MemberLinkingService : IMemberLinkingService {
     }
     
     /// <inheritdoc/>
-    public async Task<Result> MarkMemberLinkingRequestResolvedAsync(Guid id) {
+    public async Task<Result> MarkMemberLinkingRequestResolvedAsync(Guid id, Guid? performedByUserId = null) {
         var result = await _linkingRequestRepository.GetByIdAsync(id);
         if (!result.IsSuccess)
             return result;
         var request = result.Value!;
         
+        if (request.IsResolved)
+            return Result.Success();
+        
         request.IsResolved = true;
-        return await _linkingRequestRepository.SaveChangesAsync();
+        return await _auditLogWriter.Add(new MemberAuditLog {
+            ActionType = "MemberLinkingRequestAccepted",
+            PerformedByUserId = performedByUserId,
+            EntityType = nameof(MemberLinkingRequest),
+            EntityId = request.Id,
+            OldValuesJson = JsonSerializer.Serialize(new { IsResolved = false }),
+            NewValuesJson = JsonSerializer.Serialize(new { IsResolved = true })
+        }).Then(() => _linkingRequestRepository.SaveChangesAsync());
     }
 }

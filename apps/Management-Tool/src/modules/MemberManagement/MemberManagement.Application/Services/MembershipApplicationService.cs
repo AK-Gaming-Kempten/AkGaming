@@ -5,8 +5,8 @@ using MemberManagement.Application.Mapping;
 using MemberManagement.Contracts.DTO;
 using MemberManagement.Contracts.Services;
 using MemberManagement.Domain.Entities;
+using System.Text.Json;
 using ContractEnums = MemberManagement.Contracts.Enums ; 
-using DomainEnums = MemberManagement.Domain.Enums;
 
 namespace MemberManagement.Application.Services;
 
@@ -16,22 +16,25 @@ public class MembershipApplicationService : IMembershipApplicationService {
     private readonly IMembershipUpdateService _membershipUpdateService;
     private readonly IMemberQueryService _memberQueryService;
     private readonly IMembershipApplicationRequestRepository _membershipApplicationRequestRepository;
+    private readonly IMemberAuditLogWriter _auditLogWriter;
 
     public MembershipApplicationService(
         IMemberCreationService creationService,
         IMemberLinkingService linkingService,
         IMembershipUpdateService membershipUpdateService,
         IMemberQueryService memberQueryService,
-        IMembershipApplicationRequestRepository membershipApplicationRequestRepository)
+        IMembershipApplicationRequestRepository membershipApplicationRequestRepository,
+        IMemberAuditLogWriter auditLogWriter)
     {
         _creationService  = creationService;
         _linkingService    = linkingService;
         _membershipUpdateService  = membershipUpdateService;
         _memberQueryService = memberQueryService;
         _membershipApplicationRequestRepository = membershipApplicationRequestRepository;
+        _auditLogWriter = auditLogWriter;
     }
 
-    public async Task<Result> ApplyForMembershipAsync(MembershipApplicationRequestDto request) {
+    public async Task<Result> ApplyForMembershipAsync(MembershipApplicationRequestDto request, Guid? performedByUserId = null) {
         if (!request.PrivacyPolicyAccepted)
             return Result.Failure("Privacy policy must be accepted.");
 
@@ -49,7 +52,7 @@ public class MembershipApplicationService : IMembershipApplicationService {
             return Result.Failure("User has a pending linking request");
         
         // Create Request
-        var requestResult = await CreateMembershipApplicationRequestAsync(request);
+        var requestResult = await CreateMembershipApplicationRequestAsync(request, performedByUserId);
         if (!requestResult.IsSuccess)
             return Result.Failure(requestResult.Error ?? "Membership application request could not be created");
         
@@ -94,7 +97,7 @@ public class MembershipApplicationService : IMembershipApplicationService {
         return Result<ICollection<MembershipApplicationRequestDto>>.Success(requests.Select(m => m.ToDto()).ToList());
     }
 
-    public async Task<Result> AcceptMembershipApplicationAsync(Guid id) {
+    public async Task<Result> AcceptMembershipApplicationAsync(Guid id, Guid? performedByUserId = null) {
         // Get Request by Id
         var requestResult = await _membershipApplicationRequestRepository.GetByIdAsync(id);
         if (!requestResult.IsSuccess)
@@ -114,7 +117,14 @@ public class MembershipApplicationService : IMembershipApplicationService {
         
         // Set Request as accepted
         request.IsResolved = true;
-        return await _membershipApplicationRequestRepository.SaveChangesAsync();
+        return await _auditLogWriter.Add(new MemberAuditLog {
+            ActionType = "MembershipApplicationRequestAccepted",
+            PerformedByUserId = performedByUserId,
+            EntityType = nameof(MembershipApplicationRequest),
+            EntityId = request.Id,
+            OldValuesJson = JsonSerializer.Serialize(new { IsResolved = false }),
+            NewValuesJson = JsonSerializer.Serialize(new { IsResolved = true })
+        }).Then(() => _membershipApplicationRequestRepository.SaveChangesAsync());
     }
     
     public async Task<Result> RejectMembershipApplicationAsync(Guid id) {
@@ -140,9 +150,25 @@ public class MembershipApplicationService : IMembershipApplicationService {
         return await _membershipApplicationRequestRepository.SaveChangesAsync();
     }
     
-    private async Task<Result> CreateMembershipApplicationRequestAsync(MembershipApplicationRequestDto requestDto) {
+    private async Task<Result> CreateMembershipApplicationRequestAsync(MembershipApplicationRequestDto requestDto, Guid? performedByUserId) {
         var request = requestDto.ToMembershipApplicationRequest();
         var result = await _membershipApplicationRequestRepository.Add(request)
+            .Then(() => _auditLogWriter.Add(new MemberAuditLog {
+                ActionType = "MembershipApplicationRequestCreated",
+                PerformedByUserId = performedByUserId,
+                EntityType = nameof(MembershipApplicationRequest),
+                EntityId = request.Id,
+                NewValuesJson = JsonSerializer.Serialize(new {
+                    request.IssuingUserId,
+                    request.FirstName,
+                    request.LastName,
+                    request.Email,
+                    request.Phone,
+                    request.DiscordUserName,
+                    request.BirthDate,
+                    request.ApplicationText
+                })
+            }))
             .Then(() => _membershipApplicationRequestRepository.SaveChangesAsync());
         return result;
     }
