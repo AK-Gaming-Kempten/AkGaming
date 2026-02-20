@@ -37,24 +37,24 @@
     --color-background-special: var(--color-dark-green);
     
     /* === BUTTON COLORS === */
-    --color-button-primary-bg: var(--color-highlight-secondary);
-    --color-button-primary-text: var(--color-text-secondary);
-    --color-button-primary-hover-bg: var(--color-highlight-primary);
+    --color-button-primary-bg: var(--color-green);
+    --color-button-primary-text: var(--color-white);
+    --color-button-primary-hover-bg: var(--color-light-green);
 
     --color-button-success-bg: var(--color-green);
-    --color-button-success-text: var(--color-text-secondary);
-    --color-button-success-hover-bg: var(--color-light-green);
+    --color-button-success-text: var(--color-white);
+    --color-button-success-hover-bg: var(--color-gray);
 
     --color-button-secondary-bg: var(--color-gray);
     --color-button-secondary-text: var(--color-black);
-    --color-button-secondary-hover-bg: var(--color-text-tertiary);
+    --color-button-secondary-hover-bg: var(--color-gray);
     
     --color-button-danger-bg: var(--color-red-light);
-    --color-button-danger-text: var(--color-text-secondary);
+    --color-button-danger-text: var(--color-white);
     --color-button-danger-hover-bg: var(--color-red);
 
     --color-button-disabled-bg: var(--color-dark-grey);
-    --color-button-disabled-text: var(--color-text-tertiary);
+    --color-button-disabled-text: var(--color-gray);
 
     /* === FORM COLORS === */
     --color-input-bg: var(--color-background-primary);
