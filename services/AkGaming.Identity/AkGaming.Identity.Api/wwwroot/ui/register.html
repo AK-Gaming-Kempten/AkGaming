@@ -48,13 +48,14 @@
       <img class="button-icon" src="/ui/Discord-Symbol-Blurple.svg" alt="" />
       Continue with Discord
     </a>
-    <a class="switch" href="/login">Already have an account? Sign in</a>
+    <a id="switch-to-login-link" class="switch" href="/login">Already have an account? Sign in</a>
     <div class="status" id="status"></div>
   </main>
 
   <script>
     const form = document.getElementById("register-form");
     const discordStartLinkEl = document.getElementById("discord-start-link");
+    const switchToLoginLinkEl = document.getElementById("switch-to-login-link");
     const statusEl = document.getElementById("status");
 
     function setStatus(msg, ok = false) {
@@ -83,6 +84,11 @@
       }
 
       discordStartLinkEl.href = `${target.pathname}${target.search}`;
+    }
+
+    function configureSwitchToLoginLink() {
+      const currentSearch = window.location.search || "";
+      switchToLoginLinkEl.href = `/login${currentSearch}`;
     }
 
     async function completeExternalRedirect(payload) {
@@ -158,6 +164,7 @@
     });
 
     configureDiscordStartLink();
+    configureSwitchToLoginLink();
   </script>
 </body>
 </html>

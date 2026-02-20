@@ -48,7 +48,7 @@
         <img class="button-icon" src="/ui/Discord-Symbol-Blurple.svg" alt="" />
         Continue with Discord
       </a>
-      <a class="switch" href="/register">No account yet? Create one</a>
+      <a id="switch-to-register-link" class="switch" href="/register">No account yet? Create one</a>
     </div>
     <div class="status" id="status"></div>
   </main>
@@ -61,6 +61,7 @@
     const continueCurrentAccountBtn = document.getElementById("continue-current-account");
     const useDifferentAccountBtn = document.getElementById("use-different-account");
     const discordStartLinkEl = document.getElementById("discord-start-link");
+    const switchToRegisterLinkEl = document.getElementById("switch-to-register-link");
     const statusEl = document.getElementById("status");
     let pendingRedirectPayload = null;
 
@@ -96,6 +97,11 @@
       }
 
       discordStartLinkEl.href = `${target.pathname}${target.search}`;
+    }
+
+    function configureSwitchToRegisterLink() {
+      const currentSearch = window.location.search || "";
+      switchToRegisterLinkEl.href = `/register${currentSearch}`;
     }
 
     async function getCurrentUser(accessToken) {
@@ -305,6 +311,7 @@
     });
 
     configureDiscordStartLink();
+    configureSwitchToRegisterLink();
     prepareRedirectSessionChoice().catch(() => undefined);
   </script>
 </body>
