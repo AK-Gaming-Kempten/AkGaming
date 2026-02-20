@@ -11,7 +11,7 @@ public partial class IdentityAuditLogPage : ComponentBase {
     private AdminAuditLogsResponse? _auditLogs;
 
     private int _page = 1;
-    private int _pageSize = 25;
+    private int _pageSize = 14;
     private int _totalPages = 1;
     private string _search = string.Empty;
 
