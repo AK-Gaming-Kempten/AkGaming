@@ -75,6 +75,12 @@
       localStorage.setItem("accessTokenExpiresAtUtc", payload.accessTokenExpiresAtUtc);
     }
 
+    function clearTokens() {
+      localStorage.removeItem("accessToken");
+      localStorage.removeItem("refreshToken");
+      localStorage.removeItem("accessTokenExpiresAtUtc");
+    }
+
     function configureDiscordStartLink() {
       const params = new URLSearchParams(window.location.search);
       const redirectUri = params.get("redirect_uri");
@@ -92,16 +98,29 @@
       discordStartLinkEl.href = `${target.pathname}${target.search}`;
     }
 
-    async function getCurrentUserEmail(accessToken) {
+    async function getCurrentUser(accessToken) {
       const response = await fetch("/auth/me", {
         headers: { Authorization: `Bearer ${accessToken}` }
       });
+
       if (!response.ok) {
         return null;
       }
 
-      const payload = await response.json().catch(() => null);
-      return payload && payload.email ? payload.email : null;
+      return await response.json().catch(() => null);
+    }
+
+    function isTokenExpiring(expiresAtUtc, withinSeconds = 30) {
+      if (!expiresAtUtc) {
+        return true;
+      }
+
+      const expiresAtMs = Date.parse(expiresAtUtc);
+      if (Number.isNaN(expiresAtMs)) {
+        return true;
+      }
+
+      return (expiresAtMs - Date.now()) <= withinSeconds * 1000;
     }
 
     async function tryRefreshSession() {
@@ -123,6 +142,41 @@
       const payload = await response.json();
       saveTokens(payload);
       return payload;
+    }
+
+    async function resolveActiveSessionForRedirect(initialPayload) {
+      let payload = initialPayload || {
+        accessToken: localStorage.getItem("accessToken"),
+        refreshToken: localStorage.getItem("refreshToken"),
+        accessTokenExpiresAtUtc: localStorage.getItem("accessTokenExpiresAtUtc")
+      };
+
+      if (!payload.accessToken || !payload.refreshToken) {
+        return null;
+      }
+
+      if (isTokenExpiring(payload.accessTokenExpiresAtUtc)) {
+        const refreshed = await tryRefreshSession();
+        if (refreshed) {
+          payload = refreshed;
+        }
+      }
+
+      let user = await getCurrentUser(payload.accessToken).catch(() => null);
+      if (!user) {
+        const refreshed = await tryRefreshSession();
+        if (!refreshed) {
+          return null;
+        }
+
+        payload = refreshed;
+        user = await getCurrentUser(payload.accessToken).catch(() => null);
+        if (!user) {
+          return null;
+        }
+      }
+
+      return { payload, user };
     }
 
     async function completeExternalRedirect(payload) {
@@ -168,26 +222,15 @@
         return;
       }
 
-      const accessToken = localStorage.getItem("accessToken");
-      const refreshToken = localStorage.getItem("refreshToken");
-      if (!accessToken || !refreshToken) {
+      const session = await resolveActiveSessionForRedirect();
+      if (!session) {
+        pendingRedirectPayload = null;
+        clearTokens();
         return;
       }
 
-      let payload = {
-        accessToken,
-        refreshToken,
-        accessTokenExpiresAtUtc: localStorage.getItem("accessTokenExpiresAtUtc") || new Date().toISOString()
-      };
-
-      const refreshed = await tryRefreshSession();
-      if (refreshed) {
-        payload = refreshed;
-      }
-
-      pendingRedirectPayload = payload;
-      const email = await getCurrentUserEmail(payload.accessToken).catch(() => null);
-      showRedirectAccountChoice(email);
+      pendingRedirectPayload = session.payload;
+      showRedirectAccountChoice(session.user.email || null);
     }
 
     continueCurrentAccountBtn.addEventListener("click", async () => {
@@ -197,7 +240,19 @@
 
       statusEl.className = "status";
       statusEl.textContent = "Continuing with current account...";
-      await completeExternalRedirect(pendingRedirectPayload);
+
+      const session = await resolveActiveSessionForRedirect(pendingRedirectPayload);
+      if (!session) {
+        pendingRedirectPayload = null;
+        clearTokens();
+        redirectAccountChoiceEl.hidden = true;
+        loginActionsEl.hidden = false;
+        setStatus("Your session has expired. Please sign in again.");
+        return;
+      }
+
+      pendingRedirectPayload = session.payload;
+      await completeExternalRedirect(session.payload);
     });
 
     useDifferentAccountBtn.addEventListener("click", () => {
