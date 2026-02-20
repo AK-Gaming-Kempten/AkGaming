@@ -39,7 +39,7 @@ label {
     font-size: 0.85rem;
     font-weight: 500;
     margin-bottom: 0.2rem;
-    color: var(--color-text-secondary);
+    color: var(--color-text-tertiary);
 }
 
 /* Form layout helpers */

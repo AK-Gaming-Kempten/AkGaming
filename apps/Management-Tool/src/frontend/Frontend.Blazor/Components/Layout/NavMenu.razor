@@ -35,27 +35,30 @@
                         <span class="nav-icon bi-envelope-fill"></span>
                         <span>Applications & Linking Requests</span>
                     </NavLink>
-
-                    <span class="nav-item level-1">
-                        <span class="nav-icon bi-person-fill-lock"></span>
-                        Identity
-                    </span>
-                    
-                    <NavLink href="identity/audit-log" class="nav-item level-2">
-                        <span class="nav-icon bi-journal-text"></span>
-                        <span>Identity Audit Log</span>
-                    </NavLink>
-                    
-                    <NavLink href="identity/roles" class="nav-item level-2">
-                        <span class="nav-icon bi-person-badge-fill"></span>
-                        <span>Identity Roles</span>
-                    </NavLink>
-
-                    <NavLink href="identity/users" class="nav-item level-2">
-                        <span class="nav-icon bi-person-gear"></span>
-                        <span>Identity User Roles</span>
-                    </NavLink>
                 </div>
+            }
+            
+            @if (isAuthenticated && isAdmin)
+            {
+                <span class="nav-section-title">
+                    <span class="nav-icon bi-person-fill-lock"></span>
+                    Identity
+                </span>
+
+                <NavLink href="identity/audit-log" class="nav-item level-2">
+                    <span class="nav-icon bi-journal-text"></span>
+                    <span>Identity Audit Log</span>
+                </NavLink>
+
+                <NavLink href="identity/roles" class="nav-item level-2">
+                    <span class="nav-icon bi-person-badge-fill"></span>
+                    <span>Identity Roles</span>
+                </NavLink>
+
+                <NavLink href="identity/users" class="nav-item level-2">
+                    <span class="nav-icon bi-person-gear"></span>
+                    <span>Identity User Roles</span>
+                </NavLink>
             }
 
             @if (isAuthenticated && isAdmin) {
