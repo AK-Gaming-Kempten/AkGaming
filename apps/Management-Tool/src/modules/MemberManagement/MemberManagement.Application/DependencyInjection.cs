@@ -9,6 +9,7 @@ public static class DependencyInjection {
     public static IServiceCollection AddMemberManagementApplication(this IServiceCollection services) {
         // Application services
         services.AddScoped<IMemberQueryService, MemberQueryService>();
+        services.AddScoped<IMemberAuditLogService, MemberAuditLogService>();
         services.AddScoped<IMemberCreationService, MemberCreationService>();
         services.AddScoped<IMemberUpdateService, MemberUpdateService>();
         services.AddScoped<IMemberLinkingService, MemberLinkingService>();

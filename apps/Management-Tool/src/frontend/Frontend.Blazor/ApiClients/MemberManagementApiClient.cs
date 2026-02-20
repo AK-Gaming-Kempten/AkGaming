@@ -82,4 +82,21 @@ public sealed class MemberManagementApiClient : ApiClientBase {
 
     public Task<Result<DateTime>> GetDefaultEndOfTrialPeriodAsync(Guid memberId, CancellationToken ct = default) =>
         GetAsync<DateTime>($"members/{memberId}/endOfTrial", ct);
+
+    public Task<Result<MemberAuditLogsResponseDto>> GetMemberAuditLogsAsync(
+        int page = 1,
+        int pageSize = 25,
+        string? search = null,
+        CancellationToken ct = default) {
+        var queryParts = new List<string> {
+            $"page={page}",
+            $"pageSize={pageSize}"
+        };
+
+        if (!string.IsNullOrWhiteSpace(search)) {
+            queryParts.Add($"search={Uri.EscapeDataString(search.Trim())}");
+        }
+
+        return GetAsync<MemberAuditLogsResponseDto>($"members/audit-logs?{string.Join("&", queryParts)}", ct);
+    }
 }

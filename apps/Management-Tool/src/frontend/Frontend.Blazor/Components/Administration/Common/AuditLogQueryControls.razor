@@ -1,0 +1,45 @@
+<div class="query-controls">
+    <InputText Value="@Search"
+               ValueChanged="@(EventCallback.Factory.Create<string>(this, OnSearchChanged))"
+               ValueExpression="() => Search"
+               placeholder="@SearchPlaceholder" />
+    <InputNumber TValue="int"
+                 Value="@PageSize"
+                 ValueChanged="@(EventCallback.Factory.Create<int>(this, OnPageSizeChanged))"
+                 ValueExpression="() => PageSize"
+                 min="1"
+                 max="200" />
+    <button class="btn btn-secondary" @onclick="@OnSearchClicked" disabled="@IsBusy">Search</button>
+    <button class="btn btn-secondary" @onclick="@OnRefreshClicked" disabled="@IsBusy">Refresh</button>
+</div>
+
+@code {
+    [Parameter]
+    public string Search { get; set; } = string.Empty;
+
+    [Parameter]
+    public EventCallback<string> SearchChanged { get; set; }
+
+    [Parameter]
+    public int PageSize { get; set; } = 25;
+
+    [Parameter]
+    public EventCallback<int> PageSizeChanged { get; set; }
+
+    [Parameter]
+    public string SearchPlaceholder { get; set; } = "Search";
+
+    [Parameter]
+    public bool IsBusy { get; set; }
+
+    [Parameter]
+    public EventCallback OnSearch { get; set; }
+
+    [Parameter]
+    public EventCallback OnRefresh { get; set; }
+
+    private Task OnSearchChanged(string value) => SearchChanged.InvokeAsync(value);
+    private Task OnPageSizeChanged(int value) => PageSizeChanged.InvokeAsync(value);
+    private Task OnSearchClicked() => OnSearch.InvokeAsync();
+    private Task OnRefreshClicked() => OnRefresh.InvokeAsync();
+}

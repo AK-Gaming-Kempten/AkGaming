@@ -19,6 +19,7 @@ public static class DependencyInjection {
                 npgsql.MigrationsAssembly(typeof(MemberManagementDbContext).Assembly.FullName)));
 
         services.AddScoped<IMemberRepository, EfMemberRepository>();
+        services.AddScoped<IMemberAuditLogRepository, EfMemberAuditLogRepository>();
         services.AddScoped<IMembershipApplicationRequestRepository, EfMembershipApplicationRequestRepository>();
         services.AddScoped<IMemberLinkingRequestRepository, EfMemberLinkingRequestRepository>();
         services.AddScoped<IMemberAuditLogWriter, EfMemberAuditLogWriter>();

@@ -1,0 +1,12 @@
+.query-controls {
+    display: grid;
+    grid-template-columns: 1fr 110px auto auto;
+    align-items: end;
+    gap: 0.5rem;
+}
+
+@media (max-width: 900px) {
+    .query-controls {
+        grid-template-columns: 1fr;
+    }
+}

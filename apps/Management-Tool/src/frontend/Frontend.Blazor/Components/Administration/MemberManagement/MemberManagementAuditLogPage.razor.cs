@@ -1,14 +1,14 @@
-using AkGaming.Identity.Contracts.Auth;
 using Frontend.Blazor.ApiClients;
+using MemberManagement.Contracts.DTO;
 using Microsoft.AspNetCore.Components;
 
-namespace Frontend.Blazor.Components.Administration.Identity;
+namespace Frontend.Blazor.Components.Administration.MemberManagement;
 
-public partial class IdentityAuditLogPage : ComponentBase {
+public partial class MemberManagementAuditLogPage : ComponentBase {
     [Inject]
-    private IdentityApiClient IdentityApi { get; set; } = default!;
+    private MemberManagementApiClient MemberManagementApi { get; set; } = default!;
 
-    private AdminAuditLogsResponse? _auditLogs;
+    private MemberAuditLogsResponseDto? _auditLogs;
 
     private int _page = 1;
     private int _pageSize = 14;
@@ -31,7 +31,7 @@ public partial class IdentityAuditLogPage : ComponentBase {
         _page = 1;
         await LoadAuditLogsAsync();
     }
-    
+
     private Task OnSearchChanged(string value) {
         _search = value;
         return Task.CompletedTask;
@@ -73,12 +73,17 @@ public partial class IdentityAuditLogPage : ComponentBase {
             _pageSize = 200;
         }
 
-        var result = await IdentityApi.GetAdminAuditLogsAsync(_page, _pageSize, _search);
+        var result = await MemberManagementApi.GetMemberAuditLogsAsync(_page, _pageSize, _search);
 
         _isBusy = false;
 
         if (!result.IsSuccess || result.Value is null) {
-            _auditLogs = new AdminAuditLogsResponse(1, _pageSize, 0, Array.Empty<AdminAuditLogItemResponse>());
+            _auditLogs = new MemberAuditLogsResponseDto {
+                Page = 1,
+                PageSize = _pageSize,
+                TotalCount = 0,
+                Items = Array.Empty<MemberAuditLogItemDto>()
+            };
             _totalPages = 1;
             _error = result.Error;
             return;

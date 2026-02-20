@@ -1,0 +1,13 @@
+.pager {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+@media (max-width: 900px) {
+    .pager {
+        flex-direction: column;
+        align-items: stretch;
+    }
+}

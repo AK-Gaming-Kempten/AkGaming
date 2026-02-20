@@ -1,17 +1,17 @@
-@page "/identity/audit-log"
+@page "/member-management/audit-log"
 @using Microsoft.AspNetCore.Authorization
 @attribute [Authorize(Roles = "Admin")]
 
-<PageTitle>Identity Audit Log</PageTitle>
+<PageTitle>Member Management Audit Log</PageTitle>
 
-<div class="identity-audit-page card">
-    <h4>Identity Audit Log</h4>
+<div class="member-audit-page card">
+    <h4>Member Management Audit Log</h4>
 
     <AuditLogQueryControls Search="@_search"
                            SearchChanged="OnSearchChanged"
                            PageSize="@_pageSize"
                            PageSizeChanged="OnPageSizeChanged"
-                           SearchPlaceholder="Search (email, details, event...)"
+                           SearchPlaceholder="Search (action, entity, actor, values...)"
                            IsBusy="@_isBusy"
                            OnSearch="SearchAsync"
                            OnRefresh="ReloadAsync" />
@@ -40,26 +40,26 @@
             <table class="audit-table">
                 <thead>
                 <tr>
-                    <th>Created (UTC)</th>
-                    <th>Event</th>
-                    <th>Success</th>
-                    <th>Subject Email</th>
-                    <th>User Id</th>
-                    <th>IP</th>
-                    <th>Details</th>
+                    <th>Occurred (UTC)</th>
+                    <th>Action</th>
+                    <th>Performed By</th>
+                    <th>Entity</th>
+                    <th>Entity Id</th>
+                    <th>Old Values</th>
+                    <th>New Values</th>
                 </tr>
                 </thead>
                 <tbody>
                 @foreach (var item in _auditLogs.Items)
                 {
                     <tr>
-                        <td>@item.CreatedAtUtc.ToString("u")</td>
-                        <td>@item.EventType</td>
-                        <td>@(item.Success ? "Yes" : "No")</td>
-                        <td>@(string.IsNullOrWhiteSpace(item.SubjectEmail) ? "-" : item.SubjectEmail)</td>
-                        <td>@(item.UserId?.ToString() ?? "-")</td>
-                        <td>@(string.IsNullOrWhiteSpace(item.IpAddress) ? "-" : item.IpAddress)</td>
-                        <td>@(string.IsNullOrWhiteSpace(item.Details) ? "-" : item.Details)</td>
+                        <td>@item.OccurredAtUtc.ToString("u")</td>
+                        <td>@item.ActionType</td>
+                        <td>@(item.PerformedByUserId?.ToString() ?? "-")</td>
+                        <td>@item.EntityType</td>
+                        <td>@item.EntityId</td>
+                        <td>@(string.IsNullOrWhiteSpace(item.OldValuesJson) ? "-" : item.OldValuesJson)</td>
+                        <td>@(string.IsNullOrWhiteSpace(item.NewValuesJson) ? "-" : item.NewValuesJson)</td>
                     </tr>
                 }
                 </tbody>

@@ -1,10 +1,10 @@
-.identity-audit-page {
+.member-audit-page {
     display: flex;
     flex-direction: column;
     gap: 0.8rem;
 }
 
-.identity-audit-page h4 {
+.member-audit-page h4 {
     margin: 0;
 }
 
@@ -17,7 +17,7 @@
 .audit-table {
     width: 100%;
     border-collapse: collapse;
-    min-width: 980px;
+    min-width: 1080px;
 }
 
 .audit-table th,
