@@ -23,15 +23,15 @@
                 <div class="nav-section">
                     <span class="nav-section-title">
                         <span class="nav-icon bi-shield-lock-fill"></span>
-                        Administration
+                        Member Management
                     </span>
 
                     <NavLink href="member-management" class="nav-item level-1">
                         <span class="nav-icon bi-people-fill"></span>
-                        <span>Member Management</span>
+                        <span>Members</span>
                     </NavLink>
                     
-                    <NavLink href="member-management/requests" class="nav-item level-2">
+                    <NavLink href="member-management/requests" class="nav-item level-1">
                         <span class="nav-icon bi-envelope-fill"></span>
                         <span>Applications & Linking Requests</span>
                     </NavLink>
@@ -45,23 +45,23 @@
                     Identity
                 </span>
 
-                <NavLink href="identity/audit-log" class="nav-item level-2">
+                <NavLink href="identity/audit-log" class="nav-item level-1">
                     <span class="nav-icon bi-journal-text"></span>
                     <span>Identity Audit Log</span>
                 </NavLink>
 
-                <NavLink href="identity/roles" class="nav-item level-2">
+                <NavLink href="identity/roles" class="nav-item level-1">
                     <span class="nav-icon bi-person-badge-fill"></span>
                     <span>Identity Roles</span>
                 </NavLink>
 
-                <NavLink href="identity/users" class="nav-item level-2">
+                <NavLink href="identity/users" class="nav-item level-1">
                     <span class="nav-icon bi-person-gear"></span>
                     <span>Identity User Roles</span>
                 </NavLink>
             }
 
-            @if (isAuthenticated && isAdmin) {
+            @if (isAuthenticated && isAdmin && isDebug) {
                 <div class="nav-section">
                     <span class="nav-section-title">
                         <span class="nav-icon bi-bug-fill"></span>
@@ -71,11 +71,6 @@
                     <NavLink href="debug" class="nav-item level-1">
                         <span class="nav-icon bi-diagram-3-fill"></span>
                         <span>API</span>
-                    </NavLink>
-
-                    <NavLink href="debug/token" class="nav-item level-1">
-                        <span class="nav-icon bi-key-fill"></span>
-                        <span>Token</span>
                     </NavLink>
                 </div>
             }
@@ -88,6 +83,7 @@
 @code {
     private bool isAuthenticated;
     private bool isAdmin;
+    private bool isDebug;
 
     protected override async Task OnInitializedAsync() {
         var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
@@ -95,5 +91,6 @@
 
         isAuthenticated = user.Identity?.IsAuthenticated ?? false;
         isAdmin = isAuthenticated && user.IsInRole("Admin");
+        isDebug = isAuthenticated && user.IsInRole("Debug");
     }
 }
