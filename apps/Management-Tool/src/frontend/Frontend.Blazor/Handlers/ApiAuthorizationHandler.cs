@@ -37,6 +37,11 @@ public class ApiAuthorizationHandler : DelegatingHandler {
         // Refresh if token expired or nearly expired
         if (IsExpired(accessToken)) {
             _log.LogInformation("Access token expired, refreshing...");
+            if (string.IsNullOrWhiteSpace(refreshToken)) {
+                _log.LogWarning("Access token is expired but no refresh token is present. Signing out user.");
+                await TrySignOutAsync(context, "Access token expired and refresh token is missing.");
+                return new HttpResponseMessage(System.Net.HttpStatusCode.Unauthorized);
+            }
 
             var tokenEndpoint = ResolveTokenEndpoint();
             if (string.IsNullOrWhiteSpace(tokenEndpoint)) {
@@ -67,13 +72,15 @@ public class ApiAuthorizationHandler : DelegatingHandler {
                 return new HttpResponseMessage(System.Net.HttpStatusCode.Unauthorized);
             }
 
+            var responseContent = await resp.Content.ReadAsStringAsync(ct);
             if (!resp.IsSuccessStatusCode) {
-                _log.LogWarning("Token refresh failed: {Status}", resp.StatusCode);
+                var bodyPreview = responseContent.Length > 512 ? responseContent[..512] + "..." : responseContent;
+                _log.LogWarning("Token refresh failed: {Status}. Body: {Body}", resp.StatusCode, bodyPreview);
                 await TrySignOutAsync(context, $"Token refresh failed with status {(int)resp.StatusCode}.");
                 return new HttpResponseMessage(System.Net.HttpStatusCode.Unauthorized);
             }
 
-            using var json = JsonDocument.Parse(await resp.Content.ReadAsStringAsync(ct));
+            using var json = JsonDocument.Parse(responseContent);
             var root = json.RootElement;
 
             var newAccess = GetTokenValue(root, "access_token", "accessToken");

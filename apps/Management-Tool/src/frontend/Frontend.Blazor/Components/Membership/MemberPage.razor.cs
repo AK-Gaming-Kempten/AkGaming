@@ -1,4 +1,5 @@
 using Frontend.Blazor.ApiClients;
+using AKG.Common.Generics;
 using MemberManagement.Contracts.DTO;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
@@ -28,17 +29,32 @@ public partial class MemberPage : ComponentBase {
         _userGuid = Guid.Parse(UserId);
         
         var memberResult = await MemberApi.GetMemberByUserGuidAsync(_userGuid);
+        if (IsUnauthorized(memberResult)) {
+            Nav.NavigateTo("/authentication/logout", forceLoad: true);
+            return;
+        }
         if (memberResult.IsSuccess)
             _member = memberResult.Value;
 
         var linkingRequestsResult = await MemberApi.GetAllMemberLinkingRequestsByUserAsync(_userGuid);
+        if (IsUnauthorized(linkingRequestsResult)) {
+            Nav.NavigateTo("/authentication/logout", forceLoad: true);
+            return;
+        }
         if (linkingRequestsResult.IsSuccess)
             _linkingRequest = linkingRequestsResult.Value!.FirstOrDefault(x => !x.IsResolved);
 
         var applicationRequestsResult = await MemberApi.GetAllMembershipApplicationRequestsByUserAsync(_userGuid);
+        if (IsUnauthorized(applicationRequestsResult)) {
+            Nav.NavigateTo("/authentication/logout", forceLoad: true);
+            return;
+        }
         if (applicationRequestsResult.IsSuccess)
             _applicationRequest = applicationRequestsResult.Value!.FirstOrDefault(x => !x.IsResolved);
 
         _loading = false;
     }
+
+    private static bool IsUnauthorized(Result result) =>
+        !result.IsSuccess && result.Error?.StartsWith("401 ", StringComparison.Ordinal) == true;
 }
