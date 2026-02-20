@@ -12,10 +12,37 @@ public static class MemberUpdateEndpoints {
         var group = endpoints.MapGroup("/members")
             .WithTags("Members - Commands");
 
-        group.MapPut("/{memberId}", async (Guid memberId, MemberDto memberDto, ClaimsPrincipal user, IMemberUpdateService service) => {
-            var result = await service.UpdateMemberAsync(memberId, memberDto, GetCurrentUserIdOrNull(user));
+        group.MapPut("/{memberId:guid}", async (
+            Guid memberId,
+            MemberDto memberDto,
+            ClaimsPrincipal user,
+            IMemberQueryService queryService,
+            IMemberUpdateService service
+        ) => {
+            if (memberDto.Id != Guid.Empty && memberDto.Id != memberId) {
+                return Results.BadRequest("Route memberId does not match payload member id.");
+            }
+
+            var currentUserId = GetCurrentUserIdOrNull(user);
+            if (!user.IsInRole("Admin")) {
+                if (!currentUserId.HasValue) {
+                    return Results.Forbid();
+                }
+
+                var memberResult = await queryService.GetMemberByGuidAsync(memberId);
+                if (!memberResult.IsSuccess || memberResult.Value is null) {
+                    return Results.NotFound(memberResult.Error);
+                }
+
+                if (memberResult.Value.UserId != currentUserId.Value) {
+                    return Results.Forbid();
+                }
+            }
+
+            memberDto.Id = memberId;
+            var result = await service.UpdateMemberAsync(memberId, memberDto, currentUserId);
             return result.IsSuccess ? Results.Ok() : Results.BadRequest(result.Error);
-        }).RequireAuthorization("AdminOrSelfRouteUserId");
+        }).RequireAuthorization();
 
         return endpoints;
     }
