@@ -26,7 +26,8 @@ public sealed class AuthEndpointsTests : IClassFixture<TestApiFactory>
         var registerResponse = await _client.PostAsJsonAsync("/auth/register", new
         {
             Email = email,
-            Password = password
+            Password = password,
+            PrivacyPolicyAccepted = true
         });
 
         var registerBody = await registerResponse.Content.ReadAsStringAsync();
@@ -69,6 +70,20 @@ public sealed class AuthEndpointsTests : IClassFixture<TestApiFactory>
 
         var body = await response.Content.ReadAsStringAsync();
         Assert.True(response.StatusCode == HttpStatusCode.Unauthorized, $"Expected 401, got {(int)response.StatusCode}: {body}");
+    }
+
+    [Fact]
+    public async Task Register_WithoutPrivacyPolicyConsent_ReturnsBadRequest()
+    {
+        var response = await _client.PostAsJsonAsync("/auth/register", new
+        {
+            Email = $"user-{Guid.NewGuid():N}@example.com",
+            Password = "Password123",
+            PrivacyPolicyAccepted = false
+        });
+
+        var body = await response.Content.ReadAsStringAsync();
+        Assert.True(response.StatusCode == HttpStatusCode.BadRequest, $"Expected 400, got {(int)response.StatusCode}: {body}");
     }
 
     [Fact]

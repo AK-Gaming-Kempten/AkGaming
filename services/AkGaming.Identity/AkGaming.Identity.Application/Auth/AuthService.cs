@@ -61,6 +61,12 @@ public sealed class AuthService : IAuthService
     {
         var email = NormalizeEmail(request.Email);
         ValidatePassword(request.Password);
+        if (!request.PrivacyPolicyAccepted)
+        {
+            await WriteAuditAsync("register.failed", null, email, ipAddress, false, "privacy_policy_not_accepted", cancellationToken);
+            await _repository.SaveChangesAsync(cancellationToken);
+            throw new AuthException(BadRequestStatusCode, "You must accept the privacy policy to create an account.");
+        }
 
         var existingUser = await _repository.GetUserByEmailAsync(email, cancellationToken);
         if (existingUser is not null)
@@ -76,7 +82,9 @@ public sealed class AuthService : IAuthService
         {
             Email = email,
             PasswordHash = string.Empty,
-            IsEmailVerified = false
+            IsEmailVerified = false,
+            PrivacyPolicyAccepted = true,
+            PrivacyPolicyAcceptedAtUtc = DateTime.UtcNow
         };
 
         user.PasswordHash = _passwordHasher.HashPassword(user, request.Password);

@@ -25,6 +25,7 @@ public sealed class AuthDbContext : DbContext
             entity.Property(x => x.Email).IsRequired().HasMaxLength(320);
             entity.HasIndex(x => x.Email).IsUnique();
             entity.Property(x => x.PasswordHash).HasMaxLength(1000);
+            entity.Property(x => x.PrivacyPolicyAccepted).HasDefaultValue(false);
         });
 
         modelBuilder.Entity<Role>(entity =>

@@ -1,6 +1,6 @@
 namespace AkGaming.Identity.Contracts.Auth;
 
-public sealed record RegisterRequest(string Email, string Password);
+public sealed record RegisterRequest(string Email, string Password, bool PrivacyPolicyAccepted);
 public sealed record LoginRequest(string Email, string Password);
 public sealed record RefreshRequest(string RefreshToken);
 public sealed record LogoutRequest(string RefreshToken);

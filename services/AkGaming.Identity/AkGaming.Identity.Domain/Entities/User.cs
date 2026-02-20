@@ -6,6 +6,8 @@ public sealed class User
     public string Email { get; set; } = string.Empty;
     public string? PasswordHash { get; set; }
     public bool IsEmailVerified { get; set; }
+    public bool PrivacyPolicyAccepted { get; set; }
+    public DateTime? PrivacyPolicyAcceptedAtUtc { get; set; }
     public int AccessFailedCount { get; set; }
     public DateTime? LockoutEndUtc { get; set; }
     public DateTime CreatedAtUtc { get; set; } = DateTime.UtcNow;

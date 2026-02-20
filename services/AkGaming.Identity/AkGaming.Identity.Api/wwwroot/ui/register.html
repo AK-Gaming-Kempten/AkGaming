@@ -33,6 +33,14 @@
       <label for="password">Password</label>
       <input id="password" name="password" type="password" autocomplete="new-password" minlength="8" required />
 
+      <label for="privacyPolicyAccepted" class="checkbox-row">
+        <input id="privacyPolicyAccepted" name="privacyPolicyAccepted" type="checkbox" required />
+        <span>
+          I have read and accept the
+          <a href="https://akgaming.de/datenschutz" target="_blank" rel="noopener noreferrer">privacy policy</a>.
+        </span>
+      </label>
+
       <button class="primary" type="submit">Create Account</button>
     </form>
 
@@ -115,7 +123,8 @@
 
       const body = {
         email: form.email.value.trim(),
-        password: form.password.value
+        password: form.password.value,
+        privacyPolicyAccepted: form.privacyPolicyAccepted.checked
       };
 
       const response = await fetch("/auth/register", {

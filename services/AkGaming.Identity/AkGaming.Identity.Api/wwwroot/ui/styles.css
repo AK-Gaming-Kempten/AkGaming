@@ -148,6 +148,23 @@ a.switch {
   color: var(--color-text-secondary);
 }
 
+.checkbox-row {
+  margin-top: 12px;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 0.9rem;
+}
+
+.checkbox-row input[type="checkbox"] {
+  width: auto;
+  margin-top: 2px;
+}
+
+.checkbox-row span {
+  line-height: 1.35;
+}
+
 @media (max-width: 520px) {
   .shell { padding: 20px; }
   .brand img { width: 64px; height: 64px; }

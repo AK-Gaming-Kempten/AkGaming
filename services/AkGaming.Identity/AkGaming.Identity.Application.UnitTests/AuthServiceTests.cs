@@ -15,7 +15,7 @@ public sealed class AuthServiceTests
         var repository = new InMemoryIdentityRepository();
         var service = BuildService(repository);
 
-        var result = await service.RegisterAsync(new RegisterRequest("user@test.local", "Password123"), "127.0.0.1", CancellationToken.None);
+        var result = await service.RegisterAsync(new RegisterRequest("user@test.local", "Password123", true), "127.0.0.1", CancellationToken.None);
 
         Assert.False(string.IsNullOrWhiteSpace(result.AccessToken));
         Assert.False(string.IsNullOrWhiteSpace(result.RefreshToken));
@@ -24,6 +24,19 @@ public sealed class AuthServiceTests
         Assert.Equal(RoleNames.User, repository.Roles.Single().Name);
         Assert.Single(repository.RefreshTokens);
         Assert.Equal("user@test.local", repository.Users.Single().Email);
+    }
+
+    [Fact]
+    public async Task RegisterAsync_WithoutPrivacyPolicyConsent_ThrowsBadRequest()
+    {
+        var repository = new InMemoryIdentityRepository();
+        var service = BuildService(repository);
+
+        var exception = await Assert.ThrowsAsync<AuthException>(() =>
+            service.RegisterAsync(new RegisterRequest("user@test.local", "Password123", false), "127.0.0.1", CancellationToken.None));
+
+        Assert.Equal(400, exception.StatusCode);
+        Assert.Empty(repository.Users);
     }
 
     [Fact]
@@ -131,7 +144,7 @@ public sealed class AuthServiceTests
         var emailSender = new EmailSenderStub();
         var service = BuildService(repository, emailSender: emailSender);
 
-        await service.RegisterAsync(new RegisterRequest("verify@test.local", "Password123"), "127.0.0.1", CancellationToken.None);
+        await service.RegisterAsync(new RegisterRequest("verify@test.local", "Password123", true), "127.0.0.1", CancellationToken.None);
         var user = repository.Users.Single();
 
         var issued = await service.RequestEmailVerificationAsync(
