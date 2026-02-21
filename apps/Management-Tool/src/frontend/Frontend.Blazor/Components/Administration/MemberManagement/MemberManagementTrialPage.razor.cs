@@ -42,6 +42,16 @@ public partial class MemberManagementTrialPage : ComponentBase {
 
         await LoadTrialPeriodsAsync(_trialMembers);
 
+        // Show only members whose default trial period is still active.
+        _trialMembers.RemoveAll(member => {
+            var trialInfo = _trialPeriodsByMemberId.GetValueOrDefault(member.Id);
+            return trialInfo is null || trialInfo.HasError || trialInfo.IsExpired;
+        });
+
+        if (_selectedMember is not null && _trialMembers.All(m => m.Id != _selectedMember.Id)) {
+            _selectedMember = _trialMembers.FirstOrDefault();
+        }
+
         _isLoading = false;
     }
 

@@ -96,9 +96,9 @@
 
 .member-preview-card-content {
     display: grid;
-    grid-template-columns: 2fr 3fr 2fr;
+    grid-template-columns: 2fr 3fr 4fr;
     gap: 1rem;
-    align-items: center;
+    align-items: start;
     width: 100%;
 }
 
@@ -112,6 +112,10 @@
     display: flex;
     gap: 0.4rem;
     align-items: center;
+    justify-self: end;
+    white-space: normal;
+    overflow: visible;
+    text-overflow: clip;
     font-size: 0.85rem;
     margin-top: 0.2rem;
 }
