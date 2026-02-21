@@ -23,7 +23,7 @@ public sealed class MemberManagementApiClient : ApiClientBase {
         GetAsync<ICollection<MemberDto>>("members", ct);
 
     public Task<Result<ICollection<MemberDto>>> GetMembersWithStatusAsync(MembershipStatus status, CancellationToken ct = default) =>
-        GetAsync<ICollection<MemberDto>>($"members?status={status}", ct);
+        GetAsync<ICollection<MemberDto>>($"members/byStatus/{status}", ct);
 
     public Task<Result<ICollection<MemberDto>>> GetMembersWithStatusAsync(ICollection<MembershipStatus> statuses, CancellationToken ct = default) {
         var q = string.Join(",", statuses);

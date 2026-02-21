@@ -57,6 +57,8 @@ public class MembershipUpdateService : IMembershipUpdateService {
             return memberResult;
         var member = memberResult.Value!;
         
+        if(member.StatusChanges.All( x => x.Timestamp < changeEvent.Timestamp))
+            member.Status = (DomainEnums.MembershipStatus)changeEvent.NewStatus;
         member.StatusChanges.Add(changeEvent.ToMembershipStatusChangeEvent());
         
         var result = await _members.SaveChangesAsync();

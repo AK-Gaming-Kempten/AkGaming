@@ -129,11 +129,54 @@ public class MemberShipUpdateServiceTests {
         
         //Assert
         Assert.That(result, Has.Property("IsSuccess").True);
-        Assert.That(member.Status, Is.EqualTo(currentStatus));
+        Assert.That(member.Status, Is.EqualTo((DomainEnums.MembershipStatus)changeEvent.NewStatus));
         Assert.That(member.StatusChanges.Count, Is.EqualTo(1));
         Assert.That(member.StatusChanges.First().OldStatus, Is.EqualTo((DomainEnums.MembershipStatus)changeEvent.OldStatus));
         Assert.That(member.StatusChanges.First().NewStatus, Is.EqualTo((DomainEnums.MembershipStatus)changeEvent.NewStatus));
         Assert.That(member.StatusChanges.First().Timestamp, Is.EqualTo(changeEvent.Timestamp));
+    }
+
+    [Test]
+    public async Task InsertMembershipStatusChangeEventAsync_DoesNotUpdateMemberStatus_WhenEventIsOlderThanExistingEvents() {
+        //Arrange
+        var memberRepository = new Mock<IMemberRepository>();
+        var membershipUpdateService = new MembershipUpdateService(memberRepository.Object);
+        var guid = Guid.NewGuid();
+        var currentStatus = DomainEnums.MembershipStatus.Member;
+        var existingNewestTimestamp = DateTime.UtcNow;
+        var olderTimestamp = existingNewestTimestamp.AddDays(-1);
+
+        var member = new Member {
+            Id = guid,
+            Status = currentStatus,
+            StatusChanges = new List<MembershipStatusChangeEvent> {
+                new MembershipStatusChangeEvent {
+                    OldStatus = DomainEnums.MembershipStatus.InTrial,
+                    NewStatus = DomainEnums.MembershipStatus.Member,
+                    Timestamp = existingNewestTimestamp
+                }
+            }
+        };
+
+        var changeEvent = new MembershipStatusChangeEventDto {
+            OldStatus = ContractEnums.MembershipStatus.Member,
+            NewStatus = ContractEnums.MembershipStatus.Suspended,
+            Timestamp = olderTimestamp
+        };
+
+        memberRepository.Setup(x => x.GetByMemberIdAsync(guid))
+            .ReturnsAsync(Result<Member>.Success(member));
+
+        memberRepository.Setup(x => x.SaveChangesAsync())
+            .ReturnsAsync(Result.Success());
+
+        //Act
+        var result = await membershipUpdateService.InsertMembershipStatusChangeEventAsync(guid, changeEvent);
+
+        //Assert
+        Assert.That(result, Has.Property("IsSuccess").True);
+        Assert.That(member.Status, Is.EqualTo(currentStatus));
+        Assert.That(member.StatusChanges.Count, Is.EqualTo(2));
     }
     
     [Test]
