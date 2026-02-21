@@ -1,0 +1,77 @@
+@page "/member-management/trial"
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize(Roles = "Admin")]
+
+<PageTitle>Trial Members</PageTitle>
+
+<div class="two-column-layout">
+    <div class="two-column-layout-left">
+        <div class="list-buttons">
+            <h4>Trial Members</h4>
+            <button class="btn btn-primary" @onclick="LoadTrialMembersAsync">Refresh</button>
+        </div>
+        <div class="list-main">
+            @if (_isLoading)
+            {
+                <p>Loading trial members...</p>
+            }
+            else if (!string.IsNullOrWhiteSpace(_loadError))
+            {
+                <p class="text-danger">@_loadError</p>
+            }
+            else if (_trialMembers.Count == 0)
+            {
+                <p>No members currently in trial.</p>
+            }
+            else
+            {
+                <div class="list-scroll-container">
+                    <div class="preview-card-list">
+                        @foreach (var member in _trialMembers)
+                        {
+                            var trial = GetTrialInfo(member.Id);
+
+                            <div class="member-preview-card trial-member-preview @(member == _selectedMember ? "selected" : "")"
+                                 @onclick="() => SelectMember(member)">
+                                <div class="member-preview-card-content">
+                                    <div>@member.LastName, @member.FirstName</div>
+                                    <div>@member.DiscordUserName</div>
+
+                                    @if (trial is null)
+                                    {
+                                        <div class="trial-remaining trial-loading">Trial period: loading...</div>
+                                    }
+                                    else if (trial.HasError)
+                                    {
+                                        <div class="trial-remaining trial-error">Trial period: unavailable</div>
+                                    }
+                                    else
+                                    {
+                                        <div class="trial-remaining">
+                                            @if (trial.IsExpired)
+                                            {
+                                                <span class="expired-badge">EXPIRED</span>
+                                                <span>Ended on @trial.EndDate.ToString("yyyy-MM-dd")</span>
+                                            }
+                                            else
+                                            {
+                                                <span>@trial.DaysRemaining day(s) remaining</span>
+                                                <span class="trial-end-date">(until @trial.EndDate.ToString("yyyy-MM-dd"))</span>
+                                            }
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+
+    <div class="two-column-layout-right">
+        <CascadingValue Value="MemberApi" Name="MemberManagementApi" IsFixed="true">
+            <MemberCard Member="_selectedMember" IsEditable="true" IsStatusEditable="true" OnMemberUpdated="ReloadAfterUpdate" />
+        </CascadingValue>
+    </div>
+</div>
