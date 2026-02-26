@@ -56,11 +56,11 @@ export default function Mitgliedsbeitrag() {
             <div className="mitgliedsbeitrag-content">
                 <h1>Mitgliedsbeitrag</h1>
                 <p>
-                    Im Frühjahr 2025 haben wir in unserer Mitgliederversammlung erstmals die Einführung einer Beitragsordnung zur Regelung des mitgliedsbeitrags beschlossen, um uns langfristig von unserem bisherigen Modell der kostenlosen Mitgliedschaft zu verabschieden. In dieser ersten Fassung war der Mitgliedsbeitrag auf 0€ festgelegt, um Zeit für ein faires Konzept für alle Mitglieder zu gestalten. In unserer Mitgliederversammlung am 21. Februar 2026 haben wir eine <a href="Beitragsordnung-AK-Gaming-e.V..pdf" target="_blank" rel="noopener noreferrer">neue Fassung</a> der Beitragsordnung beschlossen, in der ein Mitgliedsbeitrag auch effektiv eingeführt wurde.
+                    Im Frühjahr 2025 haben wir in unserer Mitgliederversammlung erstmals die Einführung einer Beitragsordnung zur Regelung des mitgliedsbeitrags beschlossen, um uns langfristig von unserem bisherigen Modell der kostenlosen Mitgliedschaft zu verabschieden. In dieser ersten Fassung war der Mitgliedsbeitrag auf 0€ festgelegt, um Zeit für ein faires Konzept für alle Mitglieder zu gestalten. In unserer Mitgliederversammlung am 21. Februar 2026 haben wir eine <a href="/Beitragsordnung-AK-Gaming-e.V..pdf" target="_blank" rel="noopener noreferrer">neue Fassung</a> der Beitragsordnung beschlossen, in der ein Mitgliedsbeitrag auch effektiv eingeführt wurde.
                 </p>
                 <p>
                     Der Mitgliedsbeitrag unterstützt die Vereinsarbeit des AK Gaming e.V. und hilft uns dabei,
-                    Events, Community-Angebote sowie organisatorische Aufgaben langfristig und unabhängig zu finanzieren. Einige Erläuterungen zum Grund der Einführung der Mitgliedsbeiträge findest du in den <a href="Mitgliederversammlung_9.pdf" target="_blank" rel="noopener noreferrer">slides zum Thema</a> .
+                    Events, Community-Angebote sowie organisatorische Aufgaben langfristig und unabhängig zu finanzieren. Einige Erläuterungen zum Grund der Einführung der Mitgliedsbeiträge findest du in den <a href="/Mitgliederversammlung_9.pdf" target="_blank" rel="noopener noreferrer">slides zum Thema</a> .
                 </p>
                 <p>
                     Alle verbindlichen Details sind in der aktuellen Beitragsordnung geregelt. Sollten ihr neben den unten aufgelisteten Fragen noch weitere haben, meldet euch gerne via Discord bei einem der Vorstände oder per mail an <a href="mailto:vorstand@akgaming.de">vorstand@akgaming.de</a>.
