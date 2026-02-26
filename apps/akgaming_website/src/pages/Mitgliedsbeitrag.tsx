@@ -60,7 +60,7 @@ export default function Mitgliedsbeitrag() {
                 </p>
                 <p>
                     Der Mitgliedsbeitrag unterstützt die Vereinsarbeit des AK Gaming e.V. und hilft uns dabei,
-                    Events, Community-Angebote sowie organisatorische Aufgaben langfristig und unabhängig zu finanzieren. Einige Erläuterungen zum Grund der Einführung der Mitgliedsbeiträge findest du in den <a href="/Mitgliederversammlung_9.pdf" target="_blank" rel="noopener noreferrer">slides zum Thema</a> .
+                    Events, Community-Angebote sowie organisatorische Aufgaben langfristig und unabhängig zu finanzieren. Einige Erläuterungen zum Grund der Einführung der Mitgliedsbeiträge findest du in den <a href="/Mitgliederversammlung_09.pdf" target="_blank" rel="noopener noreferrer">slides zum Thema</a> .
                 </p>
                 <p>
                     Alle verbindlichen Details sind in der aktuellen Beitragsordnung geregelt. Sollten ihr neben den unten aufgelisteten Fragen noch weitere haben, meldet euch gerne via Discord bei einem der Vorstände oder per mail an <a href="mailto:vorstand@akgaming.de">vorstand@akgaming.de</a>.
