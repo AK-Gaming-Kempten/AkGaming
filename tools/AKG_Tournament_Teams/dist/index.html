@@ -1,0 +1,119 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AK Gaming e.V. LoL Tournament 5 - Teams</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* AK Gaming palette */
+        :root {
+            --ak-dark:  #0f221e;
+            --ak-green: #286c3f;
+            --ak-light: #48cb4f;
+            --ak-gray:  #919d98;
+            --ak-white: #eefff2;
+        }
+        /* page + text ----------------------------------------------------*/
+        body {
+            background-color: var(--ak-dark);
+            color: var(--ak-white);
+            font-family: theme('fontFamily.sans');
+        }
+        /* card -----------------------------------------------------------*/
+        .ak-card {
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            background-color: var(--ak-green);
+            color: var(--ak-white);
+            width: 22rem;          /* wider */
+            min-height: 24rem;     /* taller */
+            border-radius: 1rem;   /* 2xl */
+            padding: 1.25rem;      /* p-5 */
+            box-shadow: 0 4px 10px rgba(0,0,0,.4);
+            transition: transform .15s, box-shadow .15s;
+        }
+        .ak-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 6px 14px rgba(0,0,0,.5);
+        }
+        .ak-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 6px 14px rgba(0,0,0,.5);
+        }
+        /* button ---------------------------------------------------------*/
+        .ak-btn {
+            margin-top: auto;      /* stick to bottom */
+            display: block;
+            width: 100%;
+            background-color: var(--ak-light);
+            color: var(--ak-dark);
+            padding: .5rem .75rem;
+            border-radius: .375rem;
+            font-weight: 600;
+            text-align: center;
+            transition: background-color .15s;
+        }
+        .ak-btn:hover {
+            background-color: #38b64a;
+        }
+        .ak-btn:hover {
+            background-color: #38b64a;   /* light‑green 80 % */
+        }
+        .muted { color: var(--ak-gray); }
+    </style>
+</head>
+<body class="min-h-screen">
+<header class="text-center py-8">
+    <img src="images/akgaming.png" alt="AK Gaming" class="mx-auto w-24 h-24 mb-4 rounded-full shadow-lg" />
+    <h1 class="text-3xl md:text-4xl font-bold">
+        AK Gaming e.V. LoL Tournament 5 – Teams
+    </h1>
+</header>
+
+<main class="container mx-auto px-4 pb-10">
+    <div id="team-grid" class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 justify-items-center"></div>
+</main>
+
+<script>
+    /* Build an OP.GG multi‑search URL */
+    function buildOpggUrl(accounts) {
+        const q = accounts.map(a => encodeURIComponent(a)).join(',');
+        return `https://www.op.gg/multisearch/euw?summoners=${q}`;
+    }
+
+    fetch('opl_teams.json')
+        .then(r => r.json())
+        .then(teams => {
+            const grid = document.getElementById('team-grid');
+            teams.forEach(t => {
+                const lolNames = Object.values(t.users || {})
+                    .map(u => u.launcher?.['13']?.last_known_username)
+                    .filter(Boolean);
+
+                const card = document.createElement('div');
+                card.className = 'ak-card';
+
+                card.innerHTML = `
+              <img src="images/${t.ID}.png" onerror="this.src='images/akgaming.png'" alt="${t.name}" class="w-20 h-20 object-contain mx-auto mb-2" />
+              <h2 class="text-lg font-semibold text-center truncate">${t.name}</h2>
+              <p class="text-xs text-center muted">${t.short_name ?? ''}</p>
+              <div class="mt-2 text-sm space-y-0.5 max-h-40 overflow-auto pr-1">
+                ${Object.values(t.users || {})
+                    .map(u => `• ${u.username}`)
+                    .join('<br/>') || '<span class="italic muted">No players</span>'}
+              </div>
+              ${lolNames.length ? `<a href="${buildOpggUrl(lolNames)}" target="_blank" class="ak-btn">OP.GG Multi</a>` : ''}
+            `;
+
+                grid.appendChild(card);
+            });
+        })
+        .catch(err => {
+            document.getElementById('team-grid').innerHTML = `<p class="text-red-400">Failed to load opl_teams.json – ${err}</p>`;
+        });
+</script>
+</body>
+</html>
+

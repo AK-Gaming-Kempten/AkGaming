@@ -1,0 +1,3731 @@
+[
+  {
+    "ID": 5313,
+    "name": "ESA FOX",
+    "short_name": "ESA",
+    "residence_name": "Germany",
+    "url": "https://www.opleague.pro/team/5313-ESA-FOX",
+    "game": {
+      "ID": 11,
+      "name": "League Of Legends",
+      "short_name": "LOL",
+      "min_age": 12,
+      "logo_array": [],
+      "logo_array_on_black": [],
+      "logo_color_array": [],
+      "keyart_array": [],
+      "cover_array": []
+    },
+    "description": null,
+    "discord": null,
+    "twitter": null,
+    "twitch": null,
+    "youtube": null,
+    "website": null,
+    "logo_array": {
+      "on_error": null,
+      "original": null,
+      "compressed": null,
+      "background": "../styles/media/team/5313/Logo_background.png",
+      "is_on_error": false
+    },
+    "logo_array_on_black": {
+      "on_error": null,
+      "original": null,
+      "compressed": null,
+      "background": null,
+      "is_on_error": false
+    },
+    "banner_array": [],
+    "users": {
+      "21156": {
+        "ID": 21156,
+        "username": "TenkoKun",
+        "first_name": "Markus",
+        "last_name": null,
+        "residence_name": "Germany",
+        "age": 27,
+        "url": "https://www.opleague.pro/user/21156-TenkoKun",
+        "description": null,
+        "discord": "Spokus#5608",
+        "discord_ID": 196681417453731840,
+        "twitter": null,
+        "twitch": null,
+        "youtube": null,
+        "website": null,
+        "logo_array": {
+          "on_error": null,
+          "original": null,
+          "compressed": null,
+          "background": null,
+          "is_on_error": true
+        },
+        "launcher": {
+          "6": {
+            "linked_on": {
+              "date": "2023-09-25 17:41:50.000000",
+              "timezone_type": 3,
+              "timezone": "Europe/Berlin"
+            },
+            "value": "croEx9PT6t0K04iWZ0fTNv0MoHu1-Ies6x8uqxb0YJ93gRh1qf_ymKD1_gaHdcrq6x-kPrOKrc030w",
+            "last_known_username": "TenkoKun#EUW",
+            "name": "Riot ID (Valorant)",
+            "launcher_ID": "6"
+          },
+          "13": {
+            "linked_on": {
+              "date": "2023-09-25 17:41:50.000000",
+              "timezone_type": 3,
+              "timezone": "Europe/Berlin"
+            },
+            "value": "croEx9PT6t0K04iWZ0fTNv0MoHu1-Ies6x8uqxb0YJ93gRh1qf_ymKD1_gaHdcrq6x-kPrOKrc030w",
+            "last_known_username": "TenkoKun#EUW",
+            "name": "Riot ID (League of Legends)",
+            "launcher_ID": "13"
+          }
+        }
+      },
+      "21157": {
+        "ID": 21157,
+        "username": "Nexus2011x",
+        "first_name": "Niklas",
+        "last_name": null,
+        "residence_name": "Germany",
+        "age": 28,
+        "url": "https://www.opleague.pro/user/21157-Nexus2011x",
+        "description": null,
+        "discord": null,
+        "discord_ID": null,
+        "twitter": null,
+        "twitch": null,
+        "youtube": null,
+        "website": null,
+        "logo_array": {
+          "on_error": null,
+          "original": null,
+          "compressed": null,
+          "background": null,
+          "is_on_error": true
+        },
+        "launcher": {
+          "6": {
+            "linked_on": {
+              "date": "2023-10-03 20:38:36.000000",
+              "timezone_type": 3,
+              "timezone": "Europe/Berlin"
+            },
+            "value": "tx17FuU37h5cQ-Tdm6WJ3ZoRxXjChoKYk9fQpninIuBVETd9z4zlK33VHP7Glxu_-iI1kb6EHHpKqA",
+            "last_known_username": "\u0161ugoi Nexus#EUW",
+            "name": "Riot ID (Valorant)",
+            "launcher_ID": "6"
+          },
+          "13": {
+            "linked_on": {
+              "date": "2023-10-03 20:38:36.000000",
+              "timezone_type": 3,
+              "timezone": "Europe/Berlin"
+            },
+            "value": "tx17FuU37h5cQ-Tdm6WJ3ZoRxXjChoKYk9fQpninIuBVETd9z4zlK33VHP7Glxu_-iI1kb6EHHpKqA",
+            "last_known_username": "\u0161ugoi Nexus#EUW",
+            "name": "Riot ID (League of Legends)",
+            "launcher_ID": "13"
+          }
+        }
+      },
+      "21159": {
+        "ID": 21159,
+        "username": "eneB",
+        "first_name": "Benedikt",
+        "last_name": null,
+        "residence_name": "Germany",
+        "age": 28,
+        "url": "https://www.opleague.pro/user/21159-eneB",
+        "description": null,
+        "discord": "b.ene",
+        "discord_ID": 268240920070062082,
+        "twitter": null,
+        "twitch": null,
+        "youtube": null,
+        "website": null,
+        "logo_array": {
+          "on_error": null,
+          "original": null,
+          "compressed": null,
+          "background": null,
+          "is_on_error": true
+        },
+        "launcher": {
+          "6": {
+            "linked_on": {
+              "date": "2023-09-18 16:00:09.000000",
+              "timezone_type": 3,
+              "timezone": "Europe/Berlin"
+            },
+            "value": "0wutaZKrcsn_pMM8Z07mOU-glVTKWEyp94Bweke0-xgAGEVF2kr5bkZMndHX_Dm2XoEvmXesh1HUsw",
+            "last_known_username": "eneB#eneB",
+            "name": "Riot ID (Valorant)",
+            "launcher_ID": "6"
+          },
+          "13": {
+            "linked_on": {
+              "date": "2023-09-18 16:00:17.000000",
+              "timezone_type": 3,
+              "timezone": "Europe/Berlin"
+            },
+            "value": "0wutaZKrcsn_pMM8Z07mOU-glVTKWEyp94Bweke0-xgAGEVF2kr5bkZMndHX_Dm2XoEvmXesh1HUsw",
+            "last_known_username": "eneB#eneB",
+            "name": "Riot ID (League of Legends)",
+            "launcher_ID": "13"
+          }
+        }
+      },
+      "21174": {
+        "ID": 21174,
+        "username": "Jojo1903",
+        "first_name": null,
+        "last_name": null,
+        "residence_name": "Germany",
+        "age": null,
+        "url": "https://www.opleague.pro/user/21174-Jojo1903",
+        "description": null,
+        "discord": null,
+        "discord_ID": null,
+        "twitter": null,
+        "twitch": null,
+        "youtube": null,
+        "website": null,
+        "logo_array": {
+          "on_error": null,
+          "original": null,
+          "compressed": null,
+          "background": null,
+          "is_on_error": true
+        },
+        "launcher": {
+          "6": {
+            "linked_on": {
+              "date": "2023-09-19 18:09:32.000000",
+              "timezone_type": 3,
+              "timezone": "Europe/Berlin"
+            },
+            "value": "Vh_j09hpDP8cf_HL7szZagRo94uIKAnIbOD9SvvKS0EUUuQrm1LmAP_Yr7z8KOMy3c6G9PKsPavqLw",
+            "last_known_username": "Jojo1903#3715",
+            "name": "Riot ID (Valorant)",
+            "launcher_ID": "6"
+          },
+          "13": {
+            "linked_on": {
+              "date": "2023-09-19 18:09:32.000000",
+              "timezone_type": 3,
+              "timezone": "Europe/Berlin"
+            },
+            "value": "Vh_j09hpDP8cf_HL7szZagRo94uIKAnIbOD9SvvKS0EUUuQrm1LmAP_Yr7z8KOMy3c6G9PKsPavqLw",
+            "last_known_username": "Jojo1903#3715",
+            "name": "Riot ID (League of Legends)",
+            "launcher_ID": "13"
+          }
+        }
+      },
+      "21234": {
+        "ID": 21234,
+        "username": "Yatoka",
+        "first_name": "Kevin",
+        "last_name": null,
+        "residence_name": "Germany",
+        "age": 27,
+        "url": "https://www.opleague.pro/user/21234-Yatoka",
+        "description": null,
+        "discord": null,
+        "discord_ID": null,
+        "twitter": null,
+        "twitch": null,
+        "youtube": null,
+        "website": null,
+        "logo_array": {
+          "on_error": null,
+          "original": null,
+          "compressed": null,
+          "background": null,
+          "is_on_error": true
+        },
+        "launcher": {
+          "6": {
+            "linked_on": {
+              "date": "2024-01-08 18:56:37.000000",
+              "timezone_type": 3,
+              "timezone": "Europe/Berlin"
+            },
+            "value": "PHSBdsDGSigVYoCYhywKzcklKDO3kDqwbjBsqyG1K6gUiaVsqYX6-FQwS65hnR6B7n1Wq0ITCnQqPw",
+            "last_known_username": "Yatoka#thai",
+            "name": "Riot ID (Valorant)",
+            "launcher_ID": "6"
+          },
+          "13": {
+            "linked_on": {
+              "date": "2024-01-08 18:56:37.000000",
+              "timezone_type": 3,
+              "timezone": "Europe/Berlin"
+            },
+            "value": "PHSBdsDGSigVYoCYhywKzcklKDO3kDqwbjBsqyG1K6gUiaVsqYX6-FQwS65hnR6B7n1Wq0ITCnQqPw",
+            "last_known_username": "Yatoka#thai",
+            "name": "Riot ID (League of Legends)",
+            "launcher_ID": "13"
+          }
+        }
+      },
+      "21321": {
+        "ID": 21321,
+        "username": "Feuerschuppe",
+        "first_name": "Tim",
+        "last_name": null,
+        "residence_name": "Germany",
+        "age": null,
+        "url": "https://www.opleague.pro/user/21321-Feuerschuppe",
+        "description": null,
+        "discord": null,
+        "discord_ID": null,
+        "twitter": null,
+        "twitch": null,
+        "youtube": null,
+        "website": null,
+        "logo_array": {
+          "on_error": null,
+          "original": null,
+          "compressed": null,
+          "background": null,
+          "is_on_error": true
+        },
+        "launcher": {
+          "6": {
+            "linked_on": {
+              "date": "2023-09-26 08:35:40.000000",
+              "timezone_type": 3,
+              "timezone": "Europe/Berlin"
+            },
+            "value": "3SMb8_EWbUmqq0ERwpiSdBvbbiT11nC-EFbwhgjLHu_3IzBJrgJGMiVKbVvRo6iv2L2ySes72FKjUA",
+            "last_known_username": "Feuerschuppe#EUW",
+            "name": "Riot ID (Valorant)",
+            "launcher_ID": "6"
+          },
+          "13": {
+            "linked_on": {
+              "date": "2023-09-26 08:35:40.000000",
+              "timezone_type": 3,
+              "timezone": "Europe/Berlin"
+            },
+            "value": "3SMb8_EWbUmqq0ERwpiSdBvbbiT11nC-EFbwhgjLHu_3IzBJrgJGMiVKbVvRo6iv2L2ySes72FKjUA",
+            "last_known_username": "Feuerschuppe#EUW",
+            "name": "Riot ID (League of Legends)",
+            "launcher_ID": "13"
+          }
+        }
+      },
+      "41211": {
+        "ID": 41211,
+        "username": "monmoura#euw",
+        "first_name": "wanda",
+        "last_name": null,
+        "residence_name": "Germany",
+        "age": 27,
+        "url": "https://www.opleague.pro/user/41211-monmouraeuw",
+        "description": null,
+        "discord": null,
+        "discord_ID": null,
+        "twitter": null,
+        "twitch": null,
+        "youtube": null,
+        "website": null,
+        "logo_array": {
+          "on_error": null,
+          "original": null,
+          "compressed": null,
+          "background": null,
+          "is_on_error": true
+        },
+        "launcher": {
+          "6": {
+            "linked_on": {
+              "date": "2025-05-16 21:52:25.000000",
+              "timezone_type": 3,
+              "timezone": "Europe/Berlin"
+            },
+            "value": "rgvWbcUNlnWvw0JKpCy67DV8iJ2mhY8ySIJGSa5T2CS34xpQ1zvRN8NcpNkaH_nG_9m6xkSSexQs-A",
+            "last_known_username": "monmoura#EUW",
+            "name": "Riot ID (Valorant)",
+            "launcher_ID": "6"
+          },
+          "13": {
+            "linked_on": {
+              "date": "2025-05-16 21:52:25.000000",
+              "timezone_type": 3,
+              "timezone": "Europe/Berlin"
+            },
+            "value": "rgvWbcUNlnWvw0JKpCy67DV8iJ2mhY8ySIJGSa5T2CS34xpQ1zvRN8NcpNkaH_nG_9m6xkSSexQs-A",
+            "last_known_username": "monmoura#EUW",
+            "name": "Riot ID (League of Legends)",
+            "launcher_ID": "13"
+          }
+        }
+      }
+    }
+  },
+  {
+    "ID": 10516,
+    "name": "Wir waren dabei",
+    "short_name": "wwd",
+    "residence_name": "Germany",
+    "url": "https://www.opleague.pro/team/10516-Wir-waren-dabei",
+    "game": {
+      "ID": 11,
+      "name": "League Of Legends",
+      "short_name": "LOL",
+      "min_age": 12,
+      "logo_array": [],
+      "logo_array_on_black": [],
+      "logo_color_array": [],
+      "keyart_array": [],
+      "cover_array": []
+    },
+    "description": null,
+    "discord": null,
+    "twitter": null,
+    "twitch": null,
+    "youtube": null,
+    "website": null,
+    "logo_array": {
+      "on_error": null,
+      "original": null,
+      "compressed": null,
+      "background": null,
+      "is_on_error": false
+    },
+    "logo_array_on_black": {
+      "on_error": null,
+      "original": null,
+      "compressed": null,
+      "background": null,
+      "is_on_error": false
+    },
+    "banner_array": [],
+    "users": {
+      "40365": {
+        "ID": 40365,
+        "username": "Feedingpower",
+        "first_name": "Jakob",
+        "last_name": null,
+        "residence_name": "Germany",
+        "age": 30,
+        "url": "https://www.opleague.pro/user/40365-Feedingpower",
+        "description": null,
+        "discord": "suchtgnom.",
+        "discord_ID": 293309504970293249,
+        "twitter": null,
+        "twitch": null,
+        "youtube": null,
+        "website": null,
+        "logo_array": {
+          "on_error": null,
+          "original": null,
+          "compressed": null,
+          "background": null,
+          "is_on_error": true
+        },
+        "launcher": {
+          "6": {
+            "linked_on": {
+              "date": "2025-04-26 20:54:58.000000",
+              "timezone_type": 3,
+              "timezone": "Europe/Berlin"
+            },
+            "value": "0N1igeF32tn19bTwypJaqqtPQ8aTpDUrpwW3LnHK0LI33JnnZ-LzHYnZSJO0Idnaz324nS7cBMSOig",
+            "last_known_username": "Feedingpower#EUW",
+            "name": "Riot ID (Valorant)",
+            "launcher_ID": "6"
+          },
+          "13": {
+            "linked_on": {
+              "date": "2025-04-26 20:54:58.000000",
+              "timezone_type": 3,
+              "timezone": "Europe/Berlin"
+            },
+            "value": "0N1igeF32tn19bTwypJaqqtPQ8aTpDUrpwW3LnHK0LI33JnnZ-LzHYnZSJO0Idnaz324nS7cBMSOig",
+            "last_known_username": "Feedingpower#EUW",
+            "name": "Riot ID (League of Legends)",
+            "launcher_ID": "13"
+          }
+        }
+      },
+      "40391": {
+        "ID": 40391,
+        "username": "TsunamiXXL",
+        "first_name": "Philipp",
+        "last_name": null,
+        "residence_name": "Switzerland",
+        "age": 31,
+        "url": "https://www.opleague.pro/user/40391-TsunamiXXL",
+        "description": null,
+        "discord": "tsunamixxl.",
+        "discord_ID": 351434229042905089,
+        "twitter": null,
+        "twitch": null,
+        "youtube": null,
+        "website": null,
+        "logo_array": {
+          "on_error": null,
+          "original": null,
+          "compressed": null,
+          "background": null,
+          "is_on_error": true
+        },
+        "launcher": {
+          "6": {
+            "linked_on": {
+              "date": "2025-04-27 00:24:39.000000",
+              "timezone_type": 3,
+              "timezone": "Europe/Berlin"
+            },
+            "value": "ZcJp0kCbMXvMWrDOYqlrzZh6bUlHJNyIqb6Trks9fpKjbIpheG3tz7B2Q-DF-R-Vt5vW7eljafmxcQ",
+            "last_known_username": "TsunamiXXL#EUW",
+            "name": "Riot ID (Valorant)",
+            "launcher_ID": "6"
+          },
+          "13": {
+            "linked_on": {
+              "date": "2025-04-27 00:24:39.000000",
+              "timezone_type": 3,
+              "timezone": "Europe/Berlin"
+            },
+            "value": "ZcJp0kCbMXvMWrDOYqlrzZh6bUlHJNyIqb6Trks9fpKjbIpheG3tz7B2Q-DF-R-Vt5vW7eljafmxcQ",
+            "last_known_username": "TsunamiXXL#EUW",
+            "name": "Riot ID (League of Legends)",
+            "launcher_ID": "13"
+          }
+        }
+      },
+      "40392": {
+        "ID": 40392,
+        "username": "Ando B\u00E4r",
+        "first_name": "Andreas",
+        "last_name": null,
+        "residence_name": "Germany",
+        "age": 28,
+        "url": "https://www.opleague.pro/user/40392-Ando-Br",
+        "description": null,
+        "discord": "andobaer",
+        "discord_ID": 242988331854594048,
+        "twitter": null,
+        "twitch": null,
+        "youtube": null,
+        "website": null,
+        "logo_array": {
+          "on_error": null,
+          "original": null,
+          "compressed": null,
+          "background": null,
+          "is_on_error": true
+        },
+        "launcher": {
+          "6": {
+            "linked_on": {
+              "date": "2025-04-27 00:21:37.000000",
+              "timezone_type": 3,
+              "timezone": "Europe/Berlin"
+            },
+            "value": "E1DgJr7Vv_Gj8rjAg3d7vESpLMu4F5GpIopa7WZLKTKW9Fv9inajh0AzWfJ5wnoOr4FrGC6CqJiy0w",
+            "last_known_username": "Ando B\u00E4r#EUW",
+            "name": "Riot ID (Valorant)",
+            "launcher_ID": "6"
+          },
+          "13": {
+            "linked_on": {
+              "date": "2025-04-27 00:21:37.000000",
+              "timezone_type": 3,
+              "timezone": "Europe/Berlin"
+            },
+            "value": "E1DgJr7Vv_Gj8rjAg3d7vESpLMu4F5GpIopa7WZLKTKW9Fv9inajh0AzWfJ5wnoOr4FrGC6CqJiy0w",
+            "last_known_username": "Ando B\u00E4r#EUW",
+            "name": "Riot ID (League of Legends)",
+            "launcher_ID": "13"
+          }
+        }
+      },
+      "40547": {
+        "ID": 40547,
+        "username": "UnicornXW",
+        "first_name": "Philip",
+        "last_name": null,
+        "residence_name": "Germany",
+        "age": 29,
+        "url": "https://www.opleague.pro/user/40547-UnicornXW",
+        "description": null,
+        "discord": "just_xw",
+        "discord_ID": 335411896603770892,
+        "twitter": null,
+        "twitch": null,
+        "youtube": null,
+        "website": null,
+        "logo_array": {
+          "on_error": null,
+          "original": null,
+          "compressed": null,
+          "background": null,
+          "is_on_error": true
+        },
+        "launcher": {
+          "6": {
+            "linked_on": {
+              "date": "2025-04-27 00:21:34.000000",
+              "timezone_type": 3,
+              "timezone": "Europe/Berlin"
+            },
+            "value": "-v1up6dnKe_uqZN-NFk8ga2ETqzPFw0SwEC1YY9wHpt5CyIbkssVqlEVTmJUcYLixrMidqXNLwJ66w",
+            "last_known_username": "UnicornXW#777",
+            "name": "Riot ID (Valorant)",
+            "launcher_ID": "6"
+          },
+          "13": {
+            "linked_on": {
+              "date": "2025-04-27 00:21:34.000000",
+              "timezone_type": 3,
+              "timezone": "Europe/Berlin"
+            },
+            "value": "-v1up6dnKe_uqZN-NFk8ga2ETqzPFw0SwEC1YY9wHpt5CyIbkssVqlEVTmJUcYLixrMidqXNLwJ66w",
+            "last_known_username": "UnicornXW#777",
+            "name": "Riot ID (League of Legends)",
+            "launcher_ID": "13"
+          }
+        }
+      },
+      "40552": {
+        "ID": 40552,
+        "username": "Swissneutrality",
+        "first_name": "Linus",
+        "last_name": null,
+        "residence_name": "Switzerland",
+        "age": 32,
+        "url": "https://www.opleague.pro/user/40552-Swissneutrality",
+        "description": null,
+        "discord": "controll5562",
+        "discord_ID": 280303188387823620,
+        "twitter": null,
+        "twitch": null,
+        "youtube": null,
+        "website": null,
+        "logo_array": {
+          "on_error": null,
+          "original": null,
+          "compressed": null,
+          "background": null,
+          "is_on_error": true
+        },
+        "launcher": {
+          "6": {
+            "linked_on": {
+              "date": "2025-04-27 13:03:58.000000",
+              "timezone_type": 3,
+              "timezone": "Europe/Berlin"
+            },
+            "value": "pTtmbOozx1qsGgeCSkAQLtzRzVwlzrFpUdSjd7dHO18HSVezI_zOgpYHiQO8VtXo8pauWrot794LIA",
+            "last_known_username": "Swissneutrality#swiss",
+            "name": "Riot ID (Valorant)",
+            "launcher_ID": "6"
+          },
+          "13": {
+            "linked_on": {
+              "date": "2025-04-27 13:03:58.000000",
+              "timezone_type": 3,
+              "timezone": "Europe/Berlin"
+            },
+            "value": "pTtmbOozx1qsGgeCSkAQLtzRzVwlzrFpUdSjd7dHO18HSVezI_zOgpYHiQO8VtXo8pauWrot794LIA",
+            "last_known_username": "Swissneutrality#swiss",
+            "name": "Riot ID (League of Legends)",
+            "launcher_ID": "13"
+          }
+        }
+      }
+    }
+  },
+  {
+    "ID": 6048,
+    "name": "TeSSA G",
+    "short_name": "TSG",
+    "residence_name": "Germany",
+    "url": "https://www.opleague.pro/team/6048-TeSSA-G",
+    "game": {
+      "ID": 11,
+      "name": "League Of Legends",
+      "short_name": "LOL",
+      "min_age": 12,
+      "logo_array": [],
+      "logo_array_on_black": [],
+      "logo_color_array": [],
+      "keyart_array": [],
+      "cover_array": []
+    },
+    "description": "Discord: kroka2003",
+    "discord": null,
+    "twitter": null,
+    "twitch": null,
+    "youtube": null,
+    "website": "https://tessa.wtf/teams/#lol",
+    "logo_array": {
+      "on_error": null,
+      "original": null,
+      "compressed": null,
+      "background": "../styles/media/team/6048/Logo_background.png",
+      "is_on_error": false
+    },
+    "logo_array_on_black": {
+      "on_error": null,
+      "original": null,
+      "compressed": null,
+      "background": null,
+      "is_on_error": false
+    },
+    "banner_array": [],
+    "users": {
+      "22075": {
+        "ID": 22075,
+        "username": "Kai909",
+        "first_name": "Mathis",
+        "last_name": null,
+        "residence_name": "Germany",
+        "age": 21,
+        "url": "https://www.opleague.pro/user/22075-Kai909",
+        "description": "Discord: kainrj",
+        "discord": "kainrj",
+        "discord_ID": 424638972480716811,
+        "twitter": null,
+        "twitch": null,
+        "youtube": null,
+        "website": null,
+        "logo_array": {
+          "on_error": null,
+          "original": null,
+          "compressed": null,
+          "background": "../styles/media/user/22075/Logo_background.png",
+          "is_on_error": false
+        },
+        "launcher": {
+          "6": {
+            "linked_on": {
+              "date": "2023-10-10 19:10:06.000000",
+              "timezone_type": 3,
+              "timezone": "Europe/Berlin"
+            },
+            "value": "OUMjhhZlQa5uUJLJu1dtLCVNeoj1ufGJZSslHeE7aaGDkbCbf2rw4Te8OEzPCYaHD_EOx7t91w-CaQ",
+            "last_known_username": "KaiNRJ#909",
+            "name": "Riot ID (Valorant)",
+            "launcher_ID": "6"
+          },
+          "13": {
+            "linked_on": {
+              "date": "2023-10-10 19:10:06.000000",
+              "timezone_type": 3,
+              "timezone": "Europe/Berlin"
+            },
+            "value": "OUMjhhZlQa5uUJLJu1dtLCVNeoj1ufGJZSslHeE7aaGDkbCbf2rw4Te8OEzPCYaHD_EOx7t91w-CaQ",
+            "last_known_username": "KaiNRJ#909",
+            "name": "Riot ID (League of Legends)",
+            "launcher_ID": "13"
+          }
+        }
+      },
+      "22211": {
+        "ID": 22211,
+        "username": "SySilver",
+        "first_name": "Christian",
+        "last_name": null,
+        "residence_name": "Germany",
+        "age": 26,
+        "url": "https://www.opleague.pro/user/22211-SySilver",
+        "description": null,
+        "discord": null,
+        "discord_ID": null,
+        "twitter": null,
+        "twitch": null,
+        "youtube": null,
+        "website": null,
+        "logo_array": {
+          "on_error": null,
+          "original": null,
+          "compressed": null,
+          "background": null,
+          "is_on_error": true
+        },
+        "launcher": {
+          "6": {
+            "linked_on": {
+              "date": "2023-10-12 17:49:58.000000",
+              "timezone_type": 3,
+              "timezone": "Europe/Berlin"
+            },
+            "value": "L_cmNPvFkfP3jaBEZMBH5RUW9e0hRHM5qm72K0ypuUC_xWCfg3dZT4LWCsXDXUbJW9Rr2fKAir3cMA",
+            "last_known_username": "Silver#0522",
+            "name": "Riot ID (Valorant)",
+            "launcher_ID": "6"
+          },
+          "13": {
+            "linked_on": {
+              "date": "2023-10-12 17:49:58.000000",
+              "timezone_type": 3,
+              "timezone": "Europe/Berlin"
+            },
+            "value": "L_cmNPvFkfP3jaBEZMBH5RUW9e0hRHM5qm72K0ypuUC_xWCfg3dZT4LWCsXDXUbJW9Rr2fKAir3cMA",
+            "last_known_username": "Silver#0522",
+            "name": "Riot ID (League of Legends)",
+            "launcher_ID": "13"
+          }
+        }
+      },
+      "22906": {
+        "ID": 22906,
+        "username": "PatrickStar",
+        "first_name": "Simon",
+        "last_name": null,
+        "residence_name": "Germany",
+        "age": null,
+        "url": "https://www.opleague.pro/user/22906-PatrickStar",
+        "description": null,
+        "discord": null,
+        "discord_ID": null,
+        "twitter": null,
+        "twitch": null,
+        "youtube": null,
+        "website": null,
+        "logo_array": {
+          "on_error": null,
+          "original": null,
+          "compressed": null,
+          "background": "../styles/media/user/22906/Logo_background.png",
+          "is_on_error": false
+        },
+        "launcher": {
+          "6": {
+            "linked_on": {
+              "date": "2023-10-19 17:28:14.000000",
+              "timezone_type": 3,
+              "timezone": "Europe/Berlin"
+            },
+            "value": "B4pdeyER5_3AqAYZ33THF6p2V0dacSl7awbqzjL9ljI_aJt1EQDmcoqkqXvdEbqyA8LxirCRvlF-ww",
+            "last_known_username": "Travis#21svg",
+            "name": "Riot ID (Valorant)",
+            "launcher_ID": "6"
+          },
+          "13": {
+            "linked_on": {
+              "date": "2023-10-19 17:28:14.000000",
+              "timezone_type": 3,
+              "timezone": "Europe/Berlin"
+            },
+            "value": "B4pdeyER5_3AqAYZ33THF6p2V0dacSl7awbqzjL9ljI_aJt1EQDmcoqkqXvdEbqyA8LxirCRvlF-ww",
+            "last_known_username": "Travis#21svg",
+            "name": "Riot ID (League of Legends)",
+            "launcher_ID": "13"
+          }
+        }
+      },
+      "23146": {
+        "ID": 23146,
+        "username": "KROKA",
+        "first_name": "Simon",
+        "last_name": null,
+        "residence_name": "Germany",
+        "age": 22,
+        "url": "https://www.opleague.pro/user/23146-KROKA",
+        "description": null,
+        "discord": "kroka2003",
+        "discord_ID": 219880996491886593,
+        "twitter": null,
+        "twitch": null,
+        "youtube": null,
+        "website": null,
+        "logo_array": {
+          "on_error": null,
+          "original": null,
+          "compressed": null,
+          "background": null,
+          "is_on_error": false
+        },
+        "launcher": {
+          "6": {
+            "linked_on": {
+              "date": "2023-10-21 20:12:39.000000",
+              "timezone_type": 3,
+              "timezone": "Europe/Berlin"
+            },
+            "value": "vUjS2V-7F4s-Rz4wP72WzQvPaSpfw6dGrhLf0ZMKtQSgWieufXFwpr7Wa9jsXUQGaIEy6V7_dD2gSg",
+            "last_known_username": "KROKA#ESA",
+            "name": "Riot ID (Valorant)",
+            "launcher_ID": "6"
+          },
+          "13": {
+            "linked_on": {
+              "date": "2023-10-21 20:12:39.000000",
+              "timezone_type": 3,
+              "timezone": "Europe/Berlin"
+            },
+            "value": "vUjS2V-7F4s-Rz4wP72WzQvPaSpfw6dGrhLf0ZMKtQSgWieufXFwpr7Wa9jsXUQGaIEy6V7_dD2gSg",
+            "last_known_username": "KROKA#ESA",
+            "name": "Riot ID (League of Legends)",
+            "launcher_ID": "13"
+          }
+        }
+      },
+      "34574": {
+        "ID": 34574,
+        "username": "FLOFST",
+        "first_name": "Florian",
+        "last_name": null,
+        "residence_name": "Germany",
+        "age": 20,
+        "url": "https://www.opleague.pro/user/34574-FLOFST",
+        "description": null,
+        "discord": null,
+        "discord_ID": null,
+        "twitter": null,
+        "twitch": null,
+        "youtube": null,
+        "website": null,
+        "logo_array": {
+          "on_error": null,
+          "original": null,
+          "compressed": null,
+          "background": null,
+          "is_on_error": true
+        },
+        "launcher": {
+          "6": {
+            "linked_on": {
+              "date": "2024-10-13 19:44:41.000000",
+              "timezone_type": 3,
+              "timezone": "Europe/Berlin"
+            },
+            "value": "z5BEgw_F9m_ha1sqDkQAm9Wi2EQjuGIwG-hl-mCNghovukNvQQNZKsAhnLksowmRyVZg5Eh4QLjdkg",
+            "last_known_username": "FLOFST#CGN",
+            "name": "Riot ID (Valorant)",
+            "launcher_ID": "6"
+          },
+          "13": {
+            "linked_on": {
+              "date": "2024-10-13 19:44:42.000000",
+              "timezone_type": 3,
+              "timezone": "Europe/Berlin"
+            },
+            "value": "z5BEgw_F9m_ha1sqDkQAm9Wi2EQjuGIwG-hl-mCNghovukNvQQNZKsAhnLksowmRyVZg5Eh4QLjdkg",
+            "last_known_username": "FLOFST#CGN",
+            "name": "Riot ID (League of Legends)",
+            "launcher_ID": "13"
+          }
+        }
+      },
+      "34691": {
+        "ID": 34691,
+        "username": "wh1t3k04l4",
+        "first_name": null,
+        "last_name": null,
+        "residence_name": "Germany",
+        "age": null,
+        "url": "https://www.opleague.pro/user/34691-wh1t3k04l4",
+        "description": null,
+        "discord": null,
+        "discord_ID": null,
+        "twitter": null,
+        "twitch": null,
+        "youtube": null,
+        "website": null,
+        "logo_array": {
+          "on_error": null,
+          "original": null,
+          "compressed": null,
+          "background": null,
+          "is_on_error": true
+        },
+        "launcher": {
+          "6": {
+            "linked_on": {
+              "date": "2024-10-13 15:16:16.000000",
+              "timezone_type": 3,
+              "timezone": "Europe/Berlin"
+            },
+            "value": "LlKtVXB79f0kzQCgzRpaU4QEtm178r83OY3gqwRNP75Fuap4DW-zHTsoQNzo7xHT6Lb6nb-SwY7ytw",
+            "last_known_username": "wh1t3k04l4#1337",
+            "name": "Riot ID (Valorant)",
+            "launcher_ID": "6"
+          },
+          "13": {
+            "linked_on": {
+              "date": "2024-10-13 15:16:16.000000",
+              "timezone_type": 3,
+              "timezone": "Europe/Berlin"
+            },
+            "value": "LlKtVXB79f0kzQCgzRpaU4QEtm178r83OY3gqwRNP75Fuap4DW-zHTsoQNzo7xHT6Lb6nb-SwY7ytw",
+            "last_known_username": "wh1t3k04l4#1337",
+            "name": "Riot ID (League of Legends)",
+            "launcher_ID": "13"
+          }
+        }
+      },
+      "39453": {
+        "ID": 39453,
+        "username": "Whidos",
+        "first_name": "Milan",
+        "last_name": null,
+        "residence_name": "Germany",
+        "age": 21,
+        "url": "https://www.opleague.pro/user/39453-Whidos",
+        "description": null,
+        "discord": "whidos",
+        "discord_ID": 472853564033597450,
+        "twitter": null,
+        "twitch": null,
+        "youtube": null,
+        "website": null,
+        "logo_array": {
+          "on_error": null,
+          "original": null,
+          "compressed": null,
+          "background": null,
+          "is_on_error": true
+        },
+        "launcher": {
+          "6": {
+            "linked_on": {
+              "date": "2025-04-02 08:54:33.000000",
+              "timezone_type": 3,
+              "timezone": "Europe/Berlin"
+            },
+            "value": "UqbdRRepEzhRz6_bddO_6ByivrqwE5LO5zI2mw3t_0HPGFNBNnR1s6y_aMWKJTGQGfPnm08cu1tEQw",
+            "last_known_username": "Whidos#0187",
+            "name": "Riot ID (Valorant)",
+            "launcher_ID": "6"
+          },
+          "13": {
+            "linked_on": {
+              "date": "2025-04-02 08:54:33.000000",
+              "timezone_type": 3,
+              "timezone": "Europe/Berlin"
+            },
+            "value": "UqbdRRepEzhRz6_bddO_6ByivrqwE5LO5zI2mw3t_0HPGFNBNnR1s6y_aMWKJTGQGfPnm08cu1tEQw",
+            "last_known_username": "Whidos#0187",
+            "name": "Riot ID (League of Legends)",
+            "launcher_ID": "13"
+          }
+        }
+      }
+    }
+  },
+  {
+    "ID": 10595,
+    "name": "HGI\u2603\uFE0F",
+    "short_name": "HGI",
+    "residence_name": "Germany",
+    "url": "https://www.opleague.pro/team/10595-HGI",
+    "game": {
+      "ID": 11,
+      "name": "League Of Legends",
+      "short_name": "LOL",
+      "min_age": 12,
+      "logo_array": [],
+      "logo_array_on_black": [],
+      "logo_color_array": [],
+      "keyart_array": [],
+      "cover_array": []
+    },
+    "description": null,
+    "discord": null,
+    "twitter": null,
+    "twitch": null,
+    "youtube": null,
+    "website": null,
+    "logo_array": {
+      "on_error": null,
+      "original": null,
+      "compressed": null,
+      "background": "../styles/media/team/10595/Logo_background.png",
+      "is_on_error": false
+    },
+    "logo_array_on_black": {
+      "on_error": null,
+      "original": null,
+      "compressed": null,
+      "background": null,
+      "is_on_error": false
+    },
+    "banner_array": [],
+    "users": {
+      "21180": {
+        "ID": 21180,
+        "username": "Gletscherprise",
+        "first_name": "Yannik",
+        "last_name": null,
+        "residence_name": "Germany",
+        "age": 25,
+        "url": "https://www.opleague.pro/user/21180-Gletscherprise",
+        "description": null,
+        "discord": "gletscherprise",
+        "discord_ID": 489110124938526720,
+        "twitter": null,
+        "twitch": null,
+        "youtube": null,
+        "website": null,
+        "logo_array": {
+          "on_error": null,
+          "original": null,
+          "compressed": null,
+          "background": null,
+          "is_on_error": true
+        },
+        "launcher": {
+          "6": {
+            "linked_on": {
+              "date": "2023-10-16 19:45:25.000000",
+              "timezone_type": 3,
+              "timezone": "Europe/Berlin"
+            },
+            "value": "mz6LF0T86K3VqRTIujEtAFvSI7u5KR7iT3LXnAHyFKBzWuttLQMHy1m-znfmLjKhqsmULyhss94Rkg",
+            "last_known_username": "Gletscherprise#HGI",
+            "name": "Riot ID (Valorant)",
+            "launcher_ID": "6"
+          },
+          "13": {
+            "linked_on": {
+              "date": "2023-10-16 19:45:25.000000",
+              "timezone_type": 3,
+              "timezone": "Europe/Berlin"
+            },
+            "value": "mz6LF0T86K3VqRTIujEtAFvSI7u5KR7iT3LXnAHyFKBzWuttLQMHy1m-znfmLjKhqsmULyhss94Rkg",
+            "last_known_username": "Gletscherprise#HGI",
+            "name": "Riot ID (League of Legends)",
+            "launcher_ID": "13"
+          }
+        }
+      },
+      "22650": {
+        "ID": 22650,
+        "username": "Shidowo",
+        "first_name": null,
+        "last_name": null,
+        "residence_name": "Germany",
+        "age": null,
+        "url": "https://www.opleague.pro/user/22650-Shidowo",
+        "description": null,
+        "discord": "shidowo",
+        "discord_ID": 157571665952243712,
+        "twitter": null,
+        "twitch": null,
+        "youtube": null,
+        "website": null,
+        "logo_array": {
+          "on_error": null,
+          "original": null,
+          "compressed": null,
+          "background": null,
+          "is_on_error": true
+        },
+        "launcher": {
+          "6": {
+            "linked_on": {
+              "date": "2023-10-18 20:11:43.000000",
+              "timezone_type": 3,
+              "timezone": "Europe/Berlin"
+            },
+            "value": "CQ0ff6blTqIqHL1AEzyR6CIXk0_sXdbcNpE-ctxMB3JPth6FXfql9MULbM_dtku19xmUuLUDv-qc1Q",
+            "last_known_username": "Shidowo#EUW",
+            "name": "Riot ID (Valorant)",
+            "launcher_ID": "6"
+          },
+          "13": {
+            "linked_on": {
+              "date": "2023-10-18 20:11:43.000000",
+              "timezone_type": 3,
+              "timezone": "Europe/Berlin"
+            },
+            "value": "CQ0ff6blTqIqHL1AEzyR6CIXk0_sXdbcNpE-ctxMB3JPth6FXfql9MULbM_dtku19xmUuLUDv-qc1Q",
+            "last_known_username": "Shidowo#EUW",
+            "name": "Riot ID (League of Legends)",
+            "launcher_ID": "13"
+          }
+        }
+      },
+      "40836": {
+        "ID": 40836,
+        "username": "Truebavarian",
+        "first_name": "Kilian",
+        "last_name": "M\u00FChlbauer",
+        "residence_name": "Germany",
+        "age": 28,
+        "url": "https://www.opleague.pro/user/40836-Truebavarian",
+        "description": null,
+        "discord": "truebavarian",
+        "discord_ID": 370280715725570048,
+        "twitter": null,
+        "twitch": null,
+        "youtube": null,
+        "website": null,
+        "logo_array": {
+          "on_error": null,
+          "original": null,
+          "compressed": null,
+          "background": null,
+          "is_on_error": false
+        },
+        "launcher": {
+          "6": {
+            "linked_on": {
+              "date": "2025-05-04 23:24:04.000000",
+              "timezone_type": 3,
+              "timezone": "Europe/Berlin"
+            },
+            "value": "sEWCA8-tAGPAETzl8URchLzQHE46OYBYLva-pa8UuvztE96SLSnYIE0M-G2CL7Qy39O8PzcFRQe5xA",
+            "last_known_username": "TrueBavarian#BAYER",
+            "name": "Riot ID (Valorant)",
+            "launcher_ID": "6"
+          },
+          "13": {
+            "linked_on": {
+              "date": "2025-05-04 23:24:04.000000",
+              "timezone_type": 3,
+              "timezone": "Europe/Berlin"
+            },
+            "value": "sEWCA8-tAGPAETzl8URchLzQHE46OYBYLva-pa8UuvztE96SLSnYIE0M-G2CL7Qy39O8PzcFRQe5xA",
+            "last_known_username": "TrueBavarian#BAYER",
+            "name": "Riot ID (League of Legends)",
+            "launcher_ID": "13"
+          }
+        }
+      },
+      "40837": {
+        "ID": 40837,
+        "username": "sutschu",
+        "first_name": "Sascha",
+        "last_name": null,
+        "residence_name": "Germany",
+        "age": 24,
+        "url": "https://www.opleague.pro/user/40837-sutschu",
+        "description": null,
+        "discord": "sutschu",
+        "discord_ID": 146396879180136448,
+        "twitter": null,
+        "twitch": null,
+        "youtube": null,
+        "website": null,
+        "logo_array": {
+          "on_error": null,
+          "original": null,
+          "compressed": null,
+          "background": null,
+          "is_on_error": true
+        },
+        "launcher": {
+          "6": {
+            "linked_on": {
+              "date": "2025-05-04 23:27:00.000000",
+              "timezone_type": 3,
+              "timezone": "Europe/Berlin"
+            },
+            "value": "ZXHHzZYRn8ecyMuu7c90pqGdBmBs4ToLo7LKPnMiWhjCD-t-AcO4BrqKc3NtZNrVV9_h8FdyBuANDw",
+            "last_known_username": "Flankowo#EUW",
+            "name": "Riot ID (Valorant)",
+            "launcher_ID": "6"
+          },
+          "13": {
+            "linked_on": {
+              "date": "2025-05-04 23:27:00.000000",
+              "timezone_type": 3,
+              "timezone": "Europe/Berlin"
+            },
+            "value": "ZXHHzZYRn8ecyMuu7c90pqGdBmBs4ToLo7LKPnMiWhjCD-t-AcO4BrqKc3NtZNrVV9_h8FdyBuANDw",
+            "last_known_username": "Flankowo#EUW",
+            "name": "Riot ID (League of Legends)",
+            "launcher_ID": "13"
+          }
+        }
+      },
+      "40840": {
+        "ID": 40840,
+        "username": "Cbaa",
+        "first_name": "Andi",
+        "last_name": null,
+        "residence_name": "Germany",
+        "age": 24,
+        "url": "https://www.opleague.pro/user/40840-Cbaa",
+        "description": null,
+        "discord": "cbaa",
+        "discord_ID": 226311619771236353,
+        "twitter": null,
+        "twitch": null,
+        "youtube": null,
+        "website": null,
+        "logo_array": {
+          "on_error": null,
+          "original": null,
+          "compressed": null,
+          "background": null,
+          "is_on_error": true
+        },
+        "launcher": {
+          "6": {
+            "linked_on": {
+              "date": "2025-05-05 22:55:46.000000",
+              "timezone_type": 3,
+              "timezone": "Europe/Berlin"
+            },
+            "value": "eretvcLJBW9YgFz7wUchqSzyUQmwPfXcdtCMZCqL-tSAdEoZD9I8xMnqU8EKB-zwNL1t1A6jk2lXrw",
+            "last_known_username": "CBAA#666",
+            "name": "Riot ID (Valorant)",
+            "launcher_ID": "6"
+          },
+          "13": {
+            "linked_on": {
+              "date": "2025-05-05 22:55:46.000000",
+              "timezone_type": 3,
+              "timezone": "Europe/Berlin"
+            },
+            "value": "eretvcLJBW9YgFz7wUchqSzyUQmwPfXcdtCMZCqL-tSAdEoZD9I8xMnqU8EKB-zwNL1t1A6jk2lXrw",
+            "last_known_username": "CBAA#666",
+            "name": "Riot ID (League of Legends)",
+            "launcher_ID": "13"
+          }
+        }
+      }
+    }
+  },
+  {
+    "ID": 10534,
+    "name": "HSK Combined",
+    "short_name": "HSKD",
+    "residence_name": "Germany",
+    "url": "https://www.opleague.pro/team/10534-HSK-Combined",
+    "game": {
+      "ID": 11,
+      "name": "League Of Legends",
+      "short_name": "LOL",
+      "min_age": 12,
+      "logo_array": [],
+      "logo_array_on_black": [],
+      "logo_color_array": [],
+      "keyart_array": [],
+      "cover_array": []
+    },
+    "description": null,
+    "discord": null,
+    "twitter": null,
+    "twitch": null,
+    "youtube": null,
+    "website": null,
+    "logo_array": {
+      "on_error": null,
+      "original": null,
+      "compressed": null,
+      "background": null,
+      "is_on_error": false
+    },
+    "logo_array_on_black": {
+      "on_error": null,
+      "original": null,
+      "compressed": null,
+      "background": null,
+      "is_on_error": false
+    },
+    "banner_array": [],
+    "users": {
+      "23444": {
+        "ID": 23444,
+        "username": "Marhalm",
+        "first_name": "Martin",
+        "last_name": null,
+        "residence_name": "Germany",
+        "age": 24,
+        "url": "https://www.opleague.pro/user/23444-Marhalm",
+        "description": null,
+        "discord": null,
+        "discord_ID": null,
+        "twitter": null,
+        "twitch": null,
+        "youtube": null,
+        "website": null,
+        "logo_array": {
+          "on_error": null,
+          "original": null,
+          "compressed": null,
+          "background": null,
+          "is_on_error": true
+        },
+        "launcher": {
+          "6": {
+            "linked_on": {
+              "date": "2023-11-22 18:41:53.000000",
+              "timezone_type": 3,
+              "timezone": "Europe/Berlin"
+            },
+            "value": "oXpzA_ecsuWuJ2FAwN7YPa_WF6uHqGIeCtILuKONbrVKGlyVt074wvIQUB2_dgttw8JTDxC5WMuHhg",
+            "last_known_username": "Marhalm#PHX",
+            "name": "Riot ID (Valorant)",
+            "launcher_ID": "6"
+          },
+          "13": {
+            "linked_on": {
+              "date": "2023-11-22 18:41:53.000000",
+              "timezone_type": 3,
+              "timezone": "Europe/Berlin"
+            },
+            "value": "oXpzA_ecsuWuJ2FAwN7YPa_WF6uHqGIeCtILuKONbrVKGlyVt074wvIQUB2_dgttw8JTDxC5WMuHhg",
+            "last_known_username": "Marhalm#PHX",
+            "name": "Riot ID (League of Legends)",
+            "launcher_ID": "13"
+          }
+        }
+      },
+      "23445": {
+        "ID": 23445,
+        "username": "Shadowsidney",
+        "first_name": "Emil",
+        "last_name": null,
+        "residence_name": "Germany",
+        "age": 22,
+        "url": "https://www.opleague.pro/user/23445-Shadowsidney",
+        "description": null,
+        "discord": null,
+        "discord_ID": null,
+        "twitter": null,
+        "twitch": null,
+        "youtube": null,
+        "website": null,
+        "logo_array": {
+          "on_error": null,
+          "original": null,
+          "compressed": null,
+          "background": null,
+          "is_on_error": true
+        },
+        "launcher": {
+          "6": {
+            "linked_on": {
+              "date": "2023-10-27 15:04:03.000000",
+              "timezone_type": 3,
+              "timezone": "Europe/Berlin"
+            },
+            "value": "Fp9TwPlg5sxD2Uc5SRoOsv2DjgVs1TXGDkjNSI67gBAhh2825UIIvQWqOWvWjSpWKocxJrinzC4ljg",
+            "last_known_username": "Shadowsidney#1981",
+            "name": "Riot ID (Valorant)",
+            "launcher_ID": "6"
+          },
+          "13": {
+            "linked_on": {
+              "date": "2023-10-27 15:04:04.000000",
+              "timezone_type": 3,
+              "timezone": "Europe/Berlin"
+            },
+            "value": "Fp9TwPlg5sxD2Uc5SRoOsv2DjgVs1TXGDkjNSI67gBAhh2825UIIvQWqOWvWjSpWKocxJrinzC4ljg",
+            "last_known_username": "Shadowsidney#1981",
+            "name": "Riot ID (League of Legends)",
+            "launcher_ID": "13"
+          }
+        }
+      },
+      "23521": {
+        "ID": 23521,
+        "username": "HiImHagrid",
+        "first_name": "Jonas",
+        "last_name": null,
+        "residence_name": "Germany",
+        "age": 22,
+        "url": "https://www.opleague.pro/user/23521-HiImHagrid",
+        "description": null,
+        "discord": null,
+        "discord_ID": null,
+        "twitter": null,
+        "twitch": null,
+        "youtube": null,
+        "website": null,
+        "logo_array": {
+          "on_error": null,
+          "original": null,
+          "compressed": null,
+          "background": null,
+          "is_on_error": true
+        },
+        "launcher": {
+          "6": {
+            "linked_on": {
+              "date": "2023-10-27 00:05:21.000000",
+              "timezone_type": 3,
+              "timezone": "Europe/Berlin"
+            },
+            "value": "C7E9grxZxX8Lh1elGU45utOcSOgSgURTAwEQQSIbcy73RdmU8ag2L50ycLqeqo19XV3PyQGbaJ6cUg",
+            "last_known_username": "SchnitzelDieb#NoAFD",
+            "name": "Riot ID (Valorant)",
+            "launcher_ID": "6"
+          },
+          "13": {
+            "linked_on": {
+              "date": "2023-10-27 00:05:21.000000",
+              "timezone_type": 3,
+              "timezone": "Europe/Berlin"
+            },
+            "value": "C7E9grxZxX8Lh1elGU45utOcSOgSgURTAwEQQSIbcy73RdmU8ag2L50ycLqeqo19XV3PyQGbaJ6cUg",
+            "last_known_username": "SchnitzelDieb#NoAFD",
+            "name": "Riot ID (League of Legends)",
+            "launcher_ID": "13"
+          }
+        }
+      },
+      "34995": {
+        "ID": 34995,
+        "username": "Montagne",
+        "first_name": "Florian ",
+        "last_name": null,
+        "residence_name": "Germany",
+        "age": 21,
+        "url": "https://www.opleague.pro/user/34995-Montagne",
+        "description": null,
+        "discord": "montagneiwnl",
+        "discord_ID": 277489668038197248,
+        "twitter": null,
+        "twitch": null,
+        "youtube": null,
+        "website": null,
+        "logo_array": {
+          "on_error": null,
+          "original": null,
+          "compressed": null,
+          "background": null,
+          "is_on_error": true
+        },
+        "launcher": {
+          "6": {
+            "linked_on": {
+              "date": "2024-10-17 15:11:21.000000",
+              "timezone_type": 3,
+              "timezone": "Europe/Berlin"
+            },
+            "value": "szT29ElLlT3jC8wuWhZiKczP-JpPVD9Np33DEnTEmr7M9OrTc17OX2PrR5Cxx2KnVzJyQqbEhWIQtQ",
+            "last_known_username": "v9R Montagne#EUW",
+            "name": "Riot ID (Valorant)",
+            "launcher_ID": "6"
+          },
+          "13": {
+            "linked_on": {
+              "date": "2024-10-17 15:11:21.000000",
+              "timezone_type": 3,
+              "timezone": "Europe/Berlin"
+            },
+            "value": "szT29ElLlT3jC8wuWhZiKczP-JpPVD9Np33DEnTEmr7M9OrTc17OX2PrR5Cxx2KnVzJyQqbEhWIQtQ",
+            "last_known_username": "v9R Montagne#EUW",
+            "name": "Riot ID (League of Legends)",
+            "launcher_ID": "13"
+          }
+        }
+      },
+      "39722": {
+        "ID": 39722,
+        "username": "Shaqui",
+        "first_name": "Shaquille",
+        "last_name": null,
+        "residence_name": "Germany",
+        "age": 20,
+        "url": "https://www.opleague.pro/user/39722-Shaqui",
+        "description": null,
+        "discord": null,
+        "discord_ID": null,
+        "twitter": null,
+        "twitch": null,
+        "youtube": null,
+        "website": null,
+        "logo_array": {
+          "on_error": null,
+          "original": null,
+          "compressed": null,
+          "background": null,
+          "is_on_error": true
+        },
+        "launcher": {
+          "6": {
+            "linked_on": {
+              "date": "2025-04-22 15:51:45.000000",
+              "timezone_type": 3,
+              "timezone": "Europe/Berlin"
+            },
+            "value": "9IebEgaHkkcf8o_o1QtcHTKrl0L_r-hGN5BQaNScTu3yf2BIUBXQgYnJJ3TRcyl4CfVQtiE6W4GyBw",
+            "last_known_username": "ShaquiChan#EUW",
+            "name": "Riot ID (Valorant)",
+            "launcher_ID": "6"
+          },
+          "13": {
+            "linked_on": {
+              "date": "2025-04-22 15:51:45.000000",
+              "timezone_type": 3,
+              "timezone": "Europe/Berlin"
+            },
+            "value": "9IebEgaHkkcf8o_o1QtcHTKrl0L_r-hGN5BQaNScTu3yf2BIUBXQgYnJJ3TRcyl4CfVQtiE6W4GyBw",
+            "last_known_username": "ShaquiChan#EUW",
+            "name": "Riot ID (League of Legends)",
+            "launcher_ID": "13"
+          }
+        }
+      }
+    }
+  },
+  {
+    "ID": 7786,
+    "name": "Reinc 8.1",
+    "short_name": "RE8",
+    "residence_name": "Germany",
+    "url": "https://www.opleague.pro/team/7786-Reinc-81",
+    "game": {
+      "ID": 11,
+      "name": "League Of Legends",
+      "short_name": "LOL",
+      "min_age": 12,
+      "logo_array": [],
+      "logo_array_on_black": [],
+      "logo_color_array": [],
+      "keyart_array": [],
+      "cover_array": []
+    },
+    "description": null,
+    "discord": null,
+    "twitter": null,
+    "twitch": null,
+    "youtube": null,
+    "website": null,
+    "logo_array": {
+      "on_error": null,
+      "original": null,
+      "compressed": null,
+      "background": "../styles/media/team/7786/Logo_background.png",
+      "is_on_error": false
+    },
+    "logo_array_on_black": {
+      "on_error": null,
+      "original": null,
+      "compressed": null,
+      "background": null,
+      "is_on_error": false
+    },
+    "banner_array": [],
+    "users": {
+      "29830": {
+        "ID": 29830,
+        "username": "JustThatG00D",
+        "first_name": "Charles-Ren\u00E9",
+        "last_name": null,
+        "residence_name": "Germany",
+        "age": 23,
+        "url": "https://www.opleague.pro/user/29830-JustThatG00D",
+        "description": null,
+        "discord": "regis8846",
+        "discord_ID": 302532958932434954,
+        "twitter": null,
+        "twitch": null,
+        "youtube": null,
+        "website": null,
+        "logo_array": {
+          "on_error": null,
+          "original": null,
+          "compressed": null,
+          "background": null,
+          "is_on_error": true
+        },
+        "launcher": {
+          "6": {
+            "linked_on": {
+              "date": "2024-04-18 08:12:02.000000",
+              "timezone_type": 3,
+              "timezone": "Europe/Berlin"
+            },
+            "value": "I-kHvGgviV1utlZKThTla9E6HgRr7zbHiHqKAGCTbGcjadFXiNifhZ9HyUkcw_LVW6yx1zq3DrxNOQ",
+            "last_known_username": "JustThatG00D#EUW",
+            "name": "Riot ID (Valorant)",
+            "launcher_ID": "6"
+          },
+          "13": {
+            "linked_on": {
+              "date": "2024-04-18 08:12:02.000000",
+              "timezone_type": 3,
+              "timezone": "Europe/Berlin"
+            },
+            "value": "I-kHvGgviV1utlZKThTla9E6HgRr7zbHiHqKAGCTbGcjadFXiNifhZ9HyUkcw_LVW6yx1zq3DrxNOQ",
+            "last_known_username": "JustThatG00D#EUW",
+            "name": "Riot ID (League of Legends)",
+            "launcher_ID": "13"
+          }
+        }
+      },
+      "29950": {
+        "ID": 29950,
+        "username": "Xandii",
+        "first_name": "Alexander",
+        "last_name": null,
+        "residence_name": "Germany",
+        "age": 24,
+        "url": "https://www.opleague.pro/user/29950-Xandii",
+        "description": null,
+        "discord": null,
+        "discord_ID": null,
+        "twitter": null,
+        "twitch": null,
+        "youtube": null,
+        "website": null,
+        "logo_array": {
+          "on_error": null,
+          "original": null,
+          "compressed": null,
+          "background": null,
+          "is_on_error": false
+        },
+        "launcher": {
+          "6": {
+            "linked_on": {
+              "date": "2024-04-17 22:59:27.000000",
+              "timezone_type": 3,
+              "timezone": "Europe/Berlin"
+            },
+            "value": "NWsTlT5tqFR3Owb-J-d4gw2vp7m0_Kdat75i5rmu5J2SeyGb2nWRPBOGkF7GKgUd9ZZoqbs_5LejXg",
+            "last_known_username": "Xandii#0001",
+            "name": "Riot ID (Valorant)",
+            "launcher_ID": "6"
+          },
+          "13": {
+            "linked_on": {
+              "date": "2024-04-17 22:59:27.000000",
+              "timezone_type": 3,
+              "timezone": "Europe/Berlin"
+            },
+            "value": "NWsTlT5tqFR3Owb-J-d4gw2vp7m0_Kdat75i5rmu5J2SeyGb2nWRPBOGkF7GKgUd9ZZoqbs_5LejXg",
+            "last_known_username": "Xandii#0001",
+            "name": "Riot ID (League of Legends)",
+            "launcher_ID": "13"
+          }
+        }
+      },
+      "29961": {
+        "ID": 29961,
+        "username": "Chicks4Jhin",
+        "first_name": "Sebastian",
+        "last_name": null,
+        "residence_name": "Germany",
+        "age": 23,
+        "url": "https://www.opleague.pro/user/29961-Chicks4Jhin",
+        "description": null,
+        "discord": null,
+        "discord_ID": null,
+        "twitter": null,
+        "twitch": null,
+        "youtube": null,
+        "website": null,
+        "logo_array": {
+          "on_error": null,
+          "original": null,
+          "compressed": null,
+          "background": null,
+          "is_on_error": false
+        },
+        "launcher": {
+          "6": {
+            "linked_on": {
+              "date": "2024-04-17 23:13:48.000000",
+              "timezone_type": 3,
+              "timezone": "Europe/Berlin"
+            },
+            "value": "28kKcIC0Jcs6sHKJEp-YsmzKKb7coCTiqK0It6ZRLr7D4KD2ucqCVoljHqu4M2qMeR7f1NNX2fm1pQ",
+            "last_known_username": "Chicks 4 Jhin#UwU",
+            "name": "Riot ID (Valorant)",
+            "launcher_ID": "6"
+          },
+          "13": {
+            "linked_on": {
+              "date": "2024-04-17 23:13:48.000000",
+              "timezone_type": 3,
+              "timezone": "Europe/Berlin"
+            },
+            "value": "28kKcIC0Jcs6sHKJEp-YsmzKKb7coCTiqK0It6ZRLr7D4KD2ucqCVoljHqu4M2qMeR7f1NNX2fm1pQ",
+            "last_known_username": "Chicks 4 Jhin#UwU",
+            "name": "Riot ID (League of Legends)",
+            "launcher_ID": "13"
+          }
+        }
+      },
+      "29962": {
+        "ID": 29962,
+        "username": "mithu",
+        "first_name": "Mithunan",
+        "last_name": null,
+        "residence_name": "Germany",
+        "age": 23,
+        "url": "https://www.opleague.pro/user/29962-mithu",
+        "description": null,
+        "discord": null,
+        "discord_ID": null,
+        "twitter": null,
+        "twitch": null,
+        "youtube": null,
+        "website": null,
+        "logo_array": {
+          "on_error": null,
+          "original": null,
+          "compressed": null,
+          "background": null,
+          "is_on_error": true
+        },
+        "launcher": {
+          "6": {
+            "linked_on": {
+              "date": "2024-04-17 23:29:36.000000",
+              "timezone_type": 3,
+              "timezone": "Europe/Berlin"
+            },
+            "value": "B0fdfQW-_l76WVT7beNaM7wWq1qfMCYBiWK3tFYovuR49sdIWyR8TANjwsRiY9r9M3d7nPblvQDMkw",
+            "last_known_username": "mithu#0000",
+            "name": "Riot ID (Valorant)",
+            "launcher_ID": "6"
+          },
+          "13": {
+            "linked_on": {
+              "date": "2024-04-17 23:29:36.000000",
+              "timezone_type": 3,
+              "timezone": "Europe/Berlin"
+            },
+            "value": "B0fdfQW-_l76WVT7beNaM7wWq1qfMCYBiWK3tFYovuR49sdIWyR8TANjwsRiY9r9M3d7nPblvQDMkw",
+            "last_known_username": "mithu#0000",
+            "name": "Riot ID (League of Legends)",
+            "launcher_ID": "13"
+          }
+        }
+      },
+      "29982": {
+        "ID": 29982,
+        "username": "PhanTOOM",
+        "first_name": "Tom",
+        "last_name": null,
+        "residence_name": "Germany",
+        "age": 23,
+        "url": "https://www.opleague.pro/user/29982-PhanTOOM",
+        "description": null,
+        "discord": null,
+        "discord_ID": null,
+        "twitter": null,
+        "twitch": null,
+        "youtube": null,
+        "website": null,
+        "logo_array": {
+          "on_error": null,
+          "original": null,
+          "compressed": null,
+          "background": "../styles/media/user/29982/Logo_background.png",
+          "is_on_error": false
+        },
+        "launcher": {
+          "6": {
+            "linked_on": {
+              "date": "2024-04-18 10:33:52.000000",
+              "timezone_type": 3,
+              "timezone": "Europe/Berlin"
+            },
+            "value": "gzcGfiILA9qqEhG88SJGIgzwE7eYXFiDomgzYWFbitAUcF3PoatIe80l-g5-8R6R_wemkUmwaiTXrQ",
+            "last_known_username": "PhanTOM#420",
+            "name": "Riot ID (Valorant)",
+            "launcher_ID": "6"
+          },
+          "13": {
+            "linked_on": {
+              "date": "2024-04-18 10:33:52.000000",
+              "timezone_type": 3,
+              "timezone": "Europe/Berlin"
+            },
+            "value": "gzcGfiILA9qqEhG88SJGIgzwE7eYXFiDomgzYWFbitAUcF3PoatIe80l-g5-8R6R_wemkUmwaiTXrQ",
+            "last_known_username": "PhanTOM#420",
+            "name": "Riot ID (League of Legends)",
+            "launcher_ID": "13"
+          }
+        }
+      },
+      "30006": {
+        "ID": 30006,
+        "username": "Thylo1",
+        "first_name": "Thilo",
+        "last_name": null,
+        "residence_name": "Germany",
+        "age": 23,
+        "url": "https://www.opleague.pro/user/30006-Thylo1",
+        "description": null,
+        "discord": null,
+        "discord_ID": null,
+        "twitter": null,
+        "twitch": null,
+        "youtube": null,
+        "website": null,
+        "logo_array": {
+          "on_error": null,
+          "original": null,
+          "compressed": null,
+          "background": null,
+          "is_on_error": true
+        },
+        "launcher": {
+          "6": {
+            "linked_on": {
+              "date": "2024-04-18 16:42:30.000000",
+              "timezone_type": 3,
+              "timezone": "Europe/Berlin"
+            },
+            "value": "wRqw_nxA2xb6ZL8GDnp_x8WQUl7YArhm7Rb_5W-o9abh8_EwO9YagKpcCXoHQx6PAtTPW2r-MEJAmQ",
+            "last_known_username": "Thylo1#EUW2",
+            "name": "Riot ID (Valorant)",
+            "launcher_ID": "6"
+          },
+          "13": {
+            "linked_on": {
+              "date": "2024-04-18 16:42:30.000000",
+              "timezone_type": 3,
+              "timezone": "Europe/Berlin"
+            },
+            "value": "wRqw_nxA2xb6ZL8GDnp_x8WQUl7YArhm7Rb_5W-o9abh8_EwO9YagKpcCXoHQx6PAtTPW2r-MEJAmQ",
+            "last_known_username": "Thylo1#EUW2",
+            "name": "Riot ID (League of Legends)",
+            "launcher_ID": "13"
+          }
+        }
+      },
+      "30012": {
+        "ID": 30012,
+        "username": "Diamantenherz",
+        "first_name": "Manuel",
+        "last_name": null,
+        "residence_name": "Germany",
+        "age": 24,
+        "url": "https://www.opleague.pro/user/30012-Diamantenherz",
+        "description": null,
+        "discord": null,
+        "discord_ID": null,
+        "twitter": null,
+        "twitch": null,
+        "youtube": null,
+        "website": null,
+        "logo_array": {
+          "on_error": null,
+          "original": null,
+          "compressed": null,
+          "background": null,
+          "is_on_error": true
+        },
+        "launcher": {
+          "6": {
+            "linked_on": {
+              "date": "2024-04-18 17:52:57.000000",
+              "timezone_type": 3,
+              "timezone": "Europe/Berlin"
+            },
+            "value": "d1fADOd8eXCotE86TiaH8ZdvnRLd9uDpM0qzUtExWkKmtrDiioD_IAqFoM3GJCmVQ0I5kl2RGxsYLg",
+            "last_known_username": "Diamantenherz#EUW",
+            "name": "Riot ID (Valorant)",
+            "launcher_ID": "6"
+          },
+          "13": {
+            "linked_on": {
+              "date": "2024-04-18 17:52:57.000000",
+              "timezone_type": 3,
+              "timezone": "Europe/Berlin"
+            },
+            "value": "d1fADOd8eXCotE86TiaH8ZdvnRLd9uDpM0qzUtExWkKmtrDiioD_IAqFoM3GJCmVQ0I5kl2RGxsYLg",
+            "last_known_username": "Diamantenherz#EUW",
+            "name": "Riot ID (League of Legends)",
+            "launcher_ID": "13"
+          }
+        }
+      }
+    }
+  },
+  {
+    "ID": 10658,
+    "name": "Carlo Legends",
+    "short_name": "CL",
+    "residence_name": "Germany",
+    "url": "https://www.opleague.pro/team/10658-Carlo-Legends",
+    "game": {
+      "ID": 11,
+      "name": "League Of Legends",
+      "short_name": "LOL",
+      "min_age": 12,
+      "logo_array": [],
+      "logo_array_on_black": [],
+      "logo_color_array": [],
+      "keyart_array": [],
+      "cover_array": []
+    },
+    "description": null,
+    "discord": null,
+    "twitter": null,
+    "twitch": null,
+    "youtube": null,
+    "website": null,
+    "logo_array": {
+      "on_error": null,
+      "original": null,
+      "compressed": null,
+      "background": null,
+      "is_on_error": false
+    },
+    "logo_array_on_black": {
+      "on_error": null,
+      "original": null,
+      "compressed": null,
+      "background": null,
+      "is_on_error": false
+    },
+    "banner_array": [],
+    "users": {
+      "41063": {
+        "ID": 41063,
+        "username": "Rapix",
+        "first_name": "Moritz",
+        "last_name": null,
+        "residence_name": "Germany",
+        "age": 24,
+        "url": "https://www.opleague.pro/user/41063-Rapix",
+        "description": null,
+        "discord": "rapid0970",
+        "discord_ID": 233236718122303490,
+        "twitter": null,
+        "twitch": null,
+        "youtube": null,
+        "website": null,
+        "logo_array": {
+          "on_error": null,
+          "original": null,
+          "compressed": null,
+          "background": null,
+          "is_on_error": true
+        },
+        "launcher": {
+          "6": {
+            "linked_on": {
+              "date": "2025-05-11 18:56:17.000000",
+              "timezone_type": 3,
+              "timezone": "Europe/Berlin"
+            },
+            "value": "1vZd2KC-5UaiIZEN2hx2cTmx1BXaLZld6mCD8kZc8I6n_j95WTBq2prqmpq52OiozJTT3qeVi2RYIA",
+            "last_known_username": "Rapix LoL#KEK",
+            "name": "Riot ID (Valorant)",
+            "launcher_ID": "6"
+          },
+          "13": {
+            "linked_on": {
+              "date": "2025-05-11 18:56:17.000000",
+              "timezone_type": 3,
+              "timezone": "Europe/Berlin"
+            },
+            "value": "1vZd2KC-5UaiIZEN2hx2cTmx1BXaLZld6mCD8kZc8I6n_j95WTBq2prqmpq52OiozJTT3qeVi2RYIA",
+            "last_known_username": "Rapix LoL#KEK",
+            "name": "Riot ID (League of Legends)",
+            "launcher_ID": "13"
+          }
+        }
+      },
+      "41064": {
+        "ID": 41064,
+        "username": "FREE2WIN",
+        "first_name": "Tim",
+        "last_name": null,
+        "residence_name": "Germany",
+        "age": 24,
+        "url": "https://www.opleague.pro/user/41064-FREE2WIN",
+        "description": null,
+        "discord": "free2win",
+        "discord_ID": 612243604639055882,
+        "twitter": null,
+        "twitch": null,
+        "youtube": null,
+        "website": null,
+        "logo_array": {
+          "on_error": null,
+          "original": null,
+          "compressed": null,
+          "background": null,
+          "is_on_error": true
+        },
+        "launcher": {
+          "6": {
+            "linked_on": {
+              "date": "2025-05-11 19:11:56.000000",
+              "timezone_type": 3,
+              "timezone": "Europe/Berlin"
+            },
+            "value": "wXtRK6D7ArlFuIdfzyw8gmtxC3_KdiUqcM76YbeWjG72T2KBX1zlm5-VKmtlA522V_Ss_8iEqiHdKQ",
+            "last_known_username": "FREE2WIN#F2W",
+            "name": "Riot ID (Valorant)",
+            "launcher_ID": "6"
+          },
+          "13": {
+            "linked_on": {
+              "date": "2025-05-11 19:11:56.000000",
+              "timezone_type": 3,
+              "timezone": "Europe/Berlin"
+            },
+            "value": "wXtRK6D7ArlFuIdfzyw8gmtxC3_KdiUqcM76YbeWjG72T2KBX1zlm5-VKmtlA522V_Ss_8iEqiHdKQ",
+            "last_known_username": "FREE2WIN#F2W",
+            "name": "Riot ID (League of Legends)",
+            "launcher_ID": "13"
+          }
+        }
+      },
+      "41066": {
+        "ID": 41066,
+        "username": "Knabentee",
+        "first_name": null,
+        "last_name": null,
+        "residence_name": "Germany",
+        "age": 24,
+        "url": "https://www.opleague.pro/user/41066-Knabentee",
+        "description": null,
+        "discord": "knabentee",
+        "discord_ID": 356825800403714058,
+        "twitter": null,
+        "twitch": null,
+        "youtube": null,
+        "website": null,
+        "logo_array": {
+          "on_error": null,
+          "original": null,
+          "compressed": null,
+          "background": null,
+          "is_on_error": true
+        },
+        "launcher": {
+          "6": {
+            "linked_on": {
+              "date": "2025-05-11 19:52:16.000000",
+              "timezone_type": 3,
+              "timezone": "Europe/Berlin"
+            },
+            "value": "QBsPuAY8VnYHPy_pGnrlHKbAS80ivnn3RES1KKNbTCP45pM4LbAOZ-OKF2SkkvtY8w6QvfIsmr2HTQ",
+            "last_known_username": "Knabentee#EUW",
+            "name": "Riot ID (Valorant)",
+            "launcher_ID": "6"
+          },
+          "13": {
+            "linked_on": {
+              "date": "2025-05-11 19:52:16.000000",
+              "timezone_type": 3,
+              "timezone": "Europe/Berlin"
+            },
+            "value": "QBsPuAY8VnYHPy_pGnrlHKbAS80ivnn3RES1KKNbTCP45pM4LbAOZ-OKF2SkkvtY8w6QvfIsmr2HTQ",
+            "last_known_username": "Knabentee#EUW",
+            "name": "Riot ID (League of Legends)",
+            "launcher_ID": "13"
+          }
+        }
+      },
+      "41071": {
+        "ID": 41071,
+        "username": "Tradster",
+        "first_name": null,
+        "last_name": null,
+        "residence_name": "Germany",
+        "age": 22,
+        "url": "https://www.opleague.pro/user/41071-Tradster",
+        "description": null,
+        "discord": null,
+        "discord_ID": null,
+        "twitter": null,
+        "twitch": null,
+        "youtube": null,
+        "website": null,
+        "logo_array": {
+          "on_error": null,
+          "original": null,
+          "compressed": null,
+          "background": null,
+          "is_on_error": false
+        },
+        "launcher": {
+          "6": {
+            "linked_on": {
+              "date": "2025-05-11 21:36:18.000000",
+              "timezone_type": 3,
+              "timezone": "Europe/Berlin"
+            },
+            "value": "cO2gLPk6NoZCBTmsp6ceTf5CNV5R9tBB52SR2MVYhXbTeNxL1rIB3C5_Ab6s8dGtU7Qi_5iz9fNp0A",
+            "last_known_username": "Tradster#EUW",
+            "name": "Riot ID (Valorant)",
+            "launcher_ID": "6"
+          },
+          "13": {
+            "linked_on": {
+              "date": "2025-05-11 21:36:18.000000",
+              "timezone_type": 3,
+              "timezone": "Europe/Berlin"
+            },
+            "value": "cO2gLPk6NoZCBTmsp6ceTf5CNV5R9tBB52SR2MVYhXbTeNxL1rIB3C5_Ab6s8dGtU7Qi_5iz9fNp0A",
+            "last_known_username": "Tradster#EUW",
+            "name": "Riot ID (League of Legends)",
+            "launcher_ID": "13"
+          }
+        }
+      },
+      "41111": {
+        "ID": 41111,
+        "username": "Saidanink",
+        "first_name": "Joachim",
+        "last_name": null,
+        "residence_name": "Germany",
+        "age": 27,
+        "url": "https://www.opleague.pro/user/41111-Saidanink",
+        "description": null,
+        "discord": null,
+        "discord_ID": null,
+        "twitter": null,
+        "twitch": null,
+        "youtube": null,
+        "website": null,
+        "logo_array": {
+          "on_error": null,
+          "original": null,
+          "compressed": null,
+          "background": null,
+          "is_on_error": true
+        },
+        "launcher": {}
+      },
+      "41113": {
+        "ID": 41113,
+        "username": "vllo",
+        "first_name": "Valle",
+        "last_name": null,
+        "residence_name": "Germany",
+        "age": 26,
+        "url": "https://www.opleague.pro/user/41113-vllo",
+        "description": null,
+        "discord": null,
+        "discord_ID": null,
+        "twitter": null,
+        "twitch": null,
+        "youtube": null,
+        "website": null,
+        "logo_array": {
+          "on_error": null,
+          "original": null,
+          "compressed": null,
+          "background": null,
+          "is_on_error": true
+        },
+        "launcher": {
+          "6": {
+            "linked_on": {
+              "date": "2025-05-12 21:53:53.000000",
+              "timezone_type": 3,
+              "timezone": "Europe/Berlin"
+            },
+            "value": "yWVHMjyTMROqTJx_bfbxftti6PfovIt2MtpXaQsyPxlwvXsdRy6wgvkON10jXtSqksvikcGrUVs-gA",
+            "last_known_username": "reycist#6969",
+            "name": "Riot ID (Valorant)",
+            "launcher_ID": "6"
+          },
+          "13": {
+            "linked_on": {
+              "date": "2025-05-12 21:53:54.000000",
+              "timezone_type": 3,
+              "timezone": "Europe/Berlin"
+            },
+            "value": "yWVHMjyTMROqTJx_bfbxftti6PfovIt2MtpXaQsyPxlwvXsdRy6wgvkON10jXtSqksvikcGrUVs-gA",
+            "last_known_username": "reycist#6969",
+            "name": "Riot ID (League of Legends)",
+            "launcher_ID": "13"
+          }
+        }
+      },
+      "41212": {
+        "ID": 41212,
+        "username": "falko112",
+        "first_name": "falk",
+        "last_name": null,
+        "residence_name": "Iran",
+        "age": 33,
+        "url": "https://www.opleague.pro/user/41212-falko112",
+        "description": null,
+        "discord": null,
+        "discord_ID": null,
+        "twitter": null,
+        "twitch": null,
+        "youtube": null,
+        "website": null,
+        "logo_array": {
+          "on_error": null,
+          "original": null,
+          "compressed": null,
+          "background": null,
+          "is_on_error": true
+        },
+        "launcher": {
+          "6": {
+            "linked_on": {
+              "date": "2025-05-16 21:05:23.000000",
+              "timezone_type": 3,
+              "timezone": "Europe/Berlin"
+            },
+            "value": "qZ0U2xZHWod6N5ELSZwWNHOKIOvgWjg6wXnv1xb44a3i8t8t3N7mYBpVG8nKhRIzv7WMsKcVo7fVuA",
+            "last_known_username": "SurrenderToZim#EUW",
+            "name": "Riot ID (Valorant)",
+            "launcher_ID": "6"
+          },
+          "13": {
+            "linked_on": {
+              "date": "2025-05-16 21:05:23.000000",
+              "timezone_type": 3,
+              "timezone": "Europe/Berlin"
+            },
+            "value": "qZ0U2xZHWod6N5ELSZwWNHOKIOvgWjg6wXnv1xb44a3i8t8t3N7mYBpVG8nKhRIzv7WMsKcVo7fVuA",
+            "last_known_username": "SurrenderToZim#EUW",
+            "name": "Riot ID (League of Legends)",
+            "launcher_ID": "13"
+          }
+        }
+      }
+    }
+  },
+  {
+    "ID": 10525,
+    "name": "NR Beschw\u00F6rerbund",
+    "short_name": "NRB",
+    "residence_name": "Germany",
+    "url": "https://www.opleague.pro/team/10525-NR-Beschwrerbund",
+    "game": {
+      "ID": 11,
+      "name": "League Of Legends",
+      "short_name": "LOL",
+      "min_age": 12,
+      "logo_array": [],
+      "logo_array_on_black": [],
+      "logo_color_array": [],
+      "keyart_array": [],
+      "cover_array": []
+    },
+    "description": null,
+    "discord": null,
+    "twitter": null,
+    "twitch": null,
+    "youtube": null,
+    "website": null,
+    "logo_array": {
+      "on_error": null,
+      "original": null,
+      "compressed": null,
+      "background": null,
+      "is_on_error": false
+    },
+    "logo_array_on_black": {
+      "on_error": null,
+      "original": null,
+      "compressed": null,
+      "background": null,
+      "is_on_error": false
+    },
+    "banner_array": [],
+    "users": {
+      "40435": {
+        "ID": 40435,
+        "username": "Nylien",
+        "first_name": "Marcel",
+        "last_name": null,
+        "residence_name": "Germany",
+        "age": 28,
+        "url": "https://www.opleague.pro/user/40435-Nylien",
+        "description": null,
+        "discord": "nylien",
+        "discord_ID": 341925747054608384,
+        "twitter": null,
+        "twitch": null,
+        "youtube": null,
+        "website": null,
+        "logo_array": {
+          "on_error": null,
+          "original": null,
+          "compressed": null,
+          "background": null,
+          "is_on_error": true
+        },
+        "launcher": {
+          "6": {
+            "linked_on": {
+              "date": "2025-05-02 13:09:43.000000",
+              "timezone_type": 3,
+              "timezone": "Europe/Berlin"
+            },
+            "value": "E58ua44ZVi0TXmHSjatfkOgFS1YFhdt6cHXMe7lh2TT3Q_mPoWMC_teVJlNYL5vCcOS0Uu1P1_3HYg",
+            "last_known_username": "Nylien#Fizzy",
+            "name": "Riot ID (Valorant)",
+            "launcher_ID": "6"
+          },
+          "13": {
+            "linked_on": {
+              "date": "2025-05-02 13:09:43.000000",
+              "timezone_type": 3,
+              "timezone": "Europe/Berlin"
+            },
+            "value": "E58ua44ZVi0TXmHSjatfkOgFS1YFhdt6cHXMe7lh2TT3Q_mPoWMC_teVJlNYL5vCcOS0Uu1P1_3HYg",
+            "last_known_username": "Nylien#Fizzy",
+            "name": "Riot ID (League of Legends)",
+            "launcher_ID": "13"
+          },
+          "18": {
+            "linked_on": {
+              "date": "2025-05-13 20:00:18.000000",
+              "timezone_type": 3,
+              "timezone": "Europe/Berlin"
+            },
+            "value": "nylien",
+            "last_known_username": "nylien",
+            "name": "Marvel Rivals",
+            "launcher_ID": "18"
+          }
+        }
+      },
+      "40743": {
+        "ID": 40743,
+        "username": "Shikage",
+        "first_name": "Jayson",
+        "last_name": null,
+        "residence_name": "Luxembourg",
+        "age": 20,
+        "url": "https://www.opleague.pro/user/40743-Shikage",
+        "description": null,
+        "discord": "zirawen.",
+        "discord_ID": 264723880239824896,
+        "twitter": null,
+        "twitch": null,
+        "youtube": null,
+        "website": null,
+        "logo_array": {
+          "on_error": null,
+          "original": null,
+          "compressed": null,
+          "background": null,
+          "is_on_error": true
+        },
+        "launcher": {
+          "6": {
+            "linked_on": {
+              "date": "2025-05-13 16:49:57.000000",
+              "timezone_type": 3,
+              "timezone": "Europe/Berlin"
+            },
+            "value": "d5hx9_SH2lg765IEJgCsLXZEKs902ln3LJsyNJGHnq_eE6Rzqj5IlC-Vt0ZgUHB6alfXeC2msxcDgw",
+            "last_known_username": "igris#6611",
+            "name": "Riot ID (Valorant)",
+            "launcher_ID": "6"
+          },
+          "13": {
+            "linked_on": {
+              "date": "2025-05-13 16:49:57.000000",
+              "timezone_type": 3,
+              "timezone": "Europe/Berlin"
+            },
+            "value": "d5hx9_SH2lg765IEJgCsLXZEKs902ln3LJsyNJGHnq_eE6Rzqj5IlC-Vt0ZgUHB6alfXeC2msxcDgw",
+            "last_known_username": "igris#6611",
+            "name": "Riot ID (League of Legends)",
+            "launcher_ID": "13"
+          }
+        }
+      },
+      "40745": {
+        "ID": 40745,
+        "username": "SJHaubi",
+        "first_name": null,
+        "last_name": null,
+        "residence_name": "Germany",
+        "age": null,
+        "url": "https://www.opleague.pro/user/40745-SJHaubi",
+        "description": null,
+        "discord": "sjhaubi",
+        "discord_ID": 757669288294350889,
+        "twitter": null,
+        "twitch": null,
+        "youtube": null,
+        "website": null,
+        "logo_array": {
+          "on_error": null,
+          "original": null,
+          "compressed": null,
+          "background": null,
+          "is_on_error": true
+        },
+        "launcher": {
+          "6": {
+            "linked_on": {
+              "date": "2025-05-06 22:22:55.000000",
+              "timezone_type": 3,
+              "timezone": "Europe/Berlin"
+            },
+            "value": "8kc0SqKj9aDPhmKJFfdvLP8exXw4RZ51j8WQn3vVXtCdaYjWsB9FzAcaRLHPEpAXUE-IcWxWvR4FkQ",
+            "last_known_username": "SJHaubi#brum",
+            "name": "Riot ID (Valorant)",
+            "launcher_ID": "6"
+          },
+          "13": {
+            "linked_on": {
+              "date": "2025-05-06 22:22:55.000000",
+              "timezone_type": 3,
+              "timezone": "Europe/Berlin"
+            },
+            "value": "8kc0SqKj9aDPhmKJFfdvLP8exXw4RZ51j8WQn3vVXtCdaYjWsB9FzAcaRLHPEpAXUE-IcWxWvR4FkQ",
+            "last_known_username": "SJHaubi#brum",
+            "name": "Riot ID (League of Legends)",
+            "launcher_ID": "13"
+          }
+        }
+      },
+      "41065": {
+        "ID": 41065,
+        "username": "Sneaky#Willi",
+        "first_name": "Wilhelm Paul",
+        "last_name": null,
+        "residence_name": "Austria",
+        "age": 20,
+        "url": "https://www.opleague.pro/user/41065-SneakyWilli",
+        "description": null,
+        "discord": "williyoda",
+        "discord_ID": 589468675019636737,
+        "twitter": null,
+        "twitch": null,
+        "youtube": null,
+        "website": null,
+        "logo_array": {
+          "on_error": null,
+          "original": null,
+          "compressed": null,
+          "background": null,
+          "is_on_error": true
+        },
+        "launcher": {
+          "6": {
+            "linked_on": {
+              "date": "2025-05-14 19:04:35.000000",
+              "timezone_type": 3,
+              "timezone": "Europe/Berlin"
+            },
+            "value": "_1Uy_exK_hEBMxHvurYhzdTSuwf65jMBhKfTHi8XYgZdPbUqd7hFnQPO0of1ZUieWemU7971HVBY0A",
+            "last_known_username": "Sneaky#Willi",
+            "name": "Riot ID (Valorant)",
+            "launcher_ID": "6"
+          },
+          "13": {
+            "linked_on": {
+              "date": "2025-05-14 19:04:35.000000",
+              "timezone_type": 3,
+              "timezone": "Europe/Berlin"
+            },
+            "value": "_1Uy_exK_hEBMxHvurYhzdTSuwf65jMBhKfTHi8XYgZdPbUqd7hFnQPO0of1ZUieWemU7971HVBY0A",
+            "last_known_username": "Sneaky#Willi",
+            "name": "Riot ID (League of Legends)",
+            "launcher_ID": "13"
+          }
+        }
+      },
+      "41121": {
+        "ID": 41121,
+        "username": "LunariiPanda",
+        "first_name": "Meike",
+        "last_name": null,
+        "residence_name": "Germany",
+        "age": 24,
+        "url": "https://www.opleague.pro/user/41121-LunariiPanda",
+        "description": null,
+        "discord": "lunariipanda",
+        "discord_ID": 363066082539470850,
+        "twitter": null,
+        "twitch": null,
+        "youtube": null,
+        "website": null,
+        "logo_array": {
+          "on_error": null,
+          "original": null,
+          "compressed": null,
+          "background": null,
+          "is_on_error": false
+        },
+        "launcher": {
+          "6": {
+            "linked_on": {
+              "date": "2025-05-13 16:54:00.000000",
+              "timezone_type": 3,
+              "timezone": "Europe/Berlin"
+            },
+            "value": "kAkyjw6hdrgd21AQWzcd3hy0D2w2XQakQWW4tHwgcbb4TX3IGgIWd4VStKBX6dXP7lRuZVZNcglUrg",
+            "last_known_username": "\u6708\u306E\u5973\u5E1D#\u30D1\u30F3\u30C0",
+            "name": "Riot ID (Valorant)",
+            "launcher_ID": "6"
+          },
+          "13": {
+            "linked_on": {
+              "date": "2025-05-13 16:54:01.000000",
+              "timezone_type": 3,
+              "timezone": "Europe/Berlin"
+            },
+            "value": "kAkyjw6hdrgd21AQWzcd3hy0D2w2XQakQWW4tHwgcbb4TX3IGgIWd4VStKBX6dXP7lRuZVZNcglUrg",
+            "last_known_username": "\u6708\u306E\u5973\u5E1D#\u30D1\u30F3\u30C0",
+            "name": "Riot ID (League of Legends)",
+            "launcher_ID": "13"
+          }
+        }
+      }
+    }
+  },
+  {
+    "ID": 5798,
+    "name": "TeSSA Ascending",
+    "short_name": "TA",
+    "residence_name": "Germany",
+    "url": "https://www.opleague.pro/team/5798-TeSSA-Ascending",
+    "game": {
+      "ID": 11,
+      "name": "League Of Legends",
+      "short_name": "LOL",
+      "min_age": 12,
+      "logo_array": [],
+      "logo_array_on_black": [],
+      "logo_color_array": [],
+      "keyart_array": [],
+      "cover_array": []
+    },
+    "description": null,
+    "discord": null,
+    "twitter": null,
+    "twitch": null,
+    "youtube": null,
+    "website": null,
+    "logo_array": {
+      "on_error": null,
+      "original": null,
+      "compressed": null,
+      "background": "../styles/media/team/5798/Logo_background.png",
+      "is_on_error": false
+    },
+    "logo_array_on_black": {
+      "on_error": null,
+      "original": null,
+      "compressed": null,
+      "background": null,
+      "is_on_error": false
+    },
+    "banner_array": [],
+    "users": {
+      "22644": {
+        "ID": 22644,
+        "username": "TheNorg17",
+        "first_name": "Eric",
+        "last_name": null,
+        "residence_name": "Germany",
+        "age": 22,
+        "url": "https://www.opleague.pro/user/22644-TheNorg17",
+        "description": null,
+        "discord": "thenorg",
+        "discord_ID": 370630249160900611,
+        "twitter": null,
+        "twitch": null,
+        "youtube": null,
+        "website": null,
+        "logo_array": {
+          "on_error": null,
+          "original": null,
+          "compressed": null,
+          "background": null,
+          "is_on_error": true
+        },
+        "launcher": {
+          "6": {
+            "linked_on": {
+              "date": "2023-10-17 20:17:29.000000",
+              "timezone_type": 3,
+              "timezone": "Europe/Berlin"
+            },
+            "value": "2AgULpAg4N4-o0631Vm5JcjJvGS4bOjZtWcI8tftNtyf1L2E1U7Tv4TXnJBL8EsMQBQ6ytEK3BVgWA",
+            "last_known_username": "TheNorg17#EUW",
+            "name": "Riot ID (Valorant)",
+            "launcher_ID": "6"
+          },
+          "13": {
+            "linked_on": {
+              "date": "2023-10-17 20:17:29.000000",
+              "timezone_type": 3,
+              "timezone": "Europe/Berlin"
+            },
+            "value": "2AgULpAg4N4-o0631Vm5JcjJvGS4bOjZtWcI8tftNtyf1L2E1U7Tv4TXnJBL8EsMQBQ6ytEK3BVgWA",
+            "last_known_username": "TheNorg17#EUW",
+            "name": "Riot ID (League of Legends)",
+            "launcher_ID": "13"
+          }
+        }
+      },
+      "22731": {
+        "ID": 22731,
+        "username": "CubeFloot",
+        "first_name": "Aaron",
+        "last_name": null,
+        "residence_name": "Germany",
+        "age": 24,
+        "url": "https://www.opleague.pro/user/22731-CubeFloot",
+        "description": null,
+        "discord": null,
+        "discord_ID": null,
+        "twitter": null,
+        "twitch": null,
+        "youtube": null,
+        "website": null,
+        "logo_array": {
+          "on_error": null,
+          "original": null,
+          "compressed": null,
+          "background": null,
+          "is_on_error": true
+        },
+        "launcher": {
+          "6": {
+            "linked_on": {
+              "date": "2023-10-17 21:10:11.000000",
+              "timezone_type": 3,
+              "timezone": "Europe/Berlin"
+            },
+            "value": "IcsT_suIO322QZ1ZMEr3cameqGJpiPknCy43DwisWPlaRTgDz-kePrgivyPm_9rZSNjbFg1woBEpjA",
+            "last_known_username": "CubeFloot#EUW",
+            "name": "Riot ID (Valorant)",
+            "launcher_ID": "6"
+          },
+          "13": {
+            "linked_on": {
+              "date": "2023-10-17 21:10:11.000000",
+              "timezone_type": 3,
+              "timezone": "Europe/Berlin"
+            },
+            "value": "IcsT_suIO322QZ1ZMEr3cameqGJpiPknCy43DwisWPlaRTgDz-kePrgivyPm_9rZSNjbFg1woBEpjA",
+            "last_known_username": "CubeFloot#EUW",
+            "name": "Riot ID (League of Legends)",
+            "launcher_ID": "13"
+          }
+        }
+      },
+      "22758": {
+        "ID": 22758,
+        "username": "JellySup",
+        "first_name": "Paul",
+        "last_name": null,
+        "residence_name": "Germany",
+        "age": 25,
+        "url": "https://www.opleague.pro/user/22758-JellySup",
+        "description": null,
+        "discord": null,
+        "discord_ID": null,
+        "twitter": null,
+        "twitch": null,
+        "youtube": null,
+        "website": null,
+        "logo_array": {
+          "on_error": null,
+          "original": null,
+          "compressed": null,
+          "background": null,
+          "is_on_error": true
+        },
+        "launcher": {
+          "6": {
+            "linked_on": {
+              "date": "2023-10-19 20:50:27.000000",
+              "timezone_type": 3,
+              "timezone": "Europe/Berlin"
+            },
+            "value": "NfVo3QA0XpORohyQf7rhj6d6vNEqurDpYDu_-jHQugmqUn36CvldF---ZIEXWeHXKtE3C3I-RF_gGA",
+            "last_known_username": "JellySup#EUW",
+            "name": "Riot ID (Valorant)",
+            "launcher_ID": "6"
+          },
+          "13": {
+            "linked_on": {
+              "date": "2023-10-19 20:50:27.000000",
+              "timezone_type": 3,
+              "timezone": "Europe/Berlin"
+            },
+            "value": "NfVo3QA0XpORohyQf7rhj6d6vNEqurDpYDu_-jHQugmqUn36CvldF---ZIEXWeHXKtE3C3I-RF_gGA",
+            "last_known_username": "JellySup#EUW",
+            "name": "Riot ID (League of Legends)",
+            "launcher_ID": "13"
+          }
+        }
+      },
+      "24331": {
+        "ID": 24331,
+        "username": "Wurakls",
+        "first_name": "Dominik",
+        "last_name": null,
+        "residence_name": "Germany",
+        "age": null,
+        "url": "https://www.opleague.pro/user/24331-Wurakls",
+        "description": null,
+        "discord": null,
+        "discord_ID": null,
+        "twitter": null,
+        "twitch": null,
+        "youtube": null,
+        "website": null,
+        "logo_array": {
+          "on_error": null,
+          "original": null,
+          "compressed": null,
+          "background": null,
+          "is_on_error": true
+        },
+        "launcher": {
+          "6": {
+            "linked_on": {
+              "date": "2023-11-15 12:33:46.000000",
+              "timezone_type": 3,
+              "timezone": "Europe/Berlin"
+            },
+            "value": "w6AtVdV0uMUK66qrgKSZZMkL85ndLXJR8JSXcnfwoMGMOciPMY1SqzMwktBpGQo0PYP7WlDGTFoBXg",
+            "last_known_username": "AXS Wurakls#TITAN",
+            "name": "Riot ID (Valorant)",
+            "launcher_ID": "6"
+          },
+          "13": {
+            "linked_on": {
+              "date": "2023-11-15 12:33:46.000000",
+              "timezone_type": 3,
+              "timezone": "Europe/Berlin"
+            },
+            "value": "w6AtVdV0uMUK66qrgKSZZMkL85ndLXJR8JSXcnfwoMGMOciPMY1SqzMwktBpGQo0PYP7WlDGTFoBXg",
+            "last_known_username": "AXS Wurakls#TITAN",
+            "name": "Riot ID (League of Legends)",
+            "launcher_ID": "13"
+          }
+        }
+      },
+      "29127": {
+        "ID": 29127,
+        "username": "tetto79",
+        "first_name": "Daniel",
+        "last_name": null,
+        "residence_name": "Germany",
+        "age": 23,
+        "url": "https://www.opleague.pro/user/29127-tetto79",
+        "description": null,
+        "discord": null,
+        "discord_ID": null,
+        "twitter": null,
+        "twitch": null,
+        "youtube": null,
+        "website": null,
+        "logo_array": {
+          "on_error": null,
+          "original": null,
+          "compressed": null,
+          "background": null,
+          "is_on_error": true
+        },
+        "launcher": {
+          "6": {
+            "linked_on": {
+              "date": "2024-04-03 22:36:17.000000",
+              "timezone_type": 3,
+              "timezone": "Europe/Berlin"
+            },
+            "value": "6R2P-utm2k9ZaRQPw07hZQLVuSnP6mDOjQy9khhHngA0OFEgvqojunIGF1R3Tc1NY4Nj_CnW6eXB1A",
+            "last_known_username": "Tetto79#SMAG",
+            "name": "Riot ID (Valorant)",
+            "launcher_ID": "6"
+          },
+          "13": {
+            "linked_on": {
+              "date": "2024-04-03 22:36:17.000000",
+              "timezone_type": 3,
+              "timezone": "Europe/Berlin"
+            },
+            "value": "6R2P-utm2k9ZaRQPw07hZQLVuSnP6mDOjQy9khhHngA0OFEgvqojunIGF1R3Tc1NY4Nj_CnW6eXB1A",
+            "last_known_username": "Tetto79#SMAG",
+            "name": "Riot ID (League of Legends)",
+            "launcher_ID": "13"
+          }
+        }
+      },
+      "29861": {
+        "ID": 29861,
+        "username": "Sonnenaffe",
+        "first_name": "till",
+        "last_name": null,
+        "residence_name": "Germany",
+        "age": 25,
+        "url": "https://www.opleague.pro/user/29861-Sonnenaffe",
+        "description": null,
+        "discord": null,
+        "discord_ID": null,
+        "twitter": null,
+        "twitch": null,
+        "youtube": null,
+        "website": null,
+        "logo_array": {
+          "on_error": null,
+          "original": null,
+          "compressed": null,
+          "background": null,
+          "is_on_error": true
+        },
+        "launcher": {
+          "6": {
+            "linked_on": {
+              "date": "2024-04-18 21:16:23.000000",
+              "timezone_type": 3,
+              "timezone": "Europe/Berlin"
+            },
+            "value": "Fjpkuhck-CRbIS4tHf0TMXRPtbCZA_xfKCLFl4c5tqsH6yhIqWtxx1HCIei32SsdoU8Ett-eZ5RdhQ",
+            "last_known_username": "Sonnenaffe \u00D9w\u00DA#\u00D9w\u00DA",
+            "name": "Riot ID (Valorant)",
+            "launcher_ID": "6"
+          },
+          "13": {
+            "linked_on": {
+              "date": "2024-04-18 21:16:23.000000",
+              "timezone_type": 3,
+              "timezone": "Europe/Berlin"
+            },
+            "value": "Fjpkuhck-CRbIS4tHf0TMXRPtbCZA_xfKCLFl4c5tqsH6yhIqWtxx1HCIei32SsdoU8Ett-eZ5RdhQ",
+            "last_known_username": "Sonnenaffe \u00D9w\u00DA#\u00D9w\u00DA",
+            "name": "Riot ID (League of Legends)",
+            "launcher_ID": "13"
+          }
+        }
+      },
+      "39764": {
+        "ID": 39764,
+        "username": "TheXientist",
+        "first_name": "Henry",
+        "last_name": null,
+        "residence_name": "Germany",
+        "age": 23,
+        "url": "https://www.opleague.pro/user/39764-TheXientist",
+        "description": null,
+        "discord": null,
+        "discord_ID": null,
+        "twitter": null,
+        "twitch": null,
+        "youtube": null,
+        "website": null,
+        "logo_array": {
+          "on_error": null,
+          "original": null,
+          "compressed": null,
+          "background": null,
+          "is_on_error": true
+        },
+        "launcher": {
+          "6": {
+            "linked_on": {
+              "date": "2025-04-05 14:22:20.000000",
+              "timezone_type": 3,
+              "timezone": "Europe/Berlin"
+            },
+            "value": "eJrvqxa35AGCc52TgL-lf5kUhJnFl2sTv7QqSkVk_art3KKua3-yNn96yb1DBVugXoEbI-uDoP4Cbg",
+            "last_known_username": "Xientist#EUW",
+            "name": "Riot ID (Valorant)",
+            "launcher_ID": "6"
+          },
+          "13": {
+            "linked_on": {
+              "date": "2025-04-05 14:22:20.000000",
+              "timezone_type": 3,
+              "timezone": "Europe/Berlin"
+            },
+            "value": "eJrvqxa35AGCc52TgL-lf5kUhJnFl2sTv7QqSkVk_art3KKua3-yNn96yb1DBVugXoEbI-uDoP4Cbg",
+            "last_known_username": "Xientist#EUW",
+            "name": "Riot ID (League of Legends)",
+            "launcher_ID": "13"
+          }
+        }
+      },
+      "40633": {
+        "ID": 40633,
+        "username": "Aldur",
+        "first_name": "Darius",
+        "last_name": null,
+        "residence_name": "Germany",
+        "age": 29,
+        "url": "https://www.opleague.pro/user/40633-Aldur",
+        "description": null,
+        "discord": null,
+        "discord_ID": null,
+        "twitter": null,
+        "twitch": null,
+        "youtube": null,
+        "website": null,
+        "logo_array": {
+          "on_error": null,
+          "original": null,
+          "compressed": null,
+          "background": null,
+          "is_on_error": true
+        },
+        "launcher": {
+          "6": {
+            "linked_on": {
+              "date": "2025-05-03 12:15:45.000000",
+              "timezone_type": 3,
+              "timezone": "Europe/Berlin"
+            },
+            "value": "h39xMi0WT6GEk2Yw6yf3lOwIvFHnvsN6D0tTLo9wDGX167cSLpMAxdA-hiIfOS-ACpx6AP4jVk2gVA",
+            "last_known_username": "Aldur#Zeri",
+            "name": "Riot ID (Valorant)",
+            "launcher_ID": "6"
+          },
+          "13": {
+            "linked_on": {
+              "date": "2025-05-03 12:15:45.000000",
+              "timezone_type": 3,
+              "timezone": "Europe/Berlin"
+            },
+            "value": "h39xMi0WT6GEk2Yw6yf3lOwIvFHnvsN6D0tTLo9wDGX167cSLpMAxdA-hiIfOS-ACpx6AP4jVk2gVA",
+            "last_known_username": "Aldur#Zeri",
+            "name": "Riot ID (League of Legends)",
+            "launcher_ID": "13"
+          }
+        }
+      }
+    }
+  },
+  {
+    "ID": 10687,
+    "name": "NR Team",
+    "short_name": "NR",
+    "residence_name": "Germany",
+    "url": "https://www.opleague.pro/team/10687-NR-Team",
+    "game": {
+      "ID": 11,
+      "name": "League Of Legends",
+      "short_name": "LOL",
+      "min_age": 12,
+      "logo_array": [],
+      "logo_array_on_black": [],
+      "logo_color_array": [],
+      "keyart_array": [],
+      "cover_array": []
+    },
+    "description": null,
+    "discord": null,
+    "twitter": null,
+    "twitch": null,
+    "youtube": null,
+    "website": null,
+    "logo_array": {
+      "on_error": null,
+      "original": null,
+      "compressed": null,
+      "background": null,
+      "is_on_error": false
+    },
+    "logo_array_on_black": {
+      "on_error": null,
+      "original": null,
+      "compressed": null,
+      "background": null,
+      "is_on_error": false
+    },
+    "banner_array": [],
+    "users": {
+      "40133": {
+        "ID": 40133,
+        "username": "Crono",
+        "first_name": "Julian",
+        "last_name": null,
+        "residence_name": "Germany",
+        "age": null,
+        "url": "https://www.opleague.pro/user/40133-Crono",
+        "description": null,
+        "discord": "crono1997",
+        "discord_ID": 755144462480703519,
+        "twitter": null,
+        "twitch": null,
+        "youtube": null,
+        "website": null,
+        "logo_array": {
+          "on_error": null,
+          "original": null,
+          "compressed": null,
+          "background": null,
+          "is_on_error": true
+        },
+        "launcher": {
+          "6": {
+            "linked_on": {
+              "date": "2025-04-22 21:45:20.000000",
+              "timezone_type": 3,
+              "timezone": "Europe/Berlin"
+            },
+            "value": "1Dp8YeyAsYDG33gjs9J5jrv_FYdXK-FqN9hFZ9VwgKEa0qmikiRs9NcLRF3T8fv5JucPkZQzBdwfEg",
+            "last_known_username": "EP Crono#WEWOO",
+            "name": "Riot ID (Valorant)",
+            "launcher_ID": "6"
+          },
+          "13": {
+            "linked_on": {
+              "date": "2025-04-22 21:45:20.000000",
+              "timezone_type": 3,
+              "timezone": "Europe/Berlin"
+            },
+            "value": "1Dp8YeyAsYDG33gjs9J5jrv_FYdXK-FqN9hFZ9VwgKEa0qmikiRs9NcLRF3T8fv5JucPkZQzBdwfEg",
+            "last_known_username": "EP Crono#WEWOO",
+            "name": "Riot ID (League of Legends)",
+            "launcher_ID": "13"
+          }
+        }
+      },
+      "41173": {
+        "ID": 41173,
+        "username": "emrys",
+        "first_name": "Christoph",
+        "last_name": null,
+        "residence_name": "Germany",
+        "age": 29,
+        "url": "https://www.opleague.pro/user/41173-emrys",
+        "description": null,
+        "discord": "emrysofdespia",
+        "discord_ID": 290478283110350858,
+        "twitter": null,
+        "twitch": null,
+        "youtube": null,
+        "website": null,
+        "logo_array": {
+          "on_error": null,
+          "original": null,
+          "compressed": null,
+          "background": null,
+          "is_on_error": true
+        },
+        "launcher": {
+          "6": {
+            "linked_on": {
+              "date": "2025-05-15 22:47:32.000000",
+              "timezone_type": 3,
+              "timezone": "Europe/Berlin"
+            },
+            "value": "9XsMlse6uEi3zlKR2zjGQUcN8zUDqSRDyCmpFzKyP4VsUzMoPN6WeivTPyXpYEzjaHNBpDXIXQZ1qw",
+            "last_known_username": "retired crow#EUW",
+            "name": "Riot ID (Valorant)",
+            "launcher_ID": "6"
+          },
+          "13": {
+            "linked_on": {
+              "date": "2025-05-15 22:47:32.000000",
+              "timezone_type": 3,
+              "timezone": "Europe/Berlin"
+            },
+            "value": "9XsMlse6uEi3zlKR2zjGQUcN8zUDqSRDyCmpFzKyP4VsUzMoPN6WeivTPyXpYEzjaHNBpDXIXQZ1qw",
+            "last_known_username": "retired crow#EUW",
+            "name": "Riot ID (League of Legends)",
+            "launcher_ID": "13"
+          }
+        }
+      },
+      "41180": {
+        "ID": 41180,
+        "username": "xarix",
+        "first_name": "Jannik",
+        "last_name": null,
+        "residence_name": "Germany",
+        "age": 23,
+        "url": "https://www.opleague.pro/user/41180-xarix",
+        "description": null,
+        "discord": "unraveled._",
+        "discord_ID": 736960340813938698,
+        "twitter": null,
+        "twitch": null,
+        "youtube": null,
+        "website": null,
+        "logo_array": {
+          "on_error": null,
+          "original": null,
+          "compressed": null,
+          "background": null,
+          "is_on_error": true
+        },
+        "launcher": {
+          "6": {
+            "linked_on": {
+              "date": "2025-05-16 02:50:43.000000",
+              "timezone_type": 3,
+              "timezone": "Europe/Berlin"
+            },
+            "value": "PhQg44Ln4c4ShujDdojz6IVCv4AYdH04300sEihBYaRPZMVgDcTjKMj9SoA0PvIpEzadweDtxaLyjg",
+            "last_known_username": "SebastianHu#EUW",
+            "name": "Riot ID (Valorant)",
+            "launcher_ID": "6"
+          },
+          "13": {
+            "linked_on": {
+              "date": "2025-05-16 02:50:43.000000",
+              "timezone_type": 3,
+              "timezone": "Europe/Berlin"
+            },
+            "value": "PhQg44Ln4c4ShujDdojz6IVCv4AYdH04300sEihBYaRPZMVgDcTjKMj9SoA0PvIpEzadweDtxaLyjg",
+            "last_known_username": "SebastianHu#EUW",
+            "name": "Riot ID (League of Legends)",
+            "launcher_ID": "13"
+          }
+        }
+      },
+      "41197": {
+        "ID": 41197,
+        "username": "JacobElvers",
+        "first_name": "Jacob ",
+        "last_name": null,
+        "residence_name": "Germany",
+        "age": 22,
+        "url": "https://www.opleague.pro/user/41197-JacobElvers",
+        "description": null,
+        "discord": "jacobelvers",
+        "discord_ID": 325408075987025922,
+        "twitter": null,
+        "twitch": null,
+        "youtube": null,
+        "website": null,
+        "logo_array": {
+          "on_error": null,
+          "original": null,
+          "compressed": null,
+          "background": null,
+          "is_on_error": true
+        },
+        "launcher": {
+          "6": {
+            "linked_on": {
+              "date": "2025-05-16 22:57:49.000000",
+              "timezone_type": 3,
+              "timezone": "Europe/Berlin"
+            },
+            "value": "VHePiCXSHcrsrOixJ9Uf3JOgvDgk835bT8fMFUjp6eS3TJLYy_MMEqGsBQKWjIBcb8J4Wi3Braoorw",
+            "last_known_username": "Jacob M Elvers#22111",
+            "name": "Riot ID (Valorant)",
+            "launcher_ID": "6"
+          },
+          "13": {
+            "linked_on": {
+              "date": "2025-05-16 22:57:49.000000",
+              "timezone_type": 3,
+              "timezone": "Europe/Berlin"
+            },
+            "value": "VHePiCXSHcrsrOixJ9Uf3JOgvDgk835bT8fMFUjp6eS3TJLYy_MMEqGsBQKWjIBcb8J4Wi3Braoorw",
+            "last_known_username": "Jacob M Elvers#22111",
+            "name": "Riot ID (League of Legends)",
+            "launcher_ID": "13"
+          }
+        }
+      },
+      "41205": {
+        "ID": 41205,
+        "username": "Kiraikage",
+        "first_name": "Imir",
+        "last_name": null,
+        "residence_name": "Germany",
+        "age": 21,
+        "url": "https://www.opleague.pro/user/41205-Kiraikage",
+        "description": null,
+        "discord": "hirashi812xx",
+        "discord_ID": 931708573514346576,
+        "twitter": null,
+        "twitch": null,
+        "youtube": null,
+        "website": null,
+        "logo_array": {
+          "on_error": null,
+          "original": null,
+          "compressed": null,
+          "background": null,
+          "is_on_error": true
+        },
+        "launcher": {
+          "6": {
+            "linked_on": {
+              "date": "2025-05-16 18:09:57.000000",
+              "timezone_type": 3,
+              "timezone": "Europe/Berlin"
+            },
+            "value": "w7qSdZVKzWvJrIIJrXq2WvOB3hqqDLfpClZLLuIxx8st_MN6OGsNHnymwTRqC98anAz2LYZIYL0FJg",
+            "last_known_username": "cozy rain#love",
+            "name": "Riot ID (Valorant)",
+            "launcher_ID": "6"
+          },
+          "13": {
+            "linked_on": {
+              "date": "2025-05-16 18:09:57.000000",
+              "timezone_type": 3,
+              "timezone": "Europe/Berlin"
+            },
+            "value": "w7qSdZVKzWvJrIIJrXq2WvOB3hqqDLfpClZLLuIxx8st_MN6OGsNHnymwTRqC98anAz2LYZIYL0FJg",
+            "last_known_username": "cozy rain#love",
+            "name": "Riot ID (League of Legends)",
+            "launcher_ID": "13"
+          }
+        }
+      },
+      "41206": {
+        "ID": 41206,
+        "username": "THEM\u00DC",
+        "first_name": "Thomas",
+        "last_name": null,
+        "residence_name": "Germany",
+        "age": 27,
+        "url": "https://www.opleague.pro/user/41206-THEM",
+        "description": null,
+        "discord": null,
+        "discord_ID": null,
+        "twitter": null,
+        "twitch": null,
+        "youtube": null,
+        "website": null,
+        "logo_array": {
+          "on_error": null,
+          "original": null,
+          "compressed": null,
+          "background": null,
+          "is_on_error": true
+        },
+        "launcher": {
+          "6": {
+            "linked_on": {
+              "date": "2025-05-16 18:16:52.000000",
+              "timezone_type": 3,
+              "timezone": "Europe/Berlin"
+            },
+            "value": "8DsJJI9Ca4XpyRF-r-oPGta7hPg3hk8s9n90l0damLfDl5vNKTjX-T9dI6IvJGGcmaGu3Qz4A0iHhA",
+            "last_known_username": "urducenter#EUW",
+            "name": "Riot ID (Valorant)",
+            "launcher_ID": "6"
+          },
+          "13": {
+            "linked_on": {
+              "date": "2025-05-16 18:16:52.000000",
+              "timezone_type": 3,
+              "timezone": "Europe/Berlin"
+            },
+            "value": "8DsJJI9Ca4XpyRF-r-oPGta7hPg3hk8s9n90l0damLfDl5vNKTjX-T9dI6IvJGGcmaGu3Qz4A0iHhA",
+            "last_known_username": "urducenter#EUW",
+            "name": "Riot ID (League of Legends)",
+            "launcher_ID": "13"
+          }
+        }
+      },
+      "41219": {
+        "ID": 41219,
+        "username": "JJK#1140",
+        "first_name": "Paul",
+        "last_name": null,
+        "residence_name": "Germany",
+        "age": 25,
+        "url": "https://www.opleague.pro/user/41219-JJK1140",
+        "description": null,
+        "discord": "theblackroseakiza",
+        "discord_ID": 833006467631939616,
+        "twitter": null,
+        "twitch": null,
+        "youtube": null,
+        "website": null,
+        "logo_array": {
+          "on_error": null,
+          "original": null,
+          "compressed": null,
+          "background": null,
+          "is_on_error": true
+        },
+        "launcher": {
+          "6": {
+            "linked_on": {
+              "date": "2025-05-17 13:14:23.000000",
+              "timezone_type": 3,
+              "timezone": "Europe/Berlin"
+            },
+            "value": "p3lP8cByp-2w1phWvKezWGXdlBe1nQMPZXDmIxS0WnfglXPt0rNP17z3xoA9Rd6KrhT7v3px0TpkyQ",
+            "last_known_username": "Jjk#1140",
+            "name": "Riot ID (Valorant)",
+            "launcher_ID": "6"
+          },
+          "13": {
+            "linked_on": {
+              "date": "2025-05-17 13:14:23.000000",
+              "timezone_type": 3,
+              "timezone": "Europe/Berlin"
+            },
+            "value": "p3lP8cByp-2w1phWvKezWGXdlBe1nQMPZXDmIxS0WnfglXPt0rNP17z3xoA9Rd6KrhT7v3px0TpkyQ",
+            "last_known_username": "Jjk#1140",
+            "name": "Riot ID (League of Legends)",
+            "launcher_ID": "13"
+          }
+        }
+      }
+    }
+  },
+  {
+    "ID": 10613,
+    "name": "TsuNami",
+    "short_name": "NMI",
+    "residence_name": "Germany",
+    "url": "https://www.opleague.pro/team/10613-TsuNami",
+    "game": {
+      "ID": 11,
+      "name": "League Of Legends",
+      "short_name": "LOL",
+      "min_age": 12,
+      "logo_array": [],
+      "logo_array_on_black": [],
+      "logo_color_array": [],
+      "keyart_array": [],
+      "cover_array": []
+    },
+    "description": null,
+    "discord": null,
+    "twitter": null,
+    "twitch": null,
+    "youtube": null,
+    "website": null,
+    "logo_array": {
+      "on_error": null,
+      "original": null,
+      "compressed": null,
+      "background": "../styles/media/team/10613/Logo_background.png",
+      "is_on_error": false
+    },
+    "logo_array_on_black": {
+      "on_error": null,
+      "original": null,
+      "compressed": null,
+      "background": null,
+      "is_on_error": false
+    },
+    "banner_array": [],
+    "users": {
+      "40877": {
+        "ID": 40877,
+        "username": "JKing",
+        "first_name": "Julian",
+        "last_name": null,
+        "residence_name": "Germany",
+        "age": 28,
+        "url": "https://www.opleague.pro/user/40877-JKing",
+        "description": null,
+        "discord": "jking96",
+        "discord_ID": 414189207972478997,
+        "twitter": null,
+        "twitch": null,
+        "youtube": null,
+        "website": null,
+        "logo_array": {
+          "on_error": null,
+          "original": null,
+          "compressed": null,
+          "background": null,
+          "is_on_error": true
+        },
+        "launcher": {
+          "6": {
+            "linked_on": {
+              "date": "2025-05-07 12:05:31.000000",
+              "timezone_type": 3,
+              "timezone": "Europe/Berlin"
+            },
+            "value": "bZI6Wiu9UjCgVt3potihfqo4klOo4IfWHuJsSTpnduOY-sgwI6qv98kU0vJONLB8NHga3qfe_V_hbw",
+            "last_known_username": "JKing#DMCIA",
+            "name": "Riot ID (Valorant)",
+            "launcher_ID": "6"
+          },
+          "13": {
+            "linked_on": {
+              "date": "2025-05-07 12:05:31.000000",
+              "timezone_type": 3,
+              "timezone": "Europe/Berlin"
+            },
+            "value": "bZI6Wiu9UjCgVt3potihfqo4klOo4IfWHuJsSTpnduOY-sgwI6qv98kU0vJONLB8NHga3qfe_V_hbw",
+            "last_known_username": "JKing#DMCIA",
+            "name": "Riot ID (League of Legends)",
+            "launcher_ID": "13"
+          }
+        }
+      },
+      "40886": {
+        "ID": 40886,
+        "username": "Teddynerd",
+        "first_name": "Bop",
+        "last_name": null,
+        "residence_name": "Germany",
+        "age": 31,
+        "url": "https://www.opleague.pro/user/40886-Teddynerd",
+        "description": null,
+        "discord": "schmerzimpo",
+        "discord_ID": 277778649791332354,
+        "twitter": null,
+        "twitch": null,
+        "youtube": null,
+        "website": null,
+        "logo_array": {
+          "on_error": null,
+          "original": null,
+          "compressed": null,
+          "background": null,
+          "is_on_error": true
+        },
+        "launcher": {
+          "6": {
+            "linked_on": {
+              "date": "2025-05-12 16:34:08.000000",
+              "timezone_type": 3,
+              "timezone": "Europe/Berlin"
+            },
+            "value": "ffvaanNcPrYd3ofvIfXdGtAVXYf0daSBpDgvhzUJ97ro6VyGAOBVZrj2sSvRo7z_fW5yR8yCAfBcaA",
+            "last_known_username": "Leeroy Jerking#EUW",
+            "name": "Riot ID (Valorant)",
+            "launcher_ID": "6"
+          },
+          "13": {
+            "linked_on": {
+              "date": "2025-05-12 16:34:08.000000",
+              "timezone_type": 3,
+              "timezone": "Europe/Berlin"
+            },
+            "value": "ffvaanNcPrYd3ofvIfXdGtAVXYf0daSBpDgvhzUJ97ro6VyGAOBVZrj2sSvRo7z_fW5yR8yCAfBcaA",
+            "last_known_username": "Leeroy Jerking#EUW",
+            "name": "Riot ID (League of Legends)",
+            "launcher_ID": "13"
+          }
+        }
+      },
+      "41048": {
+        "ID": 41048,
+        "username": "darksidr#EUW",
+        "first_name": "Fabian",
+        "last_name": null,
+        "residence_name": "Germany",
+        "age": 28,
+        "url": "https://www.opleague.pro/user/41048-darksidrEUW",
+        "description": null,
+        "discord": "fabbster",
+        "discord_ID": 700461417995698326,
+        "twitter": null,
+        "twitch": null,
+        "youtube": null,
+        "website": null,
+        "logo_array": {
+          "on_error": null,
+          "original": null,
+          "compressed": null,
+          "background": null,
+          "is_on_error": true
+        },
+        "launcher": {
+          "6": {
+            "linked_on": {
+              "date": "2025-05-12 15:24:21.000000",
+              "timezone_type": 3,
+              "timezone": "Europe/Berlin"
+            },
+            "value": "IWk--RvBCf0sCXssGYchG-E8ScQRAKKOov11krdeLUVRkJ6xMxKxYYXVGb6iuDKigqX2IXdV0NDs4g",
+            "last_known_username": "Darksidr#EUW",
+            "name": "Riot ID (Valorant)",
+            "launcher_ID": "6"
+          },
+          "13": {
+            "linked_on": {
+              "date": "2025-05-12 15:24:21.000000",
+              "timezone_type": 3,
+              "timezone": "Europe/Berlin"
+            },
+            "value": "IWk--RvBCf0sCXssGYchG-E8ScQRAKKOov11krdeLUVRkJ6xMxKxYYXVGb6iuDKigqX2IXdV0NDs4g",
+            "last_known_username": "Darksidr#EUW",
+            "name": "Riot ID (League of Legends)",
+            "launcher_ID": "13"
+          }
+        }
+      },
+      "41209": {
+        "ID": 41209,
+        "username": "TennisPro8",
+        "first_name": null,
+        "last_name": null,
+        "residence_name": "Germany",
+        "age": null,
+        "url": "https://www.opleague.pro/user/41209-TennisPro8",
+        "description": null,
+        "discord": "m_a_rk",
+        "discord_ID": 390620564080820225,
+        "twitter": null,
+        "twitch": null,
+        "youtube": null,
+        "website": null,
+        "logo_array": {
+          "on_error": null,
+          "original": null,
+          "compressed": null,
+          "background": null,
+          "is_on_error": true
+        },
+        "launcher": {
+          "6": {
+            "linked_on": {
+              "date": "2025-05-16 21:54:10.000000",
+              "timezone_type": 3,
+              "timezone": "Europe/Berlin"
+            },
+            "value": "9k8872HIC_geWmUCk7EtUpVJk_gEvnGCDsYMqXAOKjLj0gqNfItYVHqgH563N8s5divaFCLORdYv_g",
+            "last_known_username": "TennisPro8#EUW",
+            "name": "Riot ID (Valorant)",
+            "launcher_ID": "6"
+          },
+          "13": {
+            "linked_on": {
+              "date": "2025-05-16 21:54:10.000000",
+              "timezone_type": 3,
+              "timezone": "Europe/Berlin"
+            },
+            "value": "9k8872HIC_geWmUCk7EtUpVJk_gEvnGCDsYMqXAOKjLj0gqNfItYVHqgH563N8s5divaFCLORdYv_g",
+            "last_known_username": "TennisPro8#EUW",
+            "name": "Riot ID (League of Legends)",
+            "launcher_ID": "13"
+          }
+        }
+      },
+      "41213": {
+        "ID": 41213,
+        "username": "Olinda",
+        "first_name": "Olinda",
+        "last_name": null,
+        "residence_name": "Germany",
+        "age": 30,
+        "url": "https://www.opleague.pro/user/41213-Olinda",
+        "description": null,
+        "discord": "shandira.",
+        "discord_ID": 247775478205775873,
+        "twitter": null,
+        "twitch": null,
+        "youtube": null,
+        "website": null,
+        "logo_array": {
+          "on_error": null,
+          "original": null,
+          "compressed": null,
+          "background": null,
+          "is_on_error": true
+        },
+        "launcher": {
+          "6": {
+            "linked_on": {
+              "date": "2025-05-16 21:35:24.000000",
+              "timezone_type": 3,
+              "timezone": "Europe/Berlin"
+            },
+            "value": "hKAL_x0ZekalMazDnrCoLsu0EOXUdT5lDEiqpi0uj9h0eE2OHnXJ2mBZBJlMGq4odFAQudyvMUlFFA",
+            "last_known_username": "Shandira#EUW",
+            "name": "Riot ID (Valorant)",
+            "launcher_ID": "6"
+          },
+          "13": {
+            "linked_on": {
+              "date": "2025-05-16 21:35:24.000000",
+              "timezone_type": 3,
+              "timezone": "Europe/Berlin"
+            },
+            "value": "hKAL_x0ZekalMazDnrCoLsu0EOXUdT5lDEiqpi0uj9h0eE2OHnXJ2mBZBJlMGq4odFAQudyvMUlFFA",
+            "last_known_username": "Shandira#EUW",
+            "name": "Riot ID (League of Legends)",
+            "launcher_ID": "13"
+          }
+        }
+      },
+      "41214": {
+        "ID": 41214,
+        "username": "GrizLeeBeer",
+        "first_name": "Nick",
+        "last_name": null,
+        "residence_name": "Germany",
+        "age": 25,
+        "url": "https://www.opleague.pro/user/41214-GrizLeeBeer",
+        "description": null,
+        "discord": "dasheiligedosenbier",
+        "discord_ID": 346005314803335178,
+        "twitter": null,
+        "twitch": null,
+        "youtube": null,
+        "website": null,
+        "logo_array": {
+          "on_error": null,
+          "original": null,
+          "compressed": null,
+          "background": null,
+          "is_on_error": true
+        },
+        "launcher": {
+          "6": {
+            "linked_on": {
+              "date": "2025-05-16 21:32:16.000000",
+              "timezone_type": 3,
+              "timezone": "Europe/Berlin"
+            },
+            "value": "MJsC1fseudu88e-miVnS7zqctkVO4jcOn_Zk2JeZRwnp-mfGdVxThjpbV_VZYt9T7RaKoOlRvBzkMw",
+            "last_known_username": "GrizLeeBeer#Jhin",
+            "name": "Riot ID (Valorant)",
+            "launcher_ID": "6"
+          },
+          "13": {
+            "linked_on": {
+              "date": "2025-05-16 21:32:16.000000",
+              "timezone_type": 3,
+              "timezone": "Europe/Berlin"
+            },
+            "value": "MJsC1fseudu88e-miVnS7zqctkVO4jcOn_Zk2JeZRwnp-mfGdVxThjpbV_VZYt9T7RaKoOlRvBzkMw",
+            "last_known_username": "GrizLeeBeer#Jhin",
+            "name": "Riot ID (League of Legends)",
+            "launcher_ID": "13"
+          }
+        }
+      },
+      "41216": {
+        "ID": 41216,
+        "username": "Shenexec",
+        "first_name": "Shen ",
+        "last_name": null,
+        "residence_name": "Germany",
+        "age": 29,
+        "url": "https://www.opleague.pro/user/41216-Shenexec",
+        "description": null,
+        "discord": "shenexec",
+        "discord_ID": 831977092610654212,
+        "twitter": null,
+        "twitch": null,
+        "youtube": null,
+        "website": null,
+        "logo_array": {
+          "on_error": null,
+          "original": null,
+          "compressed": null,
+          "background": null,
+          "is_on_error": true
+        },
+        "launcher": {
+          "6": {
+            "linked_on": {
+              "date": "2025-05-16 22:13:11.000000",
+              "timezone_type": 3,
+              "timezone": "Europe/Berlin"
+            },
+            "value": "L_notV0G6rgbstRzBHUrLL6snbUVz4f52etKFyqsMqJ8bBg2PKHJcUlYQQD4AzwlFuLr0fKcnSmTTQ",
+            "last_known_username": "Shenexec#Shen",
+            "name": "Riot ID (Valorant)",
+            "launcher_ID": "6"
+          },
+          "13": {
+            "linked_on": {
+              "date": "2025-05-16 22:13:11.000000",
+              "timezone_type": 3,
+              "timezone": "Europe/Berlin"
+            },
+            "value": "L_notV0G6rgbstRzBHUrLL6snbUVz4f52etKFyqsMqJ8bBg2PKHJcUlYQQD4AzwlFuLr0fKcnSmTTQ",
+            "last_known_username": "Shenexec#Shen",
+            "name": "Riot ID (League of Legends)",
+            "launcher_ID": "13"
+          }
+        }
+      }
+    }
+  }
+]
