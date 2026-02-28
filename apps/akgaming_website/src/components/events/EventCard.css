@@ -1,0 +1,58 @@
+.event-card {
+    display: block;
+    text-decoration: none;
+    background-color: var(--color-background-primary);
+    border: 2px solid var(--color-highlight-secondary);
+    border-radius: 4px;
+    padding: 1rem 1.2rem;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    color: var(--color-text-primary);
+}
+
+.event-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    border-color: var(--color-highlight-primary);
+}
+
+.event-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.event-name {
+    font-size: 1.3rem;
+    font-weight: 700;
+    margin: 0;
+    color: var(--color-text-primary);
+}
+
+.event-date {
+    font-weight: 500;
+    color: var(--color-text-tertiary);
+    margin: 0;
+}
+
+.event-description {
+    color: var(--color-text-primary);
+    margin: 0.5rem 0 1rem 0;
+    font-size: 1rem;
+    line-height: 1.4;
+}
+
+.event-location {
+    color: var(--color-text-tertiary);
+    font-size: 0.95rem;
+}
+
+.event-location a {
+    color: var(--color-highlight-primary);
+    text-decoration: none;
+}
+
+.event-location a:hover {
+    text-decoration: underline;
+}

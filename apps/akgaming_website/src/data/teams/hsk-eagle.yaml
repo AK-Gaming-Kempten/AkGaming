@@ -1,0 +1,32 @@
+game: cs2
+name: HSK Eagle
+logo: /assets/teams/HSK_Eagle_Logo.png
+league:
+  name: Uniliga
+  logo: /assets/leagues/uniliga.png
+  division: Div 3
+players:
+  - name: 叔叔我啊
+    role:
+    picture: /assets/teams/HSK_Eagle_Logo.png
+  - name: misticfasi
+    role:
+    picture: /assets/teams/HSK_Eagle_Logo.png
+  - name: Xandii
+    role:
+    picture: /assets/teams/HSK_Eagle_Logo.png
+  - name: nicht schlagen mich
+    role:
+    picture: /assets/teams/HSK_Eagle_Logo.png
+  - name: YeeeetMaster
+    role:
+    picture: /assets/teams/HSK_Eagle_Logo.png
+  - name: papyrus
+    role:
+    picture: /assets/teams/HSK_Eagle_Logo.png
+  - name: Intro
+    role:
+    picture: /assets/teams/HSK_Eagle_Logo.png
+  - name: vGNS
+    role:
+    picture: /assets/teams/HSK_Eagle_Logo.png

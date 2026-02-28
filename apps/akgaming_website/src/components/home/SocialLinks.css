@@ -1,0 +1,9 @@
+.social-links-grid {
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: row;
+    justify-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    align-items: center;
+}

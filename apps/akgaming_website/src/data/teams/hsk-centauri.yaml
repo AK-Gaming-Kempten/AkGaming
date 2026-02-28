@@ -1,0 +1,23 @@
+game: ow2
+name: HSK Centauri
+logo: /assets/teams/HSK_Centauri_Logo.png
+league:
+  name: Uniliga
+  logo: /assets/leagues/uniliga.png
+  division: Div 2
+players:
+  - name: Luca17
+    role: Tank
+    picture: /assets/teams/HSK_Centauri_Logo.png
+  - name: Heitzi
+    role: DPS
+    picture: /assets/teams/HSK_Centauri_Logo.png
+  - name: R4SNiklas
+    role: DPS
+    picture: /assets/teams/HSK_Centauri_Logo.png
+  - name: HornNr1
+    role: Support
+    picture: /assets/teams/HSK_Centauri_Logo.png
+  - name: PinkHazel
+    role: Support
+    picture: /assets/teams/HSK_Centauri_Logo.png

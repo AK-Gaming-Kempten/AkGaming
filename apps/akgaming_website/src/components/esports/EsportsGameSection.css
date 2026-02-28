@@ -1,0 +1,50 @@
+.game-section {
+    margin: 3rem 0;
+}
+
+/* Header container */
+.game-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    padding-top: 1.5rem;
+}
+
+/* Left part (logo + title) */
+.game-header-left {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-shrink: 0; /* prevents the left side from compressing */
+}
+
+.game-logo {
+    width: 48px;
+    height: 48px;
+    object-fit: contain;
+}
+
+.game-title {
+    font-size: 1.6rem;
+    color: var(--color-text-primary);
+    margin: 0;
+    white-space: nowrap;
+}
+
+/* The horizontal line */
+.game-header-line {
+    flex-grow: 1;
+    height: 2px;
+    background-color: var(--color-highlight-secondary);
+    margin-left: 1rem; /* space between title and line */
+    margin-right: 1rem; /* equal space to right edge */
+}
+
+/* Team cards below */
+.teams-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-top: 1rem;
+}

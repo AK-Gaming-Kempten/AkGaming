@@ -1,0 +1,15 @@
+.post-page{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.post-short{
+    max-width: 800px;
+}
+
+.post-content{
+    display: flex;
+    flex-direction: column;
+    max-width: 800px;
+}

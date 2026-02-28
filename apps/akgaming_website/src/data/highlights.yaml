@@ -1,0 +1,13 @@
+#- postId: minecraft-server
+#  mediaSrc: /media/blockcraft3d.jpg
+#  mediaType: image
+
+- postId: gamenight-6
+  mediaSrc: /media/gamenight-6-thumbnail.png
+  mediaType: image
+
+- postId: twitch
+  mediaSrc: /media/twitch.png
+  mediaType: image
+  description: Wir streamen regelmäßig die Spiele unserer E-Sports-Teams sowie spezielle Events und Turniere.
+  title: AK Gaming auf Twitch

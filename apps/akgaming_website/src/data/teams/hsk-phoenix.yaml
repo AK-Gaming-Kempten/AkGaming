@@ -1,0 +1,26 @@
+game: lol
+name: HSK Phoenix
+logo: /assets/teams/HSK_Phoenix_Logo.png
+league:
+  name: Uniliga
+  logo: /assets/leagues/uniliga.png
+  division: Div 2
+players:
+  - name: Marhalm
+    role: Top
+    picture: /assets/teams/HSK_Phoenix_Logo.png
+  - name: Nanotech Crono
+    role: Jungle
+    picture: /assets/teams/HSK_Phoenix_Logo.png
+  - name: whatever
+    role: Mid
+    picture: /assets/teams/HSK_Phoenix_Logo.png
+  - name: Rock
+    role: ADC
+    picture: /assets/teams/HSK_Phoenix_Logo.png
+  - name: Strenia
+    role: Support
+    picture: /assets/teams/HSK_Phoenix_Logo.png
+  - name: Hexasiel
+    role: Substitute
+    picture: /assets/teams/HSK_Phoenix_Logo.png

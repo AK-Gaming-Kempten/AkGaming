@@ -1,0 +1,26 @@
+game: lol
+name: HSK Dragon
+logo: /assets/teams/HSK_Dragon_Logo.png
+league:
+  name: Uniliga
+  logo: /assets/leagues/uniliga.png
+  division: Div 2
+players:
+  - name: juju304
+    role: Top
+    picture: /assets/teams/HSK_Dragon_Logo.png
+  - name: Void Maevix
+    role: Jungle
+    picture: /assets/teams/HSK_Dragon_Logo.png
+  - name: Void Shaqui
+    role: Mid
+    picture: /assets/teams/HSK_Dragon_Logo.png
+  - name: v9r Montagne
+    role: ADC
+    picture: /assets/teams/HSK_Dragon_Logo.png
+  - name: Captain Bubz
+    role: Support / Mid
+    picture: /assets/teams/HSK_Dragon_Logo.png
+  - name: Touya
+    role: ADC / Support
+    picture: /assets/teams/HSK_Dragon_Logo.png

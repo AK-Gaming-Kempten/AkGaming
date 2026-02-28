@@ -1,0 +1,101 @@
+.team-slide {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    background-color: var(--color-background-primary);
+    border: 2px solid var(--color-highlight-secondary);
+    border-radius: 8px;
+    padding: 1rem;
+    gap: 2rem;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap; /* responsive fallback */
+    max-width: 1030px;
+}
+
+/* --- Left side: Team info --- */
+.team-info {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 220px;
+}
+
+.team-logo {
+    width: 96px;
+    height: 96px;
+    object-fit: contain;
+    margin-bottom: 0.5rem;
+}
+
+.team-name {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--color-text-primary);
+    margin: 0 0 0.5rem 0;
+}
+
+.league-info {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.league-logo {
+    width: 36px;
+    height: 36px;
+    object-fit: contain;
+}
+
+.league-text {
+    display: flex;
+    flex-direction: column;
+    color: var(--color-text-primary);
+}
+
+.league-name {
+    font-weight: 600;
+    margin: 0;
+}
+
+.league-division {
+    font-size: 0.9rem;
+    color: var(--color-text-primary);
+    margin: 0;
+}
+
+/* --- Right side: Player cards --- */
+.players-row {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    overflow-x: visible;
+    gap: 1rem;
+    flex: 1;
+    padding-bottom: 0.5rem;
+}
+
+/* Make horizontal scroll bar subtle */
+.players-row::-webkit-scrollbar {
+    height: 6px;
+}
+.players-row::-webkit-scrollbar-thumb {
+    background: var(--color-highlight-secondary);
+    border-radius: 3px;
+}
+
+/* --- Responsive tweaks --- */
+@media (max-width: 1030px) {
+    .team-slide {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .team-info {
+        align-items: center;
+        text-align: center;
+    }
+
+    .players-row {
+
+    }
+}

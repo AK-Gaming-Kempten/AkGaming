@@ -1,0 +1,25 @@
+.esports {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.evb-logo{
+    width: 10rem;
+}
+
+.evb-section{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    max-width: 1000px;
+}
+
+.info-section{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    max-width: 1000px;
+}

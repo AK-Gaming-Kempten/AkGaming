@@ -1,0 +1,35 @@
+- id: lol
+  displayName: League of Legends
+  logo: /assets/games/esports_lol.svg
+
+- id: cs2
+  displayName: Counter-Strike 2
+  logo: /assets/games/esports_cs2.webp
+
+- id: ow2
+  displayName: Overwatch 2
+  logo: /assets/games/esports_ow2.png
+
+- id: valorant
+  displayName: Valorant
+  logo: /assets/games/esports_valorant.png
+
+- id: r6s
+  displayName: "Rainbow Six: Siege"
+  logo: /assets/games/esports_r6s.webp
+
+- id: tft
+  displayName: Teamfight Tactics
+  logo: /assets/games/esports_tft.svg
+
+- id: wildrift
+  displayName: Wild Rift
+  logo: /assets/games/esports_wildRift.svg
+
+- id: 2xko
+  displayName: 2XKO
+  logo: /assets/games/esports_2xko.png
+
+- id: lor
+  displayName: Legends of Runeterra
+  logo: /assets/games/esports_lor.png

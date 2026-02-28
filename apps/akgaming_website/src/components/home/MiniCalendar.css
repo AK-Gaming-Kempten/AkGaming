@@ -1,0 +1,28 @@
+.mini-calendar {
+    border: 2px solid var(--color-highlight-secondary);
+    border-radius: 4px;
+    padding: 0.5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.3rem;
+}
+
+.calendar-list{
+    display: flex;
+    flex-direction: column;
+    align-content: center;
+    gap: 0.3rem;
+}
+
+.event-card{
+    width: auto;
+}
+
+.calendar-list .event-name{
+    font-size: medium;
+}
+
+.calendar-list .event-date{
+    font-size: medium;
+}

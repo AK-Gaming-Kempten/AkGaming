@@ -1,0 +1,84 @@
+.events-page {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 1rem;
+}
+
+.events-page-grid {
+    display: grid;
+    grid-template-columns: 5fr 2fr;
+    align-items: flex-start;
+    gap: 2rem;
+    max-width: 1400px;
+    width: 100%;
+}
+
+.events-page h1 {
+    font-size: 2rem;
+    color: var(--color-text-primary);
+    text-align: center;
+}
+
+/* Mobile tabs */
+.events-mobile-tabs {
+    display: none;
+    margin-bottom: 1rem;
+    gap: 0.5rem;
+}
+
+.tab-btn {
+    flex: 1;
+    padding: 0.6rem 1rem;
+    border: none;
+    border-radius: 4px;
+    background: var(--color-background-secondary);
+    color: var(--color-text-secondary);
+    cursor: pointer;
+    font-weight: 600;
+    transition: background-color 0.2s ease;
+}
+
+.tab-btn.active {
+    background: var(--color-highlight-secondary);
+}
+
+.events-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin: 0 auto 4rem auto;
+    text-align: left;
+}
+
+/* Responsive behavior */
+@media (max-width: 820px) {
+    .events-page-grid {
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .events-mobile-tabs {
+        display: flex;
+    }
+
+    .events-intro,
+    .events-feed {
+        display: none;
+    }
+
+    .hidden-on-mobile {
+        display: none;
+    }
+
+    .events-page .visible {
+        display: block;
+        animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(5px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+}

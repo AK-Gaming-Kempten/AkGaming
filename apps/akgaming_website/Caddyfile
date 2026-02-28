@@ -1,0 +1,7 @@
+:80 {
+    root * /usr/share/caddy
+    file_server
+
+    # SPA fallback for React Router
+    try_files {path} /index.html
+}

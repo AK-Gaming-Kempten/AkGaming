@@ -1,0 +1,55 @@
+.highlight-card {
+    background-color: var(--color-background-primary);
+    border: 2px solid var(--color-highlight-secondary);
+    border-radius: 4px;
+    overflow: hidden;
+    text-align: center;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.highlight-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    border-color: var(--color-highlight-primary);
+}
+
+
+/* --- media container with fixed aspect ratio --- */
+.highlight-media {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 3 / 2;
+    overflow: hidden;
+    background-color: var(--color-background-primary);
+}
+
+.media-content,
+.media-placeholder {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.media-placeholder {
+    background-color: var(--color-text-primary);
+}
+
+/* --- text --- */
+.text {
+    padding: 0.75rem;
+}
+
+.text h3 {
+    margin: 0.25rem 0;
+    color: var(--color-text-primary);
+}
+
+.text p {
+    margin: 0;
+    color: var(--color-text-primary);
+    font-size: 0.95rem;
+    line-height: 1.4;
+}

@@ -1,0 +1,26 @@
+game: Valorant
+name: HSK Demon
+logo: /assets/teams/HSK_Demon_Logo.png
+league:
+  name: Uniliga
+  logo: /assets/leagues/uniliga.png
+  division: Div 3
+players:
+  - name: mgrmx
+    role:
+    picture: /assets/teams/HSK_Demon_Logo.png
+  - name: SilentCrow
+    role:
+    picture: /assets/teams/HSK_Demon_Logo.png
+  - name: p55y
+    role:
+    picture: /assets/teams/HSK_Demon_Logo.png
+  - name: KybA25
+    role:
+    picture: /assets/teams/HSK_Demon_Logo.png
+  - name: LuXas
+    role:
+    picture: /assets/teams/HSK_Demon_Logo.png
+  - name: ontonerd
+    role:
+    picture: /assets/teams/HSK_Demon_Logo.png
