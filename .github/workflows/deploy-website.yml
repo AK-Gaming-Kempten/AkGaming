@@ -1,0 +1,17 @@
+name: Deploy Website (Coolify)
+
+on:
+  push:
+    branches: [ "main" ]
+    paths:
+      - "AkGaming.Website/**"
+      - "AkGaming.Core/**"
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Coolify deploy
+        run: |
+          curl --fail --request GET "${{ secrets.COOLIFY_WEBHOOK_WEBSITE }}" \
+            --header "Authorization: Bearer ${{ secrets.COOLIFY_TOKEN }}"

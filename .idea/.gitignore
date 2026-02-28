@@ -2,7 +2,7 @@
 /shelf/
 /workspace.xml
 # Rider ignored files
-/.idea.AkGaming.Identity.iml
+/.idea.AkGaming.iml
 /projectSettingsUpdater.xml
 /contentModel.xml
 /modules.xml
