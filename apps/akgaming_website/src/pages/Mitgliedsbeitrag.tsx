@@ -14,7 +14,7 @@ const faqs = [
         answer: "Die Zahlung erfolgt per Überweisung an:" +
             "<p><br>AK Gaming e.V. <br>DE59 7336 9920 0000 8872 85 <br>GENODEF1SFO </p> " +
             "Bitte achte darauf, den passenden Verwendungszweck anzugeben, damit wir deine Zahlung korrekt zuordnen können." +
-            "<br><br><strong>Hinweis: </strong>Vermutlich wirst du beim Überweisen eine Warnung erhalten, dass der Zahlungsempfänger nicht mit den bei der Bank hinterlegten Daten übereinstimmt. Dies liegt daran, dass unser Vereinskonto aufgrund Regularien der Bank nicht auf den Namen des Vereins, sondern auf den einer natürlichen Person sein muss, was in diesem Fall der unseres 1. Vorstandes ist. Überprüfe daher die angegebene IBAN sorgfältig und gib trotzdem den Ak Gaming e.V. als Zahlungsempfänger an."
+            "<br><br><strong>Hinweis: </strong>Evtl. wirst du beim Überweisen eine Warnung erhalten, dass der Zahlungsempfänger nicht mit den bei der Bank hinterlegten Daten übereinstimmt. Dies liegt daran, dass unser Vereinskonto aufgrund Regularien der Bank nicht auf den Namen des Vereins, sondern auf den einer natürlichen Person sein muss, was in diesem Fall der unseres 1. Vorstandes ist. Überprüfe daher die angegebene IBAN sorgfältig und gib trotzdem den Ak Gaming e.V. als Zahlungsempfänger an."
     },
     {
         question: "Welchen Verwendungszweck soll ich bei der Überweisung angeben?",
@@ -22,7 +22,7 @@ const faqs = [
     },
     {
         question: "Bis wann muss der Beitrag spätestens bezahlt sein?",
-        answer: "Der Beitrag muss spätestens bis zum <strong>1. des zweiten Monats der Abrechnungsperiode</strong> bezahlt werden. Eine Abrechnungsperiode beginnt jeweils zu den Semesterstart-Terminen der Hochschule Kempten. Effektiv ist das der 01. Mai im Sommersemester bzw. der 01. november im Wintersemester"
+        answer: "Der Beitrag muss spätestens bis zum <strong>1. des zweiten Monats der Abrechnungsperiode</strong> bezahlt werden. Eine Abrechnungsperiode beginnt jeweils zu den Semesterstart-Terminen der Hochschule Kempten. Effektiv ist das der 01. April im Sommersemester bzw. der 01. November im Wintersemester"
     },
     {
         question: "Muss ich den Beitrag auch in der Probezeit zahlen?",
