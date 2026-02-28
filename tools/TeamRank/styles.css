@@ -1,0 +1,156 @@
+body {
+  background-color: #1e1e1e;
+  color: #f0f0f0;
+  font-family: Arial, sans-serif;
+  padding: 20px;
+  padding-bottom: 200px;
+  max-width: 1200px;
+  margin: auto;
+}
+
+h2 {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.logo {
+  width: 100px;
+  height: auto;
+}
+
+.player-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.player {
+  flex: 1 1 calc(15% - 16px);
+  background-color: #2c2c2c;
+  border-radius: 8px;
+  padding: 20px;
+  min-width: 260px;
+  position: relative;
+  transition: filter 0.3s;
+}
+
+.player label {
+  font-weight: bold;
+  display: block;
+  margin-top: 2px;
+  margin-bottom: 8px;
+}
+
+.selectLeague{
+  width: 100px;
+}
+
+.selectDivision{
+  width: 50px;
+}
+
+.inputLP{
+  width: 40px;
+}
+
+.flex-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+select, input {
+  width: 100%;
+  padding: 6px;
+  margin-top: 4px;
+  background-color: #3a3a3a;
+  color: #f0f0f0;
+  border: 1px solid #555;
+  border-radius: 4px;
+}
+
+.comparison-text {
+  position: relative;
+  margin-top: 10px;
+  display: inline-block;
+  min-height: 1.2em; /* Ensures consistent height */
+  min-width: 200px;
+}
+
+.comparison-text span {
+  display: inline-block;
+  transition: opacity 0.4s ease;
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  opacity: 1;
+}
+
+.comparison-text .fade-out {
+  opacity: 0;
+}
+
+.green { color: #51a551; }
+.red { color: #FF6B6B; }
+.green-faded { color: #316b31; }
+.red-faded { color: #a64f4f; }
+
+.top5 {
+  border: 2px solid #888;
+}
+
+.faded {
+  filter: brightness(90%);
+}
+
+button {
+  display: block;
+  margin: 30px auto;
+  padding: 12px 24px;
+  font-size: 16px;
+  background-color: #444;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.summary {
+  text-align: center;
+  margin-top: 30px;
+  font-size: 20px;
+  font-weight: bold;
+  background-color: #2f2f2f;
+  padding: 16px;
+  border-radius: 10px;
+}
+
+.qualifies {
+  color: #7FFF7F;
+}
+
+.disqualified {
+  color: #FF6B6B;
+}
+
+/* Increase the size of league icons */
+img.league-icon {
+  width: 60px;
+  height: 60px;
+}
+
+/* Display the average rank icon */
+.avg-rank-icon {
+  width: 100px;
+  height: 100px;
+  vertical-align: middle;
+}
+
