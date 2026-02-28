@@ -1,0 +1,173 @@
+body {
+  min-height: 100vh;
+  background: radial-gradient(1000px 540px at 50% -8%, #48cb4f22, transparent 64%), var(--color-background-secondary);
+  display: grid;
+  place-items: center;
+  padding: 20px;
+}
+
+.shell {
+  width: min(94vw, 620px);
+  border: 1px solid var(--color-card-border);
+  background: var(--color-card-bg);
+  border-radius: 6px;
+  padding: 32px;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.25);
+}
+
+.shell.shell-wide {
+  width: min(94vw, 760px);
+}
+
+.topbar {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 10px;
+}
+
+.theme-picker {
+  width: 165px;
+  font-size: 0.85rem;
+}
+
+.brand {
+  display: grid;
+  justify-items: center;
+  text-align: center;
+  margin-bottom: 16px;
+}
+
+.brand img {
+  width: 78px;
+  height: 78px;
+  object-fit: contain;
+}
+
+.brand-title {
+  margin-top: 8px;
+  font-size: 24px;
+  letter-spacing: 0.3px;
+  color: var(--color-text-primary);
+}
+
+.brand-title .identity {
+  background: linear-gradient(90deg, #d39bff 0%, #b164ff 45%, #7f3bff 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  font-family: "Trebuchet MS", "Avenir Next", "Segoe UI", sans-serif;
+  font-style: normal;
+  font-weight: 800;
+  letter-spacing: 0.2px;
+}
+
+h1 {
+  margin: 0 0 6px;
+  font-size: 30px;
+  text-align: center;
+}
+
+p.sub {
+  margin: 0 0 24px;
+  color: var(--color-text-tertiary);
+  text-align: center;
+}
+
+button, a.button {
+  margin-top: 16px;
+  width: 100%;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  padding: 0.55rem 0.9rem;
+  border-radius: 2px;
+  border: 1px solid transparent;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.button-icon {
+  width: 18px;
+  height: 18px;
+  object-fit: contain;
+}
+
+button.primary {
+  background: var(--color-button-primary-bg);
+  color: var(--color-button-primary-text);
+}
+
+button.primary:hover {
+  background: var(--color-button-primary-hover-bg);
+}
+
+a.secondary {
+  background: var(--color-button-secondary-bg);
+  color: var(--color-button-secondary-text);
+}
+
+a.secondary:hover,
+button.secondary:hover {
+  background: var(--color-button-secondary-hover-bg);
+}
+
+button.secondary {
+  background: var(--color-button-secondary-bg);
+  color: var(--color-button-secondary-text);
+}
+
+a.switch {
+  display: inline-block;
+  margin-top: 16px;
+  color: var(--color-highlight-secondary);
+  text-decoration: none;
+}
+
+.status {
+  margin-top: 14px;
+  min-height: 20px;
+  font-size: 14px;
+  color: var(--color-text-tertiary);
+}
+
+.status.error { color: var(--color-button-danger-bg); }
+.status.ok { color: var(--color-highlight-secondary); }
+
+.redirect-choice {
+  margin-bottom: 4px;
+}
+
+.redirect-choice-sub {
+  margin-bottom: 10px;
+}
+
+.redirect-choice-account {
+  margin-bottom: 14px;
+  color: var(--color-text-primary);
+}
+
+.checkbox-row {
+  margin-top: 12px;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 0.9rem;
+}
+
+.checkbox-row input[type="checkbox"] {
+  width: auto;
+  margin-top: 2px;
+}
+
+.checkbox-row span {
+  line-height: 1.35;
+}
+
+@media (max-width: 520px) {
+  .shell { padding: 20px; }
+  .brand img { width: 64px; height: 64px; }
+  .brand-title { font-size: 20px; }
+  h1 { font-size: 24px; }
+}

@@ -1,0 +1,477 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>AKG Identity | Account</title>
+  <link rel="icon" type="image/png" href="/ui/AkGaming_Identity.png" />
+  <link rel="stylesheet" href="/ui/theme.css" />
+  <link rel="stylesheet" href="/ui/baseStyles.css" />
+  <link rel="stylesheet" href="/ui/styles.css" />
+  <script src="/ui/common.js" defer></script>
+  <style>
+    .shell.shell-wide { width: min(96vw, 1100px); }
+    .meta { margin-top: 10px; color: var(--color-text-tertiary); font-size: 14px; }
+    .panel {
+      margin-top: 16px;
+      padding: 16px;
+      border: 1px solid var(--color-card-border);
+      border-radius: 4px;
+      background: var(--color-background-primary);
+    }
+    .panel h2 {
+      margin: 0 0 12px;
+      font-size: 18px;
+      font-weight: 700;
+    }
+    .account-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+    .row { display: flex; justify-content: space-between; gap: 10px; margin-top: 8px; }
+    .k { color: var(--color-text-tertiary); }
+    .v { word-break: break-all; text-align: right; }
+    .v.ok { color: var(--color-highlight-secondary); }
+    .v.warn { color: #f4b942; }
+    .actions { display: grid; gap: 10px; margin-top: 14px; }
+    .method-actions { display: grid; gap: 10px; margin-top: 14px; }
+    .inline-actions { display: flex; gap: 8px; margin-top: 12px; }
+    .inline-actions button {
+      margin-top: 0;
+      width: auto;
+      flex: 0 0 auto;
+      padding: 0.55rem 0.9rem;
+    }
+    .inline-actions input {
+      flex: 1;
+      min-width: 0;
+      border: 1px solid var(--color-card-border);
+      border-radius: 2px;
+      padding: 0.7rem 0.8rem;
+      min-height: 44px;
+      font-size: 15px;
+      background: var(--color-background-primary);
+      color: var(--color-text-primary);
+    }
+    .method-block {
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px dashed var(--color-card-border);
+    }
+    .method-title {
+      margin: 0 0 8px;
+      font-size: 14px;
+      color: var(--color-text-tertiary);
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      font-weight: 700;
+    }
+    .discord-details {
+      color: var(--color-text-secondary);
+      font-size: 14px;
+    }
+    button.secondary {
+      background: var(--color-button-secondary-bg);
+      color: var(--color-button-secondary-text);
+    }
+    button.secondary:hover {
+      background: var(--color-button-secondary-hover-bg);
+    }
+    @media (max-width: 860px) {
+      .account-grid { grid-template-columns: 1fr; }
+      .shell.shell-wide { width: min(96vw, 760px); }
+    }
+  </style>
+</head>
+<body>
+  <main class="shell shell-wide">
+    <div class="topbar">
+      <select class="theme-picker" data-theme-picker aria-label="Theme">
+        <option value="system">System Theme</option>
+        <option value="light">Light Theme</option>
+        <option value="dark">Dark Theme</option>
+      </select>
+    </div>
+    <div class="brand">
+      <img src="/ui/AkGaming_Identity.png" alt="AK Gaming" />
+      <div class="brand-title">AK Gaming <span class="identity">Identity</span></div>
+    </div>
+    <h1>Identity Home</h1>
+    <p class="sub" id="subtitle">Checking session...</p>
+
+    <div id="auth-panel" style="display:none;">
+      <div class="account-grid">
+        <div class="panel">
+          <h2>General Info</h2>
+          <div class="row"><span class="k">User Id</span><span class="v" id="sub"></span></div>
+          <div class="row"><span class="k">Email</span><span class="v" id="email"></span></div>
+          <div class="row"><span class="k">Roles</span><span class="v" id="roles"></span></div>
+          <div class="meta" id="exp"></div>
+        </div>
+
+        <div class="panel">
+          <h2>Login Methods</h2>
+
+          <div class="method-block">
+            <div class="method-title">Email / Password</div>
+            <div class="row"><span class="k">Email Verified</span><span class="v" id="email-verified"></span></div>
+            <div id="verify-block" style="display:none;">
+              <div class="inline-actions">
+                <button class="secondary" id="send-verify" type="button">Send Verification Email</button>
+              </div>
+              <div class="inline-actions">
+                <input id="verify-token" type="text" autocomplete="off" spellcheck="false" placeholder="Paste verification token here" />
+                <button class="secondary" id="verify-email" type="button">Verify Token</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="method-block">
+            <div class="method-title">Discord</div>
+            <div id="discord-linked" class="discord-details" style="display:none;">
+              <div><span class="k">Discord</span>: <span class="v" id="discord-name"></span></div>
+              <div><span class="k">Discord Id</span>: <span class="v" id="discord-id"></span></div>
+              <div><span class="k">Linked At</span>: <span class="v" id="discord-linked-at"></span></div>
+            </div>
+            <div class="method-actions">
+              <button class="primary" id="discord-link" type="button"><img class="button-icon" src="/ui/Discord-Symbol-Blurple.svg" alt="" />Link Discord</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button class="secondary" id="refresh" type="button">Refresh Session</button>
+        <button class="secondary" id="logout" type="button">Logout</button>
+      </div>
+    </div>
+
+    <div id="guest-panel" style="display:none;">
+      <a class="button primary" href="/login">Sign In</a>
+      <a class="button secondary" href="/register">Create Account</a>
+    </div>
+
+    <div class="status" id="status"></div>
+  </main>
+
+  <script>
+    const subtitle = document.getElementById("subtitle");
+    const authPanel = document.getElementById("auth-panel");
+    const guestPanel = document.getElementById("guest-panel");
+    const statusEl = document.getElementById("status");
+
+    const subEl = document.getElementById("sub");
+    const emailEl = document.getElementById("email");
+    const rolesEl = document.getElementById("roles");
+    const emailVerifiedEl = document.getElementById("email-verified");
+    const expEl = document.getElementById("exp");
+    const verifyBlockEl = document.getElementById("verify-block");
+    const sendVerifyBtn = document.getElementById("send-verify");
+    const verifyTokenEl = document.getElementById("verify-token");
+    const verifyEmailBtn = document.getElementById("verify-email");
+    const discordLinkedEl = document.getElementById("discord-linked");
+    const discordNameEl = document.getElementById("discord-name");
+    const discordIdEl = document.getElementById("discord-id");
+    const discordLinkedAtEl = document.getElementById("discord-linked-at");
+
+    const linkBtn = document.getElementById("discord-link");
+    const refreshBtn = document.getElementById("refresh");
+    const logoutBtn = document.getElementById("logout");
+
+    function setStatus(message, ok = false) {
+      statusEl.textContent = message;
+      statusEl.className = `status ${ok ? "ok" : "error"}`;
+    }
+
+    function clearStatus() {
+      statusEl.textContent = "";
+      statusEl.className = "status";
+    }
+
+    function consumeRedirectStatus() {
+      const params = new URLSearchParams(window.location.search);
+      const emailVerified = params.get("emailVerified");
+      const message = params.get("message");
+
+      if (emailVerified === "1") {
+        setStatus("Email was verified successfully.", true);
+      } else if (emailVerified === "0") {
+        setStatus(message || "Email verification link failed.");
+      }
+
+      if (emailVerified !== null) {
+        const cleanUrl = `${window.location.pathname}${window.location.hash || ""}`;
+        window.history.replaceState({}, document.title, cleanUrl);
+      }
+    }
+
+    function base64UrlToJson(payload) {
+      const base64 = payload.replace(/-/g, "+").replace(/_/g, "/");
+      const padded = base64 + "=".repeat((4 - (base64.length % 4)) % 4);
+      const text = atob(padded);
+      return JSON.parse(text);
+    }
+
+    function getClaims(token) {
+      const parts = token.split(".");
+      if (parts.length !== 3) return null;
+      try {
+        return base64UrlToJson(parts[1]);
+      } catch {
+        return null;
+      }
+    }
+
+    function saveTokens(payload) {
+      if (payload.accessToken) localStorage.setItem("accessToken", payload.accessToken);
+      if (payload.refreshToken) localStorage.setItem("refreshToken", payload.refreshToken);
+      if (payload.accessTokenExpiresAtUtc) localStorage.setItem("accessTokenExpiresAtUtc", payload.accessTokenExpiresAtUtc);
+    }
+
+    function clearTokens() {
+      localStorage.removeItem("accessToken");
+      localStorage.removeItem("refreshToken");
+      localStorage.removeItem("accessTokenExpiresAtUtc");
+    }
+
+    function renderAuthenticated(claims) {
+      subtitle.textContent = "You are signed in.";
+      authPanel.style.display = "block";
+      guestPanel.style.display = "none";
+
+      subEl.textContent = claims?.sub || "-";
+      emailEl.textContent = claims?.email || "-";
+
+      const roleClaim = claims?.role;
+      if (Array.isArray(roleClaim)) {
+        rolesEl.textContent = roleClaim.join(", ");
+      } else {
+        rolesEl.textContent = roleClaim || "User";
+      }
+
+      if (claims?.exp) {
+        expEl.textContent = `Access token exp: ${new Date(claims.exp * 1000).toISOString()}`;
+      } else {
+        expEl.textContent = "";
+      }
+    }
+
+    function renderProfile(profile) {
+      const verified = !!profile?.isEmailVerified;
+      emailVerifiedEl.textContent = verified ? "Yes" : "No";
+      emailVerifiedEl.className = `v ${verified ? "ok" : "warn"}`;
+      verifyBlockEl.style.display = verified ? "none" : "block";
+
+      const discord = profile?.discord;
+      if (!discord) {
+        discordLinkedEl.style.display = "none";
+        linkBtn.style.display = "inline-flex";
+        return;
+      }
+
+      discordNameEl.textContent = discord.providerUsername || "Discord User";
+      discordIdEl.textContent = discord.providerUserId;
+      discordLinkedAtEl.textContent = new Date(discord.linkedAtUtc).toISOString();
+      discordLinkedEl.style.display = "block";
+      linkBtn.style.display = "none";
+    }
+
+    async function authorizedFetch(path, options = {}) {
+      let accessToken = localStorage.getItem("accessToken");
+      if (!accessToken) {
+        return { response: null, unauthorized: true };
+      }
+
+      const requestOptions = {
+        ...options,
+        headers: {
+          ...(options.headers || {}),
+          Authorization: `Bearer ${accessToken}`
+        }
+      };
+
+      let response = await fetch(path, requestOptions);
+      if (response.status !== 401) {
+        return { response, unauthorized: false };
+      }
+
+      const refreshed = await refreshSession();
+      if (!refreshed) {
+        return { response: null, unauthorized: true };
+      }
+
+      accessToken = localStorage.getItem("accessToken");
+      response = await fetch(path, {
+        ...options,
+        headers: {
+          ...(options.headers || {}),
+          Authorization: `Bearer ${accessToken}`
+        }
+      });
+
+      return { response, unauthorized: response.status === 401 };
+    }
+
+    async function loadProfile() {
+      const { response, unauthorized } = await authorizedFetch("/auth/me", { method: "GET" });
+      if (unauthorized || !response) {
+        clearTokens();
+        renderGuest();
+        return;
+      }
+
+      if (!response.ok) {
+        const error = await response.json().catch(() => ({}));
+        setStatus(error.detail || "Could not load account profile.");
+        return;
+      }
+
+      const profile = await response.json();
+      renderProfile(profile);
+    }
+
+    function renderGuest() {
+      subtitle.textContent = "No active session.";
+      authPanel.style.display = "none";
+      guestPanel.style.display = "block";
+    }
+
+    async function refreshSession() {
+      const refreshToken = localStorage.getItem("refreshToken");
+      if (!refreshToken) {
+        setStatus("No refresh token available.");
+        return false;
+      }
+
+      const res = await fetch("/auth/refresh", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ refreshToken })
+      });
+
+      if (!res.ok) {
+        clearTokens();
+        renderGuest();
+        setStatus("Session refresh failed. Please sign in again.");
+        return false;
+      }
+
+      const payload = await res.json();
+      saveTokens(payload);
+      const claims = getClaims(payload.accessToken);
+      renderAuthenticated(claims);
+      await loadProfile();
+      setStatus("Session refreshed.", true);
+      return true;
+    }
+
+    async function linkDiscord() {
+      clearStatus();
+      const { response, unauthorized } = await authorizedFetch("/auth/discord/link", { method: "POST" });
+      if (unauthorized || !response) {
+        setStatus("Please sign in first.");
+        return;
+      }
+
+      if (!response.ok) {
+        const error = await response.json().catch(() => ({}));
+        setStatus(error.detail || "Could not start Discord linking.");
+        return;
+      }
+
+      const payload = await response.json();
+      window.location.href = payload.authorizationUrl;
+    }
+
+    async function logout() {
+      clearStatus();
+      const refreshToken = localStorage.getItem("refreshToken");
+      if (refreshToken) {
+        await fetch("/auth/logout", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ refreshToken })
+        }).catch(() => undefined);
+      }
+
+      clearTokens();
+      renderGuest();
+      setStatus("Logged out.", true);
+    }
+
+    async function sendVerification() {
+      clearStatus();
+      const { response, unauthorized } = await authorizedFetch("/auth/email/send-verification/me", { method: "POST" });
+      if (unauthorized || !response) {
+        setStatus("Please sign in first.");
+        return;
+      }
+
+      const body = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        setStatus(body.detail || "Could not issue verification token.");
+        return;
+      }
+
+      if (body.verificationToken) {
+        verifyTokenEl.value = body.verificationToken;
+        setStatus("Verification token generated. Use it below to verify.", true);
+      } else {
+        setStatus(body.message || "Verification request submitted.", true);
+      }
+    }
+
+    async function verifyEmail() {
+      clearStatus();
+      const token = verifyTokenEl.value.trim();
+      if (!token) {
+        setStatus("Enter a verification token first.");
+        return;
+      }
+
+      const response = await fetch("/auth/email/verify", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token })
+      });
+
+      if (!response.ok) {
+        const body = await response.json().catch(() => ({}));
+        setStatus(body.detail || "Email verification failed.");
+        return;
+      }
+
+      verifyTokenEl.value = "";
+      await loadProfile();
+      setStatus("Email verified.", true);
+    }
+
+    refreshBtn.addEventListener("click", refreshSession);
+    linkBtn.addEventListener("click", linkDiscord);
+    logoutBtn.addEventListener("click", logout);
+    sendVerifyBtn.addEventListener("click", sendVerification);
+    verifyEmailBtn.addEventListener("click", verifyEmail);
+
+    (async function init() {
+      consumeRedirectStatus();
+
+      const accessToken = localStorage.getItem("accessToken");
+      if (!accessToken) {
+        renderGuest();
+        return;
+      }
+
+      const claims = getClaims(accessToken);
+      if (!claims) {
+        clearTokens();
+        renderGuest();
+        return;
+      }
+
+      renderAuthenticated(claims);
+      await loadProfile();
+    })();
+  </script>
+</body>
+</html>

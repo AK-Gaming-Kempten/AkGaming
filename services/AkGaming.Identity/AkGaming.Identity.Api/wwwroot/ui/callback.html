@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>AKG Identity | OAuth Callback</title>
+  <link rel="icon" type="image/png" href="/ui/AkGaming_Identity.png" />
+  <link rel="stylesheet" href="/ui/theme.css" />
+  <link rel="stylesheet" href="/ui/baseStyles.css" />
+  <link rel="stylesheet" href="/ui/styles.css" />
+  <script src="/ui/common.js" defer></script>
+</head>
+<body>
+  <main class="shell">
+    <div class="topbar">
+      <select class="theme-picker" data-theme-picker aria-label="Theme">
+        <option value="system">System Theme</option>
+        <option value="light">Light Theme</option>
+        <option value="dark">Dark Theme</option>
+      </select>
+    </div>
+    <div class="brand">
+      <img src="/ui/AkGaming_Identity.png" alt="AK Gaming" />
+      <div class="brand-title">AK Gaming <span class="identity">Identity</span></div>
+    </div>
+    <h1>Discord Sign-In</h1>
+    <p class="sub">Completing your authentication flow.</p>
+    <div class="status" id="status">Processing callback...</div>
+    <a class="button secondary" id="continue" href="/" style="display:none;">Continue</a>
+  </main>
+
+  <script>
+    const statusEl = document.getElementById("status");
+    const continueEl = document.getElementById("continue");
+
+    function parseHash() {
+      const hash = window.location.hash.startsWith("#")
+        ? window.location.hash.substring(1)
+        : window.location.hash;
+      return new URLSearchParams(hash);
+    }
+
+    function setStatus(message, ok) {
+      statusEl.textContent = message;
+      statusEl.className = `status ${ok ? "ok" : "error"}`;
+    }
+
+    function saveToken(name, value) {
+      if (value && value.trim().length > 0) {
+        localStorage.setItem(name, value);
+      }
+    }
+
+    async function finalizeExternalRedirect(params) {
+      const redirectUri = params.get("redirectUri");
+      const accessToken = params.get("accessToken");
+      const refreshToken = params.get("refreshToken");
+      const accessTokenExpiresAtUtc = params.get("accessTokenExpiresAtUtc");
+      const state = params.get("state");
+
+      if (!redirectUri || !accessToken || !refreshToken || !accessTokenExpiresAtUtc) {
+        return false;
+      }
+
+      const response = await fetch("/auth/redirect/finalize", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          redirectUri,
+          state,
+          accessToken,
+          refreshToken,
+          accessTokenExpiresAtUtc
+        })
+      });
+
+      if (!response.ok) {
+        const error = await response.json().catch(() => ({}));
+        setStatus(error.detail || "Could not redirect back to the application.", false);
+        continueEl.href = "/";
+        continueEl.textContent = "Back to account";
+        continueEl.style.display = "inline-flex";
+        return true;
+      }
+
+      const body = await response.json();
+      window.location.href = body.redirectUrl;
+      return true;
+    }
+
+    (async function run() {
+      const params = parseHash();
+      const success = params.get("success") === "1";
+      const message = params.get("message") || (success ? "Authentication complete." : "Authentication failed.");
+
+      if (success) {
+        saveToken("accessToken", params.get("accessToken"));
+        saveToken("refreshToken", params.get("refreshToken"));
+        saveToken("accessTokenExpiresAtUtc", params.get("accessTokenExpiresAtUtc"));
+
+        setStatus(message, true);
+
+        const redirectedExternally = await finalizeExternalRedirect(params);
+        if (redirectedExternally) {
+          return;
+        }
+
+        const linked = params.get("linked") === "1";
+        const createdUser = params.get("createdUser") === "1";
+
+        if (linked && !params.get("accessToken")) {
+          continueEl.href = "/";
+          continueEl.textContent = "Back to app";
+          continueEl.style.display = "inline-flex";
+          return;
+        }
+
+        if (createdUser) {
+          continueEl.textContent = "Start Using Account";
+        }
+
+        continueEl.href = "/";
+        continueEl.style.display = "inline-flex";
+
+        setTimeout(() => {
+          window.location.href = "/";
+        }, 900);
+      } else {
+        const errorCode = params.get("errorCode");
+        const extra = errorCode ? ` (code: ${errorCode})` : "";
+        setStatus(`${message}${extra}`, false);
+        continueEl.href = "/login";
+        continueEl.textContent = "Back to login";
+        continueEl.style.display = "inline-flex";
+      }
+    })().catch(() => {
+      setStatus("Unexpected callback error.", false);
+      continueEl.href = "/login";
+      continueEl.textContent = "Back to login";
+      continueEl.style.display = "inline-flex";
+    });
+  </script>
+</body>
+</html>
