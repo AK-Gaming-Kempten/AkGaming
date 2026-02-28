@@ -1,0 +1,28 @@
+﻿@inherits LayoutComponentBase
+
+<div class="mobile-warning">
+    <div>
+        <img src="images/icons/AKG_Logos/Red.png" alt="AKGaming Logo" class="mobile-warning-logo" />
+        <h2>Oh No!</h2>
+        <strong>Mobile view is still in the works.</strong><br/>
+        Please open this site on a larger screen.
+    </div>
+</div>
+
+<div class="page">
+    <div class="sidebar">
+        <NavMenu/>
+    </div>
+
+    <main>
+        <article class="content">
+            @Body
+        </article>
+    </main>
+</div>
+
+<div id="blazor-error-ui" data-nosnippet>
+    An unhandled error has occurred.
+    <a href="." class="reload">Reload</a>
+    <span class="dismiss">🗙</span>
+</div>

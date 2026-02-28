@@ -1,0 +1,7 @@
+<div class="member-preview-card @(IsSelected ? "selected" : "")" @onclick="SelectMember">
+    <div class="member-preview-card-content">
+        <div>@Member.LastName, @Member.FirstName</div>
+        <div>@Member.DiscordUserName</div>
+        <div class="member-preview-card-status">@Member.Status</div>
+    </div>
+</div>

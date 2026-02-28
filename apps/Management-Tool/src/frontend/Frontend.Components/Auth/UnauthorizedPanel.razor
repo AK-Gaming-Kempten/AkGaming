@@ -1,0 +1,24 @@
+<div class="unauthorized-wrapper">
+    @if (!string.IsNullOrWhiteSpace(ImageUrl))
+    {
+        <img class="unauthorized-image" src="@ImageUrl" alt="Not Authorized" />
+    }
+
+    <div class="unauthorized-content">
+        @ChildContent
+    </div>
+
+    <button class="unauthorized-button" @onclick="Login">
+        Login
+    </button>
+</div>
+
+@code {
+    [Parameter] public string? ImageUrl { get; set; }
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+
+    [Inject] NavigationManager Nav { get; set; } = default!;
+
+    private void Login()
+        => Nav.NavigateTo("/authentication/login", forceLoad: true);
+}

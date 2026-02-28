@@ -1,0 +1,154 @@
+.page {
+    display: flex;
+    flex-direction: row;
+    height: 100vh;
+    overflow: hidden; /* prevents the sidebar from scrolling away */
+    background: var(--color-background-primary);
+    color: var(--color-text-primary);
+}
+
+main {
+    flex: 1;
+    height: 100vh;
+    overflow-y: auto; /* scrolls only the content area */
+    background: var(--color-background-primary);
+    color: var(--color-text-primary);
+}
+
+.content {
+    padding: 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* Top navigation bar */
+.top-row {
+    background: var(--color-background-secondary);
+    border-bottom: 1px solid var(--color-text-tertiary);
+
+    justify-content: flex-end;
+    height: 3.5rem;
+    display: flex;
+    align-items: center;
+}
+
+.top-row ::deep a,
+.top-row ::deep .btn-link {
+    white-space: nowrap;
+    margin-left: 1.5rem;
+    text-decoration: none;
+    color: var(--color-text-primary);
+}
+
+.top-row ::deep a:hover,
+.top-row ::deep .btn-link:hover {
+    text-decoration: underline;
+}
+
+.top-row ::deep a:first-child {
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Small screens */
+@media (max-width: 640.98px) {
+    .top-row {
+        justify-content: space-between;
+    }
+
+    .top-row ::deep a,
+    .top-row ::deep .btn-link {
+        margin-left: 0;
+    }
+}
+
+/* Large screens */
+@media (min-width: 641px) {
+    .page {
+        flex-direction: row;
+    }
+
+    .top-row {
+        position: sticky;
+        top: 0;
+        z-index: 1;
+    }
+
+    .top-row.auth ::deep a:first-child {
+        flex: 1;
+        text-align: right;
+        width: 0;
+    }
+
+    .top-row,
+    article {
+        padding-left: 2rem !important;
+        padding-right: 1.5rem !important;
+    }
+}
+
+/* Blazor error UI */
+#blazor-error-ui {
+    /* Light mode only makes sense — fine */
+    color-scheme: light only;
+    background: var(--color-highlight-primary);
+    color: var(--color-text-primary);
+
+    bottom: 0;
+    box-shadow: 0 -1px 2px rgba(0, 0, 0, 0.2);
+    box-sizing: border-box;
+    display: none;
+    left: 0;
+    padding: 0.6rem 1.25rem 0.7rem 1.25rem;
+    position: fixed;
+    width: 100%;
+    z-index: 1000;
+}
+
+#blazor-error-ui .dismiss {
+    cursor: pointer;
+    position: absolute;
+    right: 0.75rem;
+    top: 0.5rem;
+}
+
+
+/* Hidden by default */
+.mobile-warning {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: var(--color-background-primary);
+    color: var(--color-text-primary);
+    z-index: 9999;
+    font-size: 1.2rem;
+    text-align: center;
+    padding: 2rem;
+    box-sizing: border-box;
+}
+
+.mobile-warning > div {
+    max-width: 400px;
+    margin: 40vh auto 0;
+}
+
+/* Show only on narrow screens */
+@media (max-width: 640px) {
+    .mobile-warning {
+        display: block;
+    }
+
+    /* Optional: hide all regular content when warning is shown */
+    body > *:not(.mobile-warning) {
+        display: none !important;
+    }
+    
+    .mobile-warning-logo {
+        width: 100px;
+        height: 100px;
+    }  
+}
+

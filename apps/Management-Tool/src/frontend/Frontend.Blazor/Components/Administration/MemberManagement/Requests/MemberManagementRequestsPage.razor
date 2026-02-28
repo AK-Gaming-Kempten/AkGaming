@@ -1,0 +1,31 @@
+@page "/member-management/requests"
+
+<PageTitle>Requests</PageTitle>
+
+<CascadingValue Value="MemberApi" Name="MemberManagementApi" IsFixed="true">
+    <div class="request-management-page">
+        <div class="tabs">
+            <button type="button"
+                    class="tab @(_activeTab == RequestTab.ApplicationRequests ? "active" : "")"
+                    @onclick="() => _activeTab = RequestTab.ApplicationRequests">
+                Membership Applications
+            </button>
+            <button type="button"
+                    class="tab @(_activeTab == RequestTab.LinkingRequests ? "active" : "")"
+                    @onclick="() => _activeTab = RequestTab.LinkingRequests">
+                Linking Requests
+            </button>
+        </div>
+
+        <div class="status-forms">
+            @if (_activeTab == RequestTab.ApplicationRequests)
+            {
+                <ApplicationRequestManagementPanel/>
+            }
+            else if (_activeTab == RequestTab.LinkingRequests)
+            {
+                <LinkingRequestManagementPanel/>
+            }
+        </div>
+    </div>
+</CascadingValue>

@@ -1,0 +1,32 @@
+@inject HttpClient Api
+
+<div class="two-column-layout">
+    <div class="two-column-layout-left">
+        <div class="list-buttons">
+            <h4>Pending Requests</h4>
+            <button class="btn btn-secondary" @onclick="OpenFilters" disabled="@true">Filters</button>
+        </div>
+        <div class="list-main">
+            @if (_requests == null) {
+                <p>Loading…</p>
+            }
+            else if (!_requests.Any()) {
+                <p>No requests found.</p>
+            }
+            else {
+                <div class="list-scroll-container">
+                    <div class="preview-card-list">
+                        @foreach (var request in _requests) {
+                            <LinkingRequestPreviewCard Request="request" IsSelected="request == _selectedRequest" OnSelect="SelectRequest"/>
+                        }
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+    <div class="two-column-layout-right">
+        <CascadingValue Value="MemberApi" Name="MemberManagementApi" IsFixed="true">
+            <LinkingRequestCard IsEditable="true" Request="_selectedRequest" OnRequestUpdated="Reload" />
+        </CascadingValue>  
+    </div>
+</div>

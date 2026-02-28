@@ -1,0 +1,31 @@
+<div class="pager">
+    <button class="btn btn-secondary" @onclick="OnPreviousClicked" disabled="@(_isPrevDisabled)">Previous</button>
+    <span>Page @Page of @TotalPages (Total @TotalCount)</span>
+    <button class="btn btn-secondary" @onclick="OnNextClicked" disabled="@(_isNextDisabled)">Next</button>
+</div>
+
+@code {
+    [Parameter]
+    public int Page { get; set; } = 1;
+
+    [Parameter]
+    public int TotalPages { get; set; } = 1;
+
+    [Parameter]
+    public int TotalCount { get; set; }
+
+    [Parameter]
+    public bool IsBusy { get; set; }
+
+    [Parameter]
+    public EventCallback OnPrevious { get; set; }
+
+    [Parameter]
+    public EventCallback OnNext { get; set; }
+
+    private bool _isPrevDisabled => IsBusy || Page <= 1;
+    private bool _isNextDisabled => IsBusy || Page >= TotalPages;
+
+    private Task OnPreviousClicked() => OnPrevious.InvokeAsync();
+    private Task OnNextClicked() => OnNext.InvokeAsync();
+}

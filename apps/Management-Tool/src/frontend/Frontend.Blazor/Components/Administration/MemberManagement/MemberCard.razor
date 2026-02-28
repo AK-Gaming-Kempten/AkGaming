@@ -1,0 +1,88 @@
+<div class="member-card @(EditMode ? "edit-mode" : "readonly-mode")">
+    @if (Member is null)
+    {
+        <div class="no-member-selected">No member selected</div>
+    }
+    else
+    {
+        <div class="member-card-content">
+            @if (IsEditable)
+            {
+                <div class="form-actions">
+                    @if (!EditMode)
+                    {
+                        <button class="btn btn-primary" @onclick="EnableEditing">Edit</button>
+                    }
+                    else
+                    {
+                        <button class="btn btn-primary" @onclick="SaveChanges">Save</button>
+                        <button class="btn btn-danger" @onclick="CancelChanges">Cancel</button>
+                    }
+                </div>
+            }
+            
+            <div class="form-wrapper">
+                <EditForm Model="Member">
+                    <div class="form-section">
+                        <div class="form-grid">
+                            <div class="form-col">
+                                <label>First name</label>
+                                <InputText @bind-Value="_localMember.FirstName" readonly="@(!EditMode)" />
+                            </div>
+                            <div class="form-col">
+                                <label>Last name</label>
+                                <InputText @bind-Value="_localMember.LastName" readonly="@(!EditMode)" />
+                            </div>
+
+                            <div class="form-col">
+                                <label>Email</label>
+                                <InputText @bind-Value="_localMember.Email" readonly="@(!EditMode)" />
+                            </div>
+                            <div class="form-col">
+                                <label>Phone</label>
+                                <InputText @bind-Value="_localMember.Phone" readonly="@(!EditMode)" />
+                            </div>
+
+                            <div class="form-col">
+                                <label>Discord</label>
+                                <InputText @bind-Value="_localMember.DiscordUserName" readonly="@(!EditMode)" />
+                            </div>
+                            <div class="form-col">
+                                <label>Birthdate</label>
+                                <InputDate @bind-Value="_localMember.BirthDate" readonly="@(!EditMode)" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h4>Address</h4>
+                        <div class="form-grid">
+                            <div class="form-col">
+                                <label>Street</label>
+                                <InputText @bind-Value="_localMember.Address.Street" readonly="@(!EditMode)" />
+                            </div>
+                            <div class="form-col">
+                                <label>ZIP</label>
+                                <InputText @bind-Value="_localMember.Address.ZipCode" readonly="@(!EditMode)" />
+                            </div>
+                            <div class="form-col">
+                                <label>City</label>
+                                <InputText @bind-Value="_localMember.Address.City" readonly="@(!EditMode)" />
+                            </div>
+                            <div class="form-col">
+                                <label>Country</label>
+                                <InputText @bind-Value="_localMember.Address.Country" readonly="@(!EditMode)" />
+                            </div>
+                        </div>
+                    </div>
+                </EditForm>
+            </div>
+            
+            <StatusUpdatePanel
+                Editable="@(EditMode && IsStatusEditable)"
+                Member="@_localMember"
+                OnStatusUpdated="StatusUpdated" />
+        </div>
+    }
+</div>
+

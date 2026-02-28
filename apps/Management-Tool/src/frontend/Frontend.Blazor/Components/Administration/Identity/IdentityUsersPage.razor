@@ -1,0 +1,146 @@
+@page "/identity/users"
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize(Roles = "Admin")]
+
+<PageTitle>Identity Users</PageTitle>
+
+<div class="identity-users-page">
+    <div class="users-list-pane card">
+        <h4>Users</h4>
+
+        <div class="toolbar">
+            <InputText @bind-Value="_search" placeholder="Search by email" />
+            <InputNumber @bind-Value="_pageSize" min="1" max="200" />
+            <button class="btn btn-secondary" @onclick="SearchAsync" disabled="@_isBusy">Search</button>
+            <button class="btn btn-secondary" @onclick="ReloadUsersAsync" disabled="@_isBusy">Refresh</button>
+        </div>
+
+        @if (_usersResponse is null)
+        {
+            <p>Loading users...</p>
+        }
+        else if (_usersResponse.Items.Count == 0)
+        {
+            <p>No users found.</p>
+        }
+        else
+        {
+            <div class="users-list">
+                @foreach (var user in _usersResponse.Items)
+                {
+                    <button type="button"
+                            class="user-item @(user.UserId == _selectedUserId ? "selected" : string.Empty)"
+                            @onclick="() => SelectUserAsync(user.UserId)">
+                        <span class="email">@user.Email</span>
+                        <span class="meta">@user.UserId</span>
+                    </button>
+                }
+            </div>
+
+            <div class="pager">
+                <button class="btn btn-secondary" @onclick="PrevPageAsync" disabled="@(_isBusy || _page <= 1)">Previous</button>
+                <span>Page @_page of @_totalPages (Total @_usersResponse.TotalCount)</span>
+                <button class="btn btn-secondary" @onclick="NextPageAsync" disabled="@(_isBusy || _page >= _totalPages)">Next</button>
+            </div>
+        }
+    </div>
+
+    <div class="user-detail-pane card">
+        <h4>User Details & Roles</h4>
+
+        @if (_selectedUserDetails is null)
+        {
+            <p>Select a user to view details and edit roles.</p>
+        }
+        else
+        {
+            <div class="detail-grid">
+                <div>
+                    <label>User Id</label>
+                    <input value="@_selectedUserDetails.UserId" disabled />
+                </div>
+                <div>
+                    <label>Email</label>
+                    <input value="@_selectedUserDetails.Email" disabled />
+                </div>
+                <div>
+                    <label>Email verified</label>
+                    <input value="@(_selectedUserDetails.IsEmailVerified ? "Yes" : "No")" disabled />
+                </div>
+                <div>
+                    <label>Created (UTC)</label>
+                    <input value="@_selectedUserDetails.CreatedAtUtc.ToString("u")" disabled />
+                </div>
+                <div>
+                    <label>Lockout end (UTC)</label>
+                    <input value="@(_selectedUserDetails.LockoutEndUtc?.ToString("u") ?? "-")" disabled />
+                </div>
+            </div>
+
+            @if (_selectedUserDetails.Discord is not null)
+            {
+                <div class="discord-block">
+                    <h5>Discord Link</h5>
+                    <div class="detail-grid">
+                        <div>
+                            <label>Provider user id</label>
+                            <input value="@_selectedUserDetails.Discord.ProviderUserId" disabled />
+                        </div>
+                        <div>
+                            <label>Provider username</label>
+                            <input value="@_selectedUserDetails.Discord.ProviderUsername" disabled />
+                        </div>
+                        <div>
+                            <label>Linked at (UTC)</label>
+                            <input value="@_selectedUserDetails.Discord.LinkedAtUtc.ToString("u")" disabled />
+                        </div>
+                    </div>
+                </div>
+            }
+
+            <h5>Assign Roles</h5>
+            @if (_availableRoles.Count == 0)
+            {
+                <p>No roles available. Create roles first on the Roles page.</p>
+            }
+            else
+            {
+                <div class="roles-grid">
+                    @foreach (var role in _availableRoles)
+                    {
+                        <label class="role-checkbox">
+                            <input type="checkbox"
+                                   checked="@_selectedRoles.Contains(role.Name)"
+                                   @onchange="(args) => ToggleRole(role.Name, args.Value is bool b && b)" />
+                            <span>@role.Name</span>
+                        </label>
+                    }
+                </div>
+            }
+
+            <div class="actions">
+                <button class="btn btn-primary" @onclick="SaveRolesAsync" disabled="@(_isBusy || !_selectedUserId.HasValue)">Save roles</button>
+            </div>
+
+            <div>
+                <label>Current roles</label>
+                <div class="role-chips">
+                    @foreach (var role in _currentRoles.OrderBy(r => r, StringComparer.OrdinalIgnoreCase))
+                    {
+                        <span class="chip">@role</span>
+                    }
+                </div>
+            </div>
+        }
+
+        @if (!string.IsNullOrWhiteSpace(_error))
+        {
+            <p class="text-danger">@_error</p>
+        }
+
+        @if (!string.IsNullOrWhiteSpace(_success))
+        {
+            <p class="text-success">@_success</p>
+        }
+    </div>
+</div>

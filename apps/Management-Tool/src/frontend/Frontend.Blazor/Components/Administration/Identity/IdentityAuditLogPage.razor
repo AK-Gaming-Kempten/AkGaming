@@ -1,0 +1,76 @@
+@page "/identity/audit-log"
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize(Roles = "Admin")]
+
+<PageTitle>Identity Audit Log</PageTitle>
+
+<div class="identity-audit-page card">
+    <h4>Identity Audit Log</h4>
+
+    <AuditLogQueryControls Search="@_search"
+                           SearchChanged="OnSearchChanged"
+                           PageSize="@_pageSize"
+                           PageSizeChanged="OnPageSizeChanged"
+                           SearchPlaceholder="Search (email, details, event...)"
+                           IsBusy="@_isBusy"
+                           OnSearch="SearchAsync"
+                           OnRefresh="ReloadAsync" />
+
+    @if (!string.IsNullOrWhiteSpace(_error))
+    {
+        <p class="text-danger">@_error</p>
+    }
+
+    @if (!string.IsNullOrWhiteSpace(_success))
+    {
+        <p class="text-success">@_success</p>
+    }
+
+    @if (_auditLogs is null)
+    {
+        <p>Loading audit logs...</p>
+    }
+    else if (_auditLogs.Items.Count == 0)
+    {
+        <p>No audit logs found.</p>
+    }
+    else
+    {
+        <div class="table-wrapper">
+            <table class="audit-table">
+                <thead>
+                <tr>
+                    <th>Created (UTC)</th>
+                    <th>Event</th>
+                    <th>Success</th>
+                    <th>Subject Email</th>
+                    <th>User Id</th>
+                    <th>IP</th>
+                    <th>Details</th>
+                </tr>
+                </thead>
+                <tbody>
+                @foreach (var item in _auditLogs.Items)
+                {
+                    <tr>
+                        <td>@item.CreatedAtUtc.ToString("u")</td>
+                        <td>@item.EventType</td>
+                        <td>@(item.Success ? "Yes" : "No")</td>
+                        <td>@(string.IsNullOrWhiteSpace(item.SubjectEmail) ? "-" : item.SubjectEmail)</td>
+                        <td>@(item.UserId?.ToString() ?? "-")</td>
+                        <td>@(string.IsNullOrWhiteSpace(item.IpAddress) ? "-" : item.IpAddress)</td>
+                        <td>@(string.IsNullOrWhiteSpace(item.Details) ? "-" : item.Details)</td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+
+        <AuditLogPager Page="@_page"
+                       TotalPages="@_totalPages"
+                       TotalCount="@_auditLogs.TotalCount"
+                       IsBusy="@_isBusy"
+                       OnPrevious="PrevPageAsync"
+                       OnNext="NextPageAsync" />
+    }
+</div>

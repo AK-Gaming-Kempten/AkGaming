@@ -1,0 +1,129 @@
+.identity-users-page {
+    display: grid;
+    grid-template-columns: 1fr 1.3fr;
+    gap: 1rem;
+    min-height: 82vh;
+}
+
+.users-list-pane,
+.user-detail-pane {
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+    min-height: 0;
+}
+
+.users-list-pane h4,
+.user-detail-pane h4,
+.user-detail-pane h5 {
+    margin: 0;
+}
+
+.toolbar {
+    display: grid;
+    grid-template-columns: 1fr 110px auto auto;
+    gap: 0.5rem;
+}
+
+.users-list {
+    display: grid;
+    gap: 0.4rem;
+    overflow: auto;
+}
+
+.user-item {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.1rem;
+    text-align: left;
+    border: 1px solid var(--color-text-tertiary);
+    background: var(--color-background-primary);
+    color: var(--color-text-primary);
+}
+
+.user-item .meta {
+    font-size: 0.75rem;
+    color: var(--color-text-tertiary);
+}
+
+.user-item.selected {
+    border-color: var(--color-highlight-secondary);
+    background: color-mix(in oklab, var(--color-highlight-secondary) 10%, var(--color-background-primary) 90%);
+}
+
+.pager {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.detail-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.6rem;
+}
+
+.discord-block {
+    padding-top: 0.5rem;
+    border-top: 1px solid var(--color-text-tertiary);
+}
+
+.roles-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+    gap: 0.4rem 0.7rem;
+}
+
+.role-checkbox {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    border: 1px solid var(--color-text-tertiary);
+    border-radius: 4px;
+    padding: 0.4rem 0.55rem;
+}
+
+.role-checkbox input {
+    width: auto;
+}
+
+.actions {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.role-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+}
+
+.chip {
+    border: 1px solid var(--color-text-tertiary);
+    border-radius: 16px;
+    padding: 0.15rem 0.6rem;
+    font-size: 0.82rem;
+}
+
+@media (max-width: 1100px) {
+    .identity-users-page {
+        grid-template-columns: 1fr;
+        min-height: auto;
+    }
+}
+
+@media (max-width: 700px) {
+    .toolbar {
+        grid-template-columns: 1fr;
+    }
+
+    .detail-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .pager {
+        flex-direction: column;
+        align-items: stretch;
+    }
+}

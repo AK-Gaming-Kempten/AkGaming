@@ -1,0 +1,79 @@
+<div class="member-card readonly-mode">
+    @if (Request is null)
+    {
+        <div class="no-request-selected">No request selected</div>
+    }
+    else
+    {
+        <div class="member-card-content">
+            @if (IsEditable && !Request.IsResolved) {
+                <div class="form-actions">
+                    <button class="btn btn-primary" @onclick="Approve">Accept Application</button>
+                    <button class="btn btn-danger" @onclick="Reject">Reject Application</button>
+                </div>
+            }
+            
+            <div class="form-wrapper">
+                <div class="form-section">
+                    <div class="form-grid">
+                        <div class="form-col">
+                            <label>First name</label>
+                            <InputText @bind-Value="Request.MemberCreationInfo.FirstName" readonly="true" />
+                        </div>
+                        <div class="form-col">
+                            <label>Last name</label>
+                            <InputText @bind-Value="Request.MemberCreationInfo.LastName" readonly="true" />
+                        </div>
+
+                        <div class="form-col">
+                            <label>Email</label>
+                            <InputText @bind-Value="Request.MemberCreationInfo.Email" readonly="true" />
+                        </div>
+                        <div class="form-col">
+                            <label>Phone</label>
+                            <InputText @bind-Value="Request.MemberCreationInfo.Phone" readonly="true" />
+                        </div>
+
+                        <div class="form-col">
+                            <label>Discord</label>
+                            <InputText @bind-Value="Request.MemberCreationInfo.DiscordUserName" readonly="true" />
+                        </div>
+                        <div class="form-col">
+                            <label>Birthdate</label>
+                            <InputDate @bind-Value="Request.MemberCreationInfo.BirthDate" readonly="true" />
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h4>Address</h4>
+                    <div class="form-grid">
+                        <div class="form-col">
+                            <label>Street</label>
+                            <InputText @bind-Value="Request.MemberCreationInfo.Address!.Street" readonly="true" />
+                        </div>
+                        <div class="form-col">
+                            <label>ZIP</label>
+                            <InputText @bind-Value="Request.MemberCreationInfo.Address!.ZipCode" readonly="true" />
+                        </div>
+                        <div class="form-col">
+                            <label>City</label>
+                            <InputText @bind-Value="Request.MemberCreationInfo.Address!.City" readonly="true" />
+                        </div>
+                        <div class="form-col">
+                            <label>Country</label>
+                            <InputText @bind-Value="Request.MemberCreationInfo.Address!.Country" readonly="true" />
+                        </div>
+                    </div>
+                </div>
+                <div class="form-section">
+                    <div class="form-col">
+                        <label>Application Message</label>
+                        <InputText @bind-Value="Request.ApplicationText" readonly="true" />
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+

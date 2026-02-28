@@ -1,0 +1,53 @@
+@using MemberManagement.Contracts.Enums
+<EditForm Model="@_request" OnValidSubmit="@RequestMemberLinkingAsync" class="member-form" >
+    <DataAnnotationsValidator />
+    <h3> Request member linking </h3>
+    <hr class="spacer" />
+    <div class="form-grid">
+        <div class="form-col">
+            <label>First Name</label>
+            <InputText @bind-Value="_request.FirstName" required />
+            <ValidationMessage For="@(() => _request.FirstName)" />
+        </div>
+
+        <div class="form-col">
+            <label>Last Name</label>
+            <InputText @bind-Value="_request.LastName" required />
+            <ValidationMessage For="@(() => _request.LastName)" />
+        </div>
+
+        <div class="form-col">
+            <label>Email</label>
+            <InputText @bind-Value="_request.Email" required />
+            <ValidationMessage For="@(() => _request.Email)" />
+        </div>
+        
+        <div class="form-col">
+            <label>Discord Username</label>
+            <InputText @bind-Value="_request.DiscordUserName" required />
+            <ValidationMessage For="@(() => _request.DiscordUserName)" />
+        </div>
+        
+        <div class="form-col">
+            <label>Reason</label>
+            <InputSelect @bind-Value="_request.Reason" required >
+                @foreach (var s in Enum.GetValues<MemberLinkingRequestReason>()) {
+                    <option value="@s">@s</option>
+                }
+            </InputSelect>
+            <ValidationMessage For="@(() => _request.Reason)" />
+        </div>
+    </div>
+    <div class="form-grid">
+        <div class="form-col">
+            <label>
+                <InputCheckbox @bind-Value="_request.PrivacyPolicyAccepted" />
+                I accept the <a href="https://akgaming.de/datenschutz" target="_blank" rel="noopener noreferrer">privacy policy</a>.
+            </label>
+            <ValidationMessage For="@(() => _request.PrivacyPolicyAccepted)" />
+        </div>
+    </div>
+    <hr class="spacer" />
+    <button type="submit" class="btn btn-primary ">Apply</button>
+    <p>@_requestError</p>
+</EditForm>

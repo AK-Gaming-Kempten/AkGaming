@@ -1,0 +1,9 @@
+<div class="application-request-preview-card @(IsSelected ? "selected" : "")" @onclick="SelectRequest">
+    <div class="application-request-preview-card-content">
+        <div>@Request.MemberCreationInfo.LastName, @Request.MemberCreationInfo.FirstName </div>
+        <div>@Request.MemberCreationInfo.DiscordUserName</div>
+        <div class="application-request-preview-card-status @(Request.IsResolved ? "status-resolved" : "status-pending")">
+            @(Request.IsResolved ? "Resolved" : "Pending")
+        </div>
+    </div>
+</div>

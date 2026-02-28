@@ -1,0 +1,62 @@
+.application-request-preview-card {
+    background-color: var(--color-card-bg);
+    border: 1px solid var(--color-card-border);
+    color: var(--color-card-text);
+    border-radius: 2px;
+    padding: 0.75rem 1rem;
+    cursor: pointer;
+    transition: background-color 0.2s ease, border-color 0.2s ease, transform 0.1s ease;
+    user-select: none;
+}
+
+.application-request-preview-card:hover {
+    background: linear-gradient(
+            90deg,
+            var(--color-card-hover-bg) 0%,
+            rgba(255, 255, 255, 0.05) 100%
+    );
+    border-color: var(--color-card-highlight);
+}
+
+.application-request-preview-card:active {
+    transform: scale(0.99);
+}
+
+.application-request-preview-card.selected {
+    background: linear-gradient(
+            90deg,
+            var(--color-highlight-secondary) 0%,
+            var(--color-card-bg) 100%
+    );
+    color: var(--color-text-secondary);
+}
+
+/* layout */
+.application-request-preview-card-content {
+    display: grid;
+    grid-template-columns: 2fr 3fr 1fr;
+    gap: 1rem;
+    align-items: center;
+    width: 100%;
+}
+
+.application-request-preview-card-content > div {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.application-request-preview-card-status {
+    justify-self: end;
+    text-align: right;
+    font-weight: 500;
+}
+
+.status-pending {
+    color: var(--color-card-highlight);
+}
+
+.staus-resolved {
+    color: var(--color-text-tertiary);
+    opacity: 50%;
+}

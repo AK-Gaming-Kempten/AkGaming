@@ -1,0 +1,51 @@
+/* === User Box container === */
+.user-box {
+    --user-box-bg: var(--color-background-special);
+    --user-box-border: rgba(255, 255, 255, 0.1);
+    --user-text: var(--color-text-secondary);
+    --user-name: var(--color-highlight-primary);
+    --user-btn-bg: var(--color-highlight-secondary);
+    --user-btn-hover-bg: var(--color-highlight-primary);
+    
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: var(--user-box-bg);
+    border-top: 1px solid var(--user-box-border);
+    padding: 0.8rem 1rem;
+    color: var(--user-text);
+    font-size: 0.9rem;
+    position: sticky;
+    bottom: 0;
+    left: 0;
+    right: 0;
+}
+
+/* === Text layout === */
+.user-info {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    text-align: left;
+    line-height: 1.2;
+}
+
+.user-label {
+    font-size: 0.8rem;
+    opacity: 0.75;
+}
+
+.user-name {
+    font-weight: 600;
+    color: var(--user-name);
+    font-size: 0.95rem;
+}
+
+/* Small screen adjustment */
+@media (max-width: 640px) {
+    .user-box {
+        flex-direction: column;
+        gap: 0.5rem;
+        text-align: center;
+    }
+}

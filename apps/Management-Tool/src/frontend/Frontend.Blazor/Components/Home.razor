@@ -1,0 +1,72 @@
+﻿@page "/"
+
+<PageTitle>Management Tool</PageTitle>
+
+<div class="home">
+    <h1>Management Tool</h1>
+    <p>Welcome to the AK Gaming e.V. Management Tool</p>
+    <div class="panels">
+        <div class="panel">
+            <h2>Features</h2>
+            <hr/>
+            <h4 class="section-header">General</h4>
+            <div class="card" @onclick="NavigateToMembership">
+                <h4>Membership</h4>
+                <p>Manage your own personal data, apply for membership and view your membership status</p>
+            </div>
+            <h4 class="section-header">General</h4>
+            <div class="card">
+                <h4>Discord Integration</h4>
+                <p>Sign up or link with your discord account</p>
+            </div>
+            <hr/>
+            <h4 class="section-header">Administration</h4>
+            <div class="card" @onclick="NavigateToMemberManagement">
+                <h4>Member Management</h4>
+                <p>Monitor and manage members, their personal data and their membership status</p>
+            </div>
+        </div>
+        <div class="panel">
+            <h2>Roadmap Q1/Q2 2026</h2>
+            <hr/>
+            <h4 class="section-header">General</h4>
+            <div class="card">
+                <h4>Advanced Discord Integration</h4>
+                <p>Get your service years approved on our discord server,...</p>
+            </div>
+            <div class="card">
+                <h4>General meetings</h4>
+                <p>View the agenda and vote on proposals directly from the dashboard</p>
+            </div>
+            <hr/>
+            <h4 class="section-header">Administration</h4>
+            <div class="card">
+                <h4>Markdown Editor</h4>
+                <p>Edit website content and internal notes with markdown</p>
+            </div>
+            <div class="card">
+                <h4>General meetings</h4>
+                <p>Manage invites, attendance and votings</p>
+            </div>
+        </div>
+        <div class="panel">
+            <h2>Roadmap Q3/Q4 2026</h2>
+            <hr/>
+            <h4 class="section-header">General</h4>
+            <div class="card">
+                <h4>Event Feed & Forms</h4>
+                <p>Get an overview for our upcoming events and quickly register for them</p>
+            </div>
+            <hr/>
+            <h4 class="section-header">Administration</h4>
+            <div class="card">
+                <h4>Finance</h4>
+                <p>Manage invoices and view our payment history. Includes membership fee overview and management</p>
+            </div>
+            <div class="card">
+                <h4>Gamenight</h4>
+                <p>A collection of tools for the gamenight, both for organizers and attendees</p>
+            </div>
+        </div>
+    </div>
+</div>

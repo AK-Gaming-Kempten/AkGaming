@@ -1,0 +1,64 @@
+@page "/Debug"
+@using System.Globalization
+@using System.Text.Json
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize(Roles = "Admin")]
+
+@inject IHttpClientFactory ClientFactory
+
+<h3>Debug</h3>
+
+<p>Current culture: @CultureInfo.CurrentCulture</p>
+<p>Current UI culture: @CultureInfo.CurrentUICulture</p>
+
+<h4>Auth Check</h4>
+<button @onclick="TestAuth">Test Auth</button>
+<p>@_authResult</p>
+
+<h4>Claims</h4>
+<button @onclick="TestClaims">Test Claims</button>
+<p>@_claimsResult</p>
+
+@code {
+    private string? _authResult;
+    private string? _claimsResult;
+
+    private async Task TestAuth()
+    {
+        var api = ClientFactory.CreateClient("ManagementApi");
+        _authResult = await SendDebugRequestAsync(api, "debug/test-auth");
+    }
+
+    private async Task TestClaims()
+    {
+        var api = ClientFactory.CreateClient("ManagementApi");
+        _claimsResult = await SendDebugRequestAsync(api, "debug/token");
+    }
+
+    private static async Task<string> SendDebugRequestAsync(HttpClient api, string path)
+    {
+        var response = await api.GetAsync(path);
+        var body = FormatJsonIfPossible(await response.Content.ReadAsStringAsync());
+
+        if (response.IsSuccessStatusCode)
+            return body;
+
+        return $"HTTP {(int)response.StatusCode} ({response.ReasonPhrase}): {body}";
+    }
+
+    private static string FormatJsonIfPossible(string body)
+    {
+        if (string.IsNullOrWhiteSpace(body))
+            return body;
+
+        try
+        {
+            using var document = JsonDocument.Parse(body);
+            return JsonSerializer.Serialize(document.RootElement, new JsonSerializerOptions { WriteIndented = true });
+        }
+        catch (JsonException)
+        {
+            return body;
+        }
+    }
+}

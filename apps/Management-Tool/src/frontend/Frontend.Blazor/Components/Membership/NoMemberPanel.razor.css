@@ -1,0 +1,93 @@
+.no-member {
+    --choice-bg: var(--color-background-secondary);
+    --choice-border: rgba(255,255,255,0.1);
+    --choice-hover-bg: var(--color-highlight-secondary);
+    --choice-text: var(--color-text-primary);
+    --choice-action: var(--color-highlight-primary);
+    
+    text-align: center;
+    padding: 2rem 1rem;
+    color: var(--color-text-primary);
+    max-width: 700px;
+    margin: 2rem auto;
+}
+
+.no-member h3 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--color-highlight-primary);
+    margin-bottom: 0.5rem;
+}
+
+.no-member p {
+    margin-bottom: 2rem;
+    color: var(--color-text-tertiary);
+}
+
+/* === CHOICE BUTTONS === */
+.choice-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    align-items: stretch;
+}
+
+.choice-button {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    background-color: var(--choice-bg);
+    border: 1px solid var(--choice-border);
+    border-radius: 10px;
+    padding: 1rem 1.25rem;
+    text-align: left;
+    cursor: pointer;
+    transition: background-color 0.25s ease, transform 0.1s ease, border-color 0.25s ease;
+}
+
+.choice-button:hover {
+    background-color: var(--choice-hover-bg);
+    border-color: var(--color-highlight-primary);
+    transform: translateY(-2px);
+}
+
+/* === ICON === */
+.choice-icon {
+    font-size: 2rem;
+    color: var(--color-highlight-primary);
+    flex-shrink: 0;
+}
+
+/* === TEXT === */
+.choice-text {
+    display: flex;
+    flex-direction: column;
+}
+
+.choice-flavor {
+    font-size: 0.95rem;
+    color: var(--color-text-primary);
+    opacity: 0.8;
+}
+
+.choice-action {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--choice-action);
+    margin-top: 0.15rem;
+}
+
+/* === PANEL CONTAINER === */
+.panel-container {
+    margin-top: 2.5rem;
+}
+
+/* Responsive */
+@media (min-width: 600px) {
+    .choice-buttons {
+        flex-direction: row;
+    }
+    .choice-button {
+        flex: 1;
+    }
+}

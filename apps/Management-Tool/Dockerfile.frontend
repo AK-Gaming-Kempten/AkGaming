@@ -1,0 +1,26 @@
+﻿FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
+WORKDIR /src
+
+# Copy solution files
+COPY . .
+
+# Restore
+RUN dotnet restore "./src/frontend/Frontend.Blazor/Frontend.Blazor.csproj"
+
+# Build
+RUN dotnet publish "./src/frontend/Frontend.Blazor/Frontend.Blazor.csproj" \
+    -c Release \
+    -o /app/publish \
+    --no-restore
+
+FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS final
+WORKDIR /app
+
+# Copy output
+COPY --from=build /app/publish .
+
+# Expose HTTP port
+EXPOSE 8080
+
+# Run
+ENTRYPOINT ["dotnet", "Frontend.Blazor.dll"]

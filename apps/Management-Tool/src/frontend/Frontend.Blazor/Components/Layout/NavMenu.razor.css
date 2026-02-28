@@ -1,0 +1,129 @@
+/* ==== SIDEBAR ==== */
+.sidebar {
+    --color-nav-bg: var(--color-background-special);
+    --color-nav-border: rgba(255, 255, 255, 0.08);
+
+    --color-nav-item-bg: transparent;
+    --color-nav-item-hover-bg: rgba(255, 255, 255, 0.08);
+    --color-nav-item-active-bg: var(--color-highlight-secondary);
+
+    --color-nav-item-text: var(--color-text-special);
+    --color-nav-item-active-text: var(--color-text-special);
+    --color-nav-icon: var(--color-highlight-primary);
+    
+    width: 250px;
+    min-height: 100vh;
+    background-color: var(--color-nav-bg);
+    border-right: 1px solid var(--color-nav-border);
+    display: grid;
+    grid-template-rows: auto 1fr auto auto;
+}
+
+.sidebar-header {
+    padding: 1rem;
+    border-bottom: 1px solid var(--color-nav-border);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.sidebar-title {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--color-text-special);
+}
+
+.sidebar-logo {
+    width: 3rem;
+    height: 3rem;
+    margin-right: 0.5rem;
+}
+
+.sidebar-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 0.75rem 0 0.75rem 0.75rem;
+}
+
+/* ==== NAVIGATION ==== */
+.sidebar-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.nav-section {
+    margin-top: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.nav-section-title {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--color-text-tertiary);
+    font-size: 0.9rem;
+    font-weight: 600;
+    padding: 0.25rem 0.5rem;
+}
+
+/* ==== BASE NAV ITEM STYLE ==== */
+::deep a.nav-item,
+::deep a.nav-item:visited {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.55rem 1rem;
+    border-radius: 0;
+    width: 100%;
+    background: transparent;
+    color: var(--color-nav-item-text);
+    text-decoration: none;
+    transition: background 0.2s ease, color 0.2s ease;
+    position: relative;
+    box-sizing: border-box;
+}
+
+/* ==== HIERARCHY INDENTATION ==== */
+::deep a.nav-item.level-1 { padding-left: 1rem; }
+::deep a.nav-item.level-2 { padding-left: 2rem; }
+::deep a.nav-item.level-3 { padding-left: 3rem; }
+/* just assign the class level-1/2/3 to NavLinks as needed */
+
+/* ==== HOVER AND ACTIVE STATES ==== */
+::deep a.nav-item:hover {
+    background: linear-gradient(
+            90deg,
+            var(--color-nav-bg) 0%,
+            var(--color-nav-item-hover-bg) 100%
+    );
+}
+
+::deep a.nav-item.active {
+    background: linear-gradient(
+            90deg,
+            var(--color-nav-bg) 0%,
+            var(--color-highlight-primary) 100%
+    );
+    color: var(--color-nav-item-active-text);
+}
+
+::deep a.nav-item.active .nav-icon {
+    color: var(--color-nav-item-active-text);
+}
+
+/* ==== ICONS ==== */
+::deep a.nav-item .nav-icon {
+    font-size: 1.1rem;
+    color: var(--color-nav-icon);
+}
+
+
+/* ==== ICONS ==== */
+.nav-icon {
+    font-size: 1.1rem;
+    color: var(--color-nav-icon);
+}

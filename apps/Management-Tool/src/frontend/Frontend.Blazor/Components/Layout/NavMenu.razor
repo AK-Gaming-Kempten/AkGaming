@@ -1,0 +1,106 @@
+﻿@using Microsoft.AspNetCore.Components.Authorization
+@inject AuthenticationStateProvider AuthenticationStateProvider
+
+<div class="sidebar">
+    <div class="sidebar-header">
+        <img src="images/icons/AKG_Logos/default.png" alt="AKGaming Logo" class="sidebar-logo">
+        <span class="sidebar-title">Management Tool</span>
+    </div>
+
+    <div class="sidebar-content">
+        <nav class="sidebar-nav">
+            <NavLink href="" Match="NavLinkMatch.All" class="nav-item level-1">
+                <span class="nav-icon bi-house-door-fill"></span>
+                <span>Home</span>
+            </NavLink>
+
+            <NavLink href="membership" class="nav-item level-1">
+                <span class="nav-icon bi-person-fill"></span>
+                <span>Membership</span>
+            </NavLink>
+
+            @if (isAuthenticated && isAdmin) {
+                <div class="nav-section">
+                    <span class="nav-section-title">
+                        <span class="nav-icon bi-shield-lock-fill"></span>
+                        Member Management
+                    </span>
+
+                    <NavLink href="member-management" class="nav-item level-1">
+                        <span class="nav-icon bi-people-fill"></span>
+                        <span>Members</span>
+                    </NavLink>
+
+                    <NavLink href="member-management/trial" class="nav-item level-1">
+                        <span class="nav-icon bi-hourglass-split"></span>
+                        <span>Trial Members</span>
+                    </NavLink>
+                    
+                    <NavLink href="member-management/requests" class="nav-item level-1">
+                        <span class="nav-icon bi-envelope-fill"></span>
+                        <span>Applications & Linking Requests</span>
+                    </NavLink>
+
+                    <NavLink href="member-management/audit-log" class="nav-item level-1">
+                        <span class="nav-icon bi-journal-text"></span>
+                        <span>Member Audit Log</span>
+                    </NavLink>
+                </div>
+            }
+            
+            @if (isAuthenticated && isAdmin)
+            {
+                <span class="nav-section-title">
+                    <span class="nav-icon bi-person-fill-lock"></span>
+                    Identity
+                </span>
+
+                <NavLink href="identity/audit-log" class="nav-item level-1">
+                    <span class="nav-icon bi-journal-text"></span>
+                    <span>Identity Audit Log</span>
+                </NavLink>
+
+                <NavLink href="identity/roles" class="nav-item level-1">
+                    <span class="nav-icon bi-person-badge-fill"></span>
+                    <span>Identity Roles</span>
+                </NavLink>
+
+                <NavLink href="identity/users" class="nav-item level-1">
+                    <span class="nav-icon bi-person-gear"></span>
+                    <span>Identity User Roles</span>
+                </NavLink>
+            }
+
+            @if (isAuthenticated && isAdmin && isDebug) {
+                <div class="nav-section">
+                    <span class="nav-section-title">
+                        <span class="nav-icon bi-bug-fill"></span>
+                        Debug
+                    </span>
+
+                    <NavLink href="debug" class="nav-item level-1">
+                        <span class="nav-icon bi-diagram-3-fill"></span>
+                        <span>API</span>
+                    </NavLink>
+                </div>
+            }
+        </nav>
+    </div>
+    <ThemeSwitcherBox />
+    <UserBox />
+</div>
+
+@code {
+    private bool isAuthenticated;
+    private bool isAdmin;
+    private bool isDebug;
+
+    protected override async Task OnInitializedAsync() {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+
+        isAuthenticated = user.Identity?.IsAuthenticated ?? false;
+        isAdmin = isAuthenticated && user.IsInRole("Admin");
+        isDebug = isAuthenticated && user.IsInRole("Debug");
+    }
+}

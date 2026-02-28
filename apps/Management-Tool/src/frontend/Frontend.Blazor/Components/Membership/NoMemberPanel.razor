@@ -1,0 +1,53 @@
+@if (PendingLinkingRequest != null) {
+       <div class="no-member">
+           <div class="card">
+               <h3>Member Linking Request Pending</h3>
+               <p>Thanks for your request! We will review it as soon as possible.</p>
+           </div>
+       </div>
+}
+else {
+    <div class="no-member">
+        <h3>No linked member found</h3>
+        <p>Your account is not linked to a member profile.</p>
+
+        <div class="choice-buttons">
+            <div class="choice-button" @onclick="ShowRequestLink">
+                <div class="choice-icon bi-person-check"></div>
+                <div class="choice-text">
+                    <div class="choice-flavor">
+                        You already are a member of AK Gaming e.V.?
+                    </div>
+                    <div class="choice-action">
+                        Request linking to an existing member profile
+                    </div>
+                </div>
+            </div>
+
+            <div class="choice-button" @onclick="ShowApply">
+                <div class="choice-icon bi-person-plus"></div>
+                <div class="choice-text">
+                    <div class="choice-flavor">
+                        You came here to become a member of AK Gaming e.V.?
+                    </div>
+                    <div class="choice-action">
+                        Apply for Membership
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="panel-container">
+            @switch (_formMode)
+            {
+                case FormMode.RequestLink:
+                    <RequestMemberLinkingPanel UserGuid="@UserId"/>
+                    break;
+                case FormMode.Apply:
+                    <ApplyForMembershipPanel UserGuid="@UserId"/>
+                    break;
+            }
+        </div>
+    </div>
+}
