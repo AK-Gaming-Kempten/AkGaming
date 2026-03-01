@@ -1,10 +1,12 @@
 using AkGaming.Core.Common.Extensions;
+using AkGaming.Core.Common.Email;
 using AkGaming.Core.Common.Generics;
 using AkGaming.Management.Modules.MemberManagement.Application.Interfaces;
 using AkGaming.Management.Modules.MemberManagement.Application.Mapping;
 using AkGaming.Management.Modules.MemberManagement.Contracts.DTO;
 using AkGaming.Management.Modules.MemberManagement.Contracts.Services;
 using AkGaming.Management.Modules.MemberManagement.Domain.Entities;
+using Microsoft.Extensions.Logging;
 using System.Text.Json;
 using ContractEnums = AkGaming.Management.Modules.MemberManagement.Contracts.Enums ; 
 
@@ -17,6 +19,8 @@ public class MembershipApplicationService : IMembershipApplicationService {
     private readonly IMemberQueryService _memberQueryService;
     private readonly IMembershipApplicationRequestRepository _membershipApplicationRequestRepository;
     private readonly IMemberAuditLogWriter _auditLogWriter;
+    private readonly IEmailSender _emailSender;
+    private readonly ILogger<MembershipApplicationService> _logger;
 
     public MembershipApplicationService(
         IMemberCreationService creationService,
@@ -24,7 +28,9 @@ public class MembershipApplicationService : IMembershipApplicationService {
         IMembershipUpdateService membershipUpdateService,
         IMemberQueryService memberQueryService,
         IMembershipApplicationRequestRepository membershipApplicationRequestRepository,
-        IMemberAuditLogWriter auditLogWriter)
+        IMemberAuditLogWriter auditLogWriter,
+        IEmailSender emailSender,
+        ILogger<MembershipApplicationService> logger)
     {
         _creationService  = creationService;
         _linkingService    = linkingService;
@@ -32,6 +38,8 @@ public class MembershipApplicationService : IMembershipApplicationService {
         _memberQueryService = memberQueryService;
         _membershipApplicationRequestRepository = membershipApplicationRequestRepository;
         _auditLogWriter = auditLogWriter;
+        _emailSender = emailSender;
+        _logger = logger;
     }
 
     public async Task<Result> ApplyForMembershipAsync(MembershipApplicationRequestDto request, Guid? performedByUserId = null) {
@@ -117,7 +125,7 @@ public class MembershipApplicationService : IMembershipApplicationService {
         
         // Set Request as accepted
         request.IsResolved = true;
-        return await _auditLogWriter.Add(new MemberAuditLog {
+        var result = await _auditLogWriter.Add(new MemberAuditLog {
             ActionType = "MembershipApplicationRequestAccepted",
             PerformedByUserId = performedByUserId,
             EntityType = nameof(MembershipApplicationRequest),
@@ -125,9 +133,15 @@ public class MembershipApplicationService : IMembershipApplicationService {
             OldValuesJson = JsonSerializer.Serialize(new { IsResolved = false }),
             NewValuesJson = JsonSerializer.Serialize(new { IsResolved = true })
         }).Then(() => _membershipApplicationRequestRepository.SaveChangesAsync());
+
+        if (!result.IsSuccess)
+            return result;
+
+        await SendMembershipApplicationDecisionEmailAsync(request.Email, accepted: true);
+        return Result.Success();
     }
     
-    public async Task<Result> RejectMembershipApplicationAsync(Guid id) {
+    public async Task<Result> RejectMembershipApplicationAsync(Guid id, Guid? performedByUserId = null) {
         // Get Request by Id
         var requestResult = await _membershipApplicationRequestRepository.GetByIdAsync(id);
         if (!requestResult.IsSuccess)
@@ -147,7 +161,20 @@ public class MembershipApplicationService : IMembershipApplicationService {
         
         // Set Request as rejected
         request.IsResolved = true;
-        return await _membershipApplicationRequestRepository.SaveChangesAsync();
+        var result = await _auditLogWriter.Add(new MemberAuditLog {
+            ActionType = "MembershipApplicationRequestRejected",
+            PerformedByUserId = performedByUserId,
+            EntityType = nameof(MembershipApplicationRequest),
+            EntityId = request.Id,
+            OldValuesJson = JsonSerializer.Serialize(new { IsResolved = false }),
+            NewValuesJson = JsonSerializer.Serialize(new { IsResolved = true })
+        }).Then(() => _membershipApplicationRequestRepository.SaveChangesAsync());
+
+        if (!result.IsSuccess)
+            return result;
+
+        await SendMembershipApplicationDecisionEmailAsync(request.Email, accepted: false);
+        return Result.Success();
     }
     
     private async Task<Result> CreateMembershipApplicationRequestAsync(MembershipApplicationRequestDto requestDto, Guid? performedByUserId) {
@@ -171,5 +198,34 @@ public class MembershipApplicationService : IMembershipApplicationService {
             }))
             .Then(() => _membershipApplicationRequestRepository.SaveChangesAsync());
         return result;
+    }
+
+    private async Task SendMembershipApplicationDecisionEmailAsync(string? recipientEmail, bool accepted) {
+        if (string.IsNullOrWhiteSpace(recipientEmail))
+            return;
+
+        var decisionText = accepted ? "accepted" : "declined";
+        var subject = accepted
+            ? "AK Gaming e.V. membership application accepted"
+            : "AK Gaming e.V. membership application declined";
+        var textBody =
+            "Hello,\n\n" +
+            $"your AK Gaming e.V. membership application has been {decisionText}.\n\n" +
+            "If you have questions, please contact us at vorstand@akgaming.de.\n\n" +
+            "Kind regards,\nAK Gaming e.V.";
+        var htmlBody =
+            "<div style=\"font-family:Arial,Helvetica,sans-serif;color:#222;line-height:1.6\">" +
+            "<p style=\"margin:0 0 12px\">Hello,</p>" +
+            $"<p style=\"margin:0 0 12px\">Your AK Gaming e.V. membership application has been <strong>{decisionText}</strong>.</p>" +
+            "<p style=\"margin:0 0 12px\">If you have questions, please contact us at vorstand@akgaming.de.</p>" +
+            "<p style=\"margin:0\">Kind regards,<br/>AK Gaming e.V.</p>" +
+            "</div>";
+
+        try {
+            await _emailSender.SendAsync(recipientEmail, subject, textBody, htmlBody, CancellationToken.None);
+        }
+        catch (Exception exception) {
+            _logger.LogError(exception, "Failed to send membership application decision email to {Email}.", recipientEmail);
+        }
     }
 }

@@ -1,4 +1,5 @@
 using System.Net.Mail;
+using AkGaming.Core.Common.Email;
 using AkGaming.Identity.Application.Abstractions;
 using AkGaming.Identity.Application.Common;
 using AkGaming.Identity.Application.ExternalAuth;

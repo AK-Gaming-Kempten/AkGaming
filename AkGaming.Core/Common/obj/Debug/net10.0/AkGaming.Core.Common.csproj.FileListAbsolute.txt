@@ -22,3 +22,4 @@
 /home/hexasiel/Programming/AkGaming/AkGaming.Core/Common/obj/Debug/net10.0/refint/AkGaming.Core.Common.dll
 /home/hexasiel/Programming/AkGaming/AkGaming.Core/Common/obj/Debug/net10.0/AkGaming.Core.Common.pdb
 /home/hexasiel/Programming/AkGaming/AkGaming.Core/Common/obj/Debug/net10.0/ref/AkGaming.Core.Common.dll
+/home/hexasiel/Programming/AkGaming/AkGaming.Core/Common/obj/Debug/net10.0/AkGaming.Core.Common.csproj.AssemblyReference.cache

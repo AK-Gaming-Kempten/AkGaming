@@ -1,6 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
+    <ProjectReference Include="$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\..\AkGaming.Core\Common\AkGaming.Core.Common.csproj'))" />
     <ProjectReference Include="..\Contracts\AkGaming.Identity.Contracts.csproj" />
     <ProjectReference Include="..\Domain\AkGaming.Identity.Domain.csproj" />
   </ItemGroup>

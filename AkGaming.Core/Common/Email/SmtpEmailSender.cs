@@ -1,10 +1,9 @@
 using System.Net;
 using System.Net.Mail;
-using AkGaming.Identity.Application.Abstractions;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-namespace AkGaming.Identity.Infrastructure.Email;
+namespace AkGaming.Core.Common.Email;
 
 public sealed class SmtpEmailSender : IEmailSender
 {

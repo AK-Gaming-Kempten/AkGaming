@@ -1,4 +1,3 @@
-using System.Text.Json;
 using AkGaming.Management.Frontend.ApiClients;
 using AkGaming.Management.Modules.MemberManagement.Contracts.DTO;
 using Microsoft.AspNetCore.Components;
@@ -47,7 +46,20 @@ public partial class LinkingRequestCard : ComponentBase {
             Console.WriteLine($"Linking failed: {result.Error}");
             return;
         }
-        await MemberApi.MarkMemberLinkingRequestResolvedAsync(Request.Id);
+        await MemberApi.AcceptMemberLinkingRequestAsync(Request.Id);
+        await OnRequestUpdated.InvokeAsync(Request);
+    }
+
+    private async Task Reject() {
+        if (Request == null)
+            return;
+
+        var result = await MemberApi.RejectMemberLinkingRequestAsync(Request.Id);
+        if (!result.IsSuccess) {
+            Console.WriteLine($"Rejecting linking request failed: {result.Error}");
+            return;
+        }
+
         await OnRequestUpdated.InvokeAsync(Request);
     }
 }

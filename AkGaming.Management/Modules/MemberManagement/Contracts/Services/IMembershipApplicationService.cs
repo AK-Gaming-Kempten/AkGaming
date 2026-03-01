@@ -12,5 +12,5 @@ public interface IMembershipApplicationService {
     
     Task<Result> AcceptMembershipApplicationAsync(Guid id, Guid? performedByUserId = null);
     
-    Task<Result> RejectMembershipApplicationAsync(Guid id);
+    Task<Result> RejectMembershipApplicationAsync(Guid id, Guid? performedByUserId = null);
 }

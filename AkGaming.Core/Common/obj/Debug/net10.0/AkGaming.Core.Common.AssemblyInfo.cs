@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("AkGaming.Core.Common")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+f3ead00c05b66867181dc0b54dbb8854407866c9")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+3fec83d63462761780cb6adc8a7756f09159e21c")]
 [assembly: System.Reflection.AssemblyProductAttribute("AkGaming.Core.Common")]
 [assembly: System.Reflection.AssemblyTitleAttribute("AkGaming.Core.Common")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

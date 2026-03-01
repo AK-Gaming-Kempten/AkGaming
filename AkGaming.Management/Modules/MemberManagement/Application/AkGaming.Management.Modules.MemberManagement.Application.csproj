@@ -7,12 +7,14 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <ProjectReference Include="$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\..\..\..\AkGaming.Core\Common\AkGaming.Core.Common.csproj'))" />
       <ProjectReference Include="..\Contracts\AkGaming.Management.Modules.MemberManagement.Contracts.csproj" />
       <ProjectReference Include="..\Domain\AkGaming.Management.Modules.MemberManagement.Domain.csproj" />
     </ItemGroup>
 
     <ItemGroup>
       <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.3" />
+      <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.3" />
     </ItemGroup>
 
 </Project>

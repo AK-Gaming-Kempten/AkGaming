@@ -1,9 +1,11 @@
 using AkGaming.Management.Modules.MemberManagement.Application.Interfaces;
 using AkGaming.Management.Modules.MemberManagement.Application.Services;
+using AkGaming.Core.Common.Email;
 using AkGaming.Management.Modules.MemberManagement.Domain.Entities;
 using Moq;
 using AkGaming.Core.Common.Generics;
 using AkGaming.Management.Modules.MemberManagement.Contracts.DTO;
+using Microsoft.Extensions.Logging;
 
 namespace AkGaming.Management.Modules.MemberManagement.Tests;
 
@@ -14,7 +16,14 @@ public class MemberLinkingServiceTests {
         var memberRepository = new Mock<IMemberRepository>();
         var memberLinkingRequestRepository = new Mock<IMemberLinkingRequestRepository>();
         var auditLogWriter = new Mock<IMemberAuditLogWriter>();
-        var memberLinkingService = new MemberLinkingService(memberRepository.Object, memberLinkingRequestRepository.Object, auditLogWriter.Object);
+        var emailSender = new Mock<IEmailSender>();
+        var logger = new Mock<ILogger<MemberLinkingService>>();
+        var memberLinkingService = new MemberLinkingService(
+            memberRepository.Object,
+            memberLinkingRequestRepository.Object,
+            auditLogWriter.Object,
+            emailSender.Object,
+            logger.Object);
         var memberId = Guid.NewGuid();
         var userId = Guid.NewGuid();
         var member = new Member()
@@ -43,5 +52,38 @@ public class MemberLinkingServiceTests {
         
         Assert.That(result, Has.Property("IsSuccess").True);
         Assert.That(member.UserId, Is.EqualTo(userId));
+    }
+
+    [Test]
+    public async Task AcceptMemberLinkingRequest_SendsDecisionEmail() {
+        var memberRepository = new Mock<IMemberRepository>();
+        var memberLinkingRequestRepository = new Mock<IMemberLinkingRequestRepository>();
+        var auditLogWriter = new Mock<IMemberAuditLogWriter>();
+        var emailSender = new Mock<IEmailSender>();
+        var logger = new Mock<ILogger<MemberLinkingService>>();
+        var service = new MemberLinkingService(
+            memberRepository.Object,
+            memberLinkingRequestRepository.Object,
+            auditLogWriter.Object,
+            emailSender.Object,
+            logger.Object);
+
+        var requestId = Guid.NewGuid();
+        var request = new MemberLinkingRequest {
+            Id = requestId,
+            Email = "linking@example.com",
+            IsResolved = false
+        };
+
+        memberLinkingRequestRepository.Setup(x => x.GetByIdAsync(requestId)).ReturnsAsync(Result<MemberLinkingRequest>.Success(request));
+        auditLogWriter.Setup(x => x.Add(It.IsAny<MemberAuditLog>())).Returns(Result.Success());
+        memberLinkingRequestRepository.Setup(x => x.SaveChangesAsync()).ReturnsAsync(Result.Success());
+        emailSender.Setup(x => x.SendAsync("linking@example.com", It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string?>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        var result = await service.AcceptMemberLinkingRequestAsync(requestId);
+
+        Assert.That(result.IsSuccess, Is.True);
+        emailSender.Verify(x => x.SendAsync("linking@example.com", It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string?>(), It.IsAny<CancellationToken>()), Times.Once);
     }
 }

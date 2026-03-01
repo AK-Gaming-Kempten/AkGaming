@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using AkGaming.Core.Common.Email;
 using AkGaming.Management.Modules.MemberManagement.Application.Interfaces;
 using AkGaming.Management.Modules.MemberManagement.Infrastructure.Persistence;
 using AkGaming.Management.Modules.MemberManagement.Infrastructure.Persistence.Repositories;
@@ -23,6 +24,8 @@ public static class DependencyInjection {
         services.AddScoped<IMembershipApplicationRequestRepository, EfMembershipApplicationRequestRepository>();
         services.AddScoped<IMemberLinkingRequestRepository, EfMemberLinkingRequestRepository>();
         services.AddScoped<IMemberAuditLogWriter, EfMemberAuditLogWriter>();
+        services.Configure<SmtpOptions>(configuration.GetSection(SmtpOptions.SectionName));
+        services.AddSingleton<IEmailSender, SmtpEmailSender>();
 
         return services;
     }

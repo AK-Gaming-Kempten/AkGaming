@@ -1,4 +1,4 @@
-namespace AkGaming.Identity.Application.Abstractions;
+namespace AkGaming.Core.Common.Email;
 
 public interface IEmailSender
 {

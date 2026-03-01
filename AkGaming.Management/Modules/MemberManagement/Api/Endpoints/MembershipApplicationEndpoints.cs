@@ -48,8 +48,8 @@ public static class MembershipApplicationEndpoints {
             return result.IsSuccess ? Results.Created($"/members/{requestId}/membershipApplicationRequests", null) : Results.BadRequest(result.Error);
         }).RequireAuthorization("AdminOnly");
 
-        group.MapPost("/membershipApplicationRequests/{requestId:guid}/reject", async ([FromRoute] Guid requestId, [FromServices] IMembershipApplicationService service) => {
-            var result = await service.RejectMembershipApplicationAsync(requestId);
+        group.MapPost("/membershipApplicationRequests/{requestId:guid}/reject", async ([FromRoute] Guid requestId, ClaimsPrincipal user, [FromServices] IMembershipApplicationService service) => {
+            var result = await service.RejectMembershipApplicationAsync(requestId, GetCurrentUserIdOrNull(user));
             return result.IsSuccess ? Results.Created($"/members/{requestId}/membershipApplicationRequests", null) : Results.BadRequest(result.Error);
         }).RequireAuthorization("AdminOnly");
 

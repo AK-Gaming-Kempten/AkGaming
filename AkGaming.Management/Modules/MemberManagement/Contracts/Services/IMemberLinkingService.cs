@@ -43,4 +43,14 @@ public interface IMemberLinkingService {
     /// <param name="id"></param>
     /// <returns></returns>
     Task<Result> MarkMemberLinkingRequestResolvedAsync(Guid id, Guid? performedByUserId = null);
+
+    /// <summary>
+    /// Marks a <see cref="MemberLinkingRequest"/> as accepted.
+    /// </summary>
+    Task<Result> AcceptMemberLinkingRequestAsync(Guid id, Guid? performedByUserId = null);
+
+    /// <summary>
+    /// Marks a <see cref="MemberLinkingRequest"/> as rejected.
+    /// </summary>
+    Task<Result> RejectMemberLinkingRequestAsync(Guid id, Guid? performedByUserId = null);
 }

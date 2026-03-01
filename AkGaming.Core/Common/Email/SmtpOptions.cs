@@ -1,4 +1,4 @@
-namespace AkGaming.Identity.Infrastructure.Email;
+namespace AkGaming.Core.Common.Email;
 
 public sealed class SmtpOptions
 {
@@ -11,6 +11,6 @@ public sealed class SmtpOptions
     public string? Username { get; set; }
     public string? Password { get; set; }
     public string FromEmail { get; set; } = string.Empty;
-    public string FromName { get; set; } = "AK Gaming Identity";
+    public string FromName { get; set; } = "AK Gaming";
     public int TimeoutSeconds { get; set; } = 15;
 }

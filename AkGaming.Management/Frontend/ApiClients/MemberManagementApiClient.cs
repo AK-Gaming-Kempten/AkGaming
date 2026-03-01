@@ -47,7 +47,13 @@ public sealed class MemberManagementApiClient : ApiClientBase {
         PostJsonAsync($"members/memberLinkingRequests", request, ct);
     
     public Task<Result> MarkMemberLinkingRequestResolvedAsync(Guid requestId, CancellationToken ct = default) =>
-        PostJsonAsync($"members/memberLinkingRequests/{requestId}/markResolved",new {}, ct);
+        PostJsonAsync($"members/memberLinkingRequests/{requestId}/markResolved", new { }, ct);
+
+    public Task<Result> AcceptMemberLinkingRequestAsync(Guid requestId, CancellationToken ct = default) =>
+        PostJsonAsync($"members/memberLinkingRequests/{requestId}/accept", new { }, ct);
+
+    public Task<Result> RejectMemberLinkingRequestAsync(Guid requestId, CancellationToken ct = default) =>
+        PostJsonAsync($"members/memberLinkingRequests/{requestId}/reject", new { }, ct);
     
     public Task<Result<ICollection<MemberLinkingRequestDto>>> GetAllMemberLinkingRequestAsync(CancellationToken ct = default) =>
         GetAsync<ICollection<MemberLinkingRequestDto>>("members/memberLinkingRequests", ct);

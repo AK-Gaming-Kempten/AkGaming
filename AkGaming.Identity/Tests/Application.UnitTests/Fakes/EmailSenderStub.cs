@@ -1,4 +1,4 @@
-using AkGaming.Identity.Application.Abstractions;
+using AkGaming.Core.Common.Email;
 
 namespace AkGaming.Identity.Application.UnitTests.Fakes;
 

@@ -1,5 +1,5 @@
+using AkGaming.Core.Common.Email;
 using AkGaming.Identity.Application.Abstractions;
-using AkGaming.Identity.Infrastructure.Email;
 using AkGaming.Identity.Infrastructure.ExternalAuth;
 using AkGaming.Identity.Infrastructure.Persistence;
 using AkGaming.Identity.Infrastructure.Security;

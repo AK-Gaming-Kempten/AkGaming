@@ -27,7 +27,16 @@ public static class MemberLinkingEndpoints {
 
         group.MapPost("/memberLinkingRequests/{requestId:guid}/markResolved", async ([FromRoute] Guid requestId, ClaimsPrincipal user, [FromServices] IMemberLinkingService service) => {
             var result = await service.MarkMemberLinkingRequestResolvedAsync(requestId, GetCurrentUserIdOrNull(user));
-            // Keeping this admin-only; adjust if needed.
+            return result.IsSuccess ? Results.Created() : Results.BadRequest(result.Error);
+        }).RequireAuthorization("AdminOnly");
+
+        group.MapPost("/memberLinkingRequests/{requestId:guid}/accept", async ([FromRoute] Guid requestId, ClaimsPrincipal user, [FromServices] IMemberLinkingService service) => {
+            var result = await service.AcceptMemberLinkingRequestAsync(requestId, GetCurrentUserIdOrNull(user));
+            return result.IsSuccess ? Results.Created() : Results.BadRequest(result.Error);
+        }).RequireAuthorization("AdminOnly");
+
+        group.MapPost("/memberLinkingRequests/{requestId:guid}/reject", async ([FromRoute] Guid requestId, ClaimsPrincipal user, [FromServices] IMemberLinkingService service) => {
+            var result = await service.RejectMemberLinkingRequestAsync(requestId, GetCurrentUserIdOrNull(user));
             return result.IsSuccess ? Results.Created() : Results.BadRequest(result.Error);
         }).RequireAuthorization("AdminOnly");
 
