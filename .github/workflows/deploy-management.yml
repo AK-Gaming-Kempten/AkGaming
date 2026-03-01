@@ -1,4 +1,4 @@
-name: Deploy Management Frontend
+name: Deploy Management
 
 on:
   push:
@@ -11,7 +11,11 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Trigger Coolify Deploy
+      - name: Trigger Coolify Deploy for Backend
+        run: |
+          curl -X GET "${{ secrets.COOLIFY_WEBHOOK_MANAGEMENT_BACKEND }}" \
+            -H "Authorization: Bearer ${{ secrets.COOLIFY_TOKEN }}"
+      - name: Trigger Coolify Deploy for Frontend
         run: |
           curl -X GET "${{ secrets.COOLIFY_WEBHOOK_MANAGEMENT_FRONTEND }}" \
             -H "Authorization: Bearer ${{ secrets.COOLIFY_TOKEN }}"
