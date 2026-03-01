@@ -78,12 +78,62 @@ public class MemberLinkingServiceTests {
         memberLinkingRequestRepository.Setup(x => x.GetByIdAsync(requestId)).ReturnsAsync(Result<MemberLinkingRequest>.Success(request));
         auditLogWriter.Setup(x => x.Add(It.IsAny<MemberAuditLog>())).Returns(Result.Success());
         memberLinkingRequestRepository.Setup(x => x.SaveChangesAsync()).ReturnsAsync(Result.Success());
+        string? capturedTextBody = null;
+        string? capturedHtmlBody = null;
         emailSender.Setup(x => x.SendAsync("linking@example.com", It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string?>(), It.IsAny<CancellationToken>()))
+            .Callback<string, string, string, string?, CancellationToken>((_, _, textBody, htmlBody, _) => {
+                capturedTextBody = textBody;
+                capturedHtmlBody = htmlBody;
+            })
             .Returns(Task.CompletedTask);
 
         var result = await service.AcceptMemberLinkingRequestAsync(requestId);
 
         Assert.That(result.IsSuccess, Is.True);
         emailSender.Verify(x => x.SendAsync("linking@example.com", It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string?>(), It.IsAny<CancellationToken>()), Times.Once);
+        Assert.That(capturedTextBody, Does.Contain("https://management.akgaming.de/membership/"));
+        Assert.That(capturedHtmlBody, Does.Contain("<a href=\"https://management.akgaming.de/membership/\">update your personal data</a>"));
+    }
+
+    [Test]
+    public async Task RejectMemberLinkingRequest_DoesNotIncludeUpdatePersonalDataLink() {
+        var memberRepository = new Mock<IMemberRepository>();
+        var memberLinkingRequestRepository = new Mock<IMemberLinkingRequestRepository>();
+        var auditLogWriter = new Mock<IMemberAuditLogWriter>();
+        var emailSender = new Mock<IEmailSender>();
+        var logger = new Mock<ILogger<MemberLinkingService>>();
+        var service = new MemberLinkingService(
+            memberRepository.Object,
+            memberLinkingRequestRepository.Object,
+            auditLogWriter.Object,
+            emailSender.Object,
+            logger.Object);
+
+        var requestId = Guid.NewGuid();
+        var request = new MemberLinkingRequest {
+            Id = requestId,
+            Email = "linking@example.com",
+            IsResolved = false
+        };
+
+        memberLinkingRequestRepository.Setup(x => x.GetByIdAsync(requestId)).ReturnsAsync(Result<MemberLinkingRequest>.Success(request));
+        auditLogWriter.Setup(x => x.Add(It.IsAny<MemberAuditLog>())).Returns(Result.Success());
+        memberLinkingRequestRepository.Setup(x => x.SaveChangesAsync()).ReturnsAsync(Result.Success());
+
+        string? capturedTextBody = null;
+        string? capturedHtmlBody = null;
+        emailSender.Setup(x => x.SendAsync("linking@example.com", It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string?>(), It.IsAny<CancellationToken>()))
+            .Callback<string, string, string, string?, CancellationToken>((_, _, textBody, htmlBody, _) => {
+                capturedTextBody = textBody;
+                capturedHtmlBody = htmlBody;
+            })
+            .Returns(Task.CompletedTask);
+
+        var result = await service.RejectMemberLinkingRequestAsync(requestId);
+
+        Assert.That(result.IsSuccess, Is.True);
+        emailSender.Verify(x => x.SendAsync("linking@example.com", It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string?>(), It.IsAny<CancellationToken>()), Times.Once);
+        Assert.That(capturedTextBody, Does.Not.Contain("https://management.akgaming.de/membership/"));
+        Assert.That(capturedHtmlBody, Does.Not.Contain("https://management.akgaming.de/membership/"));
     }
 }

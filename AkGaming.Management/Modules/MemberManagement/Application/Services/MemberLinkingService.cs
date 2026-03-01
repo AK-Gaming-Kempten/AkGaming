@@ -163,18 +163,27 @@ public class MemberLinkingService : IMemberLinkingService {
             return;
 
         var decisionText = accepted ? "accepted" : "declined";
+        const string updatePersonalDataUrl = "https://management.akgaming.de/membership/";
         var subject = accepted
             ? "AK Gaming e.V. member linking request accepted"
             : "AK Gaming e.V. member linking request declined";
+        var updatePersonalDataTextBody = accepted
+            ? $"Please update your personal data at {updatePersonalDataUrl}.\n\n"
+            : string.Empty;
+        var updatePersonalDataHtmlBody = accepted
+            ? $"<p style=\"margin:0 0 12px\">Please <a href=\"{updatePersonalDataUrl}\">update your personal data</a>.</p>"
+            : string.Empty;
         var textBody =
             "Hello,\n\n" +
             $"your AK Gaming e.V. member linking request has been {decisionText}.\n\n" +
+            updatePersonalDataTextBody +
             "If you have questions, please contact us at vorstand@akgaming.de .\n\n" +
             "Kind regards,\nAK Gaming e.V.";
         var htmlBody =
             "<div style=\"font-family:Arial,Helvetica,sans-serif;color:#222;line-height:1.6\">" +
             "<p style=\"margin:0 0 12px\">Hello,</p>" +
             $"<p style=\"margin:0 0 12px\">Your AK Gaming e.V. member linking request has been <strong>{decisionText}</strong>.</p>" +
+            updatePersonalDataHtmlBody +
             "<p style=\"margin:0 0 12px\">If you have questions, please contact us at vorstand@akgaming.de.</p>" +
             "<p style=\"margin:0\">Kind regards,<br/>AK Gaming  e.V.</p>" +
             "</div>";
