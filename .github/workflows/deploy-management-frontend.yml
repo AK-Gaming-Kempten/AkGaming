@@ -1,0 +1,17 @@
+name: Deploy Management
+
+on:
+  push:
+    branches: ["main"]
+    paths:
+      - "AkGaming.Management/**"
+      - "AkGaming.Core/**"
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Coolify Deploy
+        run: |
+          curl -X GET "${{ secrets.COOLIFY_WEBHOOK_MANAGEMENT_FRONTEND }}" \
+            -H "Authorization: Bearer ${{ secrets.COOLIFY_TOKEN }}"

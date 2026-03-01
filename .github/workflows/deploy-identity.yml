@@ -4,7 +4,7 @@ on:
   push:
     branches: [ "main" ]
     paths:
-      - "AkGaming.Website/**"
+      - "AkGaming.Identity/**"
       - "AkGaming.Core/**"
 
 jobs:
@@ -13,5 +13,5 @@ jobs:
     steps:
       - name: Trigger Coolify deploy
         run: |
-          curl --fail --request GET "${{ secrets.COOLIFY_WEBHOOK_WEBSITE }}" \
+          curl --fail --request GET "${{ secrets.COOLIFY_WEBHOOK_IDENTITY }}" \
             --header "Authorization: Bearer ${{ secrets.COOLIFY_TOKEN }}"
