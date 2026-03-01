@@ -50,6 +50,9 @@
       </a>
       <a id="switch-to-register-link" class="switch" href="/register">No account yet? Create one</a>
     </div>
+    <div id="verification-help" hidden>
+      <button class="secondary" id="resend-verification" type="button">Resend verification email</button>
+    </div>
     <div class="status" id="status"></div>
   </main>
 
@@ -62,12 +65,25 @@
     const useDifferentAccountBtn = document.getElementById("use-different-account");
     const discordStartLinkEl = document.getElementById("discord-start-link");
     const switchToRegisterLinkEl = document.getElementById("switch-to-register-link");
+    const verificationHelpEl = document.getElementById("verification-help");
+    const resendVerificationBtn = document.getElementById("resend-verification");
     const statusEl = document.getElementById("status");
+    let pendingVerificationEmail = null;
     let pendingRedirectPayload = null;
 
     function setStatus(msg, ok = false) {
       statusEl.textContent = msg;
       statusEl.className = `status ${ok ? "ok" : "error"}`;
+    }
+
+    function hideVerificationHelp() {
+      pendingVerificationEmail = null;
+      verificationHelpEl.hidden = true;
+    }
+
+    function showVerificationHelp(email) {
+      pendingVerificationEmail = email;
+      verificationHelpEl.hidden = false;
     }
 
     function saveTokens(payload) {
@@ -265,13 +281,39 @@
       pendingRedirectPayload = null;
       redirectAccountChoiceEl.hidden = true;
       loginActionsEl.hidden = false;
+      hideVerificationHelp();
       statusEl.className = "status";
       statusEl.textContent = "Please sign in with a different account.";
       form.email.focus();
     });
 
+    resendVerificationBtn.addEventListener("click", async () => {
+      if (!pendingVerificationEmail) {
+        setStatus("Enter your account email and try again.");
+        return;
+      }
+
+      statusEl.className = "status";
+      statusEl.textContent = "Requesting verification email...";
+
+      const response = await fetch("/auth/email/send-verification", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: pendingVerificationEmail })
+      });
+
+      const body = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        setStatus(body.detail || "Could not send verification email.");
+        return;
+      }
+
+      setStatus(body.message || "If the account exists, a verification email has been sent.", true);
+    });
+
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
+      hideVerificationHelp();
       statusEl.className = "status";
       statusEl.textContent = "Signing in...";
 
@@ -288,6 +330,9 @@
 
       if (!response.ok) {
         const error = await response.json().catch(() => ({}));
+        if (response.status === 403 && (error.detail || "").toLowerCase().includes("email verification is required")) {
+          showVerificationHelp(body.email);
+        }
         setStatus(error.detail || "Login failed.");
         return;
       }

@@ -112,5 +112,30 @@ public sealed class AuthEndpointsTests : IClassFixture<TestApiFactory>
         Assert.True(response.StatusCode == HttpStatusCode.BadRequest, $"Expected 400, got {(int)response.StatusCode}: {body}");
     }
 
+    [Fact]
+    public async Task EmailVerification_Request_WithoutAuthentication_Works()
+    {
+        var email = $"verify-{Guid.NewGuid():N}@example.com";
+        var password = "Password123";
+
+        var registerResponse = await _client.PostAsJsonAsync("/auth/register", new
+        {
+            Email = email,
+            Password = password,
+            PrivacyPolicyAccepted = true
+        });
+
+        var registerBody = await registerResponse.Content.ReadAsStringAsync();
+        Assert.True(registerResponse.StatusCode == HttpStatusCode.OK, $"Expected 200, got {(int)registerResponse.StatusCode}: {registerBody}");
+
+        var response = await _client.PostAsJsonAsync("/auth/email/send-verification", new
+        {
+            Email = email
+        });
+
+        var body = await response.Content.ReadAsStringAsync();
+        Assert.True(response.StatusCode == HttpStatusCode.OK, $"Expected 200, got {(int)response.StatusCode}: {body}");
+    }
+
     private sealed record AuthPayload(string AccessToken, DateTime AccessTokenExpiresAtUtc, string RefreshToken);
 }
