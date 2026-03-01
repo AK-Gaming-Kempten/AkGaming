@@ -1,4 +1,4 @@
-name: Deploy Website (Coolify)
+name: Deploy Identity
 
 on:
   push:

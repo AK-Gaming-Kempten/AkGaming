@@ -1,4 +1,4 @@
-name: Deploy Management
+name: Deploy Management Backend
 
 on:
   push:
