@@ -1,26 +1,21 @@
 ﻿FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 WORKDIR /src
 
-# Copy solution files
+# Copy everything (monorepo root context)
 COPY . .
 
-# Restore
-RUN dotnet restore "./Frontend/AkGaming.Management.Frontend.csproj"
+# Restore & publish
+RUN dotnet restore "AkGaming.Management/Frontend/AkGaming.Management.Frontend.csproj"
 
-# Build
-RUN dotnet publish "./Frontend/AkGaming.Management.Frontend.csproj" \
+RUN dotnet publish "AkGaming.Management/Frontend/AkGaming.Management.Frontend.csproj" \
     -c Release \
     -o /app/publish \
-    --no-restore
+    --no-restore \
+    /p:UseAppHost=false
 
 FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS final
 WORKDIR /app
 
-# Copy output
 COPY --from=build /app/publish .
-
-# Expose HTTP port
 EXPOSE 8080
-
-# Run
 ENTRYPOINT ["dotnet", "AkGaming.Management.Frontend.dll"]
