@@ -1,0 +1,9 @@
+<Project>
+  <PropertyGroup>
+    <!-- None of the projects in this repo require .NET workloads; disabling the
+         workload resolver avoids MSB4276 resolver failures during graph restore. -->
+    <MSBuildEnableWorkloadResolver>false</MSBuildEnableWorkloadResolver>
+    <!-- Work around static restore graph failures after cross-project moves. -->
+    <RestoreUseStaticGraphEvaluation>false</RestoreUseStaticGraphEvaluation>
+  </PropertyGroup>
+</Project>

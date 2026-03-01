@@ -12,10 +12,10 @@ COPY . ./
 RUN dotnet restore /src/AkGaming.Management.sln
 
 # Build
-RUN dotnet build /src/AkGaming.Management.WebApi/AkGaming.Management.WebApi.csproj -c Release -o /app/build
+RUN dotnet build /src/WebApi/AkGaming.Management.WebApi.csproj -c Release -o /app/build
 
 FROM build AS publish
-RUN dotnet publish /src/AkGaming.Management.WebApi/AkGaming.Management.WebApi.csproj -c Release -o /app/publish /p:UseAppHost=false
+RUN dotnet publish /src/WebApi/AkGaming.Management.WebApi.csproj -c Release -o /app/publish /p:UseAppHost=false
 
 FROM base AS final
 WORKDIR /app

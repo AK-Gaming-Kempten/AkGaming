@@ -8,19 +8,18 @@
 
 ```text
 AkGaming.Management/
-├─ AkGaming.Management.WebApi/
-├─ AkGaming.Management.Frontend/
-├─ AkGaming.Management.Frontend.Components/
-├─ AkGaming.Management.Modules/
-│  ├─ AkGaming.Core.Common/
-│  └─ AkGaming.Management.Modules.MemberManagement/
+├─ WebApi/
+├─ Frontend/
+├─ Frontend.Components/
+├─ Modules/
+│  └─ MemberManagement/
 │     ├─ Api/
 │     ├─ Application/
 │     ├─ Contracts/
 │     ├─ Domain/
 │     ├─ Infrastructure/
 │     └─ Tests/
-└─ AkGaming.Management.Common/
+└─ build/
 ```
 
 ### Core Principles
@@ -98,7 +97,7 @@ Each environment has its own configuration (connection string, JWT settings, etc
 #### Backend
 ```bash
 dotnet build
-dotnet run --project AkGaming.Management.WebApi/AkGaming.Management.WebApi.csproj
+dotnet run --project WebApi/AkGaming.Management.WebApi.csproj
 ```
 
 Open `https://localhost:5001/swagger` for the interactive API UI.
@@ -111,7 +110,7 @@ Open `https://localhost:5001/swagger` for the interactive API UI.
 The system uses EF Core migrations per module:
 
 ```bash
-dotnet ef migrations add Init --project AkGaming.Management.Modules/AkGaming.Management.Modules.MemberManagement/Infrastructure/AkGaming.Management.Modules.MemberManagement.Infrastructure.csproj
+dotnet ef migrations add Init --project Modules/MemberManagement/Infrastructure/AkGaming.Management.Modules.MemberManagement.Infrastructure.csproj
 ```
 
 ---
@@ -143,7 +142,7 @@ dotnet ef migrations add Init --project AkGaming.Management.Modules/AkGaming.Man
 
 ### Adding New Modules
 
-1. Scaffold a new folder in `/AkGaming.Management.Modules/<ModuleName>/`.
+1. Scaffold a new folder in `/Modules/<ModuleName>/`.
 2. Create subprojects for Domain, Application, Infrastructure, Api, and Contracts.
 3. Follow the same DI and endpoint pattern as existing modules.
 4. Register the module in the Web API host using:

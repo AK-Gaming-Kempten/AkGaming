@@ -1,0 +1,59 @@
+<Solution>
+  <Folder Name="/AkGaming.Core/" />
+  <Folder Name="/AkGaming.Core/Common/">
+    <Project Path="AkGaming.Core/Common/AkGaming.Core.Common.csproj" />
+  </Folder>
+  <Folder Name="/AkGaming.Identity/" />
+  <Folder Name="/AkGaming.Identity/Api/">
+    <Project Path="AkGaming.Identity/Api/AkGaming.Identity.Api.csproj" />
+  </Folder>
+  <Folder Name="/AkGaming.Identity/Application/">
+    <Project Path="AkGaming.Identity/Application/AkGaming.Identity.Application.csproj" />
+  </Folder>
+  <Folder Name="/AkGaming.Identity/Contracts/">
+    <Project Path="AkGaming.Identity/Contracts/AkGaming.Identity.Contracts.csproj" />
+  </Folder>
+  <Folder Name="/AkGaming.Identity/Domain/">
+    <Project Path="AkGaming.Identity/Domain/AkGaming.Identity.Domain.csproj" />
+  </Folder>
+  <Folder Name="/AkGaming.Identity/Infrastructure/">
+    <Project Path="AkGaming.Identity/Infrastructure/AkGaming.Identity.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/AkGaming.Identity/Tests/" />
+  <Folder Name="/AkGaming.Identity/Tests/Api.IntegrationTests/">
+    <Project Path="AkGaming.Identity/Tests/Api.IntegrationTests/AkGaming.Identity.Api.IntegrationTests.csproj" />
+  </Folder>
+  <Folder Name="/AkGaming.Identity/Tests/Application.UnitTests/">
+    <Project Path="AkGaming.Identity/Tests/Application.UnitTests/AkGaming.Identity.Application.UnitTests.csproj" />
+  </Folder>
+  <Folder Name="/AkGaming.Management/" />
+  <Folder Name="/AkGaming.Management/Frontend.Components/">
+    <Project Path="AkGaming.Management/Frontend.Components/AkGaming.Management.Frontend.Components.csproj" />
+  </Folder>
+  <Folder Name="/AkGaming.Management/Frontend/">
+    <Project Path="AkGaming.Management/Frontend/AkGaming.Management.Frontend.csproj" />
+  </Folder>
+  <Folder Name="/AkGaming.Management/Modules/" />
+  <Folder Name="/AkGaming.Management/Modules/MemberManagement/" />
+  <Folder Name="/AkGaming.Management/Modules/MemberManagement/Api/">
+    <Project Path="AkGaming.Management/Modules/MemberManagement/Api/AkGaming.Management.Modules.MemberManagement.Api.csproj" />
+  </Folder>
+  <Folder Name="/AkGaming.Management/Modules/MemberManagement/Application/">
+    <Project Path="AkGaming.Management/Modules/MemberManagement/Application/AkGaming.Management.Modules.MemberManagement.Application.csproj" />
+  </Folder>
+  <Folder Name="/AkGaming.Management/Modules/MemberManagement/Contracts/">
+    <Project Path="AkGaming.Management/Modules/MemberManagement/Contracts/AkGaming.Management.Modules.MemberManagement.Contracts.csproj" />
+  </Folder>
+  <Folder Name="/AkGaming.Management/Modules/MemberManagement/Domain/">
+    <Project Path="AkGaming.Management/Modules/MemberManagement/Domain/AkGaming.Management.Modules.MemberManagement.Domain.csproj" />
+  </Folder>
+  <Folder Name="/AkGaming.Management/Modules/MemberManagement/Infrastructure/">
+    <Project Path="AkGaming.Management/Modules/MemberManagement/Infrastructure/AkGaming.Management.Modules.MemberManagement.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/AkGaming.Management/Modules/MemberManagement/Tests/">
+    <Project Path="AkGaming.Management/Modules/MemberManagement/Tests/AkGaming.Management.Modules.MemberManagement.Tests.csproj" />
+  </Folder>
+  <Folder Name="/AkGaming.Management/WebApi/">
+    <Project Path="AkGaming.Management/WebApi/AkGaming.Management.WebApi.csproj" />
+  </Folder>
+</Solution>

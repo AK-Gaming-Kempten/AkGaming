@@ -3,16 +3,16 @@ FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 WORKDIR /src
 
 COPY global.json ./
-COPY AkGaming.Identity.Api/*.csproj AkGaming.Identity.Api/
-COPY AkGaming.Identity.Application/*.csproj AkGaming.Identity.Application/
-COPY AkGaming.Identity.Contracts/*.csproj AkGaming.Identity.Contracts/
-COPY AkGaming.Identity.Domain/*.csproj AkGaming.Identity.Domain/
-COPY AkGaming.Identity.Infrastructure/*.csproj AkGaming.Identity.Infrastructure/
+COPY Api/*.csproj Api/
+COPY Application/*.csproj Application/
+COPY Contracts/*.csproj Contracts/
+COPY Domain/*.csproj Domain/
+COPY Infrastructure/*.csproj Infrastructure/
 
-RUN dotnet restore AkGaming.Identity.Api/AkGaming.Identity.Api.csproj
+RUN dotnet restore Api/AkGaming.Identity.Api.csproj
 
 COPY . .
-RUN dotnet publish AkGaming.Identity.Api/AkGaming.Identity.Api.csproj -c Release -o /app/publish --no-restore
+RUN dotnet publish Api/AkGaming.Identity.Api.csproj -c Release -o /app/publish --no-restore
 
 # Runtime stage
 FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS runtime

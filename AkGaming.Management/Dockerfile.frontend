@@ -5,10 +5,10 @@ WORKDIR /src
 COPY . .
 
 # Restore
-RUN dotnet restore "./AkGaming.Management.Frontend/AkGaming.Management.Frontend.csproj"
+RUN dotnet restore "./Frontend/AkGaming.Management.Frontend.csproj"
 
 # Build
-RUN dotnet publish "./AkGaming.Management.Frontend/AkGaming.Management.Frontend.csproj" \
+RUN dotnet publish "./Frontend/AkGaming.Management.Frontend.csproj" \
     -c Release \
     -o /app/publish \
     --no-restore

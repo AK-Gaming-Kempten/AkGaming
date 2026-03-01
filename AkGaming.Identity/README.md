@@ -44,7 +44,7 @@ Run:
 ```bash
 dotnet restore
 dotnet build AkGaming.Identity.sln
-dotnet run --project AkGaming.Identity.Api
+dotnet run --project Api/AkGaming.Identity.Api.csproj
 ```
 
 Dev URLs:
@@ -106,8 +106,8 @@ Apply migrations:
 
 ```bash
 dotnet ef database update \
-  --project AkGaming.Identity.Infrastructure \
-  --startup-project AkGaming.Identity.Api \
+  --project Infrastructure/AkGaming.Identity.Infrastructure.csproj \
+  --startup-project Api/AkGaming.Identity.Api.csproj \
   --context AuthDbContext
 ```
 
@@ -115,8 +115,8 @@ Create a new migration:
 
 ```bash
 dotnet ef migrations add <MigrationName> \
-  --project AkGaming.Identity.Infrastructure \
-  --startup-project AkGaming.Identity.Api \
+  --project Infrastructure/AkGaming.Identity.Infrastructure.csproj \
+  --startup-project Api/AkGaming.Identity.Api.csproj \
   --context AuthDbContext
 ```
 
@@ -215,7 +215,7 @@ Contracts live in:
 Pack locally:
 
 ```bash
-dotnet pack AkGaming.Identity.Contracts/AkGaming.Identity.Contracts.csproj -c Release
+dotnet pack Contracts/AkGaming.Identity.Contracts.csproj -c Release
 ```
 
 Publish workflow:
