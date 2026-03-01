@@ -6,18 +6,21 @@
 
 ### Structure
 
-```
-src/
-├─ ManagementTool.WebApi/              # Host project (entry point)
-├─ modules/
-│   ├─ MemberManagement/               # Example domain module
-│   │   ├─ MemberManagement.Domain/    # Entities, ValueObjects, Enums
-│   │   ├─ MemberManagement.Application/ # Use cases, Services, Contracts
-│   │   ├─ MemberManagement.Infrastructure/ # EF Core, Repositories
-│   │   ├─ MemberManagement.Api/       # Endpoints and DI registration
-│   │   └─ MemberManagement.Contracts/ # Public-facing DTOs and interfaces
-│   └─ ... other modules
-└─ BuildingBlocks/                     # Shared kernel & utilities
+```text
+AkGaming.Management/
+├─ AkGaming.Management.WebApi/
+├─ AkGaming.Management.Frontend/
+├─ AkGaming.Management.Frontend.Components/
+├─ AkGaming.Management.Modules/
+│  ├─ AkGaming.Core.Common/
+│  └─ AkGaming.Management.Modules.MemberManagement/
+│     ├─ Api/
+│     ├─ Application/
+│     ├─ Contracts/
+│     ├─ Domain/
+│     ├─ Infrastructure/
+│     └─ Tests/
+└─ AkGaming.Management.Common/
 ```
 
 ### Core Principles
@@ -75,8 +78,8 @@ This project uses **Coolify** for deployment.
 
 | Environment | Branch    | Deploy Trigger   | Database             | Auth                              |
 | ----------- | --------- | ---------------- | -------------------- |-----------------------------------|
-| Development | `develop` | Auto via webhook | `ManagementTool_Dev` | Special Dev Auth                  |
-| Production  | `main`    | Manual trigger   | `ManagementTool`     | Production Auth via User Accounts |
+| Development | `develop` | Auto via webhook | `AkGaming.Management_Dev` | Special Dev Auth                  |
+| Production  | `main`    | Manual trigger   | `AkGaming.Management`     | Production Auth via User Accounts |
 
 Each environment has its own configuration (connection string, JWT settings, etc.) injected through environment variables.
 
@@ -95,7 +98,7 @@ Each environment has its own configuration (connection string, JWT settings, etc
 #### Backend
 ```bash
 dotnet build
-dotnet run --project src/ManagementTool.WebApi
+dotnet run --project AkGaming.Management.WebApi/AkGaming.Management.WebApi.csproj
 ```
 
 Open `https://localhost:5001/swagger` for the interactive API UI.
@@ -108,7 +111,7 @@ Open `https://localhost:5001/swagger` for the interactive API UI.
 The system uses EF Core migrations per module:
 
 ```bash
-dotnet ef migrations add Init --project src/modules/MemberManagement/MemberManagement.Infrastructure
+dotnet ef migrations add Init --project AkGaming.Management.Modules/AkGaming.Management.Modules.MemberManagement/Infrastructure/AkGaming.Management.Modules.MemberManagement.Infrastructure.csproj
 ```
 
 ---
@@ -140,7 +143,7 @@ dotnet ef migrations add Init --project src/modules/MemberManagement/MemberManag
 
 ### Adding New Modules
 
-1. Scaffold a new folder in `/modules/<ModuleName>/`.
+1. Scaffold a new folder in `/AkGaming.Management.Modules/<ModuleName>/`.
 2. Create subprojects for Domain, Application, Infrastructure, Api, and Contracts.
 3. Follow the same DI and endpoint pattern as existing modules.
 4. Register the module in the Web API host using:
@@ -163,4 +166,3 @@ dotnet test
 ```
 
 ---
-

@@ -1,0 +1,54 @@
+@using global::AkGaming.Management.Modules.MemberManagement.Contracts.Enums
+<div class="member-card readonly-mode">
+    @if (Request is null) {
+        <div class="no-request-selected">No request selected</div>
+    }
+    else {
+        <div class="member-card-content">
+            <div class="form-wrapper">
+                <div class="form-section">
+                    <div class="form-grid">
+                        <div class="form-col">
+                            <label>First name</label>
+                            <InputText @bind-Value="Request.FirstName" readonly="true" />
+                        </div>
+                        <div class="form-col">
+                            <label>Last name</label>
+                            <InputText @bind-Value="Request.LastName" readonly="true" />
+                        </div>
+
+                        <div class="form-col">
+                            <label>Email</label>
+                            <InputText @bind-Value="Request.Email" readonly="true" />
+                        </div>
+                        <div class="form-col">
+                            <label>Discord</label>
+                            <InputText @bind-Value="Request.DiscordUserName" readonly="true" />
+                        </div>
+                        
+                        <div class="form-col">
+                            <label>Reason</label>
+                            <div>
+                                @Request.Reason.ToString()
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            @if (IsEditable && !Request.IsResolved) {
+                <div class="list-main">
+                    <div class="list-scroll-container">
+                        <div class="preview-card-list">
+                            @foreach (var member in _members!) {
+                                <MemberPreviewCard Member="member" IsSelected="member == _selectedMember" OnSelect="SelectMember"/>
+                            }
+                        </div>
+                    </div>
+                </div>
+                <div class="form-actions">
+                    <button class="btn btn-primary" @onclick="Link" disabled="@(_selectedMember == null)">Link</button>
+                </div>  
+            }
+        </div>
+    }
+</div>

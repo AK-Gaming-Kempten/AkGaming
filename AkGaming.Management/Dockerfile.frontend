@@ -5,10 +5,10 @@ WORKDIR /src
 COPY . .
 
 # Restore
-RUN dotnet restore "./src/frontend/Frontend.Blazor/Frontend.Blazor.csproj"
+RUN dotnet restore "./AkGaming.Management.Frontend/AkGaming.Management.Frontend.csproj"
 
 # Build
-RUN dotnet publish "./src/frontend/Frontend.Blazor/Frontend.Blazor.csproj" \
+RUN dotnet publish "./AkGaming.Management.Frontend/AkGaming.Management.Frontend.csproj" \
     -c Release \
     -o /app/publish \
     --no-restore
@@ -23,4 +23,4 @@ COPY --from=build /app/publish .
 EXPOSE 8080
 
 # Run
-ENTRYPOINT ["dotnet", "Frontend.Blazor.dll"]
+ENTRYPOINT ["dotnet", "AkGaming.Management.Frontend.dll"]

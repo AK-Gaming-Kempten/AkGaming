@@ -1,0 +1,61 @@
+@page "/image-marquee"
+@using System.IO
+@layout Layout.RawLayout
+
+@code {
+    private string[] images;
+    private int imagesPerMarquee = 40; 
+    private int numberOfMarquees = 20;
+
+    protected override void OnInitialized()
+    {
+        // Dynamically load images from wwwroot/images
+        string imagesDirectory = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images");
+        if (Directory.Exists(imagesDirectory))
+        {
+            // Get file paths and make them relative to the wwwroot folder
+            images = Directory.GetFiles(imagesDirectory, "*.png")
+                .Select(file => "/images/" + Path.GetFileName(file)) // Convert to relative path
+                .ToArray();
+        }
+        else
+        {
+            images = new string[0]; // Or handle the error if directory is missing
+        }
+    }
+
+    private int NumberOfDifferentMarquees() => images.Length <= 2 ? 1 : (images.Length + 1) / 2;
+    private int MarqueeIdForImageIndex(int imageIndex) => imageIndex / 2;
+    private int MarqueeSetFromMarqueeIndex(int marqueeIndex) => marqueeIndex % NumberOfDifferentMarquees();
+
+
+    private string[] GetRowImages(int row){
+        List<string> rowImages = new List<string>();
+
+        for (int i = 0; i < imagesPerMarquee; i++){
+            int marqueeOffset = MarqueeSetFromMarqueeIndex(row) * 2;
+            int innerOffset = i % 2;
+            rowImages.Add(images[ Math.Min(marqueeOffset + innerOffset, images.Length -1) ]);
+        }
+        
+        return rowImages.ToArray();
+    }
+}
+
+<div class="marquee-background">
+    <div class="marquee-container">
+        @for (var row = 0; row < numberOfMarquees; row++)
+        {
+            var directionClass = row % 2 == 0 ? "scroll-left" : "scroll-right";
+
+            <div class="marquee @directionClass">
+                @foreach (var image in GetRowImages(row))
+                {
+                    <img src="@image" alt="Image Marquee" class="marquee-img" />
+                }
+            </div>
+        }
+    </div>
+</div>
+
+    using AkGaming.Streamkit.Components.Layout;

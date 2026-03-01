@@ -1,0 +1,97 @@
+@using global::AkGaming.Management.Modules.MemberManagement.Contracts.Enums
+<div class="status-section">
+    @if (Member is null) {
+            <em>Loading member…</em>
+    } else {
+            <h4>Status History</h4>
+            
+            @if (Editable) {
+                <div class="status-tabs">
+                    <button type="button"
+                            class="tab @( _activeTab == StatusTab.SetStatus ? "active" : "" )"
+                            @onclick="() => _activeTab = StatusTab.SetStatus">
+                        Set New Status
+                    </button>
+                    <button type="button"
+                            class="tab @( _activeTab == StatusTab.InsertEvent ? "active" : "" )"
+                            @onclick="() => _activeTab = StatusTab.InsertEvent">
+                        Insert Status Event
+                    </button>
+                </div>
+
+                <div class="status-forms">
+                    @if (_activeTab == StatusTab.SetStatus) {
+                        <!-- Form A: Set current status -->
+                        <div class="form-grid">
+                            <div class="form-col">
+                                <label>Set New Status</label>
+                                <InputSelect @bind-Value="_updateStatus">
+                                    @foreach (var s in Enum.GetValues<MembershipStatus>()) {
+                                        <option value="@s">@s</option>
+                                    }
+                                </InputSelect>
+                            </div>
+                            <div class="form-col" style="align-self:end;">
+                                <button type="button" class="btn btn-primary"
+                                        @onclick="UpdateStatusAsync"
+                                        disabled="@(_updateStatus == MembershipStatus.None)">
+                                    Update Status
+                                </button>
+                            </div>
+                        </div>
+                    } else if (_activeTab == StatusTab.InsertEvent) {
+                        <!-- Form B: Insert a status-change event (manual entry) -->
+                        <div class="form-grid">
+                            <div class="form-col">
+                                <label>Old Status</label>
+                                <InputSelect @bind-Value="_insertModel.OldStatus">
+                                    @foreach (var s in Enum.GetValues<MembershipStatus>()) {
+                                        <option value="@s">@s</option>
+                                    }
+                                </InputSelect>
+                            </div>
+
+                            <div class="form-col">
+                                <label>New Status</label>
+                                <InputSelect @bind-Value="_insertModel.NewStatus">
+                                    @foreach (var s in Enum.GetValues<MembershipStatus>()) {
+                                        <option value="@s">@s</option>
+                                    }
+                                </InputSelect>
+                            </div>
+
+                            <div class="form-col">
+                                <label>Timestamp</label>
+                                <InputDate @bind-Value="_insertModel.Timestamp" />
+                            </div>
+
+                            <div class="form-col" style="align-self:end;">
+                                <button type="button" class="btn btn-primary"
+                                        @onclick="InsertStatusChangeEventAsync"
+                                        disabled="@(_insertModel.NewStatus == MembershipStatus.None || _insertModel.Timestamp == DateTime.MinValue)">
+                                    Insert Status Event
+                                </button>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+            
+            <div class="status-history">
+                @if (_statusChanges is null) {
+                    <p>Loading status history…</p>
+                } else if (!_statusChanges.Any()) {
+                    <em>No history available</em>
+                } else {
+                    <ul class="status-list">
+                        @foreach (var evt in _statusChanges.OrderByDescending(e => e.Timestamp)) {
+                            <li>
+                                <strong>@evt.NewStatus</strong><br />
+                                <small>@evt.Timestamp.ToString("g")</small>
+                            </li>
+                        }
+                    </ul>
+                }
+            </div>
+    }
+</div>

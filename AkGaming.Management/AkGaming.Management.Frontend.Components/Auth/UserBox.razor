@@ -1,0 +1,46 @@
+@using Microsoft.AspNetCore.Components.Authorization
+@namespace AkGaming.Management.Frontend.Components.Auth
+@inject NavigationManager Nav
+
+<CascadingAuthenticationState>
+    <AuthorizeView>
+        <Authorized>
+            <div class="user-box">
+                <div class="user-info">
+                    <div class="user-label">Logged in as</div>
+                    <div class="user-name">@DisplayName</div>
+                </div>
+                <button class="btn btn-primary" @onclick="Logout">Logout</button>
+            </div>
+        </Authorized>
+
+        <NotAuthorized>
+            <div class="user-box">
+                <div class="user-info">
+                    <div class="user-label">Not logged in</div>
+                </div>
+                <button class="btn btn-primary" @onclick="Login">Login</button>
+            </div>
+        </NotAuthorized>
+    </AuthorizeView>
+</CascadingAuthenticationState>
+
+@code {
+    [CascadingParameter] public Task<AuthenticationState> AuthenticationStateTask { get; set; } = default!;
+    private string? DisplayName;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        var authState = await AuthenticationStateTask;
+        var user = authState.User;
+        DisplayName =
+            user.Claims.FirstOrDefault(claim => claim.Type == "discord_username")?.Value
+            ?? user.Claims.FirstOrDefault(claim => claim.Type == "preferred_username")?.Value
+            ?? user.Claims.FirstOrDefault(claim => claim.Type == "email")?.Value
+            ?? user.Claims.FirstOrDefault(claim => claim.Type == "sub")?.Value
+            ?? "Unknown user";
+    }
+
+    private void Login() => Nav.NavigateTo("/authentication/login", forceLoad: true);
+    private void Logout() => Nav.NavigateTo("/authentication/logout", forceLoad: true);
+}

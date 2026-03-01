@@ -1,0 +1,12 @@
+/home/hexasiel/Programming/AkGaming/AkGaming.Core/AkGaming.Core.Common/bin/Debug/net10.0/AkGaming.Core.Common.deps.json
+/home/hexasiel/Programming/AkGaming/AkGaming.Core/AkGaming.Core.Common/bin/Debug/net10.0/AkGaming.Core.Common.dll
+/home/hexasiel/Programming/AkGaming/AkGaming.Core/AkGaming.Core.Common/bin/Debug/net10.0/AkGaming.Core.Common.pdb
+/home/hexasiel/Programming/AkGaming/AkGaming.Core/AkGaming.Core.Common/obj/Debug/net10.0/AkGaming.Core.Common.GeneratedMSBuildEditorConfig.editorconfig
+/home/hexasiel/Programming/AkGaming/AkGaming.Core/AkGaming.Core.Common/obj/Debug/net10.0/AkGaming.Core.Common.AssemblyInfoInputs.cache
+/home/hexasiel/Programming/AkGaming/AkGaming.Core/AkGaming.Core.Common/obj/Debug/net10.0/AkGaming.Core.Common.AssemblyInfo.cs
+/home/hexasiel/Programming/AkGaming/AkGaming.Core/AkGaming.Core.Common/obj/Debug/net10.0/AkGaming.Core.Common.csproj.CoreCompileInputs.cache
+/home/hexasiel/Programming/AkGaming/AkGaming.Core/AkGaming.Core.Common/obj/Debug/net10.0/AkGaming.Core.Common.sourcelink.json
+/home/hexasiel/Programming/AkGaming/AkGaming.Core/AkGaming.Core.Common/obj/Debug/net10.0/AkGaming.Core.Common.dll
+/home/hexasiel/Programming/AkGaming/AkGaming.Core/AkGaming.Core.Common/obj/Debug/net10.0/refint/AkGaming.Core.Common.dll
+/home/hexasiel/Programming/AkGaming/AkGaming.Core/AkGaming.Core.Common/obj/Debug/net10.0/AkGaming.Core.Common.pdb
+/home/hexasiel/Programming/AkGaming/AkGaming.Core/AkGaming.Core.Common/obj/Debug/net10.0/ref/AkGaming.Core.Common.dll

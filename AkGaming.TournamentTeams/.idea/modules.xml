@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/AKG_Tournament_Teams.iml" filepath="$PROJECT_DIR$/.idea/AKG_Tournament_Teams.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/AkGaming.TournamentTeams.iml" filepath="$PROJECT_DIR$/.idea/AkGaming.TournamentTeams.iml" />
     </modules>
   </component>
 </project>

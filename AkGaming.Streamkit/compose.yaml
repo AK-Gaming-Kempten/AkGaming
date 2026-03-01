@@ -1,0 +1,9 @@
+﻿services:
+  akgaming-streamkit:
+    image: akgaming-streamkit
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - 80:80
+
