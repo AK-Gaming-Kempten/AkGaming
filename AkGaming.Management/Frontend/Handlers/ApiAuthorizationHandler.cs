@@ -8,6 +8,9 @@ using Microsoft.AspNetCore.Authentication;
 namespace AkGaming.Management.Frontend.Handlers;
 
 public class ApiAuthorizationHandler : DelegatingHandler {
+    private const string RefreshedAccessTokenItemKey = "__akg_refreshed_access_token";
+    private const string RefreshedRefreshTokenItemKey = "__akg_refreshed_refresh_token";
+
     private readonly IHttpContextAccessor _http;
     private readonly IHttpClientFactory _factory;
     private readonly IConfiguration _cfg;
@@ -28,8 +31,12 @@ public class ApiAuthorizationHandler : DelegatingHandler {
         var context = _http.HttpContext;
         if (context == null) return await base.SendAsync(request, ct);
 
-        var accessToken = await context.GetTokenAsync("access_token");
-        var refreshToken = await context.GetTokenAsync("refresh_token");
+        var accessToken = context.Items.TryGetValue(RefreshedAccessTokenItemKey, out var cachedAccessTokenObj)
+            ? cachedAccessTokenObj as string
+            : await context.GetTokenAsync("access_token");
+        var refreshToken = context.Items.TryGetValue(RefreshedRefreshTokenItemKey, out var cachedRefreshTokenObj)
+            ? cachedRefreshTokenObj as string
+            : await context.GetTokenAsync("refresh_token");
 
         if (string.IsNullOrEmpty(accessToken))
             return await base.SendAsync(request, ct);
@@ -37,10 +44,9 @@ public class ApiAuthorizationHandler : DelegatingHandler {
         // Refresh if token expired or nearly expired
         if (IsExpired(accessToken)) {
             _log.LogInformation("Access token expired, refreshing...");
-            if (context.Response.HasStarted) {
-                _log.LogWarning("Cannot refresh token because response has already started and refreshed tokens cannot be persisted.");
-                return new HttpResponseMessage(System.Net.HttpStatusCode.Unauthorized);
-            }
+            var canPersistTokens = !context.Response.HasStarted;
+            if (!canPersistTokens)
+                _log.LogInformation("Response has already started; refreshed tokens will only be used for current request.");
 
             if (string.IsNullOrWhiteSpace(refreshToken)) {
                 _log.LogWarning("Access token is expired but no refresh token is present. Signing out user.");
@@ -102,18 +108,23 @@ public class ApiAuthorizationHandler : DelegatingHandler {
                 ? DateTime.UtcNow.AddSeconds(expiresIn.Value)
                 : ReadExpiry(newAccess);
 
-            // Save updated tokens in cookie
-            var auth = await context.AuthenticateAsync("Cookies");
-            if (!auth.Succeeded || auth.Principal == null || auth.Properties == null) {
-                _log.LogWarning("Cookie authentication state missing during token refresh.");
-                await TrySignOutAsync(context, "Cookie authentication state missing during token refresh.");
-                return new HttpResponseMessage(System.Net.HttpStatusCode.Unauthorized);
-            }
+            context.Items[RefreshedAccessTokenItemKey] = newAccess!;
+            context.Items[RefreshedRefreshTokenItemKey] = newRefresh!;
 
-            auth.Properties.UpdateTokenValue("access_token", newAccess);
-            auth.Properties.UpdateTokenValue("refresh_token", newRefresh);
-            auth.Properties.UpdateTokenValue("expires_at", newExpiry.ToString("o", CultureInfo.InvariantCulture));
-            await TrySignInAsync(context, auth.Principal, auth.Properties);
+            if (canPersistTokens) {
+                // Save updated tokens in cookie when response headers can still be written.
+                var auth = await context.AuthenticateAsync("Cookies");
+                if (!auth.Succeeded || auth.Principal == null || auth.Properties == null) {
+                    _log.LogWarning("Cookie authentication state missing during token refresh.");
+                    await TrySignOutAsync(context, "Cookie authentication state missing during token refresh.");
+                    return new HttpResponseMessage(System.Net.HttpStatusCode.Unauthorized);
+                }
+
+                auth.Properties.UpdateTokenValue("access_token", newAccess);
+                auth.Properties.UpdateTokenValue("refresh_token", newRefresh);
+                auth.Properties.UpdateTokenValue("expires_at", newExpiry.ToString("o", CultureInfo.InvariantCulture));
+                await TrySignInAsync(context, auth.Principal, auth.Properties);
+            }
 
             accessToken = newAccess!;
         }
