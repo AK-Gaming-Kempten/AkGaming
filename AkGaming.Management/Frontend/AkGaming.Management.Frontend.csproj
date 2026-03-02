@@ -26,4 +26,11 @@
       <AdditionalFiles Include="Components\Membership\MemberPage.razor" />
     </ItemGroup>
 
+    <Target Name="SyncAkGamingBaseTheme" BeforeTargets="Build;Publish">
+      <Copy
+        SourceFiles="$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\..\AkGaming.Core\Theme\wwwroot\theme\akgaming-base-theme.css'))"
+        DestinationFiles="$(MSBuildThisFileDirectory)wwwroot\css\akgaming-base-theme.css"
+        SkipUnchangedFiles="true" />
+    </Target>
+
 </Project>

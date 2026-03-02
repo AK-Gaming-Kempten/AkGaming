@@ -21,7 +21,7 @@
     --color-light-green: #48cb4f;
     --color-white: #ffffff;
     --color-black: #000000;
-    
+
     --color-red: #ff3333;
     --color-red-light: #ff7777;
 
@@ -33,28 +33,28 @@
     --color-highlight-primary: var(--color-light-green);
     --color-highlight-secondary: var(--color-green);
     --color-background-primary: var(--color-white);
-    --color-background-secondary: var(--color-light-gray);
+    --color-background-secondary: var(--color-dark-green);
     --color-background-special: var(--color-dark-green);
-    
+
     /* === BUTTON COLORS === */
-    --color-button-primary-bg: var(--color-green);
-    --color-button-primary-text: var(--color-white);
-    --color-button-primary-hover-bg: var(--color-light-green);
+    --color-button-primary-bg: var(--color-highlight-secondary);
+    --color-button-primary-text: var(--color-text-secondary);
+    --color-button-primary-hover-bg: var(--color-highlight-primary);
 
     --color-button-success-bg: var(--color-green);
-    --color-button-success-text: var(--color-white);
-    --color-button-success-hover-bg: var(--color-gray);
+    --color-button-success-text: var(--color-text-secondary);
+    --color-button-success-hover-bg: var(--color-light-green);
 
     --color-button-secondary-bg: var(--color-gray);
     --color-button-secondary-text: var(--color-black);
-    --color-button-secondary-hover-bg: var(--color-gray);
-    
+    --color-button-secondary-hover-bg: var(--color-text-tertiary);
+
     --color-button-danger-bg: var(--color-red-light);
-    --color-button-danger-text: var(--color-white);
+    --color-button-danger-text: var(--color-text-secondary);
     --color-button-danger-hover-bg: var(--color-red);
 
     --color-button-disabled-bg: var(--color-dark-grey);
-    --color-button-disabled-text: var(--color-gray);
+    --color-button-disabled-text: var(--color-text-tertiary);
 
     /* === FORM COLORS === */
     --color-input-bg: var(--color-background-primary);
@@ -74,7 +74,6 @@
     --color-status-bg: var(--color-background-secondary);
     --color-status-border: var(--color-text-tertiary);
 }
-
 
 @media (prefers-color-scheme: dark) {
     :root {
@@ -98,7 +97,7 @@
     --color-highlight-primary: var(--color-light-green);
     --color-highlight-secondary: var(--color-green);
     --color-background-primary: var(--color-white);
-    --color-background-secondary: var(--color-light-gray);
+    --color-background-secondary: var(--color-dark-green);
     --color-background-special: var(--color-dark-green);
 }
 

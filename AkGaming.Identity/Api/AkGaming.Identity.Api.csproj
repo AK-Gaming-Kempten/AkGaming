@@ -22,4 +22,11 @@
     <ProjectReference Include="..\Infrastructure\AkGaming.Identity.Infrastructure.csproj" />
   </ItemGroup>
 
+  <Target Name="SyncAkGamingBaseTheme" BeforeTargets="Build;Publish">
+    <Copy
+      SourceFiles="$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\..\AkGaming.Core\Theme\wwwroot\theme\akgaming-base-theme.css'))"
+      DestinationFiles="$(MSBuildThisFileDirectory)wwwroot\ui\akgaming-base-theme.css"
+      SkipUnchangedFiles="true" />
+  </Target>
+
 </Project>
