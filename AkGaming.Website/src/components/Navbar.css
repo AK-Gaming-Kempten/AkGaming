@@ -1,6 +1,7 @@
 .navbar {
-    background-color: var(--color-background-secondary);
-    border-top: 1px solid var(--color-highlight-secondary);
+    background: var(--color-background-special);
+    background: radial-gradient(circle,var(--color-background-special) 70%, var(--color-highlight-secondary) 100%);
+    /* border-top: 1px solid var(--color-highlight-primary); */
     padding: 0.5rem 0;
     position: relative;
     width: 100%;
@@ -24,8 +25,8 @@
 
 .nav-links a {
     display: inline-block;
-    background-color: var(--color-background-secondary);
-    color: var(--color-text-secondary);
+    background-color: var(--color-background-special);
+    color: var(--color-text-special);
     text-decoration: none;
     font-weight: 600;
     font-size: 1rem;
@@ -37,7 +38,7 @@
 
 .nav-links a:hover {
     background-color: var(--color-highlight-secondary);
-    color: var(--color-text-secondary);
+    color: var(--color-text-special);
 }
 
 .nav-links a.active {
@@ -53,7 +54,7 @@
     z-index: 2000; /* ensure it stays above everything else */
     background: none;
     border: none;
-    color: var(--color-text-secondary);
+    color: var(--color-text-special);
     font-size: 1.8rem;
     cursor: pointer;
     padding: 0.25rem;
@@ -76,7 +77,7 @@
         position: absolute;
         top: 100%;
         left: 0;
-        background-color: var(--color-background-secondary);
+        background-color: var(--color-background-special);
         width: 100%;
         padding: 1rem 0;
         gap: 0.5rem;

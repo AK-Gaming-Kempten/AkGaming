@@ -15,8 +15,8 @@
 }
 
 .info-tab {
-    background-color: var(--color-background-secondary);
-    color: var(--color-text-secondary);
+    background-color: var(--color-highlight-secondary);
+    color: var(--color-text-special);
     border: 2px solid var(--color-highlight-secondary);
     padding: 0.5rem 1rem;
     cursor: pointer;
@@ -26,7 +26,7 @@
 }
 
 .info-tab:hover {
-    background-color: var(--color-highlight-secondary);
+    background-color: var(--color-highlight-primary);
 }
 
 .info-tab.active {

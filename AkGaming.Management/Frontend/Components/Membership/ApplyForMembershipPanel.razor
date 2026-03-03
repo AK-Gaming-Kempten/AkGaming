@@ -1,86 +1,93 @@
-<EditForm Model="@_application" OnValidSubmit="@ApplyForMembershipAsync" class="member-form" >
-    <DataAnnotationsValidator />
-    <h3> Apply for membership </h3>
-    <hr class="spacer" />
-    <div class="form-grid">
-        <div class="form-col">
-            <label>First Name</label>
-            <InputText @bind-Value="_application.MemberCreationInfo.FirstName" required />
-            <ValidationMessage For="@(() => _application.MemberCreationInfo.FirstName)" />
+<div class="member-form">
+    <EditForm Model="@_application" OnValidSubmit="@ApplyForMembershipAsync">
+        <DataAnnotationsValidator />
+        <h3> Apply for membership </h3>
+        <hr class="spacer" />
+        <div class="form-grid">
+            <div class="form-col">
+                <label>First Name</label>
+                <InputText @bind-Value="_application.MemberCreationInfo.FirstName" required />
+                <ValidationMessage For="@(() => _application.MemberCreationInfo.FirstName)" />
+            </div>
+
+            <div class="form-col">
+                <label>Last Name</label>
+                <InputText @bind-Value="_application.MemberCreationInfo.LastName" required />
+                <ValidationMessage For="@(() => _application.MemberCreationInfo.LastName)" />
+            </div>
+
+            <div class="form-col">
+                <label>Email</label>
+                <InputText @bind-Value="_application.MemberCreationInfo.Email" required />
+                <ValidationMessage For="@(() => _application.MemberCreationInfo.Email)" />
+            </div>
+
+            <div class="form-col">
+                <label>Phone</label>
+                <InputText @bind-Value="_application.MemberCreationInfo.Phone" required />
+                <ValidationMessage For="@(() => _application.MemberCreationInfo.Phone)" />
+            </div>
+
+            <div class="form-col">
+                <label>Discord Username</label>
+                <InputText @bind-Value="_application.MemberCreationInfo.DiscordUserName" required />
+                <ValidationMessage For="@(() => _application.MemberCreationInfo.DiscordUserName)" />
+            </div>
+
+            <div class="form-col">
+                <label>Birth Date</label>
+                <InputDate @bind-Value="_application.MemberCreationInfo.BirthDate" required />
+                <ValidationMessage For="@(() => _application.MemberCreationInfo.BirthDate)" />
+            </div>
         </div>
 
-        <div class="form-col">
-            <label>Last Name</label>
-            <InputText @bind-Value="_application.MemberCreationInfo.LastName" required />
-            <ValidationMessage For="@(() => _application.MemberCreationInfo.LastName)" />
-        </div>
+        <h5>Address</h5>
 
-        <div class="form-col">
-            <label>Email</label>
-            <InputText @bind-Value="_application.MemberCreationInfo.Email" required />
-            <ValidationMessage For="@(() => _application.MemberCreationInfo.Email)" />
-        </div>
+        <div class="form-grid">
+            <div class="form-col">
+                <label>Street / House Number</label>
+                <InputText @bind-Value="_application.MemberCreationInfo.Address!.Street" required />
+                <ValidationMessage For="@(() => _application.MemberCreationInfo.Address.Street)" />
+            </div>
 
-        <div class="form-col">
-            <label>Phone</label>
-            <InputText @bind-Value="_application.MemberCreationInfo.Phone" required />
-            <ValidationMessage For="@(() => _application.MemberCreationInfo.Phone)" />
-        </div>
+            <div class="form-col">
+                <label>Zip Code</label>
+                <InputText @bind-Value="_application.MemberCreationInfo.Address!.ZipCode" required />
+                <ValidationMessage For="@(() => _application.MemberCreationInfo.Address.ZipCode)" />
+            </div>
 
-        <div class="form-col">
-            <label>Discord Username</label>
-            <InputText @bind-Value="_application.MemberCreationInfo.DiscordUserName" required />
-            <ValidationMessage For="@(() => _application.MemberCreationInfo.DiscordUserName)" />
-        </div>
+            <div class="form-col">
+                <label>City</label>
+                <InputText @bind-Value="_application.MemberCreationInfo.Address!.City" required />
+                <ValidationMessage For="@(() => _application.MemberCreationInfo.Address.City)" />
+            </div>
 
-        <div class="form-col">
-            <label>Birth Date</label>
-            <InputDate @bind-Value="_application.MemberCreationInfo.BirthDate" required />
-            <ValidationMessage For="@(() => _application.MemberCreationInfo.BirthDate)" />
+            <div class="form-col">
+                <label>Country</label>
+                <InputText @bind-Value="_application.MemberCreationInfo.Address!.Country" required />
+                <ValidationMessage For="@(() => _application.MemberCreationInfo.Address.Country)" />
+            </div>
         </div>
-    </div>
-
-    <h5>Address</h5>
-
-    <div class="form-grid">
-        <div class="form-col">
-            <label>Street / House Number</label>
-            <InputText @bind-Value="_application.MemberCreationInfo.Address!.Street" required />
-            <ValidationMessage For="@(() => _application.MemberCreationInfo.Address.Street)" />
+        <div class="form-grid">
+            <div class="form-col">
+                <label>Application Message</label>
+                <InputTextArea @bind-Value="_application.ApplicationText" required/>
+                <ValidationMessage For="@(() => _application.ApplicationText)"/>
+            </div>
         </div>
-
-        <div class="form-col">
-            <label>Zip Code</label>
-            <InputText @bind-Value="_application.MemberCreationInfo.Address!.ZipCode" required />
-            <ValidationMessage For="@(() => _application.MemberCreationInfo.Address.ZipCode)" />
+        <div class="form-grid">
+            <div class="form-col">
+                <div class="form-checkbox-with-text">
+                    <InputCheckbox @bind-Value="_application.PrivacyPolicyAccepted"/>
+                    <label>
+                        I accept the <a href="https://akgaming.de/datenschutz" target="_blank" rel="noopener noreferrer">privacy policy</a>.
+                    </label>
+                </div>
+                <ValidationMessage For="@(() => _application.PrivacyPolicyAccepted)"/>
+            </div>
         </div>
-
-        <div class="form-col">
-            <label>City</label>
-            <InputText @bind-Value="_application.MemberCreationInfo.Address!.City" required />
-            <ValidationMessage For="@(() => _application.MemberCreationInfo.Address.City)" />
-        </div>
-
-        <div class="form-col">
-            <label>Country</label>
-            <InputText @bind-Value="_application.MemberCreationInfo.Address!.Country" required />
-            <ValidationMessage For="@(() => _application.MemberCreationInfo.Address.Country)" />
-        </div>
-    </div>
-    <div class="form-grid">
-        <label>Application Message</label>
-        <InputTextArea @bind-Value="_application.ApplicationText" required />
-        <ValidationMessage For="@(() => _application.ApplicationText)" />
-    </div>
-    <div class="form-grid">
-        <div class="form-col">
-            <label>
-                <InputCheckbox @bind-Value="_application.PrivacyPolicyAccepted" />
-                I accept the <a href="https://akgaming.de/datenschutz" target="_blank" rel="noopener noreferrer">privacy policy</a>.
-            </label>
-            <ValidationMessage For="@(() => _application.PrivacyPolicyAccepted)" />
-        </div>
-    </div>
-    <hr class="spacer" />
-    <button type="submit" class="btn btn-primary ">Apply</button>
-</EditForm>
+        
+        <hr class="spacer" />
+        <button type="submit" class="btn btn-primary ">Apply</button>
+    </EditForm>
+</div>

@@ -16,3 +16,4 @@ app.ConfigureAuthenticationEndpoints();
 app.ConfigureDebugEndpoints();
 
 app.Run();
+// TODO: adjust styles in management (input fields,...) and website (cards, header,..)

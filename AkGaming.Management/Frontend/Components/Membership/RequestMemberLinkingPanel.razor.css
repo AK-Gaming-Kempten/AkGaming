@@ -3,12 +3,12 @@
     --form-bg: var(--color-background-primary);
     --form-border: var(--color-text-tertiary);
     --form-label: var(--color-text-secondary);
-    --form-input-bg: var(--color-background-primary);
-    --form-input-text: var(--color-text-primary);
-    --form-input-border: var(--color-text-tertiary);
-    --form-input-focus-border: var(--color-highlight-primary);
+    --form-input-bg: var(--color-input-primary-bg);
+    --form-input-text: var(--color-input-primary-text);
+    --form-input-border: var(--color-input-primary-border);
+    --form-input-focus-border: var(--color-input-primary-focus-border);
     --color-error: #ff6b6b;
-    
+
     display: flex;
     flex-direction: column;
     gap: 1.5rem;
@@ -29,9 +29,9 @@
 }
 
 /* ==== INPUTS ==== */
-::deep(input),
-::deep(select),
-::deep(textarea) {
+::deep input,
+::deep select,
+::deep textarea {
     width: 100%;
     box-sizing: border-box;
     border: 1px solid var(--form-input-border);
@@ -43,9 +43,9 @@
     transition: border-color 0.2s, background-color 0.2s;
 }
 
-::deep(input:focus),
-::deep(select:focus),
-::deep(textarea:focus) {
+::deep input:focus,
+::deep select:focus,
+::deep textarea:focus {
     border-color: var(--form-input-focus-border);
     outline: none;
 }
@@ -59,29 +59,8 @@ label {
     margin-bottom: 0.25rem;
 }
 
-/* ==== BUTTON ==== */
-.btn-primary {
-    align-self: flex-start;
-    background: linear-gradient(90deg, var(--color-highlight-secondary), var(--color-highlight-primary));
-    color: var(--color-text-secondary);
-    border: none;
-    border-radius: 6px;
-    padding: 0.45rem 1rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background-color 0.2s, transform 0.1s;
-}
-
-.btn-primary:hover {
-    filter: brightness(1.1);
-}
-
-.btn-primary:active {
-    transform: scale(0.97);
-}
-
 /* Validation messages */
-::deep(.validation-message) {
+::deep .validation-message {
     display: block;
     font-size: 0.8rem;
     color: var(--color-error, #ff6b6b);
@@ -89,16 +68,24 @@ label {
 }
 
 /* Red border when invalid */
-::deep(input.invalid),
-::deep(select.invalid),
-::deep(textarea.invalid) {
+::deep input.invalid,
+::deep select.invalid,
+::deep textarea.invalid {
     border-color: var(--color-error, #ff6b6b);
 }
 
 /* When using Blazor built-in validation, .modified.invalid gets applied */
-::deep(input.modified.invalid),
-::deep(select.modified.invalid),
-::deep(textarea.modified.invalid) {
+::deep input.modified.invalid,
+::deep select.modified.invalid,
+::deep textarea.modified.invalid {
     border-color: var(--color-error, #ff6b6b);
     background-color: color-mix(in srgb, var(--color-error, #ff6b6b) 10%, transparent);
+}
+
+.form-checkbox-with-text {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    grid-template-rows: 1fr;
+    grid-column-gap: 0;
+    margin-top: 0.5rem;
 }

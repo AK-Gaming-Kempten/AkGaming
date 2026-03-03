@@ -1,6 +1,7 @@
 .header {
-    background-color: var(--color-background-secondary);
-    color: var(--color-text-secondary);
+    background: var(--color-background-special);
+    background: radial-gradient(circle,var(--color-background-special) 70%, var(--color-highlight-secondary) 100%);
+    color: var(--color-text-special);
     padding: 1rem 0;
     text-align: center;
     position: relative; /* allow absolute positioning inside */
@@ -33,7 +34,7 @@
     right: 1rem;
     background: none;
     border: none;
-    color: var(--color-text-secondary);
+    color: var(--color-text-special);
     font-size: 2rem;
     cursor: pointer;
     display: flex;

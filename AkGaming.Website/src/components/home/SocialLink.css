@@ -5,7 +5,7 @@
     width: 80px;
     height: 80px;
     border-radius: 4px;
-    color: var(--color-text-secondary);
+    color: var(--color-text-special);
     text-decoration: none;
     transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
