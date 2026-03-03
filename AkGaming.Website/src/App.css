@@ -18,6 +18,22 @@ header, nav, footer {
     width: 100%;
 }
 
+.top-chrome {
+    position: sticky;
+    top: 0;
+    z-index: 2200;
+    backdrop-filter: blur(10px);
+    background:
+        radial-gradient(130% 120% at 8% 10%, color-mix(in srgb, var(--color-green) 42%, transparent), transparent 56%),
+        radial-gradient(110% 140% at 90% 100%, color-mix(in srgb, var(--color-light-green) 26%, transparent), transparent 58%),
+        linear-gradient(
+            135deg,
+            color-mix(in srgb, var(--color-dark-green) 92%, black 8%),
+            color-mix(in srgb, var(--color-dark-green) 75%, #00150f 25%)
+        );
+    border-bottom: 1px solid color-mix(in srgb, var(--color-light-green) 35%, transparent);
+}
+
 body {
     background-color: var(--color-background-primary);
     color: var(--color-text-primary);

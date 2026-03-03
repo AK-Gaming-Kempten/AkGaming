@@ -5,95 +5,171 @@ import SponsorCard from "../components/home/SponsorCard";
 import SocialLinks from "../components/home/SocialLinks";
 import MiniCalendar from "../components/home/MiniCalendar";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { loadHighlights } from "../data/loadHighlights";
 import type { Highlight } from "../data/types";
+import { Link } from "react-router-dom";
+import heroLogo from "../../public/assets/akgaming_logo.png";
 
 export default function Home() {
     const [highlights, setHighlights] = useState<Highlight[]>([]);
-    const [activeTab, setActiveTab] = useState<"left" | "center" | "right">("right");
+    const [carouselIndex, setCarouselIndex] = useState(0);
 
     useEffect(() => {
         loadHighlights().then(setHighlights);
     }, []);
+
+    const rotatingHighlights = useMemo(() => highlights, [highlights]);
+
+    const carouselPages = Math.max(1, rotatingHighlights.length);
+
+    const visibleHighlights = useMemo(() => {
+        if (rotatingHighlights.length === 0) {
+            return [];
+        }
+        if (rotatingHighlights.length <= 2) {
+            return rotatingHighlights;
+        }
+
+        const first = rotatingHighlights[carouselIndex % rotatingHighlights.length];
+        const second = rotatingHighlights[(carouselIndex + 1) % rotatingHighlights.length];
+        return [first, second];
+    }, [carouselIndex, rotatingHighlights]);
+
+    useEffect(() => {
+        if (rotatingHighlights.length <= 2) {
+            return;
+        }
+
+        const intervalId = window.setInterval(() => {
+            setCarouselIndex((prev) => (prev + 1) % rotatingHighlights.length);
+        }, 4500);
+
+        return () => window.clearInterval(intervalId);
+    }, [rotatingHighlights.length]);
+
+    const activePage = carouselIndex % carouselPages;
+
     return (
         <main className="home-page">
-            <div className="home-grid">
-                {/* --- Mobile tab buttons --- */}
-                <div className="home-mobile-tabs">
-                    <button
-                        className={`tab-btn ${activeTab === "right" ? "active" : ""}`}
-                        onClick={() => setActiveTab("right")}
-                    >
-                        Quicklinks
-                    </button>
-                    <button
-                        className={`tab-btn ${activeTab === "center" ? "active" : ""}`}
-                        onClick={() => setActiveTab("center")}
-                    >
-                        Über uns
-                    </button>
-                    <button
-                        className={`tab-btn ${activeTab === "left" ? "active" : ""}`}
-                        onClick={() => setActiveTab("left")}
-                    >
-                        Vereinsleben
-                    </button>
-                </div>
-
-                {/* Left column */}
-                <aside
-                    className={`home-left ${
-                        activeTab === "left" ? "visible" : "hidden-on-mobile"
-                    }`}
-                >
-                    <h2>Vereinsleben</h2>
-                    <div className="highlight-list">
-                        {highlights.map((h) => (
-                            <HighlightCard
-                                key={h.postId}
-                                title={h.title ?? ""}
-                                description={h.description ?? ""}
-                                mediaSrc={h.mediaSrc}
-                                mediaType={h.mediaType}
-                                postId={h.postId}
-                            />
-                        ))}
+            <section className="home-hero">
+                <div className="home-hero-main">
+                    <div>
+                        <p className="home-hero-eyebrow">AK Gaming e.V. Kempten</p>
+                        <h1>Gaming at its best</h1>
+                        <p className="home-hero-copy">
+                            Wir verbinden Community, Events und E-Sports zu einem Vereinsleben, in dem
+                            Fairness, Teamgeist und Spaß im Mittelpunkt stehen.
+                        </p>
+                        <div className="home-hero-actions">
+                            <Link to="/events" className="home-btn home-btn-primary">Events entdecken</Link>
+                            <Link to="/esports" className="home-btn home-btn-secondary">E-Sports Teams</Link>
+                        </div>
                     </div>
-                </aside>
+                    <div className="home-hero-logo-wrap">
+                        <img src={heroLogo} alt="AK Gaming Logo" className="home-hero-logo" />
+                    </div>
+                </div>
+            </section>
 
-                {/* Center column */}
-                <section className={`home-center ${
-                    activeTab === "center" ? "visible" : "hidden-on-mobile"
-                }`}>
-                    <h1>Gaming at its best</h1>
-                    <p>
-                        Der AK Gaming e.V. setzt sich für die Förderung der Gaming-Kultur in Kempten ein. Dazu gehören für uns lokale Events mit Fokus auf zwischenmenschliche Vernetzung, Online-Events bei denen wir den Zusammenhalt der gesamten Gaming-Community in Deutschland stärken und Engagement im E-Sports indem dem wir Talente fördern und Hobby-Sportlern einen einfachen Einstieg in die Szene bieten. Im Vordergrund stehen bei uns Menschen und das was wir für Spaß und ein starkes Miteinander in der Gaming-Community tun können.
-                    </p>
-                    <p>
+            <section className="home-section home-section-gradient">
+                <div className="home-section-title-row">
+                    <h2>Über uns</h2>
+                </div>
+                <div className="home-info-grid">
+                    <article className="home-info-card">
+                        <h3>Mission</h3>
+                        <p>
+                            Der AK Gaming e.V. setzt sich für die Förderung der Gaming-Kultur in
+                            Kempten ein. Dazu gehören lokale Events mit Fokus auf Vernetzung,
+                            Online-Events für Zusammenhalt in der gesamten Community und Engagement
+                            im E-Sports mit niedrigschwelligem Einstieg.
+                        </p>
+                    </article>
+                    <article className="home-info-card">
                         <h3>Ursprung</h3>
-                        Der AK Gaming e.V. ist aus dem gleichnamigen Arbeitskreis der Hochschule Kempten hervorgegangen und arbeitet weiter eng mit der Hochschule und der Fakultät für Informatik zusammen. So finden unsere Live-Events meist direkt an der Hochschule statt und richten sich insbesondere an die Studenten und bei Online-Events dürfen wir regelmäßig Professoren der Hochschule begrüßen, wie etwa als Jury beim Ak Gaming Game Jam.
-                    </p>
-                    <p>
+                        <p>
+                            Der Verein ist aus dem gleichnamigen Arbeitskreis der Hochschule Kempten
+                            hervorgegangen. Wir arbeiten weiterhin eng mit der Hochschule und der
+                            Fakultät für Informatik zusammen, dadurch finden viele Live-Events direkt
+                            vor Ort statt.
+                        </p>
+                    </article>
+                    <article className="home-info-card">
                         <h3>Programm</h3>
-                        Wir bieten regelmäßig Online sowie Offline-Events an, die unsere Vision einer starken lokalen sowie nationalen Community im Gaming-Bereich verfolgen. Unser Aushängeschild ist dabei die 4 mal jährlich stattfindende Game-Night, auf der oft über hundert Gaming-Begeisterte zusammenkommen und bei der von Brettspielen über LAN-Games und Turniere bis zu VR und Karaoke für so ziemlich jeden was dabei ist. Dazu veranstalten wir regelmäßige offene Brettspielabende, deutschlandweite Online-Turniere und Game-Jams.
-                    </p>
-                    <p>
+                        <p>
+                            Wir veranstalten regelmäßig Online- und Offline-Events. Unser
+                            Aushängeschild ist die mehrmals jährlich stattfindende Game-Night mit
+                            Brettspielen, LAN-Games, Turnieren, VR und Karaoke sowie offene
+                            Brettspielabende, Online-Turniere und Game-Jams.
+                        </p>
+                    </article>
+                    <article className="home-info-card">
                         <h3>E-Sports</h3>
+                        <p>
+                            Wir fördern Talente aus der Region und bieten ambitionierten sowie
+                            Hobby-Spielern eine Plattform zur Weiterentwicklung. Als Mitglied des{" "}
+                            <a href="https://esport.bayern/" target="_blank" rel="noreferrer">
+                                Esport Verbands Bayern
+                            </a>{" "}
+                            engagieren wir uns für faire und nachhaltige Strukturen.
+                        </p>
+                    </article>
+                </div>
+            </section>
 
-                        Im E-Sports-Bereich fördern wir gezielt Talente aus der Region und bieten motivierten Spielern die Möglichkeit, erste Turniererfahrungen zu sammeln. Unser Ziel ist es, sowohl ambitionierten Nachwuchstalenten als auch Hobby-Gamern eine Plattform zu geben, auf der sie sich weiterentwickeln, vernetzen und gemeinsam Erfolge feiern können. Neben den zahlreichen Teams, die wir betreuen, organisieren wir regelmäßig selbst Turniere und engagieren uns für eine großräumige Vernetzung als Mitglied des <a href="https://esport.bayern/" target="_blank">Esport Verbands Bayern</a>. Dabei stehen Fairness, Teamgeist und Freude am Spiel bei uns immer an erster Stelle.
-                    </p>
-                </section>
+            <section className="home-section">
+                <div className="home-section-title-row">
+                    <h2>Vereinsleben</h2>
+                    <Link to="/events" className="home-link-action">Alle Events</Link>
+                </div>
+                {visibleHighlights.length === 0 ? (
+                    <p className="home-empty">Derzeit sind keine Highlights verfügbar.</p>
+                ) : (
+                    <div className="home-highlight-rotator">
+                        <div className="highlight-list">
+                            {visibleHighlights.map((h) => (
+                                <HighlightCard
+                                    key={h.postId}
+                                    title={h.title ?? ""}
+                                    description={h.description ?? ""}
+                                    mediaSrc={h.mediaSrc}
+                                    mediaType={h.mediaType}
+                                    postId={h.postId}
+                                />
+                            ))}
+                        </div>
+                        {carouselPages > 1 && (
+                            <div className="home-carousel-dots" aria-hidden="true">
+                                {Array.from({ length: carouselPages }).map((_, index) => (
+                                    <span
+                                        key={`carousel-dot-${index}`}
+                                        className={`home-carousel-dot ${index === activePage ? "active" : ""}`}
+                                    />
+                                ))}
+                            </div>
+                        )}
+                    </div>
+                )}
+            </section>
 
-                {/* Right column */}
-                <aside className={`home-right ${
-                    activeTab === "right" ? "visible" : "hidden-on-mobile"
-                }`}>
-                    <SponsorCard />
-                    <SocialLinks />
-                    <MiniCalendar />
-                </aside>
-            </div>
+            <section className="home-section">
+                <div className="home-section-title-row">
+                    <h2>Quicklinks</h2>
+                </div>
+                <div className="home-quicklinks-grid">
+                    <div className="home-panel">
+                        <SponsorCard />
+                    </div>
+                    <div className="home-panel">
+                        <h3 className="home-panel-title">Folge uns</h3>
+                        <SocialLinks />
+                    </div>
+                    <div className="home-panel">
+                        <MiniCalendar />
+                    </div>
+                </div>
+            </section>
         </main>
     );
 }

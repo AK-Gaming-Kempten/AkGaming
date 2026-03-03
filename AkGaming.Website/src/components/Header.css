@@ -1,6 +1,5 @@
 .header {
-    background: var(--color-background-special);
-    background: radial-gradient(circle,var(--color-background-special) 70%, var(--color-highlight-secondary) 100%);
+    background: transparent;
     color: var(--color-text-special);
     padding: 1rem 0;
     text-align: center;

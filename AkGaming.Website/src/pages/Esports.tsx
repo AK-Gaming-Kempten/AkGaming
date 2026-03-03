@@ -20,46 +20,75 @@ export default function Esports() {
 
     return (
         <main className="esports">
-            <p className="info-section">
+            <section className="esports-hero">
+                <p className="esports-eyebrow">AK Gaming e.V.</p>
                 <h1>Esports</h1>
-                <p>
-                    <b>E-Sports</b> bezeichnet den sportlichen Wettkampf zwischen mehreren Menschen, der in einem ausgewählten Computerspiel ausgetragen wird. Dabei kommt es besonders auf <b>Teamfähigkeit, Anpassungsfähigkeit, Koordinationsfähigkeit, strategisches Denken und Kommunikationsfähigkeit</b> unter den Teilnehmern an.
+                <p className="esports-hero-copy">
+                    Wettbewerb, Teamgeist und regionale Talentförderung: Unsere Teams treten
+                    in verschiedenen Titeln, Ligen und Turnieren an und entwickeln sich gemeinsam.
                 </p>
+                <div className="esports-hero-actions">
+                    <a href="#esports-teams" className="esports-btn esports-btn-primary">Teams ansehen</a>
+                    <a href="https://discord.gg/5J5uJKJAhT" target="_blank" rel="noreferrer" className="esports-btn esports-btn-secondary">
+                        Auf Discord bewerben
+                    </a>
+                </div>
+            </section>
 
-                <p>
-                    Bei uns gibt es Teams für die <b>meisten bekannten E-Sports-Titel</b> wie League of Legends, CS2, Overwatch und mehr. Unser Roster ist einer gewissen <b>Fluktuation</b> asgesetzt, weshalb wir teils zeitweise mehrere Teams pro Spiel oder kein Team für manche Spiele aufstellen. Wir sind immer offen gegenüber <b>Vorschlägen</b> für neue Disziplinen und Kooperationen.
-                </p>
+            <section className="esports-info-grid">
+                <article className="esports-panel">
+                    <h2>Unser Ansatz</h2>
+                    <p>
+                        E-Sports ist für uns strukturierter Wettbewerb in digitalen Disziplinen.
+                        Entscheidend sind Teamfähigkeit, Kommunikation, Koordination und
+                        strategisches Denken.
+                    </p>
+                    <p>
+                        Wir stellen Teams in bekannten Titeln wie League of Legends, CS2,
+                        Overwatch und weiteren Disziplinen. Das Roster entwickelt sich laufend,
+                        deshalb sind neue Vorschläge und Kooperationen jederzeit willkommen.
+                    </p>
+                    <p>
+                        Viele Teams spielen in der{" "}
+                        <a href="https://www.uniliga.gg/" target="_blank" rel="noreferrer">Uniliga</a>,
+                        die speziell für studentische Teams ein kompetitives Umfeld bietet.
+                    </p>
+                </article>
 
-                <p>
-                    Unsere Teams treten in <b>verschiedenen Ligen und Turnieren</b> an. Die meisten Teams sind teil der <b><a href="https://www.uniliga.gg/" >Uniliga</a></b>, die speziell für Studentische Teams eine kompetitive Umgebung bietet. Wer teil eines unserer Teams werden möchhte kann sich gern auf unserem <a href="https://discord.gg/akgaming">Discord</a> melden.
-                </p>
-            </p>
+                <article className="esports-panel esports-panel-evb">
+                    <h2>EVB</h2>
+                    <p>
+                        Wir sind Gründungsmitglied des{" "}
+                        <b>E-Sport Verbands Bayern</b> und unterstützen damit den
+                        nachhaltigen Aufbau professioneller E-Sports-Strukturen in der Region.
+                    </p>
+                    <a href="https://esport.bayern/" target="_blank" rel="noopener noreferrer">
+                        <img src={EvbIcon} alt="EVB Logo" className="evb-logo" />
+                    </a>
+                </article>
+            </section>
 
+            <section id="esports-teams" className="esports-teams-section">
+                <div className="esports-teams-heading">
+                    <h2>Unsere Teams</h2>
+                    <p>Aktive Lineups nach Disziplin</p>
+                </div>
 
-            <p className="evb-section">
-                <h1>EVB</h1>
-                <p>
-                    Wird sind stolzes Gründungsmitglied des <b>E-Sport Verband Bayern</b>. Der EVB trägt dazu bei, den E-Sport in der Region Bayern zu <b>professionalisieren</b> und die Bedeutung von E-Sports in der Gesellschaft zu stärken und die Entwicklung von Talennten zu fördern.
-                </p>
-                <a href="https://esport.bayern/" target="_blank" rel="noopener noreferrer" >
-                    <img src={EvbIcon} alt="EVB Logo" className="evb-logo"/>
-                </a>
-            </p>
+                {games.map((game) => {
+                    const gameTeams = teams.filter(
+                        (t) => t.game.toLowerCase() === game.id.toLowerCase()
+                    );
 
-            <h1>Unsere Teams</h1>
-            {games.map((game) => {
-                const gameTeams = teams.filter(
-                    (t) => t.game.toLowerCase() === game.id.toLowerCase()
-                );
-
-                return (
-                    <EsportsGameSection
-                        gameName={game.displayName}
-                        gameLogo={game.logo}
-                        teams={gameTeams}
-                    />
-                );
-            })}
+                    return (
+                        <EsportsGameSection
+                            key={game.id}
+                            gameName={game.displayName}
+                            gameLogo={game.logo}
+                            teams={gameTeams}
+                        />
+                    );
+                })}
+            </section>
         </main>
     );
 }

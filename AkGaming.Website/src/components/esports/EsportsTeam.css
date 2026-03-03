@@ -1,37 +1,37 @@
 .team-slide {
-    display: flex;
+    display: grid;
+    grid-template-columns: 220px minmax(0, 1fr);
     align-items: center;
-    justify-content: flex-start;
-    background-color: var(--color-background-primary);
-    border: 2px solid var(--color-highlight-secondary);
-    border-radius: 8px;
+    background: linear-gradient(
+            300deg,
+            color-mix(in srgb, var(--color-background-secondary) 94%, transparent),
+            color-mix(in srgb, var(--color-background-primary) 98%, transparent)
+    );
+
+    border-radius: 10px;
     padding: 1rem;
-    gap: 2rem;
-    margin-bottom: 1.5rem;
-    flex-wrap: wrap; /* responsive fallback */
-    max-width: 1030px;
+    gap: 1.2rem;
 }
 
-/* --- Left side: Team info --- */
 .team-info {
     display: flex;
     flex-direction: column;
     align-items: center;
-    min-width: 220px;
+    text-align: center;
 }
 
 .team-logo {
-    width: 96px;
-    height: 96px;
+    width: 84px;
+    height: 84px;
     object-fit: contain;
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.45rem;
 }
 
 .team-name {
-    font-size: 1.4rem;
+    font-size: 1.2rem;
     font-weight: 700;
     color: var(--color-text-primary);
-    margin: 0 0 0.5rem 0;
+    margin: 0 0 0.5rem;
 }
 
 .league-info {
@@ -41,8 +41,8 @@
 }
 
 .league-logo {
-    width: 36px;
-    height: 36px;
+    width: 32px;
+    height: 32px;
     object-fit: contain;
 }
 
@@ -58,44 +58,25 @@
 }
 
 .league-division {
-    font-size: 0.9rem;
-    color: var(--color-text-primary);
+    font-size: 0.88rem;
+    color: var(--color-text-secondary);
     margin: 0;
 }
 
-/* --- Right side: Player cards --- */
 .players-row {
     display: flex;
-    justify-content: center;
     flex-wrap: wrap;
-    overflow-x: visible;
-    gap: 1rem;
-    flex: 1;
-    padding-bottom: 0.5rem;
+    gap: 0.7rem;
+    min-width: 0;
 }
 
-/* Make horizontal scroll bar subtle */
-.players-row::-webkit-scrollbar {
-    height: 6px;
-}
-.players-row::-webkit-scrollbar-thumb {
-    background: var(--color-highlight-secondary);
-    border-radius: 3px;
-}
-
-/* --- Responsive tweaks --- */
-@media (max-width: 1030px) {
+@media (max-width: 600px) {
     .team-slide {
-        flex-direction: column;
-        align-items: center;
+        grid-template-columns: 1fr;
     }
 
     .team-info {
-        align-items: center;
-        text-align: center;
-    }
-
-    .players-row {
-
+        align-items: start;
+        text-align: left;
     }
 }

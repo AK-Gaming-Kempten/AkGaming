@@ -1,0 +1,103 @@
+.mitgliedschaft-page {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    max-width: 1100px;
+    margin: 0 auto;
+}
+
+.mitgliedschaft-hero {
+    border-radius: 14px;
+    padding: 1.6rem 1.3rem;
+    background: linear-gradient(
+        180deg,
+        color-mix(in srgb, var(--color-background-secondary) 94%, transparent),
+        color-mix(in srgb, var(--color-background-primary) 98%, transparent)
+    );
+    border: 1px solid color-mix(in srgb, var(--color-highlight-secondary) 38%, transparent);
+}
+
+.mitgliedschaft-eyebrow {
+    margin: 0 0 0.35rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    font-size: 0.85rem;
+    color: var(--color-text-secondary);
+    font-weight: 700;
+}
+
+.mitgliedschaft-hero h1 {
+    margin: 0;
+}
+
+.mitgliedschaft-hero p {
+    margin: 0.65rem 0 0;
+    color: var(--color-text-secondary);
+    line-height: 1.55;
+    max-width: 760px;
+}
+
+.mitgliedschaft-hero-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.65rem;
+    margin-top: 1rem;
+}
+
+.mitgliedschaft-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 999px;
+    padding: 0.58rem 1rem;
+    font-weight: 700;
+    border: 1px solid transparent;
+}
+
+.mitgliedschaft-btn-primary {
+    color: var(--color-text-special);
+    background: linear-gradient(135deg, var(--color-highlight-primary), var(--color-highlight-secondary));
+}
+
+.mitgliedschaft-btn-secondary {
+    color: var(--color-text-primary);
+    background: color-mix(in srgb, var(--color-background-primary) 96%, transparent);
+    border-color: color-mix(in srgb, var(--color-highlight-secondary) 50%, transparent);
+}
+
+.mitgliedschaft-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.8rem;
+}
+
+.mitgliedschaft-card {
+    border-radius: 12px;
+    padding: 1rem;
+    background: color-mix(in srgb, var(--color-background-primary) 96%, transparent);
+    border: 1px solid color-mix(in srgb, var(--color-highlight-secondary) 35%, transparent);
+}
+
+.mitgliedschaft-card h2 {
+    margin: 0 0 0.65rem;
+    font-size: 1.1rem;
+}
+
+.mitgliedschaft-card p {
+    margin: 0.4rem 0;
+    line-height: 1.5;
+}
+
+.mitgliedschaft-card ul {
+    margin: 0;
+    padding-left: 1.15rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+}
+
+@media (max-width: 900px) {
+    .mitgliedschaft-grid {
+        grid-template-columns: 1fr;
+    }
+}

@@ -31,7 +31,6 @@ export default function Events() {
     ];
 
     const [events, setEvents] = useState<Event[]>([]);
-    const [activeTab, setActiveTab] = useState<"info" | "calendar">("info");
 
     useEffect(() => {
         loadPosts().then((data) => {
@@ -46,48 +45,34 @@ export default function Events() {
 
     return (
         <main className="events-page">
-            <div className="events-page-grid">
-                {/* Tab Navigation - visible only on mobile */}
-                <div className="events-mobile-tabs">
-                    <button
-                        className={`tab-btn ${activeTab === "info" ? "active" : ""}`}
-                        onClick={() => setActiveTab("info")}
-                    >
-                        Über unsere Events
-                    </button>
-                    <button
-                        className={`tab-btn ${activeTab === "calendar" ? "active" : ""}`}
-                        onClick={() => setActiveTab("calendar")}
-                    >
-                        Eventkalender
-                    </button>
-                </div>
+            <section className="events-hero">
+                <p className="events-eyebrow">AK Gaming e.V.</p>
+                <h1>Events</h1>
+                <p className="events-hero-copy">
+                    Lokale und digitale Formate für Community, Wettbewerb und Austausch.
+                    Hier findest du einen schnellen Überblick über unsere Formate und kommende Termine.
+                </p>
+            </section>
 
-                {/* Left column */}
-                <div
-                    className={`events-intro ${
-                        activeTab === "info" ? "visible" : "hidden-on-mobile"
-                    }`}
-                >
-                    <h1>Über Unsere Events</h1>
+            <section className="events-layout">
+                <div className="events-intro">
+                    <div className="events-section-heading">
+                        <h2>Über unsere Events</h2>
+                    </div>
                     <EventInfoTabs sections={infoSections} />
                 </div>
 
-                {/* Right column */}
-                <div
-                    className={`events-feed ${
-                        activeTab === "calendar" ? "visible" : "hidden-on-mobile"
-                    }`}
-                >
-                    <h1>Eventkalender</h1>
+                <aside className="events-feed">
+                    <div className="events-section-heading">
+                        <h2>Eventkalender</h2>
+                    </div>
                     <section className="events-list">
                         {sortedEvents.map((e) => (
                             <EventCard key={e.id} event={e} />
                         ))}
                     </section>
-                </div>
-            </div>
+                </aside>
+            </section>
         </main>
     );
 }
-

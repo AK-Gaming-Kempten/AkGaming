@@ -28,10 +28,10 @@ export default function Navbar() {
                     <li><NavLink to="/" end onClick={closeMenu}>Home</NavLink></li>
                     <li><NavLink to="/events" onClick={closeMenu}>Events</NavLink></li>
                     <li><NavLink to="/esports" onClick={closeMenu}>Esports</NavLink></li>
+                    <li><NavLink to="/mitgliedschaft" onClick={closeMenu}>Mitgliedschaft</NavLink></li>
                     <li><NavLink to="/impressum" onClick={closeMenu}>Impressum</NavLink></li>
                 </ul>
             </div>
         </nav>
     );
 }
-

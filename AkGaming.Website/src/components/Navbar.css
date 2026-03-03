@@ -1,7 +1,5 @@
 .navbar {
-    background: var(--color-background-special);
-    background: radial-gradient(circle,var(--color-background-special) 70%, var(--color-highlight-secondary) 100%);
-    /* border-top: 1px solid var(--color-highlight-primary); */
+    background: transparent;
     padding: 0.5rem 0;
     position: relative;
     width: 100%;
@@ -25,7 +23,7 @@
 
 .nav-links a {
     display: inline-block;
-    background-color: var(--color-background-special);
+    background: transparent;
     color: var(--color-text-special);
     text-decoration: none;
     font-weight: 600;
@@ -37,7 +35,7 @@
 }
 
 .nav-links a:hover {
-    background-color: var(--color-highlight-secondary);
+    background-color: color-mix(in srgb, var(--color-highlight-secondary) 65%, transparent);
     color: var(--color-text-special);
 }
 
@@ -48,8 +46,9 @@
 /* ---- Burger button ---- */
 .burger {
     display: none;
-    position: fixed; /* ✅ always at same place in viewport */
-    top: 1rem;
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
     left: 1rem;
     z-index: 2000; /* ensure it stays above everything else */
     background: none;
@@ -62,7 +61,7 @@
 }
 
 .burger:hover {
-    transform: scale(1.1);
+    transform: translateY(-50%) scale(1.08);
 }
 
 
@@ -77,7 +76,12 @@
         position: absolute;
         top: 100%;
         left: 0;
-        background-color: var(--color-background-special);
+        background:
+            linear-gradient(
+                180deg,
+                color-mix(in srgb, var(--color-dark-green) 90%, black 10%),
+                color-mix(in srgb, var(--color-dark-green) 78%, #00150f 22%)
+            );
         width: 100%;
         padding: 1rem 0;
         gap: 0.5rem;
@@ -93,13 +97,13 @@
         width: 100%;
         text-align: center;
         border-bottom: none;
-        border-top: 1px solid var(--color-highlight-secondary);
+        border-top: 1px solid color-mix(in srgb, var(--color-light-green) 35%, transparent);
         padding: 1rem 0;
         min-width: 200px;
     }
 
     .nav-links a:hover {
-        background-color: var(--color-highlight-secondary);
+        background-color: color-mix(in srgb, var(--color-highlight-secondary) 65%, transparent);
     }
 
     .nav-links a.active {

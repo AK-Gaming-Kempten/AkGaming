@@ -1,19 +1,19 @@
 .event-card {
     display: block;
     text-decoration: none;
-    background-color: var(--color-background-primary);
-    border: 2px var(--color-highlight-secondary);
-    border-style: solid none none none;
-    border-radius: 4px;
-    padding: 1rem 1.2rem;
+    background: color-mix(in srgb, var(--color-background-primary) 96%, transparent);
+    border: 2px color-mix(in srgb, var(--color-highlight-secondary) 38%, transparent);
+    border-style: solid none none  none;
+    border-radius: 10px;
+    padding: 0.85rem 0.95rem;
     transition: transform 0.2s ease, box-shadow 0.2s ease;
     color: var(--color-text-primary);
 }
 
 .event-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-    border-color: var(--color-highlight-primary);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 18px rgba(0, 0, 0, 0.12);
+    border-color: color-mix(in srgb, var(--color-highlight-primary) 55%, transparent);
 }
 
 .event-card-header {
@@ -25,7 +25,7 @@
 }
 
 .event-name {
-    font-size: 1.3rem;
+    font-size: 1.1rem;
     font-weight: 700;
     margin: 0;
     color: var(--color-text-primary);
@@ -38,15 +38,15 @@
 }
 
 .event-description {
-    color: var(--color-text-primary);
-    margin: 0.5rem 0 1rem 0;
-    font-size: 1rem;
+    color: var(--color-text-secondary);
+    margin: 0.35rem 0 0.8rem 0;
+    font-size: 0.95rem;
     line-height: 1.4;
 }
 
 .event-location {
     color: var(--color-text-secondary);
-    font-size: 0.95rem;
+    font-size: 0.9rem;
 }
 
 .event-location a {
