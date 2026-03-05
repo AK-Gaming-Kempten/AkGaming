@@ -15,7 +15,7 @@ export default function Impressum() {
                     <p>VR 201431 Amtsgericht Kempten (Allgäu)</p>
                     <p className="impressum-links">
                         <a href="/Vereinssatzung-AK-Gaming-e.V..pdf" target="_blank" rel="noopener noreferrer">Satzung vom 02.12.2025</a> <br />
-                        <a href="/Beitragsordnung-AK-Gaming-e.V..pdf" target="_blank" rel="noopener noreferrer">Beitragsordnung vom 02.12.2025</a>
+                        <a href="/Beitragsordnung-AK-Gaming-e.V..pdf" target="_blank" rel="noopener noreferrer">Beitragsordnung vom 21.02.2026</a>
                     </p>
                 </article>
 
