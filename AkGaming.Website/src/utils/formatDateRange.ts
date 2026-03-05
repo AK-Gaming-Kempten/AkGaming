@@ -1,8 +1,23 @@
-export function formatDateRange(start: string, end?: string): string {
-    const startDate = new Date(start);
-    const endDate = end ? new Date(end) : null;
+import { parseEventDate } from "./eventDates";
 
-    const hasTime = start.length > 10 || (end && end?.length > 10);
+export function formatDateRange(start: string, end?: string): string {
+    const startInfo = parseEventDate(start);
+    const endInfo = parseEventDate(end);
+    const startDate = startInfo?.date ?? new Date(start);
+    const endDate = endInfo?.date ?? (end ? new Date(end) : null);
+
+    if (startInfo?.precision === "month" && !endInfo) {
+        return startDate.toLocaleDateString("de-DE", {
+            month: "long",
+            year: "numeric",
+        });
+    }
+
+    const hasTime =
+        startInfo?.precision === "datetime" ||
+        endInfo?.precision === "datetime" ||
+        start.length > 10 ||
+        (end && end.length > 10);
 
     // --- base date options ---
     const dateOptions: Intl.DateTimeFormatOptions = {

@@ -2,12 +2,13 @@ import "./EventCard.css";
 import { Link } from "react-router-dom";
 import { formatDateRange } from "../../utils/formatDateRange";
 import type { Event } from "../../data/types";
+import type { FC } from "react";
 
-interface MiniEventCardProps {
+type MiniEventCardProps = {
     event: Event;
-}
+};
 
-export default function MiniEventCard({ event }: MiniEventCardProps) {
+const MiniEventCard: FC<MiniEventCardProps> = ({ event }) => {
     const formattedDate = formatDateRange(event.startDate, event.endDate);
 
     return (
@@ -16,4 +17,6 @@ export default function MiniEventCard({ event }: MiniEventCardProps) {
             <p className="event-date">{formattedDate}</p>
         </Link>
     );
-}
+};
+
+export default MiniEventCard;

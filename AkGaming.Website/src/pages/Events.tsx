@@ -4,6 +4,7 @@ import EventInfoTabs from "../components/events/EventInfoTabs";
 import { loadPosts } from "../data/loadPosts";
 import { Event } from "../data/types";
 import { useEffect, useState } from "react";
+import { getVisibleUpcomingEvents } from "../utils/eventDates";
 
 export default function Events() {
     const infoSections = [
@@ -39,9 +40,7 @@ export default function Events() {
         });
     }, []);
 
-    const sortedEvents = [...events].sort(
-        (a, b) => new Date(b.startDate).getTime() - new Date(a.startDate).getTime()
-    );
+    const visibleUpcomingEvents = getVisibleUpcomingEvents(events);
 
     return (
         <main className="events-page">
@@ -67,7 +66,7 @@ export default function Events() {
                         <h2>Eventkalender</h2>
                     </div>
                     <section className="events-list">
-                        {sortedEvents.map((e) => (
+                        {visibleUpcomingEvents.map((e) => (
                             <EventCard key={e.id} event={e} />
                         ))}
                     </section>

@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import {loadPosts} from "../../data/loadPosts";
 import { Event } from "../../data/types";
 import MiniEventCard from "../events/MiniEventCard.tsx";
+import { getVisibleUpcomingEvents } from "../../utils/eventDates";
 
 export default function MiniCalendar() {
     const [events, setEvents] = useState<Event[]>([]);
@@ -14,19 +15,17 @@ export default function MiniCalendar() {
         });
     }, []);
 
-    const sortedEvents = [...events].sort(
-        (a, b) => new Date(b.startDate).getTime() - new Date(a.startDate).getTime()
-    );
+    const visibleUpcomingEvents = getVisibleUpcomingEvents(events);
 
     return (
         <div className="mini-calendar">
             <h3 className="calendar-title">Kommende Events</h3>
 
-            {sortedEvents.length === 0 ? (
+            {visibleUpcomingEvents.length === 0 ? (
                 <p className="calendar-empty">Keine bevorstehenden Events</p>
             ) : (
                 <div className="calendar-list">
-                    {sortedEvents.map((e) => (
+                    {visibleUpcomingEvents.map((e) => (
                         <MiniEventCard key={e.id} event={e} />
                     ))}
                 </div>

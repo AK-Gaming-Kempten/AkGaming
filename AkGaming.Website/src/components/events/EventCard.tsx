@@ -2,12 +2,13 @@ import "./EventCard.css";
 import { Link } from "react-router-dom";
 import { formatDateRange } from "../../utils/formatDateRange";
 import type { Event } from "../../data/types";
+import type { FC } from "react";
 
-interface EventCardProps {
+type EventCardProps = {
     event: Event;
-}
+};
 
-export default function EventCard({ event }: EventCardProps) {
+const EventCard: FC<EventCardProps> = ({ event }) => {
     const formattedDate = formatDateRange(event.startDate, event.endDate);
 
     const locationElement = event.location.startsWith("http") ? (
@@ -32,4 +33,6 @@ export default function EventCard({ event }: EventCardProps) {
             </div>
         </Link>
     );
-}
+};
+
+export default EventCard;
