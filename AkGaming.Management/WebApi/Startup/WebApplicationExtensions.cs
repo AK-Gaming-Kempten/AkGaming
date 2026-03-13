@@ -19,7 +19,11 @@ public static class WebApplicationExtensions {
     public static WebApplication UseDatabaseMigrations(this WebApplication app) {
         using var scope = app.Services.CreateScope();
         var db = scope.ServiceProvider.GetRequiredService<MemberManagementDbContext>();
-        db.Database.Migrate();
+        if (db.Database.IsSqlite()) {
+            db.Database.EnsureCreated();
+        } else {
+            db.Database.Migrate();
+        }
         return app;
     }
 

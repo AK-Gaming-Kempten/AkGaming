@@ -20,7 +20,9 @@ public static class ServiceCollectionExtensions {
         var authority = config["Jwt:Authority"];
         var issuer = config["Jwt:Issuer"];
         var audience = config["Jwt:Audience"];
-        var signingKey = config["Jwt:SigningKey"];
+        // Prefer Jwt:SecretKey to align with AkGaming.Identity config naming.
+        // Keep Jwt:SigningKey as backward-compatible fallback.
+        var signingKey = config["Jwt:SecretKey"] ?? config["Jwt:SigningKey"];
 
         services
             .AddAuthentication("Bearer")

@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using AkGaming.Core.Common.Email;
@@ -13,11 +14,28 @@ public static class DependencyInjection {
         this IServiceCollection services,
         IConfiguration configuration)
     {
+        var provider = configuration["Database:Provider"]?.Trim().ToLowerInvariant() ?? "postgres";
         var connectionString = configuration.GetConnectionString("DefaultConnection");
 
         services.AddDbContext<MemberManagementDbContext>(options =>
-            options.UseNpgsql(connectionString, npgsql =>
-                npgsql.MigrationsAssembly(typeof(MemberManagementDbContext).Assembly.FullName)));
+        {
+            switch (provider)
+            {
+                case "postgres":
+                case "postgresql":
+                    options.UseNpgsql(
+                        connectionString ?? throw new InvalidOperationException("ConnectionStrings:DefaultConnection is required for Postgres."),
+                        npgsql => npgsql.MigrationsAssembly(typeof(MemberManagementDbContext).Assembly.FullName));
+                    break;
+                case "sqlite":
+                    options.UseSqlite(ResolveSqliteConnectionString(connectionString));
+                    options.ConfigureWarnings(warnings =>
+                        warnings.Ignore(RelationalEventId.PendingModelChangesWarning));
+                    break;
+                default:
+                    throw new InvalidOperationException($"Unsupported database provider '{provider}'. Supported values: Sqlite, Postgres.");
+            }
+        });
 
         services.AddScoped<IMemberRepository, EfMemberRepository>();
         services.AddScoped<IMemberAuditLogRepository, EfMemberAuditLogRepository>();
@@ -30,5 +48,17 @@ public static class DependencyInjection {
         services.AddSingleton<IEmailSender, SmtpEmailSender>();
 
         return services;
+    }
+
+    private static string ResolveSqliteConnectionString(string? configuredConnectionString)
+    {
+        if (string.IsNullOrWhiteSpace(configuredConnectionString))
+            return "Data Source=management.db";
+
+        // Common local pitfall: user-secrets/environment still provide a Postgres string while provider is Sqlite.
+        if (configuredConnectionString.Contains("Host=", StringComparison.OrdinalIgnoreCase))
+            return "Data Source=management.db";
+
+        return configuredConnectionString;
     }
 }
