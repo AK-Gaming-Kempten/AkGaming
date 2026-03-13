@@ -19,6 +19,8 @@ public class MemberManagementDbContext : DbContext {
     public DbSet<MemberLinkingRequest> MemberLinkingRequests => Set<MemberLinkingRequest>();
     public DbSet<MembershipApplicationRequest> MembershipApplicationRequests => Set<MembershipApplicationRequest>();
     public DbSet<MemberAuditLog> MemberAuditLogs => Set<MemberAuditLog>();
+    public DbSet<MembershipPaymentPeriod> MembershipPaymentPeriods => Set<MembershipPaymentPeriod>();
+    public DbSet<MembershipDue> MembershipDues => Set<MembershipDue>();
 
     /// <inheritdoc/>
     protected override void OnModelCreating(ModelBuilder modelBuilder) {

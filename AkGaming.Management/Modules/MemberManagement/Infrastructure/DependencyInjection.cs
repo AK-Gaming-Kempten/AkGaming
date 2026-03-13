@@ -24,6 +24,8 @@ public static class DependencyInjection {
         services.AddScoped<IMembershipApplicationRequestRepository, EfMembershipApplicationRequestRepository>();
         services.AddScoped<IMemberLinkingRequestRepository, EfMemberLinkingRequestRepository>();
         services.AddScoped<IMemberAuditLogWriter, EfMemberAuditLogWriter>();
+        services.AddScoped<IMembershipPaymentPeriodRepository, EfMembershipPaymentPeriodRepository>();
+        services.AddScoped<IMembershipDueRepository, EfMembershipDueRepository>();
         services.Configure<SmtpOptions>(configuration.GetSection(SmtpOptions.SectionName));
         services.AddSingleton<IEmailSender, SmtpEmailSender>();
 
