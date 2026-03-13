@@ -16,6 +16,7 @@ public static class DependencyInjection {
         services.AddScoped<IMembershipUpdateService, MembershipUpdateService>();
         services.AddScoped<IMemberDeletionService, MemberDeletionService>();
         services.AddScoped<IMembershipApplicationService, MembershipApplicationService>();
+        services.AddScoped<IMembershipDueService, MembershipDueService>();
 
         // Optionally register validators or behaviors
         // services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
