@@ -13,6 +13,7 @@ public static class MemberManagementApiModule {
         endpoints.MapMemberLinkingEndpoints();
         endpoints.MapMembershipUpdateEndpoints();
         endpoints.MapMembershipApplicationEndpoints();
+        endpoints.MapMembershipDueEndpoints();
         return endpoints;
     }
 }
