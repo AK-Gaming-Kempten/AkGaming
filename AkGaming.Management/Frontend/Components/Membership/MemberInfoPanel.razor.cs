@@ -118,9 +118,9 @@ public partial class MemberInfoPanel : ComponentBase {
     private static string ValueOrDash(string? value) =>
         string.IsNullOrWhiteSpace(value) ? "-" : value;
 
-    private string WebsiteUrl => "/";
-    private string SatzungUrl => "/satzung";
-    private string DiscordUrl => "https://discord.com";
+    private string WebsiteUrl => "https://akgaming.de";
+    private string SatzungUrl => "https://akgaming.de/Vereinssatzung-AK-Gaming-e.V..pdf";
+    private string DiscordUrl => "https://discord.com/invite/5J5uJKJAhT";
 
     private static MemberDto Clone(MemberDto source) =>
         JsonSerializer.Deserialize<MemberDto>(JsonSerializer.Serialize(source)) ?? new MemberDto();
