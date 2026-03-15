@@ -12,6 +12,22 @@ public class EfMembershipPaymentPeriodRepository : IMembershipPaymentPeriodRepos
         _dbContext = dbContext;
     }
 
+    public async Task<Result<List<MembershipPaymentPeriod>>> GetAllAsync() {
+        try {
+            var paymentPeriods = await _dbContext.MembershipPaymentPeriods
+                .ToListAsync();
+
+            paymentPeriods = paymentPeriods
+                .OrderByDescending(x => x.CreatedAt)
+                .ToList();
+
+            return Result<List<MembershipPaymentPeriod>>.Success(paymentPeriods);
+        }
+        catch (Exception ex) {
+            return Result<List<MembershipPaymentPeriod>>.Failure($"Database error: {ex.Message}");
+        }
+    }
+
     public async Task<Result<MembershipPaymentPeriod>> GetByIdAsync(int id) {
         try {
             var paymentPeriod = await _dbContext.MembershipPaymentPeriods
@@ -30,13 +46,16 @@ public class EfMembershipPaymentPeriodRepository : IMembershipPaymentPeriodRepos
     public async Task<Result<MembershipPaymentPeriod>> GetCurrentAsync() {
         try {
             var paymentPeriod = await _dbContext.MembershipPaymentPeriods
-                .OrderByDescending(x => x.CreatedAt)
-                .FirstOrDefaultAsync();
+                .ToListAsync();
 
-            if (paymentPeriod is null)
+            var currentPaymentPeriod = paymentPeriod
+                .OrderByDescending(x => x.CreatedAt)
+                .FirstOrDefault();
+
+            if (currentPaymentPeriod is null)
                 return Result<MembershipPaymentPeriod>.Failure("No payment period exists.");
 
-            return Result<MembershipPaymentPeriod>.Success(paymentPeriod);
+            return Result<MembershipPaymentPeriod>.Success(currentPaymentPeriod);
         }
         catch (Exception ex) {
             return Result<MembershipPaymentPeriod>.Failure($"Database error: {ex.Message}");

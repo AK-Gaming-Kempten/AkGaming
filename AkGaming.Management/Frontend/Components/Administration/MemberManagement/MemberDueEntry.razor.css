@@ -1,0 +1,56 @@
+.due-entry-summary {
+    display: grid;
+    grid-template-columns: minmax(200px, 1fr) minmax(240px, 2fr) auto;
+    gap: 0.75rem;
+    align-items: center;
+}
+
+.due-entry-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    color: var(--color-text-secondary);
+    font-size: 0.9rem;
+}
+
+.due-entry-status {
+    font-weight: 600;
+    display: inline-block;
+    width: fit-content;
+    padding: 0.2rem 0.55rem;
+    border-radius: 999px;
+}
+
+.due-status-open {
+    background: color-mix(in srgb, var(--color-status-open) 15%, transparent);
+    color: var(--color-status-open);
+}
+
+.due-status-paid {
+    background: color-mix(in srgb, var(--color-status-paid) 15%, transparent);
+    color: var(--color-status-paid);
+}
+
+.due-status-waived {
+    background: color-mix(in srgb, var(--color-status-waived) 15%, transparent);
+    color: var(--color-status-waived);
+}
+
+.due-status-cancelled {
+    background: color-mix(in srgb, var(--color-status-cancelled) 25%, transparent);
+    color: #4b5563;
+}
+
+.due-entry-editor {
+    margin-top: 0.75rem;
+}
+
+.due-entry-actions {
+    margin-top: 0.75rem;
+}
+
+@media (max-width: 900px) {
+    .due-entry-summary {
+        grid-template-columns: 1fr;
+    }
+}

@@ -10,6 +10,11 @@ public interface IMembershipDueService {
     Task<Result<MembershipPaymentPeriodDto>> CreatePaymentPeriodAsync(MembershipPaymentPeriodCreateDto request, Guid? performedByUserId = null);
 
     /// <summary>
+    /// Returns all existing payment periods sorted by creation date descending.
+    /// </summary>
+    Task<Result<ICollection<MembershipPaymentPeriodDto>>> GetPaymentPeriodsAsync();
+
+    /// <summary>
     /// Returns dues for the active payment period.
     /// </summary>
     Task<Result<ICollection<MembershipDueDto>>> GetCurrentPaymentPeriodDuesAsync();

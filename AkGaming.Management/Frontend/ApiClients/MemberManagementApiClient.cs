@@ -105,4 +105,29 @@ public sealed class MemberManagementApiClient : ApiClientBase {
 
         return GetAsync<MemberAuditLogsResponseDto>($"members/audit-logs?{string.Join("&", queryParts)}", ct);
     }
+
+    // ---- Membership dues ---------------------------------------------------
+    public Task<Result<MembershipPaymentPeriodDto>> CreatePaymentPeriodAsync(MembershipPaymentPeriodCreateDto request, CancellationToken ct = default) =>
+        PostJsonAsync<MembershipPaymentPeriodCreateDto, MembershipPaymentPeriodDto>("membership-dues/payment-periods", request, ct);
+
+    public Task<Result<ICollection<MembershipPaymentPeriodDto>>> GetPaymentPeriodsAsync(CancellationToken ct = default) =>
+        GetAsync<ICollection<MembershipPaymentPeriodDto>>("membership-dues/payment-periods", ct);
+
+    public Task<Result<ICollection<MembershipDueDto>>> GetCurrentPaymentPeriodDuesAsync(CancellationToken ct = default) =>
+        GetAsync<ICollection<MembershipDueDto>>("membership-dues/payment-periods/current", ct);
+
+    public Task<Result<ICollection<MembershipDueDto>>> GetPaymentPeriodDuesAsync(int paymentPeriodId, CancellationToken ct = default) =>
+        GetAsync<ICollection<MembershipDueDto>>($"membership-dues/payment-periods/{paymentPeriodId}", ct);
+
+    public Task<Result<ICollection<MembershipDueDto>>> AddMembersToPaymentPeriodAsync(int paymentPeriodId, ICollection<Guid> memberIds, CancellationToken ct = default) =>
+        PostJsonAsync<ICollection<Guid>, ICollection<MembershipDueDto>>($"membership-dues/payment-periods/{paymentPeriodId}/members", memberIds, ct);
+
+    public Task<Result<ICollection<MembershipDueDto>>> GetDuesForMemberAsync(Guid memberId, CancellationToken ct = default) =>
+        GetAsync<ICollection<MembershipDueDto>>($"membership-dues/members/{memberId}", ct);
+
+    public Task<Result<ICollection<MembershipDueDto>>> GetMyDuesAsync(CancellationToken ct = default) =>
+        GetAsync<ICollection<MembershipDueDto>>("membership-dues/me", ct);
+
+    public Task<Result> UpdateDueAsync(int dueId, MembershipDueDto due, CancellationToken ct = default) =>
+        PutJsonAsync($"membership-dues/{dueId}", due, ct);
 }

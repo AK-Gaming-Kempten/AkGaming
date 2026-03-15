@@ -5,6 +5,11 @@ namespace AkGaming.Management.Modules.MemberManagement.Application.Interfaces;
 
 public interface IMembershipPaymentPeriodRepository {
     /// <summary>
+    /// Gets all payment periods sorted by creation date descending.
+    /// </summary>
+    Task<Result<List<MembershipPaymentPeriod>>> GetAllAsync();
+
+    /// <summary>
     /// Gets a payment period by its identifier.
     /// </summary>
     Task<Result<MembershipPaymentPeriod>> GetByIdAsync(int id);

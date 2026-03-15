@@ -109,6 +109,11 @@ button:disabled, .btn:disabled {
     background-color: var(--color-button-danger-hover-bg);
 }
 
+button.btn-sm, .btn.btn-sm {
+    padding: 0.25rem 0.55rem;
+    font-size: 0.8rem;
+}
+
 /* ==== CARD / PANEL ==== */
 
 .card,
@@ -124,6 +129,68 @@ button:disabled, .btn:disabled {
 
 .card:hover {
     border-color: var(--color-highlight-primary);
+}
+
+/* ==== LAYOUT UTILITIES ==== */
+
+.ui-stack-md {
+    display: grid;
+    gap: 1rem;
+}
+
+.ui-grid-2 {
+    display: grid;
+    gap: 1rem;
+    grid-template-columns: repeat(2, minmax(320px, 1fr));
+}
+
+.ui-grid-auto-160 {
+    display: grid;
+    gap: 0.75rem;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+}
+
+.ui-grid-auto-180 {
+    display: grid;
+    gap: 0.75rem;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+}
+
+.ui-field {
+    display: grid;
+    gap: 0.2rem;
+}
+
+.ui-actions {
+    display: flex;
+    align-items: flex-end;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.ui-list {
+    display: grid;
+    gap: 0.75rem;
+}
+
+.ui-title {
+    margin: 0 0 0.75rem 0;
+}
+
+.ui-text-muted {
+    color: var(--color-text-tertiary);
+}
+
+.ui-divider-top-dashed {
+    border-top: 1px dashed var(--color-text-tertiary);
+    padding-top: 0.75rem;
+}
+
+.ui-select-sm {
+    min-width: 140px;
+    max-width: 280px;
+    font-size: 0.85rem;
+    padding: 0.2rem 0.5rem;
 }
 
 /* ==== SCROLLABLE LIST ==== */
@@ -193,3 +260,8 @@ body {
     padding: 0;
 }
 
+@media (max-width: 900px) {
+    .ui-grid-2 {
+        grid-template-columns: 1fr;
+    }
+}

@@ -1,0 +1,130 @@
+@page "/member-management/dues"
+@using Microsoft.AspNetCore.Authorization
+@using AkGaming.Management.Modules.MemberManagement.Contracts.DTO
+@using AkGaming.Management.Modules.MemberManagement.Contracts.Enums
+@attribute [Authorize(Roles = "Admin")]
+
+<PageTitle>Membership Dues</PageTitle>
+
+<div class="ui-stack-md dues-management-page">
+    <div class="ui-grid-2 dues-top-grid">
+        <section class="panel dues-card dues-controls-card">
+            <h4 class="ui-title">Controls</h4>
+            <div class="ui-grid-auto-160 dues-toolbar">
+                <div class="ui-field dues-control">
+                    <label for="payment-period-select">Payment period</label>
+                    <select id="payment-period-select"
+                            class="ui-select-sm"
+                            value="@_selectedPaymentPeriodId"
+                            @onchange="OnPaymentPeriodChanged"
+                            disabled="@(_loadingPaymentPeriods || _paymentPeriods.Count == 0)">
+                        @if (_paymentPeriods.Count == 0) {
+                            <option value="">No payment periods</option>
+                        }
+                        else {
+                            @foreach (var period in _paymentPeriods) {
+                                <option value="@period.Id">@period.Name - due @period.DueDate</option>
+                            }
+                        }
+                    </select>
+                </div>
+
+                <div class="ui-field dues-control">
+                    <label for="member-display-mode">Member display</label>
+                    <InputSelect id="member-display-mode"
+                                 class="ui-select-sm"
+                                 @bind-Value="_memberDisplayMode">
+                        <option value="@MemberDisplayMode.FullName">Full name</option>
+                        <option value="@MemberDisplayMode.MemberId">Member ID</option>
+                    </InputSelect>
+                </div>
+
+                <div class="ui-actions dues-control-actions">
+                    <button class="btn btn-sm btn-secondary"
+                            @onclick="() => LoadPaymentPeriodsAsync(true)"
+                            disabled="@(_loadingPaymentPeriods || _loadingDues)">
+                        Refresh
+                    </button>
+                    <button type="button"
+                            class="btn btn-sm btn-outline-secondary"
+                            @onclick="ToggleCreatePeriodForm">
+                        @(_showCreatePeriodForm ? "Hide create period" : "Create period")
+                    </button>
+                </div>
+            </div>
+
+            @if (_showCreatePeriodForm) {
+                <EditForm Model="_createRequest" OnValidSubmit="CreatePaymentPeriodAsync">
+                    <div class="ui-grid-auto-180 dues-create-grid">
+                        <div>
+                            <label>Name</label>
+                            <InputText @bind-Value="_createRequest.Name" />
+                        </div>
+                        <div>
+                            <label>Due date</label>
+                            <InputDate @bind-Value="_createRequest.DueDate" />
+                        </div>
+                        <div>
+                            <label>Default amount (€)</label>
+                            <InputNumber @bind-Value="_createRequest.DefaultDueAmount" />
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-sm btn-primary" disabled="@_creatingPeriod">Create period and dues</button>
+                </EditForm>
+            }
+        </section>
+
+        <section class="panel dues-card dues-summary-card">
+            <h4 class="ui-title">Summary</h4>
+            <div class="dues-dashboard">
+                <div class="dues-half-pie-shell">
+                    <div class="dues-half-pie" style="@GetHalfPieStyle()">
+                        <div class="dues-half-pie-inner">
+                            <strong>@TotalCount</strong>
+                            <span>total dues</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="dues-summary">
+                    <span class="dues-chip dues-chip-open">Open: @PendingCount</span>
+                    <span class="dues-chip dues-chip-paid">Paid: @PaidCount</span>
+                    <span class="dues-chip dues-chip-waived">Waived: @WaivedCount</span>
+                    <span class="dues-chip dues-chip-cancelled">Cancelled: @CancelledCount</span>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <section class="panel dues-card dues-list-card">
+        <h4 class="ui-title">Payment Period Dues</h4>
+        @if (!string.IsNullOrWhiteSpace(_statusMessage)) {
+            <p class="status-message">@_statusMessage</p>
+        }
+        @if (!string.IsNullOrWhiteSpace(_errorMessage)) {
+            <p class="text-danger">@_errorMessage</p>
+        }
+        @if (_loadingPaymentPeriods || _loadingDues) {
+            <p>Loading dues...</p>
+        }
+        else if (_selectedPaymentPeriodId is null) {
+            <p>No payment periods exist yet.</p>
+        }
+        else {
+            @if (_dues.Count == 0) {
+                <p>No dues found for this payment period.</p>
+            }
+            else {
+                <div class="ui-list dues-entry-list">
+                    @foreach (var due in _dues.OrderBy(x => x.DueDate).ThenBy(x => x.MemberId)) {
+                        <MemberDueEntry Due="@due"
+                                        PrimaryMemberLabel="@GetPrimaryMemberLabel(due.MemberId)"
+                                        SecondaryMemberLabel="@GetSecondaryMemberLabel(due.MemberId)"
+                                        IsSaving="@_savingDueIds.Contains(due.Id)"
+                                        OnSave="SaveDueAsync" />
+                    }
+                </div>
+            }
+        }
+    </section>
+</div>

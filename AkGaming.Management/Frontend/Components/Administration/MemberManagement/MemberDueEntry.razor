@@ -1,0 +1,84 @@
+@using AkGaming.Management.Modules.MemberManagement.Contracts.DTO
+@using AkGaming.Management.Modules.MemberManagement.Contracts.Enums
+
+<article class="panel due-entry">
+    <header class="due-entry-summary">
+        <div class="ui-field due-entry-member">
+            <strong>@PrimaryMemberLabel</strong>
+            @if (!string.IsNullOrWhiteSpace(SecondaryMemberLabel)) {
+                <span class="ui-text-muted">@SecondaryMemberLabel</span>
+            }
+        </div>
+
+        <div class="due-entry-meta">
+            <span class="due-entry-status @GetStatusClass(Due.Status)">Status: @Due.Status</span>
+            <span>Due: @Due.DueAmount.ToString("0.00")</span>
+            <span>Paid: @(Due.PaidAmount?.ToString("0.00") ?? "-")</span>
+            <span>Due date: @Due.DueDate</span>
+        </div>
+
+        <button type="button"
+                class="btn btn-sm btn-secondary"
+                @onclick="ToggleEditMode"
+                disabled="@IsSaving">
+            @(EditMode ? "Close" : "Edit")
+        </button>
+    </header>
+
+    @if (EditMode) {
+        <div class="ui-divider-top-dashed due-entry-editor">
+            <div class="ui-grid-auto-180 due-entry-grid">
+                <div>
+                    <label>Status</label>
+                    <InputSelect @bind-Value="_editingDue.Status">
+                        @foreach (var status in _statuses) {
+                            <option value="@status">@status</option>
+                        }
+                    </InputSelect>
+                </div>
+
+                <div>
+                    <label>Due amount</label>
+                    <InputNumber @bind-Value="_editingDue.DueAmount" />
+                </div>
+
+                <div>
+                    <label>Paid amount</label>
+                    <InputNumber @bind-Value="_editingDue.PaidAmount" />
+                </div>
+
+                <div>
+                    <label>Due date</label>
+                    <InputDate @bind-Value="_editingDue.DueDate" />
+                </div>
+
+                <div>
+                    <label>Settled at</label>
+                    <input type="datetime-local"
+                           value="@GetSettledAtValue(_editingDue.SettledAt)"
+                           @onchange="SetSettledAt" />
+                </div>
+
+                <div>
+                    <label>Reference</label>
+                    <InputText @bind-Value="_editingDue.SettlementReference" />
+                </div>
+            </div>
+
+            <div class="ui-actions due-entry-actions">
+                <button type="button"
+                        class="btn btn-sm btn-primary"
+                        @onclick="SaveDueAsync"
+                        disabled="@IsSaving">
+                    Save
+                </button>
+                <button type="button"
+                        class="btn btn-sm btn-outline-secondary"
+                        @onclick="CancelEditing"
+                        disabled="@IsSaving">
+                    Cancel
+                </button>
+            </div>
+        </div>
+    }
+</article>

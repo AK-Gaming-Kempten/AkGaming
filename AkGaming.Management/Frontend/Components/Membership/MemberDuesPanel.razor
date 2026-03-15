@@ -1,0 +1,83 @@
+@using AkGaming.Management.Modules.MemberManagement.Contracts.DTO
+@using AkGaming.Management.Modules.MemberManagement.Contracts.Enums
+
+<div class="ui-stack-md member-dues-panel">
+    @if (_loading) {
+        <p>Loading dues...</p>
+    }
+    else if (!string.IsNullOrWhiteSpace(_error)) {
+        <p class="text-danger">@_error</p>
+    }
+    else {
+        <section class="panel member-dues-summary-card">
+            <h5 class="ui-title">Fee Summary</h5>
+            <div class="member-dues-summary-chips">
+                <span class="member-dues-chip member-dues-chip-open">Open: @_pendingDues.Count</span>
+                <span class="member-dues-chip member-dues-chip-paid">Paid: @_paidDues.Count</span>
+            </div>
+        </section>
+
+        <section class="panel member-dues-section">
+            <h5 class="ui-title">Pending Fees</h5>
+            @if (_pendingDues.Count == 0) {
+                <p class="ui-text-muted">No pending fees.</p>
+            }
+            else {
+                <div class="ui-list">
+                    @foreach (var due in _pendingDues.OrderBy(x => x.DueDate)) {
+                        <article class="member-due-item">
+                            <div>
+                                <strong>@due.DueDate.ToString("yyyy-MM-dd")</strong>
+                                <p class="ui-text-muted">Due date</p>
+                            </div>
+                            <div>
+                                <strong>@due.DueAmount.ToString("0.00") €</strong>
+                                <p class="ui-text-muted">Amount</p>
+                            </div>
+                            <div class="member-due-item-flags">
+                                <span class="member-due-item-status member-due-item-status-open">Pending</span>
+                                <span class="member-due-item-status @(due.IsOverdue() ? "member-due-item-status-overdue" : "member-due-item-status-ontrack")">
+                                    @(due.IsOverdue() ? "Overdue" : "On track")
+                                </span>
+                            </div>
+                        </article>
+                    }
+                </div>
+            }
+        </section>
+
+        <section class="panel member-dues-section">
+            <h5 class="ui-title">Previously Paid Fees</h5>
+            @if (_paidDues.Count == 0) {
+                <p class="ui-text-muted">No paid fees yet.</p>
+            }
+            else {
+                <div class="ui-list">
+                    @foreach (var due in _paidDues.OrderByDescending(x => x.DueDate)) {
+                        <article class="member-due-item">
+                            <div>
+                                <strong>@due.DueDate.ToString("yyyy-MM-dd")</strong>
+                                <p class="ui-text-muted">Due date</p>
+                            </div>
+                            <div>
+                                <strong>@due.DueAmount.ToString("0.00") €</strong>
+                                <p class="ui-text-muted">Due amount</p>
+                            </div>
+                            <div>
+                                <strong>@GetPaidAmountText(due)</strong>
+                                <p class="ui-text-muted">Paid amount</p>
+                            </div>
+                            <div>
+                                <strong>@GetSettledAtText(due)</strong>
+                                <p class="ui-text-muted">Settled at</p>
+                            </div>
+                            <div class="member-due-item-flags">
+                                <span class="member-due-item-status member-due-item-status-paid">Paid</span>
+                            </div>
+                        </article>
+                    }
+                </div>
+            }
+        </section>
+    }
+</div>

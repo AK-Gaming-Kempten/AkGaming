@@ -1,0 +1,100 @@
+.dues-management-page {
+    --dues-open: var(--color-status-open);
+    --dues-paid: var(--color-status-paid);
+    --dues-waived: var(--color-status-waived);
+    --dues-cancelled: var(--color-status-cancelled);
+    --dues-empty: var(--color-status-empty);
+}
+
+.dues-dashboard {
+    display: grid;
+    grid-template-columns: minmax(220px, 260px) 1fr;
+    gap: 1rem;
+}
+
+.dues-half-pie-shell {
+    width: 240px;
+    height: 120px;
+    overflow: hidden;
+    position: relative;
+}
+
+.dues-half-pie {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 240px;
+    height: 240px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+}
+
+.dues-half-pie-inner {
+    width: 132px;
+    height: 132px;
+    border-radius: 50%;
+    margin-top: 22px;
+    background: var(--color-background-primary);
+    display: grid;
+    place-items: center;
+    text-align: center;
+}
+
+.dues-half-pie-inner strong {
+    font-size: 1.8rem;
+    line-height: 1;
+}
+
+.dues-half-pie-inner span {
+    color: var(--color-text-tertiary);
+    font-size: 0.85rem;
+}
+
+.dues-summary {
+    display: grid;
+    align-content: center;
+    gap: 0.6rem;
+}
+
+.dues-chip {
+    display: inline-block;
+    width: fit-content;
+    padding: 0.25rem 0.6rem;
+    border-radius: 999px;
+    font-weight: 600;
+}
+
+.dues-chip-open {
+    background: color-mix(in srgb, var(--dues-open) 15%, transparent);
+    color: var(--dues-open);
+}
+
+.dues-chip-paid {
+    background: color-mix(in srgb, var(--dues-paid) 15%, transparent);
+    color: var(--dues-paid);
+}
+
+.dues-chip-waived {
+    background: color-mix(in srgb, var(--dues-waived) 15%, transparent);
+    color: var(--dues-waived);
+}
+
+.dues-chip-cancelled {
+    background: color-mix(in srgb, var(--dues-cancelled) 25%, transparent);
+    color: #4b5563;
+}
+
+.status-message {
+    color: var(--color-highlight-primary);
+}
+
+@media (max-width: 900px) {
+    .dues-dashboard {
+        grid-template-columns: 1fr;
+    }
+
+    .dues-half-pie-shell {
+        margin: 0 auto;
+    }
+}

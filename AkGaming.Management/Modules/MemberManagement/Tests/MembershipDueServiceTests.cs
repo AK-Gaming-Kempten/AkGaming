@@ -12,6 +12,43 @@ namespace AkGaming.Management.Modules.MemberManagement.Tests;
 
 public class MembershipDueServiceTests {
     [Test]
+    public async Task GetPaymentPeriodsAsync_ReturnsSortedPaymentPeriods() {
+        // Arrange
+        var dueRepository = new Mock<IMembershipDueRepository>();
+        var paymentPeriodRepository = new Mock<IMembershipPaymentPeriodRepository>();
+        var memberRepository = new Mock<IMemberRepository>();
+        var service = new MembershipDueService(dueRepository.Object, paymentPeriodRepository.Object, memberRepository.Object);
+
+        var newer = new MembershipPaymentPeriod {
+            Id = 2,
+            Name = "2026-05",
+            DueDate = new DateOnly(2026, 5, 1),
+            DefaultDueAmount = 10m,
+            CreatedAt = new DateTimeOffset(2026, 5, 2, 10, 0, 0, TimeSpan.Zero)
+        };
+        var older = new MembershipPaymentPeriod {
+            Id = 1,
+            Name = "2026-04",
+            DueDate = new DateOnly(2026, 4, 1),
+            DefaultDueAmount = 10m,
+            CreatedAt = new DateTimeOffset(2026, 4, 2, 10, 0, 0, TimeSpan.Zero)
+        };
+
+        paymentPeriodRepository
+            .Setup(x => x.GetAllAsync())
+            .ReturnsAsync(Result<List<MembershipPaymentPeriod>>.Success(new List<MembershipPaymentPeriod> { newer, older }));
+
+        // Act
+        var result = await service.GetPaymentPeriodsAsync();
+
+        // Assert
+        Assert.That(result.IsSuccess, Is.True);
+        Assert.That(result.Value, Has.Count.EqualTo(2));
+        Assert.That(result.Value!.First().Id, Is.EqualTo(2));
+        Assert.That(result.Value!.Last().Id, Is.EqualTo(1));
+    }
+
+    [Test]
     public async Task GetCurrentPaymentPeriodDuesAsync_ReturnsCurrentPeriodDues() {
         // Arrange
         var dueRepository = new Mock<IMembershipDueRepository>();

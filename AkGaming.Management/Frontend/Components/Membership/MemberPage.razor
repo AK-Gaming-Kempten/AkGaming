@@ -17,7 +17,25 @@
                 <p>Thanks for your application! We will review it as soon as possible.</p>
             </div>
         }
-        <MemberCard Member="_member" IsEditable="true" IsStatusEditable="false" />
+        <div class="membership-tabs">
+            <button type="button"
+                    class="tab @(_activeTab == MemberTab.Profile ? "active" : "")"
+                    @onclick="() => _activeTab = MemberTab.Profile">
+                Profile
+            </button>
+            <button type="button"
+                    class="tab @(_activeTab == MemberTab.Dues ? "active" : "")"
+                    @onclick="() => _activeTab = MemberTab.Dues">
+                Fees
+            </button>
+        </div>
+
+        @if (_activeTab == MemberTab.Profile) {
+            <MemberCard Member="_member" IsEditable="true" IsStatusEditable="false" />
+        }
+        else if (_activeTab == MemberTab.Dues) {
+            <MemberDuesPanel />
+        }
     }
     else {
         <NoMemberPanel UserId="_userGuid" PendingApplication="_applicationRequest" PendingLinkingRequest="_linkingRequest" />

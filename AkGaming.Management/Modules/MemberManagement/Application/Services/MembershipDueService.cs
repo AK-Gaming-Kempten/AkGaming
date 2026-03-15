@@ -64,6 +64,16 @@ public class MembershipDueService : IMembershipDueService {
     }
 
     /// <inheritdoc />
+    public async Task<Result<ICollection<MembershipPaymentPeriodDto>>> GetPaymentPeriodsAsync() {
+        var paymentPeriodsResult = await _paymentPeriodRepository.GetAllAsync();
+        if (!paymentPeriodsResult.IsSuccess)
+            return Result<ICollection<MembershipPaymentPeriodDto>>.Failure(paymentPeriodsResult.Error ?? "Payment periods could not be loaded.");
+        var paymentPeriods = paymentPeriodsResult.Value!;
+
+        return Result<ICollection<MembershipPaymentPeriodDto>>.Success(paymentPeriods.Select(x => x.ToDto()).ToList());
+    }
+
+    /// <inheritdoc />
     public async Task<Result<ICollection<MembershipDueDto>>> GetCurrentPaymentPeriodDuesAsync() {
         var currentPeriodResult = await _paymentPeriodRepository.GetCurrentAsync();
         if (!currentPeriodResult.IsSuccess)

@@ -7,6 +7,11 @@ using Microsoft.AspNetCore.Components.Authorization;
 namespace AkGaming.Management.Frontend.Components.Membership;
 
 public partial class MemberPage : ComponentBase {
+    private enum MemberTab {
+        Profile,
+        Dues
+    }
+
     [Parameter] public string? UserId { get; set; } = string.Empty;
     
     [Inject] MemberManagementApiClient MemberApi { get; set; } = default!;
@@ -17,6 +22,7 @@ public partial class MemberPage : ComponentBase {
     private MemberDto? _member;
     private MemberLinkingRequestDto? _linkingRequest;
     private MembershipApplicationRequestDto? _applicationRequest;
+    private MemberTab _activeTab = MemberTab.Profile;
     
     Guid _userGuid;
 
