@@ -1,7 +1,6 @@
 @page "/membership/user/{UserId}"
 <PageTitle>My Membership</PageTitle>
 @using Microsoft.AspNetCore.Authorization
-@using AkGaming.Management.Frontend.Components.Administration.MemberManagement;
 @attribute [Authorize]
 
 <PageTitle>My Membership</PageTitle>
@@ -31,7 +30,7 @@
         </div>
 
         @if (_activeTab == MemberTab.Profile) {
-            <MemberCard Member="_member" IsEditable="true" IsStatusEditable="false" />
+            <MemberInfoPanel Member="_member" OnMemberUpdated="HandleMemberUpdated" />
         }
         else if (_activeTab == MemberTab.Dues) {
             <MemberDuesPanel />

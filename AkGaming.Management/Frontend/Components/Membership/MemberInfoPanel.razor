@@ -1,13 +1,152 @@
 @inherits ComponentBase
 
-<div class="member-info">
-    <h3>@Member.FirstName @Member.LastName</h3>
+<section class="ui-stack-md member-profile">
+    @if (!string.IsNullOrWhiteSpace(_statusMessage)) {
+        <p class="status-message">@_statusMessage</p>
+    }
+    @if (!string.IsNullOrWhiteSpace(_errorMessage)) {
+        <p class="text-danger">@_errorMessage</p>
+    }
 
-    <p><b>Email:</b> @Member.Email</p>
-    <p><b>Phone:</b> @Member.Phone</p>
-    <p><b>Discord:</b> @Member.DiscordUserName</p>
+    <div class="member-profile-grid">
+        <article class="panel member-badge-card">
+            <div class="member-badge-main">
+                <div class="member-badge-avatar @StatusClass">
+                    <span>@StatusIcon</span>
+                </div>
+                <div class="member-badge-content">
+                    <div class="member-badge-title-row">
+                        <h3 class="ui-title">@DisplayName</h3>
+                        <span class="member-status-badge @StatusClass">@_localMember.Status</span>
+                    </div>
+                    <p class="ui-text-muted member-membership-time">Membership time: @ServiceYearsText</p>
+                    <p class="ui-text-muted member-membership-since">@MembershipStartText</p>
+                </div>
+            </div>
+        </article>
 
-    <p>
-        <b>Status:</b> @Member.Status
-    </p>
-</div>
+        <article class="panel member-personal-card">
+            <div class="member-card-header">
+                <h5 class="ui-title">Personal Info</h5>
+                <div class="ui-actions member-personal-edit-actions">
+                    @if (!EditMode) {
+                        <button type="button" class="btn btn-secondary" @onclick="EnableEditing">Edit profile</button>
+                    }
+                    else {
+                        <button type="button" class="btn btn-primary" @onclick="SaveChangesAsync">Save changes</button>
+                        <button type="button" class="btn btn-secondary" @onclick="CancelChanges">Cancel</button>
+                    }
+                </div>
+            </div>
+            @if (!EditMode) {
+                <dl class="member-read-grid">
+                    <div><dt>First name</dt><dd>@ValueOrDash(_localMember.FirstName)</dd></div>
+                    <div><dt>Last name</dt><dd>@ValueOrDash(_localMember.LastName)</dd></div>
+                    <div><dt>Birth date</dt><dd>@(_localMember.BirthDate?.ToString("yyyy-MM-dd") ?? "-")</dd></div>
+                    <div><dt>Email</dt><dd>@ValueOrDash(_localMember.Email)</dd></div>
+                    <div><dt>Phone</dt><dd>@ValueOrDash(_localMember.Phone)</dd></div>
+                    <div><dt>Discord</dt><dd>@ValueOrDash(_localMember.DiscordUserName)</dd></div>
+                    <div><dt>Street</dt><dd>@ValueOrDash(_localMember.Address.Street)</dd></div>
+                    <div><dt>ZIP</dt><dd>@ValueOrDash(_localMember.Address.ZipCode)</dd></div>
+                    <div><dt>City</dt><dd>@ValueOrDash(_localMember.Address.City)</dd></div>
+                    <div><dt>Country</dt><dd>@ValueOrDash(_localMember.Address.Country)</dd></div>
+                </dl>
+            }
+            else {
+                <div class="ui-grid-auto-180">
+                    <div class="ui-field">
+                        <label>First name</label>
+                        <InputText @bind-Value="_localMember.FirstName" />
+                    </div>
+                    <div class="ui-field">
+                        <label>Last name</label>
+                        <InputText @bind-Value="_localMember.LastName" />
+                    </div>
+                    <div class="ui-field">
+                        <label>Birth date</label>
+                        <InputDate @bind-Value="_localMember.BirthDate" />
+                    </div>
+                    <div class="ui-field">
+                        <label>Email</label>
+                        <InputText @bind-Value="_localMember.Email" />
+                    </div>
+                    <div class="ui-field">
+                        <label>Phone</label>
+                        <InputText @bind-Value="_localMember.Phone" />
+                    </div>
+                    <div class="ui-field">
+                        <label>Discord</label>
+                        <InputText @bind-Value="_localMember.DiscordUserName" />
+                    </div>
+                    <div class="ui-field">
+                        <label>Street</label>
+                        <InputText @bind-Value="_localMember.Address.Street" />
+                    </div>
+                    <div class="ui-field">
+                        <label>ZIP</label>
+                        <InputText @bind-Value="_localMember.Address.ZipCode" />
+                    </div>
+                    <div class="ui-field">
+                        <label>City</label>
+                        <InputText @bind-Value="_localMember.Address.City" />
+                    </div>
+                    <div class="ui-field">
+                        <label>Country</label>
+                        <InputText @bind-Value="_localMember.Address.Country" />
+                    </div>
+                </div>
+            }
+        </article>
+
+        <article class="panel member-history-card">
+            <h5 class="ui-title">Membership History</h5>
+            @if (HistoryEntries.Count == 0) {
+                <p class="ui-text-muted">No status history recorded yet.</p>
+            }
+            else {
+                <ul class="member-history-list">
+                    @foreach (var entry in HistoryEntries.Take(8)) {
+                        <li>
+                            <span class="member-history-when">@entry.Timestamp.ToLocalTime().ToString("yyyy-MM-dd")</span>
+                            <span class="member-history-transition">
+                                @if (entry.OldStatus == entry.NewStatus) {
+                                    @entry.NewStatus
+                                }
+                                else {
+                                    @($"{entry.OldStatus} -> {entry.NewStatus}")
+                                }
+                            </span>
+                        </li>
+                    }
+                </ul>
+            }
+        </article>
+
+        <article class="panel member-actions-card">
+            <h5 class="ui-title">Actions</h5>
+            <div class="ui-list member-action-links">
+                <a class="btn btn-secondary member-action-btn" href="@WebsiteUrl" target="_blank" rel="noopener noreferrer">
+                    <span class="action-icon">🌐</span>
+                    <span class="member-action-content">
+                        <span class="member-action-title">Go to Website</span>
+                        <span class="member-action-description">Open the main club website.</span>
+                    </span>
+                </a>
+                <a class="btn btn-secondary member-action-btn" href="@SatzungUrl" target="_blank" rel="noopener noreferrer">
+                    <span class="action-icon">📄</span>
+                    <span class="member-action-content">
+                        <span class="member-action-title">See Satzung</span>
+                        <span class="member-action-description">Read statutes and club rules.</span>
+                    </span>
+                </a>
+                <a class="btn btn-secondary member-action-btn" href="@DiscordUrl" target="_blank" rel="noopener noreferrer">
+                    <span class="action-icon">💬</span>
+                    <span class="member-action-content">
+                        <span class="member-action-title">Join Discord</span>
+                        <span class="member-action-description">Get updates and connect with members.</span>
+                    </span>
+                </a>
+            </div>
+        </article>
+    </div>
+</section>

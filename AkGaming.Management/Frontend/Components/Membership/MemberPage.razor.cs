@@ -63,4 +63,8 @@ public partial class MemberPage : ComponentBase {
 
     private static bool IsUnauthorized(Result result) =>
         !result.IsSuccess && result.Error?.StartsWith("401 ", StringComparison.Ordinal) == true;
+
+    private void HandleMemberUpdated(MemberDto member) {
+        _member = member;
+    }
 }

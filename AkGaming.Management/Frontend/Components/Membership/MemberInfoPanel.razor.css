@@ -1,0 +1,296 @@
+.member-profile {
+    --status-member: var(--color-status-paid);
+    --status-trial: var(--color-status-open);
+    --status-applicant: var(--color-status-waived);
+    --status-default: var(--color-status-cancelled);
+    gap: 0.65rem;
+}
+
+.member-profile-grid {
+    display: grid;
+    gap: 0.65rem;
+    grid-template-columns: minmax(280px, 1fr);
+    grid-template-areas:
+        "badge"
+        "personal"
+        "actions"
+        "history";
+    align-items: stretch;
+}
+
+.member-profile-grid > .panel {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.member-badge-main {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.55rem;
+    height: 100%;
+    text-align: center;
+}
+
+.member-badge-avatar {
+    width: 5.2rem;
+    height: 5.2rem;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.2rem;
+    font-weight: 700;
+}
+
+.member-badge-card {
+    grid-area: badge;
+    padding: 0.85rem;
+    background: linear-gradient(
+            160deg,
+            color-mix(in srgb, var(--color-background-primary) 86%, var(--color-background-secondary) 14%) 0%,
+            var(--color-background-primary) 100%
+    );
+}
+
+.member-badge-content h3 {
+    margin: 0;
+}
+
+.member-badge-title-row {
+    display: grid;
+    gap: 0.35rem;
+    margin-bottom: 0.15rem;
+    justify-items: center;
+}
+
+.member-membership-time {
+    margin: 0;
+    font-weight: 500;
+    font-size: 0.82rem;
+    color: var(--color-text-secondary);
+}
+
+.member-membership-since {
+    margin: 0.1rem 0 0.25rem 0;
+    font-size: 0.8rem;
+}
+
+.status-message {
+    color: var(--color-highlight-primary);
+}
+
+.member-status-main {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin: 0 0 0.45rem 0;
+}
+
+.member-status-label {
+    margin: 0;
+    font-size: 0.8rem;
+}
+
+.member-status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    border-radius: 999px;
+    padding: 0.2rem 0.55rem;
+    font-size: 0.78rem;
+    font-weight: 700;
+}
+
+.member-status-icon {
+    width: 1.05rem;
+    height: 1.05rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.status-member {
+    color: var(--status-member);
+    background: color-mix(in srgb, var(--status-member) 18%, transparent);
+}
+
+.status-trial {
+    color: var(--status-trial);
+    background: color-mix(in srgb, var(--status-trial) 18%, transparent);
+}
+
+.status-applicant {
+    color: var(--status-applicant);
+    background: color-mix(in srgb, var(--status-applicant) 18%, transparent);
+}
+
+.status-default {
+    color: #4b5563;
+    background: color-mix(in srgb, var(--status-default) 22%, transparent);
+}
+
+.member-history-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 0.3rem;
+}
+
+.member-history-list li {
+    display: flex;
+    justify-content: space-between;
+    gap: 0.5rem;
+    font-size: 0.82rem;
+}
+
+.member-personal-card {
+    grid-area: personal;
+}
+
+.member-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    margin-bottom: 0.35rem;
+}
+
+.member-personal-edit-actions {
+    justify-content: flex-end;
+}
+
+.member-history-when {
+    color: var(--color-text-tertiary);
+}
+
+.member-history-transition {
+    color: var(--color-text-secondary);
+}
+
+.member-history-card {
+    grid-area: history;
+}
+
+.member-actions-card {
+    grid-area: actions;
+}
+
+.member-actions-card .btn {
+    justify-content: flex-start;
+}
+
+.action-icon {
+    width: 2rem;
+    height: 2rem;
+    font-size: 1.35rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 0.6rem;
+    flex-shrink: 0;
+}
+
+.member-action-links a {
+    text-decoration: none;
+}
+
+.member-action-links {
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-auto-flow: row;
+    gap: 0.45rem;
+}
+
+.member-action-btn {
+    display: flex;
+    align-items: center;
+    padding: 0.55rem 0.7rem;
+    min-height: 3.2rem;
+    text-align: left;
+}
+
+.member-action-content {
+    display: grid;
+    gap: 0.1rem;
+}
+
+.member-action-title {
+    font-weight: 700;
+    line-height: 1.1;
+}
+
+.member-action-description {
+    font-size: 0.78rem;
+    line-height: 1.2;
+    color: color-mix(in srgb, var(--color-text-primary) 78%, transparent);
+    font-weight: 500;
+}
+
+.member-read-grid {
+    margin: 0;
+    display: grid;
+    gap: 0.45rem;
+    flex: 1;
+}
+
+.member-read-grid div {
+    padding: 0.3rem 0.45rem;
+    border: 1px solid var(--color-text-tertiary);
+    border-radius: 4px;
+    background: color-mix(in srgb, var(--color-background-primary) 90%, var(--color-background-secondary) 10%);
+}
+
+.member-read-grid dt {
+    font-size: 0.75rem;
+    color: var(--color-text-tertiary);
+    margin: 0 0 0.15rem 0;
+}
+
+.member-read-grid dd {
+    margin: 0;
+    font-weight: 550;
+    color: var(--color-text-primary);
+    user-select: none;
+}
+
+@media (max-width: 900px) {
+    .member-profile-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .member-card-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .member-badge-main {
+        align-items: center;
+        text-align: center;
+    }
+}
+
+@media (min-width: 901px) {
+    .member-profile-grid {
+        grid-template-columns: repeat(3, 1fr);
+        grid-template-rows: repeat(4, minmax(0, 1fr));
+        grid-template-areas:
+            "badge personal personal"
+            "badge personal personal"
+            "history personal personal"
+            "actions actions actions";
+        align-items: stretch;
+    }
+
+    .member-badge-main {
+        min-height: 100%;
+        justify-content: center;
+    }
+
+    .member-action-links {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+}
