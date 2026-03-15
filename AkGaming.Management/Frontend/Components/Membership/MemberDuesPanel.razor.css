@@ -3,9 +3,13 @@
     --member-due-paid: var(--color-status-paid);
 }
 
+.member-dues-panel .ui-text-muted {
+    color: var(--color-text-secondary);
+}
+
 .member-dues-summary-card,
 .member-dues-section {
-    border: 1px solid var(--color-text-tertiary);
+    border: 1px solid var(--color-text-secondary);
     border-radius: 4px;
     background-color: var(--color-background-primary);
 }
@@ -35,7 +39,7 @@
 }
 
 .member-due-item {
-    border: 1px solid var(--color-text-tertiary);
+    border: 1px solid var(--color-text-secondary);
     border-radius: 4px;
     padding: 0.65rem 0.75rem;
     display: grid;

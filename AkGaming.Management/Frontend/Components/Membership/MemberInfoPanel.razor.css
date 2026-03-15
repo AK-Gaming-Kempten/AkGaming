@@ -6,6 +6,15 @@
     gap: 0.65rem;
 }
 
+.member-profile .ui-text-muted {
+    color: var(--color-text-secondary);
+}
+
+.member-profile .panel {
+    border-color: var(--color-text-secondary);
+    background-color: var(--color-background-primary);
+}
+
 .member-profile-grid {
     display: grid;
     gap: 0.65rem;
@@ -163,8 +172,28 @@
     justify-content: flex-end;
 }
 
+.member-personal-card .ui-field label {
+    color: var(--color-text-secondary);
+}
+
+.member-personal-card ::deep input,
+.member-personal-card ::deep select,
+.member-personal-card ::deep textarea {
+    border: 1px solid var(--color-text-secondary);
+    background: var(--color-background-secondary);
+    color: var(--color-text-secondary);
+}
+
+.member-personal-card ::deep input:focus,
+.member-personal-card ::deep select:focus,
+.member-personal-card ::deep textarea:focus {
+    border-color: var(--color-highlight-secondary);
+    background: var(--color-background-primary);
+    color: var(--color-text-primary);
+}
+
 .member-history-when {
-    color: var(--color-text-tertiary);
+    color: var(--color-text-secondary);
 }
 
 .member-history-transition {
@@ -211,6 +240,15 @@
     padding: 0.55rem 0.7rem;
     min-height: 3.2rem;
     text-align: left;
+    background: var(--color-background-secondary);
+    color: var(--color-text-secondary);
+    border: 1px solid var(--color-text-secondary);
+}
+
+.member-action-btn:hover {
+    background: var(--color-background-primary);
+    border-color: var(--color-highlight-secondary);
+    color: var(--color-text-primary);
 }
 
 .member-action-content {
@@ -226,7 +264,7 @@
 .member-action-description {
     font-size: 0.78rem;
     line-height: 1.2;
-    color: color-mix(in srgb, var(--color-text-primary) 78%, transparent);
+    color: var(--color-text-secondary);
     font-weight: 500;
 }
 
@@ -239,14 +277,14 @@
 
 .member-read-grid div {
     padding: 0.3rem 0.45rem;
-    border: 1px solid var(--color-text-tertiary);
+    border: 1px solid var(--color-text-secondary);
     border-radius: 4px;
     background: color-mix(in srgb, var(--color-background-primary) 90%, var(--color-background-secondary) 10%);
 }
 
 .member-read-grid dt {
     font-size: 0.75rem;
-    color: var(--color-text-tertiary);
+    color: var(--color-text-secondary);
     margin: 0 0 0.15rem 0;
 }
 
