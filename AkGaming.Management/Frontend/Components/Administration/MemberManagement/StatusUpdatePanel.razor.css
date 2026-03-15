@@ -20,7 +20,7 @@
     min-height: 0;
     overflow-y: auto;
     border: 1px solid var(--status-border);
-    border-radius: 2px;
+    border-radius: 4px;
     background-color: var(--status-bg);
     padding: 0.75rem;
 }
@@ -88,7 +88,7 @@ label {
 ::deep(select) {
     width: 100%;
     border: 1px solid var(--status-border);
-    border-radius: 6px;
+    border-radius: 4px;
     background-color: var(--color-background-primary);
     color: var(--color-text-primary);
     padding: 0.4rem 0.6rem;

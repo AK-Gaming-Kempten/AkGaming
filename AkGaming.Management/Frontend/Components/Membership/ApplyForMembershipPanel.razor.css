@@ -35,7 +35,7 @@
     width: 100%;
     box-sizing: border-box;
     border: 1px solid var(--form-input-border);
-    border-radius: 6px;
+    border-radius: 4px;
     background-color: var(--form-input-bg);
     color: var(--form-input-text);
     padding: 0.4rem 0.6rem;
