@@ -21,7 +21,7 @@
     <ItemGroup>
       <AdditionalFiles Include="Components\Account\AccessDenied.razor" />
       <AdditionalFiles Include="Components\Administration\MemberManagement\MemberManagementPage.razor" />
-      <AdditionalFiles Include="Components\Debug\Debug.razor" />
+      <AdditionalFiles Include="Components\DevTools\Debug.razor" />
       <AdditionalFiles Include="Components\Membership\ApplyForMembershipPanel.razor" />
       <AdditionalFiles Include="Components\Membership\MemberPage.razor" />
     </ItemGroup>
