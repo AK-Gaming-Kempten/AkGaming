@@ -53,3 +53,23 @@
     font-weight: 500;
     color: var(--color-card-highlight);
 }
+
+@media (max-width: 900px) {
+    .member-preview-card-content {
+        grid-template-columns: 1fr 1fr;
+        gap: 0.35rem 0.75rem;
+        align-items: start;
+    }
+
+    .member-preview-card-content > div {
+        white-space: normal;
+        overflow: visible;
+        text-overflow: clip;
+    }
+
+    .member-preview-card-status {
+        grid-column: 1 / -1;
+        justify-self: start;
+        text-align: left;
+    }
+}

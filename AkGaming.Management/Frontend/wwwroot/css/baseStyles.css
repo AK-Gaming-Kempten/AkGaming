@@ -170,6 +170,7 @@ button.btn-sm, .btn.btn-sm {
     grid-template-columns: 1fr 1fr;
     gap: 1rem;
     min-height: 0;
+    align-items: stretch;
 }
 
 .two-column-layout-left,
@@ -184,10 +185,12 @@ button.btn-sm, .btn.btn-sm {
     display: grid;
     gap: 0.25rem;
     grid-template-columns: 1fr auto auto;
+    align-items: center;
 }
 
 .list-buttons h4 {
     margin-top: 0;
+    margin-bottom: 0.5rem;
 }
 
 .list-buttons .btn {
@@ -291,6 +294,10 @@ button.btn-sm, .btn.btn-sm {
     padding: 0.2rem 0.5rem;
 }
 
+.mobile-detail-nav {
+    display: none;
+}
+
 /* ==== SCROLLABLE LIST ==== */
 
 .scrollable {
@@ -361,5 +368,82 @@ body {
 @media (max-width: 900px) {
     .ui-grid-2 {
         grid-template-columns: 1fr;
+    }
+
+    .two-column-layout {
+        grid-template-columns: 1fr;
+        gap: 0.75rem;
+    }
+
+    .two-column-layout-left,
+    .two-column-layout-right {
+        overflow: visible;
+    }
+
+    .list-buttons {
+        grid-template-columns: 1fr auto;
+        gap: 0.5rem;
+    }
+
+    .list-buttons h4 {
+        grid-column: 1 / -1;
+        margin-bottom: 0;
+    }
+
+    .list-buttons .btn {
+        margin-bottom: 0;
+    }
+
+    .list-main {
+        overflow: visible;
+    }
+
+    .list-scroll-container {
+        max-height: 40dvh;
+        padding-right: 0;
+    }
+
+    .list-scroll-container::after {
+        height: 24px;
+    }
+
+    .two-column-layout.mobile-master-detail {
+        display: block;
+        width: 100%;
+        gap: 0;
+    }
+
+    .two-column-layout.mobile-master-detail .two-column-layout-left,
+    .two-column-layout.mobile-master-detail .two-column-layout-right {
+        max-width: 100%;
+        min-height: 0;
+    }
+
+    .two-column-layout.mobile-master-detail:not(.mobile-detail-open) .two-column-layout-right {
+        display: none;
+    }
+
+    .two-column-layout.mobile-master-detail.mobile-detail-open .two-column-layout-left {
+        display: none;
+    }
+
+    .mobile-detail-nav {
+        display: flex;
+        align-items: center;
+        margin-bottom: 0.75rem;
+    }
+}
+
+@media (max-width: 560px) {
+    .list-buttons {
+        grid-template-columns: 1fr;
+    }
+
+    .list-buttons .btn {
+        width: 100%;
+    }
+
+    .mobile-detail-nav .btn {
+        width: auto;
     }
 }

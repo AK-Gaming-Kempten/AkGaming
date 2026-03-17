@@ -4,7 +4,7 @@
 
 <PageTitle>Identity Users</PageTitle>
 
-<div class="identity-users-page">
+<div class="identity-users-page mobile-master-detail @(_isMobileDetailOpen ? "mobile-detail-open" : string.Empty)">
     <div class="users-list-pane card">
         <h4>Users</h4>
 
@@ -46,6 +46,12 @@
     </div>
 
     <div class="user-detail-pane card">
+        <div class="mobile-detail-nav">
+            <button type="button" class="btn btn-outline-secondary btn-sm" @onclick="ShowListMobile">
+                <span class="bi bi-arrow-left"></span>
+                Back to users
+            </button>
+        </div>
         <h4>User Details & Roles</h4>
 
         @if (_selectedUserDetails is null)

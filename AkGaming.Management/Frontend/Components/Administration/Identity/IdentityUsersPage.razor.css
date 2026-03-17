@@ -111,6 +111,14 @@
         grid-template-columns: 1fr;
         min-height: auto;
     }
+
+    .identity-users-page.mobile-master-detail:not(.mobile-detail-open) .user-detail-pane {
+        display: none;
+    }
+
+    .identity-users-page.mobile-master-detail.mobile-detail-open .users-list-pane {
+        display: none;
+    }
 }
 
 @media (max-width: 700px) {

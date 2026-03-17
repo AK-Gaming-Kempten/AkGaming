@@ -1,5 +1,5 @@
 .two-column-layout {
-    height: 92vh;
+    min-height: clamp(34rem, 88dvh, 64rem);
 }
 
 .list-buttons {
@@ -86,4 +86,26 @@
     background: var(--color-button-danger-bg);
     border-radius: 4px;
     padding: 0.1rem 0.35rem;
+}
+
+@media (max-width: 900px) {
+    .two-column-layout {
+        min-height: 0;
+    }
+
+    .member-preview-card-content {
+        grid-template-columns: 1fr 1fr;
+        gap: 0.35rem 0.75rem;
+    }
+
+    .member-preview-card-content > div {
+        white-space: normal;
+        overflow: visible;
+        text-overflow: clip;
+    }
+
+    .trial-remaining {
+        grid-column: 1 / -1;
+        justify-self: start;
+    }
 }

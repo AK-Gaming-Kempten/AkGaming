@@ -1,24 +1,36 @@
 ﻿@inherits LayoutComponentBase
 
-<div class="mobile-warning">
-    <div>
-        <img src="images/icons/AKG_Logos/Red.png" alt="AKGaming Logo" class="mobile-warning-logo" />
-        <h2>Oh No!</h2>
-        <strong>Mobile view is still in the works.</strong><br/>
-        Please open this site on a larger screen.
-    </div>
-</div>
-
 <div class="page">
-    <div class="sidebar">
-        <NavMenu/>
-    </div>
+    <header class="mobile-header">
+        <button type="button"
+                class="mobile-menu-toggle"
+                aria-label="Toggle navigation menu"
+                aria-expanded="@_isMobileNavOpen"
+                @onclick="ToggleMobileNav">
+            <span class="bi bi-list"></span>
+        </button>
+        <div class="mobile-header-brand">
+            <img src="images/icons/AKG_Logos/default.png" alt="AKGaming Logo" class="mobile-header-logo" />
+            <span>Management Tool</span>
+        </div>
+    </header>
 
-    <main>
-        <article class="content">
-            @Body
-        </article>
-    </main>
+    <div class="layout-shell">
+        <aside class="sidebar-drawer @(_isMobileNavOpen ? "is-open" : string.Empty)">
+            <NavMenu OnNavigate="CloseMobileNav" />
+        </aside>
+
+        @if (_isMobileNavOpen)
+        {
+            <button type="button" class="sidebar-backdrop" aria-label="Close navigation menu" @onclick="CloseMobileNav"></button>
+        }
+
+        <main @onclick="CloseMobileNavIfOpen">
+            <article class="content">
+                @Body
+            </article>
+        </main>
+    </div>
 </div>
 
 <div id="blazor-error-ui" data-nosnippet>
@@ -26,3 +38,19 @@
     <a href="." class="reload">Reload</a>
     <span class="dismiss">🗙</span>
 </div>
+
+@code {
+    private bool _isMobileNavOpen;
+
+    private void ToggleMobileNav() => _isMobileNavOpen = !_isMobileNavOpen;
+
+    private void CloseMobileNav() => _isMobileNavOpen = false;
+
+    private void CloseMobileNavIfOpen()
+    {
+        if (_isMobileNavOpen)
+        {
+            _isMobileNavOpen = false;
+        }
+    }
+}

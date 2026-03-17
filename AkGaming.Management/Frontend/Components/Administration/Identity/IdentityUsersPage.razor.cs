@@ -24,6 +24,7 @@ public partial class IdentityUsersPage : ComponentBase {
     private string? _error;
     private string? _success;
     private bool _isBusy;
+    private bool _isMobileDetailOpen;
 
     protected override async Task OnInitializedAsync() {
         await LoadRolesCatalogAsync();
@@ -101,6 +102,7 @@ public partial class IdentityUsersPage : ComponentBase {
             _selectedUserId = null;
             _selectedRoles.Clear();
             _currentRoles.Clear();
+            _isMobileDetailOpen = false;
         }
     }
 
@@ -121,6 +123,7 @@ public partial class IdentityUsersPage : ComponentBase {
 
         _selectedUserId = userId;
         _selectedUserDetails = detailsResult.Value;
+        _isMobileDetailOpen = true;
 
         _currentRoles.Clear();
         _selectedRoles.Clear();
@@ -186,5 +189,15 @@ public partial class IdentityUsersPage : ComponentBase {
         }
 
         _success = "User roles updated.";
+    }
+
+    private void ShowListMobile() {
+        _isMobileDetailOpen = false;
+        _selectedUserDetails = null;
+        _selectedUserId = null;
+        _selectedRoles.Clear();
+        _currentRoles.Clear();
+        _error = null;
+        _success = null;
     }
 }

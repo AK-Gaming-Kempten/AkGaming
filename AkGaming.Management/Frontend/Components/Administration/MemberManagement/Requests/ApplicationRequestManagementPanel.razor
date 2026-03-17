@@ -1,6 +1,6 @@
 @inject HttpClient Api
 
-<div class="two-column-layout">
+<div class="two-column-layout mobile-master-detail @(_isMobileDetailOpen ? "mobile-detail-open" : string.Empty)">
     <div class="two-column-layout-left">
         <div class="list-buttons">
             <h4>Pending Requests</h4>
@@ -25,6 +25,12 @@
         </div>
     </div>
     <div class="two-column-layout-right">
+        <div class="mobile-detail-nav">
+            <button type="button" class="btn btn-outline-secondary btn-sm" @onclick="ShowListMobile">
+                <span class="bi bi-arrow-left"></span>
+                Back to requests
+            </button>
+        </div>
         <CascadingValue Value="MemberApi" Name="MemberManagementApi" IsFixed="true">
             <ApplicationRequestCard IsEditable="true" Request="_selectedRequest" OnRequestUpdated="Reload" />
         </CascadingValue>  

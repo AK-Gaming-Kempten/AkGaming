@@ -4,7 +4,7 @@
 
 <PageTitle>Trial Members</PageTitle>
 
-<div class="two-column-layout">
+<div class="two-column-layout mobile-master-detail @(_isMobileDetailOpen ? "mobile-detail-open" : string.Empty)">
     <div class="two-column-layout-left">
         <div class="list-buttons">
             <h4>Trial Members</h4>
@@ -70,6 +70,12 @@
     </div>
 
     <div class="two-column-layout-right">
+        <div class="mobile-detail-nav">
+            <button type="button" class="btn btn-outline-secondary btn-sm" @onclick="ShowListMobile">
+                <span class="bi bi-arrow-left"></span>
+                Back to trial members
+            </button>
+        </div>
         <CascadingValue Value="MemberApi" Name="MemberManagementApi" IsFixed="true">
             <MemberCard Member="_selectedMember" IsEditable="true" IsStatusEditable="true" OnMemberUpdated="ReloadAfterUpdate" />
         </CascadingValue>

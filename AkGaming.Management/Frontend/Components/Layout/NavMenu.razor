@@ -9,12 +9,12 @@
 
     <div class="sidebar-content">
         <nav class="sidebar-nav">
-            <NavLink href="" Match="NavLinkMatch.All" class="nav-item level-1">
+            <NavLink href="" Match="NavLinkMatch.All" class="nav-item level-1" @onclick="NotifyNavigation">
                 <span class="nav-icon bi-house-door-fill"></span>
                 <span>Home</span>
             </NavLink>
 
-            <NavLink href="membership" class="nav-item level-1">
+            <NavLink href="membership" class="nav-item level-1" @onclick="NotifyNavigation">
                 <span class="nav-icon bi-person-fill"></span>
                 <span>Membership</span>
             </NavLink>
@@ -29,27 +29,27 @@
 
                     @if (isMemberManagementExpanded)
                     {
-                        <NavLink href="member-management/members" class="nav-item level-2">
+                        <NavLink href="member-management/members" class="nav-item level-2" @onclick="NotifyNavigation">
                             <span class="nav-icon bi-people-fill"></span>
                             <span>Members</span>
                         </NavLink>
 
-                        <NavLink href="member-management/trial" class="nav-item level-2">
+                        <NavLink href="member-management/trial" class="nav-item level-2" @onclick="NotifyNavigation">
                             <span class="nav-icon bi-hourglass-split"></span>
                             <span>Trial</span>
                         </NavLink>
                         
-                        <NavLink href="member-management/requests" class="nav-item level-2">
+                        <NavLink href="member-management/requests" class="nav-item level-2" @onclick="NotifyNavigation">
                             <span class="nav-icon bi-envelope-fill"></span>
                             <span>Requests</span>
                         </NavLink>
 
-                        <NavLink href="member-management/dues" class="nav-item level-2">
+                        <NavLink href="member-management/dues" class="nav-item level-2" @onclick="NotifyNavigation">
                             <span class="nav-icon bi-cash-stack"></span>
                             <span>Dues</span>
                         </NavLink>
 
-                        <NavLink href="member-management/audit-log" class="nav-item level-2">
+                        <NavLink href="member-management/audit-log" class="nav-item level-2" @onclick="NotifyNavigation">
                             <span class="nav-icon bi-journal-text"></span>
                             <span>Audit Log</span>
                         </NavLink>
@@ -68,17 +68,17 @@
 
                     @if (isIdentityExpanded)
                     {
-                        <NavLink href="identity/roles" class="nav-item level-2">
+                        <NavLink href="identity/roles" class="nav-item level-2" @onclick="NotifyNavigation">
                             <span class="nav-icon bi-person-badge-fill"></span>
                             <span>Roles</span>
                         </NavLink>
 
-                        <NavLink href="identity/users" class="nav-item level-2">
+                        <NavLink href="identity/users" class="nav-item level-2" @onclick="NotifyNavigation">
                             <span class="nav-icon bi-person-gear"></span>
                             <span>Users</span>
                         </NavLink>
                         
-                        <NavLink href="identity/audit-log" class="nav-item level-2">
+                        <NavLink href="identity/audit-log" class="nav-item level-2" @onclick="NotifyNavigation">
                             <span class="nav-icon bi-journal-text"></span>
                             <span>Audit Log</span>
                         </NavLink>
@@ -96,7 +96,7 @@
 
                     @if (isDebugExpanded)
                     {
-                        <NavLink href="debug" class="nav-item level-2">
+                        <NavLink href="debug" class="nav-item level-2" @onclick="NotifyNavigation">
                             <span class="nav-icon bi-diagram-3-fill"></span>
                             <span>API</span>
                         </NavLink>
@@ -105,11 +105,15 @@
             }
         </nav>
     </div>
-    <ThemeSwitcherBox />
-    <UserBox />
+    <div class="sidebar-footer">
+        <ThemeSwitcherBox />
+        <UserBox />
+    </div>
 </div>
 
 @code {
+    [Parameter] public EventCallback OnNavigate { get; set; }
+
     private bool isAuthenticated;
     private bool isAdmin;
     private bool isDebug;
@@ -132,4 +136,9 @@
     private void ToggleMemberManagementExpanded() => isMemberManagementExpanded = !isMemberManagementExpanded;
     private void ToggleIdentityExpanded() => isIdentityExpanded = !isIdentityExpanded;
     private void ToggleDebugExpanded() => isDebugExpanded = !isDebugExpanded;
+
+    private Task NotifyNavigation()
+    {
+        return OnNavigate.HasDelegate ? OnNavigate.InvokeAsync() : Task.CompletedTask;
+    }
 }

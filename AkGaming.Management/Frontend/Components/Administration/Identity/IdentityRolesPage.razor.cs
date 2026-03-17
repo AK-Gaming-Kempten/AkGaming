@@ -14,6 +14,7 @@ public partial class IdentityRolesPage : ComponentBase {
 
     private string _newRoleName = string.Empty;
     private string _renameRoleName = string.Empty;
+    private bool _isMobileDetailOpen;
 
     private string? _error;
     private string? _success;
@@ -58,6 +59,7 @@ public partial class IdentityRolesPage : ComponentBase {
         _selectedRoleId = role.Id;
         _selectedRole = role;
         _renameRoleName = role.Name;
+        _isMobileDetailOpen = true;
         _error = null;
         _success = null;
     }
@@ -150,5 +152,15 @@ public partial class IdentityRolesPage : ComponentBase {
         _success = $"Deleted role '{roleName}'.";
 
         await LoadRolesAsync();
+        _isMobileDetailOpen = false;
+    }
+
+    private void ShowListMobile() {
+        _isMobileDetailOpen = false;
+        _selectedRoleId = null;
+        _selectedRole = null;
+        _renameRoleName = string.Empty;
+        _error = null;
+        _success = null;
     }
 }

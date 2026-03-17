@@ -14,6 +14,7 @@ public partial class MemberManagementPage : ComponentBase {
     private string? _createError;
 
     private MemberDto? _selectedMember = null;
+    private bool _isMobileDetailOpen;
 
     protected override async Task OnInitializedAsync() {
         await LoadMembersAsync();
@@ -36,11 +37,13 @@ public partial class MemberManagementPage : ComponentBase {
     
     private void SelectMember(MemberDto member) {
         _selectedMember = member;
+        _isMobileDetailOpen = true;
         StateHasChanged();
     }
     
     private void SelectMember(Guid id) {
         _selectedMember = _members?.FirstOrDefault(m => m.Id == id);
+        _isMobileDetailOpen = _selectedMember is not null;
         StateHasChanged();
     }
     
@@ -64,4 +67,9 @@ public partial class MemberManagementPage : ComponentBase {
     private void OpenFilters() {
         // TODO
     }
-}
+
+    private void ShowListMobile() {
+        _isMobileDetailOpen = false;
+        _selectedMember = null;
+    }
+} 

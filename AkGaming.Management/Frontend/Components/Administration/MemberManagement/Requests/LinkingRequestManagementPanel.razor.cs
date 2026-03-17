@@ -12,6 +12,7 @@ public partial class LinkingRequestManagementPanel : ComponentBase {
     private List<MemberLinkingRequestDto>? _requests;
     
     private MemberLinkingRequestDto? _selectedRequest = null;
+    private bool _isMobileDetailOpen;
 
     protected override async Task OnInitializedAsync() {
         await LoadLinkingRequestsAsync();
@@ -33,11 +34,13 @@ public partial class LinkingRequestManagementPanel : ComponentBase {
     
     private void SelectRequest(MemberLinkingRequestDto request) {
         _selectedRequest = request;
+        _isMobileDetailOpen = true;
         StateHasChanged();
     }
     
     private void SelectRequest(Guid id) {
         _selectedRequest = _requests?.FirstOrDefault(r => r.Id == id);
+        _isMobileDetailOpen = _selectedRequest is not null;
         StateHasChanged();
     }
     
@@ -50,4 +53,9 @@ public partial class LinkingRequestManagementPanel : ComponentBase {
     private void OpenFilters() {
         // TODO
     }
-}
+
+    private void ShowListMobile() {
+        _isMobileDetailOpen = false;
+        _selectedRequest = null;
+    }
+} 

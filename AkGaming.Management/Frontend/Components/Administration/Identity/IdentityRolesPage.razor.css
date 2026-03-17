@@ -68,4 +68,12 @@
         grid-template-columns: 1fr;
         min-height: auto;
     }
+
+    .identity-roles-page.mobile-master-detail:not(.mobile-detail-open) .role-editor-pane {
+        display: none;
+    }
+
+    .identity-roles-page.mobile-master-detail.mobile-detail-open .roles-list-pane {
+        display: none;
+    }
 }

@@ -15,6 +15,7 @@ public partial class MemberManagementTrialPage : ComponentBase {
     private MemberDto? _selectedMember;
     private bool _isLoading = true;
     private string? _loadError;
+    private bool _isMobileDetailOpen;
 
     protected override async Task OnInitializedAsync() {
         await LoadTrialMembersAsync();
@@ -83,11 +84,18 @@ public partial class MemberManagementTrialPage : ComponentBase {
 
     private void SelectMember(MemberDto member) {
         _selectedMember = member;
+        _isMobileDetailOpen = true;
     }
 
     private async Task ReloadAfterUpdate(MemberDto member) {
         await LoadTrialMembersAsync();
         _selectedMember = _trialMembers.FirstOrDefault(m => m.Id == member.Id);
+        _isMobileDetailOpen = _selectedMember is not null;
+    }
+
+    private void ShowListMobile() {
+        _isMobileDetailOpen = false;
+        _selectedMember = null;
     }
 
     private sealed record TrialPeriodInfo(

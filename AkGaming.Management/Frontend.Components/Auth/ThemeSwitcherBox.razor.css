@@ -11,10 +11,8 @@
     padding: 0.8rem 1rem;
     color: var(--color-text-special);
     font-size: 0.9rem;
-    position: sticky;
-    bottom: 0;
-    left: 0;
-    right: 0;
+    box-sizing: border-box;
+    align-items: center;
 }
 
 /* Center button content & make them fill cells */

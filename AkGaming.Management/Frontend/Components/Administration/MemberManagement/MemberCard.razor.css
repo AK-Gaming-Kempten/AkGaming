@@ -71,3 +71,14 @@ input:focus {
 .readonly-mode ::deep textarea[readonly] {
     border-color: transparent;
 }
+
+@media (max-width: 900px) {
+    .member-card {
+        height: auto;
+        overflow: visible;
+    }
+
+    .member-card-content {
+        max-height: none;
+    }
+}

@@ -1,3 +1,9 @@
 .two-column-layout {
-    height: 86vh;
+    min-height: clamp(34rem, 86dvh, 64rem);
+}
+
+@media (max-width: 900px) {
+    .two-column-layout {
+        min-height: 0;
+    }
 }

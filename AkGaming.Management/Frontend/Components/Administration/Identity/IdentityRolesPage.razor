@@ -4,7 +4,7 @@
 
 <PageTitle>Identity Roles</PageTitle>
 
-<div class="identity-roles-page">
+<div class="identity-roles-page mobile-master-detail @(_isMobileDetailOpen ? "mobile-detail-open" : string.Empty)">
     <div class="roles-list-pane">
         <div class="pane-header">
             <h4>Roles</h4>
@@ -44,6 +44,12 @@
     </div>
 
     <div class="role-editor-pane card">
+        <div class="mobile-detail-nav">
+            <button type="button" class="btn btn-outline-secondary btn-sm" @onclick="ShowListMobile">
+                <span class="bi bi-arrow-left"></span>
+                Back to roles
+            </button>
+        </div>
         <h4>Role Details</h4>
 
         @if (_selectedRole is null)
