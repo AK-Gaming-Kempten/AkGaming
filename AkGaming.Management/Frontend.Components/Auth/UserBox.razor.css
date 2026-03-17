@@ -2,7 +2,7 @@
 .user-box {
     --user-box-bg: var(--color-background-special);
     --user-box-border: rgba(255, 255, 255, 0.1);
-    --user-text: var(--color-text-secondary);
+    --user-text: var(--color-highlight-secondary);
     --user-name: var(--color-highlight-primary);
     --user-btn-bg: var(--color-highlight-secondary);
     --user-btn-hover-bg: var(--color-highlight-primary);

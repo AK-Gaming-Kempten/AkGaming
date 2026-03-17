@@ -1,4 +1,5 @@
 ﻿@inherits LayoutComponentBase
+@inject NavigationManager Nav
 
 <div class="page">
     <header class="mobile-header">
@@ -26,7 +27,7 @@
         }
 
         <main @onclick="CloseMobileNavIfOpen">
-            <article class="content">
+            <article class="content @(IsHomeRoute ? "content-fullbleed" : string.Empty)">
                 @Body
             </article>
         </main>
@@ -41,6 +42,7 @@
 
 @code {
     private bool _isMobileNavOpen;
+    private bool IsHomeRoute => string.IsNullOrWhiteSpace(Nav.ToBaseRelativePath(Nav.Uri));
 
     private void ToggleMobileNav() => _isMobileNavOpen = !_isMobileNavOpen;
 

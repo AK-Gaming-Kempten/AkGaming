@@ -1,31 +1,58 @@
-.panels {
+.home-hero {
+    min-height: 100dvh;
+    padding: clamp(1.5rem, 3vw, 3rem);
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 2rem;
+    justify-items: center;
+    align-content: center;
+    gap: 1rem;
+    text-align: center;
+    background:
+        radial-gradient(circle at 10% 20%, rgba(72, 203, 79, 0.26), transparent 44%),
+        radial-gradient(circle at 90% 80%, rgba(40, 108, 63, 0.34), transparent 40%),
+        linear-gradient(160deg, #0f221e, #1a1a1a);
+    box-sizing: border-box;
+    color: #f3f7f5;
+}
+
+.home-hero-icon {
+    width: clamp(5.5rem, 10vw, 8rem);
+    height: clamp(5.5rem, 10vw, 8rem);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.home-hero-logo {
     width: 100%;
-    max-width: 1200px;
+    height: 100%;
+    object-fit: contain;
 }
 
-.panels h2 {
-    margin-top: 0;
-    color: var(--color-highlight-primary);
+.home-hero h1 {
+    margin: 0;
+    color: #f3f7f5;
 }
 
-.panels h4{
-    margin-top: 0;
-    color: var(--color-highlight-secondary);
+.home-hero-subtitle {
+    max-width: 44rem;
+    margin: 0;
+    color: #c4d2cc;
+    font-size: clamp(1rem, 1.3vw, 1.15rem);
 }
 
-.panels .section-header {
-    color: var(--color-text-primary);
+.home-hero-cta {
+    min-width: 10rem;
 }
 
-.card {
-    height: 130px;
-    margin-bottom: 1rem;
-    cursor: pointer;
+.home-hero-teaser {
+    margin: 0;
+    color: #69df72;
+    font-weight: 600;
 }
 
-.card p {
-    margin-top: 0;
+@media (max-width: 700px) {
+    .home-hero {
+        min-height: calc(100dvh - 3.5rem);
+        padding: 2rem 1rem;
+    }
 }
