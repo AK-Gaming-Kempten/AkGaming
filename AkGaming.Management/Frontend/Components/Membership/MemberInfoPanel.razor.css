@@ -271,15 +271,44 @@
 .member-read-grid {
     margin: 0;
     display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 0.45rem;
     flex: 1;
 }
 
+.member-read-sections {
+    display: grid;
+    gap: 0.85rem;
+}
+
+.member-read-section {
+    display: grid;
+    gap: 0.35rem;
+}
+
+.member-read-section-divider {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+}
+
+.member-read-section-icon {
+    color: var(--color-text-secondary);
+    font-size: 0.95rem;
+    line-height: 1;
+}
+
+.member-read-section-line {
+    flex: 1;
+    height: 1px;
+    background: color-mix(in srgb, var(--color-text-secondary) 65%, transparent);
+}
+
 .member-read-grid div {
-    padding: 0.3rem 0.45rem;
-    border: 1px solid var(--color-text-secondary);
-    border-radius: 4px;
-    background: color-mix(in srgb, var(--color-background-primary) 90%, var(--color-background-secondary) 10%);
+    padding: 0.15rem 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
 }
 
 .member-read-grid dt {
@@ -308,6 +337,16 @@
     .member-badge-main {
         align-items: center;
         text-align: center;
+    }
+
+    .member-read-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 560px) {
+    .member-read-grid {
+        grid-template-columns: 1fr;
     }
 }
 

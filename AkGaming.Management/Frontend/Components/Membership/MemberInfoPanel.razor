@@ -39,18 +39,44 @@
                 </div>
             </div>
             @if (!EditMode) {
-                <dl class="member-read-grid">
-                    <div><dt>First name</dt><dd>@ValueOrDash(_localMember.FirstName)</dd></div>
-                    <div><dt>Last name</dt><dd>@ValueOrDash(_localMember.LastName)</dd></div>
-                    <div><dt>Birth date</dt><dd>@(_localMember.BirthDate?.ToString("yyyy-MM-dd") ?? "-")</dd></div>
-                    <div><dt>Email</dt><dd>@ValueOrDash(_localMember.Email)</dd></div>
-                    <div><dt>Phone</dt><dd>@ValueOrDash(_localMember.Phone)</dd></div>
-                    <div><dt>Discord</dt><dd>@ValueOrDash(_localMember.DiscordUserName)</dd></div>
-                    <div><dt>Street</dt><dd>@ValueOrDash(_localMember.Address.Street)</dd></div>
-                    <div><dt>ZIP</dt><dd>@ValueOrDash(_localMember.Address.ZipCode)</dd></div>
-                    <div><dt>City</dt><dd>@ValueOrDash(_localMember.Address.City)</dd></div>
-                    <div><dt>Country</dt><dd>@ValueOrDash(_localMember.Address.Country)</dd></div>
-                </dl>
+                <div class="member-read-sections">
+                    <section class="member-read-section">
+                        <div class="member-read-section-divider" aria-hidden="true">
+                            <span class="member-read-section-icon bi bi-person"></span>
+                            <span class="member-read-section-line"></span>
+                        </div>
+                        <dl class="member-read-grid">
+                            <div><dt>First name</dt><dd>@ValueOrDash(_localMember.FirstName)</dd></div>
+                            <div><dt>Last name</dt><dd>@ValueOrDash(_localMember.LastName)</dd></div>
+                            <div><dt>Birth date</dt><dd>@(_localMember.BirthDate?.ToString("yyyy-MM-dd") ?? "-")</dd></div>
+                        </dl>
+                    </section>
+
+                    <section class="member-read-section">
+                        <div class="member-read-section-divider" aria-hidden="true">
+                            <span class="member-read-section-icon bi bi-envelope"></span>
+                            <span class="member-read-section-line"></span>
+                        </div>
+                        <dl class="member-read-grid">
+                            <div><dt>Email</dt><dd>@ValueOrDash(_localMember.Email)</dd></div>
+                            <div><dt>Phone</dt><dd>@ValueOrDash(_localMember.Phone)</dd></div>
+                            <div><dt>Discord</dt><dd>@ValueOrDash(_localMember.DiscordUserName)</dd></div>
+                        </dl>
+                    </section>
+
+                    <section class="member-read-section">
+                        <div class="member-read-section-divider" aria-hidden="true">
+                            <span class="member-read-section-icon bi bi-geo-alt"></span>
+                            <span class="member-read-section-line"></span>
+                        </div>
+                        <dl class="member-read-grid">
+                            <div><dt>Street</dt><dd>@ValueOrDash(_localMember.Address.Street)</dd></div>
+                            <div><dt>ZIP</dt><dd>@ValueOrDash(_localMember.Address.ZipCode)</dd></div>
+                            <div><dt>City</dt><dd>@ValueOrDash(_localMember.Address.City)</dd></div>
+                            <div><dt>Country</dt><dd>@ValueOrDash(_localMember.Address.Country)</dd></div>
+                        </dl>
+                    </section>
+                </div>
             }
             else {
                 <div class="ui-grid-auto-180">
