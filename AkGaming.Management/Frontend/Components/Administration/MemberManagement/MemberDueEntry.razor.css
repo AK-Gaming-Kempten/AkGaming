@@ -38,7 +38,7 @@
 
 .due-status-cancelled {
     background: color-mix(in srgb, var(--color-status-cancelled) 25%, transparent);
-    color: #4b5563;
+    color: var(--color-text-secondary);
 }
 
 .due-entry-editor {

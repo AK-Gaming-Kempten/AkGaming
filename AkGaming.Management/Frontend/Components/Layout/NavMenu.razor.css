@@ -1,10 +1,10 @@
 /* ==== SIDEBAR ==== */
 .sidebar {
     --color-nav-bg: var(--color-background-special);
-    --color-nav-border: rgba(255, 255, 255, 0.08);
+    --color-nav-border: color-mix(in oklab, var(--color-text-secondary) 55%, transparent);
 
     --color-nav-item-bg: transparent;
-    --color-nav-item-hover-bg: rgba(255, 255, 255, 0.08);
+    --color-nav-item-hover-bg: color-mix(in oklab, var(--color-background-secondary) 30%, transparent);
     --color-nav-item-active-bg: var(--color-highlight-secondary);
 
     --color-nav-item-text: var(--color-text-special);
@@ -64,7 +64,7 @@
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    color: var(--color-text-tertiary);
+    color: var(--color-text-special-secondary);
     font-size: 0.9rem;
     font-weight: 600;
     padding: 0.25rem 0.5rem;
@@ -106,7 +106,7 @@
     background: linear-gradient(
             90deg,
             var(--color-nav-bg) 0%,
-            var(--color-highlight-primary) 100%
+            color-mix(in oklab, var(--color-nav-item-active-bg) 75%, var(--color-highlight-primary) 25%) 100%
     );
     color: var(--color-nav-item-active-text);
 }

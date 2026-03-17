@@ -1,6 +1,6 @@
 .status-section{
     --status-bg: var(--color-background-secondary);
-    --status-border: var(--color-text-tertiary);
+    --status-border: var(--color-text-secondary);
     --status-text: var(--color-text-primary);
     --status-accent: var(--color-highlight-primary);
     
@@ -33,7 +33,7 @@
 
 .status-list li {
     padding: 0.5rem 0;
-    border-bottom: 1px solid rgba(255,255,255,0.08);
+    border-bottom: 1px solid var(--status-border);
 }
 .status-list li:last-child { border-bottom: none; }
 
@@ -105,6 +105,6 @@ label {
 ::deep(.validation-message) {
     display: block;
     font-size: 0.8rem;
-    color: var(--color-error, #ff6b6b);
+    color: var(--color-button-danger-bg);
     margin-top: 0.2rem;
 }

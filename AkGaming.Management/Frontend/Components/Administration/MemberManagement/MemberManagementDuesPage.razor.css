@@ -47,7 +47,7 @@
 }
 
 .dues-half-pie-inner span {
-    color: var(--color-text-tertiary);
+    color: var(--color-text-secondary);
     font-size: 0.85rem;
 }
 
@@ -82,7 +82,7 @@
 
 .dues-chip-cancelled {
     background: color-mix(in srgb, var(--dues-cancelled) 25%, transparent);
-    color: #4b5563;
+    color: var(--color-text-secondary);
 }
 
 .status-message {

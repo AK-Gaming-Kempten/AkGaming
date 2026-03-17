@@ -1,7 +1,7 @@
 /* ==== FORM CONTAINER ==== */
 .member-form {
     --form-bg: var(--color-background-primary);
-    --form-border: var(--color-text-tertiary);
+    --form-border: var(--color-text-secondary);
     --form-label: var(--color-text-secondary);
     --form-input-bg: var(--color-input-primary-bg);
     --form-input-text: var(--color-input-primary-text);

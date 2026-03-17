@@ -1,61 +1,9 @@
 .two-column-layout {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 1rem;
     height: 92vh;
 }
 
-.two-column-layout-left,
-.two-column-layout-right {
-    display: flex;
-    flex-direction: column;
-    min-height: 0;
-    overflow: visible;
-}
-
 .list-buttons {
-    display: grid;
-    gap: 0.25rem;
     grid-template-columns: 1fr auto;
-}
-
-.list-buttons h4 {
-    margin-top: 0;
-}
-
-.list-buttons .btn {
-    margin-bottom: 0.5rem;
-}
-
-.list-main {
-    flex: 1;
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
-}
-
-.list-scroll-container {
-    flex: 1;
-    overflow-y: auto;
-    padding-right: 8px;
-    position: relative;
-    scroll-behavior: smooth;
-}
-
-.preview-card-list {
-    display: grid;
-    gap: 0.5rem;
-    width: 100%;
-}
-
-.list-scroll-container::after {
-    content: "";
-    position: sticky;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    height: 40px;
-    pointer-events: none;
 }
 
 .trial-member-preview {
@@ -76,7 +24,7 @@
     background: linear-gradient(
             90deg,
             var(--color-card-hover-bg) 0%,
-            rgba(255, 255, 255, 0.05) 100%
+            color-mix(in oklab, var(--color-card-hover-bg) 75%, var(--color-background-special) 25%) 100%
     );
     border-color: var(--color-card-highlight);
 }
@@ -91,7 +39,7 @@
             var(--color-highlight-secondary) 0%,
             var(--color-card-bg) 100%
     );
-    color: var(--color-text-secondary);
+    color: var(--color-text-primary);
 }
 
 .member-preview-card-content {
@@ -122,11 +70,11 @@
 
 .trial-loading,
 .trial-error {
-    color: var(--color-text-tertiary);
+    color: var(--color-text-secondary);
 }
 
 .trial-end-date {
-    color: var(--color-text-tertiary);
+    color: var(--color-text-secondary);
 }
 
 .expired-badge {
@@ -136,6 +84,6 @@
     letter-spacing: 0.03em;
     color: var(--color-button-danger-text);
     background: var(--color-button-danger-bg);
-    border-radius: 2px;
+    border-radius: 4px;
     padding: 0.1rem 0.35rem;
 }

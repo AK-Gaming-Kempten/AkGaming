@@ -1,6 +1,8 @@
 .request-management-page{
-    --tabs-border: var(--color-text-tertiary);
+    --tabs-border: var(--color-text-secondary);
     --tabs-text-color: var(--color-text-primary);
+    --tabs-hover-bg: color-mix(in oklab, var(--color-background-secondary) 75%, var(--color-background-primary) 25%);
+    --tabs-accent: var(--color-highlight-secondary);
     
     display: flex;
     flex-direction: column;
@@ -26,10 +28,10 @@
 }
 
 .tabs .tab:hover {
-    background: color-mix(in oklab, var(--status-bg) 85%, black 15%);
+    background: var(--tabs-hover-bg);
 }
 
 .tabs .tab.active {
-    border-bottom-color: var(--status-accent);
+    border-bottom-color: var(--tabs-accent);
     font-weight: 600;
 }

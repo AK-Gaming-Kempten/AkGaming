@@ -13,7 +13,7 @@
     background: linear-gradient(
             90deg,
             var(--color-card-hover-bg) 0%,
-            rgba(255, 255, 255, 0.05) 100%
+            color-mix(in oklab, var(--color-card-hover-bg) 75%, var(--color-background-special) 25%) 100%
     );
     border-color: var(--color-card-highlight);
 }
@@ -28,7 +28,7 @@
             var(--color-highlight-secondary) 0%,
             var(--color-card-bg) 100%
     );
-    color: var(--color-text-secondary);
+    color: var(--color-text-primary);
 }
 
 /* layout */
@@ -56,8 +56,8 @@
     font-weight: 500;
 }
 
-.staus-resolved {
-    color: var(--color-text-tertiary);
-    opacity: 0.3;
-    font-weight: 100;
+.status-resolved {
+    color: var(--color-text-secondary);
+    opacity: 0.7;
+    font-weight: 400;
 }
