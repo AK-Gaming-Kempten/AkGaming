@@ -21,72 +21,86 @@
 
             @if (isAuthenticated && isAdmin) {
                 <div class="nav-section">
-                    <span class="nav-section-title">
+                    <button type="button" class="nav-section-toggle" @onclick="ToggleMemberManagementExpanded">
                         <span class="nav-icon bi-shield-lock-fill"></span>
                         Member Management
-                    </span>
+                        <span class="nav-chevron bi @(isMemberManagementExpanded ? "bi-chevron-up" : "bi-chevron-down")"></span>
+                    </button>
 
-                    <NavLink href="member-management" class="nav-item level-1">
-                        <span class="nav-icon bi-people-fill"></span>
-                        <span>Members</span>
-                    </NavLink>
+                    @if (isMemberManagementExpanded)
+                    {
+                        <NavLink href="member-management/members" class="nav-item level-2">
+                            <span class="nav-icon bi-people-fill"></span>
+                            <span>Members</span>
+                        </NavLink>
 
-                    <NavLink href="member-management/trial" class="nav-item level-1">
-                        <span class="nav-icon bi-hourglass-split"></span>
-                        <span>Trial Members</span>
-                    </NavLink>
-                    
-                    <NavLink href="member-management/requests" class="nav-item level-1">
-                        <span class="nav-icon bi-envelope-fill"></span>
-                        <span>Applications & Linking Requests</span>
-                    </NavLink>
+                        <NavLink href="member-management/trial" class="nav-item level-2">
+                            <span class="nav-icon bi-hourglass-split"></span>
+                            <span>Trial</span>
+                        </NavLink>
+                        
+                        <NavLink href="member-management/requests" class="nav-item level-2">
+                            <span class="nav-icon bi-envelope-fill"></span>
+                            <span>Requests</span>
+                        </NavLink>
 
-                    <NavLink href="member-management/dues" class="nav-item level-1">
-                        <span class="nav-icon bi-cash-stack"></span>
-                        <span>Membership Dues</span>
-                    </NavLink>
+                        <NavLink href="member-management/dues" class="nav-item level-2">
+                            <span class="nav-icon bi-cash-stack"></span>
+                            <span>Dues</span>
+                        </NavLink>
 
-                    <NavLink href="member-management/audit-log" class="nav-item level-1">
-                        <span class="nav-icon bi-journal-text"></span>
-                        <span>Member Audit Log</span>
-                    </NavLink>
+                        <NavLink href="member-management/audit-log" class="nav-item level-2">
+                            <span class="nav-icon bi-journal-text"></span>
+                            <span>Audit Log</span>
+                        </NavLink>
+                    }
                 </div>
             }
             
             @if (isAuthenticated && isAdmin)
             {
-                <span class="nav-section-title">
-                    <span class="nav-icon bi-person-fill-lock"></span>
-                    Identity
-                </span>
+                <div class="nav-section">
+                    <button type="button" class="nav-section-toggle" @onclick="ToggleIdentityExpanded">
+                        <span class="nav-icon bi-person-fill-lock"></span>
+                        Identity
+                        <span class="nav-chevron bi @(isIdentityExpanded ? "bi-chevron-up" : "bi-chevron-down")"></span>
+                    </button>
 
-                <NavLink href="identity/audit-log" class="nav-item level-1">
-                    <span class="nav-icon bi-journal-text"></span>
-                    <span>Identity Audit Log</span>
-                </NavLink>
+                    @if (isIdentityExpanded)
+                    {
+                        <NavLink href="identity/roles" class="nav-item level-2">
+                            <span class="nav-icon bi-person-badge-fill"></span>
+                            <span>Roles</span>
+                        </NavLink>
 
-                <NavLink href="identity/roles" class="nav-item level-1">
-                    <span class="nav-icon bi-person-badge-fill"></span>
-                    <span>Identity Roles</span>
-                </NavLink>
-
-                <NavLink href="identity/users" class="nav-item level-1">
-                    <span class="nav-icon bi-person-gear"></span>
-                    <span>Identity User Roles</span>
-                </NavLink>
+                        <NavLink href="identity/users" class="nav-item level-2">
+                            <span class="nav-icon bi-person-gear"></span>
+                            <span>Users</span>
+                        </NavLink>
+                        
+                        <NavLink href="identity/audit-log" class="nav-item level-2">
+                            <span class="nav-icon bi-journal-text"></span>
+                            <span>Audit Log</span>
+                        </NavLink>
+                    }
+                </div>
             }
 
             @if (isAuthenticated && isAdmin && isDebug) {
                 <div class="nav-section">
-                    <span class="nav-section-title">
+                    <button type="button" class="nav-section-toggle" @onclick="ToggleDebugExpanded">
                         <span class="nav-icon bi-bug-fill"></span>
                         Debug
-                    </span>
+                        <span class="nav-chevron bi @(isDebugExpanded ? "bi-chevron-up" : "bi-chevron-down")"></span>
+                    </button>
 
-                    <NavLink href="debug" class="nav-item level-1">
-                        <span class="nav-icon bi-diagram-3-fill"></span>
-                        <span>API</span>
-                    </NavLink>
+                    @if (isDebugExpanded)
+                    {
+                        <NavLink href="debug" class="nav-item level-2">
+                            <span class="nav-icon bi-diagram-3-fill"></span>
+                            <span>API</span>
+                        </NavLink>
+                    }
                 </div>
             }
         </nav>
@@ -99,6 +113,9 @@
     private bool isAuthenticated;
     private bool isAdmin;
     private bool isDebug;
+    private bool isMemberManagementExpanded = true;
+    private bool isIdentityExpanded;
+    private bool isDebugExpanded;
 
     protected override async Task OnInitializedAsync() {
         var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
@@ -107,5 +124,12 @@
         isAuthenticated = user.Identity?.IsAuthenticated ?? false;
         isAdmin = isAuthenticated && user.IsInRole("Admin");
         isDebug = isAuthenticated && user.IsInRole("Debug");
+
+        isIdentityExpanded = isAdmin;
+        isDebugExpanded = isDebug;
     }
+
+    private void ToggleMemberManagementExpanded() => isMemberManagementExpanded = !isMemberManagementExpanded;
+    private void ToggleIdentityExpanded() => isIdentityExpanded = !isIdentityExpanded;
+    private void ToggleDebugExpanded() => isDebugExpanded = !isDebugExpanded;
 }

@@ -70,6 +70,27 @@
     padding: 0.25rem 0.5rem;
 }
 
+.nav-section-toggle {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    width: 100%;
+    border: 0;
+    background: transparent;
+    color: var(--color-text-special-secondary);
+    font-size: 0.9rem;
+    font-weight: 600;
+    padding: 0.35rem 0.9rem 0.35rem 0.5rem;
+    text-align: left;
+    cursor: pointer;
+}
+
+.nav-chevron {
+    margin-left: auto;
+    margin-right: 0.35rem;
+    font-size: 1.05rem;
+}
+
 /* ==== BASE NAV ITEM STYLE ==== */
 ::deep a.nav-item,
 ::deep a.nav-item:visited {

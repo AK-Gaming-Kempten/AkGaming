@@ -7,5 +7,5 @@ public partial class Home : ComponentBase {
     private NavigationManager Nav { get; set; } = null!;
     
     private void NavigateToMembership() => Nav.NavigateTo("/membership");
-    private void NavigateToMemberManagement() => Nav.NavigateTo("/member-management");
+    private void NavigateToMemberManagement() => Nav.NavigateTo("/member-management/members");
 }
