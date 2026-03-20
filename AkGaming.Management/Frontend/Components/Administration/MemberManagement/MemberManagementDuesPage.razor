@@ -39,6 +39,26 @@
                     </InputSelect>
                 </div>
 
+                <div class="ui-field dues-control">
+                    <label for="member-name-filter">Filter by name</label>
+                    <InputText id="member-name-filter"
+                               class="ui-input-sm"
+                               placeholder="Search member"
+                               @bind-Value="_memberNameFilter" />
+                </div>
+
+                <div class="ui-field dues-control">
+                    <label for="status-filter">Filter by status</label>
+                    <InputSelect id="status-filter"
+                                 class="ui-select-sm"
+                                 @bind-Value="_selectedStatusFilter">
+                        <option value="">All statuses</option>
+                        @foreach (var status in Enum.GetValues<MembershipDueStatus>()) {
+                            <option value="@status">@status</option>
+                        }
+                    </InputSelect>
+                </div>
+
                 <div class="ui-actions dues-control-actions">
                     <button class="btn btn-sm btn-secondary"
                             @onclick="() => LoadPaymentPeriodsAsync(true)"
@@ -120,7 +140,7 @@
             }
             else {
                 <div class="ui-list dues-entry-list">
-                    @foreach (var due in _dues.OrderBy(x => x.DueDate).ThenBy(x => x.MemberId)) {
+                    @foreach (var due in FilteredAndSortedDues) {
                         <MemberDueEntry Due="@due"
                                         PrimaryMemberLabel="@GetPrimaryMemberLabel(due.MemberId)"
                                         SecondaryMemberLabel="@GetSecondaryMemberLabel(due.MemberId)"

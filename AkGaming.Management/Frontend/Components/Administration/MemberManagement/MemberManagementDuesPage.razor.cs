@@ -20,6 +20,8 @@ public partial class MemberManagementDuesPage : ComponentBase {
     private readonly HashSet<int> _savingDueIds = [];
     private int? _selectedPaymentPeriodId;
     private MemberDisplayMode _memberDisplayMode = MemberDisplayMode.FullName;
+    private string? _memberNameFilter;
+    private MembershipDueStatus? _selectedStatusFilter;
 
     private bool _loadingPaymentPeriods;
     private bool _loadingDues;
@@ -165,6 +167,7 @@ public partial class MemberManagementDuesPage : ComponentBase {
     private int CancelledCount => _dues.Count(x => x.Status == MembershipDueStatus.Cancelled);
     private int WaivedCount => _dues.Count(x => x.Status == MembershipDueStatus.Waived);
     private int TotalCount => _dues.Count;
+    private IEnumerable<MembershipDueDto> FilteredAndSortedDues => BuildFilteredAndSortedDues();
 
     private string GetHalfPieStyle() {
         if (TotalCount == 0)
@@ -186,6 +189,46 @@ public partial class MemberManagementDuesPage : ComponentBase {
     }
 
     private decimal ToHalfPieAngle(int count) => 180m * count / TotalCount;
+
+    private IEnumerable<MembershipDueDto> BuildFilteredAndSortedDues() {
+        IEnumerable<MembershipDueDto> query = _dues;
+
+        if (_selectedStatusFilter is not null)
+            query = query.Where(x => x.Status == _selectedStatusFilter.Value);
+
+        if (!string.IsNullOrWhiteSpace(_memberNameFilter)) {
+            var term = _memberNameFilter.Trim();
+            query = query.Where(x => GetMemberSearchText(x.MemberId).Contains(term, StringComparison.OrdinalIgnoreCase));
+        }
+
+        if (_memberDisplayMode == MemberDisplayMode.FullName) {
+            query = query
+                .OrderBy(x => GetMemberSortName(x.MemberId), StringComparer.OrdinalIgnoreCase)
+                .ThenBy(x => x.DueDate)
+                .ThenBy(x => x.MemberId);
+        }
+        else {
+            query = query
+                .OrderBy(x => x.DueDate)
+                .ThenBy(x => x.MemberId);
+        }
+
+        return query;
+    }
+
+    private string GetMemberSortName(Guid memberId) {
+        if (_memberFullNameLookup.TryGetValue(memberId, out var fullName) && !string.IsNullOrWhiteSpace(fullName))
+            return fullName;
+
+        return memberId.ToString();
+    }
+
+    private string GetMemberSearchText(Guid memberId) {
+        if (_memberFullNameLookup.TryGetValue(memberId, out var fullName) && !string.IsNullOrWhiteSpace(fullName))
+            return fullName;
+
+        return memberId.ToString();
+    }
 
     private string GetPrimaryMemberLabel(Guid memberId) {
         if (_memberDisplayMode == MemberDisplayMode.MemberId)
