@@ -23,6 +23,7 @@ public static class MembershipDueMappingExtensions {
         Name = paymentPeriod.Name,
         DueDate = paymentPeriod.DueDate,
         DefaultDueAmount = paymentPeriod.DefaultDueAmount,
+        ReducedDueAmount = paymentPeriod.ReducedDueAmount,
         CreatedAt = paymentPeriod.CreatedAt
     };
 
@@ -42,6 +43,7 @@ public static class MembershipDueMappingExtensions {
         Name = request.Name,
         DueDate = request.DueDate,
         DefaultDueAmount = request.DefaultDueAmount,
+        ReducedDueAmount = request.ReducedDueAmount,
         CreatedAt = DateTimeOffset.UtcNow
     };
 }

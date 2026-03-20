@@ -7,4 +7,5 @@ public class MembershipPaymentPeriodCreateDto {
     public string Name { get; set; } = string.Empty;
     public DateOnly DueDate { get; set; }
     public decimal DefaultDueAmount { get; set; }
+    public decimal ReducedDueAmount { get; set; }
 }

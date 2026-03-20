@@ -68,6 +68,10 @@
                             <label>Default amount (€)</label>
                             <InputNumber @bind-Value="_createRequest.DefaultDueAmount" />
                         </div>
+                        <div>
+                            <label>Reduced amount (€)</label>
+                            <InputNumber @bind-Value="_createRequest.ReducedDueAmount" />
+                        </div>
                     </div>
                     <button type="submit" class="btn btn-sm btn-primary" disabled="@_creatingPeriod">Create period and dues</button>
                 </EditForm>

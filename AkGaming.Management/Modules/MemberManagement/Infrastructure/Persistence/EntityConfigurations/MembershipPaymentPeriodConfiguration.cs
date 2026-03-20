@@ -14,7 +14,14 @@ public class MembershipPaymentPeriodConfiguration : IEntityTypeConfiguration<Mem
 
         builder.Property(x => x.DefaultDueAmount)
             .HasPrecision(10, 2);
-
+        
+        builder.Property(x => x.ReducedDueAmount)
+            .HasPrecision(10, 2);
+        
+        builder.Property(x => x.DueDate)
+            .IsRequired()
+            .HasDefaultValue(DateOnly.MinValue);
+        
         builder.HasMany(x => x.Dues)
             .WithOne(x => x.PaymentPeriod)
             .HasForeignKey(x => x.PaymentPeriodId)
