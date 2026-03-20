@@ -1,7 +1,9 @@
 .page {
     display: flex;
     flex-direction: column;
+    height: 100dvh;
     min-height: 100dvh;
+    overflow: hidden;
     background: var(--color-background-primary);
     color: var(--color-text-primary);
 }
@@ -9,7 +11,9 @@
 .layout-shell {
     display: flex;
     flex: 1;
+    height: 100%;
     min-height: 0;
+    overflow: hidden;
 }
 
 .sidebar-drawer {
@@ -19,7 +23,8 @@
 
 main {
     flex: 1;
-    min-height: 100dvh;
+    height: 100%;
+    min-height: 0;
     min-width: 0;
     overflow-y: auto;
     background: var(--color-background-primary);
@@ -112,6 +117,12 @@ main {
 }
 
 @media (max-width: 900px) {
+    .page {
+        height: auto;
+        min-height: 100dvh;
+        overflow: visible;
+    }
+
     .mobile-header {
         display: flex;
     }
@@ -119,6 +130,8 @@ main {
     .layout-shell {
         display: block;
         flex: 0 1 auto;
+        height: auto;
+        overflow: visible;
     }
 
     .sidebar-drawer {
