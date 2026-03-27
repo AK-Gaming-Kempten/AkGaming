@@ -1,6 +1,6 @@
-using AkGaming.Invoicing.Core.Models;
-using AkGaming.Invoicing.Core.Rendering;
-using AkGaming.Invoicing.Core.Samples;
+using AkGaming.InvoiceGenerator.Core.Models;
+using AkGaming.InvoiceGenerator.Core.Rendering;
+using AkGaming.InvoiceGenerator.Core.Samples;
 
 var builder = WebApplication.CreateBuilder(args);
 

@@ -1,4 +1,4 @@
-namespace AkGaming.Invoicing.Core.Rendering;
+namespace AkGaming.InvoiceGenerator.Core.Rendering;
 
 internal static class CoreThemeCssLoader
 {

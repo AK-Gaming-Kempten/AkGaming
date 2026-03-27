@@ -1,4 +1,4 @@
-namespace AkGaming.Invoicing.Core.Models;
+namespace AkGaming.InvoiceGenerator.Core.Models;
 
 public sealed class InvoiceDocument
 {

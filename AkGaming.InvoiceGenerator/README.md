@@ -1,4 +1,4 @@
-# AK Gaming Invoicing
+# AK Gaming InvoiceGenerator
 
 Standalone invoice generator/renderer for AK Gaming with:
 
@@ -13,19 +13,19 @@ The HTML renderer follows the layout of the sponsoring invoice and applies AK Ga
 Create a starter JSON payload:
 
 ```bash
-dotnet run --project AkGaming.Invoicing/Cli -- --sample AkGaming.Invoicing/sample-invoice.json
+dotnet run --project AkGaming.InvoiceGenerator/Cli -- --sample AkGaming.InvoiceGenerator/sample-invoice.json
 ```
 
 Render PDF invoice (native renderer):
 
 ```bash
-dotnet run --project AkGaming.Invoicing/Cli -- --input AkGaming.Invoicing/sample-invoice.json --output AkGaming.Invoicing/out/invoice.pdf
+dotnet run --project AkGaming.InvoiceGenerator/Cli -- --input AkGaming.InvoiceGenerator/sample-invoice.json --output AkGaming.InvoiceGenerator/out/invoice.pdf
 ```
 
 Render HTML invoice (optional):
 
 ```bash
-dotnet run --project AkGaming.Invoicing/Cli -- --input AkGaming.Invoicing/sample-invoice.json --output AkGaming.Invoicing/out/invoice.html
+dotnet run --project AkGaming.InvoiceGenerator/Cli -- --input AkGaming.InvoiceGenerator/sample-invoice.json --output AkGaming.InvoiceGenerator/out/invoice.html
 ```
 
 ## API usage
@@ -33,7 +33,7 @@ dotnet run --project AkGaming.Invoicing/Cli -- --input AkGaming.Invoicing/sample
 Run API:
 
 ```bash
-dotnet run --project AkGaming.Invoicing/Api
+dotnet run --project AkGaming.InvoiceGenerator/Api
 ```
 
 Endpoints:

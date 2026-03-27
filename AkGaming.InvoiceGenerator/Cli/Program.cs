@@ -1,7 +1,7 @@
 using System.Text.Json;
-using AkGaming.Invoicing.Core.Models;
-using AkGaming.Invoicing.Core.Rendering;
-using AkGaming.Invoicing.Core.Samples;
+using AkGaming.InvoiceGenerator.Core.Models;
+using AkGaming.InvoiceGenerator.Core.Rendering;
+using AkGaming.InvoiceGenerator.Core.Samples;
 
 var jsonOptions = new JsonSerializerOptions
 {
@@ -105,6 +105,6 @@ static void PrintHelp()
 {
     Console.WriteLine("AK Gaming Invoice Renderer CLI");
     Console.WriteLine("Usage:");
-    Console.WriteLine("  dotnet run --project AkGaming.Invoicing/Cli -- --sample <sample.json>");
-    Console.WriteLine("  dotnet run --project AkGaming.Invoicing/Cli -- --input <invoice.json> [--output invoice.pdf|invoice.html]");
+    Console.WriteLine("  dotnet run --project AkGaming.InvoiceGenerator/Cli -- --sample <sample.json>");
+    Console.WriteLine("  dotnet run --project AkGaming.InvoiceGenerator/Cli -- --input <invoice.json> [--output invoice.pdf|invoice.html]");
 }

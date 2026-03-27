@@ -1,10 +1,10 @@
 using System.Globalization;
-using AkGaming.Invoicing.Core.Models;
+using AkGaming.InvoiceGenerator.Core.Models;
 using QuestPDF.Fluent;
 using QuestPDF.Helpers;
 using QuestPDF.Infrastructure;
 
-namespace AkGaming.Invoicing.Core.Rendering;
+namespace AkGaming.InvoiceGenerator.Core.Rendering;
 
 public interface IInvoicePdfRenderer
 {

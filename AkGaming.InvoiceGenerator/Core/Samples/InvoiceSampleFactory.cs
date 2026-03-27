@@ -1,6 +1,6 @@
-using AkGaming.Invoicing.Core.Models;
+using AkGaming.InvoiceGenerator.Core.Models;
 
-namespace AkGaming.Invoicing.Core.Samples;
+namespace AkGaming.InvoiceGenerator.Core.Samples;
 
 public static class InvoiceSampleFactory
 {

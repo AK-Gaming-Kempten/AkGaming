@@ -26,15 +26,15 @@
   <Folder Name="/AkGaming.Identity/Tests/Application.UnitTests/">
     <Project Path="AkGaming.Identity/Tests/Application.UnitTests/AkGaming.Identity.Application.UnitTests.csproj" />
   </Folder>
-  <Folder Name="/AkGaming.Invoicing/" />
-  <Folder Name="/AkGaming.Invoicing/Api/">
-    <Project Path="AkGaming.Invoicing/Api/AkGaming.Invoicing.Api.csproj" />
+  <Folder Name="/AkGaming.InvoiceGenerator/" />
+  <Folder Name="/AkGaming.InvoiceGenerator/Api/">
+    <Project Path="AkGaming.InvoiceGenerator/Api/AkGaming.InvoiceGenerator.Api.csproj" />
   </Folder>
-  <Folder Name="/AkGaming.Invoicing/Cli/">
-    <Project Path="AkGaming.Invoicing/Cli/AkGaming.Invoicing.Cli.csproj" />
+  <Folder Name="/AkGaming.InvoiceGenerator/Cli/">
+    <Project Path="AkGaming.InvoiceGenerator/Cli/AkGaming.InvoiceGenerator.Cli.csproj" />
   </Folder>
-  <Folder Name="/AkGaming.Invoicing/Core/">
-    <Project Path="AkGaming.Invoicing/Core/AkGaming.Invoicing.Core.csproj" />
+  <Folder Name="/AkGaming.InvoiceGenerator/Core/">
+    <Project Path="AkGaming.InvoiceGenerator/Core/AkGaming.InvoiceGenerator.Core.csproj" />
   </Folder>
   <Folder Name="/AkGaming.Management/" />
   <Folder Name="/AkGaming.Management/Frontend.Components/">

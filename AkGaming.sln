@@ -83,19 +83,19 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "WebApi", "WebApi", "{FAA34C
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AkGaming.Management.WebApi", "AkGaming.Management\WebApi\AkGaming.Management.WebApi.csproj", "{F1CABA46-5CFB-409C-A8CC-CD2ABF9906C8}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "AkGaming.Invoicing", "AkGaming.Invoicing", "{5AAD9A2B-ADDF-B7BE-2B27-9B2B733A5562}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "AkGaming.InvoiceGenerator", "AkGaming.InvoiceGenerator", "{5AAD9A2B-ADDF-B7BE-2B27-9B2B733A5562}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Core", "Core", "{E994A6E5-201B-2154-68E9-A3FF1E5D0F68}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AkGaming.Invoicing.Core", "AkGaming.Invoicing\Core\AkGaming.Invoicing.Core.csproj", "{5CA957B4-899D-4883-9D99-179DA8E0FC2A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AkGaming.InvoiceGenerator.Core", "AkGaming.InvoiceGenerator\Core\AkGaming.InvoiceGenerator.Core.csproj", "{5CA957B4-899D-4883-9D99-179DA8E0FC2A}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Cli", "Cli", "{B1B3B349-1A85-903B-8236-87C8AF1C293B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AkGaming.Invoicing.Cli", "AkGaming.Invoicing\Cli\AkGaming.Invoicing.Cli.csproj", "{E7759FD1-CCAF-456D-AFF4-CFBBDE4283B1}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AkGaming.InvoiceGenerator.Cli", "AkGaming.InvoiceGenerator\Cli\AkGaming.InvoiceGenerator.Cli.csproj", "{E7759FD1-CCAF-456D-AFF4-CFBBDE4283B1}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Api", "Api", "{AA76B057-39D9-C44C-D603-06CF6E1F7A2B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AkGaming.Invoicing.Api", "AkGaming.Invoicing\Api\AkGaming.Invoicing.Api.csproj", "{2DFC1C2D-67CB-4F9A-B4ED-3965EC09B2FD}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AkGaming.InvoiceGenerator.Api", "AkGaming.InvoiceGenerator\Api\AkGaming.InvoiceGenerator.Api.csproj", "{2DFC1C2D-67CB-4F9A-B4ED-3965EC09B2FD}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

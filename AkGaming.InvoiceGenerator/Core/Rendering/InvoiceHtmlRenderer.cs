@@ -1,9 +1,9 @@
 using System.Globalization;
 using System.Net;
 using System.Text;
-using AkGaming.Invoicing.Core.Models;
+using AkGaming.InvoiceGenerator.Core.Models;
 
-namespace AkGaming.Invoicing.Core.Rendering;
+namespace AkGaming.InvoiceGenerator.Core.Rendering;
 
 public interface IInvoiceHtmlRenderer
 {

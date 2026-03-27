@@ -12,7 +12,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Core\AkGaming.Invoicing.Core.csproj" />
+    <ProjectReference Include="..\Core\AkGaming.InvoiceGenerator.Core.csproj" />
   </ItemGroup>
 
 </Project>
