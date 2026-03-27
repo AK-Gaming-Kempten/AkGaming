@@ -1,1 +1,38 @@
 *.DotSettings.user
+
+# .NET build outputs
+**/bin/
+**/obj/
+[Dd]ebug/
+[Rr]elease/
+
+# Guard against accidentally created Windows-style folder names on Linux/macOS
+**/bin\\*/
+**/obj\\*/
+
+# IDE/editor artifacts
+.idea/
+.vs/
+.vscode/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*.swp
+*.sw?
+
+# Logs and coverage
+*.log
+logs/
+TestResult*/
+*.trx
+CodeCoverage/
+
+# Local DB/runtime files
+*.db
+*.db-shm
+*.db-wal
+
+# Local invoice renderer outputs
+AkGaming.Invoicing/out/
+AkGaming.Invoicing/sample-invoice.json

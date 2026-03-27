@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="..\..\AkGaming.Core\Theme\wwwroot\theme\akgaming-base-theme.css" Link="Themes\akgaming-base-theme.css" />
+    <EmbeddedResource Include="..\..\AkGaming.Core\Theme\wwwroot\images\icons\AKG_Logos\*.png" Link="Themes\AKG_Logos\%(Filename)%(Extension)" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="QuestPDF" Version="2026.2.4" />
+  </ItemGroup>
+
+</Project>
