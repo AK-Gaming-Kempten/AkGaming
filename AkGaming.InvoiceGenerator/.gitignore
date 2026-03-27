@@ -1,0 +1,3 @@
+# InvoiceGenerator local outputs
+out/
+sample-invoice.json

@@ -32,7 +32,3 @@ CodeCoverage/
 *.db
 *.db-shm
 *.db-wal
-
-# Local invoice renderer outputs
-AkGaming.InvoiceGenerator/out/
-AkGaming.InvoiceGenerator/sample-invoice.json
