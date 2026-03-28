@@ -4,8 +4,11 @@ id: gamenight-6
 title: Game Night Dezember 2025
 startDate: 2025-12-13
 endDate: 2025-12-14
-shortDescription: "Es wird wieder dunkel draußen und überall beginnt die Winterstimmung - Schnee, heiße Schokolade und Glühwein!☕​
-Wir machen genau das, was man im Winter am besten macht: gemeinsam Zocken, snacken und eine gute Zeit in der warmen Hochschule haben!"
+shortDescription: >-
+  Es wird wieder dunkel draußen und überall beginnt die Winterstimmung -
+  Schnee, heiße Schokolade und Glühwein!☕​
+  Wir machen genau das, was man im Winter am besten macht: gemeinsam Zocken,
+  snacken und eine gute Zeit in der warmen Hochschule haben!
 location: Hochschule Kempten, S-Bau
 locationUrl: https://maps.app.goo.gl/QLkFDmV9jni5X28R8
 ---

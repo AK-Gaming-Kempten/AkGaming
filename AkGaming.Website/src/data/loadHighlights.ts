@@ -6,7 +6,8 @@ export async function loadHighlights(): Promise<Highlight[]> {
     // Load raw YAML file
     const module = import.meta.glob<string>("./highlights.yaml", {
         eager: true,
-        as: "raw",
+        query: "?raw",
+        import: "default",
     });
 
     const raw = Object.values(module)[0];

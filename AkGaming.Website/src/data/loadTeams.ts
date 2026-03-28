@@ -9,7 +9,8 @@ export async function loadTeams(): Promise<EsportsTeam[]> {
 
     const yamlModules = import.meta.glob<string>("./teams/*.{yaml,yml}", {
         eager: true,
-        as: "raw",
+        query: "?raw",
+        import: "default",
     });
 
     const teams: EsportsTeam[] = [];

@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { loadPosts } from "../data/loadPosts";
 import { Event } from "../data/types";
 import { formatDateRange } from "../utils/formatDateRange";
+import MdxContent from "../components/content/MdxContent";
 import "./PostPage.css";
 
 export default function EventPage() {
@@ -36,7 +37,9 @@ export default function EventPage() {
                     📅 {formatDateRange(event.startDate, event.endDate)}<br />
                     <span>📍 {locationElement}</span>
                 </p>
-                <div className="post-text" dangerouslySetInnerHTML={{ __html: event.text }} />
+                <div className="post-text">
+                    <MdxContent Content={event.Content} />
+                </div>
             </div>
         </main>
     );

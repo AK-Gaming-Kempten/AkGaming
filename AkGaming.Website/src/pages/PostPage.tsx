@@ -2,6 +2,7 @@ import { useParams, Navigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { loadPosts } from "../data/loadPosts";
 import { Post, Event } from "../data/types";
+import MdxContent from "../components/content/MdxContent";
 import "./PostPage.css";
 
 export default function PostPage() {
@@ -33,8 +34,9 @@ export default function PostPage() {
             <div className="post-content">
                 <div
                     className="post-text"
-                    dangerouslySetInnerHTML={{ __html: post.text }}
-                />
+                >
+                    <MdxContent Content={post.Content} />
+                </div>
             </div>
         </main>
     );

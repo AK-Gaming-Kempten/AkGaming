@@ -1,0 +1,179 @@
+.mdx-content {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    width: 100%;
+    line-height: 1.7;
+}
+
+.mdx-content > :first-child {
+    margin-top: 0;
+}
+
+.mdx-content > :last-child {
+    margin-bottom: 0;
+}
+
+.mdx-content h2,
+.mdx-content h3,
+.mdx-content h4 {
+    margin: 1.75rem 0 0.75rem;
+    line-height: 1.2;
+}
+
+.mdx-content p,
+.mdx-content ul,
+.mdx-content ol,
+.mdx-content blockquote,
+.mdx-content pre {
+    margin: 0;
+}
+
+.mdx-content ul,
+.mdx-content ol {
+    padding-left: 1.2rem;
+}
+
+.mdx-content li + li {
+    margin-top: 0.35rem;
+}
+
+.mdx-content img {
+    width: 100%;
+    display: block;
+    border-radius: 14px;
+    border: 1px solid color-mix(in srgb, var(--color-highlight-secondary) 30%, transparent);
+}
+
+.mdx-link {
+    color: var(--color-highlight-primary);
+    text-decoration: underline;
+    text-decoration-color: color-mix(in srgb, var(--color-highlight-primary) 50%, transparent);
+    text-underline-offset: 0.2em;
+}
+
+.mdx-lead {
+    font-size: 1.08rem;
+    color: var(--color-text-secondary);
+}
+
+.mdx-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 999px;
+    padding: 0.58rem 1rem;
+    font-weight: 700;
+    border: 1px solid transparent;
+    margin-right: 0.6rem;
+    margin-bottom: 0.6rem;
+    text-decoration: none;
+}
+
+.mdx-button-primary {
+    color: var(--color-text-special);
+    background: linear-gradient(135deg, var(--color-highlight-primary), var(--color-highlight-secondary));
+}
+
+.mdx-button-secondary {
+    color: var(--color-text-primary);
+    background: color-mix(in srgb, var(--color-background-primary) 96%, transparent);
+    border-color: color-mix(in srgb, var(--color-highlight-secondary) 50%, transparent);
+}
+
+.mdx-callout,
+.mdx-card {
+    border-radius: 14px;
+    padding: 1rem 1.05rem;
+    background: color-mix(in srgb, var(--color-background-primary) 96%, transparent);
+    border: 1px solid color-mix(in srgb, var(--color-highlight-secondary) 35%, transparent);
+}
+
+.mdx-callout h3,
+.mdx-card h3 {
+    margin: 0 0 0.55rem;
+}
+
+.mdx-callout-accent {
+    background: linear-gradient(
+        180deg,
+        color-mix(in srgb, var(--color-background-secondary) 94%, transparent),
+        color-mix(in srgb, var(--color-background-primary) 98%, transparent)
+    );
+}
+
+.mdx-callout-success {
+    border-color: color-mix(in srgb, #4caf50 45%, transparent);
+}
+
+.mdx-callout-warning {
+    border-color: color-mix(in srgb, #f0b429 55%, transparent);
+}
+
+.mdx-card-grid,
+.mdx-columns {
+    display: grid;
+    gap: 0.8rem;
+}
+
+.mdx-card-grid-2,
+.mdx-columns-2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.mdx-card-grid-3,
+.mdx-columns-3 {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.mdx-card-eyebrow {
+    margin: 0 0 0.35rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-size: 0.78rem;
+    color: var(--color-text-secondary);
+    font-weight: 700;
+}
+
+.mdx-embed {
+    position: relative;
+    width: 100%;
+    overflow: hidden;
+    border-radius: 14px;
+    border: 1px solid color-mix(in srgb, var(--color-highlight-secondary) 30%, transparent);
+    background: color-mix(in srgb, var(--color-background-primary) 92%, black 8%);
+    aspect-ratio: 16 / 9;
+}
+
+.mdx-embed iframe {
+    width: 100%;
+    height: 100%;
+    border: 0;
+}
+
+.mdx-content blockquote {
+    padding-left: 1rem;
+    border-left: 3px solid color-mix(in srgb, var(--color-highlight-secondary) 45%, transparent);
+    color: var(--color-text-secondary);
+}
+
+.mdx-content pre {
+    overflow-x: auto;
+    border-radius: 14px;
+    padding: 0.95rem 1rem;
+    background: color-mix(in srgb, var(--color-background-primary) 90%, black 10%);
+    border: 1px solid color-mix(in srgb, var(--color-highlight-secondary) 24%, transparent);
+}
+
+.mdx-content code {
+    font-family: "Fira Code", "JetBrains Mono", monospace;
+}
+
+@media (max-width: 800px) {
+    .mdx-card-grid-2,
+    .mdx-card-grid-3,
+    .mdx-columns-2,
+    .mdx-columns-3 {
+        grid-template-columns: 1fr;
+    }
+}

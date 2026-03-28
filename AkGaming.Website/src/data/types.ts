@@ -1,14 +1,22 @@
+import type { ComponentType } from "react";
+
+export type PostContentProps = {
+    components?: Record<string, unknown>;
+};
+
+export type PostContentComponent = ComponentType<PostContentProps>;
+
 export class Post {
     id: string;
     title: string;
     shortDescription: string;
-    text: string;
+    Content: PostContentComponent;
 
-    constructor(params: { id: string; title: string; shortDescription: string; text: string }) {
+    constructor(params: { id: string; title: string; shortDescription: string; Content: PostContentComponent }) {
         this.id = params.id;
         this.title = params.title;
         this.shortDescription = params.shortDescription;
-        this.text = params.text;
+        this.Content = params.Content;
     }
 }
 
@@ -22,7 +30,7 @@ export class Event extends Post {
         id: string;
         title: string;
         shortDescription: string;
-        text: string;
+        Content: PostContentComponent;
         startDate: string;
         endDate?: string;
         location: string;
@@ -69,4 +77,3 @@ export interface EsportsTeam {
     league: EsportsLeague;
     players: EsportsPlayer[];
 }
-

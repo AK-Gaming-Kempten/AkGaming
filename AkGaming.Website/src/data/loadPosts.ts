@@ -1,7 +1,4 @@
-// src/data/loadPosts.ts
-import fm from "front-matter";
-import { marked } from "marked";
-import { Post, Event } from "./types";
+import { Event, Post, type PostContentComponent } from "./types";
 
 type FrontMatter = {
     type?: "post" | "event";
@@ -14,30 +11,34 @@ type FrontMatter = {
     locationUrl?: string;
 };
 
+type PostModule = {
+    default: PostContentComponent;
+    frontmatter?: FrontMatter;
+};
+
 export async function loadPosts(): Promise<(Post | Event)[]> {
-    const mdModules = import.meta.glob<string>("./posts/*.md", {
+    const contentModules = import.meta.glob<PostModule>("./posts/*.{md,mdx}", {
         eager: true,
-        query: "?raw", // ✅ Vite 7 syntax
-        import: "default",
     });
 
     const items: (Post | Event)[] = [];
 
-    for (const key in mdModules) {
-        const raw = mdModules[key]; // plain string
-        const { attributes, body } = fm<FrontMatter>(raw); // ✅ front-matter parses directly
-        const html = await marked.parse(body);
+    for (const key in contentModules) {
+        const module = contentModules[key];
+        const fmData = module.frontmatter;
 
-        const fmData = attributes;
+        if (fmData === undefined) {
+            throw new Error(`Missing front matter in post module: ${key}`);
+        }
 
-        switch (fmData.type){
+        switch (fmData.type) {
             case "event": {
                 items.push(
                     new Event({
                         id: fmData.id,
                         title: fmData.title,
                         shortDescription: fmData.shortDescription,
-                        text: html,
+                        Content: module.default,
                         startDate: fmData.startDate!,
                         endDate: fmData.endDate,
                         location: fmData.location!,
@@ -52,7 +53,7 @@ export async function loadPosts(): Promise<(Post | Event)[]> {
                         id: fmData.id,
                         title: fmData.title,
                         shortDescription: fmData.shortDescription,
-                        text: html,
+                        Content: module.default,
                     })
                 );
             }

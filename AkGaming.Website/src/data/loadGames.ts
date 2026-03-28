@@ -4,7 +4,8 @@ import type { EsportsGame } from "./types";
 export function loadGames(): EsportsGame[] {
     const module = import.meta.glob<string>("./games.yaml", {
         eager: true,
-        as: "raw",
+        query: "?raw",
+        import: "default",
     });
 
     const raw = Object.values(module)[0];
