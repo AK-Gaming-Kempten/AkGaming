@@ -50,3 +50,13 @@ a {
     color: var(--color-highlight-primary);
     text-decoration: none;
 }
+.container {
+    width: min(1500px, calc(100vw - 2rem));
+    margin: 0 auto;
+}
+
+@media (max-width: 700px) {
+    .container {
+        width: calc(100vw - 1rem);
+    }
+}

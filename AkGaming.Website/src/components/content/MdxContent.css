@@ -45,6 +45,27 @@
     border: 1px solid color-mix(in srgb, var(--color-highlight-secondary) 30%, transparent);
 }
 
+.mdx-linked-image {
+    display: inline-flex;
+    flex-direction: column;
+    gap: 0.55rem;
+    text-decoration: none;
+}
+
+.mdx-linked-image img {
+    width: auto;
+    max-width: 100%;
+    max-height: 88px;
+    object-fit: contain;
+    padding: 0.75rem 1rem;
+    background: color-mix(in srgb, var(--color-background-primary) 96%, transparent);
+}
+
+.mdx-linked-image-caption {
+    color: var(--color-text-secondary);
+    font-size: 0.9rem;
+}
+
 .mdx-link {
     color: var(--color-highlight-primary);
     text-decoration: underline;
@@ -68,6 +89,16 @@
     margin-right: 0.6rem;
     margin-bottom: 0.6rem;
     text-decoration: none;
+}
+
+.mdx-button-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.65rem;
+}
+
+.mdx-button-row .mdx-button {
+    margin: 0;
 }
 
 .mdx-button-primary {
@@ -116,6 +147,18 @@
     gap: 0.8rem;
 }
 
+.mdx-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+}
+
+.mdx-price-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.8rem;
+}
+
 .mdx-card-grid-2,
 .mdx-columns-2 {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -135,6 +178,49 @@
     font-weight: 700;
 }
 
+.mdx-price-card,
+.mdx-partner-group {
+    border-radius: 14px;
+    padding: 1rem 1.05rem;
+    background: color-mix(in srgb, var(--color-background-primary) 96%, transparent);
+    border: 1px solid color-mix(in srgb, var(--color-highlight-secondary) 35%, transparent);
+}
+
+.mdx-price-card-title,
+.mdx-price-card-price,
+.mdx-price-card-note {
+    margin: 0;
+}
+
+.mdx-price-card-title {
+    font-weight: 700;
+}
+
+.mdx-price-card-price {
+    margin-top: 0.2rem;
+    font-size: 1.7rem;
+    line-height: 1.1;
+    font-weight: 800;
+}
+
+.mdx-price-card-note {
+    margin-top: 0.35rem;
+    color: var(--color-text-secondary);
+}
+
+.mdx-price-card-body {
+    margin-top: 0.75rem;
+}
+
+.mdx-price-card-body > :first-child,
+.mdx-partner-group > div > :first-child {
+    margin-top: 0;
+}
+
+.mdx-partner-group h3 {
+    margin: 0 0 0.65rem;
+}
+
 .mdx-embed {
     position: relative;
     width: 100%;
@@ -143,6 +229,42 @@
     border: 1px solid color-mix(in srgb, var(--color-highlight-secondary) 30%, transparent);
     background: color-mix(in srgb, var(--color-background-primary) 92%, black 8%);
     aspect-ratio: 16 / 9;
+}
+
+.mdx-table-wrap {
+    overflow-x: auto;
+    border-radius: 14px;
+    border: 1px solid color-mix(in srgb, var(--color-highlight-secondary) 28%, transparent);
+    background: color-mix(in srgb, var(--color-background-primary) 96%, transparent);
+}
+
+.mdx-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.mdx-table th,
+.mdx-table td {
+    padding: 0.8rem 0.95rem;
+    text-align: left;
+    vertical-align: top;
+}
+
+.mdx-table th {
+    font-size: 0.82rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--color-text-secondary);
+    background: color-mix(in srgb, var(--color-background-secondary) 92%, transparent);
+}
+
+.mdx-table tbody tr + tr td {
+    border-top: 1px solid color-mix(in srgb, var(--color-highlight-secondary) 18%, transparent);
+}
+
+.mdx-table td:first-child {
+    white-space: nowrap;
+    font-weight: 700;
 }
 
 .mdx-embed iframe {
@@ -173,7 +295,8 @@
     .mdx-card-grid-2,
     .mdx-card-grid-3,
     .mdx-columns-2,
-    .mdx-columns-3 {
+    .mdx-columns-3,
+    .mdx-price-grid {
         grid-template-columns: 1fr;
     }
 }
