@@ -4,16 +4,15 @@ import {
     FaBars,
     FaColumns,
     FaExternalLinkAlt,
-    FaHandshake,
     FaImage,
     FaInfoCircle,
     FaParagraph,
+    FaPenFancy,
     FaTable,
     FaTag,
     FaThLarge,
     FaThList,
     FaVideo,
-    FaWpforms,
 } from "react-icons/fa";
 import sponsorLogo from "../../../public/assets/soloplan_mit_text.png";
 import SmartLink from "./SmartLink";
@@ -26,11 +25,9 @@ import Card from "./Card";
 import Columns from "./Columns";
 import Stack from "./Stack";
 import Embed from "./Embed";
-import PriceGrid from "./PriceGrid";
-import PriceCard from "./PriceCard";
-import PartnerGroup from "./PartnerGroup";
 import LinkedImage from "./LinkedImage";
 import Table from "./Table";
+import Text from "./Text";
 
 export type MdxComponentDoc = {
     name: string;
@@ -61,11 +58,9 @@ export const mdxComponents = {
     Columns,
     Stack,
     Embed,
-    PriceGrid,
-    PriceCard,
-    PartnerGroup,
     LinkedImage,
     Table,
+    Text,
 };
 
 export const mdxComponentDocs: MdxComponentDoc[] = [
@@ -352,94 +347,6 @@ export const mdxComponentDocs: MdxComponentDoc[] = [
         ),
     },
     {
-        name: "PriceCard",
-        slug: "price-card",
-        category: "Data and Lists",
-        icon: FaTag,
-        syntax: "<PriceCard title=\"...\" price=\"...\" note=\"...\">...</PriceCard>",
-        description: "Displays a single pricing option with emphasis on the price.",
-        props: [
-            {
-                name: "title",
-                type: "string",
-                required: true,
-                description: "Label for the pricing tier.",
-            },
-            {
-                name: "price",
-                type: "string",
-                required: true,
-                description: "Main highlighted price value.",
-            },
-            {
-                name: "note",
-                type: "string",
-                description: "Optional secondary note below the price.",
-            },
-            {
-                name: "children",
-                type: "ReactNode",
-                description: "Optional extra explanatory content for the pricing entry.",
-            },
-        ],
-        example: "<PriceCard title=\"Frühbucher\" price=\"5 EUR\" note=\"Ohne Sitzplatz\" />",
-        preview: <PriceCard title="Frühbucher" price="5 EUR" note="Ohne Sitzplatz" />,
-    },
-    {
-        name: "PriceGrid",
-        slug: "price-grid",
-        category: "Data and Lists",
-        icon: FaWpforms,
-        syntax: "<PriceGrid>...</PriceGrid>",
-        description: "Responsive grid for multiple pricing options.",
-        props: [
-            {
-                name: "children",
-                type: "ReactNode",
-                required: true,
-                description: "One or more PriceCard elements shown in a responsive grid.",
-            },
-        ],
-        example: "<PriceGrid>\n  <PriceCard ... />\n  <PriceCard ... />\n</PriceGrid>",
-        preview: (
-            <PriceGrid>
-                <PriceCard title="Frühbucher" price="5 EUR" note="Ohne Sitzplatz" />
-                <PriceCard title="Abendkasse" price="7 EUR" note="Ohne Sitzplatz" />
-            </PriceGrid>
-        ),
-    },
-    {
-        name: "PartnerGroup",
-        slug: "partner-group",
-        category: "Data and Lists",
-        icon: FaHandshake,
-        syntax: "<PartnerGroup title=\"...\">...</PartnerGroup>",
-        description: "Section wrapper for sponsor or partner lists inside multi-column layouts.",
-        props: [
-            {
-                name: "title",
-                type: "string",
-                required: true,
-                description: "Heading for the partner or sponsor group.",
-            },
-            {
-                name: "children",
-                type: "ReactNode",
-                required: true,
-                description: "List or content block containing the partners for this group.",
-            },
-        ],
-        example: "<PartnerGroup title=\"Sponsoren\">...</PartnerGroup>",
-        preview: (
-            <PartnerGroup title="Kooperationspartner">
-                <ul>
-                    <li>Heldenschmiede</li>
-                    <li>Skyforger e.V.</li>
-                </ul>
-            </PartnerGroup>
-        ),
-    },
-    {
         name: "LinkedImage",
         slug: "linked-image",
         category: "Media and Brand",
@@ -508,6 +415,54 @@ export const mdxComponentDocs: MdxComponentDoc[] = [
                 src="https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ"
                 title="Video Beispiel"
             />
+        ),
+    },
+    {
+        name: "Text",
+        slug: "text",
+        category: "Text and Actions",
+        icon: FaPenFancy,
+        syntax: "<Text as=\"p\" size=\"md\" color=\"secondary\" weight=\"regular\">...</Text>",
+        description: "Generic text styling component for palette-based color, font size steps, and weight control.",
+        props: [
+            {
+                name: "as",
+                type: "ElementType",
+                defaultValue: "\"p\"",
+                description: "HTML element to render, for example p, span, strong or div.",
+            },
+            {
+                name: "size",
+                type: "\"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\"",
+                defaultValue: "\"md\"",
+                description: "Text size step used for visual emphasis.",
+            },
+            {
+                name: "color",
+                type: "\"primary\" | \"secondary\" | \"highlight\" | \"special\"",
+                defaultValue: "\"primary\"",
+                description: "Color token from the site palette.",
+            },
+            {
+                name: "weight",
+                type: "\"regular\" | \"medium\" | \"semibold\" | \"bold\"",
+                defaultValue: "\"regular\"",
+                description: "Font weight emphasis.",
+            },
+            {
+                name: "children",
+                type: "ReactNode",
+                required: true,
+                description: "Text content to render.",
+            },
+        ],
+        example: "<Text size=\"xl\" color=\"highlight\" weight=\"bold\">7€</Text>",
+        preview: (
+            <Stack>
+                <Text size="xl" color="highlight" weight="bold">7 EUR</Text>
+                <Text color="secondary">Sekundarer Beschreibungstext mit weniger Gewicht.</Text>
+                <Text as="span" size="sm" color="special" weight="semibold">Inline Label</Text>
+            </Stack>
         ),
     },
 ];

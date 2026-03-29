@@ -115,50 +115,50 @@ import sponsorLogo from "../../../public/assets/soloplan_mit_text.png";
 
 ## Eintritt
 
-<PriceGrid>
-    <PriceCard
-        title="Frühbucher bis 09.04.2026"
-        price="5€"
-        note="Ohne festen Sitzplatz oder für AK Gaming Mitglieder"
-    />
-    <PriceCard
-        title="Frühbucher mit Sitzplatz"
-        price="7€"
-        note="Inklusive festem Sitzplatz und 2 Steckdosen"
-    />
-    <PriceCard
-        title="Abendkasse"
-        price="7€"
-        note="Ohne festen Sitzplatz oder für AK Gaming Mitglieder"
-    />
-    <PriceCard
-        title="Abendkasse mit Sitzplatz"
-        price="9€"
-        note="Inklusive festem Sitzplatz und 2 Steckdosen"
-    >
-    </PriceCard>
-</PriceGrid>
-<p>
-  Lass uns bitte wissen, wenn du mehr Steckdosen brauchst. Das bedeutet einen kleinen Aufpreis, aber niemand soll im Dunkeln sitzen.
-</p>
+<CardGrid columns={2}>
+    <Card title="Frühbucher">
+        <Text size="xs" color="secondary">Bei Anmeldung bis 09.04.2026</Text>
+        <Text size="xl" color="highlight" weight="bold">5€</Text>
+        <Text color="secondary">Ohne festen Sitzplatz oder für AK Gaming Mitglieder</Text>
+    </Card>
+    <Card title="Frühbucher mit Sitzplatz">
+        <Text size="xs" color="secondary">Bei Anmeldung bis 09.04.2026</Text>
+        <Text size="xl" color="highlight" weight="bold">7€</Text>
+        <Text color="secondary">Inklusive festem Sitzplatz und 2 Steckdosen</Text>
+    </Card>
+    <Card title="Abendkasse">
+        <Text size="xl" color="highlight" weight="bold">7€</Text>
+        <Text color="secondary">Ohne festen Sitzplatz oder für AK Gaming Mitglieder</Text>
+    </Card>
+    <Card title="Abendkasse mit Sitzplatz">
+        <Text size="xl" color="highlight" weight="bold">9€</Text>
+        <Text color="secondary">Inklusive festem Sitzplatz und 2 Steckdosen</Text>
+    </Card>
+</CardGrid>
+
+<Text color="secondary">
+    Lass uns bitte wissen, wenn du mehr Steckdosen brauchst. Das bedeutet einen kleinen Aufpreis,
+    aber niemand soll im Dunkeln sitzen.
+</Text>
+
 ## Game Night Partner
 
 <Columns>
-    <PartnerGroup title="Sponsoren">
+    <Card title="Sponsoren">
         <LinkedImage
             href="https://www.soloplan.de"
             src={sponsorLogo}
             alt="Soloplan Logo"
         />
-    </PartnerGroup>
-    <PartnerGroup title="Kooperationspartner">
+    </Card>
+    <Card title="Kooperationspartner">
         <ul>
             <li>Heldenschmiede</li>
             <li>Die Techniker</li>
             <li>Ristorante Pizzeria Bel Mare</li>
             <li>Skyforger e.V.</li>
         </ul>
-    </PartnerGroup>
+    </Card>
 </Columns>
 
 ## Anmeldung
