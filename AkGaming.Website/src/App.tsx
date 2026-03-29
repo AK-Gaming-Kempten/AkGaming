@@ -13,6 +13,8 @@ import Haftung from "./pages/Haftung.tsx";
 import Datenschutz from "./pages/Datenschutz.tsx";
 import Mitgliedsbeitrag from "./pages/Mitgliedsbeitrag.tsx";
 import Mitgliedschaft from "./pages/Mitgliedschaft.tsx";
+import MdxDocs from "./pages/MdxDocs.tsx";
+import MdxDocDetail from "./pages/MdxDocDetail.tsx";
 
 export default function App() {
     return (
@@ -32,6 +34,8 @@ export default function App() {
                         <Route path="/datenschutz" element={<Datenschutz/>} />
                         <Route path="/mitgliedschaft/mitgliedsbeitrag" element={<Mitgliedsbeitrag />} />
                         <Route path="/impressum" element={<Impressum />} />
+                        <Route path="/mdx-docs" element={<MdxDocs />} />
+                        <Route path="/mdx-docs/:componentSlug" element={<MdxDocDetail />} />
                         <Route path="/posts/:postId" element={<PostPage />} />
                         <Route path="/events/:postId" element={<EventPage />} />
                     </Routes>

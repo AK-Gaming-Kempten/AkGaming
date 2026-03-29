@@ -1,0 +1,104 @@
+.mdx-docs-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    border-radius: 16px;
+    padding: 1rem;
+    background: color-mix(in srgb, var(--color-background-primary) 97%, transparent);
+    border: 1px solid color-mix(in srgb, var(--color-highlight-secondary) 25%, transparent);
+}
+
+.mdx-docs-nav-header {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.mdx-docs-nav-eyebrow {
+    margin: 0;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--color-text-secondary);
+    font-weight: 700;
+}
+
+.mdx-docs-nav-home {
+    color: var(--color-text-primary);
+    font-size: 1.05rem;
+    font-weight: 800;
+    text-decoration: none;
+}
+
+.mdx-docs-nav-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.45rem;
+}
+
+.mdx-docs-nav-group-title {
+    margin: 0;
+    font-size: 0.8rem;
+    color: var(--color-text-secondary);
+    font-weight: 700;
+}
+
+.mdx-docs-nav-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+}
+
+.mdx-docs-nav-link {
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+    padding: 0.45rem 0.55rem;
+    border-radius: 10px;
+    color: var(--color-text-secondary);
+    text-decoration: none;
+    transition: background-color 0.18s ease, color 0.18s ease;
+}
+
+.mdx-docs-nav-link-icon {
+    flex: 0 0 auto;
+    font-size: 0.9rem;
+}
+
+.mdx-docs-nav-link:hover,
+.mdx-docs-nav-link:focus-visible,
+.mdx-docs-nav-home:hover,
+.mdx-docs-nav-home:focus-visible {
+    color: var(--color-text-primary);
+    outline: none;
+}
+
+.mdx-docs-nav-link:hover,
+.mdx-docs-nav-link:focus-visible {
+    background: color-mix(in srgb, var(--color-background-secondary) 90%, transparent);
+}
+
+.mdx-docs-nav-link.active,
+.mdx-docs-nav-home.active {
+    background: linear-gradient(
+        135deg,
+        color-mix(in srgb, var(--color-highlight-primary) 22%, transparent),
+        color-mix(in srgb, var(--color-highlight-secondary) 18%, transparent)
+    );
+    color: var(--color-text-primary);
+    box-shadow: inset 3px 0 0 var(--color-highlight-primary);
+}
+
+@media (max-width: 900px) {
+    .mdx-docs-nav {
+        position: static;
+    }
+
+    .mdx-docs-nav-list {
+        flex-direction: row;
+        flex-wrap: wrap;
+    }
+}

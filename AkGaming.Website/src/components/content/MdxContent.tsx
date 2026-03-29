@@ -1,5 +1,5 @@
 import type { PostContentComponent } from "../../data/types";
-import mdxComponents from "./mdxComponents";
+import { mdxComponents } from "./mdxCatalog";
 import "./MdxContent.css";
 
 type MdxContentProps = {
