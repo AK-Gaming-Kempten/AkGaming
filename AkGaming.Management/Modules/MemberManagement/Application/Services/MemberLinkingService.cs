@@ -15,6 +15,7 @@ namespace AkGaming.Management.Modules.MemberManagement.Application.Services;
 /// Service for linking a <see cref="Member"/> to a user
 /// </summary>
 public class MemberLinkingService : IMemberLinkingService {
+    private const string VorstandEmail = "vorstand@akgaming.de";
     private readonly IMemberRepository _memberRepository;
     private readonly IMemberLinkingRequestRepository _linkingRequestRepository;
     private readonly IMemberAuditLogWriter _auditLogWriter;
@@ -67,7 +68,7 @@ public class MemberLinkingService : IMemberLinkingService {
             return Result.Failure("Privacy policy must be accepted.");
 
         var linkingRequest = request.ToMemberLinkingRequest();
-        return await _linkingRequestRepository.Add(linkingRequest)
+        var result = await _linkingRequestRepository.Add(linkingRequest)
             .Then(() => _auditLogWriter.Add(new MemberAuditLog {
                 ActionType = "MemberLinkingRequestCreated",
                 PerformedByUserId = performedByUserId,
@@ -83,6 +84,12 @@ public class MemberLinkingService : IMemberLinkingService {
                 })
             }))
             .Then(() => _linkingRequestRepository.SaveChangesAsync());
+
+        if (!result.IsSuccess)
+            return result;
+
+        await SendMemberLinkingRequestCreatedNotificationEmailAsync(linkingRequest);
+        return Result.Success();
     }
     
     /// <inheritdoc/>
@@ -193,6 +200,40 @@ public class MemberLinkingService : IMemberLinkingService {
         }
         catch (Exception exception) {
             _logger.LogError(exception, "Failed to send member linking decision email to {Email}.", recipientEmail);
+        }
+    }
+
+    private async Task SendMemberLinkingRequestCreatedNotificationEmailAsync(MemberLinkingRequest request) {
+        const string adminRequestsUrl = "https://management.akgaming.de/member-management/requests";
+        var subject = "AK Gaming e.V. new member linking request";
+        var textBody =
+            "A new member linking request was created.\n\n" +
+            $"Open requests in admin panel: {adminRequestsUrl}\n\n" +
+            $"RequestId: {request.Id}\n" +
+            $"UserId: {request.IssuingUserId}\n" +
+            $"Name: {request.FirstName} {request.LastName}\n" +
+            $"Email: {request.Email}\n" +
+            $"Discord: {request.DiscordUserName}\n" +
+            $"Reason: {request.Reason}\n";
+        var htmlBody =
+            "<div style=\"font-family:Arial,Helvetica,sans-serif;color:#222;line-height:1.6\">" +
+            "<p style=\"margin:0 0 12px\">A new member linking request was created.</p>" +
+            $"<p style=\"margin:0 0 12px\"><a href=\"{adminRequestsUrl}\">Open requests in admin panel</a></p>" +
+            "<table style=\"border-collapse:collapse\">" +
+            $"<tr><td style=\"padding:2px 8px 2px 0\"><strong>RequestId</strong></td><td style=\"padding:2px 0\">{request.Id}</td></tr>" +
+            $"<tr><td style=\"padding:2px 8px 2px 0\"><strong>UserId</strong></td><td style=\"padding:2px 0\">{request.IssuingUserId}</td></tr>" +
+            $"<tr><td style=\"padding:2px 8px 2px 0\"><strong>Name</strong></td><td style=\"padding:2px 0\">{request.FirstName} {request.LastName}</td></tr>" +
+            $"<tr><td style=\"padding:2px 8px 2px 0\"><strong>Email</strong></td><td style=\"padding:2px 0\">{request.Email}</td></tr>" +
+            $"<tr><td style=\"padding:2px 8px 2px 0\"><strong>Discord</strong></td><td style=\"padding:2px 0\">{request.DiscordUserName}</td></tr>" +
+            $"<tr><td style=\"padding:2px 8px 2px 0\"><strong>Reason</strong></td><td style=\"padding:2px 0\">{request.Reason}</td></tr>" +
+            "</table>" +
+            "</div>";
+
+        try {
+            await _emailSender.SendAsync(VorstandEmail, subject, textBody, htmlBody, CancellationToken.None);
+        }
+        catch (Exception exception) {
+            _logger.LogError(exception, "Failed to send member linking request created notification to {Email}.", VorstandEmail);
         }
     }
 }

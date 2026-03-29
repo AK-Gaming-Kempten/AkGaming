@@ -132,4 +132,72 @@ public class MembershipApplicationServiceTests {
         Assert.That(result.IsSuccess, Is.True);
         emailSender.Verify(x => x.SendAsync("applicant@example.com", It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string?>(), It.IsAny<CancellationToken>()), Times.Once);
     }
+
+    [Test]
+    public async Task ApplyForMembership_SendsNotificationEmailToVorstand_WhenRequestCreated() {
+        var creationService = new Mock<IMemberCreationService>();
+        var linkingService = new Mock<IMemberLinkingService>();
+        var membershipUpdateService = new Mock<IMembershipUpdateService>();
+        var memberQueryService = new Mock<IMemberQueryService>();
+        var requestRepository = new Mock<IMembershipApplicationRequestRepository>();
+        var auditLogWriter = new Mock<IMemberAuditLogWriter>();
+        var emailSender = new Mock<IEmailSender>();
+        var logger = new Mock<ILogger<MembershipApplicationService>>();
+        var service = new MembershipApplicationService(
+            creationService.Object,
+            linkingService.Object,
+            membershipUpdateService.Object,
+            memberQueryService.Object,
+            requestRepository.Object,
+            auditLogWriter.Object,
+            emailSender.Object,
+            logger.Object);
+
+        var userId = Guid.NewGuid();
+        var memberId = Guid.NewGuid();
+        var request = new MembershipApplicationRequestDto {
+            IssuingUserId = userId,
+            MemberCreationInfo = new MemberCreationDto {
+                FirstName = "Erika",
+                LastName = "Mustermann",
+                Email = "erika@example.com",
+                Phone = "123",
+                DiscordUserName = "erika#1234",
+                BirthDate = new DateOnly(2000, 1, 1),
+                Address = new AddressDto {
+                    Street = "Street",
+                    ZipCode = "12345",
+                    City = "City",
+                    Country = "Country"
+                }
+            },
+            ApplicationText = "Hello",
+            PrivacyPolicyAccepted = true
+        };
+
+        memberQueryService.Setup(x => x.GetMemberByUserGuidAsync(userId)).ReturnsAsync(Result<MemberDto>.Failure("not found"));
+        requestRepository.Setup(x => x.GetAllRequestFromUserAsync(userId)).ReturnsAsync(Result<List<MembershipApplicationRequest>>.Failure("none"));
+        linkingService.Setup(x => x.GetMemberLinkingRequestsFromUserAsync(userId)).ReturnsAsync(Result<ICollection<MemberLinkingRequestDto>>.Failure("none"));
+        requestRepository.Setup(x => x.Add(It.IsAny<MembershipApplicationRequest>())).Returns(Result.Success());
+        auditLogWriter.Setup(x => x.Add(It.IsAny<MemberAuditLog>())).Returns(Result.Success());
+        requestRepository.Setup(x => x.SaveChangesAsync()).ReturnsAsync(Result.Success());
+        creationService.Setup(x => x.CreateMemberAsync(It.IsAny<MemberCreationDto>())).ReturnsAsync(Result<Guid>.Success(memberId));
+        linkingService.Setup(x => x.LinkMemberToUserAsync(memberId, userId)).ReturnsAsync(Result.Success());
+        membershipUpdateService.Setup(x => x.UpdateMembershipStatusAsync(memberId, ContractEnums.MembershipStatus.Applicant)).ReturnsAsync(Result.Success());
+        string? capturedTextBody = null;
+        string? capturedHtmlBody = null;
+        emailSender.Setup(x => x.SendAsync("vorstand@akgaming.de", It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string?>(), It.IsAny<CancellationToken>()))
+            .Callback<string, string, string, string?, CancellationToken>((_, _, textBody, htmlBody, _) => {
+                capturedTextBody = textBody;
+                capturedHtmlBody = htmlBody;
+            })
+            .Returns(Task.CompletedTask);
+
+        var result = await service.ApplyForMembershipAsync(request);
+
+        Assert.That(result.IsSuccess, Is.True);
+        emailSender.Verify(x => x.SendAsync("vorstand@akgaming.de", It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string?>(), It.IsAny<CancellationToken>()), Times.Once);
+        Assert.That(capturedTextBody, Does.Contain("https://management.akgaming.de/member-management/requests"));
+        Assert.That(capturedHtmlBody, Does.Contain("https://management.akgaming.de/member-management/requests"));
+    }
 }

@@ -13,6 +13,7 @@ using ContractEnums = AkGaming.Management.Modules.MemberManagement.Contracts.Enu
 namespace AkGaming.Management.Modules.MemberManagement.Application.Services;
 
 public class MembershipApplicationService : IMembershipApplicationService {
+    private const string VorstandEmail = "vorstand@akgaming.de";
     private readonly IMemberCreationService _creationService;
     private readonly IMemberLinkingService _linkingService;
     private readonly IMembershipUpdateService _membershipUpdateService;
@@ -197,7 +198,12 @@ public class MembershipApplicationService : IMembershipApplicationService {
                 })
             }))
             .Then(() => _membershipApplicationRequestRepository.SaveChangesAsync());
-        return result;
+
+        if (!result.IsSuccess)
+            return result;
+
+        await SendMembershipApplicationCreatedNotificationEmailAsync(request);
+        return Result.Success();
     }
 
     private async Task SendMembershipApplicationDecisionEmailAsync(string? recipientEmail, bool accepted) {
@@ -226,6 +232,44 @@ public class MembershipApplicationService : IMembershipApplicationService {
         }
         catch (Exception exception) {
             _logger.LogError(exception, "Failed to send membership application decision email to {Email}.", recipientEmail);
+        }
+    }
+
+    private async Task SendMembershipApplicationCreatedNotificationEmailAsync(MembershipApplicationRequest request) {
+        const string adminRequestsUrl = "https://management.akgaming.de/member-management/requests";
+        var subject = "AK Gaming e.V. new membership application";
+        var textBody =
+            "A new membership application was created.\n\n" +
+            $"Open requests in admin panel: {adminRequestsUrl}\n\n" +
+            $"RequestId: {request.Id}\n" +
+            $"UserId: {request.IssuingUserId}\n" +
+            $"Name: {request.FirstName} {request.LastName}\n" +
+            $"Email: {request.Email}\n" +
+            $"Phone: {request.Phone}\n" +
+            $"Discord: {request.DiscordUserName}\n" +
+            $"BirthDate: {request.BirthDate:yyyy-MM-dd}\n" +
+            $"ApplicationText: {request.ApplicationText}\n";
+        var htmlBody =
+            "<div style=\"font-family:Arial,Helvetica,sans-serif;color:#222;line-height:1.6\">" +
+            "<p style=\"margin:0 0 12px\">A new membership application was created.</p>" +
+            $"<p style=\"margin:0 0 12px\"><a href=\"{adminRequestsUrl}\">Open requests in admin panel</a></p>" +
+            "<table style=\"border-collapse:collapse\">" +
+            $"<tr><td style=\"padding:2px 8px 2px 0\"><strong>RequestId</strong></td><td style=\"padding:2px 0\">{request.Id}</td></tr>" +
+            $"<tr><td style=\"padding:2px 8px 2px 0\"><strong>UserId</strong></td><td style=\"padding:2px 0\">{request.IssuingUserId}</td></tr>" +
+            $"<tr><td style=\"padding:2px 8px 2px 0\"><strong>Name</strong></td><td style=\"padding:2px 0\">{request.FirstName} {request.LastName}</td></tr>" +
+            $"<tr><td style=\"padding:2px 8px 2px 0\"><strong>Email</strong></td><td style=\"padding:2px 0\">{request.Email}</td></tr>" +
+            $"<tr><td style=\"padding:2px 8px 2px 0\"><strong>Phone</strong></td><td style=\"padding:2px 0\">{request.Phone}</td></tr>" +
+            $"<tr><td style=\"padding:2px 8px 2px 0\"><strong>Discord</strong></td><td style=\"padding:2px 0\">{request.DiscordUserName}</td></tr>" +
+            $"<tr><td style=\"padding:2px 8px 2px 0\"><strong>BirthDate</strong></td><td style=\"padding:2px 0\">{request.BirthDate:yyyy-MM-dd}</td></tr>" +
+            $"<tr><td style=\"padding:2px 8px 2px 0\"><strong>ApplicationText</strong></td><td style=\"padding:2px 0\">{request.ApplicationText}</td></tr>" +
+            "</table>" +
+            "</div>";
+
+        try {
+            await _emailSender.SendAsync(VorstandEmail, subject, textBody, htmlBody, CancellationToken.None);
+        }
+        catch (Exception exception) {
+            _logger.LogError(exception, "Failed to send membership application created notification to {Email}.", VorstandEmail);
         }
     }
 }

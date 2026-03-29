@@ -6,6 +6,7 @@ using Moq;
 using AkGaming.Core.Common.Generics;
 using AkGaming.Management.Modules.MemberManagement.Contracts.DTO;
 using Microsoft.Extensions.Logging;
+using ContractEnums = AkGaming.Management.Modules.MemberManagement.Contracts.Enums;
 
 namespace AkGaming.Management.Modules.MemberManagement.Tests;
 
@@ -135,5 +136,49 @@ public class MemberLinkingServiceTests {
         emailSender.Verify(x => x.SendAsync("linking@example.com", It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string?>(), It.IsAny<CancellationToken>()), Times.Once);
         Assert.That(capturedTextBody, Does.Not.Contain("https://management.akgaming.de/membership/"));
         Assert.That(capturedHtmlBody, Does.Not.Contain("https://management.akgaming.de/membership/"));
+    }
+
+    [Test]
+    public async Task CreateMemberLinkingRequest_SendsNotificationEmailToVorstand() {
+        var memberRepository = new Mock<IMemberRepository>();
+        var memberLinkingRequestRepository = new Mock<IMemberLinkingRequestRepository>();
+        var auditLogWriter = new Mock<IMemberAuditLogWriter>();
+        var emailSender = new Mock<IEmailSender>();
+        var logger = new Mock<ILogger<MemberLinkingService>>();
+        var service = new MemberLinkingService(
+            memberRepository.Object,
+            memberLinkingRequestRepository.Object,
+            auditLogWriter.Object,
+            emailSender.Object,
+            logger.Object);
+
+        var request = new MemberLinkingRequestDto {
+            IssuingUserId = Guid.NewGuid(),
+            FirstName = "Max",
+            LastName = "Mustermann",
+            Email = "max@example.com",
+            DiscordUserName = "max#1234",
+            Reason = ContractEnums.MemberLinkingRequestReason.NewRegistration,
+            PrivacyPolicyAccepted = true
+        };
+
+        memberLinkingRequestRepository.Setup(x => x.Add(It.IsAny<MemberLinkingRequest>())).Returns(Result.Success());
+        auditLogWriter.Setup(x => x.Add(It.IsAny<MemberAuditLog>())).Returns(Result.Success());
+        memberLinkingRequestRepository.Setup(x => x.SaveChangesAsync()).ReturnsAsync(Result.Success());
+        string? capturedTextBody = null;
+        string? capturedHtmlBody = null;
+        emailSender.Setup(x => x.SendAsync("vorstand@akgaming.de", It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string?>(), It.IsAny<CancellationToken>()))
+            .Callback<string, string, string, string?, CancellationToken>((_, _, textBody, htmlBody, _) => {
+                capturedTextBody = textBody;
+                capturedHtmlBody = htmlBody;
+            })
+            .Returns(Task.CompletedTask);
+
+        var result = await service.CreateMemberLinkingRequestAsync(request);
+
+        Assert.That(result.IsSuccess, Is.True);
+        emailSender.Verify(x => x.SendAsync("vorstand@akgaming.de", It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string?>(), It.IsAny<CancellationToken>()), Times.Once);
+        Assert.That(capturedTextBody, Does.Contain("https://management.akgaming.de/member-management/requests"));
+        Assert.That(capturedHtmlBody, Does.Contain("https://management.akgaming.de/member-management/requests"));
     }
 }
