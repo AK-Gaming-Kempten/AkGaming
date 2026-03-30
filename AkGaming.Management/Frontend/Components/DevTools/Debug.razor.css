@@ -1,0 +1,49 @@
+.claims-grid {
+    display: grid;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.claim-card {
+    border: 1px solid var(--mud-palette-lines-default, #d7dce3);
+    border-radius: 0.75rem;
+    background: var(--mud-palette-surface, #fff);
+    overflow: hidden;
+}
+
+.claim-card__header {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.75rem 1rem;
+    background: color-mix(in srgb, var(--mud-palette-primary, #5b7cfa) 10%, white);
+}
+
+.claim-card__body {
+    display: grid;
+    gap: 0.75rem;
+    padding: 1rem;
+}
+
+.claim-card__label {
+    margin-bottom: 0.35rem;
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    opacity: 0.7;
+}
+
+.claim-card__list {
+    margin: 0;
+    padding-left: 1.25rem;
+}
+
+.claim-card__value-stack {
+    display: grid;
+    gap: 0.4rem;
+}
+
+code {
+    word-break: break-word;
+}

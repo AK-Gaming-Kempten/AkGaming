@@ -1,6 +1,7 @@
 @page "/Debug"
 @using System.Globalization
 @using System.Text.Json
+@using System.Text.Json.Serialization
 @using Microsoft.AspNetCore.Authorization
 @attribute [Authorize(Roles = "Admin")]
 
@@ -17,11 +18,55 @@
 
 <h4>Claims</h4>
 <button @onclick="TestClaims">Test Claims</button>
-<p>@_claimsResult</p>
+
+@if (!string.IsNullOrWhiteSpace(_claimsError))
+{
+    <p>@_claimsError</p>
+}
+@if (string.IsNullOrWhiteSpace(_claimsError) && _claims.Count > 0)
+{
+    <div class="claims-grid">
+        @foreach (var claim in _claims)
+        {
+            <section class="claim-card">
+                <header class="claim-card__header">
+                    <strong>@claim.Type</strong>
+                    <span>@GetValueCountLabel(claim.Values.Count)</span>
+                </header>
+
+                <div class="claim-card__body">
+                    <div>
+                        <div class="claim-card__label">Raw</div>
+                        <div class="claim-card__value-stack">
+                            @foreach (var value in claim.Values)
+                            {
+                                <code>@value</code>
+                            }
+                        </div>
+                    </div>
+
+                    @if (claim.FormattedValues.Count > 0)
+                    {
+                        <div>
+                            <div class="claim-card__label">Formatted</div>
+                            <div class="claim-card__value-stack">
+                                @foreach (var value in claim.FormattedValues)
+                                {
+                                    <div>@value</div>
+                                }
+                            </div>
+                        </div>
+                    }
+                </div>
+            </section>
+        }
+    </div>
+}
 
 @code {
     private string? _authResult;
-    private string? _claimsResult;
+    private string? _claimsError;
+    private IReadOnlyList<ClaimDisplayItem> _claims = Array.Empty<ClaimDisplayItem>();
 
     private async Task TestAuth()
     {
@@ -32,7 +77,18 @@
     private async Task TestClaims()
     {
         var api = ClientFactory.CreateClient("ManagementApi");
-        _claimsResult = await SendDebugRequestAsync(api, "debug/token");
+        var response = await api.GetAsync("debug/token");
+        var body = await response.Content.ReadAsStringAsync();
+
+        if (!response.IsSuccessStatusCode)
+        {
+            _claims = Array.Empty<ClaimDisplayItem>();
+            _claimsError = $"HTTP {(int)response.StatusCode} ({response.ReasonPhrase}): {FormatJsonIfPossible(body)}";
+            return;
+        }
+
+        _claims = ParseClaims(body);
+        _claimsError = null;
     }
 
     private static async Task<string> SendDebugRequestAsync(HttpClient api, string path)
@@ -61,4 +117,89 @@
             return body;
         }
     }
+
+    private static IReadOnlyList<ClaimDisplayItem> ParseClaims(string body)
+    {
+        try
+        {
+            var claims = JsonSerializer.Deserialize<List<ClaimResponseItem>>(body, new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true
+            });
+
+            if (claims is null)
+                return Array.Empty<ClaimDisplayItem>();
+
+            return claims
+                .Select((claim, index) => new { Claim = claim, Index = index })
+                .GroupBy(item => item.Claim.Type, StringComparer.Ordinal)
+                .OrderBy(group => group.Min(item => item.Index))
+                .Select(group =>
+                {
+                    var values = group
+                        .Select(item => item.Claim.Value ?? string.Empty)
+                        .ToList();
+                    var formattedValues = values
+                        .Select(value => FormatClaimValue(group.Key, value))
+                        .OfType<string>()
+                        .Distinct(StringComparer.Ordinal)
+                        .ToList();
+
+                    return new ClaimDisplayItem(group.Key, values, formattedValues);
+                })
+                .ToList();
+        }
+        catch (JsonException)
+        {
+            return new[]
+            {
+                new ClaimDisplayItem("raw-response", new[] { FormatJsonIfPossible(body) }, Array.Empty<string>())
+            };
+        }
+    }
+
+    private static string? FormatClaimValue(string type, string value)
+    {
+        if (TryParseTimestamp(type, value, out var timestamp))
+            return $"{FormatLocalTime(timestamp)} (local) / {FormatUtcTime(timestamp)} (UTC)";
+
+        return null;
+    }
+
+    private static bool TryParseTimestamp(string type, string value, out DateTimeOffset timestamp)
+    {
+        if ((string.Equals(type, "exp", StringComparison.Ordinal) || string.Equals(type, "iat", StringComparison.Ordinal))
+            && long.TryParse(value, out var unixSeconds))
+        {
+            timestamp = DateTimeOffset.FromUnixTimeSeconds(unixSeconds);
+            return true;
+        }
+
+        if ((type.Contains("_dt", StringComparison.Ordinal) || type.EndsWith("date", StringComparison.OrdinalIgnoreCase))
+            && DateTimeOffset.TryParse(value, CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal, out timestamp))
+        {
+            return true;
+        }
+
+        timestamp = default;
+        return false;
+    }
+
+    private static string FormatLocalTime(DateTimeOffset timestamp)
+        => timestamp.ToLocalTime().ToString("yyyy-MM-dd HH:mm:ss zzz", CultureInfo.InvariantCulture);
+
+    private static string FormatUtcTime(DateTimeOffset timestamp)
+        => timestamp.UtcDateTime.ToString("yyyy-MM-dd HH:mm:ss 'UTC'", CultureInfo.InvariantCulture);
+
+    private static string GetValueCountLabel(int count)
+        => count == 1 ? "1 value" : $"{count} values";
+
+    private sealed record ClaimResponseItem(
+        [property: JsonPropertyName("type")] string Type,
+        [property: JsonPropertyName("value")] string Value);
+
+    private sealed record ClaimDisplayItem(
+        string Type,
+        IReadOnlyList<string> Values,
+        IReadOnlyList<string> FormattedValues);
 }
