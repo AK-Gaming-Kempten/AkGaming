@@ -2,20 +2,30 @@ name: Deploy Identity
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ["main"]
+    tags: ["identity-publish"]
     paths:
       - "AkGaming.Identity/**"
       - "AkGaming.Core/**"
 
 concurrency:
-  group: deploy-production
+  group: deploy-identity-${{ github.ref_name }}
   cancel-in-progress: false
 
 jobs:
-  deploy:
+  deploy-test:
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     steps:
-      - name: Trigger Coolify deploy
+      - name: Trigger Coolify Test Deploy
+        run: |
+          curl --fail --request GET "${{ secrets.COOLIFY_WEBHOOK_IDENTITY_TEST }}" \
+            --header "Authorization: Bearer ${{ secrets.COOLIFY_TOKEN }}"
+  deploy-production:
+    if: github.ref == 'refs/tags/identity-publish'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Coolify Production Deploy
         run: |
           curl --fail --request GET "${{ secrets.COOLIFY_WEBHOOK_IDENTITY }}" \
             --header "Authorization: Bearer ${{ secrets.COOLIFY_TOKEN }}"

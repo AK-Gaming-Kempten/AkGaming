@@ -3,23 +3,37 @@ name: Deploy Management
 on:
   push:
     branches: ["main"]
+    tags: ["management-publish"]
     paths:
       - "AkGaming.Management/**"
       - "AkGaming.Core/**"
 
 concurrency:
-  group: deploy-production
+  group: deploy-management-${{ github.ref_name }}
   cancel-in-progress: false
 
 jobs:
-  deploy:
+  deploy-test:
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     steps:
-      - name: Trigger Coolify Deploy for Backend
+      - name: Trigger Coolify Test Deploy for Backend
         run: |
-          curl -X GET "${{ secrets.COOLIFY_WEBHOOK_MANAGEMENT_BACKEND }}" \
-            -H "Authorization: Bearer ${{ secrets.COOLIFY_TOKEN }}"
-      - name: Trigger Coolify Deploy for Frontend
+          curl --fail --request GET "${{ secrets.COOLIFY_WEBHOOK_MANAGEMENT_BACKEND_TEST }}" \
+            --header "Authorization: Bearer ${{ secrets.COOLIFY_TOKEN }}"
+      - name: Trigger Coolify Test Deploy for Frontend
         run: |
-          curl -X GET "${{ secrets.COOLIFY_WEBHOOK_MANAGEMENT_FRONTEND }}" \
-            -H "Authorization: Bearer ${{ secrets.COOLIFY_TOKEN }}"
+          curl --fail --request GET "${{ secrets.COOLIFY_WEBHOOK_MANAGEMENT_FRONTEND_TEST }}" \
+            --header "Authorization: Bearer ${{ secrets.COOLIFY_TOKEN }}"
+  deploy-production:
+    if: github.ref == 'refs/tags/management-publish'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Coolify Production Deploy for Backend
+        run: |
+          curl --fail --request GET "${{ secrets.COOLIFY_WEBHOOK_MANAGEMENT_BACKEND }}" \
+            --header "Authorization: Bearer ${{ secrets.COOLIFY_TOKEN }}"
+      - name: Trigger Coolify Production Deploy for Frontend
+        run: |
+          curl --fail --request GET "${{ secrets.COOLIFY_WEBHOOK_MANAGEMENT_FRONTEND }}" \
+            --header "Authorization: Bearer ${{ secrets.COOLIFY_TOKEN }}"

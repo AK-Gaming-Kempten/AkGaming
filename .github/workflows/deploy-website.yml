@@ -2,20 +2,30 @@ name: Deploy Website
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ["main"]
+    tags: ["website-publish"]
     paths:
       - "AkGaming.Website/**"
       - "AkGaming.Core/**"
 
 concurrency:
-  group: deploy-production
+  group: deploy-website-${{ github.ref_name }}
   cancel-in-progress: false
 
 jobs:
-  deploy:
+  deploy-test:
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     steps:
-      - name: Trigger Coolify deploy
+      - name: Trigger Coolify Test Deploy
+        run: |
+          curl --fail --request GET "${{ secrets.COOLIFY_WEBHOOK_WEBSITE_TEST }}" \
+            --header "Authorization: Bearer ${{ secrets.COOLIFY_TOKEN }}"
+  deploy-production:
+    if: github.ref == 'refs/tags/website-publish'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Coolify Production Deploy
         run: |
           curl --fail --request GET "${{ secrets.COOLIFY_WEBHOOK_WEBSITE }}" \
             --header "Authorization: Bearer ${{ secrets.COOLIFY_TOKEN }}"
