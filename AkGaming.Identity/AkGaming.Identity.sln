@@ -3,19 +3,31 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Api", "Api\AkGaming.Identity.Api.csproj", "{D23759FC-3448-4077-A66F-F2BED2DBCCEE}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AkGaming.Identity.Api", "Api\AkGaming.Identity.Api.csproj", "{D23759FC-3448-4077-A66F-F2BED2DBCCEE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Application", "Application\AkGaming.Identity.Application.csproj", "{3855840E-874D-417C-8FFF-F3B245E4B66B}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AkGaming.Identity.Application", "Application\AkGaming.Identity.Application.csproj", "{3855840E-874D-417C-8FFF-F3B245E4B66B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Domain", "Domain\AkGaming.Identity.Domain.csproj", "{D5F21D2D-12EB-466A-84CA-BCF63A1420BE}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AkGaming.Identity.Domain", "Domain\AkGaming.Identity.Domain.csproj", "{D5F21D2D-12EB-466A-84CA-BCF63A1420BE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Infrastructure", "Infrastructure\AkGaming.Identity.Infrastructure.csproj", "{DE5E3ACB-F525-4D3D-A485-FB98D219DA42}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AkGaming.Identity.Infrastructure", "Infrastructure\AkGaming.Identity.Infrastructure.csproj", "{DE5E3ACB-F525-4D3D-A485-FB98D219DA42}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests.Application.UnitTests", "Tests\Application.UnitTests\AkGaming.Identity.Application.UnitTests.csproj", "{1A199528-6089-4D41-8183-72CEB49DA68C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AkGaming.Identity.Application.UnitTests", "Tests\Application.UnitTests\AkGaming.Identity.Application.UnitTests.csproj", "{1A199528-6089-4D41-8183-72CEB49DA68C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests.Api.IntegrationTests", "Tests\Api.IntegrationTests\AkGaming.Identity.Api.IntegrationTests.csproj", "{A20CC2EE-6446-4E58-B777-C948E77C768C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AkGaming.Identity.Api.IntegrationTests", "Tests\Api.IntegrationTests\AkGaming.Identity.Api.IntegrationTests.csproj", "{A20CC2EE-6446-4E58-B777-C948E77C768C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Contracts", "Contracts\AkGaming.Identity.Contracts.csproj", "{36135696-93C0-40D3-8B23-A027EAD197C3}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AkGaming.Identity.Contracts", "Contracts\AkGaming.Identity.Contracts.csproj", "{36135696-93C0-40D3-8B23-A027EAD197C3}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Migrations", "Migrations", "{D4C4D1C2-DE9C-AF20-17FD-0A3EB2BFD436}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Postgres", "Postgres", "{C982D5B3-4BDC-3175-20B1-AF6D0E606B3C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AkGaming.Identity.Migrations.Postgres", "Migrations\Postgres\AkGaming.Identity.Migrations.Postgres.csproj", "{11076A51-360B-483C-8E84-541923312315}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Infrastructure", "Infrastructure", "{DFEE68D8-A7D0-1A41-506C-9B74AA9A7B7B}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Sqlite", "Sqlite", "{484FEA5B-5DCA-91C9-ECDB-C73E03C533C1}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AkGaming.Identity.Migrations.Sqlite", "Migrations\Sqlite\AkGaming.Identity.Migrations.Sqlite.csproj", "{82CCDC17-BDC0-4362-8442-542E3ED8D824}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -111,8 +123,38 @@ Global
 		{36135696-93C0-40D3-8B23-A027EAD197C3}.Release|x64.Build.0 = Release|Any CPU
 		{36135696-93C0-40D3-8B23-A027EAD197C3}.Release|x86.ActiveCfg = Release|Any CPU
 		{36135696-93C0-40D3-8B23-A027EAD197C3}.Release|x86.Build.0 = Release|Any CPU
+		{11076A51-360B-483C-8E84-541923312315}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{11076A51-360B-483C-8E84-541923312315}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{11076A51-360B-483C-8E84-541923312315}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{11076A51-360B-483C-8E84-541923312315}.Debug|x64.Build.0 = Debug|Any CPU
+		{11076A51-360B-483C-8E84-541923312315}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{11076A51-360B-483C-8E84-541923312315}.Debug|x86.Build.0 = Debug|Any CPU
+		{11076A51-360B-483C-8E84-541923312315}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{11076A51-360B-483C-8E84-541923312315}.Release|Any CPU.Build.0 = Release|Any CPU
+		{11076A51-360B-483C-8E84-541923312315}.Release|x64.ActiveCfg = Release|Any CPU
+		{11076A51-360B-483C-8E84-541923312315}.Release|x64.Build.0 = Release|Any CPU
+		{11076A51-360B-483C-8E84-541923312315}.Release|x86.ActiveCfg = Release|Any CPU
+		{11076A51-360B-483C-8E84-541923312315}.Release|x86.Build.0 = Release|Any CPU
+		{82CCDC17-BDC0-4362-8442-542E3ED8D824}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{82CCDC17-BDC0-4362-8442-542E3ED8D824}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{82CCDC17-BDC0-4362-8442-542E3ED8D824}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{82CCDC17-BDC0-4362-8442-542E3ED8D824}.Debug|x64.Build.0 = Debug|Any CPU
+		{82CCDC17-BDC0-4362-8442-542E3ED8D824}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{82CCDC17-BDC0-4362-8442-542E3ED8D824}.Debug|x86.Build.0 = Debug|Any CPU
+		{82CCDC17-BDC0-4362-8442-542E3ED8D824}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{82CCDC17-BDC0-4362-8442-542E3ED8D824}.Release|Any CPU.Build.0 = Release|Any CPU
+		{82CCDC17-BDC0-4362-8442-542E3ED8D824}.Release|x64.ActiveCfg = Release|Any CPU
+		{82CCDC17-BDC0-4362-8442-542E3ED8D824}.Release|x64.Build.0 = Release|Any CPU
+		{82CCDC17-BDC0-4362-8442-542E3ED8D824}.Release|x86.ActiveCfg = Release|Any CPU
+		{82CCDC17-BDC0-4362-8442-542E3ED8D824}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{C982D5B3-4BDC-3175-20B1-AF6D0E606B3C} = {D4C4D1C2-DE9C-AF20-17FD-0A3EB2BFD436}
+		{11076A51-360B-483C-8E84-541923312315} = {C982D5B3-4BDC-3175-20B1-AF6D0E606B3C}
+		{484FEA5B-5DCA-91C9-ECDB-C73E03C533C1} = {D4C4D1C2-DE9C-AF20-17FD-0A3EB2BFD436}
+		{82CCDC17-BDC0-4362-8442-542E3ED8D824} = {484FEA5B-5DCA-91C9-ECDB-C73E03C533C1}
 	EndGlobalSection
 EndGlobal

@@ -18,6 +18,8 @@
 
     <ItemGroup>
       <ProjectReference Include="..\Modules\MemberManagement\Api\AkGaming.Management.Modules.MemberManagement.Api.csproj" />
+      <ProjectReference Include="..\Modules\MemberManagement\Migrations\Postgres\AkGaming.Management.Modules.MemberManagement.Migrations.Postgres.csproj" />
+      <ProjectReference Include="..\Modules\MemberManagement\Migrations\Sqlite\AkGaming.Management.Modules.MemberManagement.Migrations.Sqlite.csproj" />
     </ItemGroup>
 
     <ItemGroup>

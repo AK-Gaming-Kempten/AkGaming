@@ -107,11 +107,37 @@ Open `https://localhost:5001/swagger` for the interactive API UI.
 
 ### Database
 
-The system uses EF Core migrations per module:
+The system uses EF Core migrations per module and provider.
 
 ```bash
-dotnet ef migrations add Init --project Modules/MemberManagement/Infrastructure/AkGaming.Management.Modules.MemberManagement.Infrastructure.csproj
+dotnet ef database update \
+  --project Modules/MemberManagement/Migrations/Postgres/AkGaming.Management.Modules.MemberManagement.Migrations.Postgres.csproj \
+  --context MemberManagementDbContext
 ```
+
+```bash
+dotnet ef database update \
+  --project Modules/MemberManagement/Migrations/Sqlite/AkGaming.Management.Modules.MemberManagement.Migrations.Sqlite.csproj \
+  --context MemberManagementDbContext
+```
+
+```bash
+dotnet ef migrations add <MigrationName> \
+  --project Modules/MemberManagement/Migrations/Postgres/AkGaming.Management.Modules.MemberManagement.Migrations.Postgres.csproj \
+  --context MemberManagementDbContext
+```
+
+```bash
+dotnet ef migrations add <MigrationName> \
+  --project Modules/MemberManagement/Migrations/Sqlite/AkGaming.Management.Modules.MemberManagement.Migrations.Sqlite.csproj \
+  --context MemberManagementDbContext
+```
+
+Notes:
+- Keep the PostgreSQL and SQLite migration projects aligned whenever the model changes.
+- The Web API now uses `Migrate()` for SQLite as well as PostgreSQL.
+- Legacy local `management.db` files created via `EnsureCreated()` are reset automatically in Development/Testing the first time the new migration pipeline runs.
+- The deploy workflow can apply PostgreSQL migrations automatically when `MANAGEMENT_TEST_DB_CONNECTION_STRING` and `MANAGEMENT_PRODUCTION_DB_CONNECTION_STRING` are configured as GitHub secrets.
 
 ---
 

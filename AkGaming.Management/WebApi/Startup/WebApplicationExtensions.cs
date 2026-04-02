@@ -1,3 +1,4 @@
+using System.Data;
 using AkGaming.Management.Modules.MemberManagement.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
@@ -19,11 +20,8 @@ public static class WebApplicationExtensions {
     public static WebApplication UseDatabaseMigrations(this WebApplication app) {
         using var scope = app.Services.CreateScope();
         var db = scope.ServiceProvider.GetRequiredService<MemberManagementDbContext>();
-        if (db.Database.IsSqlite()) {
-            db.Database.EnsureCreated();
-        } else {
-            db.Database.Migrate();
-        }
+        ResetLegacySqliteDatabaseIfNeeded(app.Environment, db);
+        db.Database.Migrate();
         return app;
     }
 
@@ -34,5 +32,49 @@ public static class WebApplicationExtensions {
             return Results.Ok(claims);
         });
         return app;
+    }
+
+    private static void ResetLegacySqliteDatabaseIfNeeded(IHostEnvironment env, MemberManagementDbContext db) {
+        if (!db.Database.IsSqlite() || !(env.IsDevelopment() || env.IsEnvironment("Testing"))) {
+            return;
+        }
+
+        if (!db.Database.CanConnect()) {
+            return;
+        }
+
+        var connection = db.Database.GetDbConnection();
+        var shouldCloseConnection = connection.State != ConnectionState.Open;
+
+        if (shouldCloseConnection) {
+            connection.Open();
+        }
+
+        var hasLegacySchemaWithoutHistory = false;
+
+        try {
+            using var command = connection.CreateCommand();
+            command.CommandText = "SELECT name FROM sqlite_master WHERE type = 'table' AND name NOT LIKE 'sqlite_%';";
+
+            using var reader = command.ExecuteReader();
+            var tables = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            while (reader.Read()) {
+                tables.Add(reader.GetString(0));
+            }
+
+            hasLegacySchemaWithoutHistory = tables.Count > 0 && !tables.Contains("__EFMigrationsHistory");
+        }
+        finally {
+            if (shouldCloseConnection) {
+                connection.Close();
+            }
+        }
+
+        if (!hasLegacySchemaWithoutHistory) {
+            return;
+        }
+
+        // Legacy local SQLite databases were previously created via EnsureCreated() and cannot be migrated in place.
+        db.Database.EnsureDeleted();
     }
 }

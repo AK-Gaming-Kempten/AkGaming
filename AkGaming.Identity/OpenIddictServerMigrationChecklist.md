@@ -214,7 +214,7 @@ Constraints:
 - `AkGaming.Identity/Infrastructure/AkGaming.Identity.Infrastructure.csproj`
 - `AkGaming.Identity/Infrastructure/DependencyInjection.cs`
 - `AkGaming.Identity/Infrastructure/Persistence/AuthDbContext.cs`
-- `AkGaming.Identity/Infrastructure/Persistence/Migrations/*`
+- `AkGaming.Identity/Migrations/*`
 - `AkGaming.Identity/Infrastructure/OpenIddict/*`
 - `AkGaming.Identity/Application/Auth/AuthService.cs`
 - `AkGaming.Identity/Application/Abstractions/*`

@@ -21,6 +21,8 @@
     <ProjectReference Include="..\Contracts\AkGaming.Identity.Contracts.csproj" />
     <ProjectReference Include="..\Application\AkGaming.Identity.Application.csproj" />
     <ProjectReference Include="..\Infrastructure\AkGaming.Identity.Infrastructure.csproj" />
+    <ProjectReference Include="..\Migrations\Postgres\AkGaming.Identity.Migrations.Postgres.csproj" />
+    <ProjectReference Include="..\Migrations\Sqlite\AkGaming.Identity.Migrations.Sqlite.csproj" />
   </ItemGroup>
 
   <Target Name="SyncAkGamingBaseTheme" BeforeTargets="Build;Publish">

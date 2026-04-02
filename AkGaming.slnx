@@ -19,6 +19,13 @@
   <Folder Name="/AkGaming.Identity/Infrastructure/">
     <Project Path="AkGaming.Identity/Infrastructure/AkGaming.Identity.Infrastructure.csproj" />
   </Folder>
+  <Folder Name="/AkGaming.Identity/Migrations/" />
+  <Folder Name="/AkGaming.Identity/Migrations/Postgres/">
+    <Project Path="AkGaming.Identity/Migrations/Postgres/AkGaming.Identity.Migrations.Postgres.csproj" />
+  </Folder>
+  <Folder Name="/AkGaming.Identity/Migrations/Sqlite/">
+    <Project Path="AkGaming.Identity/Migrations/Sqlite/AkGaming.Identity.Migrations.Sqlite.csproj" />
+  </Folder>
   <Folder Name="/AkGaming.Identity/Tests/" />
   <Folder Name="/AkGaming.Identity/Tests/Api.IntegrationTests/">
     <Project Path="AkGaming.Identity/Tests/Api.IntegrationTests/AkGaming.Identity.Api.IntegrationTests.csproj" />
@@ -59,6 +66,13 @@
   </Folder>
   <Folder Name="/AkGaming.Management/Modules/MemberManagement/Infrastructure/">
     <Project Path="AkGaming.Management/Modules/MemberManagement/Infrastructure/AkGaming.Management.Modules.MemberManagement.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/AkGaming.Management/Modules/MemberManagement/Migrations/" />
+  <Folder Name="/AkGaming.Management/Modules/MemberManagement/Migrations/Postgres/">
+    <Project Path="AkGaming.Management/Modules/MemberManagement/Migrations/Postgres/AkGaming.Management.Modules.MemberManagement.Migrations.Postgres.csproj" />
+  </Folder>
+  <Folder Name="/AkGaming.Management/Modules/MemberManagement/Migrations/Sqlite/">
+    <Project Path="AkGaming.Management/Modules/MemberManagement/Migrations/Sqlite/AkGaming.Management.Modules.MemberManagement.Migrations.Sqlite.csproj" />
   </Folder>
   <Folder Name="/AkGaming.Management/Modules/MemberManagement/Tests/">
     <Project Path="AkGaming.Management/Modules/MemberManagement/Tests/AkGaming.Management.Modules.MemberManagement.Tests.csproj" />

@@ -25,10 +25,12 @@ public static class DependencyInjection {
                 case "postgresql":
                     options.UseNpgsql(
                         connectionString ?? throw new InvalidOperationException("ConnectionStrings:DefaultConnection is required for Postgres."),
-                        npgsql => npgsql.MigrationsAssembly(typeof(MemberManagementDbContext).Assembly.FullName));
+                        npgsql => npgsql.MigrationsAssembly(MemberManagementDbContextMigrations.PostgresAssembly));
                     break;
                 case "sqlite":
-                    options.UseSqlite(ResolveSqliteConnectionString(connectionString));
+                    options.UseSqlite(
+                        ResolveSqliteConnectionString(connectionString),
+                        sqlite => sqlite.MigrationsAssembly(MemberManagementDbContextMigrations.SqliteAssembly));
                     options.ConfigureWarnings(warnings =>
                         warnings.Ignore(RelationalEventId.PendingModelChangesWarning));
                     break;

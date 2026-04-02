@@ -33,10 +33,14 @@ public static class DependencyInjection
             {
                 case "postgres":
                 case "postgresql":
-                    options.UseNpgsql(connectionString ?? throw new InvalidOperationException("ConnectionStrings:IdentityDb is required for Postgres."));
+                    options.UseNpgsql(
+                        connectionString ?? throw new InvalidOperationException("ConnectionStrings:IdentityDb is required for Postgres."),
+                        npgsql => npgsql.MigrationsAssembly(AuthDbContextMigrations.PostgresAssembly));
                     break;
                 case "sqlite":
-                    options.UseSqlite(connectionString ?? "Data Source=identity.db");
+                    options.UseSqlite(
+                        connectionString ?? "Data Source=identity.db",
+                        sqlite => sqlite.MigrationsAssembly(AuthDbContextMigrations.SqliteAssembly));
                     options.ConfigureWarnings(warnings =>
                         warnings.Ignore(RelationalEventId.PendingModelChangesWarning));
                     break;

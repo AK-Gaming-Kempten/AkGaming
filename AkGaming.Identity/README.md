@@ -102,27 +102,42 @@ Use double underscores for nested config keys:
 
 ## Database and Migrations
 
-Apply migrations:
+Apply PostgreSQL migrations:
 
 ```bash
 dotnet ef database update \
-  --project Infrastructure/AkGaming.Identity.Infrastructure.csproj \
-  --startup-project Api/AkGaming.Identity.Api.csproj \
+  --project Migrations/Postgres/AkGaming.Identity.Migrations.Postgres.csproj \
   --context AuthDbContext
 ```
 
-Create a new migration:
+Apply SQLite migrations:
+
+```bash
+dotnet ef database update \
+  --project Migrations/Sqlite/AkGaming.Identity.Migrations.Sqlite.csproj \
+  --context AuthDbContext
+```
+
+Create a new PostgreSQL migration:
 
 ```bash
 dotnet ef migrations add <MigrationName> \
-  --project Infrastructure/AkGaming.Identity.Infrastructure.csproj \
-  --startup-project Api/AkGaming.Identity.Api.csproj \
+  --project Migrations/Postgres/AkGaming.Identity.Migrations.Postgres.csproj \
+  --context AuthDbContext
+```
+
+Create a matching SQLite migration:
+
+```bash
+dotnet ef migrations add <MigrationName> \
+  --project Migrations/Sqlite/AkGaming.Identity.Migrations.Sqlite.csproj \
   --context AuthDbContext
 ```
 
 Notes:
-- If you get `PendingModelChangesWarning`, create and apply the missing migration.
-- SQLite and PostgreSQL providers can differ subtly; generate migrations from the current model before deploy.
+- Keep PostgreSQL and SQLite migrations in sync whenever the model changes.
+- The API applies the configured provider's migrations automatically on startup.
+- The deploy workflow can also apply PostgreSQL migrations when `IDENTITY_TEST_DB_CONNECTION_STRING` and `IDENTITY_PRODUCTION_DB_CONNECTION_STRING` are configured as GitHub secrets.
 
 ## Docker and Deployment
 

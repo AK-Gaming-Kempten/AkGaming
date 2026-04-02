@@ -18,40 +18,82 @@ public abstract class ApiClientBase {
     }
 
     protected async Task<Result<T>> GetAsync<T>(string url, CancellationToken ct = default) {
-        using var resp = await Http.GetAsync(url, ct);
-        return await ToResult<T>(resp, ct);
+        try {
+            using var resp = await Http.GetAsync(url, ct);
+            return await ToResult<T>(resp, ct);
+        } catch (HttpRequestException ex) {
+            return Result<T>.Failure(BuildConnectionError(ex));
+        } catch (TaskCanceledException) when (!ct.IsCancellationRequested) {
+            return Result<T>.Failure(BuildTimeoutError());
+        }
     }
 
     protected async Task<Result> GetAsync(string url, CancellationToken ct = default) {
-        using var resp = await Http.GetAsync(url, ct);
-        return await ToResult(resp, ct);
+        try {
+            using var resp = await Http.GetAsync(url, ct);
+            return await ToResult(resp, ct);
+        } catch (HttpRequestException ex) {
+            return Result.Failure(BuildConnectionError(ex));
+        } catch (TaskCanceledException) when (!ct.IsCancellationRequested) {
+            return Result.Failure(BuildTimeoutError());
+        }
     }
 
     protected async Task<Result<TOut>> PostJsonAsync<TIn, TOut>(string url, TIn body, CancellationToken ct = default) {
-        using var resp = await Http.PostAsJsonAsync(url, body, Json, ct);
-        return await ToResult<TOut>(resp, ct);
+        try {
+            using var resp = await Http.PostAsJsonAsync(url, body, Json, ct);
+            return await ToResult<TOut>(resp, ct);
+        } catch (HttpRequestException ex) {
+            return Result<TOut>.Failure(BuildConnectionError(ex));
+        } catch (TaskCanceledException) when (!ct.IsCancellationRequested) {
+            return Result<TOut>.Failure(BuildTimeoutError());
+        }
     }
 
     protected async Task<Result> PostJsonAsync<TIn>(string url, TIn body, CancellationToken ct = default) {
-        using var resp = await Http.PostAsJsonAsync(url, body, Json, ct);
-        return await ToResult(resp, ct);
+        try {
+            using var resp = await Http.PostAsJsonAsync(url, body, Json, ct);
+            return await ToResult(resp, ct);
+        } catch (HttpRequestException ex) {
+            return Result.Failure(BuildConnectionError(ex));
+        } catch (TaskCanceledException) when (!ct.IsCancellationRequested) {
+            return Result.Failure(BuildTimeoutError());
+        }
     }
 
     protected async Task<Result<TOut>> PutJsonAsync<TIn, TOut>(string url, TIn body, CancellationToken ct = default) {
-        using var resp = await Http.PutAsJsonAsync(url, body, Json, ct);
-        return await ToResult<TOut>(resp, ct);
+        try {
+            using var resp = await Http.PutAsJsonAsync(url, body, Json, ct);
+            return await ToResult<TOut>(resp, ct);
+        } catch (HttpRequestException ex) {
+            return Result<TOut>.Failure(BuildConnectionError(ex));
+        } catch (TaskCanceledException) when (!ct.IsCancellationRequested) {
+            return Result<TOut>.Failure(BuildTimeoutError());
+        }
     }
 
     protected async Task<Result> PutJsonAsync<TIn>(string url, TIn body, CancellationToken ct = default) {
-        using var resp = await Http.PutAsJsonAsync(url, body, Json, ct);
-        return await ToResult(resp, ct);
+        try {
+            using var resp = await Http.PutAsJsonAsync(url, body, Json, ct);
+            return await ToResult(resp, ct);
+        } catch (HttpRequestException ex) {
+            return Result.Failure(BuildConnectionError(ex));
+        } catch (TaskCanceledException) when (!ct.IsCancellationRequested) {
+            return Result.Failure(BuildTimeoutError());
+        }
     }
 
     protected async Task<Result> PutValueAsync<T>(string url, T value, CancellationToken ct = default) {
         var json = JsonSerializer.Serialize(value, Json);
         using var content = new StringContent(json, Encoding.UTF8, "application/json");
-        using var resp = await Http.PutAsync(url, content, ct);
-        return await ToResult(resp, ct);
+        try {
+            using var resp = await Http.PutAsync(url, content, ct);
+            return await ToResult(resp, ct);
+        } catch (HttpRequestException ex) {
+            return Result.Failure(BuildConnectionError(ex));
+        } catch (TaskCanceledException) when (!ct.IsCancellationRequested) {
+            return Result.Failure(BuildTimeoutError());
+        }
     }
 
     protected async Task<Result<T>> ToResult<T>(HttpResponseMessage resp, CancellationToken ct) {
@@ -96,5 +138,14 @@ public abstract class ApiClientBase {
 
         var reason = resp.ReasonPhrase ?? resp.StatusCode.ToString();
         return $"{(int)resp.StatusCode} {reason}";
+    }
+
+    private string BuildConnectionError(HttpRequestException ex) {
+        var baseAddress = Http.BaseAddress?.ToString() ?? "the configured API";
+        return $"Could not reach API at {baseAddress}. Ensure the backend is running. {ex.Message}";
+    }
+
+    private static string BuildTimeoutError() {
+        return "The API request timed out.";
     }
 }
