@@ -1,0 +1,45 @@
+@page "/account/login"
+@model AkGaming.Identity.Api.Pages.Account.LoginModel
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>AKG Identity | Login</title>
+  <link rel="icon" type="image/png" href="/ui/AkGaming_Identity.png" />
+  <link rel="stylesheet" href="/ui/akgaming-base-theme.css" />
+  <link rel="stylesheet" href="/ui/baseStyles.css" />
+  <link rel="stylesheet" href="/ui/styles.css" />
+</head>
+<body>
+  <main class="shell">
+    <div class="brand">
+      <img src="/ui/AkGaming_Identity.png" alt="AK Gaming" />
+      <div class="brand-title">AK Gaming <span class="identity">Identity</span></div>
+    </div>
+    <h1>Sign In</h1>
+    <p class="sub">Use your AK Gaming account to continue.</p>
+
+    <form method="post">
+      <input asp-for="ReturnUrl" type="hidden" />
+
+      <label asp-for="Email">Email</label>
+      <input asp-for="Email" type="email" autocomplete="email" required />
+
+      <label asp-for="Password">Password</label>
+      <input asp-for="Password" type="password" autocomplete="current-password" required />
+
+      <button class="primary" type="submit">Sign In</button>
+    </form>
+
+    <a class="button secondary" href="/auth/discord/start?return_url=@Uri.EscapeDataString(Model.ReturnUrl ?? "/account/manage")">Continue with Discord</a>
+
+    <a class="switch" asp-page="/Account/Register" asp-route-returnUrl="@Model.ReturnUrl">Create an account</a>
+
+    @if (!string.IsNullOrWhiteSpace(Model.ErrorMessage))
+    {
+      <div class="status error">@Model.ErrorMessage</div>
+    }
+  </main>
+</body>
+</html>

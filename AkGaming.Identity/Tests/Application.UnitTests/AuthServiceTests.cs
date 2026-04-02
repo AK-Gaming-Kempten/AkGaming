@@ -201,10 +201,42 @@ public sealed class AuthServiceTests
 
         Assert.True(response.Linked);
         Assert.True(response.CreatedUser);
-        Assert.NotNull(response.Tokens);
+        Assert.NotNull(response.User);
+        Assert.Null(response.Tokens);
         Assert.Single(repository.Users);
         Assert.Single(repository.ExternalLogins);
         Assert.Equal("discord-42", repository.ExternalLogins.Single().ProviderUserId);
+    }
+
+    [Fact]
+    public async Task HandleDiscordCallbackAsync_WithLegacyRedirect_IssuesTokens()
+    {
+        var repository = new InMemoryIdentityRepository();
+        var discordOAuth = new DiscordOAuthServiceStub
+        {
+            Identity = new("discord-99", "LegacyDiscordUser", "discord-99@example.com")
+        };
+        var discordState = new DiscordStateServiceStub
+        {
+            State = new("login", null, DateTime.UtcNow.AddMinutes(5), "nonce", "https://legacy.akgaming.de/callback", "state-123")
+        };
+
+        var service = BuildService(
+            repository,
+            discordOAuthService: discordOAuth,
+            discordStateService: discordState,
+            discordAuthSettings: new DiscordAuthSettingsStub
+            {
+                AutoCreateUser = true,
+                RequireManualLinkForExistingEmail = true
+            });
+
+        var response = await service.HandleDiscordCallbackAsync("code", "state", "127.0.0.1", CancellationToken.None);
+
+        Assert.NotNull(response.Tokens);
+        Assert.Null(response.User);
+        Assert.Equal("https://legacy.akgaming.de/callback", response.RedirectUri);
+        Assert.Equal("state-123", response.State);
     }
 
     [Fact]

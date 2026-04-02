@@ -3,6 +3,7 @@ using AkGaming.Identity.Application.Abstractions;
 using AkGaming.Identity.Application.Common;
 using AkGaming.Identity.Contracts.Auth;
 using AkGaming.Identity.Domain.Constants;
+using OpenIddict.Validation.AspNetCore;
 
 namespace AkGaming.Identity.Api.Endpoints;
 
@@ -10,7 +11,12 @@ internal static class AdminEndpoints
 {
     internal static IEndpointRouteBuilder MapAdminEndpoints(this IEndpointRouteBuilder app)
     {
-        var admin = app.MapGroup("/admin").RequireAuthorization(policy => policy.RequireRole(RoleNames.Admin));
+        var admin = app.MapGroup("/admin").RequireAuthorization(policy =>
+        {
+            policy.AuthenticationSchemes.Add(OpenIddictValidationAspNetCoreDefaults.AuthenticationScheme);
+            policy.RequireRole(RoleNames.Admin);
+            policy.RequireAssertion(context => HasScope(context.User, "management_api"));
+        });
         admin.RequireRateLimiting("auth");
 
         admin.MapGet("/users", async (int page, int pageSize, string? search, IAuthService authService, CancellationToken cancellationToken) =>
@@ -144,5 +150,13 @@ internal static class AdminEndpoints
         });
 
         return app;
+    }
+
+    private static bool HasScope(ClaimsPrincipal principal, string scope)
+    {
+        return principal.Claims
+            .Where(claim => claim.Type == "scope")
+            .SelectMany(claim => claim.Value.Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+            .Any(value => string.Equals(value, scope, StringComparison.Ordinal));
     }
 }

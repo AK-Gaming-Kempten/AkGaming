@@ -1,0 +1,24 @@
+@page "/error"
+@model AkGaming.Identity.Api.Pages.ErrorModel
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>AKG Identity | Error</title>
+  <link rel="stylesheet" href="/ui/akgaming-base-theme.css" />
+  <link rel="stylesheet" href="/ui/baseStyles.css" />
+  <link rel="stylesheet" href="/ui/styles.css" />
+</head>
+<body>
+  <main class="shell">
+    <h1>Request failed</h1>
+    <p class="sub">@Model.Message</p>
+    @if (!string.IsNullOrWhiteSpace(Model.Error))
+    {
+      <div class="status error">@Model.Error</div>
+    }
+    <a class="button secondary" href="/account/manage">Back to account</a>
+  </main>
+</body>
+</html>

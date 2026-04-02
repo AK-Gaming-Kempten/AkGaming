@@ -1,8 +1,11 @@
 using System.Security.Claims;
+using AkGaming.Identity.Api.Authentication;
 using AkGaming.Identity.Application.Abstractions;
 using AkGaming.Identity.Application.Common;
+using AkGaming.Identity.Application.ExternalAuth;
 using AkGaming.Identity.Contracts.Auth;
 using Microsoft.AspNetCore.Authorization;
+using OpenIddict.Validation.AspNetCore;
 
 namespace AkGaming.Identity.Api.Endpoints;
 
@@ -13,7 +16,7 @@ internal static class AuthEndpoints
         var auth = app.MapGroup("/auth");
         auth.RequireRateLimiting("auth");
 
-        auth.MapPost("/register", async (RegisterRequest request, IAuthService authService, HttpContext httpContext, CancellationToken cancellationToken) =>
+        MarkLegacy(auth.MapPost("/register", async (RegisterRequest request, IAuthService authService, HttpContext httpContext, CancellationToken cancellationToken) =>
         {
             try
             {
@@ -24,9 +27,9 @@ internal static class AuthEndpoints
             {
                 return Results.Problem(statusCode: exception.StatusCode, detail: exception.Message);
             }
-        });
+        }));
 
-        auth.MapPost("/login", async (LoginRequest request, IAuthService authService, HttpContext httpContext, CancellationToken cancellationToken) =>
+        MarkLegacy(auth.MapPost("/login", async (LoginRequest request, IAuthService authService, HttpContext httpContext, CancellationToken cancellationToken) =>
         {
             try
             {
@@ -37,9 +40,9 @@ internal static class AuthEndpoints
             {
                 return Results.Problem(statusCode: exception.StatusCode, detail: exception.Message);
             }
-        });
+        }));
 
-        auth.MapPost("/refresh", async (RefreshRequest request, IAuthService authService, HttpContext httpContext, CancellationToken cancellationToken) =>
+        MarkLegacy(auth.MapPost("/refresh", async (RefreshRequest request, IAuthService authService, HttpContext httpContext, CancellationToken cancellationToken) =>
         {
             try
             {
@@ -50,15 +53,15 @@ internal static class AuthEndpoints
             {
                 return Results.Problem(statusCode: exception.StatusCode, detail: exception.Message);
             }
-        });
+        }));
 
-        auth.MapPost("/logout", async (LogoutRequest request, IAuthService authService, HttpContext httpContext, CancellationToken cancellationToken) =>
+        MarkLegacy(auth.MapPost("/logout", async (LogoutRequest request, IAuthService authService, HttpContext httpContext, CancellationToken cancellationToken) =>
         {
             await authService.LogoutAsync(request, EndpointUtilities.GetIp(httpContext), cancellationToken);
             return Results.NoContent();
-        });
+        }));
 
-        auth.MapGet("/logout", async (string? returnUrl, string? refreshToken, IAuthService authService, IConfiguration configuration, HttpContext httpContext, CancellationToken cancellationToken) =>
+        MarkLegacy(auth.MapGet("/logout", async (string? returnUrl, string? refreshToken, IAuthService authService, IConfiguration configuration, HttpContext httpContext, CancellationToken cancellationToken) =>
         {
             if (!string.IsNullOrWhiteSpace(refreshToken))
             {
@@ -87,9 +90,9 @@ internal static class AuthEndpoints
             }
 
             return Results.Redirect(returnUrl);
-        });
+        }));
 
-        auth.MapPost("/redirect/finalize", (RedirectFinalizeRequest request, IConfiguration configuration, ILoggerFactory loggerFactory) =>
+        MarkLegacy(auth.MapPost("/redirect/finalize", (RedirectFinalizeRequest request, IConfiguration configuration, ILoggerFactory loggerFactory) =>
         {
             var logger = loggerFactory.CreateLogger("RedirectFinalize");
 
@@ -126,9 +129,9 @@ internal static class AuthEndpoints
             var redirectUrl = EndpointUtilities.BuildExternalRedirectUrl(request);
             logger.LogInformation("Redirect finalize accepted: redirectUri={RedirectUri}, redirectUrl={RedirectUrl}.", request.RedirectUri, redirectUrl);
             return Results.Ok(new { redirectUrl });
-        });
+        }));
 
-        auth.MapGet("/me", [Authorize] async (ClaimsPrincipal user, IAuthService authService, CancellationToken cancellationToken) =>
+        auth.MapGet("/me", [Authorize(AuthenticationSchemes = OpenIddictValidationAspNetCoreDefaults.AuthenticationScheme)] async (ClaimsPrincipal user, IAuthService authService, CancellationToken cancellationToken) =>
         {
             if (!EndpointUtilities.TryGetUserId(user, out var userId))
             {
@@ -159,7 +162,7 @@ internal static class AuthEndpoints
             }
         });
 
-        auth.MapPost("/email/send-verification/me", [Authorize] async (ClaimsPrincipal user, IAuthService authService, HttpContext httpContext, CancellationToken cancellationToken) =>
+        auth.MapPost("/email/send-verification/me", [Authorize(AuthenticationSchemes = OpenIddictValidationAspNetCoreDefaults.AuthenticationScheme)] async (ClaimsPrincipal user, IAuthService authService, HttpContext httpContext, CancellationToken cancellationToken) =>
         {
             if (!EndpointUtilities.TryGetUserId(user, out var userId))
             {
@@ -207,19 +210,36 @@ internal static class AuthEndpoints
         auth.MapGet("/discord/start", async (HttpContext httpContext, IAuthService authService, CancellationToken cancellationToken) =>
         {
             var redirectUri = httpContext.Request.Query["redirect_uri"].ToString();
+            var returnUrl = httpContext.Request.Query["return_url"].ToString();
             var state = httpContext.Request.Query["state"].ToString();
+            var resumeTarget = !string.IsNullOrWhiteSpace(returnUrl)
+                ? LocalSessionManager.NormalizeReturnUrl(httpContext, returnUrl)
+                : string.IsNullOrWhiteSpace(redirectUri)
+                    ? null
+                    : redirectUri;
             var response = await authService.GetDiscordStartUrlAsync(
-                string.IsNullOrWhiteSpace(redirectUri) ? null : redirectUri,
+                resumeTarget,
                 string.IsNullOrWhiteSpace(state) ? null : state,
                 cancellationToken);
             return Results.Redirect(response.AuthorizationUrl);
         });
 
-        auth.MapGet("/discord/callback", async (string code, string state, IAuthService authService, HttpContext httpContext, CancellationToken cancellationToken) =>
+        auth.MapGet("/discord/callback", async (string code, string state, IAuthService authService, IDiscordStateService discordStateService, HttpContext httpContext, CancellationToken cancellationToken) =>
         {
             try
             {
                 var response = await authService.HandleDiscordCallbackAsync(code, state, EndpointUtilities.GetIp(httpContext), cancellationToken);
+                if (response.User is not null)
+                {
+                    await LocalSessionManager.SignInAsync(httpContext, response.User);
+                    return Results.Redirect(LocalSessionManager.NormalizeReturnUrl(httpContext, response.RedirectUri));
+                }
+
+                if (response.Tokens is null && string.IsNullOrWhiteSpace(response.RedirectUri))
+                {
+                    return Results.Redirect("/account/manage");
+                }
+
                 var fragment = EndpointUtilities.BuildDiscordCallbackFragment(
                     success: true,
                     message: response.Message,
@@ -235,6 +255,25 @@ internal static class AuthEndpoints
             }
             catch (AuthException exception)
             {
+                var oauthState = discordStateService.ReadState(state);
+                if (oauthState is not null && oauthState.Purpose == "link")
+                {
+                    var errorTarget = QueryString.Create("status", exception.Message);
+                    return Results.Redirect($"/account/manage{errorTarget}");
+                }
+
+                if (oauthState is not null
+                    && (string.IsNullOrWhiteSpace(oauthState.RedirectUri)
+                        || Uri.IsWellFormedUriString(oauthState.RedirectUri, UriKind.Relative)))
+                {
+                    var loginTarget = QueryString.Create(new Dictionary<string, string?>
+                    {
+                        ["returnUrl"] = oauthState.RedirectUri,
+                        ["error"] = exception.Message
+                    });
+                    return Results.Redirect($"/account/login{loginTarget}");
+                }
+
                 var fragment = EndpointUtilities.BuildDiscordCallbackFragment(
                     success: false,
                     message: exception.Message,
@@ -244,7 +283,7 @@ internal static class AuthEndpoints
             }
         });
 
-        auth.MapPost("/discord/link", [Authorize] async (ClaimsPrincipal user, IAuthService authService, CancellationToken cancellationToken) =>
+        auth.MapPost("/discord/link", [Authorize(AuthenticationSchemes = OpenIddictValidationAspNetCoreDefaults.AuthenticationScheme)] async (ClaimsPrincipal user, IAuthService authService, CancellationToken cancellationToken) =>
         {
             if (!EndpointUtilities.TryGetUserId(user, out var userId))
             {
@@ -256,5 +295,18 @@ internal static class AuthEndpoints
         });
 
         return app;
+    }
+
+    private static RouteHandlerBuilder MarkLegacy(RouteHandlerBuilder builder)
+    {
+        builder.WithSummary("Legacy transitional auth endpoint.");
+        builder.WithDescription("Deprecated compatibility endpoint. Prefer the OpenID Connect /connect/* endpoints for new clients.");
+        builder.AddEndpointFilter(async (context, next) =>
+        {
+            context.HttpContext.Response.Headers.TryAdd("Deprecation", "true");
+            context.HttpContext.Response.Headers.TryAdd("Link", "</.well-known/openid-configuration>; rel=\"successor-version\"");
+            return await next(context);
+        });
+        return builder;
     }
 }

@@ -60,6 +60,40 @@ public sealed class AuthService : IAuthService
 
     public async Task<AuthResponse> RegisterAsync(RegisterRequest request, string? ipAddress, CancellationToken cancellationToken)
     {
+        var user = await RegisterUserCoreAsync(request, ipAddress, cancellationToken);
+        var response = await IssueTokensAsync(user, ipAddress, cancellationToken);
+        await _repository.SaveChangesAsync(cancellationToken);
+
+        return response;
+    }
+
+    public async Task<CurrentUserResponse> RegisterInteractiveAsync(RegisterRequest request, string? ipAddress, CancellationToken cancellationToken)
+    {
+        var user = await RegisterUserCoreAsync(request, ipAddress, cancellationToken);
+        await _repository.SaveChangesAsync(cancellationToken);
+
+        return CreateCurrentUserResponse(user);
+    }
+
+    public async Task<AuthResponse> LoginAsync(LoginRequest request, string? ipAddress, CancellationToken cancellationToken)
+    {
+        var user = await LoginUserCoreAsync(request, ipAddress, cancellationToken);
+        var response = await IssueTokensAsync(user, ipAddress, cancellationToken);
+        await _repository.SaveChangesAsync(cancellationToken);
+
+        return response;
+    }
+
+    public async Task<CurrentUserResponse> LoginInteractiveAsync(LoginRequest request, string? ipAddress, CancellationToken cancellationToken)
+    {
+        var user = await LoginUserCoreAsync(request, ipAddress, cancellationToken);
+        await _repository.SaveChangesAsync(cancellationToken);
+
+        return CreateCurrentUserResponse(user);
+    }
+
+    private async Task<User> RegisterUserCoreAsync(RegisterRequest request, string? ipAddress, CancellationToken cancellationToken)
+    {
         var email = NormalizeEmail(request.Email);
         ValidatePassword(request.Password);
         if (!request.PrivacyPolicyAccepted)
@@ -92,15 +126,12 @@ public sealed class AuthService : IAuthService
         user.UserRoles.Add(new UserRole { User = user, Role = role });
 
         await _repository.AddUserAsync(user, cancellationToken);
-
-        var response = await IssueTokensAsync(user, ipAddress, cancellationToken);
         await WriteAuditAsync("register.success", user.Id, user.Email, ipAddress, true, null, cancellationToken);
-        await _repository.SaveChangesAsync(cancellationToken);
 
-        return response;
+        return user;
     }
 
-    public async Task<AuthResponse> LoginAsync(LoginRequest request, string? ipAddress, CancellationToken cancellationToken)
+    private async Task<User> LoginUserCoreAsync(LoginRequest request, string? ipAddress, CancellationToken cancellationToken)
     {
         var email = NormalizeEmail(request.Email);
 
@@ -136,11 +167,8 @@ public sealed class AuthService : IAuthService
         user.AccessFailedCount = 0;
         user.LockoutEndUtc = null;
 
-        var response = await IssueTokensAsync(user, ipAddress, cancellationToken);
         await WriteAuditAsync("login.success", user.Id, user.Email, ipAddress, true, null, cancellationToken);
-        await _repository.SaveChangesAsync(cancellationToken);
-
-        return response;
+        return user;
     }
 
     public async Task<AuthResponse> RefreshAsync(RefreshRequest request, string? ipAddress, CancellationToken cancellationToken)
@@ -233,6 +261,11 @@ public sealed class AuthService : IAuthService
             throw new AuthException(AccessDeniedStatusCode, "User account was not found.");
         }
 
+        return CreateCurrentUserResponse(user);
+    }
+
+    private static CurrentUserResponse CreateCurrentUserResponse(User user)
+    {
         var discordLink = user.ExternalLogins
             .Where(x => x.Provider == DiscordProvider)
             .OrderByDescending(x => x.LinkedAtUtc)
@@ -819,7 +852,11 @@ public sealed class AuthService : IAuthService
         user.AccessFailedCount = 0;
         user.LockoutEndUtc = null;
 
-        var tokens = await IssueTokensAsync(user, ipAddress, cancellationToken);
+        var useLocalSession = string.IsNullOrWhiteSpace(oauthState.RedirectUri)
+            || Uri.IsWellFormedUriString(oauthState.RedirectUri, UriKind.Relative);
+        var tokens = useLocalSession
+            ? null
+            : await IssueTokensAsync(user, ipAddress, cancellationToken);
         await WriteAuditAsync("discord.login.success", user.Id, user.Email, ipAddress, true, createdUser ? "created_user" : "existing_user", cancellationToken);
         await _repository.SaveChangesAsync(cancellationToken);
 
@@ -831,7 +868,8 @@ public sealed class AuthService : IAuthService
             tokens,
             createdUser ? "Discord login succeeded and a new account was created." : "Discord login succeeded.",
             oauthState.RedirectUri,
-            oauthState.State);
+            useLocalSession ? null : oauthState.State,
+            useLocalSession ? CreateCurrentUserResponse(user) : null);
     }
 
     private async Task HandleFailedLoginAttemptAsync(User user, string? ipAddress, CancellationToken cancellationToken)

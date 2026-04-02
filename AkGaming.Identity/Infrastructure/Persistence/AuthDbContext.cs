@@ -1,5 +1,6 @@
 using AkGaming.Identity.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
+using OpenIddict.EntityFrameworkCore;
 
 namespace AkGaming.Identity.Infrastructure.Persistence;
 
@@ -19,6 +20,8 @@ public sealed class AuthDbContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.UseOpenIddict();
+
         modelBuilder.Entity<User>(entity =>
         {
             entity.HasKey(x => x.Id);
