@@ -10,7 +10,7 @@ builder.Configuration.AddEnvironmentVariables();
 builder.Services
     .AddJsonAndControllers()
     .AddAppSwagger()
-    .AddJwtAuthentication(builder.Configuration)
+    .AddOpenIddictAuthentication(builder.Configuration, builder.Environment)
     .AddAppAuthorization()
     .AddMemberManagementModule(builder.Configuration);
 

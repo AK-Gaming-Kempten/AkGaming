@@ -1,8 +1,8 @@
 using System.Security.Claims;
-using System.Text;
 using System.Text.Json.Serialization;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
+using Microsoft.AspNetCore.Authorization;
+using OpenIddict.Validation.AspNetCore;
+using System.Net.Security;
 
 namespace AkGaming.Management.WebApi.Startup;
 
@@ -16,34 +16,40 @@ public static class ServiceCollectionExtensions {
         return services;
     }
     
-    public static IServiceCollection AddJwtAuthentication(this IServiceCollection services, IConfiguration config) {
-        var authority = config["Jwt:Authority"];
-        var issuer = config["Jwt:Issuer"];
-        var audience = config["Jwt:Audience"];
-        // Prefer Jwt:SecretKey to align with AkGaming.Identity config naming.
-        // Keep Jwt:SigningKey as backward-compatible fallback.
-        var signingKey = config["Jwt:SecretKey"] ?? config["Jwt:SigningKey"];
+    public static IServiceCollection AddOpenIddictAuthentication(this IServiceCollection services, IConfiguration config, IWebHostEnvironment env) {
+        var validationOptions = config.GetSection(OpenIddictValidationOptions.SectionName).Get<OpenIddictValidationOptions>() ?? new();
+        var allowUntrustedLocalCertificates = env.IsDevelopment() && config.GetValue<bool>("Dev:AllowUntrustedLocalCertificates");
+        services.Configure<OpenIddictValidationOptions>(config.GetSection(OpenIddictValidationOptions.SectionName));
 
-        services
-            .AddAuthentication("Bearer")
-            .AddJwtBearer("Bearer", option => {
-                if (!string.IsNullOrWhiteSpace(authority)) {
-                    option.Authority = authority;
-                    option.RequireHttpsMetadata = true;
-                }
+        services.AddAuthentication(options => {
+            options.DefaultScheme = OpenIddictValidationAspNetCoreDefaults.AuthenticationScheme;
+            options.DefaultAuthenticateScheme = OpenIddictValidationAspNetCoreDefaults.AuthenticationScheme;
+            options.DefaultChallengeScheme = OpenIddictValidationAspNetCoreDefaults.AuthenticationScheme;
+        });
 
-                option.TokenValidationParameters = new TokenValidationParameters {
-                    ValidateIssuer = !string.IsNullOrWhiteSpace(issuer),
-                    ValidIssuer = issuer,
-                    ValidateAudience = !string.IsNullOrWhiteSpace(audience),
-                    ValidAudience = audience,
-                    ValidateIssuerSigningKey = !string.IsNullOrWhiteSpace(signingKey),
-                    IssuerSigningKey = string.IsNullOrWhiteSpace(signingKey)
-                        ? null
-                        : new SymmetricSecurityKey(Encoding.UTF8.GetBytes(signingKey)),
-                    NameClaimType = "email",
-                    RoleClaimType = ClaimTypes.Role
-                };
+        services.AddOpenIddict()
+            .AddValidation(options => {
+                if (string.IsNullOrWhiteSpace(validationOptions.Issuer))
+                    throw new InvalidOperationException("OpenIddictValidation:Issuer is required.");
+
+                options.SetIssuer(new Uri(validationOptions.Issuer, UriKind.Absolute));
+                options.UseSystemNetHttp(builder => {
+                    if (!allowUntrustedLocalCertificates)
+                        return;
+
+                    builder.ConfigureHttpClientHandler(handler => {
+                        handler.ServerCertificateCustomValidationCallback = static (request, _, _, errors) => {
+                            if (errors == SslPolicyErrors.None)
+                                return true;
+
+                            var host = request?.RequestUri?.Host;
+                            return string.Equals(host, "localhost", StringComparison.OrdinalIgnoreCase)
+                                   || host == "127.0.0.1"
+                                   || host == "::1";
+                        };
+                    });
+                });
+                options.UseAspNetCore();
             });
 
         return services;
@@ -51,16 +57,17 @@ public static class ServiceCollectionExtensions {
     
     public static IServiceCollection AddAppAuthorization(this IServiceCollection services) {
         services.AddAuthorization(options => {
-            options.AddPolicy("UserOnly", p => p.RequireRole("User", "Admin"));
-            options.AddPolicy("MemberOnly", p => p.RequireRole("Member", "Admin"));
-            options.AddPolicy("AdminOnly", p => p.RequireRole("Admin"));
-            options.AddPolicy("AdminOrSelfRouteUserId", p => p.RequireAssertion(ctx => {
-                if (ctx.User.IsInRole("Admin")) return true;
+            options.DefaultPolicy = BuildManagementApiPolicy().Build();
+            options.AddPolicy("UserOnly", p => BuildManagementApiPolicy(p).RequireAssertion(ctx => HasAnyRole(ctx.User, "User", "Admin")));
+            options.AddPolicy("MemberOnly", p => BuildManagementApiPolicy(p).RequireAssertion(ctx => HasAnyRole(ctx.User, "Member", "Admin")));
+            options.AddPolicy("AdminOnly", p => BuildManagementApiPolicy(p).RequireAssertion(ctx => HasRole(ctx.User, "Admin")));
+            options.AddPolicy("AdminOrSelfRouteUserId", p => BuildManagementApiPolicy(p).RequireAssertion(ctx => {
+                if (HasRole(ctx.User, "Admin")) return true;
                 if (ctx.Resource is not HttpContext http) return false;
-                
+
                 var routeVal = http.Request.RouteValues.TryGetValue("userId", out var v) ? v?.ToString() : null;
                 if (!Guid.TryParse(routeVal, out var routeUserId)) return false;
-                
+
                 var claim = ctx.User.FindFirstValue(ClaimTypes.NameIdentifier) ?? ctx.User.FindFirstValue("sub");
                 return Guid.TryParse(claim, out var currentUserId) && currentUserId == routeUserId;
             }));
@@ -76,5 +83,31 @@ public static class ServiceCollectionExtensions {
             };
         });
         return services;
+    }
+
+    private static AuthorizationPolicyBuilder BuildManagementApiPolicy(AuthorizationPolicyBuilder? builder = null) {
+        builder ??= new AuthorizationPolicyBuilder();
+        builder.AddAuthenticationSchemes(OpenIddictValidationAspNetCoreDefaults.AuthenticationScheme);
+        builder.RequireAuthenticatedUser();
+        builder.RequireAssertion(context => HasScope(context.User, "management_api"));
+        return builder;
+    }
+
+    private static bool HasAnyRole(ClaimsPrincipal principal, params string[] roles) {
+        return roles.Any(role => HasRole(principal, role));
+    }
+
+    private static bool HasRole(ClaimsPrincipal principal, string role) {
+        return principal.IsInRole(role)
+               || principal.Claims.Any(claim =>
+                   (claim.Type == "role" || claim.Type == ClaimTypes.Role)
+                   && string.Equals(claim.Value, role, StringComparison.Ordinal));
+    }
+
+    private static bool HasScope(ClaimsPrincipal principal, string scope) {
+        return principal.Claims
+            .Where(claim => claim.Type == "scope")
+            .SelectMany(claim => claim.Value.Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+            .Any(value => string.Equals(value, scope, StringComparison.Ordinal));
     }
 }

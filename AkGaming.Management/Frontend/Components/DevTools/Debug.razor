@@ -5,8 +5,6 @@
 @using Microsoft.AspNetCore.Authorization
 @attribute [Authorize(Roles = "Admin")]
 
-@inject IHttpClientFactory ClientFactory
-
 <h3>Debug</h3>
 
 <p>Current culture: @CultureInfo.CurrentCulture</p>
@@ -70,14 +68,12 @@
 
     private async Task TestAuth()
     {
-        var api = ClientFactory.CreateClient("ManagementApi");
-        _authResult = await SendDebugRequestAsync(api, "debug/test-auth");
+        _authResult = await SendDebugRequestAsync(Api, "debug/test-auth");
     }
 
     private async Task TestClaims()
     {
-        var api = ClientFactory.CreateClient("ManagementApi");
-        var response = await api.GetAsync("debug/token");
+        var response = await Api.GetAsync("debug/token");
         var body = await response.Content.ReadAsStringAsync();
 
         if (!response.IsSuccessStatusCode)
