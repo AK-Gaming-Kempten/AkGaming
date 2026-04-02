@@ -17,6 +17,23 @@ jobs:
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+      - name: Install dotnet-ef
+        run: dotnet tool install --global dotnet-ef --version 10.*
+      - name: Add .NET tools to PATH
+        run: echo "$HOME/.dotnet/tools" >> "$GITHUB_PATH"
+      - name: Apply Test Database Migrations
+        if: ${{ secrets.IDENTITY_TEST_DB_CONNECTION_STRING != '' }}
+        env:
+          DOTNET_CLI_HOME: /tmp
+          DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
+          ConnectionStrings__IdentityDb: ${{ secrets.IDENTITY_TEST_DB_CONNECTION_STRING }}
+        run: dotnet ef database update --project AkGaming.Identity/Migrations/Postgres/AkGaming.Identity.Migrations.Postgres.csproj --context AuthDbContext
       - name: Trigger Coolify Test Deploy
         run: |
           curl --fail --request GET "${{ secrets.COOLIFY_WEBHOOK_IDENTITY_TEST }}" \
@@ -25,6 +42,23 @@ jobs:
     if: github.ref == 'refs/tags/identity-publish'
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+      - name: Install dotnet-ef
+        run: dotnet tool install --global dotnet-ef --version 10.*
+      - name: Add .NET tools to PATH
+        run: echo "$HOME/.dotnet/tools" >> "$GITHUB_PATH"
+      - name: Apply Production Database Migrations
+        if: ${{ secrets.IDENTITY_PRODUCTION_DB_CONNECTION_STRING != '' }}
+        env:
+          DOTNET_CLI_HOME: /tmp
+          DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
+          ConnectionStrings__IdentityDb: ${{ secrets.IDENTITY_PRODUCTION_DB_CONNECTION_STRING }}
+        run: dotnet ef database update --project AkGaming.Identity/Migrations/Postgres/AkGaming.Identity.Migrations.Postgres.csproj --context AuthDbContext
       - name: Trigger Coolify Production Deploy
         run: |
           curl --fail --request GET "${{ secrets.COOLIFY_WEBHOOK_IDENTITY }}" \
