@@ -49,8 +49,61 @@
     margin-top: 0.75rem;
 }
 
+.due-entry-preview-toggle {
+    margin-top: 0.75rem;
+}
+
+.due-email-preview {
+    margin-top: 0.9rem;
+    padding-top: 0.9rem;
+}
+
+.due-email-preview-meta {
+    display: grid;
+    gap: 0.85rem;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.due-email-preview-value {
+    margin-top: 0.2rem;
+    padding: 0.65rem 0.75rem;
+    border-radius: 8px;
+    border: 1px solid var(--color-text-secondary);
+    background: var(--color-background-primary);
+    word-break: break-word;
+}
+
+.due-email-preview-sections {
+    display: grid;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.due-email-preview-section {
+    display: grid;
+    gap: 0.35rem;
+}
+
+.due-email-preview-text {
+    min-height: 320px;
+    font-family: "Courier New", Courier, monospace;
+    resize: vertical;
+}
+
+.due-email-preview-render {
+    padding: 0.75rem;
+    border-radius: 10px;
+    border: 1px solid var(--color-text-secondary);
+    background: #f5f8f6;
+    overflow: auto;
+}
+
 @media (max-width: 900px) {
     .due-entry-summary {
+        grid-template-columns: 1fr;
+    }
+
+    .due-email-preview-meta {
         grid-template-columns: 1fr;
     }
 }

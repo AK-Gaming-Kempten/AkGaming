@@ -68,20 +68,32 @@ public abstract class ApiClientBase {
         return Result.Failure(await ReadError(resp, ct));
     }
 
-    private static async Task<string> ReadError(HttpResponseMessage resp, CancellationToken ct) {
-        try {
-            // Prefer RFC7807 ProblemDetails if present
-            var problem = await resp.Content.ReadFromJsonAsync<ProblemDetails>(cancellationToken: ct);
-            if (problem is not null) {
-                var detail = string.IsNullOrWhiteSpace(problem.Detail) ? problem.Title : problem.Detail;
-                return $"{(int)resp.StatusCode} {resp.StatusCode}: {detail}";
+    private async Task<string> ReadError(HttpResponseMessage resp, CancellationToken ct) {
+        var text = await resp.Content.ReadAsStringAsync(ct);
+        if (!string.IsNullOrWhiteSpace(text)) {
+            try {
+                var problem = JsonSerializer.Deserialize<ProblemDetails>(text, Json);
+                if (problem is not null && (!string.IsNullOrWhiteSpace(problem.Detail) || !string.IsNullOrWhiteSpace(problem.Title))) {
+                    var detail = string.IsNullOrWhiteSpace(problem.Detail) ? problem.Title : problem.Detail;
+                    return $"{(int)resp.StatusCode} {resp.StatusCode}: {detail}";
+                }
             }
-        } catch (Exception e) {
-            return "Error reading response body. " + e.Message;
+            catch (JsonException) {
+                // Fall back to plain text or JSON-string parsing below.
+            }
+
+            try {
+                var stringPayload = JsonSerializer.Deserialize<string>(text, Json);
+                if (!string.IsNullOrWhiteSpace(stringPayload))
+                    return $"{(int)resp.StatusCode} {resp.StatusCode}: {stringPayload}";
+            }
+            catch (JsonException) {
+                // Not a JSON string, return the raw text body.
+            }
+
+            return $"{(int)resp.StatusCode} {resp.StatusCode}: {text}";
         }
 
-        var text = await resp.Content.ReadAsStringAsync(ct);
-        if (!string.IsNullOrWhiteSpace(text)) return $"{(int)resp.StatusCode} {resp.StatusCode}: {text}";
         var reason = resp.ReasonPhrase ?? resp.StatusCode.ToString();
         return $"{(int)resp.StatusCode} {reason}";
     }

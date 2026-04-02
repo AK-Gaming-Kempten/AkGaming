@@ -151,6 +151,33 @@ public class MembershipDueService(
 
         return Result<ICollection<MembershipDueDto>>.Success(dues.Select(d => d.ToDto()).ToList());
     }
+
+    /// <inheritdoc />
+    public async Task<Result<MembershipDueEmailPreviewDto>> GetReminderEmailPreviewAsync(int dueId) {
+        var dueResult = await dueRepository.GetByIdAsync(dueId);
+        if (!dueResult.IsSuccess)
+            return Result<MembershipDueEmailPreviewDto>.Failure(dueResult.Error ?? "Due not found.");
+        var due = dueResult.Value!;
+
+        if (due.Status != DomainEnums.MembershipDueStatus.Pending)
+            return Result<MembershipDueEmailPreviewDto>.Failure("Reminder email is only available for pending dues.");
+
+        var memberResult = await memberRepository.GetByMemberIdAsync(due.MemberId);
+        if (!memberResult.IsSuccess)
+            return Result<MembershipDueEmailPreviewDto>.Failure(memberResult.Error ?? "Member not found.");
+        var member = memberResult.Value!;
+
+        if (string.IsNullOrWhiteSpace(member.Email))
+            return Result<MembershipDueEmailPreviewDto>.Failure("Member has no email address.");
+
+        var paymentPeriodResult = await paymentPeriodRepository.GetByIdAsync(due.PaymentPeriodId);
+        if (!paymentPeriodResult.IsSuccess)
+            return Result<MembershipDueEmailPreviewDto>.Failure(paymentPeriodResult.Error ?? "Payment period not found.");
+        var paymentPeriod = paymentPeriodResult.Value!;
+
+        var preview = MembershipDueReminderEmailComposer.Compose(member, paymentPeriod, due);
+        return Result<MembershipDueEmailPreviewDto>.Success(preview);
+    }
     
     /// <inheritdoc />
     public async Task<Result> UpdateDueAsync(int dueId, MembershipDueDto due, Guid? performedByUserId = null) {

@@ -38,4 +38,9 @@ public interface IMembershipDueService {
     /// Updates an existing membership due.
     /// </summary>
     Task<Result> UpdateDueAsync(int dueId, MembershipDueDto due, Guid? performedByUserId = null);
+
+    /// <summary>
+    /// Builds a preview for the outstanding membership due reminder email.
+    /// </summary>
+    Task<Result<MembershipDueEmailPreviewDto>> GetReminderEmailPreviewAsync(int dueId);
 }

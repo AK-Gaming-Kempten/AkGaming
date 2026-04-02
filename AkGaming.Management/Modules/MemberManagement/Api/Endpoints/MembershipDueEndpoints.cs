@@ -68,6 +68,14 @@ public static class MembershipDueEndpoints {
             return MapResult(result);
         }).RequireAuthorization("AdminOnly");
 
+        group.MapGet("/{dueId:int}/reminder-email", async (
+            [FromRoute] int dueId,
+            [FromServices] IMembershipDueService service
+        ) => {
+            var result = await service.GetReminderEmailPreviewAsync(dueId);
+            return MapResult(result);
+        }).RequireAuthorization("AdminOnly");
+
         group.MapGet("/me", async (
             ClaimsPrincipal user,
             [FromServices] IMemberQueryService memberQueryService,

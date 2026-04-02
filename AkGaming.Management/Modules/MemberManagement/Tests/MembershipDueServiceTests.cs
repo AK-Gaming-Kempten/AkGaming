@@ -293,6 +293,83 @@ public class MembershipDueServiceTests {
         dueRepository.Verify(x => x.SaveChangesAsync(), Times.Once);
     }
 
+    [Test]
+    public async Task GetReminderEmailPreviewAsync_ReturnsThemedReminderEmail() {
+        var dueRepository = new Mock<IMembershipDueRepository>();
+        var paymentPeriodRepository = new Mock<IMembershipPaymentPeriodRepository>();
+        var memberRepository = new Mock<IMemberRepository>();
+        var service = new MembershipDueService(dueRepository.Object, paymentPeriodRepository.Object, memberRepository.Object);
+
+        var memberId = Guid.NewGuid();
+        var paymentPeriod = new MembershipPaymentPeriod {
+            Id = 18,
+            Name = "SS 2026",
+            DueDate = new DateOnly(2026, 4, 1),
+            DefaultDueAmount = 15m,
+            ReducedDueAmount = 5m,
+            CreatedAt = DateTimeOffset.UtcNow
+        };
+        var member = new Member {
+            Id = memberId,
+            FirstName = "Max",
+            LastName = "Mustermann",
+            Email = "max@example.com",
+            Status = DomainEnums.MembershipStatus.Member
+        };
+        var due = new MembershipDue {
+            Id = 42,
+            PaymentPeriodId = paymentPeriod.Id,
+            MemberId = memberId,
+            Status = DomainEnums.MembershipDueStatus.Pending,
+            DueAmount = 15m,
+            PaidAmount = null,
+            DueDate = paymentPeriod.DueDate
+        };
+
+        dueRepository.Setup(x => x.GetByIdAsync(due.Id)).ReturnsAsync(Result<MembershipDue>.Success(due));
+        memberRepository.Setup(x => x.GetByMemberIdAsync(memberId)).ReturnsAsync(Result<Member>.Success(member));
+        paymentPeriodRepository.Setup(x => x.GetByIdAsync(paymentPeriod.Id)).ReturnsAsync(Result<MembershipPaymentPeriod>.Success(paymentPeriod));
+
+        var result = await service.GetReminderEmailPreviewAsync(due.Id);
+
+        using (Assert.EnterMultipleScope()) {
+            Assert.That(result.IsSuccess, Is.True);
+            Assert.That(result.Value, Is.Not.Null);
+            Assert.That(result.Value!.RecipientEmail, Is.EqualTo("max@example.com"));
+            Assert.That(result.Value!.Subject, Does.Contain("SS 2026"));
+            Assert.That(result.Value!.TextBody, Does.Contain("Hi Max!"));
+            Assert.That(result.Value!.TextBody, Does.Contain("DE59 7336 9920 0000 8872 85"));
+            Assert.That(result.Value!.HtmlBody, Does.Contain("Mitgliedsbeitrag offen"));
+            Assert.That(result.Value!.HtmlBody, Does.Contain("https://akgaming.de/mitgliedschaft/mitgliedsbeitrag"));
+            Assert.That(result.Value!.HtmlBody, Does.Contain("linear-gradient(145deg,#0f221e,#163328)"));
+        }
+    }
+
+    [Test]
+    public async Task GetReminderEmailPreviewAsync_FailsForNonPendingDue() {
+        var dueRepository = new Mock<IMembershipDueRepository>();
+        var paymentPeriodRepository = new Mock<IMembershipPaymentPeriodRepository>();
+        var memberRepository = new Mock<IMemberRepository>();
+        var service = new MembershipDueService(dueRepository.Object, paymentPeriodRepository.Object, memberRepository.Object);
+
+        var due = new MembershipDue {
+            Id = 77,
+            PaymentPeriodId = 5,
+            MemberId = Guid.NewGuid(),
+            Status = DomainEnums.MembershipDueStatus.Paid,
+            DueAmount = 15m,
+            PaidAmount = 15m,
+            DueDate = new DateOnly(2026, 4, 1)
+        };
+
+        dueRepository.Setup(x => x.GetByIdAsync(due.Id)).ReturnsAsync(Result<MembershipDue>.Success(due));
+
+        var result = await service.GetReminderEmailPreviewAsync(due.Id);
+
+        Assert.That(result.IsSuccess, Is.False);
+        Assert.That(result.Error, Is.EqualTo("Reminder email is only available for pending dues."));
+    }
+
     private static Member CreateTrialMember(Guid id, DateOnly trialEndDate) {
         var trialStart = trialEndDate.ToDateTime(TimeOnly.MinValue, DateTimeKind.Utc)
             .AddDays(-MemberManagementConstants.DefaultTrialPeriodInDays);

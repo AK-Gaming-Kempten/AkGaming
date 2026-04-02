@@ -128,6 +128,9 @@ public sealed class MemberManagementApiClient : ApiClientBase {
     public Task<Result<ICollection<MembershipDueDto>>> GetMyDuesAsync(CancellationToken ct = default) =>
         GetAsync<ICollection<MembershipDueDto>>("membership-dues/me", ct);
 
+    public Task<Result<MembershipDueEmailPreviewDto>> GetReminderEmailPreviewAsync(int dueId, CancellationToken ct = default) =>
+        GetAsync<MembershipDueEmailPreviewDto>($"membership-dues/{dueId}/reminder-email", ct);
+
     public Task<Result> UpdateDueAsync(int dueId, MembershipDueDto due, CancellationToken ct = default) =>
         PutJsonAsync($"membership-dues/{dueId}", due, ct);
 }

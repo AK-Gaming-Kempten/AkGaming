@@ -25,6 +25,17 @@
         </button>
     </header>
 
+    @if (CanPreviewReminder) {
+        <div class="due-entry-preview-toggle">
+            <button type="button"
+                    class="btn btn-sm btn-outline-secondary"
+                    @onclick="ToggleReminderPreviewAsync"
+                    disabled="@(_loadingReminderPreview || IsSaving)">
+                @(_showReminderPreview ? "Hide reminder preview" : "Preview reminder email")
+            </button>
+        </div>
+    }
+
     @if (EditMode) {
         <div class="ui-divider-top-dashed due-entry-editor">
             <div class="ui-grid-auto-180 due-entry-grid">
@@ -80,5 +91,40 @@
                 </button>
             </div>
         </div>
+    }
+
+    @if (_showReminderPreview) {
+        <section class="ui-divider-top-dashed due-email-preview">
+            @if (_loadingReminderPreview) {
+                <p>Loading reminder preview...</p>
+            }
+            else if (!string.IsNullOrWhiteSpace(_reminderPreviewError)) {
+                <p class="text-danger">@_reminderPreviewError</p>
+            }
+            else if (_reminderPreview is not null) {
+                <div class="due-email-preview-meta">
+                    <div>
+                        <label>Recipient</label>
+                        <div class="due-email-preview-value">@_reminderPreview.RecipientDisplayName (@_reminderPreview.RecipientEmail)</div>
+                    </div>
+                    <div>
+                        <label>Subject</label>
+                        <div class="due-email-preview-value">@_reminderPreview.Subject</div>
+                    </div>
+                </div>
+
+                <div class="due-email-preview-sections">
+                    <div class="due-email-preview-section">
+                        <label>Fallback text</label>
+                        <textarea class="due-email-preview-text" readonly>@_reminderPreview.TextBody</textarea>
+                    </div>
+
+                    <div class="due-email-preview-section">
+                        <label>HTML preview</label>
+                        <div class="due-email-preview-render">@ReminderHtmlPreview</div>
+                    </div>
+                </div>
+            }
+        </section>
     }
 </article>
