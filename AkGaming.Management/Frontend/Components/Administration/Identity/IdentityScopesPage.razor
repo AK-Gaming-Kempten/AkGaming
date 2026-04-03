@@ -4,94 +4,49 @@
 
 <PageTitle>Identity Scopes</PageTitle>
 
-<div class="identity-roles-page mobile-master-detail @(_isMobileDetailOpen ? "mobile-detail-open" : string.Empty)">
-    <div class="roles-list-pane">
-        <div class="pane-header">
-            <h4>OIDC Scopes</h4>
-            <button class="btn btn-secondary" @onclick="ReloadAsync" disabled="@_isBusy">Refresh</button>
-        </div>
-
-        <div class="create-role card form-col">
-            <label for="new-scope-name">Create scope</label>
-            <InputText id="new-scope-name" @bind-Value="_newScopeName" placeholder="Scope name" />
-            <InputText @bind-Value="_newDisplayName" placeholder="Display name" />
-            <InputTextArea @bind-Value="_newDescription" placeholder="Description" />
-
-            <label>Resources</label>
-            <InputTextArea @bind-Value="_newResourcesText" placeholder="One resource per line" />
-
-            <div class="editor-actions">
-                <button class="btn btn-primary" @onclick="CreateScopeAsync" disabled="@_isBusy">Create</button>
+<div class="ui-stack-md identity-admin-page">
+    <section class="panel identity-admin-card">
+        <div class="identity-admin-toolbar">
+            <h4 class="ui-title">OIDC Scopes</h4>
+            <div class="ui-actions">
+                <button class="btn btn-sm btn-secondary" @onclick="ReloadAsync" disabled="@_isBusy">Refresh</button>
+                <button type="button"
+                        class="btn btn-sm btn-outline-secondary"
+                        @onclick="ToggleCreateForm">
+                    @(_showCreateForm ? "Hide create scope" : "Create scope")
+                </button>
             </div>
         </div>
 
-        <div class="roles-list card">
-            @if (_scopes is null)
-            {
-                <p>Loading scopes...</p>
-            }
-            else if (_scopes.Count == 0)
-            {
-                <p>No scopes found.</p>
-            }
-            else
-            {
-                @foreach (var scope in _scopes.OrderBy(scope => scope.Name, StringComparer.OrdinalIgnoreCase))
-                {
-                    <button type="button"
-                            class="role-item @(string.Equals(scope.Name, _selectedScopeName, StringComparison.Ordinal) ? "selected" : string.Empty)"
-                            @onclick="() => SelectScope(scope)">
-                        <span>@scope.Name</span>
-                        <small>@scope.DisplayName@if (scope.IsProtected) { <text> · protected</text> }</small>
-                    </button>
-                }
-            }
-        </div>
-    </div>
-
-    <div class="role-editor-pane card">
-        <div class="mobile-detail-nav">
-            <button type="button" class="btn btn-outline-secondary btn-sm" @onclick="ShowListMobile">
-                <span class="bi bi-arrow-left"></span>
-                Back to scopes
-            </button>
-        </div>
-        <h4>Scope Details</h4>
-
-        @if (_selectedScope is null)
+        @if (_showCreateForm)
         {
-            <p>Select a scope to inspect or edit it.</p>
-        }
-        else
-        {
-            <div class="form-col">
-                <label>Scope name</label>
-                <input value="@_selectedScope.Name" disabled />
-            </div>
+            <div class="ui-divider-top-dashed identity-create-form">
+                <div class="ui-grid-auto-180">
+                    <div class="ui-field">
+                        <label for="new-scope-name">Scope name</label>
+                        <InputText id="new-scope-name" @bind-Value="_newScopeName" placeholder="akgaming.api" />
+                    </div>
 
-            @if (_selectedScope.IsProtected)
-            {
-                <p class="text-warning">@(_selectedScope.ProtectionReason ?? "This scope is protected.")</p>
-            }
+                    <div class="ui-field">
+                        <label for="new-scope-display-name">Display name</label>
+                        <InputText id="new-scope-display-name" @bind-Value="_newDisplayName" placeholder="AK Gaming API" />
+                    </div>
+                </div>
 
-            <div class="form-col">
-                <label>Display name</label>
-                <InputText @bind-Value="_editDisplayName" disabled="@_selectedScope.IsProtected" />
-            </div>
+                <div class="ui-field">
+                    <label for="new-scope-description">Description</label>
+                    <InputTextArea id="new-scope-description" @bind-Value="_newDescription" placeholder="Describe what the scope grants access to" />
+                </div>
 
-            <div class="form-col">
-                <label>Description</label>
-                <InputTextArea @bind-Value="_editDescription" disabled="@_selectedScope.IsProtected" />
-            </div>
+                <div class="ui-field">
+                    <label for="new-scope-resources">Resources</label>
+                    <InputTextArea id="new-scope-resources" @bind-Value="_newResourcesText" placeholder="One resource per line" />
+                </div>
 
-            <div class="form-col">
-                <label>Resources</label>
-                <InputTextArea @bind-Value="_editResourcesText" disabled="@_selectedScope.IsProtected" />
-            </div>
-
-            <div class="editor-actions">
-                <button class="btn btn-primary" @onclick="SaveScopeAsync" disabled="@(_isBusy || _selectedScope.IsProtected)">Save scope</button>
-                <button class="btn btn-danger" @onclick="DeleteScopeAsync" disabled="@(_isBusy || _selectedScope.IsProtected)">Delete scope</button>
+                <div class="ui-actions">
+                    <button class="btn btn-sm btn-primary" @onclick="CreateScopeAsync" disabled="@_isBusy">Create scope</button>
+                    <button type="button" class="btn btn-sm btn-outline-secondary" @onclick="ToggleCreateForm" disabled="@_isBusy">Cancel</button>
+                </div>
             </div>
         }
 
@@ -104,5 +59,31 @@
         {
             <p class="text-success">@_success</p>
         }
-    </div>
+    </section>
+
+    <section class="panel identity-admin-card">
+        <h4 class="ui-title">Existing Scopes</h4>
+
+        @if (_scopes is null)
+        {
+            <p>Loading scopes...</p>
+        }
+        else if (_scopes.Count == 0)
+        {
+            <p>No scopes found.</p>
+        }
+        else
+        {
+            <div class="ui-list identity-entry-list">
+                @foreach (var scope in SortedScopes)
+                {
+                    <IdentityScopeEntry @key="scope.Name"
+                                        Scope="scope"
+                                        IsBusy="_isBusy"
+                                        OnSave="SaveScopeAsync"
+                                        OnDelete="DeleteScopeAsync" />
+                }
+            </div>
+        }
+    </section>
 </div>

@@ -1,0 +1,60 @@
+.identity-entry {
+    display: grid;
+    gap: 0.9rem;
+}
+
+.identity-entry-summary {
+    display: grid;
+    grid-template-columns: minmax(220px, 1fr) minmax(260px, 2fr) auto;
+    gap: 0.9rem;
+    align-items: center;
+}
+
+.identity-entry-heading {
+    display: grid;
+    gap: 0.2rem;
+}
+
+.identity-entry-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.identity-entry-chip {
+    padding: 0.25rem 0.6rem;
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--color-highlight-secondary) 10%, transparent);
+    color: var(--color-text-secondary);
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.identity-entry-chip-protected {
+    background: color-mix(in srgb, var(--bs-warning) 20%, transparent);
+    color: #8a5a00;
+}
+
+.identity-entry-editor {
+    display: grid;
+    gap: 1rem;
+    padding-top: 1rem;
+}
+
+.identity-entry-grid-wide {
+    display: grid;
+    gap: 0.75rem;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+
+.identity-entry-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+@media (max-width: 900px) {
+    .identity-entry-summary {
+        grid-template-columns: 1fr;
+    }
+}

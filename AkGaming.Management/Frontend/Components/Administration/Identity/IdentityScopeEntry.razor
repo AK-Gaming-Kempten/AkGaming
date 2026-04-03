@@ -1,0 +1,77 @@
+@using AkGaming.Identity.Contracts.Auth
+
+<article class="panel identity-scope-entry">
+    <header class="identity-scope-entry-summary">
+        <div class="identity-scope-entry-heading">
+            <strong>@Scope.Name</strong>
+            <span class="ui-text-muted">@Scope.DisplayName</span>
+        </div>
+
+        <div class="identity-scope-entry-meta">
+            <span class="identity-scope-entry-chip">@Scope.Resources.Length resource@(Scope.Resources.Length == 1 ? string.Empty : "s")</span>
+            @if (!string.IsNullOrWhiteSpace(Scope.Description))
+            {
+                <span class="identity-scope-entry-chip">description set</span>
+            }
+            @if (Scope.IsProtected)
+            {
+                <span class="identity-scope-entry-chip identity-scope-entry-chip-protected">protected</span>
+            }
+        </div>
+
+        <button type="button"
+                class="btn btn-sm btn-secondary"
+                @onclick="ToggleEditMode"
+                disabled="@IsBusy">
+            @(EditMode ? "Close" : "Edit")
+        </button>
+    </header>
+
+    @if (EditMode)
+    {
+        <div class="ui-divider-top-dashed identity-scope-entry-editor">
+            @if (Scope.IsProtected)
+            {
+                <p class="text-warning">@GetProtectionMessage()</p>
+            }
+
+            <div class="ui-grid-auto-180">
+                <div class="ui-field">
+                    <label>Display name</label>
+                    <InputText @bind-Value="_displayName" disabled="@Scope.IsProtected" />
+                </div>
+            </div>
+
+            <div class="ui-field">
+                <label>Description</label>
+                <InputTextArea @bind-Value="_description" disabled="@Scope.IsProtected" />
+            </div>
+
+            <div class="ui-field">
+                <label>Resources</label>
+                <InputTextArea @bind-Value="_resourcesText" disabled="@Scope.IsProtected" />
+            </div>
+
+            <div class="ui-actions">
+                <button type="button"
+                        class="btn btn-sm btn-primary"
+                        @onclick="SaveAsync"
+                        disabled="@(IsBusy || Scope.IsProtected)">
+                    Save scope
+                </button>
+                <button type="button"
+                        class="btn btn-sm btn-danger"
+                        @onclick="DeleteAsync"
+                        disabled="@(IsBusy || Scope.IsProtected)">
+                    Delete scope
+                </button>
+                <button type="button"
+                        class="btn btn-sm btn-outline-secondary"
+                        @onclick="CancelEditing"
+                        disabled="@IsBusy">
+                    Cancel
+                </button>
+            </div>
+        </div>
+    }
+</article>

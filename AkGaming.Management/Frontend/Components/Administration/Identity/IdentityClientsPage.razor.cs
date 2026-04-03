@@ -9,8 +9,6 @@ public partial class IdentityClientsPage : ComponentBase
     [Inject] private IdentityApiClient IdentityApi { get; set; } = default!;
 
     private List<OidcClientResponse>? _clients;
-    private string? _selectedClientId;
-    private OidcClientResponse? _selectedClient;
 
     private string _newClientId = string.Empty;
     private string _newDisplayName = string.Empty;
@@ -23,20 +21,15 @@ public partial class IdentityClientsPage : ComponentBase
     private bool _newRequirePkce = true;
     private bool _newAllowRefreshTokenFlow = true;
 
-    private string _editDisplayName = string.Empty;
-    private string _editClientType = "confidential";
-    private string _editConsentType = "explicit";
-    private string _editClientSecret = string.Empty;
-    private string _editRedirectUrisText = string.Empty;
-    private string _editPostLogoutRedirectUrisText = string.Empty;
-    private string _editScopesText = string.Empty;
-    private bool _editRequirePkce = true;
-    private bool _editAllowRefreshTokenFlow = true;
-
     private string? _error;
     private string? _success;
     private bool _isBusy;
-    private bool _isMobileDetailOpen;
+    private bool _showCreateForm;
+
+    private IEnumerable<OidcClientResponse> SortedClients =>
+        (_clients ?? [])
+            .OrderBy(client => client.DisplayName, StringComparer.OrdinalIgnoreCase)
+            .ThenBy(client => client.ClientId, StringComparer.OrdinalIgnoreCase);
 
     protected override async Task OnInitializedAsync()
     {
@@ -66,42 +59,6 @@ public partial class IdentityClientsPage : ComponentBase
         }
 
         _clients = result.Value?.ToList() ?? new List<OidcClientResponse>();
-
-        if (!string.IsNullOrWhiteSpace(_selectedClientId))
-        {
-            var selected = _clients.FirstOrDefault(client => string.Equals(client.ClientId, _selectedClientId, StringComparison.Ordinal));
-            if (selected is null)
-            {
-                ShowListMobile();
-            }
-            else
-            {
-                ApplyClientSelection(selected);
-            }
-        }
-    }
-
-    private void SelectClient(OidcClientResponse client)
-    {
-        ApplyClientSelection(client);
-        _isMobileDetailOpen = true;
-        _error = null;
-        _success = null;
-    }
-
-    private void ApplyClientSelection(OidcClientResponse client)
-    {
-        _selectedClient = client;
-        _selectedClientId = client.ClientId;
-        _editDisplayName = client.DisplayName;
-        _editClientType = client.ClientType;
-        _editConsentType = client.ConsentType;
-        _editClientSecret = string.Empty;
-        _editRedirectUrisText = string.Join(Environment.NewLine, client.RedirectUris ?? Array.Empty<string>());
-        _editPostLogoutRedirectUrisText = string.Join(Environment.NewLine, client.PostLogoutRedirectUris ?? Array.Empty<string>());
-        _editScopesText = string.Join(Environment.NewLine, client.Scopes ?? Array.Empty<string>());
-        _editRequirePkce = client.RequirePkce;
-        _editAllowRefreshTokenFlow = client.AllowRefreshTokenFlow;
     }
 
     private async Task CreateClientAsync()
@@ -133,66 +90,39 @@ public partial class IdentityClientsPage : ComponentBase
             return;
         }
 
-        _success = $"Created client '{result.Value.ClientId}'.";
+        _showCreateForm = false;
         ResetCreateForm();
         await LoadClientsAsync();
-        SelectClient(result.Value);
+        _success = $"Created client '{result.Value.ClientId}'.";
     }
 
-    private async Task SaveClientAsync()
+    private async Task<bool> SaveClientAsync(OidcClientUpdateSubmission submission)
     {
-        if (_selectedClient is null)
-        {
-            _error = "Select a client first.";
-            _success = null;
-            return;
-        }
-
         _isBusy = true;
         _error = null;
         _success = null;
 
-        var request = new AdminUpdateOidcClientRequest(
-            DisplayName: _editDisplayName.Trim(),
-            ClientType: _editClientType,
-            ConsentType: _editConsentType,
-            RequirePkce: _editRequirePkce,
-            AllowAuthorizationCodeFlow: true,
-            AllowRefreshTokenFlow: _editAllowRefreshTokenFlow,
-            NewClientSecret: string.IsNullOrWhiteSpace(_editClientSecret) ? null : _editClientSecret.Trim(),
-            RedirectUris: ParseMultiline(_editRedirectUrisText),
-            PostLogoutRedirectUris: ParseMultiline(_editPostLogoutRedirectUrisText),
-            Scopes: ParseMultiline(_editScopesText));
-
-        var result = await IdentityApi.UpdateOidcClientAsync(_selectedClient.ClientId, request);
+        var result = await IdentityApi.UpdateOidcClientAsync(submission.ClientId, submission.Request);
 
         _isBusy = false;
 
         if (!result.IsSuccess || result.Value is null)
         {
             _error = result.Error;
-            return;
+            return false;
         }
 
-        _success = $"Updated client '{result.Value.ClientId}'.";
         await LoadClientsAsync();
-        SelectClient(result.Value);
+        _success = $"Updated client '{result.Value.ClientId}'.";
+        return true;
     }
 
-    private async Task DeleteClientAsync()
+    private async Task<bool> DeleteClientAsync(string clientId)
     {
-        if (_selectedClient is null)
-        {
-            _error = "Select a client first.";
-            _success = null;
-            return;
-        }
-
         _isBusy = true;
         _error = null;
         _success = null;
 
-        var clientId = _selectedClient.ClientId;
         var result = await IdentityApi.DeleteOidcClientAsync(clientId);
 
         _isBusy = false;
@@ -200,12 +130,12 @@ public partial class IdentityClientsPage : ComponentBase
         if (!result.IsSuccess)
         {
             _error = result.Error;
-            return;
+            return false;
         }
 
-        _success = $"Deleted client '{clientId}'.";
-        ShowListMobile();
         await LoadClientsAsync();
+        _success = $"Deleted client '{clientId}'.";
+        return true;
     }
 
     private void ResetCreateForm()
@@ -222,20 +152,14 @@ public partial class IdentityClientsPage : ComponentBase
         _newAllowRefreshTokenFlow = true;
     }
 
-    private void ShowListMobile()
+    private void ToggleCreateForm()
     {
-        _isMobileDetailOpen = false;
-        _selectedClientId = null;
-        _selectedClient = null;
-        _editDisplayName = string.Empty;
-        _editClientType = "confidential";
-        _editConsentType = "explicit";
-        _editClientSecret = string.Empty;
-        _editRedirectUrisText = string.Empty;
-        _editPostLogoutRedirectUrisText = string.Empty;
-        _editScopesText = string.Empty;
-        _editRequirePkce = true;
-        _editAllowRefreshTokenFlow = true;
+        _showCreateForm = !_showCreateForm;
+        if (!_showCreateForm)
+        {
+            ResetCreateForm();
+        }
+
         _error = null;
         _success = null;
     }

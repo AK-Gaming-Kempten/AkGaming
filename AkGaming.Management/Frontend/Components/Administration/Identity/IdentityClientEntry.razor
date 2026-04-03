@@ -1,0 +1,128 @@
+@using AkGaming.Identity.Contracts.Auth
+
+<article class="panel identity-entry">
+    <header class="identity-entry-summary">
+        <div class="identity-entry-heading">
+            <strong>@Client.DisplayName</strong>
+            <span class="ui-text-muted">@Client.ClientId</span>
+        </div>
+
+        <div class="identity-entry-meta">
+            <span class="identity-entry-chip">@Client.ClientType</span>
+            <span class="identity-entry-chip">@Client.ConsentType</span>
+            <span class="identity-entry-chip">@Client.Scopes.Length scope@(Client.Scopes.Length == 1 ? string.Empty : "s")</span>
+            <span class="identity-entry-chip">@Client.RedirectUris.Length redirect@(Client.RedirectUris.Length == 1 ? string.Empty : "s")</span>
+            @if (Client.HasClientSecret)
+            {
+                <span class="identity-entry-chip">secret configured</span>
+            }
+            @if (Client.RequirePkce)
+            {
+                <span class="identity-entry-chip">PKCE</span>
+            }
+            @if (Client.IsProtected)
+            {
+                <span class="identity-entry-chip identity-entry-chip-protected">protected</span>
+            }
+        </div>
+
+        <button type="button"
+                class="btn btn-sm btn-secondary"
+                @onclick="ToggleEditMode"
+                disabled="@IsBusy">
+            @(EditMode ? "Close" : "Edit")
+        </button>
+    </header>
+
+    @if (EditMode)
+    {
+        <div class="ui-divider-top-dashed identity-entry-editor">
+            @if (Client.IsProtected)
+            {
+                <p class="text-warning">@GetProtectionMessage()</p>
+            }
+
+            <div class="ui-grid-auto-180">
+                <div class="ui-field">
+                    <label>Display name</label>
+                    <InputText @bind-Value="_displayName" disabled="@Client.IsProtected" />
+                </div>
+
+                <div class="ui-field">
+                    <label>Client type</label>
+                    <InputSelect @bind-Value="_clientType" disabled="@Client.IsProtected">
+                        <option value="confidential">confidential</option>
+                        <option value="public">public</option>
+                    </InputSelect>
+                </div>
+
+                <div class="ui-field">
+                    <label>Consent type</label>
+                    <InputSelect @bind-Value="_consentType" disabled="@Client.IsProtected">
+                        <option value="implicit">implicit</option>
+                        <option value="explicit">explicit</option>
+                        <option value="external">external</option>
+                        <option value="systematic">systematic</option>
+                    </InputSelect>
+                </div>
+            </div>
+
+            @if (string.Equals(_clientType, "confidential", StringComparison.OrdinalIgnoreCase))
+            {
+                <div class="ui-field">
+                    <label>Replace client secret</label>
+                    <InputText @bind-Value="_clientSecret" placeholder="Leave empty to keep current secret" disabled="@Client.IsProtected" />
+                </div>
+            }
+
+            <div class="identity-entry-grid-wide">
+                <div class="ui-field">
+                    <label>Redirect URIs</label>
+                    <InputTextArea @bind-Value="_redirectUrisText" disabled="@Client.IsProtected" />
+                </div>
+
+                <div class="ui-field">
+                    <label>Post logout redirect URIs</label>
+                    <InputTextArea @bind-Value="_postLogoutRedirectUrisText" disabled="@Client.IsProtected" />
+                </div>
+
+                <div class="ui-field">
+                    <label>Scopes</label>
+                    <InputTextArea @bind-Value="_scopesText" disabled="@Client.IsProtected" />
+                </div>
+            </div>
+
+            <div class="identity-entry-options">
+                <label class="role-checkbox">
+                    <InputCheckbox @bind-Value="_requirePkce" disabled="@Client.IsProtected" />
+                    <span>Require PKCE</span>
+                </label>
+                <label class="role-checkbox">
+                    <InputCheckbox @bind-Value="_allowRefreshTokenFlow" disabled="@Client.IsProtected" />
+                    <span>Allow refresh token flow</span>
+                </label>
+            </div>
+
+            <div class="ui-actions">
+                <button type="button"
+                        class="btn btn-sm btn-primary"
+                        @onclick="SaveAsync"
+                        disabled="@(IsBusy || Client.IsProtected)">
+                    Save client
+                </button>
+                <button type="button"
+                        class="btn btn-sm btn-danger"
+                        @onclick="DeleteAsync"
+                        disabled="@(IsBusy || Client.IsProtected)">
+                    Delete client
+                </button>
+                <button type="button"
+                        class="btn btn-sm btn-outline-secondary"
+                        @onclick="CancelEditing"
+                        disabled="@IsBusy">
+                    Cancel
+                </button>
+            </div>
+        </div>
+    }
+</article>

@@ -4,168 +4,93 @@
 
 <PageTitle>Identity Clients</PageTitle>
 
-<div class="identity-roles-page mobile-master-detail @(_isMobileDetailOpen ? "mobile-detail-open" : string.Empty)">
-    <div class="roles-list-pane">
-        <div class="pane-header">
-            <h4>OIDC Clients</h4>
-            <button class="btn btn-secondary" @onclick="ReloadAsync" disabled="@_isBusy">Refresh</button>
-        </div>
-
-        <div class="create-role card form-col">
-            <label for="new-client-id">Create client</label>
-
-            <InputText id="new-client-id" @bind-Value="_newClientId" placeholder="Client id" />
-            <InputText @bind-Value="_newDisplayName" placeholder="Display name" />
-
-            <label>Client type</label>
-            <InputSelect @bind-Value="_newClientType">
-                <option value="confidential">confidential</option>
-                <option value="public">public</option>
-            </InputSelect>
-
-            <label>Consent type</label>
-            <InputSelect @bind-Value="_newConsentType">
-                <option value="implicit">implicit</option>
-                <option value="explicit">explicit</option>
-                <option value="external">external</option>
-                <option value="systematic">systematic</option>
-            </InputSelect>
-
-            @if (string.Equals(_newClientType, "confidential", StringComparison.OrdinalIgnoreCase))
-            {
-                <InputText @bind-Value="_newClientSecret" placeholder="Client secret" />
-            }
-
-            <label>Redirect URIs</label>
-            <InputTextArea @bind-Value="_newRedirectUrisText" placeholder="One URI per line" />
-
-            <label>Post logout redirect URIs</label>
-            <InputTextArea @bind-Value="_newPostLogoutRedirectUrisText" placeholder="One URI per line" />
-
-            <label>Scopes</label>
-            <InputTextArea @bind-Value="_newScopesText" placeholder="One scope per line" />
-
-            <label class="role-checkbox">
-                <InputCheckbox @bind-Value="_newRequirePkce" />
-                <span>Require PKCE</span>
-            </label>
-            <label class="role-checkbox">
-                <InputCheckbox @bind-Value="_newAllowRefreshTokenFlow" />
-                <span>Allow refresh token flow</span>
-            </label>
-
-            <div class="editor-actions">
-                <button class="btn btn-primary" @onclick="CreateClientAsync" disabled="@_isBusy">Create</button>
+<div class="ui-stack-md identity-admin-page">
+    <section class="panel identity-admin-card">
+        <div class="identity-admin-toolbar">
+            <h4 class="ui-title">OIDC Clients</h4>
+            <div class="ui-actions">
+                <button class="btn btn-sm btn-secondary" @onclick="ReloadAsync" disabled="@_isBusy">Refresh</button>
+                <button type="button"
+                        class="btn btn-sm btn-outline-secondary"
+                        @onclick="ToggleCreateForm">
+                    @(_showCreateForm ? "Hide create client" : "Create client")
+                </button>
             </div>
         </div>
 
-        <div class="roles-list card">
-            @if (_clients is null)
-            {
-                <p>Loading clients...</p>
-            }
-            else if (_clients.Count == 0)
-            {
-                <p>No clients found.</p>
-            }
-            else
-            {
-                @foreach (var client in _clients.OrderBy(client => client.DisplayName, StringComparer.OrdinalIgnoreCase).ThenBy(client => client.ClientId, StringComparer.OrdinalIgnoreCase))
-                {
-                    <button type="button"
-                            class="role-item @(string.Equals(client.ClientId, _selectedClientId, StringComparison.Ordinal) ? "selected" : string.Empty)"
-                            @onclick="() => SelectClient(client)">
-                        <span>@client.DisplayName</span>
-                        <small>@client.ClientId@if (client.IsProtected) { <text> · protected</text> }</small>
-                    </button>
-                }
-            }
-        </div>
-    </div>
-
-    <div class="role-editor-pane card">
-        <div class="mobile-detail-nav">
-            <button type="button" class="btn btn-outline-secondary btn-sm" @onclick="ShowListMobile">
-                <span class="bi bi-arrow-left"></span>
-                Back to clients
-            </button>
-        </div>
-        <h4>Client Details</h4>
-
-        @if (_selectedClient is null)
+        @if (_showCreateForm)
         {
-            <p>Select a client to inspect or edit it.</p>
-        }
-        else
-        {
-            <div class="form-col">
-                <label>Client Id</label>
-                <input value="@_selectedClient.ClientId" disabled />
-            </div>
+            <div class="ui-divider-top-dashed identity-create-form">
+                <div class="ui-grid-auto-180">
+                    <div class="ui-field">
+                        <label for="new-client-id">Client id</label>
+                        <InputText id="new-client-id" @bind-Value="_newClientId" placeholder="frontend-app" />
+                    </div>
 
-            @if (_selectedClient.IsProtected)
-            {
-                <p class="text-warning">@(_selectedClient.ProtectionReason ?? "This client is protected.")</p>
-            }
+                    <div class="ui-field">
+                        <label for="new-display-name">Display name</label>
+                        <InputText id="new-display-name" @bind-Value="_newDisplayName" placeholder="Frontend App" />
+                    </div>
 
-            <div class="form-col">
-                <label>Display name</label>
-                <InputText @bind-Value="_editDisplayName" disabled="@_selectedClient.IsProtected" />
-            </div>
+                    <div class="ui-field">
+                        <label for="new-client-type">Client type</label>
+                        <InputSelect id="new-client-type" @bind-Value="_newClientType">
+                            <option value="confidential">confidential</option>
+                            <option value="public">public</option>
+                        </InputSelect>
+                    </div>
 
-            <div class="form-col">
-                <label>Client type</label>
-                <InputSelect @bind-Value="_editClientType" disabled="@_selectedClient.IsProtected">
-                    <option value="confidential">confidential</option>
-                    <option value="public">public</option>
-                </InputSelect>
-            </div>
-
-            <div class="form-col">
-                <label>Consent type</label>
-                <InputSelect @bind-Value="_editConsentType" disabled="@_selectedClient.IsProtected">
-                    <option value="implicit">implicit</option>
-                    <option value="explicit">explicit</option>
-                    <option value="external">external</option>
-                    <option value="systematic">systematic</option>
-                </InputSelect>
-            </div>
-
-            @if (string.Equals(_editClientType, "confidential", StringComparison.OrdinalIgnoreCase))
-            {
-                <div class="form-col">
-                    <label>Replace client secret</label>
-                    <InputText @bind-Value="_editClientSecret" placeholder="Leave empty to keep current secret" disabled="@_selectedClient.IsProtected" />
+                    <div class="ui-field">
+                        <label for="new-consent-type">Consent type</label>
+                        <InputSelect id="new-consent-type" @bind-Value="_newConsentType">
+                            <option value="implicit">implicit</option>
+                            <option value="explicit">explicit</option>
+                            <option value="external">external</option>
+                            <option value="systematic">systematic</option>
+                        </InputSelect>
+                    </div>
                 </div>
-            }
 
-            <div class="form-col">
-                <label>Redirect URIs</label>
-                <InputTextArea @bind-Value="_editRedirectUrisText" disabled="@_selectedClient.IsProtected" />
-            </div>
+                @if (string.Equals(_newClientType, "confidential", StringComparison.OrdinalIgnoreCase))
+                {
+                    <div class="ui-field">
+                        <label for="new-client-secret">Client secret</label>
+                        <InputText id="new-client-secret" @bind-Value="_newClientSecret" placeholder="Leave empty to generate without a secret" />
+                    </div>
+                }
 
-            <div class="form-col">
-                <label>Post logout redirect URIs</label>
-                <InputTextArea @bind-Value="_editPostLogoutRedirectUrisText" disabled="@_selectedClient.IsProtected" />
-            </div>
+                <div class="identity-grid-wide">
+                    <div class="ui-field">
+                        <label for="new-client-redirects">Redirect URIs</label>
+                        <InputTextArea id="new-client-redirects" @bind-Value="_newRedirectUrisText" placeholder="One URI per line" />
+                    </div>
 
-            <div class="form-col">
-                <label>Scopes</label>
-                <InputTextArea @bind-Value="_editScopesText" disabled="@_selectedClient.IsProtected" />
-            </div>
+                    <div class="ui-field">
+                        <label for="new-client-post-logout-redirects">Post logout redirect URIs</label>
+                        <InputTextArea id="new-client-post-logout-redirects" @bind-Value="_newPostLogoutRedirectUrisText" placeholder="One URI per line" />
+                    </div>
 
-            <label class="role-checkbox">
-                <InputCheckbox @bind-Value="_editRequirePkce" disabled="@_selectedClient.IsProtected" />
-                <span>Require PKCE</span>
-            </label>
-            <label class="role-checkbox">
-                <InputCheckbox @bind-Value="_editAllowRefreshTokenFlow" disabled="@_selectedClient.IsProtected" />
-                <span>Allow refresh token flow</span>
-            </label>
+                    <div class="ui-field">
+                        <label for="new-client-scopes">Scopes</label>
+                        <InputTextArea id="new-client-scopes" @bind-Value="_newScopesText" placeholder="One scope per line" />
+                    </div>
+                </div>
 
-            <div class="editor-actions">
-                <button class="btn btn-primary" @onclick="SaveClientAsync" disabled="@(_isBusy || _selectedClient.IsProtected)">Save client</button>
-                <button class="btn btn-danger" @onclick="DeleteClientAsync" disabled="@(_isBusy || _selectedClient.IsProtected)">Delete client</button>
+                <div class="identity-create-options">
+                    <label class="role-checkbox">
+                        <InputCheckbox @bind-Value="_newRequirePkce" />
+                        <span>Require PKCE</span>
+                    </label>
+                    <label class="role-checkbox">
+                        <InputCheckbox @bind-Value="_newAllowRefreshTokenFlow" />
+                        <span>Allow refresh token flow</span>
+                    </label>
+                </div>
+
+                <div class="ui-actions">
+                    <button class="btn btn-sm btn-primary" @onclick="CreateClientAsync" disabled="@_isBusy">Create client</button>
+                    <button type="button" class="btn btn-sm btn-outline-secondary" @onclick="ToggleCreateForm" disabled="@_isBusy">Cancel</button>
+                </div>
             </div>
         }
 
@@ -178,5 +103,31 @@
         {
             <p class="text-success">@_success</p>
         }
-    </div>
+    </section>
+
+    <section class="panel identity-admin-card">
+        <h4 class="ui-title">Existing Clients</h4>
+
+        @if (_clients is null)
+        {
+            <p>Loading clients...</p>
+        }
+        else if (_clients.Count == 0)
+        {
+            <p>No clients found.</p>
+        }
+        else
+        {
+            <div class="ui-list identity-entry-list">
+                @foreach (var client in SortedClients)
+                {
+                    <IdentityClientEntry @key="client.ClientId"
+                                         Client="client"
+                                         IsBusy="_isBusy"
+                                         OnSave="SaveClientAsync"
+                                         OnDelete="DeleteClientAsync" />
+                }
+            </div>
+        }
+    </section>
 </div>

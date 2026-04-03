@@ -9,22 +9,20 @@ public partial class IdentityScopesPage : ComponentBase
     [Inject] private IdentityApiClient IdentityApi { get; set; } = default!;
 
     private List<OidcScopeResponse>? _scopes;
-    private string? _selectedScopeName;
-    private OidcScopeResponse? _selectedScope;
 
     private string _newScopeName = string.Empty;
     private string _newDisplayName = string.Empty;
     private string _newDescription = string.Empty;
     private string _newResourcesText = string.Empty;
 
-    private string _editDisplayName = string.Empty;
-    private string _editDescription = string.Empty;
-    private string _editResourcesText = string.Empty;
-
     private string? _error;
     private string? _success;
     private bool _isBusy;
-    private bool _isMobileDetailOpen;
+    private bool _showCreateForm;
+
+    private IEnumerable<OidcScopeResponse> SortedScopes =>
+        (_scopes ?? [])
+            .OrderBy(scope => scope.Name, StringComparer.OrdinalIgnoreCase);
 
     protected override async Task OnInitializedAsync()
     {
@@ -54,36 +52,6 @@ public partial class IdentityScopesPage : ComponentBase
         }
 
         _scopes = result.Value?.ToList() ?? new List<OidcScopeResponse>();
-
-        if (!string.IsNullOrWhiteSpace(_selectedScopeName))
-        {
-            var selected = _scopes.FirstOrDefault(scope => string.Equals(scope.Name, _selectedScopeName, StringComparison.Ordinal));
-            if (selected is null)
-            {
-                ShowListMobile();
-            }
-            else
-            {
-                ApplyScopeSelection(selected);
-            }
-        }
-    }
-
-    private void SelectScope(OidcScopeResponse scope)
-    {
-        ApplyScopeSelection(scope);
-        _isMobileDetailOpen = true;
-        _error = null;
-        _success = null;
-    }
-
-    private void ApplyScopeSelection(OidcScopeResponse scope)
-    {
-        _selectedScope = scope;
-        _selectedScopeName = scope.Name;
-        _editDisplayName = scope.DisplayName;
-        _editDescription = scope.Description ?? string.Empty;
-        _editResourcesText = string.Join(Environment.NewLine, scope.Resources ?? Array.Empty<string>());
     }
 
     private async Task CreateScopeAsync()
@@ -108,59 +76,39 @@ public partial class IdentityScopesPage : ComponentBase
             return;
         }
 
-        _success = $"Created scope '{result.Value.Name}'.";
+        _showCreateForm = false;
         ResetCreateForm();
         await LoadScopesAsync();
-        SelectScope(result.Value);
+        _success = $"Created scope '{result.Value.Name}'.";
     }
 
-    private async Task SaveScopeAsync()
+    private async Task<bool> SaveScopeAsync(OidcScopeUpdateSubmission submission)
     {
-        if (_selectedScope is null)
-        {
-            _error = "Select a scope first.";
-            _success = null;
-            return;
-        }
-
         _isBusy = true;
         _error = null;
         _success = null;
 
-        var request = new AdminUpdateOidcScopeRequest(
-            DisplayName: _editDisplayName.Trim(),
-            Description: string.IsNullOrWhiteSpace(_editDescription) ? null : _editDescription.Trim(),
-            Resources: ParseMultiline(_editResourcesText));
-
-        var result = await IdentityApi.UpdateOidcScopeAsync(_selectedScope.Name, request);
+        var result = await IdentityApi.UpdateOidcScopeAsync(submission.ScopeName, submission.Request);
 
         _isBusy = false;
 
         if (!result.IsSuccess || result.Value is null)
         {
             _error = result.Error;
-            return;
+            return false;
         }
 
-        _success = $"Updated scope '{result.Value.Name}'.";
         await LoadScopesAsync();
-        SelectScope(result.Value);
+        _success = $"Updated scope '{result.Value.Name}'.";
+        return true;
     }
 
-    private async Task DeleteScopeAsync()
+    private async Task<bool> DeleteScopeAsync(string scopeName)
     {
-        if (_selectedScope is null)
-        {
-            _error = "Select a scope first.";
-            _success = null;
-            return;
-        }
-
         _isBusy = true;
         _error = null;
         _success = null;
 
-        var scopeName = _selectedScope.Name;
         var result = await IdentityApi.DeleteOidcScopeAsync(scopeName);
 
         _isBusy = false;
@@ -168,12 +116,12 @@ public partial class IdentityScopesPage : ComponentBase
         if (!result.IsSuccess)
         {
             _error = result.Error;
-            return;
+            return false;
         }
 
-        _success = $"Deleted scope '{scopeName}'.";
-        ShowListMobile();
         await LoadScopesAsync();
+        _success = $"Deleted scope '{scopeName}'.";
+        return true;
     }
 
     private void ResetCreateForm()
@@ -184,14 +132,14 @@ public partial class IdentityScopesPage : ComponentBase
         _newResourcesText = string.Empty;
     }
 
-    private void ShowListMobile()
+    private void ToggleCreateForm()
     {
-        _isMobileDetailOpen = false;
-        _selectedScopeName = null;
-        _selectedScope = null;
-        _editDisplayName = string.Empty;
-        _editDescription = string.Empty;
-        _editResourcesText = string.Empty;
+        _showCreateForm = !_showCreateForm;
+        if (!_showCreateForm)
+        {
+            ResetCreateForm();
+        }
+
         _error = null;
         _success = null;
     }

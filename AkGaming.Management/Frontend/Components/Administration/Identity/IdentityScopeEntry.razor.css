@@ -1,0 +1,48 @@
+.identity-scope-entry {
+    display: grid;
+    gap: 0.9rem;
+}
+
+.identity-scope-entry-summary {
+    display: grid;
+    grid-template-columns: minmax(220px, 1fr) minmax(220px, 2fr) auto;
+    gap: 0.9rem;
+    align-items: center;
+}
+
+.identity-scope-entry-heading {
+    display: grid;
+    gap: 0.2rem;
+}
+
+.identity-scope-entry-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.identity-scope-entry-chip {
+    padding: 0.25rem 0.6rem;
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--color-highlight-secondary) 10%, transparent);
+    color: var(--color-text-secondary);
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.identity-scope-entry-chip-protected {
+    background: color-mix(in srgb, var(--bs-warning) 20%, transparent);
+    color: #8a5a00;
+}
+
+.identity-scope-entry-editor {
+    display: grid;
+    gap: 1rem;
+    padding-top: 1rem;
+}
+
+@media (max-width: 900px) {
+    .identity-scope-entry-summary {
+        grid-template-columns: 1fr;
+    }
+}
