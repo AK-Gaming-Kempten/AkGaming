@@ -16,6 +16,8 @@ jobs:
   deploy-test:
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
+    env:
+      IDENTITY_TEST_DB_CONNECTION_STRING: ${{ secrets.IDENTITY_TEST_DB_CONNECTION_STRING }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -28,11 +30,11 @@ jobs:
       - name: Add .NET tools to PATH
         run: echo "$HOME/.dotnet/tools" >> "$GITHUB_PATH"
       - name: Apply Test Database Migrations
-        if: ${{ secrets.IDENTITY_TEST_DB_CONNECTION_STRING != '' }}
+        if: ${{ env.IDENTITY_TEST_DB_CONNECTION_STRING != '' }}
         env:
           DOTNET_CLI_HOME: /tmp
           DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
-          ConnectionStrings__IdentityDb: ${{ secrets.IDENTITY_TEST_DB_CONNECTION_STRING }}
+          ConnectionStrings__IdentityDb: ${{ env.IDENTITY_TEST_DB_CONNECTION_STRING }}
         run: dotnet ef database update --project AkGaming.Identity/Migrations/Postgres/AkGaming.Identity.Migrations.Postgres.csproj --context AuthDbContext
       - name: Trigger Coolify Test Deploy
         run: |
@@ -41,6 +43,8 @@ jobs:
   deploy-production:
     if: github.ref == 'refs/tags/identity-publish'
     runs-on: ubuntu-latest
+    env:
+      IDENTITY_PRODUCTION_DB_CONNECTION_STRING: ${{ secrets.IDENTITY_PRODUCTION_DB_CONNECTION_STRING }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -53,11 +57,11 @@ jobs:
       - name: Add .NET tools to PATH
         run: echo "$HOME/.dotnet/tools" >> "$GITHUB_PATH"
       - name: Apply Production Database Migrations
-        if: ${{ secrets.IDENTITY_PRODUCTION_DB_CONNECTION_STRING != '' }}
+        if: ${{ env.IDENTITY_PRODUCTION_DB_CONNECTION_STRING != '' }}
         env:
           DOTNET_CLI_HOME: /tmp
           DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
-          ConnectionStrings__IdentityDb: ${{ secrets.IDENTITY_PRODUCTION_DB_CONNECTION_STRING }}
+          ConnectionStrings__IdentityDb: ${{ env.IDENTITY_PRODUCTION_DB_CONNECTION_STRING }}
         run: dotnet ef database update --project AkGaming.Identity/Migrations/Postgres/AkGaming.Identity.Migrations.Postgres.csproj --context AuthDbContext
       - name: Trigger Coolify Production Deploy
         run: |
