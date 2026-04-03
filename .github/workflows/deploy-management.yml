@@ -49,8 +49,32 @@ jobs:
 
           echo "deploy=$deploy" >> "$GITHUB_OUTPUT"
 
-  deploy-test:
+  test:
     needs: should-deploy
+    if: ${{ always() && ((github.ref == 'refs/heads/main' && needs.should-deploy.outputs.deploy == 'true') || github.ref == 'refs/tags/management-publish') }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+      - name: Restore Management Tests
+        env:
+          DOTNET_CLI_HOME: /tmp
+          DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
+        run: dotnet restore AkGaming.Management/Modules/MemberManagement/Tests/AkGaming.Management.Modules.MemberManagement.Tests.csproj
+      - name: Run Management Tests
+        env:
+          DOTNET_CLI_HOME: /tmp
+          DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
+        run: dotnet test AkGaming.Management/Modules/MemberManagement/Tests/AkGaming.Management.Modules.MemberManagement.Tests.csproj --configuration Release --no-restore
+
+  deploy-test:
+    needs:
+      - should-deploy
+      - test
     if: github.ref == 'refs/heads/main' && needs.should-deploy.outputs.deploy == 'true'
     runs-on: ubuntu-latest
     env:
@@ -143,6 +167,7 @@ jobs:
           curl --fail --request GET "${{ secrets.COOLIFY_WEBHOOK_MANAGEMENT_FRONTEND_TEST }}" \
             --header "Authorization: Bearer ${{ secrets.COOLIFY_TOKEN }}"
   deploy-production:
+    needs: test
     if: github.ref == 'refs/tags/management-publish'
     runs-on: ubuntu-latest
     env:
