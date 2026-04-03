@@ -194,6 +194,9 @@ Notes:
 - The Web API now uses `Migrate()` for SQLite as well as PostgreSQL.
 - Legacy local `management.db` files created via `EnsureCreated()` are reset automatically in Development/Testing the first time the new migration pipeline runs.
 - The deploy workflow can apply PostgreSQL migrations automatically when `MANAGEMENT_TEST_DB_CONNECTION_STRING` and `MANAGEMENT_PRODUCTION_DB_CONNECTION_STRING` are configured as GitHub secrets.
+- If the database is only reachable through SSH, also configure `DB_SSH_HOST`, `DB_SSH_PORT`, `DB_SSH_USER`, `DB_SSH_PRIVATE_KEY`, `DB_SSH_KNOWN_HOSTS`.
+- Tunnel target secrets are optional: `DB_TUNNEL_TARGET_HOST` and `DB_TUNNEL_TARGET_PORT`. They default to `127.0.0.1:5432` on the SSH server.
+- With the tunnel enabled, the CI connection strings must point to the runner-local forwarded ports: test uses `Host=127.0.0.1;Port=55432;...`, production uses `Host=127.0.0.1;Port=55433;...`.
 
 ---
 

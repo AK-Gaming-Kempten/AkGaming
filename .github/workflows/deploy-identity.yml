@@ -55,6 +55,14 @@ jobs:
     runs-on: ubuntu-latest
     env:
       IDENTITY_TEST_DB_CONNECTION_STRING: ${{ secrets.IDENTITY_TEST_DB_CONNECTION_STRING }}
+      DB_SSH_HOST: ${{ secrets.DB_SSH_HOST }}
+      DB_SSH_PORT: ${{ secrets.DB_SSH_PORT }}
+      DB_SSH_USER: ${{ secrets.DB_SSH_USER }}
+      DB_SSH_PRIVATE_KEY: ${{ secrets.DB_SSH_PRIVATE_KEY }}
+      DB_SSH_KNOWN_HOSTS: ${{ secrets.DB_SSH_KNOWN_HOSTS }}
+      DB_TUNNEL_TARGET_HOST: ${{ secrets.DB_TUNNEL_TARGET_HOST }}
+      DB_TUNNEL_TARGET_PORT: ${{ secrets.DB_TUNNEL_TARGET_PORT }}
+      TEST_DB_TUNNEL_LOCAL_PORT: "55432"
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -71,6 +79,54 @@ jobs:
           DOTNET_CLI_HOME: /tmp
           DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
         run: dotnet restore AkGaming.Identity/Migrations/Postgres/AkGaming.Identity.Migrations.Postgres.csproj
+      - name: Configure SSH For Test Database Tunnel
+        if: ${{ env.DB_SSH_HOST != '' && env.DB_SSH_USER != '' && env.DB_SSH_PRIVATE_KEY != '' && env.DB_SSH_KNOWN_HOSTS != '' }}
+        run: |
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "$DB_SSH_PRIVATE_KEY" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          printf '%s\n' "$DB_SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
+          chmod 600 ~/.ssh/known_hosts
+      - name: Open Test Database SSH Tunnel
+        if: ${{ env.DB_SSH_HOST != '' && env.DB_SSH_USER != '' && env.DB_SSH_PRIVATE_KEY != '' && env.DB_SSH_KNOWN_HOSTS != '' }}
+        run: |
+          target_host="${DB_TUNNEL_TARGET_HOST:-127.0.0.1}"
+          target_port="${DB_TUNNEL_TARGET_PORT:-5432}"
+          ssh -i ~/.ssh/id_ed25519 \
+            -p "${DB_SSH_PORT:-22}" \
+            -o IdentitiesOnly=yes \
+            -o ExitOnForwardFailure=yes \
+            -o ServerAliveInterval=30 \
+            -o StrictHostKeyChecking=yes \
+            -fN \
+            -L "127.0.0.1:${TEST_DB_TUNNEL_LOCAL_PORT}:${target_host}:${target_port}" \
+            "${DB_SSH_USER}@${DB_SSH_HOST}"
+      - name: Validate Identity Test Connection String
+        if: ${{ env.IDENTITY_TEST_DB_CONNECTION_STRING != '' }}
+        env:
+          CONNECTION_STRING: ${{ env.IDENTITY_TEST_DB_CONNECTION_STRING }}
+        run: |
+          case "$CONNECTION_STRING" in
+            Host=*|Server=*)
+              ;;
+            *)
+              echo "::error::IDENTITY_TEST_DB_CONNECTION_STRING must be a raw Npgsql connection string like Host=...;Port=5432;Database=...;Username=...;Password=..."
+              echo "::error::Do not include surrounding quotes, a ConnectionStrings__IdentityDb= prefix, or a postgres:// URL."
+              exit 1
+              ;;
+          esac
+
+          if [ -n "$DB_SSH_HOST" ]; then
+            if ! printf '%s\n' "$CONNECTION_STRING" | grep -Eiq '(^|;)(Host|Server)=(127\.0\.0\.1|localhost)(;|$)'; then
+              echo "::error::IDENTITY_TEST_DB_CONNECTION_STRING must use Host=127.0.0.1 or Host=localhost when DB_SSH_* tunnel secrets are configured."
+              exit 1
+            fi
+
+            if ! printf '%s\n' "$CONNECTION_STRING" | grep -Eiq "(^|;)Port=${TEST_DB_TUNNEL_LOCAL_PORT}(;|$)"; then
+              echo "::error::IDENTITY_TEST_DB_CONNECTION_STRING must use Port=${TEST_DB_TUNNEL_LOCAL_PORT} when DB_SSH_* tunnel secrets are configured."
+              exit 1
+            fi
+          fi
       - name: Apply Test Database Migrations
         if: ${{ env.IDENTITY_TEST_DB_CONNECTION_STRING != '' }}
         env:
@@ -87,6 +143,14 @@ jobs:
     runs-on: ubuntu-latest
     env:
       IDENTITY_PRODUCTION_DB_CONNECTION_STRING: ${{ secrets.IDENTITY_PRODUCTION_DB_CONNECTION_STRING }}
+      DB_SSH_HOST: ${{ secrets.DB_SSH_HOST }}
+      DB_SSH_PORT: ${{ secrets.DB_SSH_PORT }}
+      DB_SSH_USER: ${{ secrets.DB_SSH_USER }}
+      DB_SSH_PRIVATE_KEY: ${{ secrets.DB_SSH_PRIVATE_KEY }}
+      DB_SSH_KNOWN_HOSTS: ${{ secrets.DB_SSH_KNOWN_HOSTS }}
+      DB_TUNNEL_TARGET_HOST: ${{ secrets.DB_TUNNEL_TARGET_HOST }}
+      DB_TUNNEL_TARGET_PORT: ${{ secrets.DB_TUNNEL_TARGET_PORT }}
+      PRODUCTION_DB_TUNNEL_LOCAL_PORT: "55433"
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -103,6 +167,54 @@ jobs:
           DOTNET_CLI_HOME: /tmp
           DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
         run: dotnet restore AkGaming.Identity/Migrations/Postgres/AkGaming.Identity.Migrations.Postgres.csproj
+      - name: Configure SSH For Production Database Tunnel
+        if: ${{ env.DB_SSH_HOST != '' && env.DB_SSH_USER != '' && env.DB_SSH_PRIVATE_KEY != '' && env.DB_SSH_KNOWN_HOSTS != '' }}
+        run: |
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "$DB_SSH_PRIVATE_KEY" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          printf '%s\n' "$DB_SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
+          chmod 600 ~/.ssh/known_hosts
+      - name: Open Production Database SSH Tunnel
+        if: ${{ env.DB_SSH_HOST != '' && env.DB_SSH_USER != '' && env.DB_SSH_PRIVATE_KEY != '' && env.DB_SSH_KNOWN_HOSTS != '' }}
+        run: |
+          target_host="${DB_TUNNEL_TARGET_HOST:-127.0.0.1}"
+          target_port="${DB_TUNNEL_TARGET_PORT:-5432}"
+          ssh -i ~/.ssh/id_ed25519 \
+            -p "${DB_SSH_PORT:-22}" \
+            -o IdentitiesOnly=yes \
+            -o ExitOnForwardFailure=yes \
+            -o ServerAliveInterval=30 \
+            -o StrictHostKeyChecking=yes \
+            -fN \
+            -L "127.0.0.1:${PRODUCTION_DB_TUNNEL_LOCAL_PORT}:${target_host}:${target_port}" \
+            "${DB_SSH_USER}@${DB_SSH_HOST}"
+      - name: Validate Identity Production Connection String
+        if: ${{ env.IDENTITY_PRODUCTION_DB_CONNECTION_STRING != '' }}
+        env:
+          CONNECTION_STRING: ${{ env.IDENTITY_PRODUCTION_DB_CONNECTION_STRING }}
+        run: |
+          case "$CONNECTION_STRING" in
+            Host=*|Server=*)
+              ;;
+            *)
+              echo "::error::IDENTITY_PRODUCTION_DB_CONNECTION_STRING must be a raw Npgsql connection string like Host=...;Port=5432;Database=...;Username=...;Password=..."
+              echo "::error::Do not include surrounding quotes, a ConnectionStrings__IdentityDb= prefix, or a postgres:// URL."
+              exit 1
+              ;;
+          esac
+
+          if [ -n "$DB_SSH_HOST" ]; then
+            if ! printf '%s\n' "$CONNECTION_STRING" | grep -Eiq '(^|;)(Host|Server)=(127\.0\.0\.1|localhost)(;|$)'; then
+              echo "::error::IDENTITY_PRODUCTION_DB_CONNECTION_STRING must use Host=127.0.0.1 or Host=localhost when DB_SSH_* tunnel secrets are configured."
+              exit 1
+            fi
+
+            if ! printf '%s\n' "$CONNECTION_STRING" | grep -Eiq "(^|;)Port=${PRODUCTION_DB_TUNNEL_LOCAL_PORT}(;|$)"; then
+              echo "::error::IDENTITY_PRODUCTION_DB_CONNECTION_STRING must use Port=${PRODUCTION_DB_TUNNEL_LOCAL_PORT} when DB_SSH_* tunnel secrets are configured."
+              exit 1
+            fi
+          fi
       - name: Apply Production Database Migrations
         if: ${{ env.IDENTITY_PRODUCTION_DB_CONNECTION_STRING != '' }}
         env:

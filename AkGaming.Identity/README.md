@@ -168,6 +168,13 @@ Discord:
 
 - `Discord__ClientId=...`
 - `Discord__ClientSecret=...`
+
+Deployment notes:
+
+- The deploy workflow can apply PostgreSQL migrations automatically when `IDENTITY_TEST_DB_CONNECTION_STRING` and `IDENTITY_PRODUCTION_DB_CONNECTION_STRING` are configured as GitHub secrets.
+- If the database is only reachable through SSH, also configure `DB_SSH_HOST`, `DB_SSH_PORT`, `DB_SSH_USER`, `DB_SSH_PRIVATE_KEY`, `DB_SSH_KNOWN_HOSTS`.
+- Tunnel target secrets are optional: `DB_TUNNEL_TARGET_HOST` and `DB_TUNNEL_TARGET_PORT`. They default to `127.0.0.1:5432` on the SSH server.
+- With the tunnel enabled, the CI connection strings must point to the runner-local forwarded ports: test uses `Host=127.0.0.1;Port=55432;...`, production uses `Host=127.0.0.1;Port=55433;...`.
 - `Discord__RedirectUri=https://identity.akgaming.de/auth/discord/callback`
 - `Discord__AutoCreateUser=true`
 - `Discord__RequireManualLinkForExistingEmail=true`
