@@ -59,7 +59,6 @@ jobs:
       DB_SSH_PORT: ${{ secrets.DB_SSH_PORT }}
       DB_SSH_USER: ${{ secrets.DB_SSH_USER }}
       DB_SSH_PRIVATE_KEY: ${{ secrets.DB_SSH_PRIVATE_KEY }}
-      DB_SSH_PRIVATE_KEY_BASE64: ${{ secrets.DB_SSH_PRIVATE_KEY_BASE64 }}
       DB_SSH_KNOWN_HOSTS: ${{ secrets.DB_SSH_KNOWN_HOSTS }}
       DB_TUNNEL_TARGET_HOST: ${{ secrets.DB_TUNNEL_TARGET_HOST }}
       DB_TUNNEL_TARGET_PORT: ${{ secrets.DB_TUNNEL_TARGET_PORT }}
@@ -81,12 +80,10 @@ jobs:
           DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
         run: dotnet restore AkGaming.Management/Modules/MemberManagement/Migrations/Postgres/AkGaming.Management.Modules.MemberManagement.Migrations.Postgres.csproj
       - name: Configure SSH For Test Database Tunnel
-        if: ${{ env.DB_SSH_HOST != '' && env.DB_SSH_USER != '' && env.DB_SSH_KNOWN_HOSTS != '' && (env.DB_SSH_PRIVATE_KEY != '' || env.DB_SSH_PRIVATE_KEY_BASE64 != '') }}
+        if: ${{ env.DB_SSH_HOST != '' && env.DB_SSH_USER != '' && env.DB_SSH_PRIVATE_KEY != '' && env.DB_SSH_KNOWN_HOSTS != '' }}
         run: |
           install -m 700 -d ~/.ssh
-          if [ -n "$DB_SSH_PRIVATE_KEY_BASE64" ]; then
-            printf '%s' "$DB_SSH_PRIVATE_KEY_BASE64" | base64 -d | tr -d '\r' > ~/.ssh/id_ed25519
-          elif printf '%s' "$DB_SSH_PRIVATE_KEY" | grep -q '\\n'; then
+          if printf '%s' "$DB_SSH_PRIVATE_KEY" | grep -q '\\n'; then
             printf '%b' "$DB_SSH_PRIVATE_KEY" | tr -d '\r' > ~/.ssh/id_ed25519
           else
             printf '%s\n' "$DB_SSH_PRIVATE_KEY" | tr -d '\r' > ~/.ssh/id_ed25519
@@ -96,7 +93,7 @@ jobs:
           chmod 600 ~/.ssh/known_hosts
           ssh-keygen -y -f ~/.ssh/id_ed25519 >/dev/null
       - name: Open Test Database SSH Tunnel
-        if: ${{ env.DB_SSH_HOST != '' && env.DB_SSH_USER != '' && env.DB_SSH_KNOWN_HOSTS != '' && (env.DB_SSH_PRIVATE_KEY != '' || env.DB_SSH_PRIVATE_KEY_BASE64 != '') }}
+        if: ${{ env.DB_SSH_HOST != '' && env.DB_SSH_USER != '' && env.DB_SSH_PRIVATE_KEY != '' && env.DB_SSH_KNOWN_HOSTS != '' }}
         run: |
           target_host="${DB_TUNNEL_TARGET_HOST:-127.0.0.1}"
           target_port="${DB_TUNNEL_TARGET_PORT:-5432}"
@@ -159,7 +156,6 @@ jobs:
       DB_SSH_PORT: ${{ secrets.DB_SSH_PORT }}
       DB_SSH_USER: ${{ secrets.DB_SSH_USER }}
       DB_SSH_PRIVATE_KEY: ${{ secrets.DB_SSH_PRIVATE_KEY }}
-      DB_SSH_PRIVATE_KEY_BASE64: ${{ secrets.DB_SSH_PRIVATE_KEY_BASE64 }}
       DB_SSH_KNOWN_HOSTS: ${{ secrets.DB_SSH_KNOWN_HOSTS }}
       DB_TUNNEL_TARGET_HOST: ${{ secrets.DB_TUNNEL_TARGET_HOST }}
       DB_TUNNEL_TARGET_PORT: ${{ secrets.DB_TUNNEL_TARGET_PORT }}
@@ -181,12 +177,10 @@ jobs:
           DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
         run: dotnet restore AkGaming.Management/Modules/MemberManagement/Migrations/Postgres/AkGaming.Management.Modules.MemberManagement.Migrations.Postgres.csproj
       - name: Configure SSH For Production Database Tunnel
-        if: ${{ env.DB_SSH_HOST != '' && env.DB_SSH_USER != '' && env.DB_SSH_KNOWN_HOSTS != '' && (env.DB_SSH_PRIVATE_KEY != '' || env.DB_SSH_PRIVATE_KEY_BASE64 != '') }}
+        if: ${{ env.DB_SSH_HOST != '' && env.DB_SSH_USER != '' && env.DB_SSH_PRIVATE_KEY != '' && env.DB_SSH_KNOWN_HOSTS != '' }}
         run: |
           install -m 700 -d ~/.ssh
-          if [ -n "$DB_SSH_PRIVATE_KEY_BASE64" ]; then
-            printf '%s' "$DB_SSH_PRIVATE_KEY_BASE64" | base64 -d | tr -d '\r' > ~/.ssh/id_ed25519
-          elif printf '%s' "$DB_SSH_PRIVATE_KEY" | grep -q '\\n'; then
+          if printf '%s' "$DB_SSH_PRIVATE_KEY" | grep -q '\\n'; then
             printf '%b' "$DB_SSH_PRIVATE_KEY" | tr -d '\r' > ~/.ssh/id_ed25519
           else
             printf '%s\n' "$DB_SSH_PRIVATE_KEY" | tr -d '\r' > ~/.ssh/id_ed25519
@@ -196,7 +190,7 @@ jobs:
           chmod 600 ~/.ssh/known_hosts
           ssh-keygen -y -f ~/.ssh/id_ed25519 >/dev/null
       - name: Open Production Database SSH Tunnel
-        if: ${{ env.DB_SSH_HOST != '' && env.DB_SSH_USER != '' && env.DB_SSH_KNOWN_HOSTS != '' && (env.DB_SSH_PRIVATE_KEY != '' || env.DB_SSH_PRIVATE_KEY_BASE64 != '') }}
+        if: ${{ env.DB_SSH_HOST != '' && env.DB_SSH_USER != '' && env.DB_SSH_PRIVATE_KEY != '' && env.DB_SSH_KNOWN_HOSTS != '' }}
         run: |
           target_host="${DB_TUNNEL_TARGET_HOST:-127.0.0.1}"
           target_port="${DB_TUNNEL_TARGET_PORT:-5432}"
