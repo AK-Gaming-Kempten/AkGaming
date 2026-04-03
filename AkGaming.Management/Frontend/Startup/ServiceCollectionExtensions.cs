@@ -106,7 +106,10 @@ public static class ServiceCollectionExtensions {
         services.AddTransient<ApiAuthorizationHandler>();
 
         var apiBaseUrl = new Uri(config["Api:BaseUrl"]!);
-        var identityApiBaseUrl = new Uri(config["IdentityApi:BaseUrl"] ?? config["OpenIdConnect:Authority"]!);
+        var identityApiBaseUrl = new Uri(
+            string.IsNullOrWhiteSpace(config["IdentityApi:BaseUrl"])
+                ? config["OpenIdConnect:Authority"]!
+                : config["IdentityApi:BaseUrl"]!);
         var allowUntrustedLocalCertificates = env.IsDevelopment() && config.GetValue<bool>("Dev:AllowUntrustedLocalCertificates");
 
         var managementApiClient = services
