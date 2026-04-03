@@ -4,17 +4,54 @@ on:
   push:
     branches: ["main"]
     tags: ["management-publish"]
-    paths:
-      - "AkGaming.Management/**"
-      - "AkGaming.Core/**"
 
 concurrency:
   group: deploy-management-${{ github.ref_name }}
   cancel-in-progress: false
 
 jobs:
-  deploy-test:
+  should-deploy:
     if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    outputs:
+      deploy: ${{ steps.evaluate.outputs.deploy }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Evaluate Management Deploy Trigger
+        id: evaluate
+        env:
+          BEFORE_SHA: ${{ github.event.before }}
+          CURRENT_SHA: ${{ github.sha }}
+        run: |
+          set -eu
+
+          zero_sha="0000000000000000000000000000000000000000"
+          if [ "$BEFORE_SHA" = "$zero_sha" ]; then
+            changed_files="$(git show --pretty='' --name-only "$CURRENT_SHA")"
+            commit_messages="$(git log --format=%B -n 1 "$CURRENT_SHA")"
+          else
+            changed_files="$(git diff --name-only "$BEFORE_SHA" "$CURRENT_SHA")"
+            commit_messages="$(git log --format=%B "$BEFORE_SHA..$CURRENT_SHA")"
+          fi
+
+          deploy=false
+
+          if printf '%s\n' "$changed_files" | grep -Eq '^(AkGaming\.Management/|AkGaming\.Core/)'; then
+            deploy=true
+          fi
+
+          if printf '%s\n' "$commit_messages" | grep -Eiq '\[[^]]*(Management|All Projects|Core)[^]]*\]'; then
+            deploy=true
+          fi
+
+          echo "deploy=$deploy" >> "$GITHUB_OUTPUT"
+
+  deploy-test:
+    needs: should-deploy
+    if: github.ref == 'refs/heads/main' && needs.should-deploy.outputs.deploy == 'true'
     runs-on: ubuntu-latest
     env:
       MANAGEMENT_TEST_DB_CONNECTION_STRING: ${{ secrets.MANAGEMENT_TEST_DB_CONNECTION_STRING }}
@@ -29,6 +66,11 @@ jobs:
         run: dotnet tool install --global dotnet-ef --version 10.*
       - name: Add .NET tools to PATH
         run: echo "$HOME/.dotnet/tools" >> "$GITHUB_PATH"
+      - name: Restore Management Migration Project
+        env:
+          DOTNET_CLI_HOME: /tmp
+          DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
+        run: dotnet restore AkGaming.Management/Modules/MemberManagement/Migrations/Postgres/AkGaming.Management.Modules.MemberManagement.Migrations.Postgres.csproj
       - name: Apply Test Database Migrations
         if: ${{ env.MANAGEMENT_TEST_DB_CONNECTION_STRING != '' }}
         env:
@@ -60,6 +102,11 @@ jobs:
         run: dotnet tool install --global dotnet-ef --version 10.*
       - name: Add .NET tools to PATH
         run: echo "$HOME/.dotnet/tools" >> "$GITHUB_PATH"
+      - name: Restore Management Migration Project
+        env:
+          DOTNET_CLI_HOME: /tmp
+          DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
+        run: dotnet restore AkGaming.Management/Modules/MemberManagement/Migrations/Postgres/AkGaming.Management.Modules.MemberManagement.Migrations.Postgres.csproj
       - name: Apply Production Database Migrations
         if: ${{ env.MANAGEMENT_PRODUCTION_DB_CONNECTION_STRING != '' }}
         env:
