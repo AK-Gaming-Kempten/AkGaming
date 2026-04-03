@@ -1,5 +1,6 @@
 using System.Net.Mail;
 using AkGaming.Core.Common.Email;
+using AkGaming.Core.Constants;
 using AkGaming.Identity.Application.Abstractions;
 using AkGaming.Identity.Application.Common;
 using AkGaming.Identity.Application.ExternalAuth;
@@ -570,6 +571,7 @@ public sealed class AuthService : IAuthService
 
     private async Task<EmailVerificationResponse> IssueEmailVerificationTokenAsync(User user, string? ipAddress, CancellationToken cancellationToken)
     {
+        var identityDisplayName = $"{ClubConstants.Organization.ShortName} Identity";
         var activeTokens = await _repository.GetActiveEmailVerificationTokensByUserIdAsync(user.Id, cancellationToken);
         foreach (var activeToken in activeTokens)
         {
@@ -588,10 +590,10 @@ public sealed class AuthService : IAuthService
             CreatedByIp = ipAddress
         }, cancellationToken);
 
-        var subject = "Verify your AK Gaming Identity email";
+        var subject = $"Verify your {identityDisplayName} email";
         var textBody =
             "Hello,\n\n" +
-            "Please verify your AK Gaming Identity email address.\n\n" +
+            $"Please verify your {identityDisplayName} email address.\n\n" +
             $"Verify instantly: {verifyLink}\n\n" +
             "Or enter this verification token in the identity page:\n" +
             $"{rawToken}\n\n" +
@@ -599,7 +601,7 @@ public sealed class AuthService : IAuthService
             "If you did not request this, you can ignore this email.";
         var htmlBody =
             "<div style=\"font-family:Arial,Helvetica,sans-serif;color:#222;line-height:1.6\">" +
-            "<h2 style=\"margin:0 0 12px;color:#1f2937\">Verify your AK Gaming Identity email</h2>" +
+            $"<h2 style=\"margin:0 0 12px;color:#1f2937\">Verify your {identityDisplayName} email</h2>" +
             "<p style=\"margin:0 0 12px\">Please confirm your email address to secure your account.</p>" +
             $"<p style=\"margin:20px 0\"><a href=\"{verifyLink}\" style=\"background:#286c3f;color:#fff;text-decoration:none;padding:10px 16px;border-radius:4px;display:inline-block;font-weight:600\">Verify Email</a></p>" +
             "<p style=\"margin:0 0 8px\">If the button does not work, use this verification token on the identity page:</p>" +

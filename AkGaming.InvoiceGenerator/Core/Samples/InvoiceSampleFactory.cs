@@ -1,3 +1,4 @@
+using AkGaming.Core.Constants;
 using AkGaming.InvoiceGenerator.Core.Models;
 
 namespace AkGaming.InvoiceGenerator.Core.Samples;
@@ -12,10 +13,10 @@ public static class InvoiceSampleFactory
             ServiceDate = new DateOnly(2026, 03, 15),
             Seller = new InvoiceParty
             {
-                Name = "AK Gaming e.V.",
-                Street = "Bahnhofstraße 61",
-                PostalCode = "87435",
-                City = "Kempten"
+                Name = ClubConstants.Organization.LegalName,
+                Street = ClubConstants.Address.Street,
+                PostalCode = ClubConstants.Address.PostalCode,
+                City = ClubConstants.Address.City
             },
             Buyer = new InvoiceParty
             {
@@ -35,11 +36,11 @@ public static class InvoiceSampleFactory
             PaymentTerms = "Zahlung innerhalb von 14 Tagen ab Rechnungseingang ohne Abzuege auf folgende Konto:",
             BankDetails = new InvoiceBankDetails
             {
-                Iban = "DE59 7336 9920 0000 8872 85",
-                Blz = "7336 9920",
-                Bic = "GENODEF1SFO",
-                AccountHolder = "AK Gaming e.V."
+                Iban = ClubConstants.BankAccount.Iban,
+                Blz = ClubConstants.BankAccount.Blz,
+                Bic = ClubConstants.BankAccount.Bic,
+                AccountHolder = ClubConstants.BankAccount.AccountHolder
             },
-            SignatureName = "Kai Hoeft"
+            SignatureName = ClubConstants.Contacts.FirstChair.Name
         };
 }

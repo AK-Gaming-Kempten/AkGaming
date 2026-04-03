@@ -1,6 +1,7 @@
 using System.Globalization;
 using System.Net;
 using System.Text;
+using AkGaming.Core.Constants;
 using AkGaming.InvoiceGenerator.Core.Models;
 
 namespace AkGaming.InvoiceGenerator.Core.Rendering;
@@ -61,7 +62,7 @@ public sealed class InvoiceHtmlRenderer : IInvoiceHtmlRenderer
         html.AppendLine("    <div class=\"sender\">");
         html.AppendLine("      <div class=\"sender-bar\">");
         if (!string.IsNullOrWhiteSpace(DefaultLogoDataUri))
-            html.AppendLine($"        <img class=\"sender-logo\" alt=\"AK Gaming Logo\" src=\"{DefaultLogoDataUri}\" />");
+            html.AppendLine($"        <img class=\"sender-logo\" alt=\"{ClubConstants.Organization.ShortName} Logo\" src=\"{DefaultLogoDataUri}\" />");
         html.AppendLine($"        <div>{RenderPartySingleLine(invoice.Seller)}</div>");
         html.AppendLine("      </div>");
         html.AppendLine("    </div>");

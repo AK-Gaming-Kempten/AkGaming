@@ -14,11 +14,11 @@
 <body>
   <main class="shell">
     <div class="brand">
-      <img src="/ui/AkGaming_Identity.png" alt="AK Gaming" />
-      <div class="brand-title">AK Gaming <span class="identity">Identity</span></div>
+      <img src="/ui/AkGaming_Identity.png" alt="@ClubConstants.Organization.ShortName" />
+      <div class="brand-title">@ClubConstants.Organization.ShortName <span class="identity">Identity</span></div>
     </div>
     <h1>Create Account</h1>
-    <p class="sub">Create your local account for AK Gaming services.</p>
+    <p class="sub">Create your local account for @ClubConstants.Organization.ShortName services.</p>
 
     <form method="post">
       <input asp-for="ReturnUrl" type="hidden" />
@@ -31,7 +31,7 @@
 
       <label class="checkbox-row">
         <input asp-for="PrivacyPolicyAccepted" type="checkbox" required />
-        <span>I have read and accept the <a href="https://akgaming.de/datenschutz" target="_blank" rel="noopener noreferrer">privacy policy</a>.</span>
+        <span>I have read and accept the <a href="@ClubConstants.Urls.PrivacyPolicy" target="_blank" rel="noopener noreferrer">privacy policy</a>.</span>
       </label>
 
       <button class="primary" type="submit">Create Account</button>

@@ -1,6 +1,7 @@
 using AkGaming.Management.Modules.MemberManagement.Application.Interfaces;
 using AkGaming.Management.Modules.MemberManagement.Application.Services;
 using AkGaming.Core.Common.Email;
+using AkGaming.Core.Constants;
 using AkGaming.Management.Modules.MemberManagement.Domain.Entities;
 using Moq;
 using AkGaming.Core.Common.Generics;
@@ -92,8 +93,8 @@ public class MemberLinkingServiceTests {
 
         Assert.That(result.IsSuccess, Is.True);
         emailSender.Verify(x => x.SendAsync("linking@example.com", It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string?>(), It.IsAny<CancellationToken>()), Times.Once);
-        Assert.That(capturedTextBody, Does.Contain("https://management.akgaming.de/membership/"));
-        Assert.That(capturedHtmlBody, Does.Contain("<a href=\"https://management.akgaming.de/membership/\">update your personal data</a>"));
+        Assert.That(capturedTextBody, Does.Contain(ClubConstants.Urls.ManagementMembership));
+        Assert.That(capturedHtmlBody, Does.Contain($"<a href=\"{ClubConstants.Urls.ManagementMembership}\">update your personal data</a>"));
     }
 
     [Test]
@@ -134,8 +135,8 @@ public class MemberLinkingServiceTests {
 
         Assert.That(result.IsSuccess, Is.True);
         emailSender.Verify(x => x.SendAsync("linking@example.com", It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string?>(), It.IsAny<CancellationToken>()), Times.Once);
-        Assert.That(capturedTextBody, Does.Not.Contain("https://management.akgaming.de/membership/"));
-        Assert.That(capturedHtmlBody, Does.Not.Contain("https://management.akgaming.de/membership/"));
+        Assert.That(capturedTextBody, Does.Not.Contain(ClubConstants.Urls.ManagementMembership));
+        Assert.That(capturedHtmlBody, Does.Not.Contain(ClubConstants.Urls.ManagementMembership));
     }
 
     [Test]
@@ -167,7 +168,7 @@ public class MemberLinkingServiceTests {
         memberLinkingRequestRepository.Setup(x => x.SaveChangesAsync()).ReturnsAsync(Result.Success());
         string? capturedTextBody = null;
         string? capturedHtmlBody = null;
-        emailSender.Setup(x => x.SendAsync("vorstand@akgaming.de", It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string?>(), It.IsAny<CancellationToken>()))
+        emailSender.Setup(x => x.SendAsync(ClubConstants.EmailAddresses.Board, It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string?>(), It.IsAny<CancellationToken>()))
             .Callback<string, string, string, string?, CancellationToken>((_, _, textBody, htmlBody, _) => {
                 capturedTextBody = textBody;
                 capturedHtmlBody = htmlBody;
@@ -177,8 +178,8 @@ public class MemberLinkingServiceTests {
         var result = await service.CreateMemberLinkingRequestAsync(request);
 
         Assert.That(result.IsSuccess, Is.True);
-        emailSender.Verify(x => x.SendAsync("vorstand@akgaming.de", It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string?>(), It.IsAny<CancellationToken>()), Times.Once);
-        Assert.That(capturedTextBody, Does.Contain("https://management.akgaming.de/member-management/requests"));
-        Assert.That(capturedHtmlBody, Does.Contain("https://management.akgaming.de/member-management/requests"));
+        emailSender.Verify(x => x.SendAsync(ClubConstants.EmailAddresses.Board, It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string?>(), It.IsAny<CancellationToken>()), Times.Once);
+        Assert.That(capturedTextBody, Does.Contain(ClubConstants.Urls.ManagementMemberRequests));
+        Assert.That(capturedHtmlBody, Does.Contain(ClubConstants.Urls.ManagementMemberRequests));
     }
 }

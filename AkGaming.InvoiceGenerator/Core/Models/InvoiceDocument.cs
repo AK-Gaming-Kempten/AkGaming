@@ -1,3 +1,5 @@
+using AkGaming.Core.Constants;
+
 namespace AkGaming.InvoiceGenerator.Core.Models;
 
 public sealed class InvoiceDocument
@@ -13,7 +15,7 @@ public sealed class InvoiceDocument
     public string? PaymentTerms { get; init; }
     public InvoiceBankDetails? BankDetails { get; init; }
     public string ClosingText { get; init; } = "Bei Rückfragen stehen wir selbstverstaendlich jederzeit gerne zur Verfügung.";
-    public string SignatureName { get; init; } = "AK Gaming e.V.";
+    public string SignatureName { get; init; } = ClubConstants.Organization.LegalName;
     public string Greeting { get; init; } = "Mit freundlichen Grüßen";
 }
 

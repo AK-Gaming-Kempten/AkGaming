@@ -1,3 +1,4 @@
+@using AkGaming.Core.Constants
 <div class="member-form">
     <EditForm Model="@_application" OnValidSubmit="@ApplyForMembershipAsync">
         <DataAnnotationsValidator />
@@ -80,7 +81,7 @@
                 <div class="form-checkbox-with-text">
                     <InputCheckbox @bind-Value="_application.PrivacyPolicyAccepted"/>
                     <label>
-                        I accept the <a href="https://akgaming.de/datenschutz" target="_blank" rel="noopener noreferrer">privacy policy</a>.
+                        I accept the <a href="@ClubConstants.Urls.PrivacyPolicy" target="_blank" rel="noopener noreferrer">privacy policy</a>.
                     </label>
                 </div>
                 <ValidationMessage For="@(() => _application.PrivacyPolicyAccepted)"/>

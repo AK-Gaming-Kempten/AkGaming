@@ -1,4 +1,5 @@
 using AkGaming.Core.Common.Generics;
+using AkGaming.Core.Constants;
 using AkGaming.Management.Modules.MemberManagement.Application.Interfaces;
 using AkGaming.Management.Modules.MemberManagement.Application.Services;
 using AkGaming.Management.Modules.MemberManagement.Contracts.DTO;
@@ -338,9 +339,9 @@ public class MembershipDueServiceTests {
             Assert.That(result.Value!.RecipientEmail, Is.EqualTo("max@example.com"));
             Assert.That(result.Value!.Subject, Does.Contain("SS 2026"));
             Assert.That(result.Value!.TextBody, Does.Contain("Hi Max!"));
-            Assert.That(result.Value!.TextBody, Does.Contain("DE59 7336 9920 0000 8872 85"));
+            Assert.That(result.Value!.TextBody, Does.Contain(ClubConstants.BankAccount.Iban));
             Assert.That(result.Value!.HtmlBody, Does.Contain("Mitgliedsbeitrag offen"));
-            Assert.That(result.Value!.HtmlBody, Does.Contain("https://akgaming.de/mitgliedschaft/mitgliedsbeitrag"));
+            Assert.That(result.Value!.HtmlBody, Does.Contain(ClubConstants.Urls.MembershipFees));
             Assert.That(result.Value!.HtmlBody, Does.Contain("linear-gradient(145deg,#0f221e,#163328)"));
         }
     }

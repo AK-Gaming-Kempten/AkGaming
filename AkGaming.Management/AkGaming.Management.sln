@@ -52,6 +52,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Sqlite", "Sqlite", "{76694B
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AkGaming.Management.Modules.MemberManagement.Migrations.Sqlite", "Modules\MemberManagement\Migrations\Sqlite\AkGaming.Management.Modules.MemberManagement.Migrations.Sqlite.csproj", "{B86750A2-5DFE-401F-8289-04E0BC4E1716}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AkGaming.Core.Constants", "..\AkGaming.Core\Constants\AkGaming.Core.Constants.csproj", "{9E449909-DD27-4DDD-B167-995E782E3239}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -218,6 +220,18 @@ Global
 		{B86750A2-5DFE-401F-8289-04E0BC4E1716}.Release|x64.Build.0 = Release|Any CPU
 		{B86750A2-5DFE-401F-8289-04E0BC4E1716}.Release|x86.ActiveCfg = Release|Any CPU
 		{B86750A2-5DFE-401F-8289-04E0BC4E1716}.Release|x86.Build.0 = Release|Any CPU
+		{9E449909-DD27-4DDD-B167-995E782E3239}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9E449909-DD27-4DDD-B167-995E782E3239}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9E449909-DD27-4DDD-B167-995E782E3239}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{9E449909-DD27-4DDD-B167-995E782E3239}.Debug|x64.Build.0 = Debug|Any CPU
+		{9E449909-DD27-4DDD-B167-995E782E3239}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{9E449909-DD27-4DDD-B167-995E782E3239}.Debug|x86.Build.0 = Debug|Any CPU
+		{9E449909-DD27-4DDD-B167-995E782E3239}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9E449909-DD27-4DDD-B167-995E782E3239}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9E449909-DD27-4DDD-B167-995E782E3239}.Release|x64.ActiveCfg = Release|Any CPU
+		{9E449909-DD27-4DDD-B167-995E782E3239}.Release|x64.Build.0 = Release|Any CPU
+		{9E449909-DD27-4DDD-B167-995E782E3239}.Release|x86.ActiveCfg = Release|Any CPU
+		{9E449909-DD27-4DDD-B167-995E782E3239}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

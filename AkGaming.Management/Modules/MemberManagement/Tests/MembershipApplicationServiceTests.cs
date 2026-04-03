@@ -2,6 +2,7 @@ using AkGaming.Management.Modules.MemberManagement.Application.Services;
 using Moq;
 using AkGaming.Core.Common.Email;
 using AkGaming.Core.Common.Generics;
+using AkGaming.Core.Constants;
 using AkGaming.Management.Modules.MemberManagement.Application.Interfaces;
 using AkGaming.Management.Modules.MemberManagement.Application.Mapping;
 using AkGaming.Management.Modules.MemberManagement.Contracts.DTO;
@@ -186,7 +187,7 @@ public class MembershipApplicationServiceTests {
         membershipUpdateService.Setup(x => x.UpdateMembershipStatusAsync(memberId, ContractEnums.MembershipStatus.Applicant)).ReturnsAsync(Result.Success());
         string? capturedTextBody = null;
         string? capturedHtmlBody = null;
-        emailSender.Setup(x => x.SendAsync("vorstand@akgaming.de", It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string?>(), It.IsAny<CancellationToken>()))
+        emailSender.Setup(x => x.SendAsync(ClubConstants.EmailAddresses.Board, It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string?>(), It.IsAny<CancellationToken>()))
             .Callback<string, string, string, string?, CancellationToken>((_, _, textBody, htmlBody, _) => {
                 capturedTextBody = textBody;
                 capturedHtmlBody = htmlBody;
@@ -196,8 +197,8 @@ public class MembershipApplicationServiceTests {
         var result = await service.ApplyForMembershipAsync(request);
 
         Assert.That(result.IsSuccess, Is.True);
-        emailSender.Verify(x => x.SendAsync("vorstand@akgaming.de", It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string?>(), It.IsAny<CancellationToken>()), Times.Once);
-        Assert.That(capturedTextBody, Does.Contain("https://management.akgaming.de/member-management/requests"));
-        Assert.That(capturedHtmlBody, Does.Contain("https://management.akgaming.de/member-management/requests"));
+        emailSender.Verify(x => x.SendAsync(ClubConstants.EmailAddresses.Board, It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string?>(), It.IsAny<CancellationToken>()), Times.Once);
+        Assert.That(capturedTextBody, Does.Contain(ClubConstants.Urls.ManagementMemberRequests));
+        Assert.That(capturedHtmlBody, Does.Contain(ClubConstants.Urls.ManagementMemberRequests));
     }
 }

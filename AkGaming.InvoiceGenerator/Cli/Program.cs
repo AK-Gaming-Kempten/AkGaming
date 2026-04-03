@@ -1,3 +1,4 @@
+using AkGaming.Core.Constants;
 using System.Text.Json;
 using AkGaming.InvoiceGenerator.Core.Models;
 using AkGaming.InvoiceGenerator.Core.Rendering;
@@ -103,7 +104,7 @@ static async Task WriteJsonAsync(string path, InvoiceDocument invoice, JsonSeria
 
 static void PrintHelp()
 {
-    Console.WriteLine("AK Gaming Invoice Renderer CLI");
+    Console.WriteLine($"{ClubConstants.Organization.ShortName} Invoice Renderer CLI");
     Console.WriteLine("Usage:");
     Console.WriteLine("  dotnet run --project AkGaming.InvoiceGenerator/Cli -- --sample <sample.json>");
     Console.WriteLine("  dotnet run --project AkGaming.InvoiceGenerator/Cli -- --input <invoice.json> [--output invoice.pdf|invoice.html]");

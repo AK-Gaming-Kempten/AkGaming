@@ -1,13 +1,14 @@
 ﻿@page "/"
+@using AkGaming.Core.Constants
 
 <PageTitle>Management Tool</PageTitle>
 
 <section class="home-hero">
     <div class="home-hero-icon" aria-hidden="true">
-        <img src="images/icons/AKG_Logos/default.png" alt="AK Gaming logo" class="home-hero-logo" />
+        <img src="images/icons/AKG_Logos/default.png" alt="@($"{ClubConstants.Organization.ShortName} logo")" class="home-hero-logo" />
     </div>
 
-    <h1>Welcome to the AK Gaming e.V <br/> Management Tool</h1>
+    <h1>Welcome to the @ClubConstants.Organization.LegalName <br/> Management Tool</h1>
     <p class="home-hero-subtitle">
         We are building a toolset for both members and admins to make organizational task less shit.
     </p>

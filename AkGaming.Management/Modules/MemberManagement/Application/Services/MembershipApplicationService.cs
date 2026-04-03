@@ -1,6 +1,7 @@
 using AkGaming.Core.Common.Extensions;
 using AkGaming.Core.Common.Email;
 using AkGaming.Core.Common.Generics;
+using AkGaming.Core.Constants;
 using AkGaming.Management.Modules.MemberManagement.Application.Interfaces;
 using AkGaming.Management.Modules.MemberManagement.Application.Mapping;
 using AkGaming.Management.Modules.MemberManagement.Contracts.DTO;
@@ -13,7 +14,7 @@ using ContractEnums = AkGaming.Management.Modules.MemberManagement.Contracts.Enu
 namespace AkGaming.Management.Modules.MemberManagement.Application.Services;
 
 public class MembershipApplicationService : IMembershipApplicationService {
-    private const string VorstandEmail = "vorstand@akgaming.de";
+    private static readonly string BoardEmail = ClubConstants.EmailAddresses.Board;
     private readonly IMemberCreationService _creationService;
     private readonly IMemberLinkingService _linkingService;
     private readonly IMembershipUpdateService _membershipUpdateService;
@@ -212,19 +213,19 @@ public class MembershipApplicationService : IMembershipApplicationService {
 
         var decisionText = accepted ? "accepted" : "declined";
         var subject = accepted
-            ? "AK Gaming e.V. membership application accepted"
-            : "AK Gaming e.V. membership application declined";
+            ? $"{ClubConstants.Organization.LegalName} membership application accepted"
+            : $"{ClubConstants.Organization.LegalName} membership application declined";
         var textBody =
             "Hello,\n\n" +
-            $"your AK Gaming e.V. membership application has been {decisionText}.\n\n" +
-            "If you have questions, please contact us at vorstand@akgaming.de.\n\n" +
-            "Kind regards,\nAK Gaming e.V.";
+            $"your {ClubConstants.Organization.LegalName} membership application has been {decisionText}.\n\n" +
+            $"If you have questions, please contact us at {BoardEmail}.\n\n" +
+            $"Kind regards,\n{ClubConstants.Organization.LegalName}";
         var htmlBody =
             "<div style=\"font-family:Arial,Helvetica,sans-serif;color:#222;line-height:1.6\">" +
             "<p style=\"margin:0 0 12px\">Hello,</p>" +
-            $"<p style=\"margin:0 0 12px\">Your AK Gaming e.V. membership application has been <strong>{decisionText}</strong>.</p>" +
-            "<p style=\"margin:0 0 12px\">If you have questions, please contact us at vorstand@akgaming.de.</p>" +
-            "<p style=\"margin:0\">Kind regards,<br/>AK Gaming e.V.</p>" +
+            $"<p style=\"margin:0 0 12px\">Your {ClubConstants.Organization.LegalName} membership application has been <strong>{decisionText}</strong>.</p>" +
+            $"<p style=\"margin:0 0 12px\">If you have questions, please contact us at {BoardEmail}.</p>" +
+            $"<p style=\"margin:0\">Kind regards,<br/>{ClubConstants.Organization.LegalName}</p>" +
             "</div>";
 
         try {
@@ -236,11 +237,10 @@ public class MembershipApplicationService : IMembershipApplicationService {
     }
 
     private async Task SendMembershipApplicationCreatedNotificationEmailAsync(MembershipApplicationRequest request) {
-        const string adminRequestsUrl = "https://management.akgaming.de/member-management/requests";
-        var subject = "AK Gaming e.V. new membership application";
+        var subject = $"{ClubConstants.Organization.LegalName} new membership application";
         var textBody =
             "A new membership application was created.\n\n" +
-            $"Open requests in admin panel: {adminRequestsUrl}\n\n" +
+            $"Open requests in admin panel: {ClubConstants.Urls.ManagementMemberRequests}\n\n" +
             $"RequestId: {request.Id}\n" +
             $"UserId: {request.IssuingUserId}\n" +
             $"Name: {request.FirstName} {request.LastName}\n" +
@@ -252,7 +252,7 @@ public class MembershipApplicationService : IMembershipApplicationService {
         var htmlBody =
             "<div style=\"font-family:Arial,Helvetica,sans-serif;color:#222;line-height:1.6\">" +
             "<p style=\"margin:0 0 12px\">A new membership application was created.</p>" +
-            $"<p style=\"margin:0 0 12px\"><a href=\"{adminRequestsUrl}\">Open requests in admin panel</a></p>" +
+            $"<p style=\"margin:0 0 12px\"><a href=\"{ClubConstants.Urls.ManagementMemberRequests}\">Open requests in admin panel</a></p>" +
             "<table style=\"border-collapse:collapse\">" +
             $"<tr><td style=\"padding:2px 8px 2px 0\"><strong>RequestId</strong></td><td style=\"padding:2px 0\">{request.Id}</td></tr>" +
             $"<tr><td style=\"padding:2px 8px 2px 0\"><strong>UserId</strong></td><td style=\"padding:2px 0\">{request.IssuingUserId}</td></tr>" +
@@ -266,10 +266,10 @@ public class MembershipApplicationService : IMembershipApplicationService {
             "</div>";
 
         try {
-            await _emailSender.SendAsync(VorstandEmail, subject, textBody, htmlBody, CancellationToken.None);
+            await _emailSender.SendAsync(BoardEmail, subject, textBody, htmlBody, CancellationToken.None);
         }
         catch (Exception exception) {
-            _logger.LogError(exception, "Failed to send membership application created notification to {Email}.", VorstandEmail);
+            _logger.LogError(exception, "Failed to send membership application created notification to {Email}.", BoardEmail);
         }
     }
 }

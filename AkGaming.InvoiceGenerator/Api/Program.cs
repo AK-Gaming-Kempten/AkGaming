@@ -1,3 +1,4 @@
+using AkGaming.Core.Constants;
 using AkGaming.InvoiceGenerator.Core.Models;
 using AkGaming.InvoiceGenerator.Core.Rendering;
 using AkGaming.InvoiceGenerator.Core.Samples;
@@ -34,7 +35,7 @@ app.MapPost("/api/invoices/render-html", (InvoiceDocument invoice, IInvoiceHtmlR
     return Results.Content(html, "text/html; charset=utf-8");
 })
 .WithName("RenderInvoiceHtml")
-.WithDescription("Renders invoice HTML using AK Gaming core theme colors.");
+.WithDescription($"Renders invoice HTML using {ClubConstants.Organization.ShortName} core theme colors.");
 
 app.MapPost("/api/invoices/render-file", (InvoiceDocument invoice, IInvoiceHtmlRenderer renderer) =>
 {

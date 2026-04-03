@@ -1,4 +1,5 @@
 @using AkGaming.Management.Modules.MemberManagement.Contracts.Enums
+@using AkGaming.Core.Constants
 <div class="member-form">
     <EditForm Model="@_request" OnValidSubmit="@RequestMemberLinkingAsync">
         <DataAnnotationsValidator />
@@ -44,7 +45,7 @@
                 <div class="form-checkbox-with-text">
                     <InputCheckbox @bind-Value="_request.PrivacyPolicyAccepted"/>
                     <label>
-                        I accept the <a href="https://akgaming.de/datenschutz" target="_blank" rel="noopener noreferrer">privacy policy</a>.
+                        I accept the <a href="@ClubConstants.Urls.PrivacyPolicy" target="_blank" rel="noopener noreferrer">privacy policy</a>.
                     </label>
                 </div>
                 <ValidationMessage For="@(() => _request.PrivacyPolicyAccepted)"/>

@@ -1,3 +1,4 @@
+@using AkGaming.Core.Constants
 @if (PendingLinkingRequest != null) {
        <div class="no-member">
            <div class="card">
@@ -16,7 +17,7 @@ else {
                 <div class="choice-icon bi-person-check"></div>
                 <div class="choice-text">
                     <div class="choice-flavor">
-                        You already are a member of AK Gaming e.V.?
+                        You already are a member of @ClubConstants.Organization.LegalName?
                     </div>
                     <div class="choice-action">
                         Request linking to an existing member profile
@@ -28,7 +29,7 @@ else {
                 <div class="choice-icon bi-person-plus"></div>
                 <div class="choice-text">
                     <div class="choice-flavor">
-                        You came here to become a member of AK Gaming e.V.?
+                        You came here to become a member of @ClubConstants.Organization.LegalName?
                     </div>
                     <div class="choice-action">
                         Apply for Membership

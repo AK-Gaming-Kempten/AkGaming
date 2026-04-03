@@ -1,4 +1,5 @@
 using System.Text.Json;
+using AkGaming.Core.Constants;
 using AkGaming.Management.Frontend.ApiClients;
 using AkGaming.Management.Modules.MemberManagement.Contracts.DTO;
 using AkGaming.Management.Modules.MemberManagement.Contracts.Enums;
@@ -118,9 +119,9 @@ public partial class MemberInfoPanel : ComponentBase {
     private static string ValueOrDash(string? value) =>
         string.IsNullOrWhiteSpace(value) ? "-" : value;
 
-    private string WebsiteUrl => "https://akgaming.de";
-    private string SatzungUrl => "https://akgaming.de/Vereinssatzung-AK-Gaming-e.V..pdf";
-    private string DiscordUrl => "https://discord.com/invite/5J5uJKJAhT";
+    private string WebsiteUrl => ClubConstants.Urls.Website;
+    private string SatzungUrl => ClubConstants.Urls.ArticlesOfAssociation;
+    private string DiscordUrl => ClubConstants.Urls.DiscordInvite;
 
     private static MemberDto Clone(MemberDto source) =>
         JsonSerializer.Deserialize<MemberDto>(JsonSerializer.Serialize(source)) ?? new MemberDto();

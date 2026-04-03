@@ -12,6 +12,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\AkGaming.Core\Constants\AkGaming.Core.Constants.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="QuestPDF" Version="2026.2.4" />
   </ItemGroup>
 

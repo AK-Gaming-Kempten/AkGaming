@@ -3,6 +3,9 @@
   <Folder Name="/AkGaming.Core/Common/">
     <Project Path="AkGaming.Core/Common/AkGaming.Core.Common.csproj" />
   </Folder>
+  <Folder Name="/AkGaming.Core/Constants/">
+    <Project Path="AkGaming.Core/Constants/AkGaming.Core.Constants.csproj" />
+  </Folder>
   <Folder Name="/AkGaming.Identity/" />
   <Folder Name="/AkGaming.Identity/Api/">
     <Project Path="AkGaming.Identity/Api/AkGaming.Identity.Api.csproj" />

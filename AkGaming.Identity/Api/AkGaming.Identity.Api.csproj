@@ -18,6 +18,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\AkGaming.Core\Constants\AkGaming.Core.Constants.csproj" />
     <ProjectReference Include="..\Contracts\AkGaming.Identity.Contracts.csproj" />
     <ProjectReference Include="..\Application\AkGaming.Identity.Application.csproj" />
     <ProjectReference Include="..\Infrastructure\AkGaming.Identity.Infrastructure.csproj" />
