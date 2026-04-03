@@ -83,15 +83,10 @@ jobs:
         if: ${{ env.DB_SSH_HOST != '' && env.DB_SSH_USER != '' && env.DB_SSH_PRIVATE_KEY != '' && env.DB_SSH_KNOWN_HOSTS != '' }}
         run: |
           install -m 700 -d ~/.ssh
-          if printf '%s' "$DB_SSH_PRIVATE_KEY" | grep -q '\\n'; then
-            printf '%b' "$DB_SSH_PRIVATE_KEY" | tr -d '\r' > ~/.ssh/id_ed25519
-          else
-            printf '%s\n' "$DB_SSH_PRIVATE_KEY" | tr -d '\r' > ~/.ssh/id_ed25519
-          fi
+          printf '%s\n' "$DB_SSH_PRIVATE_KEY" > ~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
           printf '%s\n' "$DB_SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
           chmod 600 ~/.ssh/known_hosts
-          ssh-keygen -y -f ~/.ssh/id_ed25519 >/dev/null
       - name: Open Test Database SSH Tunnel
         if: ${{ env.DB_SSH_HOST != '' && env.DB_SSH_USER != '' && env.DB_SSH_PRIVATE_KEY != '' && env.DB_SSH_KNOWN_HOSTS != '' }}
         run: |
@@ -180,15 +175,10 @@ jobs:
         if: ${{ env.DB_SSH_HOST != '' && env.DB_SSH_USER != '' && env.DB_SSH_PRIVATE_KEY != '' && env.DB_SSH_KNOWN_HOSTS != '' }}
         run: |
           install -m 700 -d ~/.ssh
-          if printf '%s' "$DB_SSH_PRIVATE_KEY" | grep -q '\\n'; then
-            printf '%b' "$DB_SSH_PRIVATE_KEY" | tr -d '\r' > ~/.ssh/id_ed25519
-          else
-            printf '%s\n' "$DB_SSH_PRIVATE_KEY" | tr -d '\r' > ~/.ssh/id_ed25519
-          fi
+          printf '%s\n' "$DB_SSH_PRIVATE_KEY" > ~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
           printf '%s\n' "$DB_SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
           chmod 600 ~/.ssh/known_hosts
-          ssh-keygen -y -f ~/.ssh/id_ed25519 >/dev/null
       - name: Open Production Database SSH Tunnel
         if: ${{ env.DB_SSH_HOST != '' && env.DB_SSH_USER != '' && env.DB_SSH_PRIVATE_KEY != '' && env.DB_SSH_KNOWN_HOSTS != '' }}
         run: |
