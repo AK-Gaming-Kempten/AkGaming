@@ -1,43 +1,116 @@
 # AkGaming.Identity
 
-Identity provider service for AK Gaming e.V. applications.
+OIDC and OAuth 2.0 provider for AK Gaming applications.
 
-It supports:
-- Email/password authentication with hashed passwords.
-- JWT access and refresh tokens.
-- Refresh token rotation and reuse detection.
-- Discord OAuth2 login and account linking.
-- Email verification via token and direct verification link.
-- Role-based authorization with admin role management endpoints.
-- Audit logging for security-relevant operations.
-- SQLite for development and PostgreSQL for production.
+The current server is based on OpenIddict and issues authorization codes, access tokens, refresh tokens, and identity tokens. It also keeps the existing AK Gaming user store, role model, audit logging, email verification, and Discord account links.
 
-## Architecture
+## Current Role In The System
 
-Projects:
-- `AkGaming.Identity.Api`: Minimal API host, static UI pages, endpoint mappings.
-- `AkGaming.Identity.Application`: Use-case logic and auth orchestration.
-- `AkGaming.Identity.Domain`: Entities and domain constants.
-- `AkGaming.Identity.Infrastructure`: EF Core persistence, security, Discord, SMTP.
-- `AkGaming.Identity.Contracts`: Shared request/response DTOs (NuGet-packable).
-- `AkGaming.Identity.Application.UnitTests`: Unit tests.
-- `AkGaming.Identity.Api.IntegrationTests`: Integration tests.
+`AkGaming.Identity` is the central authentication server.
 
-## Tech Stack
+It currently serves three jobs:
 
-- .NET 10
-- ASP.NET Core Minimal APIs
-- EF Core
-- SQLite / PostgreSQL
-- JWT Bearer auth
-- Discord OAuth2
-- SMTP for verification emails
+- local account and session management for the identity site
+- OpenID Connect / OAuth 2.0 token issuance for first-party and third-party clients
+- token validation for APIs hosted inside the identity service itself
+
+The management tool is wired to it as:
+
+- `AkGaming.Management.Frontend`: confidential OIDC client using authorization code + PKCE
+- `AkGaming.Management.WebApi`: resource server validating access tokens from this issuer
+
+## Projects
+
+- `AkGaming.Identity.Api`: ASP.NET Core host, OIDC endpoints, Razor Pages, admin endpoints
+- `AkGaming.Identity.Application`: auth use cases and orchestration
+- `AkGaming.Identity.Domain`: entities and domain constants
+- `AkGaming.Identity.Infrastructure`: EF Core, OpenIddict persistence, Discord, SMTP, security
+- `AkGaming.Identity.Contracts`: shared contracts
+- `AkGaming.Identity.Tests`: unit and integration tests
+
+## Protocol Surface
+
+The server is configured in [Program.cs](/home/hexasiel/Programming/AkGaming/AkGaming.Identity/Api/Program.cs).
+
+OpenIddict endpoints:
+
+- `/connect/authorize`
+- `/connect/token`
+- `/connect/userinfo`
+- `/connect/logout`
+
+Enabled flows:
+
+- authorization code
+- refresh token
+
+Security settings:
+
+- PKCE required
+- access token encryption disabled
+- development signing/encryption certs in Development and Testing
+- configured PFX certificates outside Development and Testing
+
+## How Management Is Wired To Identity
+
+The integration has three configuration sides.
+
+### 1. Identity registers the management frontend as a client
+
+Client registrations live under `OpenIddict:Applications` in:
+
+- [appsettings.json](/home/hexasiel/Programming/AkGaming/AkGaming.Identity/Api/appsettings.json)
+- [appsettings.Development.json](/home/hexasiel/Programming/AkGaming/AkGaming.Identity/Api/appsettings.Development.json)
+- [appsettings.Production.json](/home/hexasiel/Programming/AkGaming/AkGaming.Identity/Api/appsettings.Production.json)
+
+The management frontend is currently registered as:
+
+- `ClientId`: `akgaming-management-frontend`
+- `ClientType`: `confidential`
+- `RequirePkce`: `true`
+- scopes: `openid`, `profile`, `email`, `roles`, `offline_access`, `management_api`
+
+That configuration is seeded on startup by [OpenIddictSeeder.cs](/home/hexasiel/Programming/AkGaming/AkGaming.Identity/Infrastructure/OpenIddict/OpenIddictSeeder.cs).
+
+### 2. Management frontend uses matching OIDC client settings
+
+The frontend reads `OpenIdConnect` from:
+
+- [AkGaming.Management/Frontend/appsettings.json](/home/hexasiel/Programming/AkGaming/AkGaming.Management/Frontend/appsettings.json)
+- [AkGaming.Management/Frontend/appsettings.Development.json](/home/hexasiel/Programming/AkGaming/AkGaming.Management/Frontend/appsettings.Development.json)
+
+Important values:
+
+- `Authority`
+- `ClientId`
+- `ClientSecret`
+- `CallbackPath`
+- `SignedOutCallbackPath`
+- `Scopes`
+
+The frontend config is consumed in [ServiceCollectionExtensions.cs](/home/hexasiel/Programming/AkGaming/AkGaming.Management/Frontend/Startup/ServiceCollectionExtensions.cs).
+
+### 3. Management Web API trusts the issuer and requires scope
+
+The Web API reads `OpenIddictValidation:Issuer` from:
+
+- [AkGaming.Management/WebApi/appsettings.json](/home/hexasiel/Programming/AkGaming/AkGaming.Management/WebApi/appsettings.json)
+- [AkGaming.Management/WebApi/appsettings.Development.json](/home/hexasiel/Programming/AkGaming/AkGaming.Management/WebApi/appsettings.Development.json)
+
+The Web API validates tokens against the issuer and requires the `management_api` scope in [ServiceCollectionExtensions.cs](/home/hexasiel/Programming/AkGaming/AkGaming.Management/WebApi/Startup/ServiceCollectionExtensions.cs).
+
+### Scope mapping
+
+`management_api` is defined as an OpenIddict scope in [appsettings.json](/home/hexasiel/Programming/AkGaming/AkGaming.Identity/Api/appsettings.json) and mapped into token resources in [OidcPrincipalFactory.cs](/home/hexasiel/Programming/AkGaming/AkGaming.Identity/Api/OpenIddict/OidcPrincipalFactory.cs).
+
+If a client does not request `management_api`, the management Web API should reject the token.
 
 ## Local Development
 
 Prerequisites:
+
 - .NET SDK 10.x
-- Optional: PostgreSQL (if not using SQLite)
+- optional PostgreSQL if you do not want SQLite
 
 Run:
 
@@ -47,17 +120,23 @@ dotnet build AkGaming.Identity.sln
 dotnet run --project Api/AkGaming.Identity.Api.csproj
 ```
 
-Dev URLs:
-- App root: `https://localhost:5001/`
-- Login page: `https://localhost:5001/login`
-- Register page: `https://localhost:5001/register`
-- Swagger (Development only): `https://localhost:5001/swagger`
+Configuration notes:
 
-## Configuration
+- base config in [appsettings.json](/home/hexasiel/Programming/AkGaming/AkGaming.Identity/Api/appsettings.json) uses `https://localhost:5001`
+- current development override in [appsettings.Development.json](/home/hexasiel/Programming/AkGaming/AkGaming.Identity/Api/appsettings.Development.json) uses `https://localhost:7288`
 
-Configuration is loaded from `appsettings*.json` and environment variables.
+What actually matters is that:
 
-Main sections:
+- `App:PublicBaseUrl`
+- `OpenIddict:Issuer`
+- client redirect URIs
+
+all match the URL you run publicly behind.
+
+## Configuration Model
+
+The main config sections are:
+
 - `Database`
 - `ConnectionStrings`
 - `Jwt`
@@ -65,29 +144,44 @@ Main sections:
 - `AuthHardening`
 - `Smtp`
 - `App`
+- `OpenIddict`
 - `Bridge`
+
+`Jwt` is still used for token lifetime settings in the current host, even though new interactive clients should use OIDC rather than the old custom token bridge.
 
 ### Important Environment Variables
 
-Use double underscores for nested config keys:
+Use double underscores for nesting.
+
+General host:
 
 - `Database__Provider=Sqlite|Postgres`
 - `ConnectionStrings__IdentityDb=...`
-- `Jwt__Issuer=AkGaming.Identity`
-- `Jwt__Audience=AkGaming.Clients`
-- `Jwt__SecretKey=<min-32-chars>`
+- `App__PublicBaseUrl=https://identity.akgaming.de`
+
+Token lifetime settings:
+
 - `Jwt__AccessTokenMinutes=15`
 - `Jwt__RefreshTokenDays=7`
+
+Discord:
+
 - `Discord__ClientId=...`
 - `Discord__ClientSecret=...`
 - `Discord__RedirectUri=https://identity.akgaming.de/auth/discord/callback`
 - `Discord__AutoCreateUser=true`
 - `Discord__RequireManualLinkForExistingEmail=true`
+
+Login hardening:
+
 - `AuthHardening__MaxFailedLoginAttempts=5`
 - `AuthHardening__LockoutMinutes=15`
 - `AuthHardening__RequireVerifiedEmailForLogin=true`
 - `AuthHardening__EmailVerificationTokenHours=24`
 - `AuthHardening__ExposeEmailVerificationToken=false`
+
+SMTP:
+
 - `Smtp__Enabled=true`
 - `Smtp__Host=smtp.example.com`
 - `Smtp__Port=587`
@@ -96,174 +190,196 @@ Use double underscores for nested config keys:
 - `Smtp__Password=...`
 - `Smtp__FromEmail=no-reply@akgaming.de`
 - `Smtp__FromName=AK Gaming Identity`
-- `App__PublicBaseUrl=https://identity.akgaming.de`
-- `Bridge__AllowedRedirectUris__0=https://management.akgaming.de/authentication/callback`
-- `Bridge__AllowedRedirectUris__1=https://*.akgaming.de/authentication/callback`
 
-## Database and Migrations
+OpenIddict issuer and certificates:
 
-Apply PostgreSQL migrations:
+- `OpenIddict__Issuer=https://identity.akgaming.de`
+- `OpenIddict__Credentials__Signing__Path=/app/certificates/openiddict-signing.pfx`
+- `OpenIddict__Credentials__Signing__Password=...`
+- `OpenIddict__Credentials__Encryption__Path=/app/certificates/openiddict-encryption.pfx`
+- `OpenIddict__Credentials__Encryption__Password=...`
 
-```bash
-dotnet ef database update \
-  --project Migrations/Postgres/AkGaming.Identity.Migrations.Postgres.csproj \
-  --context AuthDbContext
+Custom scope definitions:
+
+- `OpenIddict__Scopes__0__Name=management_api`
+- `OpenIddict__Scopes__0__DisplayName=Management API`
+- `OpenIddict__Scopes__0__Resources__0=management_api`
+
+Client definitions:
+
+- `OpenIddict__Applications__0__ClientId=...`
+- `OpenIddict__Applications__0__ClientSecret=...`
+- `OpenIddict__Applications__0__DisplayName=...`
+- `OpenIddict__Applications__0__ConsentType=implicit|explicit|external|systematic`
+- `OpenIddict__Applications__0__ClientType=public|confidential`
+- `OpenIddict__Applications__0__RequirePkce=true`
+- `OpenIddict__Applications__0__RedirectUris__0=https://app.example.com/signin-oidc`
+- `OpenIddict__Applications__0__PostLogoutRedirectUris__0=https://app.example.com/signout-callback-oidc`
+- `OpenIddict__Applications__0__Scopes__0=openid`
+- `OpenIddict__Applications__0__Scopes__1=profile`
+
+Legacy bridge allowlist:
+
+- `Bridge__AllowedRedirectUris__0=https://legacy.example.com/authentication/callback`
+
+## Adding A New OIDC Client
+
+Add a new entry under `OpenIddict:Applications` in the identity config.
+
+The option structure is defined in [OpenIddictSeedOptions.cs](/home/hexasiel/Programming/AkGaming/AkGaming.Identity/Infrastructure/OpenIddict/OpenIddictSeedOptions.cs).
+
+Example:
+
+```json
+{
+  "ClientId": "my-new-client",
+  "ClientSecret": "set-this-for-confidential-clients",
+  "DisplayName": "My New Client",
+  "ConsentType": "explicit",
+  "ClientType": "confidential",
+  "RequirePkce": true,
+  "AllowAuthorizationCodeFlow": true,
+  "AllowRefreshTokenFlow": true,
+  "RedirectUris": [
+    "https://app.example.com/signin-oidc"
+  ],
+  "PostLogoutRedirectUris": [
+    "https://app.example.com/signout-callback-oidc"
+  ],
+  "Scopes": [
+    "openid",
+    "profile",
+    "email",
+    "roles",
+    "offline_access"
+  ]
+}
 ```
 
-Apply SQLite migrations:
+Guidance:
 
-```bash
-dotnet ef database update \
-  --project Migrations/Sqlite/AkGaming.Identity.Migrations.Sqlite.csproj \
-  --context AuthDbContext
+- use `confidential` for server-side apps that can keep a secret
+- use `public` for SPA, mobile, and desktop apps
+- keep `RequirePkce=true` for both
+- use `openid` if the client needs login
+- add `offline_access` if the client needs refresh tokens
+- add custom API scopes only if the client should call those APIs
+
+Then configure the client app with matching values for:
+
+- authority
+- client id
+- client secret if confidential
+- callback paths
+- requested scopes
+
+### Important Seeder Limitation
+
+The current seeder only creates missing applications and scopes. It does not update existing ones.
+
+This means:
+
+- adding a new client works
+- adding a new scope works
+- changing an existing client's secret, redirect URIs, consent type, or scopes will not be applied automatically
+
+If you need to change an existing client, either:
+
+- update the OpenIddict application record manually in the database, or
+- delete the existing application row and restart the identity service so it is seeded again
+
+This behavior comes from [OpenIddictSeeder.cs](/home/hexasiel/Programming/AkGaming/AkGaming.Identity/Infrastructure/OpenIddict/OpenIddictSeeder.cs).
+
+## Adding A New Protected API
+
+If you want a new client to call another API, do not reuse `management_api` unless it is truly the same API boundary.
+
+Instead:
+
+1. add a new scope under `OpenIddict:Scopes`
+2. allow that scope on the relevant clients
+3. map the scope to a resource in [OidcPrincipalFactory.cs](/home/hexasiel/Programming/AkGaming/AkGaming.Identity/Api/OpenIddict/OidcPrincipalFactory.cs)
+4. require that scope in the target API's authorization policy
+
+Example scope:
+
+```json
+{
+  "Name": "billing_api",
+  "DisplayName": "Billing API",
+  "Resources": [
+    "billing_api"
+  ]
+}
 ```
 
-Create a new PostgreSQL migration:
+You must also extend the principal factory similarly to the existing `management_api` mapping.
 
-```bash
-dotnet ef migrations add <MigrationName> \
-  --project Migrations/Postgres/AkGaming.Identity.Migrations.Postgres.csproj \
-  --context AuthDbContext
-```
+## Certificates
 
-Create a matching SQLite migration:
+In Development and Testing, the host uses OpenIddict development certificates automatically.
 
-```bash
-dotnet ef migrations add <MigrationName> \
-  --project Migrations/Sqlite/AkGaming.Identity.Migrations.Sqlite.csproj \
-  --context AuthDbContext
-```
+Outside those environments, it loads configured PFX files from:
 
-Notes:
-- Keep PostgreSQL and SQLite migrations in sync whenever the model changes.
-- The API applies the configured provider's migrations automatically on startup.
-- The deploy workflow can also apply PostgreSQL migrations when `IDENTITY_TEST_DB_CONNECTION_STRING` and `IDENTITY_PRODUCTION_DB_CONNECTION_STRING` are configured as GitHub secrets.
+- `OpenIddict:Credentials:Signing`
+- `OpenIddict:Credentials:Encryption`
 
-## Docker and Deployment
+Those options are defined in [OpenIddictCredentialOptions.cs](/home/hexasiel/Programming/AkGaming/AkGaming.Identity/Infrastructure/OpenIddict/OpenIddictCredentialOptions.cs).
 
-The API listens on port `8080` in container:
-- `ASPNETCORE_URLS=http://+:8080`
-- `EXPOSE 8080`
+Production should not store certificate passwords in committed `appsettings` files. Use environment variables or your secret store.
 
-If you run behind a reverse proxy (for example Coolify), route external HTTPS traffic to container port `8080`.
+## Database And Startup Behavior
 
-## Authentication Flows
+On startup the host:
 
-### Email/Password
+1. applies EF Core migrations
+2. seeds OpenIddict scopes
+3. seeds OpenIddict applications
 
-1. `POST /auth/register`
-2. `POST /auth/login`
-3. Use `accessToken` as bearer token.
-4. Refresh with `POST /auth/refresh`.
-5. Revoke refresh token with `POST /auth/logout`.
+This happens in [Program.cs](/home/hexasiel/Programming/AkGaming/AkGaming.Identity/Api/Program.cs).
 
-### Discord OAuth2
+## Legacy Endpoints
 
-1. Start: `GET /auth/discord/start`
-2. Callback: `GET /auth/discord/callback?code=...&state=...`
-3. Link for authenticated user: `POST /auth/discord/link`
+Some legacy custom auth and bridge endpoints still exist for compatibility, but new clients should use the OpenIddict endpoints instead of the old fragment-based token bridge.
 
-### Email Verification
+If you integrate a new application, use:
 
-- Request by email: `POST /auth/email/send-verification`
-- Request for current user: `POST /auth/email/send-verification/me`
-- Verify by token: `POST /auth/email/verify`
-- Verify by link: `GET /auth/email/verify-link?token=...`
+- `/connect/authorize`
+- `/connect/token`
+- `/connect/userinfo`
+- `/connect/logout`
 
-## Redirect Bridge Flow (for other apps)
+Do not build new integrations on:
 
-Use this when another app redirects to Identity and wants tokens back after login.
+- `/auth/redirect/finalize`
+- the old fragment token callback flow
 
-1. Redirect user to:
-- `GET /login?redirect_uri=<callback>&state=<opaque-state>`
+## Production Notes
 
-2. Identity UI logs in user and then calls:
-- `POST /auth/redirect/finalize`
+Recommended production overrides:
 
-3. Identity validates callback URL against `Bridge:AllowedRedirectUris`.
+- move all secrets to environment variables or secret store
+- set `OpenIddict__Issuer` and `App__PublicBaseUrl` to the public HTTPS URL
+- configure signing and encryption certificate paths/passwords
+- configure real database connection strings
+- configure Discord and SMTP secrets
 
-4. Identity returns `redirectUrl` containing tokens in URL fragment:
-- `https://your-app/callback#access_token=...&refresh_token=...&expires_at=...&state=...`
+At minimum, do not commit real values for:
 
-Security notes:
-- Redirect URI must be absolute `http/https`.
-- Wildcards support subdomains only, for example `https://*.akgaming.de/authentication/callback`.
-- `https://*.akgaming.de` does not match root domain `https://akgaming.de`.
+- `OpenIddict__Credentials__Signing__Password`
+- `OpenIddict__Credentials__Encryption__Password`
+- `OpenIddict__Applications__*__ClientSecret`
+- `Discord__ClientSecret`
+- `Smtp__Password`
+- `ConnectionStrings__IdentityDb`
 
-## API Endpoints
+## Related Files
 
-### Auth Endpoints
-
-- `POST /auth/register` body `RegisterRequest` -> `AuthResponse`
-- `POST /auth/login` body `LoginRequest` -> `AuthResponse`
-- `POST /auth/refresh` body `RefreshRequest` -> `AuthResponse`
-- `POST /auth/logout` body `LogoutRequest` -> `204`
-- `GET /auth/logout?returnUrl=&refreshToken=` -> redirect
-- `POST /auth/redirect/finalize` body `RedirectFinalizeRequest` -> `{ redirectUrl }`
-- `GET /auth/me` bearer token -> `CurrentUserResponse`
-- `POST /auth/email/send-verification` body `EmailVerificationRequest` -> `EmailVerificationResponse`
-- `POST /auth/email/send-verification/me` bearer token -> `EmailVerificationResponse`
-- `POST /auth/email/verify` body `VerifyEmailRequest` -> `204`
-- `GET /auth/email/verify-link?token=` -> redirect to UI
-- `GET /auth/discord/start` -> redirect to Discord
-- `GET /auth/discord/callback?code=&state=` -> redirect to `/ui/callback.html#...`
-- `POST /auth/discord/link` bearer token -> `DiscordStartResponse`
-
-### Admin Endpoints
-
-Requires `Admin` role.
-
-- `GET /admin/users?page=&pageSize=&search=` -> `AdminUsersResponse`
-- `GET /admin/users/{userId}` -> `AdminUserDetailsResponse`
-- `GET /admin/users/{userId}/roles` -> `UserRolesResponse`
-- `PUT /admin/users/{userId}/roles` body `AdminSetUserRolesRequest` -> `UserRolesResponse`
-- `GET /admin/roles` -> `RoleResponse[]`
-- `POST /admin/roles` body `AdminCreateRoleRequest` -> `RoleResponse`
-- `PUT /admin/roles/{roleId}` body `AdminRenameRoleRequest` -> `RoleResponse`
-- `DELETE /admin/roles/{roleId}` -> `204`
-
-## Contracts Package
-
-Contracts live in:
-- `AkGaming.Identity.Contracts`
-
-Pack locally:
-
-```bash
-dotnet pack Contracts/AkGaming.Identity.Contracts.csproj -c Release
-```
-
-Publish workflow:
-- File: `.github/workflows/publish-contracts.yml`
-- Trigger by tag: `contracts-v*` (example `contracts-v1.0.1`)
-- Requires GitHub secret: `NUGET_API_KEY`
-
-## Using Identity From Another Service
-
-Recommended minimum:
-
-1. Redirect user to Identity login URL with your callback URL.
-2. Parse fragment on callback page for `access_token`, `refresh_token`, `expires_at`.
-3. Store access token short-lived and refresh token securely.
-4. Use bearer token on admin endpoints for role/user management.
-
-## Hardening Implemented
-
-- Refresh token rotation.
-- Refresh token reuse detection.
-- Login lockout policy.
-- Rate limiting for auth/admin groups.
-- Email verification with expiry.
-- Audit log persistence.
-
-## Troubleshooting
-
-- `PendingModelChangesWarning`: create and apply migration for current model.
-- `SQLite Error ... no such column`: database schema is older than model; run migrations.
-- Docker build `project.assets.json not found`: ensure all referenced `.csproj` files are copied before `dotnet restore`.
-- SMTP `User not authenticated`: verify SMTP username/password, port/SSL mode, and sender permissions.
-- Redirect denied: check `Bridge__AllowedRedirectUris__*` entries and exact path matching.
-
-## License
-
-MIT
+- [Program.cs](/home/hexasiel/Programming/AkGaming/AkGaming.Identity/Api/Program.cs)
+- [appsettings.json](/home/hexasiel/Programming/AkGaming/AkGaming.Identity/Api/appsettings.json)
+- [appsettings.Development.json](/home/hexasiel/Programming/AkGaming/AkGaming.Identity/Api/appsettings.Development.json)
+- [appsettings.Production.json](/home/hexasiel/Programming/AkGaming/AkGaming.Identity/Api/appsettings.Production.json)
+- [OpenIddictSeedOptions.cs](/home/hexasiel/Programming/AkGaming/AkGaming.Identity/Infrastructure/OpenIddict/OpenIddictSeedOptions.cs)
+- [OpenIddictSeeder.cs](/home/hexasiel/Programming/AkGaming/AkGaming.Identity/Infrastructure/OpenIddict/OpenIddictSeeder.cs)
+- [OpenIddictCredentialOptions.cs](/home/hexasiel/Programming/AkGaming/AkGaming.Identity/Infrastructure/OpenIddict/OpenIddictCredentialOptions.cs)
+- [OidcPrincipalFactory.cs](/home/hexasiel/Programming/AkGaming/AkGaming.Identity/Api/OpenIddict/OidcPrincipalFactory.cs)

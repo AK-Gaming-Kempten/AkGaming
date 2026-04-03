@@ -149,6 +149,140 @@ internal static class AdminEndpoints
             }
         });
 
+        admin.MapGet("/oidc/clients", async (IOidcAdminService oidcAdminService, CancellationToken cancellationToken) =>
+        {
+            var response = await oidcAdminService.GetClientsAsync(cancellationToken);
+            return Results.Ok(response);
+        });
+
+        admin.MapGet("/oidc/clients/{clientId}", async (string clientId, IOidcAdminService oidcAdminService, CancellationToken cancellationToken) =>
+        {
+            try
+            {
+                var response = await oidcAdminService.GetClientAsync(clientId, cancellationToken);
+                return Results.Ok(response);
+            }
+            catch (AuthException exception)
+            {
+                return Results.Problem(statusCode: exception.StatusCode, detail: exception.Message);
+            }
+        });
+
+        admin.MapPost("/oidc/clients", async (AdminCreateOidcClientRequest request, ClaimsPrincipal user, IOidcAdminService oidcAdminService, HttpContext httpContext, CancellationToken cancellationToken) =>
+        {
+            if (!EndpointUtilities.TryGetUserId(user, out var actorUserId))
+                return Results.Unauthorized();
+
+            try
+            {
+                var response = await oidcAdminService.CreateClientAsync(actorUserId, request, EndpointUtilities.GetIp(httpContext), cancellationToken);
+                return Results.Ok(response);
+            }
+            catch (AuthException exception)
+            {
+                return Results.Problem(statusCode: exception.StatusCode, detail: exception.Message);
+            }
+        });
+
+        admin.MapPut("/oidc/clients/{clientId}", async (string clientId, AdminUpdateOidcClientRequest request, ClaimsPrincipal user, IOidcAdminService oidcAdminService, HttpContext httpContext, CancellationToken cancellationToken) =>
+        {
+            if (!EndpointUtilities.TryGetUserId(user, out var actorUserId))
+                return Results.Unauthorized();
+
+            try
+            {
+                var response = await oidcAdminService.UpdateClientAsync(actorUserId, clientId, request, EndpointUtilities.GetIp(httpContext), cancellationToken);
+                return Results.Ok(response);
+            }
+            catch (AuthException exception)
+            {
+                return Results.Problem(statusCode: exception.StatusCode, detail: exception.Message);
+            }
+        });
+
+        admin.MapDelete("/oidc/clients/{clientId}", async (string clientId, ClaimsPrincipal user, IOidcAdminService oidcAdminService, HttpContext httpContext, CancellationToken cancellationToken) =>
+        {
+            if (!EndpointUtilities.TryGetUserId(user, out var actorUserId))
+                return Results.Unauthorized();
+
+            try
+            {
+                await oidcAdminService.DeleteClientAsync(actorUserId, clientId, EndpointUtilities.GetIp(httpContext), cancellationToken);
+                return Results.NoContent();
+            }
+            catch (AuthException exception)
+            {
+                return Results.Problem(statusCode: exception.StatusCode, detail: exception.Message);
+            }
+        });
+
+        admin.MapGet("/oidc/scopes", async (IOidcAdminService oidcAdminService, CancellationToken cancellationToken) =>
+        {
+            var response = await oidcAdminService.GetScopesAsync(cancellationToken);
+            return Results.Ok(response);
+        });
+
+        admin.MapGet("/oidc/scopes/{scopeName}", async (string scopeName, IOidcAdminService oidcAdminService, CancellationToken cancellationToken) =>
+        {
+            try
+            {
+                var response = await oidcAdminService.GetScopeAsync(scopeName, cancellationToken);
+                return Results.Ok(response);
+            }
+            catch (AuthException exception)
+            {
+                return Results.Problem(statusCode: exception.StatusCode, detail: exception.Message);
+            }
+        });
+
+        admin.MapPost("/oidc/scopes", async (AdminCreateOidcScopeRequest request, ClaimsPrincipal user, IOidcAdminService oidcAdminService, HttpContext httpContext, CancellationToken cancellationToken) =>
+        {
+            if (!EndpointUtilities.TryGetUserId(user, out var actorUserId))
+                return Results.Unauthorized();
+
+            try
+            {
+                var response = await oidcAdminService.CreateScopeAsync(actorUserId, request, EndpointUtilities.GetIp(httpContext), cancellationToken);
+                return Results.Ok(response);
+            }
+            catch (AuthException exception)
+            {
+                return Results.Problem(statusCode: exception.StatusCode, detail: exception.Message);
+            }
+        });
+
+        admin.MapPut("/oidc/scopes/{scopeName}", async (string scopeName, AdminUpdateOidcScopeRequest request, ClaimsPrincipal user, IOidcAdminService oidcAdminService, HttpContext httpContext, CancellationToken cancellationToken) =>
+        {
+            if (!EndpointUtilities.TryGetUserId(user, out var actorUserId))
+                return Results.Unauthorized();
+
+            try
+            {
+                var response = await oidcAdminService.UpdateScopeAsync(actorUserId, scopeName, request, EndpointUtilities.GetIp(httpContext), cancellationToken);
+                return Results.Ok(response);
+            }
+            catch (AuthException exception)
+            {
+                return Results.Problem(statusCode: exception.StatusCode, detail: exception.Message);
+            }
+        });
+
+        admin.MapDelete("/oidc/scopes/{scopeName}", async (string scopeName, ClaimsPrincipal user, IOidcAdminService oidcAdminService, HttpContext httpContext, CancellationToken cancellationToken) =>
+        {
+            if (!EndpointUtilities.TryGetUserId(user, out var actorUserId))
+                return Results.Unauthorized();
+
+            try
+            {
+                await oidcAdminService.DeleteScopeAsync(actorUserId, scopeName, EndpointUtilities.GetIp(httpContext), cancellationToken);
+                return Results.NoContent();
+            }
+            catch (AuthException exception)
+            {
+                return Results.Problem(statusCode: exception.StatusCode, detail: exception.Message);
+            }
+        });
+
         return app;
     }
 

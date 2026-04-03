@@ -63,6 +63,7 @@ public static class DependencyInjection
         services.AddSingleton<IAuthHardeningSettings>(sp => sp.GetRequiredService<Microsoft.Extensions.Options.IOptions<AuthHardeningOptions>>().Value);
         services.AddSingleton<IAppUrlSettings>(sp => sp.GetRequiredService<Microsoft.Extensions.Options.IOptions<AppUrlOptions>>().Value);
         services.AddScoped<OpenIddictSeeder>();
+        services.AddScoped<IOidcAdminService, OidcAdminService>();
 
         return services;
     }

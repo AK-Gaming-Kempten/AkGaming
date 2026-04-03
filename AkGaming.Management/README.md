@@ -36,6 +36,7 @@ AkGaming.Management/
 
 * **.NET 10.0** (ASP.NET Core Minimal APIs)
 * **Entity Framework Core** (per-module DbContexts)
+* **OpenID Connect / OpenIddict** for interactive login and API authorization
 * **Swashbuckle / Swagger** for interactive API docs
 * **Coolify** for CI/CD deployment management
 * **PostgreSQL** for persistent data
@@ -80,7 +81,58 @@ This project uses **Coolify** for deployment.
 | Development | `develop` | Auto via webhook | `AkGaming.Management_Dev` | Special Dev Auth                  |
 | Production  | `main`    | Manual trigger   | `AkGaming.Management`     | Production Auth via User Accounts |
 
-Each environment has its own configuration (connection string, JWT settings, etc.) injected through environment variables.
+Each environment has its own configuration (connection strings, OIDC authority/client credentials, API URLs, etc.) injected through environment variables.
+
+---
+
+## 🔐 Identity Integration
+
+The management tool now authenticates against `AkGaming.Identity` via standard OpenID Connect:
+
+* `Frontend/` is the interactive OIDC client.
+* `WebApi/` validates access tokens issued by `AkGaming.Identity`.
+* The required API scope is `management_api`.
+
+### Frontend
+
+Important configuration keys:
+
+* `OpenIdConnect:Authority`
+* `OpenIdConnect:ClientId`
+* `OpenIdConnect:ClientSecret`
+* `OpenIdConnect:CallbackPath`
+* `OpenIdConnect:SignedOutCallbackPath`
+* `Api:BaseUrl`
+* `IdentityApi:BaseUrl`
+
+### Web API
+
+Important configuration keys:
+
+* `OpenIddictValidation:Issuer`
+* `ConnectionStrings:DefaultConnection`
+* `Database:Provider`
+
+### Identity Administration
+
+The management frontend now includes dedicated identity administration pages for:
+
+* users
+* roles
+* OIDC clients
+* OIDC scopes
+
+OIDC client and scope management is backed by the identity server admin API.
+
+### Protected Bootstrap Entries
+
+The management tool must not be able to break its own login path. For that reason:
+
+* the management bootstrap OIDC client is protected in the UI and admin API
+* the `management_api` scope is protected in the UI and admin API
+* protected entries are restored from the identity server configuration on startup
+
+That means ordinary clients/scopes can be edited in the management UI, but the entries required to keep the management tool working are configuration-owned and recoverable from the identity host.
 
 ---
 
@@ -103,7 +155,11 @@ dotnet run --project WebApi/AkGaming.Management.WebApi.csproj
 Open `https://localhost:5001/swagger` for the interactive API UI.
 
 #### Frontend
-[Not yet implemented]
+```bash
+dotnet run --project Frontend/AkGaming.Management.Frontend.csproj
+```
+
+The frontend expects a matching OIDC client registration in `AkGaming.Identity`.
 
 ### Database
 

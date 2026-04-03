@@ -68,6 +68,16 @@
 
                     @if (isIdentityExpanded)
                     {
+                        <NavLink href="identity/clients" class="nav-item level-2" @onclick="NotifyNavigation">
+                            <span class="nav-icon bi-window-stack"></span>
+                            <span>Clients</span>
+                        </NavLink>
+
+                        <NavLink href="identity/scopes" class="nav-item level-2" @onclick="NotifyNavigation">
+                            <span class="nav-icon bi-diagram-3"></span>
+                            <span>Scopes</span>
+                        </NavLink>
+
                         <NavLink href="identity/roles" class="nav-item level-2" @onclick="NotifyNavigation">
                             <span class="nav-icon bi-person-badge-fill"></span>
                             <span>Roles</span>

@@ -48,6 +48,65 @@ public sealed record AdminRenameRoleRequest(string Name);
 public sealed record AdminSetUserRolesRequest(string[] Roles);
 public sealed record UserRolesResponse(Guid UserId, string[] Roles);
 
+public sealed record OidcClientResponse(
+    string ClientId,
+    string DisplayName,
+    string ClientType,
+    string ConsentType,
+    bool RequirePkce,
+    bool AllowAuthorizationCodeFlow,
+    bool AllowRefreshTokenFlow,
+    bool HasClientSecret,
+    string[] RedirectUris,
+    string[] PostLogoutRedirectUris,
+    string[] Scopes,
+    bool IsProtected,
+    string? ProtectionReason);
+
+public sealed record AdminCreateOidcClientRequest(
+    string ClientId,
+    string? ClientSecret,
+    string DisplayName,
+    string ClientType,
+    string ConsentType,
+    bool RequirePkce,
+    bool AllowAuthorizationCodeFlow,
+    bool AllowRefreshTokenFlow,
+    string[] RedirectUris,
+    string[] PostLogoutRedirectUris,
+    string[] Scopes);
+
+public sealed record AdminUpdateOidcClientRequest(
+    string DisplayName,
+    string ClientType,
+    string ConsentType,
+    bool RequirePkce,
+    bool AllowAuthorizationCodeFlow,
+    bool AllowRefreshTokenFlow,
+    string? NewClientSecret,
+    string[] RedirectUris,
+    string[] PostLogoutRedirectUris,
+    string[] Scopes);
+
+public sealed record OidcScopeResponse(
+    string Name,
+    string DisplayName,
+    string? Description,
+    string[] Resources,
+    bool IsProtected,
+    string? ProtectionReason);
+
+public sealed record AdminCreateOidcScopeRequest(
+    string Name,
+    string DisplayName,
+    string? Description,
+    string[] Resources);
+
+public sealed record AdminUpdateOidcScopeRequest(
+    string DisplayName,
+    string? Description,
+    string[] Resources);
+
 public sealed record AdminUsersResponse(
     int Page,
     int PageSize,

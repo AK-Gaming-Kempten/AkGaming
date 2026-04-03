@@ -1,0 +1,108 @@
+@page "/identity/scopes"
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize(Roles = "Admin")]
+
+<PageTitle>Identity Scopes</PageTitle>
+
+<div class="identity-roles-page mobile-master-detail @(_isMobileDetailOpen ? "mobile-detail-open" : string.Empty)">
+    <div class="roles-list-pane">
+        <div class="pane-header">
+            <h4>OIDC Scopes</h4>
+            <button class="btn btn-secondary" @onclick="ReloadAsync" disabled="@_isBusy">Refresh</button>
+        </div>
+
+        <div class="create-role card form-col">
+            <label for="new-scope-name">Create scope</label>
+            <InputText id="new-scope-name" @bind-Value="_newScopeName" placeholder="Scope name" />
+            <InputText @bind-Value="_newDisplayName" placeholder="Display name" />
+            <InputTextArea @bind-Value="_newDescription" placeholder="Description" />
+
+            <label>Resources</label>
+            <InputTextArea @bind-Value="_newResourcesText" placeholder="One resource per line" />
+
+            <div class="editor-actions">
+                <button class="btn btn-primary" @onclick="CreateScopeAsync" disabled="@_isBusy">Create</button>
+            </div>
+        </div>
+
+        <div class="roles-list card">
+            @if (_scopes is null)
+            {
+                <p>Loading scopes...</p>
+            }
+            else if (_scopes.Count == 0)
+            {
+                <p>No scopes found.</p>
+            }
+            else
+            {
+                @foreach (var scope in _scopes.OrderBy(scope => scope.Name, StringComparer.OrdinalIgnoreCase))
+                {
+                    <button type="button"
+                            class="role-item @(string.Equals(scope.Name, _selectedScopeName, StringComparison.Ordinal) ? "selected" : string.Empty)"
+                            @onclick="() => SelectScope(scope)">
+                        <span>@scope.Name</span>
+                        <small>@scope.DisplayName@if (scope.IsProtected) { <text> · protected</text> }</small>
+                    </button>
+                }
+            }
+        </div>
+    </div>
+
+    <div class="role-editor-pane card">
+        <div class="mobile-detail-nav">
+            <button type="button" class="btn btn-outline-secondary btn-sm" @onclick="ShowListMobile">
+                <span class="bi bi-arrow-left"></span>
+                Back to scopes
+            </button>
+        </div>
+        <h4>Scope Details</h4>
+
+        @if (_selectedScope is null)
+        {
+            <p>Select a scope to inspect or edit it.</p>
+        }
+        else
+        {
+            <div class="form-col">
+                <label>Scope name</label>
+                <input value="@_selectedScope.Name" disabled />
+            </div>
+
+            @if (_selectedScope.IsProtected)
+            {
+                <p class="text-warning">@(_selectedScope.ProtectionReason ?? "This scope is protected.")</p>
+            }
+
+            <div class="form-col">
+                <label>Display name</label>
+                <InputText @bind-Value="_editDisplayName" disabled="@_selectedScope.IsProtected" />
+            </div>
+
+            <div class="form-col">
+                <label>Description</label>
+                <InputTextArea @bind-Value="_editDescription" disabled="@_selectedScope.IsProtected" />
+            </div>
+
+            <div class="form-col">
+                <label>Resources</label>
+                <InputTextArea @bind-Value="_editResourcesText" disabled="@_selectedScope.IsProtected" />
+            </div>
+
+            <div class="editor-actions">
+                <button class="btn btn-primary" @onclick="SaveScopeAsync" disabled="@(_isBusy || _selectedScope.IsProtected)">Save scope</button>
+                <button class="btn btn-danger" @onclick="DeleteScopeAsync" disabled="@(_isBusy || _selectedScope.IsProtected)">Delete scope</button>
+            </div>
+        }
+
+        @if (!string.IsNullOrWhiteSpace(_error))
+        {
+            <p class="text-danger">@_error</p>
+        }
+
+        @if (!string.IsNullOrWhiteSpace(_success))
+        {
+            <p class="text-success">@_success</p>
+        }
+    </div>
+</div>

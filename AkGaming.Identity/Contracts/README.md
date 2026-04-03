@@ -1,4 +1,5 @@
 # AkGaming.Identity.Contracts
+ATTENTION: THIS IS OUTDATED AND WILL NOT BE MAINTAINED. Directly reference 'AkGaming.Identity.Contracts' as project reference.
 
 Shared request/response contracts for `AkGaming.Identity` APIs.
 
