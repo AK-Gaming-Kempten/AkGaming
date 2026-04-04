@@ -31,7 +31,27 @@ public sealed class AuthEndpointsTests : IClassFixture<TestApiFactory>
         });
 
         var registerBody = await registerResponse.Content.ReadAsStringAsync();
-        Assert.True(registerResponse.StatusCode == HttpStatusCode.OK, $"Expected 200, got {(int)registerResponse.StatusCode}: {registerBody}");
+        Assert.True(registerResponse.StatusCode == HttpStatusCode.Forbidden, $"Expected 403, got {(int)registerResponse.StatusCode}: {registerBody}");
+
+        var verificationIssueResponse = await _client.PostAsJsonAsync("/auth/email/send-verification", new
+        {
+            Email = email
+        });
+
+        var verificationIssueBody = await verificationIssueResponse.Content.ReadAsStringAsync();
+        Assert.True(verificationIssueResponse.StatusCode == HttpStatusCode.OK, $"Expected 200, got {(int)verificationIssueResponse.StatusCode}: {verificationIssueBody}");
+
+        var verificationPayload = await verificationIssueResponse.Content.ReadFromJsonAsync<EmailVerificationPayload>();
+        Assert.NotNull(verificationPayload);
+        Assert.False(string.IsNullOrWhiteSpace(verificationPayload.VerificationToken));
+
+        var verifyResponse = await _client.PostAsJsonAsync("/auth/email/verify", new
+        {
+            Token = verificationPayload.VerificationToken
+        });
+
+        var verifyBody = await verifyResponse.Content.ReadAsStringAsync();
+        Assert.True(verifyResponse.StatusCode == HttpStatusCode.NoContent, $"Expected 204, got {(int)verifyResponse.StatusCode}: {verifyBody}");
 
         var loginResponse = await _client.PostAsJsonAsync("/auth/login", new
         {
@@ -126,7 +146,7 @@ public sealed class AuthEndpointsTests : IClassFixture<TestApiFactory>
         });
 
         var registerBody = await registerResponse.Content.ReadAsStringAsync();
-        Assert.True(registerResponse.StatusCode == HttpStatusCode.OK, $"Expected 200, got {(int)registerResponse.StatusCode}: {registerBody}");
+        Assert.True(registerResponse.StatusCode == HttpStatusCode.Forbidden, $"Expected 403, got {(int)registerResponse.StatusCode}: {registerBody}");
 
         var response = await _client.PostAsJsonAsync("/auth/email/send-verification", new
         {
@@ -138,4 +158,5 @@ public sealed class AuthEndpointsTests : IClassFixture<TestApiFactory>
     }
 
     private sealed record AuthPayload(string AccessToken, DateTime AccessTokenExpiresAtUtc, string RefreshToken);
+    private sealed record EmailVerificationPayload(string Message, string? VerificationToken);
 }

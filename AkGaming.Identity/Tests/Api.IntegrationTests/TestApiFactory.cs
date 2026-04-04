@@ -10,9 +10,16 @@ namespace AkGaming.Identity.Api.IntegrationTests;
 public sealed class TestApiFactory : WebApplicationFactory<Program>
 {
     private readonly string _dbPath = Path.Combine(Path.GetTempPath(), $"identity-integration-{Guid.NewGuid():N}.db");
+    private readonly IReadOnlyDictionary<string, string?> _additionalOverrides;
 
     public TestApiFactory()
+        : this(null)
     {
+    }
+
+    internal TestApiFactory(IReadOnlyDictionary<string, string?>? additionalOverrides)
+    {
+        _additionalOverrides = additionalOverrides ?? new Dictionary<string, string?>();
         if (File.Exists(_dbPath))
         {
             File.Delete(_dbPath);
@@ -34,6 +41,8 @@ public sealed class TestApiFactory : WebApplicationFactory<Program>
                 ["ConnectionStrings:IdentityDb"] = $"Data Source={_dbPath}",
                 ["Jwt:SecretKey"] = "integration-tests-secret-key-1234567890-abcdefghij",
                 ["AllowedHosts"] = "*",
+                ["AuthHardening:RequireVerifiedEmailForLogin"] = "true",
+                ["AuthHardening:ExposeEmailVerificationToken"] = "true",
                 ["Bridge:AllowedRedirectUris:0"] = "https://management.akgaming.de",
                 ["OpenIddict:Issuer"] = "https://localhost",
                 ["OpenIddict:Applications:0:ClientId"] = "test-public-client",
@@ -62,6 +71,11 @@ public sealed class TestApiFactory : WebApplicationFactory<Program>
                 ["OpenIddict:Applications:1:Scopes:3"] = "roles",
                 ["OpenIddict:Applications:1:Scopes:4"] = "offline_access"
             };
+
+            foreach (var (key, value) in _additionalOverrides)
+            {
+                overrides[key] = value;
+            }
 
             configurationBuilder.AddInMemoryCollection(overrides);
         });

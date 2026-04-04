@@ -5,7 +5,6 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 using Microsoft.AspNetCore.WebUtilities;
-using Microsoft.Extensions.Configuration;
 
 namespace AkGaming.Identity.Api.IntegrationTests;
 
@@ -37,8 +36,10 @@ public sealed class OidcEndpointsTests : IClassFixture<TestApiFactory>
         Assert.StartsWith("/account/login", authorizeResponse.Headers.Location?.ToString(), StringComparison.Ordinal);
 
         var registerLocation = authorizeResponse.Headers.Location?.ToString() ?? throw new InvalidOperationException("Missing login redirect.");
+        var email = $"oidc-{Guid.NewGuid():N}@example.com";
         var registerReturnUrl = QueryHelpers.ParseQuery(new Uri(BaseUri, registerLocation).Query)["returnUrl"].ToString();
-        await RegisterInteractiveAsync(client, registerReturnUrl, $"oidc-{Guid.NewGuid():N}@example.com");
+        await RegisterInteractiveAsync(client, registerReturnUrl, email);
+        await VerifyEmailAsync(client, email);
 
         var resumeAuthorizeResponse = await client.GetAsync(registerReturnUrl);
         Assert.Equal(HttpStatusCode.Redirect, resumeAuthorizeResponse.StatusCode);
@@ -82,15 +83,9 @@ public sealed class OidcEndpointsTests : IClassFixture<TestApiFactory>
     [Fact]
     public async Task AuthorizationCodeFlow_WithVerificationRequired_RedirectsUnverifiedUserToVerifyPage()
     {
-        using var hardeningFactory = _factory.WithWebHostBuilder(builder =>
+        using var hardeningFactory = new TestApiFactory(new Dictionary<string, string?>
         {
-            builder.ConfigureAppConfiguration((_, configurationBuilder) =>
-            {
-                configurationBuilder.AddInMemoryCollection(new Dictionary<string, string?>
-                {
-                    ["AuthHardening:RequireVerifiedEmailForLogin"] = "true"
-                });
-            });
+            ["AuthHardening:RequireVerifiedEmailForLogin"] = "true"
         });
         using var client = hardeningFactory.CreateClient(new Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactoryClientOptions
         {
@@ -129,7 +124,9 @@ public sealed class OidcEndpointsTests : IClassFixture<TestApiFactory>
         using var client = CreateNoRedirectClient();
 
         var registerReturnUrl = "/account/manage";
-        await RegisterInteractiveAsync(client, registerReturnUrl, $"explicit-{Guid.NewGuid():N}@example.com");
+        var email = $"explicit-{Guid.NewGuid():N}@example.com";
+        await RegisterInteractiveAsync(client, registerReturnUrl, email);
+        await VerifyEmailAsync(client, email);
 
         var pkce = PkceState.Create();
         var authorizeUrl = BuildAuthorizeUrl(
@@ -173,7 +170,9 @@ public sealed class OidcEndpointsTests : IClassFixture<TestApiFactory>
     {
         using var client = CreateNoRedirectClient();
 
-        await RegisterInteractiveAsync(client, "/account/manage", $"remembered-{Guid.NewGuid():N}@example.com");
+        var email = $"remembered-{Guid.NewGuid():N}@example.com";
+        await RegisterInteractiveAsync(client, "/account/manage", email);
+        await VerifyEmailAsync(client, email);
 
         var firstPkce = PkceState.Create();
         var firstAuthorizeUrl = BuildAuthorizeUrl(
@@ -226,7 +225,9 @@ public sealed class OidcEndpointsTests : IClassFixture<TestApiFactory>
     {
         using var client = CreateNoRedirectClient();
 
-        await RegisterInteractiveAsync(client, "/account/manage", $"logout-{Guid.NewGuid():N}@example.com");
+        var email = $"logout-{Guid.NewGuid():N}@example.com";
+        await RegisterInteractiveAsync(client, "/account/manage", email);
+        await VerifyEmailAsync(client, email);
 
         var logoutUrl = QueryHelpers.AddQueryString(
             "/connect/logout",

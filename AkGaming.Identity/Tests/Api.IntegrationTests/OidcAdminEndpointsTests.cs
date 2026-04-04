@@ -199,6 +199,7 @@ public sealed class OidcAdminEndpointsTests : IClassFixture<TestApiFactory>
     private async Task<string> AuthenticateAdminAsync(HttpClient client, string email)
     {
         await RegisterInteractiveAsync(client, "/account/manage", email);
+        await VerifyEmailAsync(client, email);
         await PromoteUserToAdminAsync(email);
 
         var pkce = PkceState.Create();
@@ -285,6 +286,28 @@ public sealed class OidcAdminEndpointsTests : IClassFixture<TestApiFactory>
         var registerBody = await registerResponse.Content.ReadAsStringAsync();
         Assert.Equal(HttpStatusCode.Redirect, registerResponse.StatusCode);
         Assert.True(string.IsNullOrWhiteSpace(registerBody) || registerResponse.Headers.Location is not null);
+    }
+
+    private static async Task VerifyEmailAsync(HttpClient client, string email)
+    {
+        using var issueResponse = await client.PostAsJsonAsync("/auth/email/send-verification", new
+        {
+            Email = email
+        });
+        var issueBody = await issueResponse.Content.ReadAsStringAsync();
+        Assert.True(issueResponse.IsSuccessStatusCode, $"Expected verification token issuance: {issueBody}");
+
+        using var issuePayload = JsonDocument.Parse(issueBody);
+        var token = issuePayload.RootElement.GetProperty("verificationToken").GetString();
+        Assert.False(string.IsNullOrWhiteSpace(token));
+
+        using var verifyResponse = await client.PostAsJsonAsync("/auth/email/verify", new
+        {
+            Token = token
+        });
+        var verifyBody = await verifyResponse.Content.ReadAsStringAsync();
+        Assert.Equal(HttpStatusCode.NoContent, verifyResponse.StatusCode);
+        Assert.True(string.IsNullOrWhiteSpace(verifyBody));
     }
 
     private static async Task<OidcScopeResponse> CreateScopeAsync(HttpClient client, string accessToken, AdminCreateOidcScopeRequest request)
