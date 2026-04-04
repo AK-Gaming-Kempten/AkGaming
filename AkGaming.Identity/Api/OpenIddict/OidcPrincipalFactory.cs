@@ -21,7 +21,7 @@ internal static class OidcPrincipalFactory
         identity.SetClaim(OpenIddictConstants.Claims.Subject, user.UserId.ToString());
         identity.SetClaim(OpenIddictConstants.Claims.Email, user.Email);
         identity.SetClaim(OpenIddictConstants.Claims.Name, user.Email);
-        identity.SetClaim("email_verified", user.IsEmailVerified ? "true" : "false");
+        identity.AddClaim(new Claim("email_verified", user.IsEmailVerified ? "true" : "false", ClaimValueTypes.Boolean));
 
         foreach (var role in user.Roles)
         {
