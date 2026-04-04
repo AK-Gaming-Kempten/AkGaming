@@ -50,6 +50,14 @@ public static class MembershipDueEndpoints {
             return MapResult(result);
         }).RequireAuthorization("AdminOnly");
 
+        group.MapGet("/payment-periods/{paymentPeriodId:int}/reminder-dispatch", async (
+            [FromRoute] int paymentPeriodId,
+            [FromServices] IMembershipDueService service
+        ) => {
+            var result = await service.GetReminderDispatchPreviewForPaymentPeriodAsync(paymentPeriodId);
+            return MapResult(result);
+        }).RequireAuthorization("AdminOnly");
+
         group.MapPost("/payment-periods/{paymentPeriodId:int}/members", async (
             [FromRoute] int paymentPeriodId,
             [FromBody] ICollection<Guid> memberIds,
@@ -74,6 +82,31 @@ public static class MembershipDueEndpoints {
         ) => {
             var result = await service.GetReminderEmailPreviewAsync(dueId);
             return MapResult(result);
+        }).RequireAuthorization("AdminOnly");
+
+        group.MapGet("/{dueId:int}/reminder-dispatch", async (
+            [FromRoute] int dueId,
+            [FromServices] IMembershipDueService service
+        ) => {
+            var result = await service.GetReminderDispatchPreviewForDueAsync(dueId);
+            return MapResult(result);
+        }).RequireAuthorization("AdminOnly");
+
+        group.MapPost("/{dueId:int}/send-reminder", async (
+            [FromRoute] int dueId,
+            [FromServices] IMembershipDueService service
+        ) => {
+            var result = await service.SendReminderEmailAsync(dueId);
+            if (result.IsSuccess)
+                return Results.Ok();
+
+            if (IsNotFoundError(result.Error))
+                return Results.NotFound(result.Error);
+
+            if (IsServerError(result.Error))
+                return Results.Problem(detail: result.Error, statusCode: StatusCodes.Status500InternalServerError);
+
+            return Results.BadRequest(result.Error);
         }).RequireAuthorization("AdminOnly");
 
         group.MapGet("/me", async (
@@ -129,7 +162,8 @@ public static class MembershipDueEndpoints {
         if (string.IsNullOrWhiteSpace(error))
             return false;
 
-        return error.Contains("database error", StringComparison.OrdinalIgnoreCase);
+        return error.Contains("database error", StringComparison.OrdinalIgnoreCase)
+            || error.Contains("failed to send reminder email", StringComparison.OrdinalIgnoreCase);
     }
 
     private static IResult MapResult<T>(AkGaming.Core.Common.Generics.Result<T> result) {

@@ -43,4 +43,19 @@ public interface IMembershipDueService {
     /// Builds a preview for the outstanding membership due reminder email.
     /// </summary>
     Task<Result<MembershipDueEmailPreviewDto>> GetReminderEmailPreviewAsync(int dueId);
+
+    /// <summary>
+    /// Builds a dispatch preview for all reminder emails in a payment period.
+    /// </summary>
+    Task<Result<MembershipDueReminderDispatchPreviewDto>> GetReminderDispatchPreviewForPaymentPeriodAsync(int paymentPeriodId);
+
+    /// <summary>
+    /// Builds a dispatch preview for one specific due.
+    /// </summary>
+    Task<Result<MembershipDueReminderDispatchPreviewDto>> GetReminderDispatchPreviewForDueAsync(int dueId);
+
+    /// <summary>
+    /// Sends one reminder email for the given due.
+    /// </summary>
+    Task<Result> SendReminderEmailAsync(int dueId);
 }

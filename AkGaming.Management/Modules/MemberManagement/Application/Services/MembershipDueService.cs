@@ -1,4 +1,5 @@
 using AkGaming.Core.Common.Generics;
+using AkGaming.Core.Common.Email;
 using AkGaming.Management.Modules.MemberManagement.Application.Interfaces;
 using AkGaming.Management.Modules.MemberManagement.Application.Mapping;
 using AkGaming.Management.Modules.MemberManagement.Contracts.DTO;
@@ -12,7 +13,8 @@ namespace AkGaming.Management.Modules.MemberManagement.Application.Services;
 public class MembershipDueService(
     IMembershipDueRepository dueRepository,
     IMembershipPaymentPeriodRepository paymentPeriodRepository,
-    IMemberRepository memberRepository)
+    IMemberRepository memberRepository,
+    IEmailSender? emailSender = null)
     : IMembershipDueService
 {
     /// <inheritdoc />
@@ -154,29 +156,146 @@ public class MembershipDueService(
 
     /// <inheritdoc />
     public async Task<Result<MembershipDueEmailPreviewDto>> GetReminderEmailPreviewAsync(int dueId) {
-        var dueResult = await dueRepository.GetByIdAsync(dueId);
-        if (!dueResult.IsSuccess)
-            return Result<MembershipDueEmailPreviewDto>.Failure(dueResult.Error ?? "Due not found.");
-        var due = dueResult.Value!;
+        var reminderContextResult = await LoadReminderContextAsync(dueId);
+        if (!reminderContextResult.IsSuccess)
+            return Result<MembershipDueEmailPreviewDto>.Failure(reminderContextResult.Error ?? "Reminder context could not be loaded.");
+        var reminderContext = reminderContextResult.Value!;
 
-        if (due.Status != DomainEnums.MembershipDueStatus.Pending)
-            return Result<MembershipDueEmailPreviewDto>.Failure("Reminder email is only available for pending dues.");
+        var eligibility = EvaluateReminderEligibility(reminderContext.Member, reminderContext.PaymentPeriod, reminderContext.Due);
+        if (!eligibility.IsSendable)
+            return Result<MembershipDueEmailPreviewDto>.Failure(eligibility.Reason ?? "Reminder email is not available.");
 
-        var memberResult = await memberRepository.GetByMemberIdAsync(due.MemberId);
-        if (!memberResult.IsSuccess)
-            return Result<MembershipDueEmailPreviewDto>.Failure(memberResult.Error ?? "Member not found.");
-        var member = memberResult.Value!;
+        var preview = MembershipDueReminderEmailComposer.Compose(reminderContext.Member, reminderContext.PaymentPeriod, reminderContext.Due);
+        return Result<MembershipDueEmailPreviewDto>.Success(preview);
+    }
 
-        if (string.IsNullOrWhiteSpace(member.Email))
-            return Result<MembershipDueEmailPreviewDto>.Failure("Member has no email address.");
-
-        var paymentPeriodResult = await paymentPeriodRepository.GetByIdAsync(due.PaymentPeriodId);
+    /// <inheritdoc />
+    public async Task<Result<MembershipDueReminderDispatchPreviewDto>> GetReminderDispatchPreviewForPaymentPeriodAsync(int paymentPeriodId) {
+        var paymentPeriodResult = await paymentPeriodRepository.GetByIdAsync(paymentPeriodId);
         if (!paymentPeriodResult.IsSuccess)
-            return Result<MembershipDueEmailPreviewDto>.Failure(paymentPeriodResult.Error ?? "Payment period not found.");
+            return Result<MembershipDueReminderDispatchPreviewDto>.Failure(paymentPeriodResult.Error ?? "Payment period not found.");
         var paymentPeriod = paymentPeriodResult.Value!;
 
-        var preview = MembershipDueReminderEmailComposer.Compose(member, paymentPeriod, due);
-        return Result<MembershipDueEmailPreviewDto>.Success(preview);
+        var membersResult = await memberRepository.GetAllAsync();
+        if (!membersResult.IsSuccess)
+            return Result<MembershipDueReminderDispatchPreviewDto>.Failure(membersResult.Error ?? "Members could not be loaded.");
+        var members = membersResult.Value!;
+
+        var duesResult = await dueRepository.GetByPaymentPeriodIdAsync(paymentPeriodId);
+        if (!duesResult.IsSuccess)
+            return Result<MembershipDueReminderDispatchPreviewDto>.Failure(duesResult.Error ?? "Dues could not be loaded.");
+        var dues = duesResult.Value!;
+
+        var duesByMemberId = dues
+            .GroupBy(due => due.MemberId)
+            .ToDictionary(group => group.Key, group => group.First());
+
+        var recipients = new List<MembershipDueReminderRecipientDto>();
+        var skippedMembers = new List<MembershipDueReminderSkipDto>();
+
+        foreach (var member in members.OrderBy(BuildMemberDisplayName, StringComparer.OrdinalIgnoreCase).ThenBy(member => member.Id)) {
+            if (!duesByMemberId.TryGetValue(member.Id, out var due)) {
+                skippedMembers.Add(new MembershipDueReminderSkipDto {
+                    MemberId = member.Id,
+                    MemberDisplayName = BuildMemberDisplayName(member),
+                    Reason = "No due exists in this payment period."
+                });
+                continue;
+            }
+
+            var eligibility = EvaluateReminderEligibility(member, paymentPeriod, due);
+            if (eligibility.IsSendable) {
+                recipients.Add(new MembershipDueReminderRecipientDto {
+                    DueId = due.Id,
+                    MemberId = member.Id,
+                    MemberDisplayName = BuildMemberDisplayName(member),
+                    Email = member.Email!.Trim(),
+                    DueAmount = due.DueAmount,
+                    DueDate = due.DueDate
+                });
+                continue;
+            }
+
+            skippedMembers.Add(new MembershipDueReminderSkipDto {
+                MemberId = member.Id,
+                MemberDisplayName = BuildMemberDisplayName(member),
+                Reason = eligibility.Reason ?? "Reminder email is not available."
+            });
+        }
+
+        return Result<MembershipDueReminderDispatchPreviewDto>.Success(new MembershipDueReminderDispatchPreviewDto {
+            PaymentPeriodId = paymentPeriod.Id,
+            PaymentPeriodName = paymentPeriod.Name,
+            Recipients = recipients,
+            SkippedMembers = skippedMembers
+        });
+    }
+
+    /// <inheritdoc />
+    public async Task<Result<MembershipDueReminderDispatchPreviewDto>> GetReminderDispatchPreviewForDueAsync(int dueId) {
+        var reminderContextResult = await LoadReminderContextAsync(dueId);
+        if (!reminderContextResult.IsSuccess)
+            return Result<MembershipDueReminderDispatchPreviewDto>.Failure(reminderContextResult.Error ?? "Reminder context could not be loaded.");
+        var reminderContext = reminderContextResult.Value!;
+
+        var eligibility = EvaluateReminderEligibility(reminderContext.Member, reminderContext.PaymentPeriod, reminderContext.Due);
+        var recipients = new List<MembershipDueReminderRecipientDto>();
+        var skippedMembers = new List<MembershipDueReminderSkipDto>();
+
+        if (eligibility.IsSendable) {
+            recipients.Add(new MembershipDueReminderRecipientDto {
+                DueId = reminderContext.Due.Id,
+                MemberId = reminderContext.Member.Id,
+                MemberDisplayName = BuildMemberDisplayName(reminderContext.Member),
+                Email = reminderContext.Member.Email!.Trim(),
+                DueAmount = reminderContext.Due.DueAmount,
+                DueDate = reminderContext.Due.DueDate
+            });
+        }
+        else {
+            skippedMembers.Add(new MembershipDueReminderSkipDto {
+                MemberId = reminderContext.Member.Id,
+                MemberDisplayName = BuildMemberDisplayName(reminderContext.Member),
+                Reason = eligibility.Reason ?? "Reminder email is not available."
+            });
+        }
+
+        return Result<MembershipDueReminderDispatchPreviewDto>.Success(new MembershipDueReminderDispatchPreviewDto {
+            PaymentPeriodId = reminderContext.PaymentPeriod.Id,
+            PaymentPeriodName = reminderContext.PaymentPeriod.Name,
+            Recipients = recipients,
+            SkippedMembers = skippedMembers
+        });
+    }
+
+    /// <inheritdoc />
+    public async Task<Result> SendReminderEmailAsync(int dueId) {
+        if (emailSender is null)
+            return Result.Failure("Email sender is not configured.");
+
+        var reminderContextResult = await LoadReminderContextAsync(dueId);
+        if (!reminderContextResult.IsSuccess)
+            return Result.Failure(reminderContextResult.Error ?? "Reminder context could not be loaded.");
+        var reminderContext = reminderContextResult.Value!;
+
+        var eligibility = EvaluateReminderEligibility(reminderContext.Member, reminderContext.PaymentPeriod, reminderContext.Due);
+        if (!eligibility.IsSendable)
+            return Result.Failure(eligibility.Reason ?? "Reminder email cannot be sent.");
+
+        var preview = MembershipDueReminderEmailComposer.Compose(reminderContext.Member, reminderContext.PaymentPeriod, reminderContext.Due);
+
+        try {
+            await emailSender.SendAsync(
+                preview.RecipientEmail,
+                preview.Subject,
+                preview.TextBody,
+                preview.HtmlBody,
+                CancellationToken.None);
+            return Result.Success();
+        }
+        catch (Exception exception) {
+            return Result.Failure($"Failed to send reminder email: {exception.Message}");
+        }
     }
     
     /// <inheritdoc />
@@ -225,5 +344,67 @@ public class MembershipDueService(
     private static bool QualifiesForReducedDue(Member member, MembershipPaymentPeriod paymentPeriod)
     {
         return member.Status == DomainEnums.MembershipStatus.SupportingMember;
+    }
+
+    private async Task<Result<ReminderContext>> LoadReminderContextAsync(int dueId) {
+        var dueResult = await dueRepository.GetByIdAsync(dueId);
+        if (!dueResult.IsSuccess)
+            return Result<ReminderContext>.Failure(dueResult.Error ?? "Due not found.");
+        var due = dueResult.Value!;
+
+        var memberResult = await memberRepository.GetByMemberIdAsync(due.MemberId);
+        if (!memberResult.IsSuccess)
+            return Result<ReminderContext>.Failure(memberResult.Error ?? "Member not found.");
+        var member = memberResult.Value!;
+
+        var paymentPeriodResult = await paymentPeriodRepository.GetByIdAsync(due.PaymentPeriodId);
+        if (!paymentPeriodResult.IsSuccess)
+            return Result<ReminderContext>.Failure(paymentPeriodResult.Error ?? "Payment period not found.");
+        var paymentPeriod = paymentPeriodResult.Value!;
+
+        return Result<ReminderContext>.Success(new ReminderContext(due, member, paymentPeriod));
+    }
+
+    private static ReminderEligibility EvaluateReminderEligibility(Member member, MembershipPaymentPeriod paymentPeriod, MembershipDue due) {
+        if (due.PaymentPeriodId != paymentPeriod.Id)
+            return ReminderEligibility.Skip("Due does not belong to the selected payment period.");
+
+        if (due.Status != DomainEnums.MembershipDueStatus.Pending) {
+            return ReminderEligibility.Skip(due.Status switch {
+                DomainEnums.MembershipDueStatus.Paid => "Due is already paid.",
+                DomainEnums.MembershipDueStatus.Waived => "Due has been waived.",
+                DomainEnums.MembershipDueStatus.Cancelled => "Due has been cancelled.",
+                _ => $"Due is not eligible because its status is {due.Status}."
+            });
+        }
+
+        var today = DateOnly.FromDateTime(DateTime.UtcNow.Date);
+        if (due.DueDate >= today)
+            return ReminderEligibility.Skip("Due date has not passed yet.");
+
+        if (string.IsNullOrWhiteSpace(member.Email))
+            return ReminderEligibility.Skip("Member has no email address.");
+
+        return ReminderEligibility.Sendable();
+    }
+
+    private static string BuildMemberDisplayName(Member member) {
+        var fullName = string.Join(" ", new[] { member.FirstName?.Trim(), member.LastName?.Trim() }
+            .Where(value => !string.IsNullOrWhiteSpace(value)));
+
+        if (!string.IsNullOrWhiteSpace(fullName))
+            return fullName;
+
+        if (!string.IsNullOrWhiteSpace(member.Email))
+            return member.Email.Trim();
+
+        return member.Id.ToString();
+    }
+
+    private sealed record ReminderContext(MembershipDue Due, Member Member, MembershipPaymentPeriod PaymentPeriod);
+
+    private sealed record ReminderEligibility(bool IsSendable, string? Reason) {
+        public static ReminderEligibility Sendable() => new(true, null);
+        public static ReminderEligibility Skip(string reason) => new(false, reason);
     }
 }

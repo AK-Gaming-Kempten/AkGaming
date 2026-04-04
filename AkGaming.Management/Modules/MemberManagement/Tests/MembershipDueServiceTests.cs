@@ -1,4 +1,5 @@
 using AkGaming.Core.Common.Generics;
+using AkGaming.Core.Common.Email;
 using AkGaming.Core.Constants;
 using AkGaming.Management.Modules.MemberManagement.Application.Interfaces;
 using AkGaming.Management.Modules.MemberManagement.Application.Services;
@@ -353,10 +354,25 @@ public class MembershipDueServiceTests {
         var memberRepository = new Mock<IMemberRepository>();
         var service = new MembershipDueService(dueRepository.Object, paymentPeriodRepository.Object, memberRepository.Object);
 
+        var member = new Member {
+            Id = Guid.NewGuid(),
+            FirstName = "Paid",
+            LastName = "Member",
+            Email = "paid@example.com",
+            Status = DomainEnums.MembershipStatus.Member
+        };
+        var paymentPeriod = new MembershipPaymentPeriod {
+            Id = 5,
+            Name = "SS 2026",
+            DueDate = new DateOnly(2026, 4, 1),
+            DefaultDueAmount = 15m,
+            ReducedDueAmount = 5m,
+            CreatedAt = DateTimeOffset.UtcNow
+        };
         var due = new MembershipDue {
             Id = 77,
-            PaymentPeriodId = 5,
-            MemberId = Guid.NewGuid(),
+            PaymentPeriodId = paymentPeriod.Id,
+            MemberId = member.Id,
             Status = DomainEnums.MembershipDueStatus.Paid,
             DueAmount = 15m,
             PaidAmount = 15m,
@@ -364,11 +380,157 @@ public class MembershipDueServiceTests {
         };
 
         dueRepository.Setup(x => x.GetByIdAsync(due.Id)).ReturnsAsync(Result<MembershipDue>.Success(due));
+        memberRepository.Setup(x => x.GetByMemberIdAsync(member.Id)).ReturnsAsync(Result<Member>.Success(member));
+        paymentPeriodRepository.Setup(x => x.GetByIdAsync(paymentPeriod.Id)).ReturnsAsync(Result<MembershipPaymentPeriod>.Success(paymentPeriod));
 
         var result = await service.GetReminderEmailPreviewAsync(due.Id);
 
         Assert.That(result.IsSuccess, Is.False);
-        Assert.That(result.Error, Is.EqualTo("Reminder email is only available for pending dues."));
+        Assert.That(result.Error, Is.EqualTo("Due is already paid."));
+    }
+
+    [Test]
+    public async Task GetReminderDispatchPreviewForPaymentPeriodAsync_ReturnsRecipientsAndSkippedMembers() {
+        var dueRepository = new Mock<IMembershipDueRepository>();
+        var paymentPeriodRepository = new Mock<IMembershipPaymentPeriodRepository>();
+        var memberRepository = new Mock<IMemberRepository>();
+        var service = new MembershipDueService(dueRepository.Object, paymentPeriodRepository.Object, memberRepository.Object);
+
+        var overdueDate = DateOnly.FromDateTime(DateTime.UtcNow.Date.AddDays(-3));
+        var futureDate = DateOnly.FromDateTime(DateTime.UtcNow.Date.AddDays(3));
+        var paymentPeriod = new MembershipPaymentPeriod {
+            Id = 23,
+            Name = "SS 2026",
+            DueDate = overdueDate,
+            DefaultDueAmount = 15m,
+            ReducedDueAmount = 5m,
+            CreatedAt = DateTimeOffset.UtcNow
+        };
+
+        var sendableMember = new Member { Id = Guid.NewGuid(), FirstName = "Anna", LastName = "Able", Email = "anna@example.com", Status = DomainEnums.MembershipStatus.Member };
+        var missingEmailMember = new Member { Id = Guid.NewGuid(), FirstName = "Ben", LastName = "Blank", Email = null, Status = DomainEnums.MembershipStatus.Member };
+        var paidMember = new Member { Id = Guid.NewGuid(), FirstName = "Cara", LastName = "Cleared", Email = "cara@example.com", Status = DomainEnums.MembershipStatus.Member };
+        var noDueMember = new Member { Id = Guid.NewGuid(), FirstName = "Dora", LastName = "Detached", Email = "dora@example.com", Status = DomainEnums.MembershipStatus.Member };
+        var futureDueMember = new Member { Id = Guid.NewGuid(), FirstName = "Evan", LastName = "Early", Email = "evan@example.com", Status = DomainEnums.MembershipStatus.Member };
+
+        paymentPeriodRepository.Setup(x => x.GetByIdAsync(paymentPeriod.Id)).ReturnsAsync(Result<MembershipPaymentPeriod>.Success(paymentPeriod));
+        memberRepository.Setup(x => x.GetAllAsync()).ReturnsAsync(Result<List<Member>>.Success([
+            sendableMember, missingEmailMember, paidMember, noDueMember, futureDueMember
+        ]));
+        dueRepository.Setup(x => x.GetByPaymentPeriodIdAsync(paymentPeriod.Id)).ReturnsAsync(Result<List<MembershipDue>>.Success([
+            new MembershipDue { Id = 1, PaymentPeriodId = paymentPeriod.Id, MemberId = sendableMember.Id, Status = DomainEnums.MembershipDueStatus.Pending, DueAmount = 15m, DueDate = overdueDate },
+            new MembershipDue { Id = 2, PaymentPeriodId = paymentPeriod.Id, MemberId = missingEmailMember.Id, Status = DomainEnums.MembershipDueStatus.Pending, DueAmount = 15m, DueDate = overdueDate },
+            new MembershipDue { Id = 3, PaymentPeriodId = paymentPeriod.Id, MemberId = paidMember.Id, Status = DomainEnums.MembershipDueStatus.Paid, DueAmount = 15m, PaidAmount = 15m, DueDate = overdueDate },
+            new MembershipDue { Id = 4, PaymentPeriodId = paymentPeriod.Id, MemberId = futureDueMember.Id, Status = DomainEnums.MembershipDueStatus.Pending, DueAmount = 15m, DueDate = futureDate }
+        ]));
+
+        var result = await service.GetReminderDispatchPreviewForPaymentPeriodAsync(paymentPeriod.Id);
+
+        using (Assert.EnterMultipleScope()) {
+            Assert.That(result.IsSuccess, Is.True);
+            Assert.That(result.Value, Is.Not.Null);
+            Assert.That(result.Value!.Recipients, Has.Count.EqualTo(1));
+            Assert.That(result.Value!.Recipients.Single().MemberId, Is.EqualTo(sendableMember.Id));
+            Assert.That(result.Value!.SkippedMembers, Has.Count.EqualTo(4));
+            Assert.That(result.Value!.SkippedMembers.Any(x => x.MemberId == missingEmailMember.Id && x.Reason == "Member has no email address."), Is.True);
+            Assert.That(result.Value!.SkippedMembers.Any(x => x.MemberId == paidMember.Id && x.Reason == "Due is already paid."), Is.True);
+            Assert.That(result.Value!.SkippedMembers.Any(x => x.MemberId == noDueMember.Id && x.Reason == "No due exists in this payment period."), Is.True);
+            Assert.That(result.Value!.SkippedMembers.Any(x => x.MemberId == futureDueMember.Id && x.Reason == "Due date has not passed yet."), Is.True);
+        }
+    }
+
+    [Test]
+    public async Task SendReminderEmailAsync_SendsReminderForEligibleDue() {
+        var dueRepository = new Mock<IMembershipDueRepository>();
+        var paymentPeriodRepository = new Mock<IMembershipPaymentPeriodRepository>();
+        var memberRepository = new Mock<IMemberRepository>();
+        var emailSender = new Mock<IEmailSender>();
+        var service = new MembershipDueService(dueRepository.Object, paymentPeriodRepository.Object, memberRepository.Object, emailSender.Object);
+
+        var overdueDate = DateOnly.FromDateTime(DateTime.UtcNow.Date.AddDays(-2));
+        var member = new Member {
+            Id = Guid.NewGuid(),
+            FirstName = "Max",
+            LastName = "Mailer",
+            Email = "max@example.com",
+            Status = DomainEnums.MembershipStatus.Member
+        };
+        var paymentPeriod = new MembershipPaymentPeriod {
+            Id = 91,
+            Name = "SS 2026",
+            DueDate = overdueDate,
+            DefaultDueAmount = 15m,
+            ReducedDueAmount = 5m,
+            CreatedAt = DateTimeOffset.UtcNow
+        };
+        var due = new MembershipDue {
+            Id = 9,
+            PaymentPeriodId = paymentPeriod.Id,
+            MemberId = member.Id,
+            Status = DomainEnums.MembershipDueStatus.Pending,
+            DueAmount = 15m,
+            DueDate = overdueDate
+        };
+
+        dueRepository.Setup(x => x.GetByIdAsync(due.Id)).ReturnsAsync(Result<MembershipDue>.Success(due));
+        memberRepository.Setup(x => x.GetByMemberIdAsync(member.Id)).ReturnsAsync(Result<Member>.Success(member));
+        paymentPeriodRepository.Setup(x => x.GetByIdAsync(paymentPeriod.Id)).ReturnsAsync(Result<MembershipPaymentPeriod>.Success(paymentPeriod));
+        emailSender.Setup(x => x.SendAsync(member.Email!, It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string?>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        var result = await service.SendReminderEmailAsync(due.Id);
+
+        Assert.That(result.IsSuccess, Is.True);
+        emailSender.Verify(x => x.SendAsync(
+            member.Email!,
+            It.Is<string>(subject => subject.Contains("SS 2026")),
+            It.Is<string>(text => text.Contains("Mitgliedsbeitrag")),
+            It.Is<string?>(html => html != null && html.Contains("Mitgliedsbeitrag offen")),
+            It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Test]
+    public async Task SendReminderEmailAsync_FailsWhenDueIsNotEligible() {
+        var dueRepository = new Mock<IMembershipDueRepository>();
+        var paymentPeriodRepository = new Mock<IMembershipPaymentPeriodRepository>();
+        var memberRepository = new Mock<IMemberRepository>();
+        var emailSender = new Mock<IEmailSender>();
+        var service = new MembershipDueService(dueRepository.Object, paymentPeriodRepository.Object, memberRepository.Object, emailSender.Object);
+
+        var futureDate = DateOnly.FromDateTime(DateTime.UtcNow.Date.AddDays(4));
+        var member = new Member {
+            Id = Guid.NewGuid(),
+            FirstName = "Nina",
+            LastName = "NotDue",
+            Email = "nina@example.com",
+            Status = DomainEnums.MembershipStatus.Member
+        };
+        var paymentPeriod = new MembershipPaymentPeriod {
+            Id = 92,
+            Name = "SS 2026",
+            DueDate = futureDate,
+            DefaultDueAmount = 15m,
+            ReducedDueAmount = 5m,
+            CreatedAt = DateTimeOffset.UtcNow
+        };
+        var due = new MembershipDue {
+            Id = 10,
+            PaymentPeriodId = paymentPeriod.Id,
+            MemberId = member.Id,
+            Status = DomainEnums.MembershipDueStatus.Pending,
+            DueAmount = 15m,
+            DueDate = futureDate
+        };
+
+        dueRepository.Setup(x => x.GetByIdAsync(due.Id)).ReturnsAsync(Result<MembershipDue>.Success(due));
+        memberRepository.Setup(x => x.GetByMemberIdAsync(member.Id)).ReturnsAsync(Result<Member>.Success(member));
+        paymentPeriodRepository.Setup(x => x.GetByIdAsync(paymentPeriod.Id)).ReturnsAsync(Result<MembershipPaymentPeriod>.Success(paymentPeriod));
+
+        var result = await service.SendReminderEmailAsync(due.Id);
+
+        Assert.That(result.IsSuccess, Is.False);
+        Assert.That(result.Error, Is.EqualTo("Due date has not passed yet."));
+        emailSender.Verify(x => x.SendAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string?>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
     private static Member CreateTrialMember(Guid id, DateOnly trialEndDate) {

@@ -1,3 +1,4 @@
+using AkGaming.Core.Common.Generics;
 using AkGaming.Management.Frontend.ApiClients;
 using AkGaming.Management.Modules.MemberManagement.Contracts.DTO;
 using AkGaming.Management.Modules.MemberManagement.Contracts.Enums;
@@ -18,6 +19,7 @@ public partial class MemberManagementDuesPage : ComponentBase {
     private readonly List<MembershipDueDto> _dues = [];
     private readonly Dictionary<Guid, string> _memberFullNameLookup = [];
     private readonly HashSet<int> _savingDueIds = [];
+    private List<ReminderDispatchRecipientState> _dispatchRecipientStates = [];
     private int? _selectedPaymentPeriodId;
     private MemberDisplayMode _memberDisplayMode = MemberDisplayMode.FullName;
     private string? _memberNameFilter;
@@ -27,8 +29,15 @@ public partial class MemberManagementDuesPage : ComponentBase {
     private bool _loadingDues;
     private bool _creatingPeriod;
     private bool _showCreatePeriodForm;
+    private bool _isReminderDialogOpen;
+    private bool _loadingReminderDispatchPreview;
+    private bool _sendingReminderDispatch;
+    private bool _sendingReminderDispatchCompleted;
     private string? _errorMessage;
     private string? _statusMessage;
+    private string? _reminderDialogError;
+    private string _reminderDialogTitle = "Send reminder emails";
+    private MembershipDueReminderDispatchPreviewDto? _reminderDispatchPreview;
 
     protected override async Task OnInitializedAsync() {
         await LoadMemberLookupAsync();
@@ -162,12 +171,102 @@ public partial class MemberManagementDuesPage : ComponentBase {
         _showCreatePeriodForm = !_showCreatePeriodForm;
     }
 
+    private async Task OpenBulkReminderDialogAsync() {
+        if (_selectedPaymentPeriodId is null)
+            return;
+
+        _reminderDialogTitle = $"Send reminders for {GetSelectedPaymentPeriodLabel()}";
+        await OpenReminderDialogAsync(() => MemberApi.GetReminderDispatchPreviewForPaymentPeriodAsync(_selectedPaymentPeriodId.Value));
+    }
+
+    private async Task OpenSingleReminderDialogAsync(MembershipDueDto due) {
+        _reminderDialogTitle = $"Send reminder for {GetPrimaryMemberLabel(due.MemberId)}";
+        await OpenReminderDialogAsync(() => MemberApi.GetReminderDispatchPreviewForDueAsync(due.Id));
+    }
+
+    private async Task OpenReminderDialogAsync(Func<Task<Result<MembershipDueReminderDispatchPreviewDto>>> loader) {
+        _isReminderDialogOpen = true;
+        _loadingReminderDispatchPreview = true;
+        _sendingReminderDispatch = false;
+        _sendingReminderDispatchCompleted = false;
+        _reminderDialogError = null;
+        _reminderDispatchPreview = null;
+        _dispatchRecipientStates = [];
+
+        var result = await loader();
+        if (!result.IsSuccess) {
+            _reminderDialogError = result.Error ?? "Failed to load reminder dispatch preview.";
+            _loadingReminderDispatchPreview = false;
+            return;
+        }
+
+        _reminderDispatchPreview = result.Value;
+        _dispatchRecipientStates = (_reminderDispatchPreview?.Recipients ?? [])
+            .Select(recipient => new ReminderDispatchRecipientState {
+                DueId = recipient.DueId,
+                MemberId = recipient.MemberId,
+                MemberDisplayName = recipient.MemberDisplayName,
+                Email = recipient.Email,
+                DueAmount = recipient.DueAmount,
+                DueDate = recipient.DueDate
+            })
+            .ToList();
+        _loadingReminderDispatchPreview = false;
+    }
+
+    private async Task SendReminderDispatchAsync() {
+        if (_dispatchRecipientStates.Count == 0)
+            return;
+
+        _sendingReminderDispatch = true;
+        _sendingReminderDispatchCompleted = false;
+        _reminderDialogError = null;
+
+        foreach (var recipient in _dispatchRecipientStates) {
+            recipient.State = ReminderDispatchState.Sending;
+            recipient.ResultMessage = null;
+            await InvokeAsync(StateHasChanged);
+
+            var result = await MemberApi.SendReminderEmailAsync(recipient.DueId);
+            if (result.IsSuccess) {
+                recipient.State = ReminderDispatchState.Succeeded;
+                recipient.ResultMessage = "Reminder email sent.";
+            }
+            else {
+                recipient.State = ReminderDispatchState.Failed;
+                recipient.ResultMessage = result.Error ?? "Failed to send reminder email.";
+            }
+
+            await InvokeAsync(StateHasChanged);
+        }
+
+        _sendingReminderDispatch = false;
+        _sendingReminderDispatchCompleted = true;
+        _statusMessage = $"Reminder dispatch finished: {ReminderDispatchSuccessCount} succeeded, {ReminderDispatchFailureCount} failed.";
+    }
+
+    private void CloseReminderDialog() {
+        if (_sendingReminderDispatch)
+            return;
+
+        _isReminderDialogOpen = false;
+        _loadingReminderDispatchPreview = false;
+        _sendingReminderDispatch = false;
+        _sendingReminderDispatchCompleted = false;
+        _reminderDialogError = null;
+        _reminderDispatchPreview = null;
+        _dispatchRecipientStates = [];
+    }
+
     private int PendingCount => _dues.Count(x => x.Status == MembershipDueStatus.Pending);
     private int PaidCount => _dues.Count(x => x.Status == MembershipDueStatus.Paid);
     private int CancelledCount => _dues.Count(x => x.Status == MembershipDueStatus.Cancelled);
     private int WaivedCount => _dues.Count(x => x.Status == MembershipDueStatus.Waived);
     private int TotalCount => _dues.Count;
     private IEnumerable<MembershipDueDto> FilteredAndSortedDues => BuildFilteredAndSortedDues();
+    private string ReminderDialogTitle => _reminderDialogTitle;
+    private int ReminderDispatchSuccessCount => _dispatchRecipientStates.Count(x => x.State == ReminderDispatchState.Succeeded);
+    private int ReminderDispatchFailureCount => _dispatchRecipientStates.Count(x => x.State == ReminderDispatchState.Failed);
 
     private string GetHalfPieStyle() {
         if (TotalCount == 0)
@@ -247,8 +346,45 @@ public partial class MemberManagementDuesPage : ComponentBase {
         return null;
     }
 
+    private string GetSelectedPaymentPeriodLabel() =>
+        _paymentPeriods.FirstOrDefault(period => period.Id == _selectedPaymentPeriodId)?.Name ?? "selected payment period";
+
+    private static string GetReminderStateLabel(ReminderDispatchState state) => state switch {
+        ReminderDispatchState.Pending => "Ready",
+        ReminderDispatchState.Sending => "Sending",
+        ReminderDispatchState.Succeeded => "Sent",
+        ReminderDispatchState.Failed => "Failed",
+        _ => "Ready"
+    };
+
+    private static string GetReminderStateClass(ReminderDispatchState state) => state switch {
+        ReminderDispatchState.Pending => "dues-reminder-state dues-reminder-state-pending",
+        ReminderDispatchState.Sending => "dues-reminder-state dues-reminder-state-sending",
+        ReminderDispatchState.Succeeded => "dues-reminder-state dues-reminder-state-succeeded",
+        ReminderDispatchState.Failed => "dues-reminder-state dues-reminder-state-failed",
+        _ => "dues-reminder-state dues-reminder-state-pending"
+    };
+
     private enum MemberDisplayMode {
         FullName,
         MemberId
+    }
+
+    private enum ReminderDispatchState {
+        Pending,
+        Sending,
+        Succeeded,
+        Failed
+    }
+
+    private sealed class ReminderDispatchRecipientState {
+        public int DueId { get; set; }
+        public Guid MemberId { get; set; }
+        public string MemberDisplayName { get; set; } = string.Empty;
+        public string Email { get; set; } = string.Empty;
+        public decimal DueAmount { get; set; }
+        public DateOnly DueDate { get; set; }
+        public ReminderDispatchState State { get; set; } = ReminderDispatchState.Pending;
+        public string? ResultMessage { get; set; }
     }
 }

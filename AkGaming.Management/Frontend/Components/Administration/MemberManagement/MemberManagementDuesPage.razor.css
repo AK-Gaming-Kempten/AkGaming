@@ -4,6 +4,15 @@
     --dues-waived: var(--color-status-waived);
     --dues-cancelled: var(--color-status-cancelled);
     --dues-empty: var(--color-status-empty);
+    position: relative;
+    transition: filter 0.2s ease, opacity 0.2s ease;
+}
+
+.dues-management-page-dialog-open {
+    filter: blur(6px);
+    opacity: 0.45;
+    pointer-events: none;
+    user-select: none;
 }
 
 .dues-dashboard {
@@ -89,6 +98,146 @@
     color: var(--color-highlight-primary);
 }
 
+.dues-list-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+}
+
+.dues-reminder-dialog-backdrop {
+    position: fixed;
+    inset: 0;
+    background: color-mix(in srgb, var(--color-background-quartiary) 42%, transparent);
+    backdrop-filter: blur(4px);
+    z-index: 1400;
+}
+
+.dues-reminder-dialog-shell {
+    position: fixed;
+    inset: 0;
+    z-index: 1410;
+    display: grid;
+    place-items: center;
+    padding: 1rem;
+}
+
+.dues-reminder-dialog {
+    width: min(1100px, calc(100vw - 2rem));
+    max-height: min(88vh, 900px);
+    overflow: auto;
+    box-shadow: 0 22px 42px color-mix(in srgb, black 28%, transparent);
+}
+
+.dues-reminder-dialog-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.dues-reminder-dialog-header h3 {
+    margin: 0;
+}
+
+.dues-reminder-dialog-eyebrow {
+    margin: 0 0 0.35rem;
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--color-text-secondary);
+}
+
+.dues-reminder-dialog-summary {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    margin-bottom: 1rem;
+}
+
+.dues-reminder-dialog-columns {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem;
+}
+
+.dues-reminder-card {
+    padding: 1rem;
+    border-radius: 12px;
+    border: 1px solid color-mix(in srgb, var(--color-highlight-secondary) 28%, transparent);
+    background: color-mix(in srgb, var(--color-background-primary) 96%, transparent);
+}
+
+.dues-reminder-card h4 {
+    margin: 0 0 0.85rem;
+}
+
+.dues-reminder-list {
+    display: grid;
+    gap: 0.75rem;
+}
+
+.dues-reminder-list-item {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 0.85rem;
+    padding: 0.85rem 0.95rem;
+    border-radius: 10px;
+    border: 1px solid color-mix(in srgb, var(--color-highlight-secondary) 22%, transparent);
+    background: color-mix(in srgb, var(--color-background-secondary) 45%, var(--color-background-primary) 55%);
+}
+
+.dues-reminder-list-item p {
+    margin: 0.2rem 0 0;
+    color: var(--color-text-secondary);
+}
+
+.dues-reminder-list-item-skip {
+    align-items: center;
+}
+
+.dues-reminder-state {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 74px;
+    padding: 0.28rem 0.6rem;
+    border-radius: 999px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.dues-reminder-state-pending {
+    background: color-mix(in srgb, var(--color-status-open) 16%, transparent);
+    color: var(--color-status-open);
+}
+
+.dues-reminder-state-sending {
+    background: color-mix(in srgb, var(--color-highlight-secondary) 16%, transparent);
+    color: var(--color-highlight-secondary);
+}
+
+.dues-reminder-state-succeeded {
+    background: color-mix(in srgb, var(--color-status-paid) 16%, transparent);
+    color: var(--color-status-paid);
+}
+
+.dues-reminder-state-failed {
+    background: color-mix(in srgb, var(--color-button-danger-bg) 18%, transparent);
+    color: var(--color-button-danger-bg);
+}
+
+.dues-reminder-dialog-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.75rem;
+    margin-top: 1rem;
+}
+
 @media (max-width: 900px) {
     .dues-dashboard {
         grid-template-columns: 1fr;
@@ -96,5 +245,17 @@
 
     .dues-half-pie-shell {
         margin: 0 auto;
+    }
+
+    .dues-list-header,
+    .dues-reminder-dialog-header,
+    .dues-reminder-list-item,
+    .dues-reminder-dialog-actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .dues-reminder-dialog-columns {
+        grid-template-columns: 1fr;
     }
 }

@@ -25,6 +25,15 @@
         </button>
     </header>
 
+    <div class="due-entry-inline-actions">
+        <button type="button"
+                class="btn btn-sm btn-primary"
+                @onclick="RequestReminderSendAsync"
+                disabled="@IsSaving">
+            Send reminder
+        </button>
+    </div>
+
     @if (CanPreviewReminder) {
         <div class="due-entry-preview-toggle">
             <button type="button"

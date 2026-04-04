@@ -13,6 +13,7 @@ public partial class MemberDueEntry : ComponentBase {
     [Parameter] public string? SecondaryMemberLabel { get; set; }
     [Parameter] public bool IsSaving { get; set; }
     [Parameter] public EventCallback<MembershipDueDto> OnSave { get; set; }
+    [Parameter] public EventCallback<MembershipDueDto> OnRequestReminderSend { get; set; }
 
     private readonly MembershipDueStatus[] _statuses = Enum.GetValues<MembershipDueStatus>();
     private MembershipDueDto _editingDue = new();
@@ -53,6 +54,10 @@ public partial class MemberDueEntry : ComponentBase {
     private async Task SaveDueAsync() {
         await OnSave.InvokeAsync(_editingDue);
         EditMode = false;
+    }
+
+    private async Task RequestReminderSendAsync() {
+        await OnRequestReminderSend.InvokeAsync(Due);
     }
 
     private bool CanPreviewReminder => Due.Status == MembershipDueStatus.Pending && Due.IsOverdue();

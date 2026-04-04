@@ -6,149 +6,269 @@
 
 <PageTitle>Membership Dues</PageTitle>
 
-<div class="ui-stack-md dues-management-page">
-    <div class="ui-grid-2 dues-top-grid">
-        <section class="panel dues-card dues-controls-card">
-            <h4 class="ui-title">Controls</h4>
-            <div class="ui-grid-auto-160 dues-toolbar">
-                <div class="ui-field dues-control">
-                    <label for="payment-period-select">Payment period</label>
-                    <select id="payment-period-select"
-                            class="ui-select-sm"
-                            value="@_selectedPaymentPeriodId"
-                            @onchange="OnPaymentPeriodChanged"
-                            disabled="@(_loadingPaymentPeriods || _paymentPeriods.Count == 0)">
-                        @if (_paymentPeriods.Count == 0) {
-                            <option value="">No payment periods</option>
-                        }
-                        else {
-                            @foreach (var period in _paymentPeriods) {
-                                <option value="@period.Id">@period.Name - due @period.DueDate</option>
+<div class="dues-management-page-shell">
+    <div class="ui-stack-md dues-management-page @(_isReminderDialogOpen ? "dues-management-page-dialog-open" : string.Empty)"
+         inert="@(_isReminderDialogOpen ? string.Empty : null)"
+         aria-hidden="@(_isReminderDialogOpen ? "true" : null)">
+        <div class="ui-grid-2 dues-top-grid">
+            <section class="panel dues-card dues-controls-card">
+                <h4 class="ui-title">Controls</h4>
+                <div class="ui-grid-auto-160 dues-toolbar">
+                    <div class="ui-field dues-control">
+                        <label for="payment-period-select">Payment period</label>
+                        <select id="payment-period-select"
+                                class="ui-select-sm"
+                                value="@_selectedPaymentPeriodId"
+                                @onchange="OnPaymentPeriodChanged"
+                                disabled="@(_loadingPaymentPeriods || _paymentPeriods.Count == 0)">
+                            @if (_paymentPeriods.Count == 0) {
+                                <option value="">No payment periods</option>
                             }
-                        }
-                    </select>
+                            else {
+                                @foreach (var period in _paymentPeriods) {
+                                    <option value="@period.Id">@period.Name - due @period.DueDate</option>
+                                }
+                            }
+                        </select>
+                    </div>
+
+                    <div class="ui-field dues-control">
+                        <label for="member-display-mode">Member display</label>
+                        <InputSelect id="member-display-mode"
+                                     class="ui-select-sm"
+                                     @bind-Value="_memberDisplayMode">
+                            <option value="@MemberDisplayMode.FullName">Full name</option>
+                            <option value="@MemberDisplayMode.MemberId">Member ID</option>
+                        </InputSelect>
+                    </div>
+
+                    <div class="ui-field dues-control">
+                        <label for="member-name-filter">Filter by name</label>
+                        <InputText id="member-name-filter"
+                                   class="ui-input-sm"
+                                   placeholder="Search member"
+                                   @bind-Value="_memberNameFilter" />
+                    </div>
+
+                    <div class="ui-field dues-control">
+                        <label for="status-filter">Filter by status</label>
+                        <InputSelect id="status-filter"
+                                     class="ui-select-sm"
+                                     @bind-Value="_selectedStatusFilter">
+                            <option value="">All statuses</option>
+                            @foreach (var status in Enum.GetValues<MembershipDueStatus>()) {
+                                <option value="@status">@status</option>
+                            }
+                        </InputSelect>
+                    </div>
+
+                    <div class="ui-actions dues-control-actions">
+                        <button class="btn btn-sm btn-secondary"
+                                @onclick="() => LoadPaymentPeriodsAsync(true)"
+                                disabled="@(_loadingPaymentPeriods || _loadingDues)">
+                            Refresh
+                        </button>
+                        <button type="button"
+                                class="btn btn-sm btn-primary"
+                                @onclick="OpenBulkReminderDialogAsync"
+                                disabled="@(_selectedPaymentPeriodId is null || _loadingPaymentPeriods || _loadingDues)">
+                            Send all reminders
+                        </button>
+                        <button type="button"
+                                class="btn btn-sm btn-outline-secondary"
+                                @onclick="ToggleCreatePeriodForm">
+                            @(_showCreatePeriodForm ? "Hide create period" : "Create period")
+                        </button>
+                    </div>
                 </div>
 
-                <div class="ui-field dues-control">
-                    <label for="member-display-mode">Member display</label>
-                    <InputSelect id="member-display-mode"
-                                 class="ui-select-sm"
-                                 @bind-Value="_memberDisplayMode">
-                        <option value="@MemberDisplayMode.FullName">Full name</option>
-                        <option value="@MemberDisplayMode.MemberId">Member ID</option>
-                    </InputSelect>
-                </div>
+                @if (_showCreatePeriodForm) {
+                    <EditForm Model="_createRequest" OnValidSubmit="CreatePaymentPeriodAsync">
+                        <div class="ui-grid-auto-180 dues-create-grid">
+                            <div>
+                                <label>Name</label>
+                                <InputText @bind-Value="_createRequest.Name" />
+                            </div>
+                            <div>
+                                <label>Due date</label>
+                                <InputDate @bind-Value="_createRequest.DueDate" />
+                            </div>
+                            <div>
+                                <label>Default amount (€)</label>
+                                <InputNumber @bind-Value="_createRequest.DefaultDueAmount" />
+                            </div>
+                            <div>
+                                <label>Reduced amount (€)</label>
+                                <InputNumber @bind-Value="_createRequest.ReducedDueAmount" />
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-sm btn-primary" disabled="@_creatingPeriod">Create period and dues</button>
+                    </EditForm>
+                }
+            </section>
 
-                <div class="ui-field dues-control">
-                    <label for="member-name-filter">Filter by name</label>
-                    <InputText id="member-name-filter"
-                               class="ui-input-sm"
-                               placeholder="Search member"
-                               @bind-Value="_memberNameFilter" />
-                </div>
+            <section class="panel dues-card dues-summary-card">
+                <h4 class="ui-title">Summary</h4>
+                <div class="dues-dashboard">
+                    <div class="dues-half-pie-shell">
+                        <div class="dues-half-pie" style="@GetHalfPieStyle()">
+                            <div class="dues-half-pie-inner">
+                                <strong>@TotalCount</strong>
+                                <span>total dues</span>
+                            </div>
+                        </div>
+                    </div>
 
-                <div class="ui-field dues-control">
-                    <label for="status-filter">Filter by status</label>
-                    <InputSelect id="status-filter"
-                                 class="ui-select-sm"
-                                 @bind-Value="_selectedStatusFilter">
-                        <option value="">All statuses</option>
-                        @foreach (var status in Enum.GetValues<MembershipDueStatus>()) {
-                            <option value="@status">@status</option>
-                        }
-                    </InputSelect>
+                    <div class="dues-summary">
+                        <span class="dues-chip dues-chip-open">Open: @PendingCount</span>
+                        <span class="dues-chip dues-chip-paid">Paid: @PaidCount</span>
+                        <span class="dues-chip dues-chip-waived">Waived: @WaivedCount</span>
+                        <span class="dues-chip dues-chip-cancelled">Cancelled: @CancelledCount</span>
+                    </div>
                 </div>
+            </section>
+        </div>
 
-                <div class="ui-actions dues-control-actions">
-                    <button class="btn btn-sm btn-secondary"
-                            @onclick="() => LoadPaymentPeriodsAsync(true)"
-                            disabled="@(_loadingPaymentPeriods || _loadingDues)">
-                        Refresh
-                    </button>
+        <section class="panel dues-card dues-list-card">
+            <div class="dues-list-header">
+                <h4 class="ui-title">Payment Period Dues</h4>
+                @if (_selectedPaymentPeriodId is not null) {
                     <button type="button"
-                            class="btn btn-sm btn-outline-secondary"
-                            @onclick="ToggleCreatePeriodForm">
-                        @(_showCreatePeriodForm ? "Hide create period" : "Create period")
+                            class="btn btn-sm btn-primary"
+                            @onclick="OpenBulkReminderDialogAsync"
+                            disabled="@(_loadingPaymentPeriods || _loadingDues)">
+                        Send all reminders
                     </button>
-                </div>
+                }
             </div>
-
-            @if (_showCreatePeriodForm) {
-                <EditForm Model="_createRequest" OnValidSubmit="CreatePaymentPeriodAsync">
-                    <div class="ui-grid-auto-180 dues-create-grid">
-                        <div>
-                            <label>Name</label>
-                            <InputText @bind-Value="_createRequest.Name" />
-                        </div>
-                        <div>
-                            <label>Due date</label>
-                            <InputDate @bind-Value="_createRequest.DueDate" />
-                        </div>
-                        <div>
-                            <label>Default amount (€)</label>
-                            <InputNumber @bind-Value="_createRequest.DefaultDueAmount" />
-                        </div>
-                        <div>
-                            <label>Reduced amount (€)</label>
-                            <InputNumber @bind-Value="_createRequest.ReducedDueAmount" />
-                        </div>
-                    </div>
-                    <button type="submit" class="btn btn-sm btn-primary" disabled="@_creatingPeriod">Create period and dues</button>
-                </EditForm>
+            @if (!string.IsNullOrWhiteSpace(_statusMessage)) {
+                <p class="status-message">@_statusMessage</p>
             }
-        </section>
-
-        <section class="panel dues-card dues-summary-card">
-            <h4 class="ui-title">Summary</h4>
-            <div class="dues-dashboard">
-                <div class="dues-half-pie-shell">
-                    <div class="dues-half-pie" style="@GetHalfPieStyle()">
-                        <div class="dues-half-pie-inner">
-                            <strong>@TotalCount</strong>
-                            <span>total dues</span>
-                        </div>
+            @if (!string.IsNullOrWhiteSpace(_errorMessage)) {
+                <p class="text-danger">@_errorMessage</p>
+            }
+            @if (_loadingPaymentPeriods || _loadingDues) {
+                <p>Loading dues...</p>
+            }
+            else if (_selectedPaymentPeriodId is null) {
+                <p>No payment periods exist yet.</p>
+            }
+            else {
+                @if (_dues.Count == 0) {
+                    <p>No dues found for this payment period.</p>
+                }
+                else {
+                    <div class="ui-list dues-entry-list">
+                        @foreach (var due in FilteredAndSortedDues) {
+                            <MemberDueEntry Due="@due"
+                                            PrimaryMemberLabel="@GetPrimaryMemberLabel(due.MemberId)"
+                                            SecondaryMemberLabel="@GetSecondaryMemberLabel(due.MemberId)"
+                                            IsSaving="@_savingDueIds.Contains(due.Id)"
+                                            OnSave="SaveDueAsync"
+                                            OnRequestReminderSend="OpenSingleReminderDialogAsync" />
+                        }
                     </div>
-                </div>
-
-                <div class="dues-summary">
-                    <span class="dues-chip dues-chip-open">Open: @PendingCount</span>
-                    <span class="dues-chip dues-chip-paid">Paid: @PaidCount</span>
-                    <span class="dues-chip dues-chip-waived">Waived: @WaivedCount</span>
-                    <span class="dues-chip dues-chip-cancelled">Cancelled: @CancelledCount</span>
-                </div>
-            </div>
+                }
+            }
         </section>
     </div>
 
-    <section class="panel dues-card dues-list-card">
-        <h4 class="ui-title">Payment Period Dues</h4>
-        @if (!string.IsNullOrWhiteSpace(_statusMessage)) {
-            <p class="status-message">@_statusMessage</p>
-        }
-        @if (!string.IsNullOrWhiteSpace(_errorMessage)) {
-            <p class="text-danger">@_errorMessage</p>
-        }
-        @if (_loadingPaymentPeriods || _loadingDues) {
-            <p>Loading dues...</p>
-        }
-        else if (_selectedPaymentPeriodId is null) {
-            <p>No payment periods exist yet.</p>
-        }
-        else {
-            @if (_dues.Count == 0) {
-                <p>No dues found for this payment period.</p>
-            }
-            else {
-                <div class="ui-list dues-entry-list">
-                    @foreach (var due in FilteredAndSortedDues) {
-                        <MemberDueEntry Due="@due"
-                                        PrimaryMemberLabel="@GetPrimaryMemberLabel(due.MemberId)"
-                                        SecondaryMemberLabel="@GetSecondaryMemberLabel(due.MemberId)"
-                                        IsSaving="@_savingDueIds.Contains(due.Id)"
-                                        OnSave="SaveDueAsync" />
-                    }
-                </div>
-            }
-        }
-    </section>
+    @if (_isReminderDialogOpen) {
+        <div class="dues-reminder-dialog-backdrop"></div>
+        <div class="dues-reminder-dialog-shell" role="dialog" aria-modal="true" aria-labelledby="dues-reminder-dialog-title">
+            <section class="panel dues-reminder-dialog">
+                <header class="dues-reminder-dialog-header">
+                    <div>
+                        <p class="dues-reminder-dialog-eyebrow">Reminder Dispatch</p>
+                        <h3 id="dues-reminder-dialog-title">@ReminderDialogTitle</h3>
+                    </div>
+                    <button type="button"
+                            class="btn btn-sm btn-outline-secondary"
+                            @onclick="CloseReminderDialog"
+                            disabled="@_sendingReminderDispatch">
+                        Close
+                    </button>
+                </header>
+
+                @if (_loadingReminderDispatchPreview) {
+                    <p>Loading reminder dispatch preview...</p>
+                }
+                else if (!string.IsNullOrWhiteSpace(_reminderDialogError)) {
+                    <p class="text-danger">@_reminderDialogError</p>
+                }
+                else if (_reminderDispatchPreview is not null) {
+                    <div class="dues-reminder-dialog-summary">
+                        <span class="dues-chip dues-chip-open">Recipients: @_reminderDispatchPreview.Recipients.Count</span>
+                        <span class="dues-chip dues-chip-cancelled">Skipped: @_reminderDispatchPreview.SkippedMembers.Count</span>
+                        @if (_sendingReminderDispatchCompleted) {
+                            <span class="dues-chip dues-chip-paid">Sent: @ReminderDispatchSuccessCount</span>
+                            <span class="dues-chip dues-chip-cancelled">Failed: @ReminderDispatchFailureCount</span>
+                        }
+                    </div>
+
+                    <div class="dues-reminder-dialog-columns">
+                        <section class="dues-reminder-card">
+                            <h4>Recipients</h4>
+                            @if (_dispatchRecipientStates.Count == 0) {
+                                <p>No eligible reminder recipients.</p>
+                            }
+                            else {
+                                <div class="dues-reminder-list">
+                                    @foreach (var recipient in _dispatchRecipientStates) {
+                                        <article class="dues-reminder-list-item">
+                                            <div>
+                                                <strong>@recipient.MemberDisplayName</strong>
+                                                <p>@recipient.Email</p>
+                                                <p>Due: @recipient.DueAmount.ToString("0.00") € · Due date: @recipient.DueDate</p>
+                                                @if (!string.IsNullOrWhiteSpace(recipient.ResultMessage)) {
+                                                    <p class="@(recipient.State == ReminderDispatchState.Failed ? "text-danger" : "status-message")">@recipient.ResultMessage</p>
+                                                }
+                                            </div>
+                                            <span class="@GetReminderStateClass(recipient.State)">@GetReminderStateLabel(recipient.State)</span>
+                                        </article>
+                                    }
+                                </div>
+                            }
+                        </section>
+
+                        <section class="dues-reminder-card">
+                            <h4>Will not receive mail</h4>
+                            @if (_reminderDispatchPreview.SkippedMembers.Count == 0) {
+                                <p>No skipped members.</p>
+                            }
+                            else {
+                                <div class="dues-reminder-list">
+                                    @foreach (var skippedMember in _reminderDispatchPreview.SkippedMembers) {
+                                        <article class="dues-reminder-list-item dues-reminder-list-item-skip">
+                                            <div>
+                                                <strong>@skippedMember.MemberDisplayName</strong>
+                                                <p>@skippedMember.Reason</p>
+                                            </div>
+                                        </article>
+                                    }
+                                </div>
+                            }
+                        </section>
+                    </div>
+
+                    <footer class="dues-reminder-dialog-actions">
+                        @if (!_sendingReminderDispatchCompleted && _dispatchRecipientStates.Count > 0) {
+                            <button type="button"
+                                    class="btn btn-primary"
+                                    @onclick="SendReminderDispatchAsync"
+                                    disabled="@(_sendingReminderDispatch || _loadingReminderDispatchPreview)">
+                                Send @_dispatchRecipientStates.Count reminder(s)
+                            </button>
+                        }
+                        <button type="button"
+                                class="btn btn-secondary"
+                                @onclick="CloseReminderDialog"
+                                disabled="@_sendingReminderDispatch">
+                            @(_sendingReminderDispatchCompleted || _dispatchRecipientStates.Count == 0 ? "Close" : "Cancel")
+                        </button>
+                    </footer>
+                }
+            </section>
+        </div>
+    }
 </div>

@@ -49,6 +49,12 @@
     margin-top: 0.75rem;
 }
 
+.due-entry-inline-actions {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 0.75rem;
+}
+
 .due-entry-preview-toggle {
     margin-top: 0.75rem;
 }
