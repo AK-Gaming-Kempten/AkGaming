@@ -19,15 +19,18 @@ namespace AkGaming.Identity.Api.Controllers;
 public sealed class AuthorizationController : Controller
 {
     private readonly IAuthService _authService;
+    private readonly IAuthHardeningSettings _hardeningSettings;
     private readonly IOpenIddictApplicationManager _applicationManager;
     private readonly IOpenIddictAuthorizationManager _authorizationManager;
 
     public AuthorizationController(
         IAuthService authService,
+        IAuthHardeningSettings hardeningSettings,
         IOpenIddictApplicationManager applicationManager,
         IOpenIddictAuthorizationManager authorizationManager)
     {
         _authService = authService;
+        _hardeningSettings = hardeningSettings;
         _applicationManager = applicationManager;
         _authorizationManager = authorizationManager;
     }
@@ -81,6 +84,19 @@ public sealed class AuthorizationController : Controller
         }
 
         var user = await _authService.GetCurrentUserAsync(userId, cancellationToken);
+        if (_hardeningSettings.RequireVerifiedEmailForLogin && !user.IsEmailVerified)
+        {
+            if (request.HasPromptValue(OpenIddictConstants.PromptValues.None))
+            {
+                return Forbid(
+                    BuildOpenIddictError(OpenIddictConstants.Errors.LoginRequired, "Email verification is required before continuing."),
+                    OpenIddictServerAspNetCoreDefaults.AuthenticationScheme);
+            }
+
+            var returnUrl = Request.PathBase + Request.Path + Request.QueryString;
+            return Redirect(LocalSessionManager.BuildVerificationRedirect(HttpContext, returnUrl, "Verify your email before continuing."));
+        }
+
         var scopes = request.GetScopes().ToImmutableArray();
         var existingAuthorizations = await FindPermanentAuthorizationsAsync(user.UserId.ToString(), applicationId, scopes, cancellationToken);
         var consentDecision = ReadConsentDecision();
@@ -207,6 +223,13 @@ public sealed class AuthorizationController : Controller
         }
 
         var user = await _authService.GetCurrentUserAsync(userId, cancellationToken);
+        if (_hardeningSettings.RequireVerifiedEmailForLogin && !user.IsEmailVerified)
+        {
+            return Forbid(
+                BuildOpenIddictError(OpenIddictConstants.Errors.InvalidGrant, "Email verification is required before accessing services."),
+                OpenIddictServerAspNetCoreDefaults.AuthenticationScheme);
+        }
+
         var principal = OidcPrincipalFactory.Create(user, authenticationResult.Principal.GetScopes());
 
         var resources = authenticationResult.Principal.GetResources();

@@ -18,6 +18,7 @@ internal sealed class DiscordOAuthServiceStub : IDiscordOAuthService
         return Task.FromResult(new DiscordIdentity(
             $"discord-{normalized}",
             $"Discord {normalized}",
-            $"{normalized.ToLowerInvariant()}@example.com"));
+            $"{normalized.ToLowerInvariant()}@example.com",
+            true));
     }
 }

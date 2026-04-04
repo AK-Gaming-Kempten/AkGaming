@@ -1,0 +1,63 @@
+@page "/account/verify"
+@model AkGaming.Identity.Api.Pages.Account.VerifyModel
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>AKG Identity | Verify Email</title>
+  <link rel="icon" type="image/png" href="/ui/AkGaming_Identity.png" />
+  <link rel="stylesheet" href="/ui/akgaming-base-theme.css" />
+  <link rel="stylesheet" href="/ui/baseStyles.css" />
+  <link rel="stylesheet" href="/ui/styles.css" />
+</head>
+<body>
+  <main class="shell">
+    <div class="brand">
+      <img src="/ui/AkGaming_Identity.png" alt="@ClubConstants.Organization.ShortName" />
+      <div class="brand-title">@ClubConstants.Organization.ShortName <span class="identity">Identity</span></div>
+    </div>
+    <h1>Verify Your Email</h1>
+    <p class="sub">Your account is signed in locally, but service access remains blocked until your email address is verified.</p>
+
+    @if (!string.IsNullOrWhiteSpace(Model.StatusMessage))
+    {
+      <div class="status ok">@Model.StatusMessage</div>
+    }
+
+    @if (Model.Profile is not null)
+    {
+      <section class="panel">
+        <div class="row"><span class="k">Current Email</span><span class="v">@Model.Profile.Email</span></div>
+        <div class="row"><span class="k">Email Verified</span><span class="v">@Model.Profile.IsEmailVerified</span></div>
+        <div class="row"><span class="k">Roles</span><span class="v">@string.Join(", ", Model.Profile.Roles)</span></div>
+      </section>
+
+      <section class="panel">
+        <form method="post" asp-page-handler="SendVerification">
+          <input asp-for="ReturnUrl" type="hidden" />
+          <button class="primary" type="submit">Send Verification Email</button>
+        </form>
+
+        <form method="post" asp-page-handler="VerifyEmail">
+          <input asp-for="ReturnUrl" type="hidden" />
+          <label asp-for="VerificationToken">Verification Token</label>
+          <input asp-for="VerificationToken" autocomplete="off" spellcheck="false" />
+          <button class="secondary" type="submit">Verify Email</button>
+        </form>
+
+        <form method="post" asp-page-handler="ChangeEmail">
+          <input asp-for="ReturnUrl" type="hidden" />
+          <label asp-for="Email">Change Email</label>
+          <input asp-for="Email" type="email" autocomplete="email" required />
+          <button class="secondary" type="submit">Update Email</button>
+        </form>
+
+        <form method="post" asp-page-handler="Logout">
+          <button class="secondary" type="submit">Logout</button>
+        </form>
+      </section>
+    }
+  </main>
+</body>
+</html>

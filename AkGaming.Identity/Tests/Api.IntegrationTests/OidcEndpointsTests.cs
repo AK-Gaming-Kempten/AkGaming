@@ -5,6 +5,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.Extensions.Configuration;
 
 namespace AkGaming.Identity.Api.IntegrationTests;
 
@@ -76,6 +77,50 @@ public sealed class OidcEndpointsTests : IClassFixture<TestApiFactory>
         using var userInfoJson = JsonDocument.Parse(userInfoBody);
         Assert.True(userInfoJson.RootElement.TryGetProperty("sub", out _));
         Assert.True(userInfoJson.RootElement.TryGetProperty("email", out _));
+    }
+
+    [Fact]
+    public async Task AuthorizationCodeFlow_WithVerificationRequired_RedirectsUnverifiedUserToVerifyPage()
+    {
+        using var hardeningFactory = _factory.WithWebHostBuilder(builder =>
+        {
+            builder.ConfigureAppConfiguration((_, configurationBuilder) =>
+            {
+                configurationBuilder.AddInMemoryCollection(new Dictionary<string, string?>
+                {
+                    ["AuthHardening:RequireVerifiedEmailForLogin"] = "true"
+                });
+            });
+        });
+        using var client = hardeningFactory.CreateClient(new Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactoryClientOptions
+        {
+            BaseAddress = BaseUri,
+            AllowAutoRedirect = false
+        });
+
+        var pkce = PkceState.Create();
+        var authorizeUrl = BuildAuthorizeUrl(
+            clientId: "test-public-client",
+            redirectUri: "https://app.akgaming.de/callback",
+            scopes: "openid profile email offline_access",
+            state: "state-unverified",
+            pkce);
+
+        var authorizeResponse = await client.GetAsync(authorizeUrl);
+        Assert.Equal(HttpStatusCode.Redirect, authorizeResponse.StatusCode);
+        Assert.StartsWith("/account/login", authorizeResponse.Headers.Location?.ToString(), StringComparison.Ordinal);
+
+        var registerLocation = authorizeResponse.Headers.Location?.ToString() ?? throw new InvalidOperationException("Missing login redirect.");
+        var registerReturnUrl = QueryHelpers.ParseQuery(new Uri(BaseUri, registerLocation).Query)["returnUrl"].ToString();
+        var registerResponse = await RegisterInteractiveAsync(client, registerReturnUrl, $"verify-gate-{Guid.NewGuid():N}@example.com");
+
+        Assert.Equal(HttpStatusCode.Redirect, registerResponse.StatusCode);
+        Assert.StartsWith("/account/verify", registerResponse.Headers.Location?.ToString(), StringComparison.Ordinal);
+
+        var verifyResponse = await client.GetAsync(registerResponse.Headers.Location);
+        var verifyHtml = await verifyResponse.Content.ReadAsStringAsync();
+        Assert.True(verifyResponse.IsSuccessStatusCode, $"Expected verify page: {verifyHtml}");
+        Assert.Contains("Verify Your Email", verifyHtml, StringComparison.Ordinal);
     }
 
     [Fact]
@@ -228,7 +273,9 @@ public sealed class OidcEndpointsTests : IClassFixture<TestApiFactory>
     {
         using var client = CreateNoRedirectClient();
 
-        await RegisterInteractiveAsync(client, "/account/manage", $"discord-link-{Guid.NewGuid():N}@example.com");
+        var email = $"discord-link-{Guid.NewGuid():N}@example.com";
+        await RegisterInteractiveAsync(client, "/account/manage", email);
+        await VerifyEmailAsync(client, email);
 
         var managePageResponse = await client.GetAsync("/account/manage");
         var managePageHtml = await managePageResponse.Content.ReadAsStringAsync();
@@ -283,7 +330,7 @@ public sealed class OidcEndpointsTests : IClassFixture<TestApiFactory>
         return QueryHelpers.AddQueryString("/connect/authorize", query!);
     }
 
-    private static async Task RegisterInteractiveAsync(HttpClient client, string returnUrl, string email)
+    private static async Task<HttpResponseMessage> RegisterInteractiveAsync(HttpClient client, string returnUrl, string email)
     {
         var registerPageResponse = await client.GetAsync($"/account/register?returnUrl={Uri.EscapeDataString(returnUrl)}");
         var registerPageHtml = await registerPageResponse.Content.ReadAsStringAsync();
@@ -306,6 +353,30 @@ public sealed class OidcEndpointsTests : IClassFixture<TestApiFactory>
         var registerResponse = await PostFormAsync(client, "/account/register", formFields);
         var registerBody = await registerResponse.Content.ReadAsStringAsync();
         Assert.True(registerResponse.StatusCode == HttpStatusCode.Redirect, $"Expected redirect after register, got {(int)registerResponse.StatusCode}: {registerBody}");
+        return registerResponse;
+    }
+
+    private static async Task VerifyEmailAsync(HttpClient client, string email)
+    {
+        var issueResponse = await client.PostAsJsonAsync("/auth/email/send-verification", new
+        {
+            Email = email
+        });
+
+        var issueBody = await issueResponse.Content.ReadAsStringAsync();
+        Assert.True(issueResponse.IsSuccessStatusCode, $"Expected verification token issuance: {issueBody}");
+
+        var payload = JsonDocument.Parse(issueBody);
+        var token = payload.RootElement.GetProperty("verificationToken").GetString();
+        Assert.False(string.IsNullOrWhiteSpace(token));
+
+        var verifyResponse = await client.PostAsJsonAsync("/auth/email/verify", new
+        {
+            Token = token
+        });
+
+        var verifyBody = await verifyResponse.Content.ReadAsStringAsync();
+        Assert.True(verifyResponse.StatusCode == HttpStatusCode.NoContent, $"Expected verification success: {verifyBody}");
     }
 
     private static async Task<HttpResponseMessage> PostFormAsync(HttpClient client, string url, Dictionary<string, string?> formFields)

@@ -163,6 +163,119 @@ public sealed class AuthServiceTests
     }
 
     [Fact]
+    public async Task LoginInteractiveAsync_UnverifiedUser_Succeeds_WhenVerificationRequired()
+    {
+        var repository = new InMemoryIdentityRepository();
+        var hasher = new PasswordHasherStub();
+        var user = new AkGaming.Identity.Domain.Entities.User
+        {
+            Email = "pending@test.local",
+            PasswordHash = hasher.HashPassword(new AkGaming.Identity.Domain.Entities.User(), "Password123"),
+            IsEmailVerified = false
+        };
+        repository.Users.Add(user);
+
+        var service = BuildService(
+            repository,
+            hasher,
+            hardeningSettings: new AuthHardeningSettingsStub { RequireVerifiedEmailForLogin = true });
+
+        var result = await service.LoginInteractiveAsync(new LoginRequest("pending@test.local", "Password123"), "127.0.0.1", CancellationToken.None);
+
+        Assert.Equal(user.Id, result.UserId);
+        Assert.False(result.IsEmailVerified);
+    }
+
+    [Fact]
+    public async Task LoginAsync_UnverifiedUser_ThrowsForbidden_WhenVerificationRequired()
+    {
+        var repository = new InMemoryIdentityRepository();
+        var hasher = new PasswordHasherStub();
+        var user = new AkGaming.Identity.Domain.Entities.User
+        {
+            Email = "pending@test.local",
+            PasswordHash = hasher.HashPassword(new AkGaming.Identity.Domain.Entities.User(), "Password123"),
+            IsEmailVerified = false
+        };
+        repository.Users.Add(user);
+
+        var service = BuildService(
+            repository,
+            hasher,
+            hardeningSettings: new AuthHardeningSettingsStub { RequireVerifiedEmailForLogin = true });
+
+        var exception = await Assert.ThrowsAsync<AuthException>(() =>
+            service.LoginAsync(new LoginRequest("pending@test.local", "Password123"), "127.0.0.1", CancellationToken.None));
+
+        Assert.Equal(403, exception.StatusCode);
+        Assert.Empty(repository.RefreshTokens);
+    }
+
+    [Fact]
+    public async Task RefreshAsync_UnverifiedUser_ThrowsForbidden_WhenVerificationRequired()
+    {
+        var repository = new InMemoryIdentityRepository();
+        var refresh = new RefreshTokenServiceStub();
+        var user = new AkGaming.Identity.Domain.Entities.User
+        {
+            Email = "pending@test.local",
+            PasswordHash = "hash::Password123",
+            IsEmailVerified = false
+        };
+        repository.Users.Add(user);
+
+        var existingTokenRaw = "refresh-token";
+        repository.RefreshTokens.Add(new AkGaming.Identity.Domain.Entities.RefreshToken
+        {
+            UserId = user.Id,
+            User = user,
+            TokenHash = refresh.HashToken(existingTokenRaw),
+            ExpiresAtUtc = DateTime.UtcNow.AddDays(1)
+        });
+
+        var service = BuildService(
+            repository,
+            refreshTokenService: refresh,
+            hardeningSettings: new AuthHardeningSettingsStub { RequireVerifiedEmailForLogin = true });
+
+        var exception = await Assert.ThrowsAsync<AuthException>(() =>
+            service.RefreshAsync(new RefreshRequest(existingTokenRaw), "127.0.0.1", CancellationToken.None));
+
+        Assert.Equal(403, exception.StatusCode);
+    }
+
+    [Fact]
+    public async Task UpdatePendingVerificationEmailAsync_ChangesEmail_AndInvalidatesActiveTokens()
+    {
+        var repository = new InMemoryIdentityRepository();
+        var user = new AkGaming.Identity.Domain.Entities.User
+        {
+            Email = "old@test.local",
+            PasswordHash = "hash",
+            IsEmailVerified = false
+        };
+        repository.Users.Add(user);
+
+        var verificationToken = new AkGaming.Identity.Domain.Entities.EmailVerificationToken
+        {
+            UserId = user.Id,
+            User = user,
+            TokenHash = "token-hash",
+            ExpiresAtUtc = DateTime.UtcNow.AddHours(1)
+        };
+        repository.EmailVerificationTokens.Add(verificationToken);
+
+        var service = BuildService(repository);
+
+        var result = await service.UpdatePendingVerificationEmailAsync(user.Id, "new@test.local", "127.0.0.1", CancellationToken.None);
+
+        Assert.Equal("new@test.local", result.Email);
+        Assert.Equal("new@test.local", user.Email);
+        Assert.False(user.IsEmailVerified);
+        Assert.NotNull(verificationToken.ConsumedAtUtc);
+    }
+
+    [Fact]
     public async Task GetDiscordStartUrlAsync_ReturnsAuthorizationUrl()
     {
         var repository = new InMemoryIdentityRepository();
@@ -180,7 +293,7 @@ public sealed class AuthServiceTests
         var repository = new InMemoryIdentityRepository();
         var discordOAuth = new DiscordOAuthServiceStub
         {
-            Identity = new("discord-42", "DiscordUser", "discord-42@example.com")
+            Identity = new("discord-42", "DiscordUser", "discord-42@example.com", true)
         };
         var discordState = new DiscordStateServiceStub
         {
@@ -209,12 +322,85 @@ public sealed class AuthServiceTests
     }
 
     [Fact]
+    public async Task HandleDiscordCallbackAsync_LoginPurpose_KeepsNewUserUnverified_WhenDiscordEmailIsUnverified()
+    {
+        var repository = new InMemoryIdentityRepository();
+        var discordOAuth = new DiscordOAuthServiceStub
+        {
+            Identity = new("discord-77", "DiscordUser", "discord-77@example.com", false)
+        };
+        var discordState = new DiscordStateServiceStub
+        {
+            State = new("login", null, DateTime.UtcNow.AddMinutes(5), "nonce")
+        };
+
+        var service = BuildService(
+            repository,
+            discordOAuthService: discordOAuth,
+            discordStateService: discordState,
+            discordAuthSettings: new DiscordAuthSettingsStub
+            {
+                AutoCreateUser = true,
+                RequireManualLinkForExistingEmail = true
+            },
+            hardeningSettings: new AuthHardeningSettingsStub { RequireVerifiedEmailForLogin = true });
+
+        var response = await service.HandleDiscordCallbackAsync("code", "state", "127.0.0.1", CancellationToken.None);
+
+        Assert.NotNull(response.User);
+        Assert.False(response.User!.IsEmailVerified);
+        Assert.False(repository.Users.Single().IsEmailVerified);
+    }
+
+    [Fact]
+    public async Task HandleDiscordCallbackAsync_LoginPurpose_VerifiesMatchingExistingUser_WhenDiscordEmailIsVerified()
+    {
+        var repository = new InMemoryIdentityRepository();
+        var role = new AkGaming.Identity.Domain.Entities.Role { Name = RoleNames.User };
+        repository.Roles.Add(role);
+
+        var existingUser = new AkGaming.Identity.Domain.Entities.User
+        {
+            Email = "discord-match@example.com",
+            PasswordHash = "hash",
+            IsEmailVerified = false
+        };
+        existingUser.UserRoles.Add(new AkGaming.Identity.Domain.Entities.UserRole { User = existingUser, Role = role });
+        repository.Users.Add(existingUser);
+
+        var discordOAuth = new DiscordOAuthServiceStub
+        {
+            Identity = new("discord-88", "DiscordUser", "discord-match@example.com", true)
+        };
+        var discordState = new DiscordStateServiceStub
+        {
+            State = new("login", null, DateTime.UtcNow.AddMinutes(5), "nonce")
+        };
+
+        var service = BuildService(
+            repository,
+            discordOAuthService: discordOAuth,
+            discordStateService: discordState,
+            discordAuthSettings: new DiscordAuthSettingsStub
+            {
+                AutoCreateUser = true,
+                RequireManualLinkForExistingEmail = false
+            });
+
+        var response = await service.HandleDiscordCallbackAsync("code", "state", "127.0.0.1", CancellationToken.None);
+
+        Assert.NotNull(response.User);
+        Assert.True(response.User!.IsEmailVerified);
+        Assert.True(existingUser.IsEmailVerified);
+    }
+
+    [Fact]
     public async Task HandleDiscordCallbackAsync_WithLegacyRedirect_IssuesTokens()
     {
         var repository = new InMemoryIdentityRepository();
         var discordOAuth = new DiscordOAuthServiceStub
         {
-            Identity = new("discord-99", "LegacyDiscordUser", "discord-99@example.com")
+            Identity = new("discord-99", "LegacyDiscordUser", "discord-99@example.com", true)
         };
         var discordState = new DiscordStateServiceStub
         {

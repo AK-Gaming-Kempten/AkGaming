@@ -14,16 +14,15 @@ namespace AkGaming.Identity.Api.Pages.Account;
 public sealed class ManageModel : PageModel
 {
     private readonly IAuthService _authService;
+    private readonly IAuthHardeningSettings _hardeningSettings;
 
-    public ManageModel(IAuthService authService)
+    public ManageModel(IAuthService authService, IAuthHardeningSettings hardeningSettings)
     {
         _authService = authService;
+        _hardeningSettings = hardeningSettings;
     }
 
     public CurrentUserResponse? Profile { get; private set; }
-
-    [BindProperty]
-    public string VerificationToken { get; set; } = string.Empty;
 
     [TempData]
     public string? StatusMessage { get; set; }
@@ -39,35 +38,23 @@ public sealed class ManageModel : PageModel
         }
 
         await LoadProfileAsync(cancellationToken);
+        if (_hardeningSettings.RequireVerifiedEmailForLogin && Profile is not null && !Profile.IsEmailVerified)
+        {
+            return Redirect(LocalSessionManager.BuildVerificationRedirect(HttpContext, "/account/manage", StatusMessage));
+        }
+
         return Page();
-    }
-
-    public async Task<IActionResult> OnPostSendVerificationAsync(CancellationToken cancellationToken)
-    {
-        var userId = GetUserId();
-        var response = await _authService.RequestEmailVerificationForUserAsync(userId, HttpContext.Connection.RemoteIpAddress?.ToString(), cancellationToken);
-        StatusMessage = response.Message;
-        return RedirectToPage();
-    }
-
-    public async Task<IActionResult> OnPostVerifyEmailAsync(CancellationToken cancellationToken)
-    {
-        try
-        {
-            await _authService.VerifyEmailAsync(new VerifyEmailRequest(VerificationToken), HttpContext.Connection.RemoteIpAddress?.ToString(), cancellationToken);
-            StatusMessage = "Email verified.";
-        }
-        catch (AuthException exception)
-        {
-            StatusMessage = exception.Message;
-        }
-
-        return RedirectToPage();
     }
 
     public async Task<IActionResult> OnPostStartDiscordLinkAsync(CancellationToken cancellationToken)
     {
         var userId = GetUserId();
+        var current = await _authService.GetCurrentUserAsync(userId, cancellationToken);
+        if (_hardeningSettings.RequireVerifiedEmailForLogin && !current.IsEmailVerified)
+        {
+            return Redirect(LocalSessionManager.BuildVerificationRedirect(HttpContext, "/account/manage"));
+        }
+
         var response = await _authService.GetDiscordLinkUrlAsync(userId, cancellationToken);
         return Redirect(response.AuthorizationUrl);
     }

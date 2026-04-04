@@ -10,10 +10,12 @@ namespace AkGaming.Identity.Api.Pages.Account;
 public sealed class RegisterModel : PageModel
 {
     private readonly IAuthService _authService;
+    private readonly IAuthHardeningSettings _hardeningSettings;
 
-    public RegisterModel(IAuthService authService)
+    public RegisterModel(IAuthService authService, IAuthHardeningSettings hardeningSettings)
     {
         _authService = authService;
+        _hardeningSettings = hardeningSettings;
     }
 
     [BindProperty]
@@ -34,7 +36,7 @@ public sealed class RegisterModel : PageModel
     {
         if (User.Identity?.IsAuthenticated == true)
         {
-            return Redirect(LocalSessionManager.NormalizeReturnUrl(HttpContext, ReturnUrl));
+            return Redirect(LocalSessionManager.GetAuthenticatedRedirect(HttpContext, User, ReturnUrl, _hardeningSettings.RequireVerifiedEmailForLogin));
         }
 
         return Page();
@@ -50,7 +52,7 @@ public sealed class RegisterModel : PageModel
                 cancellationToken);
 
             await LocalSessionManager.SignInAsync(HttpContext, user);
-            return Redirect(LocalSessionManager.NormalizeReturnUrl(HttpContext, ReturnUrl));
+            return Redirect(LocalSessionManager.GetPostSignInRedirect(HttpContext, user, ReturnUrl, _hardeningSettings.RequireVerifiedEmailForLogin));
         }
         catch (AuthException exception)
         {

@@ -80,7 +80,7 @@ public sealed class DiscordOAuthService : IDiscordOAuthService
             ? userPayload.GlobalName
             : userPayload.Username ?? userPayload.Id;
 
-        return new DiscordIdentity(userPayload.Id, username, userPayload.Email);
+        return new DiscordIdentity(userPayload.Id, username, userPayload.Email, userPayload.Verified ?? false);
     }
 
     private void ValidateOptions()
@@ -99,5 +99,6 @@ public sealed class DiscordOAuthService : IDiscordOAuthService
         [property: System.Text.Json.Serialization.JsonPropertyName("id")] string Id,
         [property: System.Text.Json.Serialization.JsonPropertyName("username")] string? Username,
         [property: System.Text.Json.Serialization.JsonPropertyName("global_name")] string? GlobalName,
-        [property: System.Text.Json.Serialization.JsonPropertyName("email")] string? Email);
+        [property: System.Text.Json.Serialization.JsonPropertyName("email")] string? Email,
+        [property: System.Text.Json.Serialization.JsonPropertyName("verified")] bool? Verified);
 }

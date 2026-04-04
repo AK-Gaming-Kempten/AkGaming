@@ -36,15 +36,10 @@
       </section>
 
       <section class="panel">
-        <form method="post" asp-page-handler="SendVerification">
-          <button class="secondary" type="submit">Send Verification Email</button>
-        </form>
-
-        <form method="post" asp-page-handler="VerifyEmail">
-          <label asp-for="VerificationToken">Verification Token</label>
-          <input asp-for="VerificationToken" autocomplete="off" spellcheck="false" />
-          <button class="secondary" type="submit">Verify Email</button>
-        </form>
+        @if (!Model.Profile.IsEmailVerified)
+        {
+          <a class="button secondary" asp-page="/Account/Verify" asp-route-returnUrl="/account/manage">Verify Email</a>
+        }
 
         <form method="post" asp-page-handler="StartDiscordLink">
           <button class="secondary" type="submit">Link Discord</button>

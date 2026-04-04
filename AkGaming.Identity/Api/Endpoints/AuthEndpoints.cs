@@ -197,13 +197,19 @@ internal static class AuthEndpoints
         {
             try
             {
-                await authService.VerifyEmailAsync(new VerifyEmailRequest(token), EndpointUtilities.GetIp(httpContext), cancellationToken);
-                return Results.Redirect("/ui/index.html?emailVerified=1");
+                var user = await authService.VerifyEmailAsync(new VerifyEmailRequest(token), EndpointUtilities.GetIp(httpContext), cancellationToken);
+                if (EndpointUtilities.TryGetUserId(httpContext.User, out var currentUserId) && currentUserId == user.UserId)
+                {
+                    await LocalSessionManager.SignInAsync(httpContext, user);
+                    return Results.Redirect("/account/manage?status=Email%20verified.");
+                }
+
+                return Results.Redirect("/account/login?error=Email%20verified.%20You%20can%20now%20sign%20in.");
             }
             catch (AuthException exception)
             {
-                var message = Uri.EscapeDataString(exception.Message);
-                return Results.Redirect($"/ui/index.html?emailVerified=0&message={message}");
+                var target = QueryString.Create("error", exception.Message);
+                return Results.Redirect($"/account/login{target}");
             }
         });
 
@@ -224,7 +230,7 @@ internal static class AuthEndpoints
             return Results.Redirect(response.AuthorizationUrl);
         });
 
-        auth.MapGet("/discord/callback", async (string code, string state, IAuthService authService, IDiscordStateService discordStateService, HttpContext httpContext, CancellationToken cancellationToken) =>
+        auth.MapGet("/discord/callback", async (string code, string state, IAuthService authService, IDiscordStateService discordStateService, IAuthHardeningSettings hardeningSettings, HttpContext httpContext, CancellationToken cancellationToken) =>
         {
             try
             {
@@ -232,7 +238,7 @@ internal static class AuthEndpoints
                 if (response.User is not null)
                 {
                     await LocalSessionManager.SignInAsync(httpContext, response.User);
-                    return Results.Redirect(LocalSessionManager.NormalizeReturnUrl(httpContext, response.RedirectUri));
+                    return Results.Redirect(LocalSessionManager.GetPostSignInRedirect(httpContext, response.User, response.RedirectUri, hardeningSettings.RequireVerifiedEmailForLogin));
                 }
 
                 if (response.Tokens is null && string.IsNullOrWhiteSpace(response.RedirectUri))

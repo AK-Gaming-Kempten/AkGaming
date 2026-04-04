@@ -5,7 +5,7 @@ namespace AkGaming.Identity.Application.UnitTests.Fakes;
 
 internal sealed class DiscordOAuthServiceStub : IDiscordOAuthService
 {
-    public DiscordIdentity Identity { get; set; } = new("discord-user", "discord-name", "discord@example.com");
+    public DiscordIdentity Identity { get; set; } = new("discord-user", "discord-name", "discord@example.com", true);
 
     public string BuildAuthorizationUrl(string state) => $"https://discord.test/authorize?state={state}";
 
