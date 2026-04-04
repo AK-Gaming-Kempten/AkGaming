@@ -1,0 +1,38 @@
+@page "/Error"
+@using System.Diagnostics
+
+<PageTitle>Error</PageTitle>
+
+<section class="app-page">
+    <PageHeader Eyebrow="Application Error"
+                Title="An error occurred while processing the request"
+                Description="Development mode shows the full exception. In other environments this page keeps the failure path valid instead of cascading into a second error." />
+
+    @if (ShowRequestId)
+    {
+        <SurfacePanel Title="Request"
+                      Subtitle="Useful for correlating logs.">
+            <p><strong>Request ID:</strong> <code>@RequestId</code></p>
+        </SurfacePanel>
+    }
+
+    <SurfacePanel Title="Environment hint"
+                  Subtitle="What to do next while debugging locally.">
+        <p>
+            If you expect detailed exceptions, start the app with the `Development` environment.
+            The tournaments frontend now includes launch profiles that set this automatically.
+        </p>
+    </SurfacePanel>
+</section>
+
+@code {
+    [CascadingParameter] private HttpContext? HttpContext { get; set; }
+
+    private string? RequestId { get; set; }
+    private bool ShowRequestId => !string.IsNullOrEmpty(RequestId);
+
+    protected override void OnInitialized()
+    {
+        RequestId = Activity.Current?.Id ?? HttpContext?.TraceIdentifier;
+    }
+}

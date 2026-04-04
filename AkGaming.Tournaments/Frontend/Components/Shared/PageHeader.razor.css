@@ -1,0 +1,35 @@
+.page-header {
+    display: flex;
+    align-items: end;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+.page-header-copy {
+    display: flex;
+    flex-direction: column;
+    gap: 0.7rem;
+    max-width: 48rem;
+}
+
+.page-header-copy h1 {
+    margin: 0;
+}
+
+.page-header-copy p {
+    margin: 0;
+    color: var(--color-text-secondary);
+}
+
+.page-header-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.65rem;
+}
+
+@media (max-width: 900px) {
+    .page-header {
+        flex-direction: column;
+        align-items: stretch;
+    }
+}

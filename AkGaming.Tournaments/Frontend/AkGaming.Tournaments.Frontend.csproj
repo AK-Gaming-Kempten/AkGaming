@@ -1,0 +1,28 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+    <PropertyGroup>
+        <TargetFramework>net10.0</TargetFramework>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="10.0.3" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\..\AkGaming.Core\Constants\AkGaming.Core.Constants.csproj'))" />
+    </ItemGroup>
+
+    <Target Name="SyncAkGamingBaseTheme" BeforeTargets="Build;Publish">
+        <Copy
+            SourceFiles="$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\..\AkGaming.Core\Theme\wwwroot\theme\akgaming-base-theme.css'))"
+            DestinationFiles="$(MSBuildThisFileDirectory)wwwroot\css\akgaming-base-theme.css"
+            SkipUnchangedFiles="true" />
+        <Copy
+            SourceFiles="$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\..\AkGaming.Core\Theme\wwwroot\theme\baseStyles.css'))"
+            DestinationFiles="$(MSBuildThisFileDirectory)wwwroot\css\baseStyles.css"
+            SkipUnchangedFiles="true" />
+    </Target>
+
+</Project>

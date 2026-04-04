@@ -1,0 +1,62 @@
+.team-card {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    padding: 1rem;
+    border-radius: 1rem;
+    border: 1px solid color-mix(in oklab, var(--color-text-secondary) 20%, transparent);
+    background: color-mix(in oklab, var(--color-background-secondary) 70%, transparent);
+}
+
+.team-card-header {
+    display: flex;
+    align-items: start;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+.team-card-header h3,
+.team-card-header p,
+.team-card-note {
+    margin: 0;
+}
+
+.team-card-header p,
+.team-card-note {
+    color: var(--color-text-secondary);
+}
+
+.team-card-roster {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.team-card-roster li {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid color-mix(in oklab, var(--color-text-secondary) 18%, transparent);
+}
+
+.team-card-roster strong,
+.team-card-roster span {
+    display: block;
+}
+
+.team-card-roster li span {
+    color: var(--color-text-secondary);
+}
+
+@media (max-width: 600px) {
+    .team-card-header,
+    .team-card-roster li {
+        flex-direction: column;
+        align-items: start;
+    }
+}

@@ -1,0 +1,11 @@
+<article class="metric-card">
+    <div class="metric-label">@Label</div>
+    <div class="metric-value">@Value</div>
+    <p class="metric-caption">@Caption</p>
+</article>
+
+@code {
+    [Parameter] public string Label { get; set; } = string.Empty;
+    [Parameter] public string Value { get; set; } = string.Empty;
+    [Parameter] public string Caption { get; set; } = string.Empty;
+}

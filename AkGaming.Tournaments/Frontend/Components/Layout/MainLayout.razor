@@ -1,0 +1,56 @@
+@inherits LayoutComponentBase
+@inject NavigationManager Nav
+
+<div class="page">
+    <header class="mobile-header">
+        <button type="button"
+                class="mobile-menu-toggle"
+                aria-label="Toggle navigation menu"
+                aria-expanded="@_isMobileNavOpen"
+                @onclick="ToggleMobileNav">
+            <span class="bi bi-list"></span>
+        </button>
+        <div class="mobile-header-brand">
+            <img src="images/icons/AKG_Logos/Default.png" alt="AKGaming Logo" class="mobile-header-logo" />
+            <span>Tournament Hub</span>
+        </div>
+    </header>
+
+    <div class="layout-shell">
+        <aside class="sidebar-drawer @(_isMobileNavOpen ? "is-open" : string.Empty)">
+            <NavMenu OnNavigate="CloseMobileNav" />
+        </aside>
+
+        @if (_isMobileNavOpen)
+        {
+            <button type="button" class="sidebar-backdrop" aria-label="Close navigation menu" @onclick="CloseMobileNav"></button>
+        }
+
+        <main @onclick="CloseMobileNavIfOpen">
+            <article class="content @(IsHomeRoute ? "content-fullbleed" : string.Empty)">
+                @Body
+            </article>
+        </main>
+    </div>
+</div>
+
+<div id="blazor-error-ui" data-nosnippet>
+    An unhandled error has occurred.
+    <a href="." class="reload">Reload</a>
+    <span class="dismiss">x</span>
+</div>
+
+@code {
+    private bool _isMobileNavOpen;
+    private bool IsHomeRoute => string.IsNullOrWhiteSpace(Nav.ToBaseRelativePath(Nav.Uri));
+
+    private void ToggleMobileNav() => _isMobileNavOpen = !_isMobileNavOpen;
+
+    private void CloseMobileNav() => _isMobileNavOpen = false;
+
+    private void CloseMobileNavIfOpen()
+    {
+        if (_isMobileNavOpen)
+            _isMobileNavOpen = false;
+    }
+}

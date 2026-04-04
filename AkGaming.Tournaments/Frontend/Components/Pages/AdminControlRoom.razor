@@ -1,0 +1,39 @@
+@page "/tournaments/{TournamentSlug}/administration/control-room"
+@attribute [Authorize(Roles = "Admin")]
+@inherits TournamentPageBase
+
+<PageTitle>@($"{Tournament.Summary.Title} Control Room")</PageTitle>
+
+<section class="app-page">
+    <PageHeader Eyebrow="Administration"
+                Title="Control room"
+                Description="This is the tournament-admin area, distinct from identity-provider administration and scoped to one event." />
+
+    <div class="stats-grid">
+        @foreach (var metric in Tournament.Metrics.Take(3))
+        {
+            <MetricCard Label="@metric.Label" Value="@metric.Value" Caption="@metric.Caption" />
+        }
+    </div>
+
+    <div class="content-grid">
+        <div class="stack">
+            <SurfacePanel Title="Operations queue"
+                          Subtitle="Mock issues that later become real admin work items.">
+                <StatusList Items="@Tournament.AdminQueue" EmptyState="No queued admin work." />
+            </SurfacePanel>
+
+            <SurfacePanel Title="Comms and tournament changes"
+                          Subtitle="Shared with public pages, but visible here in a decision-making context.">
+                <StatusList Items="@Tournament.Updates" EmptyState="No updates yet." />
+            </SurfacePanel>
+        </div>
+
+        <div class="stack">
+            <SurfacePanel Title="Milestone tracker"
+                          Subtitle="This section will eventually hold admin-only state transitions.">
+                <StatusList Items="@Tournament.Timeline" EmptyState="No milestones yet." />
+            </SurfacePanel>
+        </div>
+    </div>
+</section>

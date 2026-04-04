@@ -1,0 +1,27 @@
+@page "/tournaments/{TournamentSlug}/player/check-in"
+@attribute [Authorize]
+@inherits TournamentPageBase
+
+<PageTitle>@($"{Tournament.Summary.Title} Check-In")</PageTitle>
+
+<section class="app-page">
+    <PageHeader Eyebrow="Player"
+                Title="Check-in flow"
+                Description="A dedicated player step keeps login-only activity separate from the public tournament pages." />
+
+    <div class="surface-grid">
+        <SurfacePanel Title="Check-in stages"
+                      Subtitle="These are placeholders for the eventual backend workflow.">
+            <StatusList Items="@Tournament.PlayerTasks" EmptyState="No check-in tasks yet." />
+        </SurfacePanel>
+
+        <SurfacePanel Title="Mock signals"
+                      Subtitle="Designed so the future API can fill real statuses without redesigning the page.">
+            <div class="pill-row">
+                <span class="status-pill status-pill-positive"><span class="bi bi-person-check-fill"></span> identity linked</span>
+                <span class="status-pill status-pill-neutral"><span class="bi bi-discord"></span> discord presence planned</span>
+                <span class="status-pill status-pill-warn"><span class="bi bi-shield-exclamation"></span> fair-play acknowledgement pending</span>
+            </div>
+        </SurfacePanel>
+    </div>
+</section>

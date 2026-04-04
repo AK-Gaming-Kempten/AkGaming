@@ -1,0 +1,50 @@
+@page "/captain-hub"
+@inject MockTournamentCatalog Catalog
+
+<PageTitle>Captain Hub</PageTitle>
+
+@{
+    var featured = Catalog.GetFeatured();
+}
+
+<section class="app-page">
+    <PageHeader Eyebrow="Captain Hub"
+                Title="Prototype the captain journey before the APIs exist"
+                Description="Captains register teams, manage invites, and eventually own the fair-play and rank-verification flow. This page keeps those concerns global instead of tournament-page specific." />
+
+    <div class="stats-grid">
+        @foreach (var metric in featured.Metrics.Take(3))
+        {
+            <MetricCard Label="@metric.Label" Value="@metric.Value" Caption="@metric.Caption" />
+        }
+    </div>
+
+    <div class="content-grid">
+        <div class="stack">
+            <SurfacePanel Title="Captain onboarding"
+                          Subtitle="Pulled from the reusable player-task data for the featured tournament.">
+                <StatusList Items="@featured.PlayerTasks" EmptyState="No captain tasks yet." />
+            </SurfacePanel>
+
+            <SurfacePanel Title="Team ownership model"
+                          Subtitle="Teams are reusable records, captains only hold access to them.">
+                <p>
+                    That means owner access can move to another user later, and the same team object can join multiple tournaments.
+                    The frontend keeps that distinction visible so the backend model stays honest.
+                </p>
+            </SurfacePanel>
+        </div>
+
+        <div class="stack">
+            <SurfacePanel Title="Example teams"
+                          Subtitle="Mock team cards reuse the same component as tournament team pages.">
+                <div class="stack">
+                    @foreach (var team in featured.Teams.Take(2))
+                    {
+                        <TeamCard Team="@team" />
+                    }
+                </div>
+            </SurfacePanel>
+        </div>
+    </div>
+</section>

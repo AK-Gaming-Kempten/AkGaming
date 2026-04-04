@@ -1,0 +1,177 @@
+.page {
+    display: flex;
+    flex-direction: column;
+    height: 100dvh;
+    min-height: 100dvh;
+    overflow: hidden;
+    background: var(--color-background-primary);
+    color: var(--color-text-primary);
+}
+
+.layout-shell {
+    display: flex;
+    flex: 1;
+    height: 100%;
+    min-height: 0;
+    overflow: hidden;
+}
+
+.sidebar-drawer {
+    flex: 0 0 auto;
+    z-index: 20;
+}
+
+main {
+    flex: 1;
+    height: 100%;
+    min-height: 0;
+    min-width: 0;
+    overflow-y: auto;
+    background: linear-gradient(180deg, color-mix(in oklab, var(--color-background-primary) 96%, black 4%), var(--color-background-primary));
+    color: var(--color-text-primary);
+}
+
+.content {
+    padding: 2rem;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.content.content-fullbleed {
+    max-width: none;
+    width: 100%;
+    padding: 0;
+    margin: 0;
+}
+
+.mobile-header {
+    display: none;
+    position: sticky;
+    top: 0;
+    z-index: 1300;
+    height: 3.5rem;
+    padding: 0 0.75rem;
+    background: var(--color-background-special);
+    border-bottom: 1px solid color-mix(in oklab, var(--color-text-secondary) 55%, transparent);
+    color: var(--color-text-special);
+    box-sizing: border-box;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.mobile-menu-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.25rem;
+    height: 2.25rem;
+    border: 1px solid color-mix(in oklab, var(--color-text-secondary) 55%, transparent);
+    border-radius: 4px;
+    background: transparent;
+    color: var(--color-text-special);
+    font-size: 1.25rem;
+    line-height: 1;
+    padding: 0;
+    cursor: pointer;
+}
+
+.mobile-header-brand {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 700;
+}
+
+.mobile-header-logo {
+    width: 1.9rem;
+    height: 1.9rem;
+}
+
+.sidebar-backdrop {
+    display: none;
+}
+
+#blazor-error-ui {
+    color-scheme: light only;
+    background: var(--color-highlight-primary);
+    color: var(--color-text-primary);
+    bottom: 0;
+    box-shadow: 0 -1px 2px color-mix(in oklab, var(--color-background-quartiary) 35%, transparent);
+    box-sizing: border-box;
+    display: none;
+    left: 0;
+    padding: 0.6rem 1.25rem 0.7rem;
+    position: fixed;
+    width: 100%;
+    z-index: 1000;
+}
+
+#blazor-error-ui .dismiss {
+    cursor: pointer;
+    position: absolute;
+    right: 0.75rem;
+    top: 0.5rem;
+}
+
+@media (max-width: 900px) {
+    .page {
+        height: auto;
+        min-height: 100dvh;
+        overflow: visible;
+    }
+
+    .mobile-header {
+        display: flex;
+    }
+
+    .layout-shell {
+        display: block;
+        flex: 0 1 auto;
+        height: auto;
+        overflow: visible;
+    }
+
+    .sidebar-drawer {
+        position: fixed;
+        inset: 3.5rem auto 0 0;
+        height: calc(100dvh - 3.5rem);
+        width: min(84vw, 320px);
+        transform: translateX(-100%);
+        transition: transform 0.22s ease;
+        z-index: 1250;
+    }
+
+    .sidebar-drawer.is-open {
+        transform: translateX(0);
+    }
+
+    .sidebar-drawer ::deep .sidebar {
+        width: 100%;
+        min-height: 100%;
+        box-shadow: 0 10px 28px color-mix(in oklab, black 38%, transparent);
+    }
+
+    .sidebar-backdrop {
+        display: block;
+        position: fixed;
+        inset: 3.5rem 0 0 0;
+        border: 0;
+        padding: 0;
+        background: color-mix(in oklab, black 38%, transparent);
+        z-index: 1200;
+        cursor: pointer;
+    }
+
+    main {
+        min-height: 0;
+        overflow-y: visible;
+    }
+
+    .content {
+        padding: 1rem;
+    }
+
+    .content.content-fullbleed {
+        padding: 0;
+    }
+}

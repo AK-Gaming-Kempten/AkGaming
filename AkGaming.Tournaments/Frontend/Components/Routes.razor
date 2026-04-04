@@ -1,0 +1,24 @@
+@using Microsoft.AspNetCore.Components.Authorization
+
+<CascadingAuthenticationState>
+    <Router AppAssembly="@typeof(App).Assembly">
+        <Found Context="routeData">
+            <AuthorizeRouteView RouteData="@routeData" DefaultLayout="@typeof(Layout.MainLayout)">
+                <NotAuthorized>
+                    <UnauthorizedPanel ImageUrl="images/icons/AKG_Logos/Red.png">
+                        <p>Login required. Public pages stay open, player and administration spaces do not.</p>
+                    </UnauthorizedPanel>
+                </NotAuthorized>
+            </AuthorizeRouteView>
+        </Found>
+        <NotFound>
+            <LayoutView Layout="@typeof(Layout.MainLayout)">
+                <section class="app-page">
+                    <PageHeader Eyebrow="Not Found"
+                                Title="That bracket does not exist"
+                                Description="The route is missing. Pick a tournament from the navigation and continue from there." />
+                </section>
+            </LayoutView>
+        </NotFound>
+    </Router>
+</CascadingAuthenticationState>

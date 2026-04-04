@@ -1,0 +1,27 @@
+.home-content {
+    padding: 2rem;
+}
+
+.home-highlight-line {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+}
+
+.home-highlight-line span,
+.home-content p {
+    margin: 0;
+    color: var(--color-text-secondary);
+}
+
+.home-tournament-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr));
+    gap: 1rem;
+}
+
+@media (max-width: 700px) {
+    .home-content {
+        padding: 1rem;
+    }
+}

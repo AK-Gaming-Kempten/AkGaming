@@ -1,0 +1,45 @@
+<article class="tournament-card">
+    <div class="tournament-card-top">
+        <div>
+            <span class="status-pill @(StatusClass)">
+                <span class="bi bi-stars"></span>
+                @Summary.Status
+            </span>
+        </div>
+        <span class="info-chip">
+            <span class="bi bi-controller"></span>
+            @Summary.Game
+        </span>
+    </div>
+
+    <div class="tournament-card-copy">
+        <h3>@Summary.Title</h3>
+        <p class="tournament-card-season">@Summary.Season</p>
+        <p class="tournament-card-description">@Summary.Description</p>
+    </div>
+
+    <div class="tournament-card-meta">
+        <span><span class="bi bi-columns-gap"></span> @Summary.Format</span>
+        <span><span class="bi bi-geo-alt-fill"></span> @Summary.Venue</span>
+        <span><span class="bi bi-calendar-event-fill"></span> @Summary.RegistrationWindow</span>
+    </div>
+
+    <div class="tournament-card-footer">
+        <div class="tournament-card-capacity">
+            <strong>@Summary.RegisteredTeams</strong>
+            <span>registered of @Summary.TotalSlots</span>
+        </div>
+        <a class="solid-button" href="@($"/tournaments/{Summary.Slug}")">Open tournament</a>
+    </div>
+</article>
+
+@code {
+    [Parameter] public TournamentSummary Summary { get; set; } = default!;
+
+    private string StatusClass => Summary.StatusTone switch
+    {
+        "positive" => "status-pill-positive",
+        "warn" => "status-pill-warn",
+        _ => "status-pill-neutral"
+    };
+}

@@ -1,0 +1,237 @@
+@implements IDisposable
+@using Microsoft.AspNetCore.Components.Authorization
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject NavigationManager Nav
+@inject MockTournamentCatalog Catalog
+
+<div class="sidebar">
+    <div class="sidebar-header">
+        <img src="images/icons/AKG_Logos/Default.png" alt="AKGaming Logo" class="sidebar-logo">
+        <span class="sidebar-title">Tournament Hub</span>
+    </div>
+
+    <div class="sidebar-content">
+        <nav class="sidebar-nav">
+            <div class="nav-section">
+                <div class="nav-section-title">
+                    <span class="nav-icon bi-compass-fill"></span>
+                    General
+                </div>
+                <NavLink href="" Match="NavLinkMatch.All" class="nav-item level-1" @onclick="NotifyNavigation">
+                    <span class="nav-icon bi-house-door-fill"></span>
+                    <span>Landing</span>
+                </NavLink>
+                <NavLink href="discover" class="nav-item level-1" @onclick="NotifyNavigation">
+                    <span class="nav-icon bi-search-heart-fill"></span>
+                    <span>Discover</span>
+                </NavLink>
+                <NavLink href="captain-hub" class="nav-item level-1" @onclick="NotifyNavigation">
+                    <span class="nav-icon bi-flag-fill"></span>
+                    <span>Captain Hub</span>
+                </NavLink>
+            </div>
+
+            @if (ShowTournamentContext)
+            {
+                <div class="tournament-context">
+                    <div class="tournament-context-heading">
+                        <span class="tournament-context-name">@CurrentTournamentName</span>
+                        @if (!string.IsNullOrWhiteSpace(CurrentTournamentSubline))
+                        {
+                            <span class="tournament-context-subline">@CurrentTournamentSubline</span>
+                        }
+                    </div>
+
+                    @if (CanChangeTournament)
+                    {
+                        <select id="selectedTournament" class="tournament-selector-input" value="@selectedTournamentSlug" @onchange="HandleTournamentChanged">
+                            @if (isAdmin)
+                            {
+                                <option value="">No tournament selected</option>
+                            }
+
+                            @foreach (var tournament in tournaments)
+                            {
+                                <option value="@tournament.Slug">@tournament.Title @tournament.Season</option>
+                            }
+                        </select>
+                    }
+                </div>
+            }
+
+            @if (HasSelectedTournament)
+            {
+                <div class="nav-section">
+                    <button type="button" class="nav-section-toggle" @onclick="TogglePublicExpanded">
+                        <span class="nav-icon bi-megaphone-fill"></span>
+                        Public
+                        <span class="nav-chevron bi @(isPublicExpanded ? "bi-chevron-up" : "bi-chevron-down")"></span>
+                    </button>
+
+                    @if (isPublicExpanded)
+                    {
+                        <NavLink href="@BuildTournamentHref()" Match="NavLinkMatch.All" class="nav-item level-2" @onclick="NotifyNavigation">
+                            <span class="nav-icon bi-stars"></span>
+                            <span>Overview</span>
+                        </NavLink>
+                        <NavLink href="@BuildTournamentHref("schedule")" class="nav-item level-2" @onclick="NotifyNavigation">
+                            <span class="nav-icon bi-calendar-week-fill"></span>
+                            <span>Schedule</span>
+                        </NavLink>
+                        <NavLink href="@BuildTournamentHref("teams")" class="nav-item level-2" @onclick="NotifyNavigation">
+                            <span class="nav-icon bi-people-fill"></span>
+                            <span>Teams</span>
+                        </NavLink>
+                    }
+                </div>
+
+                @if (isAuthenticated)
+                {
+                    <div class="nav-section">
+                        <button type="button" class="nav-section-toggle" @onclick="TogglePlayerExpanded">
+                            <span class="nav-icon bi-person-circle"></span>
+                            Player
+                            <span class="nav-chevron bi @(isPlayerExpanded ? "bi-chevron-up" : "bi-chevron-down")"></span>
+                        </button>
+
+                        @if (isPlayerExpanded)
+                        {
+                            <NavLink href="@BuildTournamentHref("player/team-space")" class="nav-item level-2" @onclick="NotifyNavigation">
+                                <span class="nav-icon bi-diagram-3-fill"></span>
+                                <span>Team Space</span>
+                            </NavLink>
+                            <NavLink href="@BuildTournamentHref("player/check-in")" class="nav-item level-2" @onclick="NotifyNavigation">
+                                <span class="nav-icon bi-check2-square"></span>
+                                <span>Check-In</span>
+                            </NavLink>
+                        }
+                    </div>
+                }
+
+                @if (isAuthenticated && isAdmin)
+                {
+                    <div class="nav-section">
+                        <button type="button" class="nav-section-toggle" @onclick="ToggleAdministrationExpanded">
+                            <span class="nav-icon bi-shield-lock-fill"></span>
+                            Administration
+                            <span class="nav-chevron bi @(isAdministrationExpanded ? "bi-chevron-up" : "bi-chevron-down")"></span>
+                        </button>
+
+                        @if (isAdministrationExpanded)
+                        {
+                            <NavLink href="@BuildTournamentHref("administration/control-room")" class="nav-item level-2" @onclick="NotifyNavigation">
+                                <span class="nav-icon bi-command"></span>
+                                <span>Control Room</span>
+                            </NavLink>
+                            <NavLink href="@BuildTournamentHref("administration/match-desk")" class="nav-item level-2" @onclick="NotifyNavigation">
+                                <span class="nav-icon bi-broadcast-pin"></span>
+                                <span>Match Desk</span>
+                            </NavLink>
+                        }
+                    </div>
+                }
+            }
+        </nav>
+    </div>
+
+    <div class="sidebar-footer">
+        <ThemeSwitcherBox />
+        <UserBox />
+    </div>
+</div>
+
+@code {
+    [Parameter] public EventCallback OnNavigate { get; set; }
+
+    private IReadOnlyList<TournamentSummary> tournaments = [];
+    private TournamentSummary? selectedTournament;
+    private string selectedTournamentSlug = string.Empty;
+    private bool isAuthenticated;
+    private bool isAdmin;
+    private bool isPublicExpanded = true;
+    private bool isPlayerExpanded = true;
+    private bool isAdministrationExpanded = true;
+    private bool HasSelectedTournament => selectedTournament is not null;
+    private bool ShowTournamentContext => isAdmin || HasSelectedTournament;
+    private bool CanChangeTournament => isAuthenticated;
+    private string CurrentTournamentName => selectedTournament?.Title ?? "No tournament selected";
+    private string? CurrentTournamentSubline => selectedTournament?.Season;
+
+    protected override async Task OnInitializedAsync()
+    {
+        tournaments = Catalog.GetAll();
+
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+
+        isAuthenticated = user.Identity?.IsAuthenticated ?? false;
+        isAdmin = isAuthenticated && user.IsInRole("Admin");
+
+        UpdateSelectedTournamentFromLocation();
+
+        Nav.LocationChanged += HandleLocationChanged;
+    }
+
+    private void HandleLocationChanged(object? sender, LocationChangedEventArgs e)
+    {
+        UpdateSelectedTournamentFromLocation();
+        InvokeAsync(StateHasChanged);
+    }
+
+    private void UpdateSelectedTournamentFromLocation()
+    {
+        var path = Nav.ToBaseRelativePath(Nav.Uri);
+        var segments = path.Split('/', StringSplitOptions.RemoveEmptyEntries);
+        var requestedSlug = segments.Length >= 2 && string.Equals(segments[0], "tournaments", StringComparison.OrdinalIgnoreCase)
+            ? segments[1]
+            : null;
+
+        selectedTournament = !string.IsNullOrWhiteSpace(requestedSlug)
+            ? Catalog.FindSummary(requestedSlug!)
+            : null;
+        selectedTournamentSlug = selectedTournament?.Slug ?? string.Empty;
+    }
+
+    private Task HandleTournamentChanged(ChangeEventArgs args)
+    {
+        var targetSlug = args.Value?.ToString();
+        Nav.NavigateTo(BuildTournamentHrefForTournament(targetSlug));
+        return Task.CompletedTask;
+    }
+
+    private string BuildTournamentHref(string? childPath = null)
+    {
+        if (string.IsNullOrWhiteSpace(childPath))
+            return $"/tournaments/{selectedTournamentSlug}";
+
+        return $"/tournaments/{selectedTournamentSlug}/{childPath}";
+    }
+
+    private string BuildTournamentHrefForTournament(string? targetSlug)
+    {
+        if (string.IsNullOrWhiteSpace(targetSlug))
+            return "/discover";
+
+        var path = Nav.ToBaseRelativePath(Nav.Uri);
+        var segments = path.Split('/', StringSplitOptions.RemoveEmptyEntries).ToList();
+        if (segments.Count >= 2 && string.Equals(segments[0], "tournaments", StringComparison.OrdinalIgnoreCase))
+        {
+            segments[1] = targetSlug;
+            return "/" + string.Join('/', segments);
+        }
+
+        return $"/tournaments/{targetSlug}";
+    }
+
+    private void TogglePublicExpanded() => isPublicExpanded = !isPublicExpanded;
+    private void TogglePlayerExpanded() => isPlayerExpanded = !isPlayerExpanded;
+    private void ToggleAdministrationExpanded() => isAdministrationExpanded = !isAdministrationExpanded;
+
+    private Task NotifyNavigation()
+        => OnNavigate.HasDelegate ? OnNavigate.InvokeAsync() : Task.CompletedTask;
+
+    public void Dispose()
+    {
+        Nav.LocationChanged -= HandleLocationChanged;
+    }
+}

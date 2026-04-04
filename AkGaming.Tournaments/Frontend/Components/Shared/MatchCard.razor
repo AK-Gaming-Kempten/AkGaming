@@ -1,0 +1,34 @@
+<article class="match-card">
+    <div class="match-card-top">
+        <div>
+            <div class="match-card-stage">@Match.Stage</div>
+            <div class="match-card-window">@Match.Window · @Match.Arena</div>
+        </div>
+        <span class="status-pill @(ToneClass)">@Match.Status</span>
+    </div>
+
+    <div class="match-card-versus">
+        <div class="match-team">
+            <strong>@Match.LeftName</strong>
+            <span>@Match.LeftMeta</span>
+        </div>
+        <div class="match-versus-token">vs</div>
+        <div class="match-team">
+            <strong>@Match.RightName</strong>
+            <span>@Match.RightMeta</span>
+        </div>
+    </div>
+
+    <p class="match-card-note">@Match.Note</p>
+</article>
+
+@code {
+    [Parameter] public MatchCardModel Match { get; set; } = default!;
+
+    private string ToneClass => Match.Tone switch
+    {
+        "positive" => "status-pill-positive",
+        "warn" => "status-pill-warn",
+        _ => "status-pill-neutral"
+    };
+}

@@ -1,0 +1,25 @@
+@if (Items.Count == 0)
+{
+    <p class="status-list-empty">@EmptyState</p>
+}
+else
+{
+    <ul class="status-list">
+        @foreach (var item in Items)
+        {
+            <li class="status-list-item status-list-item-@item.Tone">
+                <div class="status-list-item-copy">
+                    <span class="status-list-eyebrow">@item.Eyebrow</span>
+                    <strong>@item.Title</strong>
+                    <p>@item.Description</p>
+                </div>
+                <span class="status-list-meta">@item.Meta</span>
+            </li>
+        }
+    </ul>
+}
+
+@code {
+    [Parameter] public IReadOnlyList<StatusListItem> Items { get; set; } = [];
+    [Parameter] public string EmptyState { get; set; } = "Nothing here yet.";
+}

@@ -1,0 +1,4 @@
+.access-denied-page {
+    min-height: calc(100dvh - 4rem);
+    display: grid;
+}

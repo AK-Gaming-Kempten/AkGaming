@@ -1,0 +1,42 @@
+.surface-panel {
+    padding: 1rem;
+    border-radius: 1.2rem;
+    border: 1px solid color-mix(in oklab, var(--color-text-secondary) 22%, transparent);
+    background: linear-gradient(180deg, color-mix(in oklab, var(--color-background-secondary) 82%, transparent), color-mix(in oklab, var(--color-background-primary) 94%, transparent));
+    box-shadow: 0 20px 42px color-mix(in oklab, black 14%, transparent);
+}
+
+.surface-panel-header {
+    display: flex;
+    align-items: start;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.surface-panel-header h3 {
+    margin: 0;
+}
+
+.surface-panel-header p {
+    margin: 0.3rem 0 0;
+    color: var(--color-text-secondary);
+}
+
+.surface-panel-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.55rem;
+}
+
+.surface-panel-body {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+@media (max-width: 700px) {
+    .surface-panel-header {
+        flex-direction: column;
+    }
+}

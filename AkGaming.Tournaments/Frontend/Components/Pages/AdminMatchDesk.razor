@@ -1,0 +1,40 @@
+@page "/tournaments/{TournamentSlug}/administration/match-desk"
+@attribute [Authorize(Roles = "Admin")]
+@inherits TournamentPageBase
+
+<PageTitle>@($"{Tournament.Summary.Title} Match Desk")</PageTitle>
+
+<section class="app-page">
+    <PageHeader Eyebrow="Administration"
+                Title="Match desk"
+                Description="The admin match desk reuses the same match cards as public pages but frames them for tournament operations." />
+
+    <div class="content-grid">
+        <div class="stack">
+            <SurfacePanel Title="Live and upcoming blocks"
+                          Subtitle="Same reusable match card component, different audience.">
+                <div class="stack">
+                    @foreach (var match in Tournament.Matches)
+                    {
+                        <MatchCard Match="@match" />
+                    }
+                </div>
+            </SurfacePanel>
+        </div>
+
+        <div class="stack">
+            <SurfacePanel Title="Desk handoff"
+                          Subtitle="Operational tasks tied directly to the match timeline.">
+                <StatusList Items="@Tournament.AdminQueue" EmptyState="No handoff tasks." />
+            </SurfacePanel>
+
+            <SurfacePanel Title="Desk note"
+                          Subtitle="What this page is proving right now.">
+                <p>
+                    Tournament administration stays separate from global identity admin. The shell and route design make that explicit
+                    before any backend endpoint exists.
+                </p>
+            </SurfacePanel>
+        </div>
+    </div>
+</section>

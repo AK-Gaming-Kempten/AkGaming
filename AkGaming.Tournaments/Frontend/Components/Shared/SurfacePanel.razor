@@ -1,0 +1,33 @@
+<section class="surface-panel">
+    @if (!string.IsNullOrWhiteSpace(Title) || Actions is not null)
+    {
+        <header class="surface-panel-header">
+            <div>
+                @if (!string.IsNullOrWhiteSpace(Title))
+                {
+                    <h3>@Title</h3>
+                }
+                @if (!string.IsNullOrWhiteSpace(Subtitle))
+                {
+                    <p>@Subtitle</p>
+                }
+            </div>
+
+            @if (Actions is not null)
+            {
+                <div class="surface-panel-actions">@Actions</div>
+            }
+        </header>
+    }
+
+    <div class="surface-panel-body">
+        @ChildContent
+    </div>
+</section>
+
+@code {
+    [Parameter] public string? Title { get; set; }
+    [Parameter] public string? Subtitle { get; set; }
+    [Parameter] public RenderFragment? Actions { get; set; }
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+}

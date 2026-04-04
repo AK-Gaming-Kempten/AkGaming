@@ -1,0 +1,31 @@
+<article class="team-card">
+    <div class="team-card-header">
+        <div>
+            <h3>@Team.Name</h3>
+            <p>@Team.Region · @Team.Standing</p>
+        </div>
+        <span class="info-chip">
+            <span class="bi bi-people-fill"></span>
+            @Team.Members.Count members
+        </span>
+    </div>
+
+    <p class="team-card-note">@Team.Note</p>
+
+    <ul class="team-card-roster">
+        @foreach (var member in Team.Members)
+        {
+            <li>
+                <div>
+                    <strong>@member.Handle</strong>
+                    <span>@member.Role</span>
+                </div>
+                <span class="status-pill @(member.Availability == "Confirmed" ? "status-pill-positive" : "status-pill-neutral")">@member.Availability</span>
+            </li>
+        }
+    </ul>
+</article>
+
+@code {
+    [Parameter] public TeamCardModel Team { get; set; } = default!;
+}

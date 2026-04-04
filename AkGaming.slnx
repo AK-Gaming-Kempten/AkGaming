@@ -83,4 +83,8 @@
   <Folder Name="/AkGaming.Management/WebApi/">
     <Project Path="AkGaming.Management/WebApi/AkGaming.Management.WebApi.csproj" />
   </Folder>
+  <Folder Name="/AkGaming.Tournaments/" />
+  <Folder Name="/AkGaming.Tournaments/Frontend/">
+    <Project Path="AkGaming.Tournaments/Frontend/AkGaming.Tournaments.Frontend.csproj" />
+  </Folder>
 </Solution>

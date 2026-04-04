@@ -1,0 +1,66 @@
+@page "/tournaments/{TournamentSlug}"
+@inherits TournamentPageBase
+
+<PageTitle>@($"{Tournament.Summary.Title} Overview")</PageTitle>
+
+<section class="app-page">
+    <PageHeader Eyebrow="@($"{Tournament.Summary.Title} · {Tournament.Summary.Season}")"
+                Title="Tournament overview"
+                Description="@Tournament.HeroDescription">
+        <Actions>
+            <a href="@($"/tournaments/{Tournament.Summary.Slug}/schedule")" class="ghost-button">Schedule</a>
+            <a href="@($"/tournaments/{Tournament.Summary.Slug}/teams")" class="solid-button">Teams</a>
+        </Actions>
+    </PageHeader>
+
+    @if (RequestedTournamentWasMissing)
+    {
+        <SurfacePanel Title="Requested slug not found"
+                      Subtitle="The frontend fell back to the featured tournament so the shell stays usable.">
+            <p>Pick another tournament from the selector to continue.</p>
+        </SurfacePanel>
+    }
+
+    <div class="stats-grid">
+        @foreach (var metric in Tournament.Metrics)
+        {
+            <MetricCard Label="@metric.Label" Value="@metric.Value" Caption="@metric.Caption" />
+        }
+    </div>
+
+    <div class="content-grid">
+        <div class="stack">
+            <SurfacePanel Title="Tournament pulse"
+                          Subtitle="@Tournament.NextMilestone">
+                <StatusList Items="@Tournament.Updates" EmptyState="No tournament updates yet." />
+            </SurfacePanel>
+
+            <SurfacePanel Title="Featured matches"
+                          Subtitle="Shared match cards are already used here and in the dedicated match desk mockups.">
+                <div class="stack">
+                    @foreach (var match in Tournament.Matches.Take(2))
+                    {
+                        <MatchCard Match="@match" />
+                    }
+                </div>
+            </SurfacePanel>
+        </div>
+
+        <div class="stack">
+            <SurfacePanel Title="Teams in this event"
+                          Subtitle="Tournament teams stay separate from the global discovery context.">
+                <div class="stack">
+                    @foreach (var team in Tournament.Teams.Take(2))
+                    {
+                        <TeamCard Team="@team" />
+                    }
+                </div>
+            </SurfacePanel>
+
+            <SurfacePanel Title="Roadmap snapshot"
+                          Subtitle="This tournament-specific area already mirrors the future product split.">
+                <StatusList Items="@Tournament.Timeline" EmptyState="No milestones yet." />
+            </SurfacePanel>
+        </div>
+    </div>
+</section>

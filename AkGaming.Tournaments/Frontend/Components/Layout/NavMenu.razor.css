@@ -1,0 +1,209 @@
+.sidebar {
+    --color-nav-bg: var(--color-background-special);
+    --color-nav-border: color-mix(in oklab, var(--color-text-secondary) 55%, transparent);
+    --color-nav-item-hover-bg: color-mix(in oklab, var(--color-background-secondary) 30%, transparent);
+    --color-nav-item-active-bg: var(--color-highlight-secondary);
+    --color-nav-item-text: var(--color-text-special);
+    --color-nav-item-active-text: var(--color-text-special);
+    --color-nav-icon: var(--color-highlight-primary);
+
+    width: 300px;
+    height: 100dvh;
+    min-height: 100dvh;
+    background:
+        linear-gradient(180deg, color-mix(in oklab, var(--color-background-special) 96%, black 4%), var(--color-background-special));
+    border-right: 1px solid var(--color-nav-border);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.sidebar-header {
+    padding: 1rem;
+    border-bottom: 1px solid var(--color-nav-border);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.sidebar-title {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--color-text-special);
+}
+
+.sidebar-logo {
+    width: 3rem;
+    height: 3rem;
+    margin-right: 0.5rem;
+}
+
+.sidebar-content {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    padding: 0.75rem 0 0.75rem 0.75rem;
+}
+
+.sidebar-footer {
+    margin-top: auto;
+}
+
+.sidebar-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.nav-section {
+    margin-top: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.nav-section-title {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--color-text-special-secondary);
+    font-size: 0.9rem;
+    font-weight: 600;
+    padding: 0.25rem 0.5rem;
+}
+
+.nav-section-toggle {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    width: 100%;
+    border: 0;
+    background: transparent;
+    color: var(--color-text-special-secondary);
+    font-size: 0.9rem;
+    font-weight: 600;
+    padding: 0.35rem 0.9rem 0.35rem 0.5rem;
+    text-align: left;
+    cursor: pointer;
+}
+
+.nav-chevron {
+    margin-left: auto;
+    margin-right: 0.35rem;
+    font-size: 1.05rem;
+}
+
+.tournament-context {
+    margin: 1rem 0.75rem 0 0;
+    padding-top: 1rem;
+    border-top: 1px solid color-mix(in oklab, var(--color-text-secondary) 32%, transparent);
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+}
+
+.tournament-context-heading {
+    display: flex;
+    flex-direction: column;
+    gap: 0.1rem;
+    padding: 0 0.2rem;
+}
+
+.tournament-context-name {
+    color: var(--color-text-special);
+    font-size: 1rem;
+    font-weight: 700;
+    line-height: 1.2;
+}
+
+.tournament-context-subline {
+    color: var(--color-text-special-secondary);
+    font-size: 0.82rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+.tournament-selector-input {
+    width: 100%;
+    min-width: 0;
+    border: 0;
+    border-bottom: 1px solid color-mix(in oklab, var(--color-text-secondary) 32%, transparent);
+    border-radius: 0;
+    background: transparent;
+    color: var(--color-text-special);
+    padding: 0.45rem 0.2rem 0.55rem;
+    font-weight: 600;
+    box-shadow: none;
+}
+
+.tournament-selector-input:focus {
+    outline: none;
+    border-bottom-color: var(--color-highlight-primary);
+}
+
+::deep a.nav-item,
+::deep a.nav-item:visited {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.55rem 1rem;
+    border-radius: 4px;
+    width: 100%;
+    background: transparent;
+    color: var(--color-nav-item-text);
+    text-decoration: none;
+    transition: background 0.2s ease, color 0.2s ease;
+    position: relative;
+    box-sizing: border-box;
+}
+
+::deep a.nav-item.level-1 { padding-left: 1rem; }
+::deep a.nav-item.level-2 { padding-left: 2rem; }
+
+::deep a.nav-item:hover {
+    background: linear-gradient(90deg, var(--color-nav-bg) 0%, var(--color-nav-item-hover-bg) 100%);
+}
+
+::deep a.nav-item.active {
+    background: linear-gradient(
+        90deg,
+        var(--color-nav-bg) 0%,
+        color-mix(in oklab, var(--color-nav-item-active-bg) 75%, var(--color-highlight-primary) 25%) 100%);
+    color: var(--color-nav-item-active-text);
+}
+
+::deep a.nav-item.active .nav-icon {
+    color: var(--color-nav-item-active-text);
+}
+
+::deep a.nav-item .nav-icon,
+.nav-icon {
+    font-size: 1.1rem;
+    color: var(--color-nav-icon);
+}
+
+::deep .theme-switcher-box,
+::deep .user-box {
+    flex: 0 0 72px;
+    min-height: 72px;
+    max-height: 72px;
+}
+
+@media (max-width: 900px) {
+    .sidebar {
+        width: 100%;
+        height: 100%;
+        min-height: 100%;
+        border-right: 1px solid var(--color-nav-border);
+        border-bottom: 0;
+    }
+
+    .sidebar-header {
+        display: none;
+    }
+
+    .sidebar-content {
+        padding: 0.5rem;
+    }
+}
