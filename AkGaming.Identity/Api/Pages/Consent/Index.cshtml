@@ -6,12 +6,21 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>AKG Identity | Consent</title>
+  <link rel="icon" type="image/png" href="/ui/AkGaming_Identity.png" />
   <link rel="stylesheet" href="/ui/akgaming-base-theme.css" />
   <link rel="stylesheet" href="/ui/baseStyles.css" />
   <link rel="stylesheet" href="/ui/styles.css" />
+  <script src="/ui/common.js" defer></script>
 </head>
 <body>
   <main class="shell">
+    <div class="topbar">
+      <select class="theme-picker" data-theme-picker aria-label="Theme">
+        <option value="system">System Theme</option>
+        <option value="light">Light Theme</option>
+        <option value="dark">Dark Theme</option>
+      </select>
+    </div>
     <div class="brand">
       <img src="/ui/AkGaming_Identity.png" alt="@ClubConstants.Organization.ShortName" />
       <div class="brand-title">@ClubConstants.Organization.ShortName <span class="identity">Identity</span></div>
@@ -20,19 +29,22 @@
     <p class="sub"><strong>@Model.ClientName</strong> is requesting access to your @ClubConstants.Organization.ShortName account.</p>
 
     <section class="panel">
+      <h2>Request Details</h2>
       <div class="row"><span class="k">Client</span><span class="v">@Model.ClientId</span></div>
       <div class="row"><span class="k">Scopes</span><span class="v">@string.Join(", ", Model.ScopeItems)</span></div>
     </section>
 
-    <form method="post" asp-page-handler="Approve">
-      <input asp-for="ReturnUrl" type="hidden" />
-      <button class="primary" type="submit">Allow</button>
-    </form>
+    <div class="actions">
+      <form method="post" asp-page-handler="Approve">
+        <input asp-for="ReturnUrl" type="hidden" />
+        <button class="primary" type="submit">Allow</button>
+      </form>
 
-    <form method="post" asp-page-handler="Deny">
-      <input asp-for="ReturnUrl" type="hidden" />
-      <button class="secondary" type="submit">Deny</button>
-    </form>
+      <form method="post" asp-page-handler="Deny">
+        <input asp-for="ReturnUrl" type="hidden" />
+        <button class="secondary" type="submit">Deny</button>
+      </form>
+    </div>
   </main>
 </body>
 </html>

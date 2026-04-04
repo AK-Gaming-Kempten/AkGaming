@@ -34,12 +34,16 @@
     </section>
 
     <div id="login-actions">
-      <form id="login-form">
-        <label for="email">Email</label>
-        <input id="email" name="email" type="email" autocomplete="email" required />
+      <form id="login-form" class="identity-form">
+        <div class="ui-field">
+          <label for="email">Email</label>
+          <input id="email" name="email" type="email" autocomplete="email" required />
+        </div>
 
-        <label for="password">Password</label>
-        <input id="password" name="password" type="password" autocomplete="current-password" required />
+        <div class="ui-field">
+          <label for="password">Password</label>
+          <input id="password" name="password" type="password" autocomplete="current-password" required />
+        </div>
 
         <button class="primary" type="submit">Sign In</button>
       </form>

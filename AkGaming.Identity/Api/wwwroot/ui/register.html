@@ -26,12 +26,16 @@
     <h1>Create Account</h1>
     <p class="sub">Register with email/password, then link Discord anytime.</p>
 
-    <form id="register-form">
-      <label for="email">Email</label>
-      <input id="email" name="email" type="email" autocomplete="email" required />
+    <form id="register-form" class="identity-form">
+      <div class="ui-field">
+        <label for="email">Email</label>
+        <input id="email" name="email" type="email" autocomplete="email" required />
+      </div>
 
-      <label for="password">Password</label>
-      <input id="password" name="password" type="password" autocomplete="new-password" minlength="8" required />
+      <div class="ui-field">
+        <label for="password">Password</label>
+        <input id="password" name="password" type="password" autocomplete="new-password" minlength="8" required />
+      </div>
 
       <label for="privacyPolicyAccepted" class="checkbox-row">
         <input id="privacyPolicyAccepted" name="privacyPolicyAccepted" type="checkbox" required />

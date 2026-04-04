@@ -13,11 +13,11 @@
     -moz-osx-font-smoothing: grayscale;
 
     /* === FUNDAMENTAL COLOR SCHEME === */
-    --color-light-gray: #eeeeee;
-    --color-gray: #919d98;
-    --color-dark-grey: #1a1a1a;
-    --color-light-green-grey: #c0e1c7;
-    --color-dark-green: #0f221e;
+    --color-light-gray: #dddddd;
+    --color-gray: #b2bfb9;
+    --color-dark-grey: #161917;
+    --color-light-green-grey: #d9f6e5;
+    --color-dark-green: #123021;
     --color-green: #286c3f;
     --color-light-green: #48cb4f;
     --color-white: #ffffff;
@@ -101,7 +101,7 @@
         --color-highlight-secondary: var(--color-green);
         --color-background-primary: var(--color-dark-grey);
         --color-background-secondary: var(--color-dark-green);
-        --color-background-tertiary: var(--color-gray);
+        --color-background-tertiary: var(--color-light-gray);
         --color-background-quartiary: var(--color-light-green-grey);
         --color-background-special: var(--color-dark-green);
     }
@@ -132,7 +132,7 @@
     --color-highlight-secondary: var(--color-green);
     --color-background-primary: var(--color-dark-grey);
     --color-background-secondary: var(--color-dark-green);
-    --color-background-tertiary: var(--color-gray);
+    --color-background-tertiary: var(--color-light-gray);
     --color-background-quartiary: var(--color-light-green-grey);
     --color-background-special: var(--color-dark-green);
 }

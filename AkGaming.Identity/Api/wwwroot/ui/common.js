@@ -1,5 +1,6 @@
 (() => {
-  const STORAGE_KEY = "akg.theme.preference";
+  const STORAGE_KEY = "theme";
+  const LEGACY_STORAGE_KEY = "akg.theme.preference";
 
   function applyTheme(value) {
     if (value === "light" || value === "dark") {
@@ -10,11 +11,12 @@
   }
 
   function getStoredTheme() {
-    return localStorage.getItem(STORAGE_KEY) || "system";
+    return localStorage.getItem(STORAGE_KEY) || localStorage.getItem(LEGACY_STORAGE_KEY) || "system";
   }
 
   function setStoredTheme(value) {
     localStorage.setItem(STORAGE_KEY, value);
+    localStorage.removeItem(LEGACY_STORAGE_KEY);
   }
 
   function syncPickers(value) {

@@ -10,9 +10,17 @@
   <link rel="stylesheet" href="/ui/akgaming-base-theme.css" />
   <link rel="stylesheet" href="/ui/baseStyles.css" />
   <link rel="stylesheet" href="/ui/styles.css" />
+  <script src="/ui/common.js" defer></script>
 </head>
 <body>
-  <main class="shell">
+  <main class="shell shell-wide">
+    <div class="topbar">
+      <select class="theme-picker" data-theme-picker aria-label="Theme">
+        <option value="system">System Theme</option>
+        <option value="light">Light Theme</option>
+        <option value="dark">Dark Theme</option>
+      </select>
+    </div>
     <div class="brand">
       <img src="/ui/AkGaming_Identity.png" alt="@ClubConstants.Organization.ShortName" />
       <div class="brand-title">@ClubConstants.Organization.ShortName <span class="identity">Identity</span></div>
@@ -27,36 +35,47 @@
 
     @if (Model.Profile is not null)
     {
-      <section class="panel">
-        <div class="row"><span class="k">Current Email</span><span class="v">@Model.Profile.Email</span></div>
-        <div class="row"><span class="k">Email Verified</span><span class="v">@Model.Profile.IsEmailVerified</span></div>
-        <div class="row"><span class="k">Roles</span><span class="v">@string.Join(", ", Model.Profile.Roles)</span></div>
-      </section>
+      <div class="ui-grid-2">
+        <section class="panel">
+          <h2>Account Info</h2>
+          <div class="row"><span class="k">Current Email</span><span class="v">@Model.Profile.Email</span></div>
+          <div class="row"><span class="k">Email Verified</span><span class="v @(Model.Profile.IsEmailVerified ? "ok" : "warn")">@(Model.Profile.IsEmailVerified ? "Yes" : "No")</span></div>
+          <div class="row"><span class="k">Roles</span><span class="v">@string.Join(", ", Model.Profile.Roles)</span></div>
+        </section>
 
-      <section class="panel">
-        <form method="post" asp-page-handler="SendVerification">
-          <input asp-for="ReturnUrl" type="hidden" />
-          <button class="primary" type="submit">Send Verification Email</button>
-        </form>
+        <section class="panel">
+          <h2>Verification Actions</h2>
 
-        <form method="post" asp-page-handler="VerifyEmail">
-          <input asp-for="ReturnUrl" type="hidden" />
-          <label asp-for="VerificationToken">Verification Token</label>
-          <input asp-for="VerificationToken" autocomplete="off" spellcheck="false" />
-          <button class="secondary" type="submit">Verify Email</button>
-        </form>
+          <form method="post" asp-page-handler="SendVerification" class="identity-form">
+            <input asp-for="ReturnUrl" type="hidden" />
+            <button class="primary" type="submit">Send Verification Email</button>
+          </form>
 
-        <form method="post" asp-page-handler="ChangeEmail">
-          <input asp-for="ReturnUrl" type="hidden" />
-          <label asp-for="Email">Change Email</label>
-          <input asp-for="Email" type="email" autocomplete="email" required />
-          <button class="secondary" type="submit">Update Email</button>
-        </form>
+          <form method="post" asp-page-handler="VerifyEmail" class="identity-form">
+            <input asp-for="ReturnUrl" type="hidden" />
+            <div class="ui-field">
+              <label asp-for="VerificationToken">Verification Token</label>
+              <input asp-for="VerificationToken" autocomplete="off" spellcheck="false" />
+            </div>
+            <button class="secondary" type="submit">Verify Email</button>
+          </form>
 
+          <form method="post" asp-page-handler="ChangeEmail" class="identity-form">
+            <input asp-for="ReturnUrl" type="hidden" />
+            <div class="ui-field">
+              <label asp-for="Email">Change Email</label>
+              <input asp-for="Email" type="email" autocomplete="email" required />
+            </div>
+            <button class="secondary" type="submit">Update Email</button>
+          </form>
+        </section>
+      </div>
+
+      <div class="actions">
         <form method="post" asp-page-handler="Logout">
           <button class="secondary" type="submit">Logout</button>
         </form>
-      </section>
+      </div>
     }
   </main>
 </body>

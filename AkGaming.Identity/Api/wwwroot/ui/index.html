@@ -9,80 +9,6 @@
   <link rel="stylesheet" href="/ui/baseStyles.css" />
   <link rel="stylesheet" href="/ui/styles.css" />
   <script src="/ui/common.js" defer></script>
-  <style>
-    .shell.shell-wide { width: min(96vw, 1100px); }
-    .meta { margin-top: 10px; color: var(--color-text-tertiary); font-size: 14px; }
-    .panel {
-      margin-top: 16px;
-      padding: 16px;
-      border: 1px solid var(--color-card-border);
-      border-radius: 4px;
-      background: var(--color-background-primary);
-    }
-    .panel h2 {
-      margin: 0 0 12px;
-      font-size: 18px;
-      font-weight: 700;
-    }
-    .account-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 16px;
-    }
-    .row { display: flex; justify-content: space-between; gap: 10px; margin-top: 8px; }
-    .k { color: var(--color-text-tertiary); }
-    .v { word-break: break-all; text-align: right; }
-    .v.ok { color: var(--color-highlight-secondary); }
-    .v.warn { color: #f4b942; }
-    .actions { display: grid; gap: 10px; margin-top: 14px; }
-    .method-actions { display: grid; gap: 10px; margin-top: 14px; }
-    .inline-actions { display: flex; gap: 8px; margin-top: 12px; }
-    .inline-actions button {
-      margin-top: 0;
-      width: auto;
-      flex: 0 0 auto;
-      padding: 0.55rem 0.9rem;
-    }
-    .inline-actions input {
-      flex: 1;
-      min-width: 0;
-      border: 1px solid var(--color-card-border);
-      border-radius: 2px;
-      padding: 0.7rem 0.8rem;
-      min-height: 44px;
-      font-size: 15px;
-      background: var(--color-background-primary);
-      color: var(--color-text-primary);
-    }
-    .method-block {
-      margin-top: 12px;
-      padding-top: 12px;
-      border-top: 1px dashed var(--color-card-border);
-    }
-    .method-title {
-      margin: 0 0 8px;
-      font-size: 14px;
-      color: var(--color-text-tertiary);
-      text-transform: uppercase;
-      letter-spacing: 0.6px;
-      font-weight: 700;
-    }
-    .discord-details {
-      color: var(--color-text-secondary);
-      font-size: 14px;
-    }
-    button.secondary {
-      background: var(--color-button-secondary-bg);
-      color: var(--color-button-secondary-text);
-    }
-    button.secondary:hover {
-      background: var(--color-button-secondary-hover-bg);
-    }
-    @media (max-width: 860px) {
-      .account-grid { grid-template-columns: 1fr; }
-      .shell.shell-wide { width: min(96vw, 760px); }
-    }
-  </style>
 </head>
 <body>
   <main class="shell shell-wide">
@@ -101,7 +27,7 @@
     <p class="sub" id="subtitle">Checking session...</p>
 
     <div id="auth-panel" style="display:none;">
-      <div class="account-grid">
+      <div class="ui-grid-2">
         <div class="panel">
           <h2>General Info</h2>
           <div class="row"><span class="k">User Id</span><span class="v" id="sub"></span></div>
@@ -130,9 +56,9 @@
           <div class="method-block">
             <div class="method-title">Discord</div>
             <div id="discord-linked" class="discord-details" style="display:none;">
-              <div><span class="k">Discord</span>: <span class="v" id="discord-name"></span></div>
-              <div><span class="k">Discord Id</span>: <span class="v" id="discord-id"></span></div>
-              <div><span class="k">Linked At</span>: <span class="v" id="discord-linked-at"></span></div>
+              <div class="row"><span class="k">Discord</span><span class="v" id="discord-name"></span></div>
+              <div class="row"><span class="k">Discord Id</span><span class="v" id="discord-id"></span></div>
+              <div class="row"><span class="k">Linked At</span><span class="v" id="discord-linked-at"></span></div>
             </div>
             <div class="method-actions">
               <button class="primary" id="discord-link" type="button"><img class="button-icon" src="/ui/Discord-Symbol-Blurple.svg" alt="" />Link Discord</button>

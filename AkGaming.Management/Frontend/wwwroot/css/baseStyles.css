@@ -27,13 +27,11 @@ textarea:focus {
     background-color: var(--color-background-secondary);
 }
 
-/* Placeholder color */
 input::placeholder,
 textarea::placeholder {
     color: var(--color-text-secondary);
 }
 
-/* Labels */
 label {
     display: block;
     font-size: 0.85rem;
@@ -42,7 +40,6 @@ label {
     color: var(--color-text-secondary);
 }
 
-/* Form layout helpers */
 .form-row {
     display: flex;
     gap: 1rem;
@@ -63,7 +60,7 @@ label {
 
 /* ==== BUTTONS ==== */
 
-button, .btn{
+button, .btn {
     border: none;
     border-radius: 4px;
     padding: 0.4rem 0.8rem;
@@ -88,6 +85,7 @@ button:disabled, .btn:disabled {
     background-color: var(--color-button-primary-bg);
     color: var(--color-button-primary-text);
 }
+
 .btn-primary:hover {
     background-color: var(--color-button-primary-hover-bg);
 }
@@ -96,6 +94,7 @@ button:disabled, .btn:disabled {
     background-color: var(--color-button-success-bg);
     color: var(--color-button-success-text);
 }
+
 .btn-success:hover {
     background-color: var(--color-button-success-hover-bg);
 }
@@ -104,6 +103,7 @@ button:disabled, .btn:disabled {
     background-color: var(--color-button-secondary-bg);
     color: var(--color-button-secondary-text);
 }
+
 .btn-secondary:hover {
     background-color: var(--color-button-secondary-hover-bg);
 }
@@ -112,6 +112,7 @@ button:disabled, .btn:disabled {
     background-color: var(--color-button-danger-bg);
     color: var(--color-button-danger-text);
 }
+
 .btn-danger:hover {
     background-color: var(--color-button-danger-hover-bg);
 }
@@ -307,7 +308,6 @@ button.btn-sm, .btn.btn-sm {
     padding-right: 0.5rem;
 }
 
-/* fade effect */
 .scrollable::after {
     content: "";
     position: sticky;
@@ -323,7 +323,6 @@ button.btn-sm, .btn.btn-sm {
     );
 }
 
-/* scrollbar styling */
 .scrollable::-webkit-scrollbar {
     width: 8px;
 }
@@ -358,6 +357,7 @@ p {
 }
 
 /* ==== BODY ==== */
+
 body {
     background-color: var(--color-background-primary);
     color: var(--color-text-primary);
