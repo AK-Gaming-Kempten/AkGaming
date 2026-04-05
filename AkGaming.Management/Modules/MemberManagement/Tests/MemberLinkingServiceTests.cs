@@ -94,7 +94,10 @@ public class MemberLinkingServiceTests {
         Assert.That(result.IsSuccess, Is.True);
         emailSender.Verify(x => x.SendAsync("linking@example.com", It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string?>(), It.IsAny<CancellationToken>()), Times.Once);
         Assert.That(capturedTextBody, Does.Contain(ClubConstants.Urls.ManagementMembership));
-        Assert.That(capturedHtmlBody, Does.Contain($"<a href=\"{ClubConstants.Urls.ManagementMembership}\">update your personal data</a>"));
+        Assert.That(capturedHtmlBody, Does.Contain(ClubConstants.Urls.ManagementMembership));
+        Assert.That(capturedHtmlBody, Does.Contain("update your personal data"));
+        Assert.That(capturedHtmlBody, Does.Contain("linear-gradient(145deg,#0f221e,#163328)"));
+        Assert.That(capturedHtmlBody, Does.Contain(ClubConstants.Urls.LogoAsset));
     }
 
     [Test]
@@ -181,5 +184,7 @@ public class MemberLinkingServiceTests {
         emailSender.Verify(x => x.SendAsync(ClubConstants.EmailAddresses.Board, It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string?>(), It.IsAny<CancellationToken>()), Times.Once);
         Assert.That(capturedTextBody, Does.Contain(ClubConstants.Urls.ManagementMemberRequests));
         Assert.That(capturedHtmlBody, Does.Contain(ClubConstants.Urls.ManagementMemberRequests));
+        Assert.That(capturedHtmlBody, Does.Contain("linear-gradient(145deg,#0f221e,#163328)"));
+        Assert.That(capturedHtmlBody, Does.Contain(ClubConstants.Urls.LogoAsset));
     }
 }

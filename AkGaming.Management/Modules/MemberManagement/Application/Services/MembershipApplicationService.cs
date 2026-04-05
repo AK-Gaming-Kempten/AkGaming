@@ -211,25 +211,10 @@ public class MembershipApplicationService : IMembershipApplicationService {
         if (string.IsNullOrWhiteSpace(recipientEmail))
             return;
 
-        var decisionText = accepted ? "accepted" : "declined";
-        var subject = accepted
-            ? $"{ClubConstants.Organization.LegalName} membership application accepted"
-            : $"{ClubConstants.Organization.LegalName} membership application declined";
-        var textBody =
-            "Hello,\n\n" +
-            $"your {ClubConstants.Organization.LegalName} membership application has been {decisionText}.\n\n" +
-            $"If you have questions, please contact us at {BoardEmail}.\n\n" +
-            $"Kind regards,\n{ClubConstants.Organization.LegalName}";
-        var htmlBody =
-            "<div style=\"font-family:Arial,Helvetica,sans-serif;color:#222;line-height:1.6\">" +
-            "<p style=\"margin:0 0 12px\">Hello,</p>" +
-            $"<p style=\"margin:0 0 12px\">Your {ClubConstants.Organization.LegalName} membership application has been <strong>{decisionText}</strong>.</p>" +
-            $"<p style=\"margin:0 0 12px\">If you have questions, please contact us at {BoardEmail}.</p>" +
-            $"<p style=\"margin:0\">Kind regards,<br/>{ClubConstants.Organization.LegalName}</p>" +
-            "</div>";
+        var email = MembershipApplicationEmailComposer.ComposeDecisionEmail(accepted);
 
         try {
-            await _emailSender.SendAsync(recipientEmail, subject, textBody, htmlBody, CancellationToken.None);
+            await _emailSender.SendAsync(recipientEmail, email.Subject, email.TextBody, email.HtmlBody, CancellationToken.None);
         }
         catch (Exception exception) {
             _logger.LogError(exception, "Failed to send membership application decision email to {Email}.", recipientEmail);
@@ -237,36 +222,10 @@ public class MembershipApplicationService : IMembershipApplicationService {
     }
 
     private async Task SendMembershipApplicationCreatedNotificationEmailAsync(MembershipApplicationRequest request) {
-        var subject = $"{ClubConstants.Organization.LegalName} new membership application";
-        var textBody =
-            "A new membership application was created.\n\n" +
-            $"Open requests in admin panel: {ClubConstants.Urls.ManagementMemberRequests}\n\n" +
-            $"RequestId: {request.Id}\n" +
-            $"UserId: {request.IssuingUserId}\n" +
-            $"Name: {request.FirstName} {request.LastName}\n" +
-            $"Email: {request.Email}\n" +
-            $"Phone: {request.Phone}\n" +
-            $"Discord: {request.DiscordUserName}\n" +
-            $"BirthDate: {request.BirthDate:yyyy-MM-dd}\n" +
-            $"ApplicationText: {request.ApplicationText}\n";
-        var htmlBody =
-            "<div style=\"font-family:Arial,Helvetica,sans-serif;color:#222;line-height:1.6\">" +
-            "<p style=\"margin:0 0 12px\">A new membership application was created.</p>" +
-            $"<p style=\"margin:0 0 12px\"><a href=\"{ClubConstants.Urls.ManagementMemberRequests}\">Open requests in admin panel</a></p>" +
-            "<table style=\"border-collapse:collapse\">" +
-            $"<tr><td style=\"padding:2px 8px 2px 0\"><strong>RequestId</strong></td><td style=\"padding:2px 0\">{request.Id}</td></tr>" +
-            $"<tr><td style=\"padding:2px 8px 2px 0\"><strong>UserId</strong></td><td style=\"padding:2px 0\">{request.IssuingUserId}</td></tr>" +
-            $"<tr><td style=\"padding:2px 8px 2px 0\"><strong>Name</strong></td><td style=\"padding:2px 0\">{request.FirstName} {request.LastName}</td></tr>" +
-            $"<tr><td style=\"padding:2px 8px 2px 0\"><strong>Email</strong></td><td style=\"padding:2px 0\">{request.Email}</td></tr>" +
-            $"<tr><td style=\"padding:2px 8px 2px 0\"><strong>Phone</strong></td><td style=\"padding:2px 0\">{request.Phone}</td></tr>" +
-            $"<tr><td style=\"padding:2px 8px 2px 0\"><strong>Discord</strong></td><td style=\"padding:2px 0\">{request.DiscordUserName}</td></tr>" +
-            $"<tr><td style=\"padding:2px 8px 2px 0\"><strong>BirthDate</strong></td><td style=\"padding:2px 0\">{request.BirthDate:yyyy-MM-dd}</td></tr>" +
-            $"<tr><td style=\"padding:2px 8px 2px 0\"><strong>ApplicationText</strong></td><td style=\"padding:2px 0\">{request.ApplicationText}</td></tr>" +
-            "</table>" +
-            "</div>";
+        var email = MembershipApplicationEmailComposer.ComposeCreatedNotificationEmail(request);
 
         try {
-            await _emailSender.SendAsync(BoardEmail, subject, textBody, htmlBody, CancellationToken.None);
+            await _emailSender.SendAsync(BoardEmail, email.Subject, email.TextBody, email.HtmlBody, CancellationToken.None);
         }
         catch (Exception exception) {
             _logger.LogError(exception, "Failed to send membership application created notification to {Email}.", BoardEmail);

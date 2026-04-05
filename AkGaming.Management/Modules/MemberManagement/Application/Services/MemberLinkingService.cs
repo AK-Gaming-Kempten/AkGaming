@@ -170,33 +170,10 @@ public class MemberLinkingService : IMemberLinkingService {
         if (string.IsNullOrWhiteSpace(recipientEmail))
             return;
 
-        var decisionText = accepted ? "accepted" : "declined";
-        var subject = accepted
-            ? $"{ClubConstants.Organization.LegalName} member linking request accepted"
-            : $"{ClubConstants.Organization.LegalName} member linking request declined";
-        var updatePersonalDataTextBody = accepted
-            ? $"Please update your personal data at {ClubConstants.Urls.ManagementMembership}.\n\n"
-            : string.Empty;
-        var updatePersonalDataHtmlBody = accepted
-            ? $"<p style=\"margin:0 0 12px\">Please <a href=\"{ClubConstants.Urls.ManagementMembership}\">update your personal data</a>.</p>"
-            : string.Empty;
-        var textBody =
-            "Hello,\n\n" +
-            $"your {ClubConstants.Organization.LegalName} member linking request has been {decisionText}.\n\n" +
-            updatePersonalDataTextBody +
-            $"If you have questions, please contact us at {BoardEmail}.\n\n" +
-            $"Kind regards,\n{ClubConstants.Organization.LegalName}";
-        var htmlBody =
-            "<div style=\"font-family:Arial,Helvetica,sans-serif;color:#222;line-height:1.6\">" +
-            "<p style=\"margin:0 0 12px\">Hello,</p>" +
-            $"<p style=\"margin:0 0 12px\">Your {ClubConstants.Organization.LegalName} member linking request has been <strong>{decisionText}</strong>.</p>" +
-            updatePersonalDataHtmlBody +
-            $"<p style=\"margin:0 0 12px\">If you have questions, please contact us at {BoardEmail}.</p>" +
-            $"<p style=\"margin:0\">Kind regards,<br/>{ClubConstants.Organization.LegalName}</p>" +
-            "</div>";
+        var email = MemberLinkingEmailComposer.ComposeDecisionEmail(accepted);
 
         try {
-            await _emailSender.SendAsync(recipientEmail, subject, textBody, htmlBody, CancellationToken.None);
+            await _emailSender.SendAsync(recipientEmail, email.Subject, email.TextBody, email.HtmlBody, CancellationToken.None);
         }
         catch (Exception exception) {
             _logger.LogError(exception, "Failed to send member linking decision email to {Email}.", recipientEmail);
@@ -204,32 +181,10 @@ public class MemberLinkingService : IMemberLinkingService {
     }
 
     private async Task SendMemberLinkingRequestCreatedNotificationEmailAsync(MemberLinkingRequest request) {
-        var subject = $"{ClubConstants.Organization.LegalName} new member linking request";
-        var textBody =
-            "A new member linking request was created.\n\n" +
-            $"Open requests in admin panel: {ClubConstants.Urls.ManagementMemberRequests}\n\n" +
-            $"RequestId: {request.Id}\n" +
-            $"UserId: {request.IssuingUserId}\n" +
-            $"Name: {request.FirstName} {request.LastName}\n" +
-            $"Email: {request.Email}\n" +
-            $"Discord: {request.DiscordUserName}\n" +
-            $"Reason: {request.Reason}\n";
-        var htmlBody =
-            "<div style=\"font-family:Arial,Helvetica,sans-serif;color:#222;line-height:1.6\">" +
-            "<p style=\"margin:0 0 12px\">A new member linking request was created.</p>" +
-            $"<p style=\"margin:0 0 12px\"><a href=\"{ClubConstants.Urls.ManagementMemberRequests}\">Open requests in admin panel</a></p>" +
-            "<table style=\"border-collapse:collapse\">" +
-            $"<tr><td style=\"padding:2px 8px 2px 0\"><strong>RequestId</strong></td><td style=\"padding:2px 0\">{request.Id}</td></tr>" +
-            $"<tr><td style=\"padding:2px 8px 2px 0\"><strong>UserId</strong></td><td style=\"padding:2px 0\">{request.IssuingUserId}</td></tr>" +
-            $"<tr><td style=\"padding:2px 8px 2px 0\"><strong>Name</strong></td><td style=\"padding:2px 0\">{request.FirstName} {request.LastName}</td></tr>" +
-            $"<tr><td style=\"padding:2px 8px 2px 0\"><strong>Email</strong></td><td style=\"padding:2px 0\">{request.Email}</td></tr>" +
-            $"<tr><td style=\"padding:2px 8px 2px 0\"><strong>Discord</strong></td><td style=\"padding:2px 0\">{request.DiscordUserName}</td></tr>" +
-            $"<tr><td style=\"padding:2px 8px 2px 0\"><strong>Reason</strong></td><td style=\"padding:2px 0\">{request.Reason}</td></tr>" +
-            "</table>" +
-            "</div>";
+        var email = MemberLinkingEmailComposer.ComposeCreatedNotificationEmail(request);
 
         try {
-            await _emailSender.SendAsync(BoardEmail, subject, textBody, htmlBody, CancellationToken.None);
+            await _emailSender.SendAsync(BoardEmail, email.Subject, email.TextBody, email.HtmlBody, CancellationToken.None);
         }
         catch (Exception exception) {
             _logger.LogError(exception, "Failed to send member linking request created notification to {Email}.", BoardEmail);

@@ -115,7 +115,13 @@ public class MembershipApplicationServiceTests {
         membershipUpdateService.Setup(x => x.UpdateMembershipStatusAsync(memberId, ContractEnums.MembershipStatus.InTrial)).ReturnsAsync(Result.Success());
         auditLogWriter.Setup(x => x.Add(It.IsAny<MemberAuditLog>())).Returns(Result.Success());
         requestRepository.Setup(x => x.SaveChangesAsync()).ReturnsAsync(Result.Success());
+        string? capturedTextBody = null;
+        string? capturedHtmlBody = null;
         emailSender.Setup(x => x.SendAsync("applicant@example.com", It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string?>(), It.IsAny<CancellationToken>()))
+            .Callback<string, string, string, string?, CancellationToken>((_, _, textBody, htmlBody, _) => {
+                capturedTextBody = textBody;
+                capturedHtmlBody = htmlBody;
+            })
             .Returns(Task.CompletedTask);
 
         var service = new MembershipApplicationService(
@@ -132,6 +138,9 @@ public class MembershipApplicationServiceTests {
 
         Assert.That(result.IsSuccess, Is.True);
         emailSender.Verify(x => x.SendAsync("applicant@example.com", It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string?>(), It.IsAny<CancellationToken>()), Times.Once);
+        Assert.That(capturedTextBody, Does.Contain("membership application has been accepted"));
+        Assert.That(capturedHtmlBody, Does.Contain("linear-gradient(145deg,#0f221e,#163328)"));
+        Assert.That(capturedHtmlBody, Does.Contain(ClubConstants.Urls.LogoAsset));
     }
 
     [Test]
@@ -200,5 +209,7 @@ public class MembershipApplicationServiceTests {
         emailSender.Verify(x => x.SendAsync(ClubConstants.EmailAddresses.Board, It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string?>(), It.IsAny<CancellationToken>()), Times.Once);
         Assert.That(capturedTextBody, Does.Contain(ClubConstants.Urls.ManagementMemberRequests));
         Assert.That(capturedHtmlBody, Does.Contain(ClubConstants.Urls.ManagementMemberRequests));
+        Assert.That(capturedHtmlBody, Does.Contain("linear-gradient(145deg,#0f221e,#163328)"));
+        Assert.That(capturedHtmlBody, Does.Contain(ClubConstants.Urls.LogoAsset));
     }
 }
