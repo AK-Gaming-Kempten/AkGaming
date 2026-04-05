@@ -9,42 +9,45 @@ internal static class MembershipApplicationEmailComposer {
     private static readonly CultureInfo DeCulture = CultureInfo.GetCultureInfo("de-DE");
 
     public static ComposedEmailMessage ComposeDecisionEmail(bool accepted) {
-        var decisionText = accepted ? "accepted" : "declined";
+        var decisionText = accepted ? "angenommen" : "abgelehnt";
         var subject = accepted
-            ? $"{ClubConstants.Organization.LegalName} membership application accepted"
-            : $"{ClubConstants.Organization.LegalName} membership application declined";
-        var title = accepted ? "Membership Application Accepted" : "Membership Application Declined";
+            ? $"{ClubConstants.Organization.LegalName} | Aufnahmeantrag angenommen"
+            : $"{ClubConstants.Organization.LegalName} | Aufnahmeantrag abgelehnt";
+        var title = accepted ? "Aufnahmeantrag angenommen" : "Aufnahmeantrag abgelehnt";
         var introHtml =
-            "<p style=\"margin:0 0 12px;font-size:18px;font-weight:700;color:#ffffff;\">Hello,</p>" +
-            $"<p style=\"margin:0;\">Your {AkGamingEmailTemplateComposer.H(ClubConstants.Organization.LegalName)} membership application has been <strong>{AkGamingEmailTemplateComposer.H(decisionText)}</strong>.</p>";
+            "<p style=\"margin:0 0 12px;font-size:18px;font-weight:700;color:#ffffff;\">Hallo,</p>" +
+            $"<p style=\"margin:0;\">dein Aufnahmeantrag beim {AkGamingEmailTemplateComposer.H(ClubConstants.Organization.LegalName)} wurde <strong>{AkGamingEmailTemplateComposer.H(decisionText)}</strong>.</p>";
 
         var text = new StringBuilder();
-        text.AppendLine("Hello,");
+        text.AppendLine("Hallo,");
         text.AppendLine();
-        text.AppendLine($"your {ClubConstants.Organization.LegalName} membership application has been {decisionText}.");
+        text.AppendLine($"dein Aufnahmeantrag beim {ClubConstants.Organization.LegalName} wurde {decisionText}.");
         text.AppendLine();
-        text.AppendLine($"If you have questions, please contact us at {ClubConstants.EmailAddresses.Board}.");
+        text.AppendLine($"Öffne die Mitgliedschaftsseite unter {ClubConstants.Urls.ManagementMembership}, um deinen aktuellen Stand und weitere Informationen einzusehen.");
         text.AppendLine();
-        text.AppendLine($"Kind regards,");
+        text.AppendLine($"Wenn du Fragen hast, kontaktiere uns gerne unter {ClubConstants.EmailAddresses.Board}.");
+        text.AppendLine();
+        text.AppendLine("Liebe Grüße");
         text.AppendLine(ClubConstants.Organization.LegalName);
 
         var bodyHtml = new StringBuilder();
-        bodyHtml.Append("<p style=\"margin:0 0 12px;\">Thank you for your interest in joining our club.</p>");
+        bodyHtml.Append("<p style=\"margin:0 0 12px;\">Vielen Dank für dein Interesse an unserem Verein.</p>");
         bodyHtml.Append(AkGamingEmailTemplateComposer.BuildHighlightCard(
-            accepted ? "Next step" : "Questions",
-            accepted
-                ? $"If you have questions about the next steps, please contact us at <a href=\"mailto:{ClubConstants.EmailAddresses.Board}\" style=\"color:#286c3f;\">{ClubConstants.EmailAddresses.Board}</a>."
-                : $"If you have questions about this decision, please contact us at <a href=\"mailto:{ClubConstants.EmailAddresses.Board}\" style=\"color:#286c3f;\">{ClubConstants.EmailAddresses.Board}</a>."));
+            "Mitgliedschaft",
+            $"Du findest deinen aktuellen Stand und weitere Informationen auf der <a href=\"{ClubConstants.Urls.ManagementMembership}\" style=\"color:#286c3f;\">Mitgliedschaftsseite</a>."));
+        bodyHtml.Append(AkGamingEmailTemplateComposer.BuildSectionCard(
+            "Fragen",
+            $"<p style=\"margin:0;\">Wenn du Fragen hast, kontaktiere uns gerne unter <a href=\"mailto:{ClubConstants.EmailAddresses.Board}\" style=\"color:#286c3f;\">{ClubConstants.EmailAddresses.Board}</a>.</p>"));
 
         var htmlBody = AkGamingEmailTemplateComposer.ComposeHtml(
             ClubConstants.Organization.LegalName,
             title,
             introHtml,
-            [new AkGamingEmailSummaryItem("Decision", accepted ? "Accepted" : "Declined")],
-            accepted ? [new AkGamingEmailAction("Contact board", $"mailto:{ClubConstants.EmailAddresses.Board}")] : null,
+            [new AkGamingEmailSummaryItem("Status", accepted ? "Angenommen" : "Abgelehnt")],
+            [new AkGamingEmailAction("Zur Mitgliedschaft", ClubConstants.Urls.ManagementMembership)],
             bodyHtml.ToString(),
-            $"Kind regards,<br/><strong>{AkGamingEmailTemplateComposer.H(ClubConstants.Organization.LegalName)}</strong>",
-            $"<p style=\"margin:0;\"><strong>Contact:</strong> <a href=\"mailto:{ClubConstants.EmailAddresses.Board}\" style=\"color:#286c3f;\">{ClubConstants.EmailAddresses.Board}</a></p>");
+            $"Liebe Grüße<br/><strong>{AkGamingEmailTemplateComposer.H(ClubConstants.Organization.LegalName)}</strong>",
+            $"<p style=\"margin:0;\"><strong>Kontakt:</strong> <a href=\"mailto:{ClubConstants.EmailAddresses.Board}\" style=\"color:#286c3f;\">{ClubConstants.EmailAddresses.Board}</a></p>");
 
         return new ComposedEmailMessage(subject, text.ToString().TrimEnd(), htmlBody);
     }
@@ -96,7 +99,8 @@ internal static class MembershipApplicationEmailComposer {
             [new AkGamingEmailAction("Open member requests", ClubConstants.Urls.ManagementMemberRequests)],
             bodyHtml.ToString(),
             $"Member management<br/><strong>{AkGamingEmailTemplateComposer.H(ClubConstants.Organization.LegalName)}</strong>",
-            $"<p style=\"margin:0;\"><strong>Admin:</strong> <a href=\"{ClubConstants.Urls.ManagementMemberRequests}\" style=\"color:#286c3f;\">Member requests</a></p>");
+            $"<p style=\"margin:0;\"><strong>Admin:</strong> <a href=\"{ClubConstants.Urls.ManagementMemberRequests}\" style=\"color:#286c3f;\">Member requests</a></p>",
+            includeAutomatedNotice: false);
 
         return new ComposedEmailMessage(subject, text.ToString().TrimEnd(), htmlBody);
     }

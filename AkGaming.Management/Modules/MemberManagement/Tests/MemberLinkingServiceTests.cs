@@ -94,8 +94,10 @@ public class MemberLinkingServiceTests {
         Assert.That(result.IsSuccess, Is.True);
         emailSender.Verify(x => x.SendAsync("linking@example.com", It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string?>(), It.IsAny<CancellationToken>()), Times.Once);
         Assert.That(capturedTextBody, Does.Contain(ClubConstants.Urls.ManagementMembership));
+        Assert.That(capturedTextBody, Does.Contain("Kontoverknüpfung"));
+        Assert.That(capturedTextBody, Does.Contain("angenommen"));
         Assert.That(capturedHtmlBody, Does.Contain(ClubConstants.Urls.ManagementMembership));
-        Assert.That(capturedHtmlBody, Does.Contain("update your personal data"));
+        Assert.That(capturedHtmlBody, Does.Contain("Zur Mitgliedschaft"));
         Assert.That(capturedHtmlBody, Does.Contain("linear-gradient(145deg,#0f221e,#163328)"));
         Assert.That(capturedHtmlBody, Does.Contain(ClubConstants.Urls.LogoAsset));
     }
@@ -184,6 +186,7 @@ public class MemberLinkingServiceTests {
         emailSender.Verify(x => x.SendAsync(ClubConstants.EmailAddresses.Board, It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string?>(), It.IsAny<CancellationToken>()), Times.Once);
         Assert.That(capturedTextBody, Does.Contain(ClubConstants.Urls.ManagementMemberRequests));
         Assert.That(capturedHtmlBody, Does.Contain(ClubConstants.Urls.ManagementMemberRequests));
+        Assert.That(capturedHtmlBody, Does.Not.Contain("Dieses Schreiben wurde maschinell erstellt"));
         Assert.That(capturedHtmlBody, Does.Contain("linear-gradient(145deg,#0f221e,#163328)"));
         Assert.That(capturedHtmlBody, Does.Contain(ClubConstants.Urls.LogoAsset));
     }

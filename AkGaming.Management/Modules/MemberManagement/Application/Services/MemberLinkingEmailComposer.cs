@@ -6,53 +6,53 @@ namespace AkGaming.Management.Modules.MemberManagement.Application.Services;
 
 internal static class MemberLinkingEmailComposer {
     public static ComposedEmailMessage ComposeDecisionEmail(bool accepted) {
-        var decisionText = accepted ? "accepted" : "declined";
+        var decisionText = accepted ? "angenommen" : "abgelehnt";
         var subject = accepted
-            ? $"{ClubConstants.Organization.LegalName} member linking request accepted"
-            : $"{ClubConstants.Organization.LegalName} member linking request declined";
-        var title = accepted ? "Member Linking Accepted" : "Member Linking Declined";
+            ? $"{ClubConstants.Organization.LegalName} | Kontoverknüpfung angenommen"
+            : $"{ClubConstants.Organization.LegalName} | Kontoverknüpfung abgelehnt";
+        var title = accepted ? "Kontoverknüpfung angenommen" : "Kontoverknüpfung abgelehnt";
         var introHtml =
-            "<p style=\"margin:0 0 12px;font-size:18px;font-weight:700;color:#ffffff;\">Hello,</p>" +
-            $"<p style=\"margin:0;\">Your {AkGamingEmailTemplateComposer.H(ClubConstants.Organization.LegalName)} member linking request has been <strong>{AkGamingEmailTemplateComposer.H(decisionText)}</strong>.</p>";
+            "<p style=\"margin:0 0 12px;font-size:18px;font-weight:700;color:#ffffff;\">Hallo,</p>" +
+            $"<p style=\"margin:0;\">deine Anfrage zur Kontoverknüpfung beim {AkGamingEmailTemplateComposer.H(ClubConstants.Organization.LegalName)} wurde <strong>{AkGamingEmailTemplateComposer.H(decisionText)}</strong>.</p>";
 
         var text = new StringBuilder();
-        text.AppendLine("Hello,");
+        text.AppendLine("Hallo,");
         text.AppendLine();
-        text.AppendLine($"your {ClubConstants.Organization.LegalName} member linking request has been {decisionText}.");
+        text.AppendLine($"deine Anfrage zur Kontoverknüpfung beim {ClubConstants.Organization.LegalName} wurde {decisionText}.");
         text.AppendLine();
         if (accepted) {
-            text.AppendLine($"Please update your personal data at {ClubConstants.Urls.ManagementMembership}.");
+            text.AppendLine($"Bitte aktualisiere jetzt deine persönlichen Daten unter {ClubConstants.Urls.ManagementMembership}.");
             text.AppendLine();
         }
-        text.AppendLine($"If you have questions, please contact us at {ClubConstants.EmailAddresses.Board}.");
+        text.AppendLine($"Wenn du Fragen hast, kontaktiere uns gerne unter {ClubConstants.EmailAddresses.Board}.");
         text.AppendLine();
-        text.AppendLine("Kind regards,");
+        text.AppendLine("Liebe Grüße");
         text.AppendLine(ClubConstants.Organization.LegalName);
 
         var bodyHtml = new StringBuilder();
-        bodyHtml.Append("<p style=\"margin:0 0 12px;\">Your request has been processed.</p>");
+        bodyHtml.Append("<p style=\"margin:0 0 12px;\">Deine Anfrage wurde bearbeitet.</p>");
         if (accepted) {
             bodyHtml.Append(AkGamingEmailTemplateComposer.BuildHighlightCard(
-                "Next step",
-                $"Please <a href=\"{ClubConstants.Urls.ManagementMembership}\" style=\"color:#286c3f;\">update your personal data</a> now that your account has been linked."));
+                "Nächster Schritt",
+                $"Bitte <a href=\"{ClubConstants.Urls.ManagementMembership}\" style=\"color:#286c3f;\">aktualisiere deine persönlichen Daten</a>, jetzt da dein Account verknüpft wurde."));
         }
         bodyHtml.Append(AkGamingEmailTemplateComposer.BuildSectionCard(
-            "Questions",
-            $"<p style=\"margin:0;\">If you have questions, please contact us at <a href=\"mailto:{ClubConstants.EmailAddresses.Board}\" style=\"color:#286c3f;\">{ClubConstants.EmailAddresses.Board}</a>.</p>"));
+            "Fragen",
+            $"<p style=\"margin:0;\">Wenn du Fragen hast, kontaktiere uns gerne unter <a href=\"mailto:{ClubConstants.EmailAddresses.Board}\" style=\"color:#286c3f;\">{ClubConstants.EmailAddresses.Board}</a>.</p>"));
 
         var actions = accepted
-            ? new[] { new AkGamingEmailAction("Update personal data", ClubConstants.Urls.ManagementMembership) }
+            ? new[] { new AkGamingEmailAction("Zur Mitgliedschaft", ClubConstants.Urls.ManagementMembership) }
             : null;
 
         var htmlBody = AkGamingEmailTemplateComposer.ComposeHtml(
             ClubConstants.Organization.LegalName,
             title,
             introHtml,
-            [new AkGamingEmailSummaryItem("Decision", accepted ? "Accepted" : "Declined")],
+            [new AkGamingEmailSummaryItem("Status", accepted ? "Angenommen" : "Abgelehnt")],
             actions,
             bodyHtml.ToString(),
-            $"Kind regards,<br/><strong>{AkGamingEmailTemplateComposer.H(ClubConstants.Organization.LegalName)}</strong>",
-            $"<p style=\"margin:0;\"><strong>Contact:</strong> <a href=\"mailto:{ClubConstants.EmailAddresses.Board}\" style=\"color:#286c3f;\">{ClubConstants.EmailAddresses.Board}</a></p>");
+            $"Liebe Grüße<br/><strong>{AkGamingEmailTemplateComposer.H(ClubConstants.Organization.LegalName)}</strong>",
+            $"<p style=\"margin:0;\"><strong>Kontakt:</strong> <a href=\"mailto:{ClubConstants.EmailAddresses.Board}\" style=\"color:#286c3f;\">{ClubConstants.EmailAddresses.Board}</a></p>");
 
         return new ComposedEmailMessage(subject, text.ToString().TrimEnd(), htmlBody);
     }
@@ -100,7 +100,8 @@ internal static class MemberLinkingEmailComposer {
             [new AkGamingEmailAction("Open member requests", ClubConstants.Urls.ManagementMemberRequests)],
             bodyHtml.ToString(),
             $"Member management<br/><strong>{AkGamingEmailTemplateComposer.H(ClubConstants.Organization.LegalName)}</strong>",
-            $"<p style=\"margin:0;\"><strong>Admin:</strong> <a href=\"{ClubConstants.Urls.ManagementMemberRequests}\" style=\"color:#286c3f;\">Member requests</a></p>");
+            $"<p style=\"margin:0;\"><strong>Admin:</strong> <a href=\"{ClubConstants.Urls.ManagementMemberRequests}\" style=\"color:#286c3f;\">Member requests</a></p>",
+            includeAutomatedNotice: false);
 
         return new ComposedEmailMessage(subject, text.ToString().TrimEnd(), htmlBody);
     }

@@ -17,7 +17,8 @@ internal static class AkGamingEmailTemplateComposer {
         string bodyHtml,
         string signOffHtml,
         string? footerHtml = null,
-        string? heroNoteHtml = null)
+        string? heroNoteHtml = null,
+        bool includeAutomatedNotice = true)
     {
         var html = new StringBuilder();
 
@@ -69,7 +70,8 @@ internal static class AkGamingEmailTemplateComposer {
         html.Append("</div>");
 
         html.Append("<div style=\"margin-top:14px;padding:16px 20px;font-size:12px;color:#61756d;\">");
-        html.Append("<p style=\"margin:0 0 8px;\">Dieses Schreiben wurde maschinell erstellt und ist ohne Unterschrift gültig.</p>");
+        if (includeAutomatedNotice)
+            html.Append("<p style=\"margin:0 0 8px;\">Dieses Schreiben wurde maschinell erstellt und ist ohne Unterschrift gültig.</p>");
         if (!string.IsNullOrWhiteSpace(footerHtml))
             html.Append($"<div style=\"margin:0;\">{footerHtml}</div>");
         html.Append("</div>");
