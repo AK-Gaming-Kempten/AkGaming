@@ -565,7 +565,6 @@ public sealed class AuthService : IAuthService
 
     private async Task<EmailVerificationResponse> IssueEmailVerificationTokenAsync(User user, string? ipAddress, CancellationToken cancellationToken)
     {
-        var identityDisplayName = $"{ClubConstants.Organization.ShortName} Identity";
         var activeTokens = await _repository.GetActiveEmailVerificationTokensByUserIdAsync(user.Id, cancellationToken);
         foreach (var activeToken in activeTokens)
         {
@@ -574,7 +573,8 @@ public sealed class AuthService : IAuthService
 
         var rawToken = _refreshTokenService.GenerateToken();
         var tokenHash = _refreshTokenService.HashToken(rawToken);
-        var verifyLink = BuildEmailVerificationLink(rawToken);
+        var identityBaseUrl = GetConfiguredPublicBaseUrl();
+        var verifyLink = BuildEmailVerificationLink(identityBaseUrl, rawToken);
 
         await _repository.AddEmailVerificationTokenAsync(new EmailVerificationToken
         {
@@ -584,29 +584,16 @@ public sealed class AuthService : IAuthService
             CreatedByIp = ipAddress
         }, cancellationToken);
 
-        var subject = $"Verify your {identityDisplayName} email";
-        var textBody =
-            "Hello,\n\n" +
-            $"Please verify your {identityDisplayName} email address.\n\n" +
-            $"Verify instantly: {verifyLink}\n\n" +
-            "Or enter this verification token in the identity page:\n" +
-            $"{rawToken}\n\n" +
-            $"This token expires in {_hardeningSettings.EmailVerificationTokenHours} hour(s).\n\n" +
-            "If you did not request this, you can ignore this email.";
-        var htmlBody =
-            "<div style=\"font-family:Arial,Helvetica,sans-serif;color:#222;line-height:1.6\">" +
-            $"<h2 style=\"margin:0 0 12px;color:#1f2937\">Verify your {identityDisplayName} email</h2>" +
-            "<p style=\"margin:0 0 12px\">Please confirm your email address to secure your account.</p>" +
-            $"<p style=\"margin:20px 0\"><a href=\"{verifyLink}\" style=\"background:#286c3f;color:#fff;text-decoration:none;padding:10px 16px;border-radius:4px;display:inline-block;font-weight:600\">Verify Email</a></p>" +
-            "<p style=\"margin:0 0 8px\">If the button does not work, use this verification token on the identity page:</p>" +
-            $"<p style=\"margin:0 0 12px;font-size:18px;font-weight:700;letter-spacing:0.5px\">{rawToken}</p>" +
-            $"<p style=\"margin:0 0 8px;color:#4b5563\">Token expiry: {_hardeningSettings.EmailVerificationTokenHours} hour(s).</p>" +
-            "<p style=\"margin:0;color:#6b7280\">If you did not request this, you can ignore this email.</p>" +
-            "</div>";
+        var emailMessage = EmailVerificationEmailComposer.Compose(
+            user.Email,
+            verifyLink,
+            identityBaseUrl,
+            rawToken,
+            _hardeningSettings.EmailVerificationTokenHours);
 
         try
         {
-            await _emailSender.SendAsync(user.Email, subject, textBody, htmlBody, cancellationToken);
+            await _emailSender.SendAsync(user.Email, emailMessage.Subject, emailMessage.TextBody, emailMessage.HtmlBody, cancellationToken);
         }
         catch (Exception exception)
         {
@@ -1075,7 +1062,7 @@ public sealed class AuthService : IAuthService
                || roleName.Equals(RoleNames.User, StringComparison.OrdinalIgnoreCase);
     }
 
-    private string BuildEmailVerificationLink(string rawToken)
+    private string GetConfiguredPublicBaseUrl()
     {
         var baseUrl = _appUrlSettings.PublicBaseUrl?.Trim();
         if (string.IsNullOrWhiteSpace(baseUrl))
@@ -1083,6 +1070,11 @@ public sealed class AuthService : IAuthService
             throw new AuthException(500, "App public base URL is not configured.");
         }
 
-        return $"{baseUrl.TrimEnd('/')}/auth/email/verify-link?token={Uri.EscapeDataString(rawToken)}";
+        return baseUrl.TrimEnd('/');
+    }
+
+    private static string BuildEmailVerificationLink(string baseUrl, string rawToken)
+    {
+        return $"{baseUrl}/auth/email/verify-link?token={Uri.EscapeDataString(rawToken)}";
     }
 }

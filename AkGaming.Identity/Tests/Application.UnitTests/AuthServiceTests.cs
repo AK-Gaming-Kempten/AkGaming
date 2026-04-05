@@ -1,3 +1,4 @@
+using AkGaming.Core.Constants;
 using AkGaming.Identity.Application.Auth;
 using AkGaming.Identity.Application.Common;
 using AkGaming.Identity.Application.UnitTests.Fakes;
@@ -158,8 +159,20 @@ public sealed class AuthServiceTests
         await service.VerifyEmailAsync(new VerifyEmailRequest(issued.VerificationToken!), "127.0.0.1", CancellationToken.None);
 
         Assert.True(user.IsEmailVerified);
-        Assert.Single(emailSender.SentEmails);
-        Assert.Equal("verify@test.local", emailSender.SentEmails[0].ToEmail);
+        var sentEmail = Assert.Single(emailSender.SentEmails);
+        var expectedVerifyLink = $"https://identity.akgaming.de/auth/email/verify-link?token={Uri.EscapeDataString(issued.VerificationToken!)}";
+
+        Assert.Equal("verify@test.local", sentEmail.ToEmail);
+        Assert.Equal("Verify your AK Gaming Identity email", sentEmail.Subject);
+        Assert.Contains(expectedVerifyLink, sentEmail.TextBody);
+        Assert.Contains(issued.VerificationToken!, sentEmail.TextBody);
+        Assert.Contains("Support: identity@akgaming.de", sentEmail.TextBody);
+        Assert.NotNull(sentEmail.HtmlBody);
+        Assert.Contains("linear-gradient(145deg,#0f221e,#163328)", sentEmail.HtmlBody);
+        Assert.Contains(ClubConstants.Urls.LogoAsset, sentEmail.HtmlBody);
+        Assert.Contains(expectedVerifyLink, sentEmail.HtmlBody);
+        Assert.Contains(issued.VerificationToken!, sentEmail.HtmlBody);
+        Assert.Contains("Verify Email", sentEmail.HtmlBody);
     }
 
     [Fact]

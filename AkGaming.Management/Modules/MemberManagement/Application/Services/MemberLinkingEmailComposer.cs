@@ -1,4 +1,5 @@
 using System.Text;
+using AkGaming.Core.Common.Email;
 using AkGaming.Core.Constants;
 using AkGaming.Management.Modules.MemberManagement.Domain.Entities;
 
