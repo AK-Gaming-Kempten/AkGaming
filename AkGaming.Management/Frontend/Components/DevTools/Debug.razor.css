@@ -1,3 +1,20 @@
+.debug-danger-card {
+    display: grid;
+    gap: 0.75rem;
+    max-width: 42rem;
+    margin: 0.5rem 0 1.25rem;
+    padding: 1rem 1.1rem;
+    border: 1px solid color-mix(in oklab, var(--color-red-light) 46%, var(--color-text-secondary));
+    border-radius: 0.9rem;
+    background: color-mix(in oklab, var(--color-red-light) 10%, var(--color-background-primary));
+}
+
+.debug-danger-card__text {
+    margin: 0;
+    color: var(--color-text-secondary);
+    line-height: 1.5;
+}
+
 .claims-grid {
     display: grid;
     gap: 1rem;

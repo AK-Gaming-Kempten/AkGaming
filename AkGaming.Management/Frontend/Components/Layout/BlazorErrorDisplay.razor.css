@@ -1,0 +1,134 @@
+#blazor-error-ui {
+    color-scheme: light only;
+    display: none;
+    position: fixed;
+    right: 1.25rem;
+    bottom: 1.25rem;
+    width: min(calc(100vw - 2rem), 32rem);
+    z-index: 1500;
+}
+
+.error-card {
+    overflow: hidden;
+    border-radius: 22px;
+    border: 1px solid color-mix(in oklab, var(--color-red-light) 55%, var(--color-highlight-primary));
+    background: var(--color-background-primary);
+    color: var(--color-text-primary);
+    box-shadow: 0 26px 56px color-mix(in oklab, black 32%, transparent);
+}
+
+.error-card-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1.1rem 1.2rem 1rem;
+    background:
+        linear-gradient(145deg, #0f221e, #163328),
+        linear-gradient(90deg, color-mix(in oklab, var(--color-red-light) 52%, transparent), transparent);
+    color: var(--color-text-special);
+}
+
+.error-card-brand {
+    display: flex;
+    align-items: center;
+    gap: 0.9rem;
+    min-width: 0;
+}
+
+.error-card-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.9rem;
+    height: 2.9rem;
+    flex-shrink: 0;
+    border-radius: 999px;
+    background: color-mix(in oklab, var(--color-red-light) 26%, white 12%);
+    color: #fff5f5;
+    font-size: 1.25rem;
+}
+
+.error-card-eyebrow {
+    margin: 0 0 0.18rem;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: color-mix(in oklab, white 72%, var(--color-highlight-primary));
+}
+
+.error-card-title {
+    margin: 0;
+    font-size: 1.2rem;
+    line-height: 1.2;
+    color: var(--color-text-special);
+}
+
+.error-card-close {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.2rem;
+    height: 2.2rem;
+    flex-shrink: 0;
+    border: 1px solid color-mix(in oklab, white 22%, transparent);
+    border-radius: 999px;
+    background: color-mix(in oklab, white 12%, transparent);
+    color: var(--color-text-special);
+    cursor: pointer;
+    transition: background-color 0.15s ease, border-color 0.15s ease, transform 0.1s ease;
+}
+
+.error-card-close:hover {
+    background: color-mix(in oklab, white 20%, transparent);
+    border-color: color-mix(in oklab, white 34%, transparent);
+}
+
+.error-card-body {
+    padding: 1.1rem 1.2rem 1.2rem;
+}
+
+.error-card-message {
+    margin: 0;
+    font-size: 1rem;
+    line-height: 1.55;
+    color: var(--color-text-primary);
+}
+
+.error-card-subtle {
+    margin: 0.75rem 0 0;
+    font-size: 0.92rem;
+    line-height: 1.55;
+    color: var(--color-text-secondary);
+}
+
+.error-card-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 1rem;
+}
+
+.error-card-actions .btn {
+    min-width: 10rem;
+}
+
+@media (max-width: 900px) {
+    #blazor-error-ui {
+        right: 1rem;
+        bottom: 1rem;
+        width: calc(100vw - 2rem);
+    }
+
+    .error-card-header {
+        padding: 1rem 1rem 0.95rem;
+    }
+
+    .error-card-body {
+        padding: 1rem;
+    }
+
+    .error-card-actions .btn {
+        width: 100%;
+    }
+}

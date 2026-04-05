@@ -1,0 +1,243 @@
+/* Blazor reconnect UI */
+#components-reconnect-modal {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+    background: color-mix(in oklab, black 58%, transparent);
+    backdrop-filter: blur(12px);
+    overflow: hidden;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity 0.2s ease, visibility 0.2s ease;
+    z-index: 1450;
+}
+
+#components-reconnect-modal::before,
+#components-reconnect-modal::after {
+    content: "";
+    position: absolute;
+    border-radius: 999px;
+    filter: blur(72px);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+#components-reconnect-modal::before {
+    top: 12%;
+    left: 10%;
+    width: 24rem;
+    height: 24rem;
+    background: color-mix(in oklab, var(--color-highlight-primary) 34%, transparent);
+    animation: reconnect-breathe 6s ease-in-out infinite;
+}
+
+#components-reconnect-modal::after {
+    right: 8%;
+    bottom: 10%;
+    width: 20rem;
+    height: 20rem;
+    background: color-mix(in oklab, var(--color-highlight-secondary) 30%, transparent);
+    animation: reconnect-breathe 7s ease-in-out infinite reverse;
+}
+
+#components-reconnect-modal.components-reconnect-show,
+#components-reconnect-modal.components-reconnect-failed,
+#components-reconnect-modal.components-reconnect-rejected {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+}
+
+#components-reconnect-modal.components-reconnect-show::before,
+#components-reconnect-modal.components-reconnect-show::after,
+#components-reconnect-modal.components-reconnect-failed::before,
+#components-reconnect-modal.components-reconnect-failed::after,
+#components-reconnect-modal.components-reconnect-rejected::before,
+#components-reconnect-modal.components-reconnect-rejected::after {
+    opacity: 0.22;
+}
+
+.reconnect-dialog {
+    width: min(100%, 34rem);
+    position: relative;
+    overflow: hidden;
+    border-radius: 22px;
+    border: 1px solid color-mix(in oklab, var(--color-highlight-primary) 42%, transparent);
+    background: var(--color-background-primary);
+    color: var(--color-text-primary);
+    box-shadow: 0 26px 56px color-mix(in oklab, black 34%, transparent);
+}
+
+.reconnect-hero {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1.35rem 1.4rem 1.2rem;
+    background: linear-gradient(145deg, #0f221e, #163328);
+    color: var(--color-text-special);
+}
+
+.reconnect-brand {
+    display: flex;
+    align-items: center;
+    gap: 0.9rem;
+    min-width: 0;
+}
+
+.reconnect-logo {
+    width: 3rem;
+    height: 3rem;
+    flex-shrink: 0;
+    border-radius: 14px;
+    padding: 0.35rem;
+    background: color-mix(in oklab, white 14%, transparent);
+}
+
+.reconnect-eyebrow {
+    margin: 0 0 0.2rem;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: color-mix(in oklab, white 72%, var(--color-highlight-primary));
+}
+
+.reconnect-title {
+    margin: 0;
+    font-size: 1.45rem;
+    line-height: 1.15;
+    color: var(--color-text-special);
+}
+
+.reconnect-state-icon {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    width: 3rem;
+    height: 3rem;
+    flex-shrink: 0;
+    border-radius: 999px;
+    font-size: 1.35rem;
+    background: color-mix(in oklab, white 12%, transparent);
+    color: var(--color-text-special);
+}
+
+#components-reconnect-modal.components-reconnect-show .reconnect-state-icon--show,
+#components-reconnect-modal.components-reconnect-failed .reconnect-state-icon--failed,
+#components-reconnect-modal.components-reconnect-rejected .reconnect-state-icon--rejected {
+    display: inline-flex;
+}
+
+.reconnect-spin {
+    animation: reconnect-spin 1s linear infinite;
+}
+
+.reconnect-body {
+    padding: 1.25rem 1.4rem 1.35rem;
+}
+
+.reconnect-copy {
+    display: none;
+}
+
+#components-reconnect-modal.components-reconnect-show .reconnect-copy--show,
+#components-reconnect-modal.components-reconnect-failed .reconnect-copy--failed,
+#components-reconnect-modal.components-reconnect-rejected .reconnect-copy--rejected {
+    display: block;
+}
+
+.reconnect-message {
+    margin: 0;
+    font-size: 1rem;
+    line-height: 1.55;
+    color: var(--color-text-primary);
+}
+
+.reconnect-subtle {
+    margin: 0.7rem 0 0;
+    font-size: 0.92rem;
+    line-height: 1.5;
+    color: var(--color-text-secondary);
+}
+
+.reconnect-meta-card {
+    display: grid;
+    gap: 0.45rem;
+    margin-top: 1rem;
+    padding: 0.95rem 1rem;
+    border-radius: 16px;
+    border: 1px solid color-mix(in oklab, var(--color-highlight-secondary) 20%, transparent);
+    background: color-mix(in oklab, var(--color-background-secondary) 88%, transparent);
+    color: var(--color-text-secondary);
+    font-size: 0.92rem;
+}
+
+.reconnect-meta-card strong {
+    color: var(--color-text-primary);
+}
+
+.reconnect-actions {
+    display: none;
+    margin-top: 1rem;
+    justify-content: flex-end;
+}
+
+#components-reconnect-modal.components-reconnect-failed .reconnect-actions,
+#components-reconnect-modal.components-reconnect-rejected .reconnect-actions {
+    display: flex;
+}
+
+.reconnect-actions .btn {
+    min-width: 10rem;
+}
+
+@keyframes reconnect-spin {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes reconnect-breathe {
+    0%,
+    100% {
+        transform: translate3d(0, 0, 0) scale(0.92);
+    }
+
+    50% {
+        transform: translate3d(0, -0.75rem, 0) scale(1.08);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    #components-reconnect-modal::before,
+    #components-reconnect-modal::after,
+    .reconnect-spin {
+        animation: none;
+    }
+}
+
+@media (max-width: 900px) {
+    #components-reconnect-modal {
+        padding: 1rem;
+    }
+
+    .reconnect-hero {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .reconnect-state-icon {
+        width: 2.75rem;
+        height: 2.75rem;
+    }
+}

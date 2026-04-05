@@ -91,31 +91,6 @@ main {
     display: none;
 }
 
-/* Blazor error UI */
-#blazor-error-ui {
-    /* Light mode only makes sense — fine */
-    color-scheme: light only;
-    background: var(--color-highlight-primary);
-    color: var(--color-text-primary);
-
-    bottom: 0;
-    box-shadow: 0 -1px 2px color-mix(in oklab, var(--color-background-quartiary) 35%, transparent);
-    box-sizing: border-box;
-    display: none;
-    left: 0;
-    padding: 0.6rem 1.25rem 0.7rem 1.25rem;
-    position: fixed;
-    width: 100%;
-    z-index: 1000;
-}
-
-#blazor-error-ui .dismiss {
-    cursor: pointer;
-    position: absolute;
-    right: 0.75rem;
-    top: 0.5rem;
-}
-
 @media (max-width: 900px) {
     .page {
         height: auto;

@@ -1,0 +1,47 @@
+<div id="components-reconnect-modal" data-nosnippet>
+    <div class="reconnect-dialog" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="reconnect-hero">
+            <div class="reconnect-brand">
+                <img src="images/icons/AKG_Logos/default.png" alt="AK Gaming Logo" class="reconnect-logo" />
+                <div>
+                    <p class="reconnect-eyebrow">AK Gaming Management</p>
+                    <h2 class="reconnect-title">Server connection interrupted</h2>
+                </div>
+            </div>
+
+            <div class="reconnect-state-icon reconnect-state-icon--show" aria-hidden="true">
+                <span class="bi bi-arrow-repeat reconnect-spin"></span>
+            </div>
+            <div class="reconnect-state-icon reconnect-state-icon--failed" aria-hidden="true">
+                <span class="bi bi-wifi-off"></span>
+            </div>
+            <div class="reconnect-state-icon reconnect-state-icon--rejected" aria-hidden="true">
+                <span class="bi bi-exclamation-triangle"></span>
+            </div>
+        </div>
+
+        <div class="reconnect-body">
+            <div class="reconnect-copy reconnect-copy--show">
+                <p class="reconnect-message">Trying to restore your live session and reconnect to the management server.</p>
+                <div class="reconnect-meta-card">
+                    <span>Attempt <strong id="components-reconnect-current-attempt"></strong> of <strong id="components-reconnect-max-retries"></strong></span>
+                    <span>Next retry in <strong id="components-seconds-to-next-attempt"></strong>s</span>
+                </div>
+            </div>
+
+            <div class="reconnect-copy reconnect-copy--failed">
+                <p class="reconnect-message">The last reconnect attempt failed. The app is still retrying automatically in the background.</p>
+                <p class="reconnect-subtle">If this keeps happening, reload the page to start a fresh interactive session.</p>
+            </div>
+
+            <div class="reconnect-copy reconnect-copy--rejected">
+                <p class="reconnect-message">The server rejected the reconnect request. Your current session can no longer be resumed.</p>
+                <p class="reconnect-subtle">Reload the page to open a new connection.</p>
+            </div>
+
+            <div class="reconnect-actions">
+                <button type="button" class="btn btn-primary" onclick="window.location.reload()">Reload page</button>
+            </div>
+        </div>
+    </div>
+</div>

@@ -14,6 +14,12 @@
 <button @onclick="TestAuth">Test Auth</button>
 <p>@_authResult</p>
 
+<h4>UI Failure</h4>
+<div class="debug-danger-card">
+    <p class="debug-danger-card__text">Trigger an unhandled interactive exception to test the branded client error display.</p>
+    <button class="btn btn-danger" @onclick="TriggerClientErrorAsync">Trigger client error</button>
+</div>
+
 <h4>Claims</h4>
 <button @onclick="TestClaims">Test Claims</button>
 
