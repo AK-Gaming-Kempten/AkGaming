@@ -37,10 +37,10 @@ public partial class MemberInfoPanel : ComponentBase {
         .ToList();
 
     private string StatusIcon => _localMember.Status switch {
-        MembershipStatus.Member => "✓",
-        MembershipStatus.InTrial => "⌛",
-        MembershipStatus.Applicant => "✦",
-        _ => "•"
+        MembershipStatus.Member => "bi-check2-circle",
+        MembershipStatus.InTrial => "bi-hourglass-split",
+        MembershipStatus.Applicant => "bi-stars",
+        _ => "bi-dot"
     };
 
     private string StatusClass => _localMember.Status switch {
