@@ -11,6 +11,9 @@ public class MembershipDueConfiguration : IEntityTypeConfiguration<MembershipDue
         builder.Property(x => x.Status)
             .HasConversion<int>();
 
+        builder.Property(x => x.LastReminderSendStatus)
+            .HasConversion<int>();
+
         builder.Property(x => x.DueAmount)
             .HasPrecision(10, 2);
 

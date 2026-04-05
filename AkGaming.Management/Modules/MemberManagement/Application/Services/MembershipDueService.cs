@@ -291,9 +291,25 @@ public class MembershipDueService(
                 preview.TextBody,
                 preview.HtmlBody,
                 CancellationToken.None);
+
+            reminderContext.Due.LastReminderSentAt = DateTimeOffset.UtcNow;
+            reminderContext.Due.LastReminderSendStatus = DomainEnums.MembershipDueReminderSendStatus.Sent;
+
+            var saveReminderResult = await dueRepository.SaveChangesAsync();
+            if (!saveReminderResult.IsSuccess)
+                return Result.Failure($"Reminder email was sent, but the due could not be updated. {saveReminderResult.Error ?? "Changes could not be saved."}");
+
             return Result.Success();
         }
         catch (Exception exception) {
+            reminderContext.Due.LastReminderSendStatus = DomainEnums.MembershipDueReminderSendStatus.Failed;
+
+            var saveReminderFailureResult = await dueRepository.SaveChangesAsync();
+            if (!saveReminderFailureResult.IsSuccess) {
+                return Result.Failure(
+                    $"Failed to send reminder email: {exception.Message}. Additionally, the failure status could not be saved. {saveReminderFailureResult.Error ?? "Changes could not be saved."}");
+            }
+
             return Result.Failure($"Failed to send reminder email: {exception.Message}");
         }
     }

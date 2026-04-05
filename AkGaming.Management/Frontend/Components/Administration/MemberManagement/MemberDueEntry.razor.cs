@@ -97,7 +97,9 @@ public partial class MemberDueEntry : ComponentBase {
         PaidAmount = due.PaidAmount,
         DueDate = due.DueDate,
         SettledAt = due.SettledAt,
-        SettlementReference = due.SettlementReference
+        SettlementReference = due.SettlementReference,
+        LastReminderSentAt = due.LastReminderSentAt,
+        LastReminderSendStatus = due.LastReminderSendStatus
     };
 
     private static string BuildPreviewCacheKey(MembershipDueDto due) =>
@@ -125,4 +127,19 @@ public partial class MemberDueEntry : ComponentBase {
         MembershipDueStatus.Cancelled => "due-status-cancelled",
         _ => string.Empty
     };
+
+    private static string GetReminderStatusClass(MembershipDueReminderSendStatus status) => status switch {
+        MembershipDueReminderSendStatus.Sent => "due-reminder-status-sent",
+        MembershipDueReminderSendStatus.Failed => "due-reminder-status-failed",
+        _ => "due-reminder-status-none"
+    };
+
+    private static string GetReminderStatusLabel(MembershipDueReminderSendStatus status) => status switch {
+        MembershipDueReminderSendStatus.Sent => "Sent",
+        MembershipDueReminderSendStatus.Failed => "Failed",
+        _ => "Never sent"
+    };
+
+    private static string GetLastReminderSentText(MembershipDueDto due) =>
+        due.LastReminderSentAt?.ToLocalTime().ToString("yyyy-MM-dd HH:mm") ?? "-";
 }

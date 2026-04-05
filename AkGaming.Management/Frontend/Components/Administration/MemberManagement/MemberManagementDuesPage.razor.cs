@@ -242,6 +242,7 @@ public partial class MemberManagementDuesPage : ComponentBase {
 
         _sendingReminderDispatch = false;
         _sendingReminderDispatchCompleted = true;
+        await LoadSelectedPaymentPeriodDuesAsync();
         _statusMessage = $"Reminder dispatch finished: {ReminderDispatchSuccessCount} succeeded, {ReminderDispatchFailureCount} failed.";
     }
 

@@ -258,7 +258,9 @@ public class MembershipDueServiceTests {
             MemberId = Guid.NewGuid(),
             Status = DomainEnums.MembershipDueStatus.Pending,
             DueAmount = 10m,
-            DueDate = new DateOnly(2026, 4, 1)
+            DueDate = new DateOnly(2026, 4, 1),
+            LastReminderSentAt = new DateTimeOffset(2026, 3, 20, 10, 30, 0, TimeSpan.Zero),
+            LastReminderSendStatus = DomainEnums.MembershipDueReminderSendStatus.Sent
         };
 
         dueRepository.Setup(x => x.GetByIdAsync(existingDue.Id)).ReturnsAsync(Result<MembershipDue>.Success(existingDue));
@@ -274,7 +276,9 @@ public class MembershipDueServiceTests {
             PaidAmount = 15m,
             DueDate = new DateOnly(2026, 4, 15),
             SettledAt = DateTimeOffset.UtcNow,
-            SettlementReference = "BANK-REF-1"
+            SettlementReference = "BANK-REF-1",
+            LastReminderSentAt = null,
+            LastReminderSendStatus = ContractEnums.MembershipDueReminderSendStatus.Failed
         };
 
         // Act
@@ -290,6 +294,8 @@ public class MembershipDueServiceTests {
             Assert.That(existingDue.DueDate, Is.EqualTo(new DateOnly(2026, 4, 15)));
             Assert.That(existingDue.SettledAt, Is.EqualTo(dueDto.SettledAt));
             Assert.That(existingDue.SettlementReference, Is.EqualTo("BANK-REF-1"));
+            Assert.That(existingDue.LastReminderSentAt, Is.EqualTo(new DateTimeOffset(2026, 3, 20, 10, 30, 0, TimeSpan.Zero)));
+            Assert.That(existingDue.LastReminderSendStatus, Is.EqualTo(DomainEnums.MembershipDueReminderSendStatus.Sent));
         }
         dueRepository.Verify(x => x.Update(existingDue), Times.Once);
         dueRepository.Verify(x => x.SaveChangesAsync(), Times.Once);
@@ -477,16 +483,22 @@ public class MembershipDueServiceTests {
         paymentPeriodRepository.Setup(x => x.GetByIdAsync(paymentPeriod.Id)).ReturnsAsync(Result<MembershipPaymentPeriod>.Success(paymentPeriod));
         emailSender.Setup(x => x.SendAsync(member.Email!, It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string?>(), It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
+        dueRepository.Setup(x => x.SaveChangesAsync()).ReturnsAsync(Result.Success());
 
         var result = await service.SendReminderEmailAsync(due.Id);
 
-        Assert.That(result.IsSuccess, Is.True);
+        using (Assert.EnterMultipleScope()) {
+            Assert.That(result.IsSuccess, Is.True);
+            Assert.That(due.LastReminderSendStatus, Is.EqualTo(DomainEnums.MembershipDueReminderSendStatus.Sent));
+            Assert.That(due.LastReminderSentAt, Is.Not.Null);
+        }
         emailSender.Verify(x => x.SendAsync(
             member.Email!,
             It.Is<string>(subject => subject.Contains("SS 2026")),
             It.Is<string>(text => text.Contains("Mitgliedsbeitrag")),
             It.Is<string?>(html => html != null && html.Contains("Mitgliedsbeitrag offen")),
             It.IsAny<CancellationToken>()), Times.Once);
+        dueRepository.Verify(x => x.SaveChangesAsync(), Times.Once);
     }
 
     [Test]
@@ -531,6 +543,61 @@ public class MembershipDueServiceTests {
         Assert.That(result.IsSuccess, Is.False);
         Assert.That(result.Error, Is.EqualTo("Due date has not passed yet."));
         emailSender.Verify(x => x.SendAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string?>(), It.IsAny<CancellationToken>()), Times.Never);
+        dueRepository.Verify(x => x.SaveChangesAsync(), Times.Never);
+    }
+
+    [Test]
+    public async Task SendReminderEmailAsync_PersistsFailureStatusWhenSendingFails() {
+        var dueRepository = new Mock<IMembershipDueRepository>();
+        var paymentPeriodRepository = new Mock<IMembershipPaymentPeriodRepository>();
+        var memberRepository = new Mock<IMemberRepository>();
+        var emailSender = new Mock<IEmailSender>();
+        var service = new MembershipDueService(dueRepository.Object, paymentPeriodRepository.Object, memberRepository.Object, emailSender.Object);
+
+        var overdueDate = DateOnly.FromDateTime(DateTime.UtcNow.Date.AddDays(-2));
+        var previousReminderSentAt = new DateTimeOffset(2026, 3, 1, 8, 15, 0, TimeSpan.Zero);
+        var member = new Member {
+            Id = Guid.NewGuid(),
+            FirstName = "Faye",
+            LastName = "Failing",
+            Email = "faye@example.com",
+            Status = DomainEnums.MembershipStatus.Member
+        };
+        var paymentPeriod = new MembershipPaymentPeriod {
+            Id = 93,
+            Name = "SS 2026",
+            DueDate = overdueDate,
+            DefaultDueAmount = 15m,
+            ReducedDueAmount = 5m,
+            CreatedAt = DateTimeOffset.UtcNow
+        };
+        var due = new MembershipDue {
+            Id = 11,
+            PaymentPeriodId = paymentPeriod.Id,
+            MemberId = member.Id,
+            Status = DomainEnums.MembershipDueStatus.Pending,
+            DueAmount = 15m,
+            DueDate = overdueDate,
+            LastReminderSentAt = previousReminderSentAt,
+            LastReminderSendStatus = DomainEnums.MembershipDueReminderSendStatus.Sent
+        };
+
+        dueRepository.Setup(x => x.GetByIdAsync(due.Id)).ReturnsAsync(Result<MembershipDue>.Success(due));
+        memberRepository.Setup(x => x.GetByMemberIdAsync(member.Id)).ReturnsAsync(Result<Member>.Success(member));
+        paymentPeriodRepository.Setup(x => x.GetByIdAsync(paymentPeriod.Id)).ReturnsAsync(Result<MembershipPaymentPeriod>.Success(paymentPeriod));
+        emailSender.Setup(x => x.SendAsync(member.Email!, It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string?>(), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new InvalidOperationException("SMTP offline"));
+        dueRepository.Setup(x => x.SaveChangesAsync()).ReturnsAsync(Result.Success());
+
+        var result = await service.SendReminderEmailAsync(due.Id);
+
+        using (Assert.EnterMultipleScope()) {
+            Assert.That(result.IsSuccess, Is.False);
+            Assert.That(result.Error, Is.EqualTo("Failed to send reminder email: SMTP offline"));
+            Assert.That(due.LastReminderSendStatus, Is.EqualTo(DomainEnums.MembershipDueReminderSendStatus.Failed));
+            Assert.That(due.LastReminderSentAt, Is.EqualTo(previousReminderSentAt));
+        }
+        dueRepository.Verify(x => x.SaveChangesAsync(), Times.Once);
     }
 
     private static Member CreateTrialMember(Guid id, DateOnly trialEndDate) {

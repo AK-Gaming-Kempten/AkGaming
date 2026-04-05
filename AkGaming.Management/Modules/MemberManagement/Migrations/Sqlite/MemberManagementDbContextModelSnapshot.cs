@@ -182,6 +182,12 @@ namespace AkGaming.Management.Modules.MemberManagement.Infrastructure.Migrations
                     b.Property<DateOnly>("DueDate")
                         .HasColumnType("TEXT");
 
+                    b.Property<DateTimeOffset?>("LastReminderSentAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("LastReminderSendStatus")
+                        .HasColumnType("INTEGER");
+
                     b.Property<Guid>("MemberId")
                         .HasColumnType("TEXT");
 

@@ -15,7 +15,9 @@ public static class MembershipDueMappingExtensions {
         PaidAmount = due.PaidAmount,
         DueDate = due.DueDate,
         SettledAt = due.SettledAt,
-        SettlementReference = due.SettlementReference
+        SettlementReference = due.SettlementReference,
+        LastReminderSentAt = due.LastReminderSentAt,
+        LastReminderSendStatus = (ContractEnums.MembershipDueReminderSendStatus)due.LastReminderSendStatus
     };
 
     public static MembershipPaymentPeriodDto ToDto(this MembershipPaymentPeriod paymentPeriod) => new() {
@@ -36,7 +38,9 @@ public static class MembershipDueMappingExtensions {
         PaidAmount = due.PaidAmount,
         DueDate = due.DueDate,
         SettledAt = due.SettledAt,
-        SettlementReference = due.SettlementReference
+        SettlementReference = due.SettlementReference,
+        LastReminderSentAt = due.LastReminderSentAt,
+        LastReminderSendStatus = (DomainEnums.MembershipDueReminderSendStatus)due.LastReminderSendStatus
     };
 
     public static MembershipPaymentPeriod ToMembershipPaymentPeriod(this MembershipPaymentPeriodCreateDto request) => new() {

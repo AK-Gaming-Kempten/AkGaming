@@ -21,6 +21,14 @@
     border-radius: 999px;
 }
 
+.due-entry-reminder {
+    font-weight: 600;
+    display: inline-block;
+    width: fit-content;
+    padding: 0.2rem 0.55rem;
+    border-radius: 999px;
+}
+
 .due-status-open {
     background: color-mix(in srgb, var(--color-status-open) 15%, transparent);
     color: var(--color-status-open);
@@ -39,6 +47,21 @@
 .due-status-cancelled {
     background: color-mix(in srgb, var(--color-status-cancelled) 25%, transparent);
     color: var(--color-text-secondary);
+}
+
+.due-reminder-status-none {
+    background: color-mix(in srgb, var(--color-text-secondary) 12%, transparent);
+    color: var(--color-text-secondary);
+}
+
+.due-reminder-status-sent {
+    background: color-mix(in srgb, var(--color-status-paid) 15%, transparent);
+    color: var(--color-status-paid);
+}
+
+.due-reminder-status-failed {
+    background: color-mix(in srgb, var(--color-button-danger-bg) 18%, transparent);
+    color: var(--color-button-danger-bg);
 }
 
 .due-entry-editor {

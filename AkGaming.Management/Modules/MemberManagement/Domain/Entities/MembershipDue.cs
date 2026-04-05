@@ -13,4 +13,6 @@ public class MembershipDue {
     public DateOnly DueDate { get; set; }
     public DateTimeOffset? SettledAt { get; set; }
     public string? SettlementReference { get; set; }
+    public DateTimeOffset? LastReminderSentAt { get; set; }
+    public MembershipDueReminderSendStatus LastReminderSendStatus { get; set; }
 }
