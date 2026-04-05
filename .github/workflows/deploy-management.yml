@@ -2,8 +2,7 @@ name: Deploy Management
 
 on:
   push:
-    branches: ["main"]
-    tags: ["management-publish"]
+    branches: ["main", "prod-management"]
 
 concurrency:
   group: deploy-management-${{ github.ref_name }}
@@ -51,7 +50,7 @@ jobs:
 
   test:
     needs: should-deploy
-    if: ${{ always() && ((github.ref == 'refs/heads/main' && needs.should-deploy.outputs.deploy == 'true') || github.ref == 'refs/tags/management-publish') }}
+    if: ${{ always() && ((github.ref == 'refs/heads/main' && needs.should-deploy.outputs.deploy == 'true') || github.ref == 'refs/heads/prod-management') }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -168,7 +167,7 @@ jobs:
             --header "Authorization: Bearer ${{ secrets.COOLIFY_TOKEN }}"
   deploy-production:
     needs: test
-    if: github.ref == 'refs/tags/management-publish'
+    if: github.ref == 'refs/heads/prod-management'
     runs-on: ubuntu-latest
     env:
       MANAGEMENT_PRODUCTION_DB_CONNECTION_STRING: ${{ secrets.MANAGEMENT_PRODUCTION_DB_CONNECTION_STRING }}

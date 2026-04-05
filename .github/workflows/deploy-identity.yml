@@ -2,8 +2,7 @@ name: Deploy Identity
 
 on:
   push:
-    branches: ["main"]
-    tags: ["identity-publish"]
+    branches: ["main", "prod-identity"]
 
 concurrency:
   group: deploy-identity-${{ github.ref_name }}
@@ -51,7 +50,7 @@ jobs:
 
   test:
     needs: should-deploy
-    if: ${{ always() && ((github.ref == 'refs/heads/main' && needs.should-deploy.outputs.deploy == 'true') || github.ref == 'refs/tags/identity-publish') }}
+    if: ${{ always() && ((github.ref == 'refs/heads/main' && needs.should-deploy.outputs.deploy == 'true') || github.ref == 'refs/heads/prod-identity') }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -169,7 +168,7 @@ jobs:
             --header "Authorization: Bearer ${{ secrets.COOLIFY_TOKEN }}"
   deploy-production:
     needs: test
-    if: github.ref == 'refs/tags/identity-publish'
+    if: github.ref == 'refs/heads/prod-identity'
     runs-on: ubuntu-latest
     env:
       IDENTITY_PRODUCTION_DB_CONNECTION_STRING: ${{ secrets.IDENTITY_PRODUCTION_DB_CONNECTION_STRING }}

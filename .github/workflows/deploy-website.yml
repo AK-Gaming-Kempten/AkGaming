@@ -2,8 +2,7 @@ name: Deploy Website
 
 on:
   push:
-    branches: ["main"]
-    tags: ["website-publish"]
+    branches: ["main", "prod-website"]
 
 concurrency:
   group: deploy-website-${{ github.ref_name }}
@@ -59,7 +58,7 @@ jobs:
           curl --fail --request GET "${{ secrets.COOLIFY_WEBHOOK_WEBSITE_TEST }}" \
             --header "Authorization: Bearer ${{ secrets.COOLIFY_TOKEN }}"
   deploy-production:
-    if: github.ref == 'refs/tags/website-publish'
+    if: github.ref == 'refs/heads/prod-website'
     runs-on: ubuntu-latest
     steps:
       - name: Trigger Coolify Production Deploy
