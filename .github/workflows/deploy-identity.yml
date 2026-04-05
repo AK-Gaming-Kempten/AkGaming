@@ -168,7 +168,7 @@ jobs:
             --header "Authorization: Bearer ${{ secrets.COOLIFY_TOKEN }}"
   deploy-production:
     needs: test
-    if: github.ref == 'refs/heads/prod-identity'
+    if: ${{ always() && github.ref == 'refs/heads/prod-identity' && needs.test.result == 'success' }}
     runs-on: ubuntu-latest
     env:
       IDENTITY_PRODUCTION_DB_CONNECTION_STRING: ${{ secrets.IDENTITY_PRODUCTION_DB_CONNECTION_STRING }}

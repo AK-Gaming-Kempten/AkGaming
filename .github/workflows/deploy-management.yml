@@ -167,7 +167,7 @@ jobs:
             --header "Authorization: Bearer ${{ secrets.COOLIFY_TOKEN }}"
   deploy-production:
     needs: test
-    if: github.ref == 'refs/heads/prod-management'
+    if: ${{ always() && github.ref == 'refs/heads/prod-management' && needs.test.result == 'success' }}
     runs-on: ubuntu-latest
     env:
       MANAGEMENT_PRODUCTION_DB_CONNECTION_STRING: ${{ secrets.MANAGEMENT_PRODUCTION_DB_CONNECTION_STRING }}
