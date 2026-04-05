@@ -198,7 +198,7 @@ public class MembershipDueService(
                 skippedMembers.Add(new MembershipDueReminderSkipDto {
                     MemberId = member.Id,
                     MemberDisplayName = BuildMemberDisplayName(member),
-                    Reason = "No due exists in this payment period."
+                    Reason = GetMissingDueReason(member, paymentPeriod)
                 });
                 continue;
             }
@@ -415,6 +415,36 @@ public class MembershipDueService(
             return member.Email.Trim();
 
         return member.Id.ToString();
+    }
+
+    private static string GetMissingDueReason(Member member, MembershipPaymentPeriod paymentPeriod) {
+        var trialWindowReason = GetTrialWindowSkipReason(member, paymentPeriod);
+        if (trialWindowReason is not null)
+            return trialWindowReason;
+
+        return "No due exists in this payment period.";
+    }
+
+    private static string? GetTrialWindowSkipReason(Member member, MembershipPaymentPeriod paymentPeriod) {
+        var firstTrialStart = member.StatusChanges
+            .Where(statusChange => statusChange.NewStatus == DomainEnums.MembershipStatus.InTrial)
+            .OrderBy(statusChange => statusChange.Timestamp)
+            .FirstOrDefault();
+
+        if (firstTrialStart is null)
+            return null;
+
+        var trialStartDate = DateOnly.FromDateTime(firstTrialStart.Timestamp);
+        var trialEndDate = DateOnly.FromDateTime(firstTrialStart.Timestamp.AddDays(MemberManagementConstants.DefaultTrialPeriodInDays));
+        var paymentPeriodTrialCutoff = paymentPeriod.DueDate.AddMonths(3);
+
+        if (trialStartDate > paymentPeriodTrialCutoff)
+            return null;
+
+        if (trialEndDate <= paymentPeriodTrialCutoff)
+            return null;
+
+        return "Member was in trial for this payment period and therefore had no due.";
     }
 
     private sealed record ReminderContext(MembershipDue Due, Member Member, MembershipPaymentPeriod PaymentPeriod);

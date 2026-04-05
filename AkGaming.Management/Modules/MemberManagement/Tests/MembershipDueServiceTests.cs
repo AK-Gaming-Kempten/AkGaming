@@ -418,10 +418,11 @@ public class MembershipDueServiceTests {
         var paidMember = new Member { Id = Guid.NewGuid(), FirstName = "Cara", LastName = "Cleared", Email = "cara@example.com", Status = DomainEnums.MembershipStatus.Member };
         var noDueMember = new Member { Id = Guid.NewGuid(), FirstName = "Dora", LastName = "Detached", Email = "dora@example.com", Status = DomainEnums.MembershipStatus.Member };
         var futureDueMember = new Member { Id = Guid.NewGuid(), FirstName = "Evan", LastName = "Early", Email = "evan@example.com", Status = DomainEnums.MembershipStatus.Member };
+        var formerTrialMember = CreateFormerTrialMember(Guid.NewGuid(), paymentPeriod.DueDate.AddMonths(4), paymentPeriod.DueDate.AddMonths(4).AddDays(1));
 
         paymentPeriodRepository.Setup(x => x.GetByIdAsync(paymentPeriod.Id)).ReturnsAsync(Result<MembershipPaymentPeriod>.Success(paymentPeriod));
         memberRepository.Setup(x => x.GetAllAsync()).ReturnsAsync(Result<List<Member>>.Success([
-            sendableMember, missingEmailMember, paidMember, noDueMember, futureDueMember
+            sendableMember, missingEmailMember, paidMember, noDueMember, futureDueMember, formerTrialMember
         ]));
         dueRepository.Setup(x => x.GetByPaymentPeriodIdAsync(paymentPeriod.Id)).ReturnsAsync(Result<List<MembershipDue>>.Success([
             new MembershipDue { Id = 1, PaymentPeriodId = paymentPeriod.Id, MemberId = sendableMember.Id, Status = DomainEnums.MembershipDueStatus.Pending, DueAmount = 15m, DueDate = overdueDate },
@@ -437,11 +438,12 @@ public class MembershipDueServiceTests {
             Assert.That(result.Value, Is.Not.Null);
             Assert.That(result.Value!.Recipients, Has.Count.EqualTo(1));
             Assert.That(result.Value!.Recipients.Single().MemberId, Is.EqualTo(sendableMember.Id));
-            Assert.That(result.Value!.SkippedMembers, Has.Count.EqualTo(4));
+            Assert.That(result.Value!.SkippedMembers, Has.Count.EqualTo(5));
             Assert.That(result.Value!.SkippedMembers.Any(x => x.MemberId == missingEmailMember.Id && x.Reason == "Member has no email address."), Is.True);
             Assert.That(result.Value!.SkippedMembers.Any(x => x.MemberId == paidMember.Id && x.Reason == "Due is already paid."), Is.True);
             Assert.That(result.Value!.SkippedMembers.Any(x => x.MemberId == noDueMember.Id && x.Reason == "No due exists in this payment period."), Is.True);
             Assert.That(result.Value!.SkippedMembers.Any(x => x.MemberId == futureDueMember.Id && x.Reason == "Due date has not passed yet."), Is.True);
+            Assert.That(result.Value!.SkippedMembers.Any(x => x.MemberId == formerTrialMember.Id && x.Reason == "Member was in trial for this payment period and therefore had no due."), Is.True);
         }
     }
 
@@ -618,5 +620,29 @@ public class MembershipDueServiceTests {
         };
 
         return member;
+    }
+
+    private static Member CreateFormerTrialMember(Guid id, DateOnly trialEndDate, DateOnly memberSinceDate) {
+        var trialStart = trialEndDate.ToDateTime(TimeOnly.MinValue, DateTimeKind.Utc)
+            .AddDays(-MemberManagementConstants.DefaultTrialPeriodInDays);
+
+        return new Member {
+            Id = id,
+            Status = DomainEnums.MembershipStatus.Member,
+            StatusChanges = new List<MembershipStatusChangeEvent> {
+                new() {
+                    MemberId = id,
+                    OldStatus = DomainEnums.MembershipStatus.Applicant,
+                    NewStatus = DomainEnums.MembershipStatus.InTrial,
+                    Timestamp = trialStart
+                },
+                new() {
+                    MemberId = id,
+                    OldStatus = DomainEnums.MembershipStatus.InTrial,
+                    NewStatus = DomainEnums.MembershipStatus.Member,
+                    Timestamp = memberSinceDate.ToDateTime(TimeOnly.MinValue, DateTimeKind.Utc)
+                }
+            }
+        };
     }
 }
