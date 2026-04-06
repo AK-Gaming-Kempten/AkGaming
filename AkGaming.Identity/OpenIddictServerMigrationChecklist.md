@@ -7,7 +7,7 @@ Scope:
 - Preserve existing users.
 - Preserve existing Discord links.
 - Use interactive Authorization Code flow.
-- Require PKCE.
+- Support per-client PKCE requirements.
 - Migrate the Identity UI away from static token-handling pages.
 
 Constraints:
@@ -57,7 +57,7 @@ Constraints:
 - [x] Keep OpenIddict token storage enabled.
 - [x] Configure Authorization Code flow.
 - [x] Configure Refresh Token flow.
-- [x] Require PKCE globally.
+- [x] Support PKCE enforcement via client requirements.
 - [x] Register standard scopes: `openid`, `profile`, `email`, `roles`.
 - [x] Register custom API scopes separately, e.g. `management_api`.
 
@@ -227,7 +227,7 @@ Constraints:
 
 - Use OpenIddict.
 - Use Authorization Code flow for interactive clients.
-- Require PKCE.
+- Support per-client PKCE requirements.
 - Keep existing users.
 - Keep existing Discord links.
 - Handle clients later; this checklist is server-first.

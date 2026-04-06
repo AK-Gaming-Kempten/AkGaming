@@ -84,7 +84,6 @@ builder.Services.AddOpenIddict()
 
         options.AllowAuthorizationCodeFlow();
         options.AllowRefreshTokenFlow();
-        options.RequireProofKeyForCodeExchange();
         options.DisableAccessTokenEncryption();
 
         options.SetAccessTokenLifetime(TimeSpan.FromMinutes(jwtOptions.AccessTokenMinutes));

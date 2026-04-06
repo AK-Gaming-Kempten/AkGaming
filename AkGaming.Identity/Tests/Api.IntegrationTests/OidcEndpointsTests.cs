@@ -81,6 +81,62 @@ public sealed class OidcEndpointsTests : IClassFixture<TestApiFactory>
     }
 
     [Fact]
+    public async Task AuthorizationCodeFlow_WithoutPkce_ForClientThatDoesNotRequireIt_ReturnsTokens()
+    {
+        using var noPkceFactory = new TestApiFactory(new Dictionary<string, string?>
+        {
+            ["OpenIddict:Applications:0:RequirePkce"] = "false"
+        });
+        using var client = noPkceFactory.CreateClient(new Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactoryClientOptions
+        {
+            BaseAddress = BaseUri,
+            AllowAutoRedirect = false
+        });
+
+        var authorizeUrl = BuildAuthorizeUrl(
+            clientId: "test-public-client",
+            redirectUri: "https://app.akgaming.de/callback",
+            scopes: "openid profile email roles offline_access",
+            state: "state-no-pkce");
+
+        var authorizeResponse = await client.GetAsync(authorizeUrl);
+        Assert.Equal(HttpStatusCode.Redirect, authorizeResponse.StatusCode);
+        Assert.StartsWith("/account/login", authorizeResponse.Headers.Location?.ToString(), StringComparison.Ordinal);
+
+        var registerLocation = authorizeResponse.Headers.Location?.ToString() ?? throw new InvalidOperationException("Missing login redirect.");
+        var email = $"oidc-no-pkce-{Guid.NewGuid():N}@example.com";
+        var registerReturnUrl = QueryHelpers.ParseQuery(new Uri(BaseUri, registerLocation).Query)["returnUrl"].ToString();
+        await RegisterInteractiveAsync(client, registerReturnUrl, email);
+        await VerifyEmailAsync(client, email);
+
+        var resumeAuthorizeResponse = await client.GetAsync(registerReturnUrl);
+        Assert.Equal(HttpStatusCode.Redirect, resumeAuthorizeResponse.StatusCode);
+        Assert.StartsWith("https://app.akgaming.de/callback", resumeAuthorizeResponse.Headers.Location?.ToString(), StringComparison.Ordinal);
+
+        var callbackUri = resumeAuthorizeResponse.Headers.Location ?? throw new InvalidOperationException("Missing callback redirect.");
+        var callbackQuery = QueryHelpers.ParseQuery(callbackUri.Query);
+        var code = callbackQuery["code"].ToString();
+        Assert.False(string.IsNullOrWhiteSpace(code));
+        Assert.Equal("state-no-pkce", callbackQuery["state"].ToString());
+
+        var tokenResponse = await client.PostAsync("/connect/token", new FormUrlEncodedContent(new Dictionary<string, string?>
+        {
+            ["grant_type"] = "authorization_code",
+            ["client_id"] = "test-public-client",
+            ["redirect_uri"] = "https://app.akgaming.de/callback",
+            ["code"] = code
+        }!));
+
+        var tokenBody = await tokenResponse.Content.ReadAsStringAsync();
+        Assert.True(tokenResponse.IsSuccessStatusCode, $"Expected successful token exchange without PKCE: {tokenBody}");
+
+        using var tokenJson = JsonDocument.Parse(tokenBody);
+        var accessToken = tokenJson.RootElement.GetProperty("access_token").GetString();
+        Assert.False(string.IsNullOrWhiteSpace(accessToken));
+        Assert.True(tokenJson.RootElement.TryGetProperty("refresh_token", out _));
+    }
+
+    [Fact]
     public async Task AuthorizationCodeFlow_WithVerificationRequired_RedirectsUnverifiedUserToVerifyPage()
     {
         using var hardeningFactory = new TestApiFactory(new Dictionary<string, string?>
@@ -315,7 +371,7 @@ public sealed class OidcEndpointsTests : IClassFixture<TestApiFactory>
         });
     }
 
-    private static string BuildAuthorizeUrl(string clientId, string redirectUri, string scopes, string state, PkceState pkce)
+    private static string BuildAuthorizeUrl(string clientId, string redirectUri, string scopes, string state, PkceState? pkce = null)
     {
         var query = new Dictionary<string, string?>
         {
@@ -323,10 +379,14 @@ public sealed class OidcEndpointsTests : IClassFixture<TestApiFactory>
             ["redirect_uri"] = redirectUri,
             ["response_type"] = "code",
             ["scope"] = scopes,
-            ["state"] = state,
-            ["code_challenge"] = pkce.Challenge,
-            ["code_challenge_method"] = "S256"
+            ["state"] = state
         };
+
+        if (pkce is not null)
+        {
+            query["code_challenge"] = pkce.Challenge;
+            query["code_challenge_method"] = "S256";
+        }
 
         return QueryHelpers.AddQueryString("/connect/authorize", query!);
     }
