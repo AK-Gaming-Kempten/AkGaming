@@ -20,6 +20,7 @@ public sealed class AuthService : IAuthService
     private const int LockedStatusCode = 423;
     private const int ConflictStatusCode = 409;
     private const string DiscordProvider = "discord";
+    private const int MaxUsernameLength = 100;
 
     private readonly IIdentityRepository _repository;
     private readonly IPasswordHasherService _passwordHasher;
@@ -117,6 +118,7 @@ public sealed class AuthService : IAuthService
         var user = new User
         {
             Email = email,
+            Username = NormalizeUsername(request.Username),
             PasswordHash = string.Empty,
             IsEmailVerified = false,
             PrivacyPolicyAccepted = true,
@@ -269,6 +271,7 @@ public sealed class AuthService : IAuthService
         return new CurrentUserResponse(
             user.Id,
             user.Email,
+            user.Username,
             user.IsEmailVerified,
             user.UserRoles.Select(x => x.Role.Name).ToArray(),
             discordLink is null
@@ -676,6 +679,36 @@ public sealed class AuthService : IAuthService
         return CreateCurrentUserResponse(user);
     }
 
+    public async Task<CurrentUserResponse> UpdateUsernameAsync(Guid userId, string username, string? ipAddress, CancellationToken cancellationToken)
+    {
+        var user = await _repository.GetUserByIdAsync(userId, cancellationToken);
+        if (user is null)
+        {
+            throw new AuthException(AccessDeniedStatusCode, "User account was not found.");
+        }
+
+        var normalizedUsername = NormalizeUsername(username);
+        if (string.Equals(user.Username, normalizedUsername, StringComparison.Ordinal))
+        {
+            return CreateCurrentUserResponse(user);
+        }
+
+        var previousUsername = user.Username;
+        user.Username = normalizedUsername;
+
+        await WriteAuditAsync(
+            "account.username.updated",
+            user.Id,
+            user.Email,
+            ipAddress,
+            true,
+            $"previous_username:{previousUsername};new_username:{normalizedUsername}",
+            cancellationToken);
+        await _repository.SaveChangesAsync(cancellationToken);
+
+        return CreateCurrentUserResponse(user);
+    }
+
     public Task<DiscordStartResponse> GetDiscordStartUrlAsync(string? redirectUri, string? bridgeState, CancellationToken cancellationToken)
     {
         var protectedState = _discordStateService.CreateState(new DiscordOAuthState(
@@ -847,6 +880,7 @@ public sealed class AuthService : IAuthService
                 resolvedUser = new User
                 {
                     Email = email,
+                    Username = NormalizeGeneratedUsername(discordIdentity.Username, email),
                     PasswordHash = null,
                     IsEmailVerified = normalizedDiscordEmailCandidate is not null && discordIdentity.EmailVerified
                 };
@@ -1030,6 +1064,38 @@ public sealed class AuthService : IAuthService
         {
             return null;
         }
+    }
+
+    private static string NormalizeUsername(string username)
+    {
+        if (string.IsNullOrWhiteSpace(username))
+        {
+            throw new AuthException(BadRequestStatusCode, "Username is required.");
+        }
+
+        var normalized = username.Trim();
+        if (normalized.Length > MaxUsernameLength)
+        {
+            throw new AuthException(BadRequestStatusCode, $"Username must be between 1 and {MaxUsernameLength} characters.");
+        }
+
+        return normalized;
+    }
+
+    private static string NormalizeGeneratedUsername(string? username, string fallback)
+    {
+        var candidate = string.IsNullOrWhiteSpace(username)
+            ? fallback
+            : username.Trim();
+
+        if (candidate.Length > MaxUsernameLength)
+        {
+            candidate = candidate[..MaxUsernameLength];
+        }
+
+        return string.IsNullOrWhiteSpace(candidate)
+            ? fallback[..Math.Min(fallback.Length, MaxUsernameLength)]
+            : candidate;
     }
 
     private static void ValidatePassword(string password)

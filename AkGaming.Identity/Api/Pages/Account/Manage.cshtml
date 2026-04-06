@@ -40,7 +40,19 @@
           <h2>General Info</h2>
           <div class="row"><span class="k">User Id</span><span class="v">@Model.Profile.UserId</span></div>
           <div class="row"><span class="k">Email</span><span class="v">@Model.Profile.Email</span></div>
+          <div class="row"><span class="k">Username</span><span class="v">@Model.Profile.Username</span></div>
           <div class="row"><span class="k">Roles</span><span class="v">@string.Join(", ", Model.Profile.Roles)</span></div>
+        </section>
+
+        <section class="panel">
+          <h2>Profile</h2>
+          <form method="post" asp-page-handler="UpdateUsername" class="identity-form">
+            <div class="ui-field">
+              <label asp-for="Username">Username</label>
+              <input asp-for="Username" type="text" autocomplete="username" maxlength="100" required />
+            </div>
+            <button class="secondary" type="submit">Update Username</button>
+          </form>
         </section>
 
         <section class="panel">

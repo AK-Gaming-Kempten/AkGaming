@@ -27,7 +27,8 @@ public sealed class AuthEndpointsTests : IClassFixture<TestApiFactory>
         {
             Email = email,
             Password = password,
-            PrivacyPolicyAccepted = true
+            PrivacyPolicyAccepted = true,
+            Username = "Register User"
         });
 
         var registerBody = await registerResponse.Content.ReadAsStringAsync();
@@ -99,7 +100,8 @@ public sealed class AuthEndpointsTests : IClassFixture<TestApiFactory>
         {
             Email = $"user-{Guid.NewGuid():N}@example.com",
             Password = "Password123",
-            PrivacyPolicyAccepted = false
+            PrivacyPolicyAccepted = false,
+            Username = "Register User"
         });
 
         var body = await response.Content.ReadAsStringAsync();
@@ -142,7 +144,8 @@ public sealed class AuthEndpointsTests : IClassFixture<TestApiFactory>
         {
             Email = email,
             Password = password,
-            PrivacyPolicyAccepted = true
+            PrivacyPolicyAccepted = true,
+            Username = "Verify User"
         });
 
         var registerBody = await registerResponse.Content.ReadAsStringAsync();

@@ -1,6 +1,6 @@
 namespace AkGaming.Identity.Contracts.Auth;
 
-public sealed record RegisterRequest(string Email, string Password, bool PrivacyPolicyAccepted);
+public sealed record RegisterRequest(string Email, string Password, bool PrivacyPolicyAccepted, string Username);
 public sealed record LoginRequest(string Email, string Password);
 public sealed record RefreshRequest(string RefreshToken);
 public sealed record LogoutRequest(string RefreshToken);
@@ -26,6 +26,7 @@ public sealed record DiscordCallbackResponse(
 public sealed record CurrentUserResponse(
     Guid UserId,
     string Email,
+    string Username,
     bool IsEmailVerified,
     string[] Roles,
     DiscordLinkInfo? Discord);

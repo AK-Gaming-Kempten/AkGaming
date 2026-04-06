@@ -34,8 +34,9 @@
         var authState = await AuthenticationStateTask;
         var user = authState.User;
         DisplayName =
-            user.Claims.FirstOrDefault(claim => claim.Type == "discord_username")?.Value
-            ?? user.Claims.FirstOrDefault(claim => claim.Type == "preferred_username")?.Value
+            user.Claims.FirstOrDefault(claim => claim.Type == "preferred_username")?.Value
+            ?? user.Claims.FirstOrDefault(claim => claim.Type == "username")?.Value
+            ?? user.Claims.FirstOrDefault(claim => claim.Type == "discord_username")?.Value
             ?? user.Claims.FirstOrDefault(claim => claim.Type == "email")?.Value
             ?? user.Claims.FirstOrDefault(claim => claim.Type == "sub")?.Value
             ?? "Unknown user";

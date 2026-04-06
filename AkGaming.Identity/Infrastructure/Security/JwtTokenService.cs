@@ -33,6 +33,8 @@ public sealed class JwtTokenService : IJwtTokenService
         {
             new(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
             new(JwtRegisteredClaimNames.Email, user.Email),
+            new("preferred_username", user.Username),
+            new("username", user.Username),
             new("email_verified", user.IsEmailVerified ? "true" : "false"),
             new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
         };

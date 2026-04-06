@@ -30,6 +30,9 @@ public sealed class ManageModel : PageModel
     [BindProperty(SupportsGet = true)]
     public string? Status { get; set; }
 
+    [BindProperty]
+    public string Username { get; set; } = string.Empty;
+
     public async Task<IActionResult> OnGetAsync(CancellationToken cancellationToken)
     {
         if (!string.IsNullOrWhiteSpace(Status))
@@ -59,6 +62,28 @@ public sealed class ManageModel : PageModel
         return Redirect(response.AuthorizationUrl);
     }
 
+    public async Task<IActionResult> OnPostUpdateUsernameAsync(CancellationToken cancellationToken)
+    {
+        try
+        {
+            var user = await _authService.UpdateUsernameAsync(
+                GetUserId(),
+                Username,
+                HttpContext.Connection.RemoteIpAddress?.ToString(),
+                cancellationToken);
+
+            await LocalSessionManager.SignInAsync(HttpContext, user);
+            StatusMessage = "Username updated.";
+            return RedirectToPage(new { status = StatusMessage });
+        }
+        catch (AuthException exception)
+        {
+            StatusMessage = exception.Message;
+            await LoadProfileAsync(cancellationToken);
+            return Page();
+        }
+    }
+
     public async Task<IActionResult> OnPostLogoutAsync()
     {
         await LocalSessionManager.SignOutAsync(HttpContext);
@@ -68,6 +93,7 @@ public sealed class ManageModel : PageModel
     private async Task LoadProfileAsync(CancellationToken cancellationToken)
     {
         Profile = await _authService.GetCurrentUserAsync(GetUserId(), cancellationToken);
+        Username = Profile.Username;
     }
 
     private Guid GetUserId()

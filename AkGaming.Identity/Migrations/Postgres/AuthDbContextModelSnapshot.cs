@@ -233,6 +233,11 @@ namespace AkGaming.Identity.Infrastructure.Persistence.Migrations
                     b.Property<DateTime?>("PrivacyPolicyAcceptedAtUtc")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("Username")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
                     b.HasKey("Id");
 
                     b.HasIndex("Email")

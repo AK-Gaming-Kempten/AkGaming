@@ -16,7 +16,7 @@ public sealed class AuthServiceTests
         var repository = new InMemoryIdentityRepository();
         var service = BuildService(repository);
 
-        var result = await service.RegisterAsync(new RegisterRequest("user@test.local", "Password123", true), "127.0.0.1", CancellationToken.None);
+        var result = await service.RegisterAsync(new RegisterRequest("user@test.local", "Password123", true, "Test User"), "127.0.0.1", CancellationToken.None);
 
         Assert.False(string.IsNullOrWhiteSpace(result.AccessToken));
         Assert.False(string.IsNullOrWhiteSpace(result.RefreshToken));
@@ -25,6 +25,7 @@ public sealed class AuthServiceTests
         Assert.Equal(RoleNames.User, repository.Roles.Single().Name);
         Assert.Single(repository.RefreshTokens);
         Assert.Equal("user@test.local", repository.Users.Single().Email);
+        Assert.Equal("Test User", repository.Users.Single().Username);
     }
 
     [Fact]
@@ -34,10 +35,30 @@ public sealed class AuthServiceTests
         var service = BuildService(repository);
 
         var exception = await Assert.ThrowsAsync<AuthException>(() =>
-            service.RegisterAsync(new RegisterRequest("user@test.local", "Password123", false), "127.0.0.1", CancellationToken.None));
+            service.RegisterAsync(new RegisterRequest("user@test.local", "Password123", false, "Test User"), "127.0.0.1", CancellationToken.None));
 
         Assert.Equal(400, exception.StatusCode);
         Assert.Empty(repository.Users);
+    }
+
+    [Fact]
+    public async Task UpdateUsernameAsync_ChangesUsername()
+    {
+        var repository = new InMemoryIdentityRepository();
+        var user = new AkGaming.Identity.Domain.Entities.User
+        {
+            Email = "user@test.local",
+            Username = "Before",
+            PasswordHash = "hash"
+        };
+        repository.Users.Add(user);
+
+        var service = BuildService(repository);
+
+        var result = await service.UpdateUsernameAsync(user.Id, "After", "127.0.0.1", CancellationToken.None);
+
+        Assert.Equal("After", user.Username);
+        Assert.Equal("After", result.Username);
     }
 
     [Fact]
@@ -145,7 +166,7 @@ public sealed class AuthServiceTests
         var emailSender = new EmailSenderStub();
         var service = BuildService(repository, emailSender: emailSender);
 
-        await service.RegisterAsync(new RegisterRequest("verify@test.local", "Password123", true), "127.0.0.1", CancellationToken.None);
+        await service.RegisterAsync(new RegisterRequest("verify@test.local", "Password123", true, "Verify User"), "127.0.0.1", CancellationToken.None);
         var user = repository.Users.Single();
 
         var issued = await service.RequestEmailVerificationAsync(
@@ -332,6 +353,8 @@ public sealed class AuthServiceTests
         Assert.Single(repository.Users);
         Assert.Single(repository.ExternalLogins);
         Assert.Equal("discord-42", repository.ExternalLogins.Single().ProviderUserId);
+        Assert.Equal("DiscordUser", repository.Users.Single().Username);
+        Assert.Equal("DiscordUser", response.User!.Username);
     }
 
     [Fact]
@@ -362,6 +385,7 @@ public sealed class AuthServiceTests
 
         Assert.NotNull(response.User);
         Assert.False(response.User!.IsEmailVerified);
+        Assert.Equal("DiscordUser", response.User.Username);
         Assert.False(repository.Users.Single().IsEmailVerified);
     }
 
@@ -404,7 +428,42 @@ public sealed class AuthServiceTests
 
         Assert.NotNull(response.User);
         Assert.True(response.User!.IsEmailVerified);
+        Assert.Equal(existingUser.Username, response.User.Username);
         Assert.True(existingUser.IsEmailVerified);
+    }
+
+    [Fact]
+    public async Task HandleDiscordCallbackAsync_LinkPurpose_DoesNotOverwriteExistingUsername()
+    {
+        var repository = new InMemoryIdentityRepository();
+        var existingUser = new AkGaming.Identity.Domain.Entities.User
+        {
+            Email = "linked@test.local",
+            Username = "Local Username",
+            PasswordHash = "hash",
+            IsEmailVerified = true
+        };
+        repository.Users.Add(existingUser);
+
+        var discordOAuth = new DiscordOAuthServiceStub
+        {
+            Identity = new("discord-55", "Discord Username", "linked@test.local", true)
+        };
+        var discordState = new DiscordStateServiceStub
+        {
+            State = new("link", existingUser.Id, DateTime.UtcNow.AddMinutes(5), "nonce")
+        };
+
+        var service = BuildService(
+            repository,
+            discordOAuthService: discordOAuth,
+            discordStateService: discordState);
+
+        var response = await service.HandleDiscordCallbackAsync("code", "state", "127.0.0.1", CancellationToken.None);
+
+        Assert.True(response.Linked);
+        Assert.False(response.CreatedUser);
+        Assert.Equal("Local Username", existingUser.Username);
     }
 
     [Fact]

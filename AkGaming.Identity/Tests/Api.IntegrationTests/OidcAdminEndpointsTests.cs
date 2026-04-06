@@ -264,7 +264,7 @@ public sealed class OidcAdminEndpointsTests : IClassFixture<TestApiFactory>
         await dbContext.SaveChangesAsync();
     }
 
-    private static async Task RegisterInteractiveAsync(HttpClient client, string returnUrl, string email)
+    private static async Task RegisterInteractiveAsync(HttpClient client, string returnUrl, string email, string? username = null)
     {
         var registerPageResponse = await client.GetAsync($"/account/register?returnUrl={Uri.EscapeDataString(returnUrl)}");
         var registerPageHtml = await registerPageResponse.Content.ReadAsStringAsync();
@@ -274,6 +274,7 @@ public sealed class OidcAdminEndpointsTests : IClassFixture<TestApiFactory>
         {
             ["ReturnUrl"] = returnUrl,
             ["Email"] = email,
+            ["Username"] = username ?? $"User {Guid.NewGuid():N}",
             ["Password"] = "Password123",
             ["PrivacyPolicyAccepted"] = "true"
         };

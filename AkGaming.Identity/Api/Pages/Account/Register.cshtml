@@ -37,6 +37,11 @@
       </div>
 
       <div class="ui-field">
+        <label asp-for="Username">Username</label>
+        <input asp-for="Username" type="text" autocomplete="username" maxlength="100" required />
+      </div>
+
+      <div class="ui-field">
         <label asp-for="Password">Password</label>
         <input asp-for="Password" type="password" autocomplete="new-password" minlength="8" required />
       </div>

@@ -4,6 +4,7 @@ public sealed class User
 {
     public Guid Id { get; set; } = Guid.NewGuid();
     public string Email { get; set; } = string.Empty;
+    public string Username { get; set; } = string.Empty;
     public string? PasswordHash { get; set; }
     public bool IsEmailVerified { get; set; }
     public bool PrivacyPolicyAccepted { get; set; }

@@ -20,8 +20,10 @@ internal static class OidcPrincipalFactory
 
         identity.SetClaim(OpenIddictConstants.Claims.Subject, user.UserId.ToString());
         identity.SetClaim(OpenIddictConstants.Claims.Email, user.Email);
-        identity.SetClaim(OpenIddictConstants.Claims.Name, user.Email);
-        identity.AddClaim(new Claim("email_verified", user.IsEmailVerified ? "true" : "false", ClaimValueTypes.Boolean));
+        identity.SetClaim(OpenIddictConstants.Claims.Name, user.Username);
+        identity.SetClaim(OpenIddictConstants.Claims.PreferredUsername, user.Username);
+        identity.SetClaim(OpenIddictConstants.Claims.Username, user.Username);
+        identity.AddClaim(new Claim( OpenIddictConstants.Claims.EmailVerified, user.IsEmailVerified ? "true" : "false", ClaimValueTypes.Boolean));
 
         foreach (var role in user.Roles)
         {
@@ -57,7 +59,7 @@ internal static class OidcPrincipalFactory
                 break;
 
             case OpenIddictConstants.Claims.Email:
-            case "email_verified":
+            case OpenIddictConstants.Claims.EmailVerified:
                 if (scopes.Contains(OpenIddictConstants.Scopes.Email))
                 {
                     yield return OpenIddictConstants.Destinations.IdentityToken;
@@ -65,6 +67,8 @@ internal static class OidcPrincipalFactory
                 break;
 
             case OpenIddictConstants.Claims.Name:
+            case OpenIddictConstants.Claims.PreferredUsername:
+            case OpenIddictConstants.Claims.Username:
                 if (scopes.Contains(OpenIddictConstants.Scopes.Profile))
                 {
                     yield return OpenIddictConstants.Destinations.IdentityToken;
@@ -72,7 +76,7 @@ internal static class OidcPrincipalFactory
                 break;
 
             case OpenIddictConstants.Claims.Role:
-                if (scopes.Contains("roles"))
+                if (scopes.Contains(OpenIddictConstants.Scopes.Roles))
                 {
                     yield return OpenIddictConstants.Destinations.IdentityToken;
                 }

@@ -24,6 +24,7 @@ public interface IAuthService
     Task<EmailVerificationResponse> RequestEmailVerificationForUserAsync(Guid userId, string? ipAddress, CancellationToken cancellationToken);
     Task<CurrentUserResponse> VerifyEmailAsync(VerifyEmailRequest request, string? ipAddress, CancellationToken cancellationToken);
     Task<CurrentUserResponse> UpdatePendingVerificationEmailAsync(Guid userId, string email, string? ipAddress, CancellationToken cancellationToken);
+    Task<CurrentUserResponse> UpdateUsernameAsync(Guid userId, string username, string? ipAddress, CancellationToken cancellationToken);
     Task<DiscordStartResponse> GetDiscordStartUrlAsync(string? redirectUri, string? state, CancellationToken cancellationToken);
     Task<DiscordStartResponse> GetDiscordLinkUrlAsync(Guid userId, CancellationToken cancellationToken);
     Task<DiscordCallbackResponse> HandleDiscordCallbackAsync(string code, string state, string? ipAddress, CancellationToken cancellationToken);

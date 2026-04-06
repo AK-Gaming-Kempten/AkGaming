@@ -12,6 +12,7 @@ public sealed class OidcPrincipalFactoryTests
         var user = new CurrentUserResponse(
             Guid.NewGuid(),
             "principal@example.com",
+            "Principal User",
             true,
             ["User", "Admin"],
             null);
@@ -32,6 +33,14 @@ public sealed class OidcPrincipalFactoryTests
         var nameClaim = principal.FindFirst(OpenIddictConstants.Claims.Name);
         Assert.NotNull(nameClaim);
         Assert.Contains(OpenIddictConstants.Destinations.IdentityToken, nameClaim!.GetDestinations());
+
+        var preferredUsernameClaim = principal.FindFirst("preferred_username");
+        Assert.NotNull(preferredUsernameClaim);
+        Assert.Contains(OpenIddictConstants.Destinations.IdentityToken, preferredUsernameClaim!.GetDestinations());
+
+        var usernameClaim = principal.FindFirst("username");
+        Assert.NotNull(usernameClaim);
+        Assert.Contains(OpenIddictConstants.Destinations.IdentityToken, usernameClaim!.GetDestinations());
 
         var roleClaims = principal.FindAll(OpenIddictConstants.Claims.Role).ToList();
         Assert.Equal(2, roleClaims.Count);

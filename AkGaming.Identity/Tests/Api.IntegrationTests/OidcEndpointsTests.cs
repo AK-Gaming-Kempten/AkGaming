@@ -22,6 +22,7 @@ public sealed class OidcEndpointsTests : IClassFixture<TestApiFactory>
     public async Task AuthorizationCodeFlow_WithPkce_ReturnsTokens_AndUserInfo()
     {
         using var client = CreateNoRedirectClient();
+        const string username = "OIDC Primary User";
 
         var pkce = PkceState.Create();
         var authorizeUrl = BuildAuthorizeUrl(
@@ -38,7 +39,7 @@ public sealed class OidcEndpointsTests : IClassFixture<TestApiFactory>
         var registerLocation = authorizeResponse.Headers.Location?.ToString() ?? throw new InvalidOperationException("Missing login redirect.");
         var email = $"oidc-{Guid.NewGuid():N}@example.com";
         var registerReturnUrl = QueryHelpers.ParseQuery(new Uri(BaseUri, registerLocation).Query)["returnUrl"].ToString();
-        await RegisterInteractiveAsync(client, registerReturnUrl, email);
+        await RegisterInteractiveAsync(client, registerReturnUrl, email, username);
         await VerifyEmailAsync(client, email);
 
         var resumeAuthorizeResponse = await client.GetAsync(registerReturnUrl);
@@ -78,6 +79,8 @@ public sealed class OidcEndpointsTests : IClassFixture<TestApiFactory>
         using var userInfoJson = JsonDocument.Parse(userInfoBody);
         Assert.True(userInfoJson.RootElement.TryGetProperty("sub", out _));
         Assert.True(userInfoJson.RootElement.TryGetProperty("email", out _));
+        Assert.Equal(username, userInfoJson.RootElement.GetProperty("preferred_username").GetString());
+        Assert.Equal(username, userInfoJson.RootElement.GetProperty("username").GetString());
     }
 
     [Fact]
@@ -322,7 +325,39 @@ public sealed class OidcEndpointsTests : IClassFixture<TestApiFactory>
         var manageHtml = await manageResponse.Content.ReadAsStringAsync();
         Assert.True(manageResponse.IsSuccessStatusCode, $"Expected account page after Discord login: {manageHtml}");
         Assert.Contains("localloginflow@example.com", manageHtml, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("Discord LocalLoginFlow", manageHtml, StringComparison.Ordinal);
         Assert.Contains("discord-LocalLoginFlow", manageHtml, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public async Task ManagePage_UpdateUsername_RefreshesProfile()
+    {
+        using var client = CreateNoRedirectClient();
+
+        var email = $"manage-username-{Guid.NewGuid():N}@example.com";
+        await RegisterInteractiveAsync(client, "/account/manage", email, "Initial Username");
+        await VerifyEmailAsync(client, email);
+
+        var managePageResponse = await client.GetAsync("/account/manage");
+        var managePageHtml = await managePageResponse.Content.ReadAsStringAsync();
+        Assert.True(managePageResponse.IsSuccessStatusCode, $"Expected manage page before username update: {managePageHtml}");
+
+        var antiForgeryToken = ExtractAntiForgeryToken(managePageHtml);
+        var updateResponse = await PostFormAsync(
+            client,
+            "/account/manage?handler=UpdateUsername",
+            new Dictionary<string, string?>
+            {
+                ["Username"] = "Updated Username",
+                ["__RequestVerificationToken"] = antiForgeryToken
+            });
+        Assert.Equal(HttpStatusCode.Redirect, updateResponse.StatusCode);
+        Assert.Contains("status=Username%20updated.", updateResponse.Headers.Location?.ToString(), StringComparison.Ordinal);
+
+        var updatedManageResponse = await client.GetAsync("/account/manage");
+        var updatedManageHtml = await updatedManageResponse.Content.ReadAsStringAsync();
+        Assert.True(updatedManageResponse.IsSuccessStatusCode, $"Expected manage page after username update: {updatedManageHtml}");
+        Assert.Contains("Updated Username", updatedManageHtml, StringComparison.Ordinal);
     }
 
     [Fact]
@@ -391,7 +426,7 @@ public sealed class OidcEndpointsTests : IClassFixture<TestApiFactory>
         return QueryHelpers.AddQueryString("/connect/authorize", query!);
     }
 
-    private static async Task<HttpResponseMessage> RegisterInteractiveAsync(HttpClient client, string returnUrl, string email)
+    private static async Task<HttpResponseMessage> RegisterInteractiveAsync(HttpClient client, string returnUrl, string email, string? username = null)
     {
         var registerPageResponse = await client.GetAsync($"/account/register?returnUrl={Uri.EscapeDataString(returnUrl)}");
         var registerPageHtml = await registerPageResponse.Content.ReadAsStringAsync();
@@ -401,6 +436,7 @@ public sealed class OidcEndpointsTests : IClassFixture<TestApiFactory>
         {
             ["ReturnUrl"] = returnUrl,
             ["Email"] = email,
+            ["Username"] = username ?? $"User {Guid.NewGuid():N}",
             ["Password"] = "Password123",
             ["PrivacyPolicyAccepted"] = "true"
         };

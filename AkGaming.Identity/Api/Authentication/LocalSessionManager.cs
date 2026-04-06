@@ -14,8 +14,10 @@ internal static class LocalSessionManager
         {
             new(ClaimTypes.NameIdentifier, user.UserId.ToString()),
             new("sub", user.UserId.ToString()),
-            new(ClaimTypes.Name, user.Email),
+            new(ClaimTypes.Name, user.Username),
             new(ClaimTypes.Email, user.Email),
+            new("preferred_username", user.Username),
+            new("username", user.Username),
             new("email_verified", user.IsEmailVerified ? "true" : "false", ClaimValueTypes.Boolean)
         };
 

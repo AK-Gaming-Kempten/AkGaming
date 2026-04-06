@@ -22,6 +22,9 @@ public sealed class RegisterModel : PageModel
     public string Email { get; set; } = string.Empty;
 
     [BindProperty]
+    public string Username { get; set; } = string.Empty;
+
+    [BindProperty]
     public string Password { get; set; } = string.Empty;
 
     [BindProperty]
@@ -47,7 +50,7 @@ public sealed class RegisterModel : PageModel
         try
         {
             var user = await _authService.RegisterInteractiveAsync(
-                new RegisterRequest(Email, Password, PrivacyPolicyAccepted),
+                new RegisterRequest(Email, Password, PrivacyPolicyAccepted, Username),
                 HttpContext.Connection.RemoteIpAddress?.ToString(),
                 cancellationToken);
 
