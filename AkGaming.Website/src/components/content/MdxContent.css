@@ -82,6 +82,7 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
+    gap: 0.5rem;
     border-radius: 999px;
     padding: 0.58rem 1rem;
     font-weight: 700;
@@ -89,6 +90,10 @@
     margin-right: 0.6rem;
     margin-bottom: 0.6rem;
     text-decoration: none;
+}
+
+.mdx-button svg {
+    flex-shrink: 0;
 }
 
 .mdx-button-row {
