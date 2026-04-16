@@ -179,8 +179,34 @@
     gap: 0.9rem;
 }
 
-.highlight-list a {
+.home-highlight-viewport {
+    overflow: hidden;
+}
+
+.home-highlight-track {
+    display: flex;
+    gap: 1rem;
+    will-change: transform;
+}
+
+.home-highlight-track.is-animating {
+    transition: transform 0.65s ease;
+}
+
+.home-highlight-slide {
+    flex: 0 0 calc((100% - 1rem) / 2);
+    min-width: 0;
+}
+
+.highlight-list a,
+.home-highlight-slide a {
     text-decoration: none;
+}
+
+.home-highlight-slide > a,
+.home-highlight-slide > div {
+    display: block;
+    height: 100%;
 }
 
 .home-carousel-dots {
@@ -277,6 +303,10 @@
     .highlight-list,
     .home-quicklinks-grid {
         grid-template-columns: 1fr;
+    }
+
+    .home-highlight-slide {
+        flex-basis: 100%;
     }
 
     .home-quicklinks-grid > .home-panel:last-child {

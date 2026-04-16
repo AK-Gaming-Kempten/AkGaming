@@ -5,7 +5,7 @@ import SponsorCard from "../components/home/SponsorCard";
 import SocialLinks from "../components/home/SocialLinks";
 import MiniCalendar from "../components/home/MiniCalendar";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState, type TransitionEvent } from "react";
 import { loadHighlights } from "../data/loadHighlights";
 import type { Highlight } from "../data/types";
 import { Link } from "react-router-dom";
@@ -14,41 +14,98 @@ import heroLogo from "../../public/assets/akgaming_logo.png";
 export default function Home() {
     const [highlights, setHighlights] = useState<Highlight[]>([]);
     const [carouselIndex, setCarouselIndex] = useState(0);
+    const [carouselOffset, setCarouselOffset] = useState(0);
+    const [isCarouselAnimating, setIsCarouselAnimating] = useState(true);
+    const viewportRef = useRef<HTMLDivElement | null>(null);
+    const slideRefs = useRef<Array<HTMLDivElement | null>>([]);
 
     useEffect(() => {
         loadHighlights().then(setHighlights);
     }, []);
 
     const rotatingHighlights = useMemo(() => highlights, [highlights]);
-
+    const isCarouselEnabled = rotatingHighlights.length > 2;
     const carouselPages = Math.max(1, rotatingHighlights.length);
-
-    const visibleHighlights = useMemo(() => {
-        if (rotatingHighlights.length === 0) {
-            return [];
-        }
-        if (rotatingHighlights.length <= 2) {
+    const carouselHighlights = useMemo(() => {
+        if (!isCarouselEnabled) {
             return rotatingHighlights;
         }
 
-        const first = rotatingHighlights[carouselIndex % rotatingHighlights.length];
-        const second = rotatingHighlights[(carouselIndex + 1) % rotatingHighlights.length];
-        return [first, second];
-    }, [carouselIndex, rotatingHighlights]);
+        return [
+            ...rotatingHighlights,
+            ...rotatingHighlights.slice(0, 2),
+        ];
+    }, [isCarouselEnabled, rotatingHighlights]);
 
     useEffect(() => {
-        if (rotatingHighlights.length <= 2) {
+        if (!isCarouselEnabled) {
+            return;
+        }
+
+        const updateOffset = () => {
+            const nextOffset = slideRefs.current[carouselIndex]?.offsetLeft ?? 0;
+            setCarouselOffset(nextOffset);
+        };
+
+        updateOffset();
+
+        const viewport = viewportRef.current;
+        if (!viewport) {
+            return;
+        }
+
+        const observer = new ResizeObserver(() => {
+            updateOffset();
+        });
+
+        observer.observe(viewport);
+
+        return () => observer.disconnect();
+    }, [carouselIndex, carouselHighlights, isCarouselEnabled]);
+
+    useEffect(() => {
+        if (!isCarouselEnabled) {
             return;
         }
 
         const intervalId = window.setInterval(() => {
-            setCarouselIndex((prev) => (prev + 1) % rotatingHighlights.length);
+            setIsCarouselAnimating(true);
+            setCarouselIndex((prev) => prev + 1);
         }, 4500);
 
         return () => window.clearInterval(intervalId);
-    }, [rotatingHighlights.length]);
+    }, [isCarouselEnabled]);
+
+    useEffect(() => {
+        if (isCarouselEnabled) {
+            return;
+        }
+
+        setCarouselIndex(0);
+        setCarouselOffset(0);
+        setIsCarouselAnimating(true);
+    }, [isCarouselEnabled]);
 
     const activePage = carouselIndex % carouselPages;
+
+    const handleCarouselTransitionEnd = (event: TransitionEvent<HTMLDivElement>) => {
+        if (event.target !== event.currentTarget || event.propertyName !== "transform") {
+            return;
+        }
+
+        if (!isCarouselEnabled || carouselIndex < rotatingHighlights.length) {
+            return;
+        }
+
+        setIsCarouselAnimating(false);
+        setCarouselIndex((prev) => prev - rotatingHighlights.length);
+
+        window.requestAnimationFrame(() => {
+            window.requestAnimationFrame(() => {
+                setIsCarouselAnimating(true);
+            });
+        });
+    };
 
     return (
         <main className="home-page">
@@ -123,21 +180,47 @@ export default function Home() {
                     <h2>Vereinsleben</h2>
                     <Link to="/events" className="home-link-action">Alle Events</Link>
                 </div>
-                {visibleHighlights.length === 0 ? (
+                {rotatingHighlights.length === 0 ? (
                     <p className="home-empty">Derzeit sind keine Highlights verfügbar.</p>
+                ) : !isCarouselEnabled ? (
+                    <div className="highlight-list">
+                        {rotatingHighlights.map((h) => (
+                            <HighlightCard
+                                key={h.postId}
+                                title={h.title ?? ""}
+                                description={h.description ?? ""}
+                                mediaSrc={h.mediaSrc}
+                                mediaType={h.mediaType}
+                                postId={h.postId}
+                            />
+                        ))}
+                    </div>
                 ) : (
                     <div className="home-highlight-rotator">
-                        <div className="highlight-list">
-                            {visibleHighlights.map((h) => (
-                                <HighlightCard
-                                    key={h.postId}
-                                    title={h.title ?? ""}
-                                    description={h.description ?? ""}
-                                    mediaSrc={h.mediaSrc}
-                                    mediaType={h.mediaType}
-                                    postId={h.postId}
-                                />
-                            ))}
+                        <div className="home-highlight-viewport" ref={viewportRef}>
+                            <div
+                                className={`home-highlight-track ${isCarouselAnimating ? "is-animating" : ""}`}
+                                style={{ transform: `translate3d(-${carouselOffset}px, 0, 0)` }}
+                                onTransitionEnd={handleCarouselTransitionEnd}
+                            >
+                                {carouselHighlights.map((h, index) => (
+                                    <div
+                                        key={`${h.postId}-${index}`}
+                                        className="home-highlight-slide"
+                                        ref={(node) => {
+                                            slideRefs.current[index] = node;
+                                        }}
+                                    >
+                                        <HighlightCard
+                                            title={h.title ?? ""}
+                                            description={h.description ?? ""}
+                                            mediaSrc={h.mediaSrc}
+                                            mediaType={h.mediaType}
+                                            postId={h.postId}
+                                        />
+                                    </div>
+                                ))}
+                            </div>
                         </div>
                         {carouselPages > 1 && (
                             <div className="home-carousel-dots" aria-hidden="true">
