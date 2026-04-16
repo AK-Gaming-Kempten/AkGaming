@@ -2,6 +2,10 @@
 #  mediaSrc: /media/blockcraft3d.jpg
 #  mediaType: image
 
+- postId: game-jam-6
+  mediaSrc: /media/gamejam-6-thumbnail.png
+  mediaType: image
+
 - postId: gamenight-7
   mediaSrc: /media/gamenight_7_thumbnail.png
   mediaType: image
