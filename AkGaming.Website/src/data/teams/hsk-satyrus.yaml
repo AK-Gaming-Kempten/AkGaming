@@ -4,13 +4,10 @@ logo: /assets/teams/HSK_Satyrus_Logo.png
 league:
   name: Uniliga
   logo: /assets/leagues/uniliga.png
-  division: Div 4
+  division: Div 4/4
 players:
-  - name: Player
-    role: Tank
-    picture: /assets/teams/HSK_Satyrus_Logo.png
-  - name: DarkMiow
-    role: DPS
+  - name: UUU
+    role: Tank / DPS
     picture: /assets/teams/HSK_Satyrus_Logo.png
   - name: SensenEngel
     role: DPS
@@ -20,6 +17,9 @@ players:
     picture: /assets/teams/HSK_Satyrus_Logo.png
   - name: eze
     role: Support
+    picture: /assets/teams/HSK_Satyrus_Logo.png
+  - name: Montage
+    role: Fill
     picture: /assets/teams/HSK_Satyrus_Logo.png
   - name: RobsiZockt
     role: Substitute

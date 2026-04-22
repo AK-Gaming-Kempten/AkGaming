@@ -33,3 +33,7 @@
 - id: lor
   displayName: Legends of Runeterra
   logo: /assets/games/esports_lor.png
+
+- id: rl
+  displayName: Rocket League
+  logo: /assets/games/esports_rl.svg

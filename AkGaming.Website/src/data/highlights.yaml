@@ -6,6 +6,10 @@
   mediaSrc: /media/gamejam-6-thumbnail.png
   mediaType: image
 
+- postId: esports-sommer-2026
+  mediaSrc: /media/esports_sommer_2026.png
+  mediaType: image
+
 - postId: gamenight-7
   mediaSrc: /media/gamenight_7_thumbnail.png
   mediaType: image

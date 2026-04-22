@@ -1,7 +1,10 @@
-type TableRow = Array<string>;
+import type { ReactNode } from "react";
+
+type TableCell = ReactNode;
+type TableRow = Array<TableCell>;
 
 type TableProps = {
-    headers?: string[];
+    headers?: TableCell[];
     rows: TableRow[];
 };
 
@@ -12,8 +15,8 @@ export default function Table({ headers, rows }: TableProps) {
                 {headers !== undefined ? (
                     <thead>
                         <tr>
-                            {headers.map((header) => (
-                                <th key={header}>{header}</th>
+                            {headers.map((header, headerIndex) => (
+                                <th key={`header-${headerIndex}`}>{header}</th>
                             ))}
                         </tr>
                     </thead>

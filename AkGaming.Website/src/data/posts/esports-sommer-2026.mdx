@@ -1,0 +1,141 @@
+---
+type: post
+id: esports-sommer-2026
+title: E-Sports im Sommer 2026
+shortDescription: Unsere Teams, ihre Ligen und die wichtigsten Änderungen zur Saison Sommer 2026 im Überblick.
+---
+
+import { FaDiscord, FaTwitch } from "react-icons/fa";
+
+<Lead>
+    Im Sommer 2026 gehen wir mit fünf Teams an den Start. Hier findet ihr den Überblick über unsere
+    aktiven Lineups, ihre Divisions und die Regelspieltage der Saison.
+</Lead>
+
+<Callout title="Saisonupdate" tone="accent">
+    In dieser Saison wurden unsere League-of-Legends Teams zu einem großen Team zusammengeführt.
+    Gleichzeitig stellen wir aktuell kein Team für Valorant und kein CS2-Team in der Uniliga,
+    während unser CS2 Team in der DACH-CS Liga bestehen bleibt. Besonders freuen wir uns über das Comeback unseres
+    Rocket-League-Teams, das direkt in Division 2 der Uniliga startet.
+</Callout>
+
+<ButtonRow>
+    <ButtonLink href="https://www.twitch.tv/akgamingkempten">
+        <FaTwitch aria-hidden="true" />
+        Twitch verfolgen
+    </ButtonLink>
+    <ButtonLink href="https://discord.gg/5J5uJKJAhT" variant="secondary">
+        <FaDiscord aria-hidden="true" />
+        Discord beitreten
+    </ButtonLink>
+</ButtonRow>
+
+## Unsere Teams
+
+<Stack>
+    <Card title="HSK Dragon" eyebrow="League of Legends">
+        <div style={{ display: "flex", gap: "1rem", alignItems: "center", flexWrap: "wrap" }}>
+            <img
+                src="/assets/teams/HSK_Dragon_Logo.png"
+                alt="HSK Dragon Logo"
+                style={{ width: 88, height: 88, objectFit: "contain", flexShrink: 0 }}
+            />
+            <div style={{ flex: "1 1 320px" }}>
+                Spielt in der Uniliga, Division 2/4.
+                <br />
+                Roster: juju304 | GT Maevix | Captain Bubz | Whatever | Madi1 | Touya | Marhalm | GT Shaqui | Montagne
+            </div>
+        </div>
+    </Card>
+    <div style={{ height: "0.75rem" }} />
+    <Columns>
+        <Card title="HSK Centauri" eyebrow="Overwatch 2">
+            <div style={{ display: "flex", gap: "1rem", alignItems: "center", flexWrap: "wrap" }}>
+                <img
+                    src="/assets/teams/HSK_Centauri_Logo.png"
+                    alt="HSK Centauri Logo"
+                    style={{ width: 88, height: 88, objectFit: "contain", flexShrink: 0 }}
+                />
+                <div style={{ flex: "1 1 220px" }}>
+                    Spielt in der Uniliga, Division 2/4.
+                    <br />
+                    Roster: Luca17 | Heitzi | R4SNiklas | HornNr1 | DerKelte
+                </div>
+            </div>
+        </Card>
+        <Card title="HSK Satyrus" eyebrow="Overwatch 2">
+            <div style={{ display: "flex", gap: "1rem", alignItems: "center", flexWrap: "wrap" }}>
+                <img
+                    src="/assets/teams/HSK_Satyrus_Logo.png"
+                    alt="HSK Satyrus Logo"
+                    style={{ width: 88, height: 88, objectFit: "contain", flexShrink: 0 }}
+                />
+                <div style={{ flex: "1 1 220px" }}>
+                    Spielt in der Uniliga, Division 4/4.
+                    <br />
+                    Roster: UUU | SensenEngel | OpAnderson | eze | Montage | RobsiZockt
+                </div>
+            </div>
+        </Card>
+    </Columns>
+    <div style={{ height: "0.75rem" }} />
+    <Card title="HSK Pegasus" eyebrow="Rocket League">
+        <div style={{ display: "flex", gap: "1rem", alignItems: "center", flexWrap: "wrap" }}>
+            <img
+                src="/assets/teams/HSK_Pegasus_Logo.png"
+                alt="HSK Pegasus Logo"
+                style={{ width: 88, height: 88, objectFit: "contain", flexShrink: 0 }}
+            />
+            <div style={{ flex: "1 1 320px" }}>
+                Spielt in der Uniliga, Division 2/4.
+                <br />
+                Roster: Asterion | Falcoon | DerSchäbigeAyut
+            </div>
+        </div>
+    </Card>
+    <div style={{ height: "0.75rem" }} />
+    <Card title="AKG Zamrichten" eyebrow="DACH CS">
+        <div style={{ display: "flex", gap: "1rem", alignItems: "center", flexWrap: "wrap" }}>
+            <img
+                src="/assets/teams/AKG_Zamrichten_Logo.png"
+                alt="AKG Zamrichten Logo"
+                style={{ width: 88, height: 88, objectFit: "contain", flexShrink: 0 }}
+            />
+            <div style={{ flex: "1 1 320px" }}>
+                Spielt in DACH CS, Division 6/10.
+                <br />
+                Roster: papyrus | DoctorMe | itsBenni | Potato | mindstorm00 | Neri | Daniel Jung
+            </div>
+        </div>
+    </Card>
+</Stack>
+
+## Regelspieltage
+
+<Table
+    headers={["Wochentag", "Spiel", "Team"]}
+    rows={[
+        [
+            <Text color="highlight" weight="bold">Montag</Text>,
+            "Rocket League",
+            "HSK Pegasus",
+        ],
+        [
+            <Text color="highlight" weight="bold">Dienstag</Text>,
+            "League of Legends",
+            "HSK Dragon",
+        ],
+        [
+            <Text color="highlight" weight="bold">Mittwoch</Text>,
+            "Overwatch",
+            "HSK Centauri und HSK Satyrus",
+        ],
+        [
+            <Text color="highlight" weight="bold">Sonntag</Text>,
+            "DACH CS",
+            "AKG Zamrichten",
+        ],
+    ]}
+/>
+
+Haltet auf jeden Fall Ausschau nach unseren Stream-Ankündigungen auf [Twitch](https://www.twitch.tv/akgamingkempten) und auf [Discord](https://discord.gg/5J5uJKJAhT). Dort informieren wir euch rechtzeitig über Matchdays, Übertragungen und kurzfristige Änderungen.

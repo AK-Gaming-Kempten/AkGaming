@@ -1,32 +1,17 @@
-game: cs2
-name: HSK Eagle
-logo: /assets/teams/HSK_Eagle_Logo.png
+game: rl
+name: HSK Pegasus
+logo: /assets/teams/HSK_Pegasus_Logo.png
 league:
   name: Uniliga
   logo: /assets/leagues/uniliga.png
-  division: Div 3
+  division: Div 2/4
 players:
-  - name: 叔叔我啊
+  - name: Asterion
     role:
-    picture: /assets/teams/HSK_Eagle_Logo.png
-  - name: misticfasi
+    picture: /assets/teams/HSK_Pegasus_Logo.png
+  - name: Falcoon
     role:
-    picture: /assets/teams/HSK_Eagle_Logo.png
-  - name: Xandii
+    picture: /assets/teams/HSK_Pegasus_Logo.png
+  - name: Der Schäbige Ayut
     role:
-    picture: /assets/teams/HSK_Eagle_Logo.png
-  - name: nicht schlagen mich
-    role:
-    picture: /assets/teams/HSK_Eagle_Logo.png
-  - name: YeeeetMaster
-    role:
-    picture: /assets/teams/HSK_Eagle_Logo.png
-  - name: papyrus
-    role:
-    picture: /assets/teams/HSK_Eagle_Logo.png
-  - name: Intro
-    role:
-    picture: /assets/teams/HSK_Eagle_Logo.png
-  - name: vGNS
-    role:
-    picture: /assets/teams/HSK_Eagle_Logo.png
+    picture: /assets/teams/HSK_Pegasus_Logo.png

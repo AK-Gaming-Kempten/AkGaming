@@ -4,7 +4,7 @@ logo: /assets/teams/HSK_Centauri_Logo.png
 league:
   name: Uniliga
   logo: /assets/leagues/uniliga.png
-  division: Div 2
+  division: Div 2/4
 players:
   - name: Luca17
     role: Tank
@@ -18,6 +18,6 @@ players:
   - name: HornNr1
     role: Support
     picture: /assets/teams/HSK_Centauri_Logo.png
-  - name: PinkHazel
+  - name: DerKelte
     role: Support
     picture: /assets/teams/HSK_Centauri_Logo.png
