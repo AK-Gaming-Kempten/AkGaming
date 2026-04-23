@@ -83,7 +83,15 @@
   <Folder Name="/AkGaming.Management/WebApi/">
     <Project Path="AkGaming.Management/WebApi/AkGaming.Management.WebApi.csproj" />
   </Folder>
-  <Folder Name="/AkGaming.Tournaments/" />
+  <Folder Name="/AkGaming.Tournaments/">
+    <Project Path="AkGaming.Tournaments/Application/AkGaming.Tournaments.Application.csproj" />
+    <Project Path="AkGaming.Tournaments/Contracts/AkGaming.Tournaments.Contracts.csproj" />
+    <Project Path="AkGaming.Tournaments/Domain/AkGaming.Tournaments.Domain.csproj" />
+    <Project Path="AkGaming.Tournaments/Infrastructure/Postgres/AkGaming.Tournaments.Infrastructure.Postgres.csproj" />
+    <Project Path="AkGaming.Tournaments/Infrastructure/Sqlite/AkGaming.Tournaments.Infrastructure.Sqlite.csproj" />
+    <Project Path="AkGaming.Tournaments/Tests/AkGaming.Tournaments.Tests.csproj" />
+    <Project Path="AkGaming.Tournaments/WebApi/AkGaming.Tournaments.WebApi.csproj" />
+  </Folder>
   <Folder Name="/AkGaming.Tournaments/Frontend/">
     <Project Path="AkGaming.Tournaments/Frontend/AkGaming.Tournaments.Frontend.csproj" />
   </Folder>

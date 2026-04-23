@@ -16,3 +16,6 @@ The idea is to build a platform that is both specifically designed for the LoL t
 - We'll use a dotnet backend and a Blazor frontend
 - Tournament is the main entity, has settings, teams, matches etc.
 - Ak Gaming identity is used for authentication. Admins and captains have to be registered users. Players can be can be invited to get access to a team (so captains dont own a team, they just have owner access to it, whcih can also be moved to another user)
+
+## Design Notes
+- Roster and registration workflow details are captured in [DomainNotes.md](./DomainNotes.md) so the rest of the backend can be built against the same model later.

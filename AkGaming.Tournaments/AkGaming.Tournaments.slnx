@@ -1,0 +1,28 @@
+<Solution>
+  <Folder Name="/Application/">
+    <Project Path="Application/AkGaming.Tournaments.Application.csproj" />
+  </Folder>
+  <Folder Name="/Contracts/">
+    <Project Path="Contracts/AkGaming.Tournaments.Contracts.csproj" />
+  </Folder>
+  <Folder Name="/Domain/">
+    <Project Path="Domain/AkGaming.Tournaments.Domain.csproj" />
+  </Folder>
+  <Folder Name="/Frontend/">
+    <Project Path="Frontend/AkGaming.Tournaments.Frontend.csproj" />
+  </Folder>
+  <Folder Name="/Infrastructure/" />
+  <Folder Name="/Infrastructure/Postgres/">
+    <Project Path="Infrastructure/Postgres/AkGaming.Tournaments.Infrastructure.Postgres.csproj" />
+  </Folder>
+  <Folder Name="/Infrastructure/Sqlite/">
+    <Project Path="Infrastructure/Sqlite/AkGaming.Tournaments.Infrastructure.Sqlite.csproj" />
+  </Folder>
+  <Folder Name="/Tests/">
+    <Project Path="Tests/AkGaming.Tournaments.Tests.csproj" />
+  </Folder>
+  <Folder Name="/WebApi/">
+    <Project Path="WebApi/AkGaming.Tournaments.WebApi.csproj" />
+  </Folder>
+  <Project Path="../AkGaming.Core/Constants/AkGaming.Core.Constants.csproj" />
+</Solution>
