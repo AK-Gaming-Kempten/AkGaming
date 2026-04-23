@@ -27,6 +27,14 @@ This file captures domain and workflow decisions that are intentionally not full
 - This allows one team to maintain separate player profiles per game instead of pretending one profile works across all titles.
 - Later validation should ensure that a roster for a tournament only contains player profiles for that tournament's game.
 
+## Logo Assets
+- Games, tournaments, teams, and player profiles can all have a logo.
+- Logos are modeled as references to a reusable `MediaAsset` entity instead of storing image bytes directly on the aggregate.
+- Domain entities only keep `LogoAssetId` and `LogoAsset`.
+- Replacing a logo should create or select a different media asset and update the aggregate reference.
+- Roster snapshots currently do not copy logo information. They snapshot player identity data, not branding data.
+- `MediaAsset` is intentionally storage-agnostic in the domain. Storage location, upload flow, and public URL generation belong to later layers.
+
 ## Roster Snapshots
 - Rosters do not point to live player profile data only. Each roster stores snapshots of the selected player profiles.
 - A snapshot contains the information needed for tournament participation even if the source player profile changes later.
@@ -61,3 +69,10 @@ This file captures domain and workflow decisions that are intentionally not full
 - Surface whether a roster snapshot is potentially outdated compared to the current player profile.
 - Validate that a submitted roster only contains player profiles owned by the registering team.
 - Validate that submitted player profiles belong to the same game as the tournament.
+- Add upload endpoints and application services for logo assets.
+- Validate uploaded logos for file type, size, and image safety before persisting them.
+- Persist `MediaAsset` metadata separately from binary storage.
+- Introduce a storage abstraction so local disk can be used first and object storage can be added later.
+- Add logo replacement and removal flows for games, tournaments, teams, and player profiles.
+- Decide whether unused media assets are deleted immediately or cleaned up asynchronously once no aggregate references them anymore.
+- Add image normalization / resizing rules for logo variants if the frontend needs multiple sizes.
