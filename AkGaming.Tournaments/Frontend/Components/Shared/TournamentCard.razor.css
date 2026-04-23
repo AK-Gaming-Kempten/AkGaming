@@ -24,7 +24,6 @@
 }
 
 .tournament-card-copy h3,
-.tournament-card-description,
 .tournament-card-season {
     margin: 0;
 }
@@ -32,10 +31,6 @@
 .tournament-card-season {
     color: var(--color-highlight-primary);
     font-weight: 700;
-}
-
-.tournament-card-description {
-    color: var(--color-text-secondary);
 }
 
 .tournament-card-meta {

@@ -5,8 +5,7 @@
 
 <section class="app-page">
     <PageHeader Eyebrow="@($"{Tournament.Summary.Title} · {Tournament.Summary.Season}")"
-                Title="Tournament overview"
-                Description="@Tournament.HeroDescription">
+                Title="Overview">
         <Actions>
             <a href="@($"/tournaments/{Tournament.Summary.Slug}/schedule")" class="ghost-button">Schedule</a>
             <a href="@($"/tournaments/{Tournament.Summary.Slug}/teams")" class="solid-button">Teams</a>
@@ -15,8 +14,7 @@
 
     @if (RequestedTournamentWasMissing)
     {
-        <SurfacePanel Title="Requested slug not found"
-                      Subtitle="The frontend fell back to the featured tournament so the shell stays usable.">
+        <SurfacePanel Title="Tournament not found">
             <p>Pick another tournament from the selector to continue.</p>
         </SurfacePanel>
     }
@@ -30,13 +28,7 @@
 
     <div class="content-grid">
         <div class="stack">
-            <SurfacePanel Title="Tournament pulse"
-                          Subtitle="@Tournament.NextMilestone">
-                <StatusList Items="@Tournament.Updates" EmptyState="No tournament updates yet." />
-            </SurfacePanel>
-
-            <SurfacePanel Title="Featured matches"
-                          Subtitle="Shared match cards are already used here and in the dedicated match desk mockups.">
+            <SurfacePanel Title="Matches">
                 <div class="stack">
                     @foreach (var match in Tournament.Matches.Take(2))
                     {
@@ -47,19 +39,13 @@
         </div>
 
         <div class="stack">
-            <SurfacePanel Title="Teams in this event"
-                          Subtitle="Tournament teams stay separate from the global discovery context.">
+            <SurfacePanel Title="Teams">
                 <div class="stack">
                     @foreach (var team in Tournament.Teams.Take(2))
                     {
                         <TeamCard Team="@team" />
                     }
                 </div>
-            </SurfacePanel>
-
-            <SurfacePanel Title="Roadmap snapshot"
-                          Subtitle="This tournament-specific area already mirrors the future product split.">
-                <StatusList Items="@Tournament.Timeline" EmptyState="No milestones yet." />
             </SurfacePanel>
         </div>
     </div>

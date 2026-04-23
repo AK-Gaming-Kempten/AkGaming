@@ -20,7 +20,6 @@
 }
 
 .match-card-window,
-.match-card-note,
 .match-team span {
     color: var(--color-text-secondary);
 }
@@ -48,10 +47,6 @@
     background: color-mix(in oklab, var(--color-highlight-secondary) 32%, transparent);
     font-weight: 800;
     text-transform: uppercase;
-}
-
-.match-card-note {
-    margin: 0;
 }
 
 @media (max-width: 600px) {

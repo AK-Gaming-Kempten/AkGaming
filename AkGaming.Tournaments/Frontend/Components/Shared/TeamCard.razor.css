@@ -16,13 +16,11 @@
 }
 
 .team-card-header h3,
-.team-card-header p,
-.team-card-note {
+.team-card-header p {
     margin: 0;
 }
 
-.team-card-header p,
-.team-card-note {
+.team-card-header p {
     color: var(--color-text-secondary);
 }
 

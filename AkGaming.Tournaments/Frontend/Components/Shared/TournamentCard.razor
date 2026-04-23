@@ -1,11 +1,9 @@
 <article class="tournament-card">
     <div class="tournament-card-top">
-        <div>
-            <span class="status-pill @(StatusClass)">
-                <span class="bi bi-stars"></span>
-                @Summary.Status
-            </span>
-        </div>
+        <span class="status-pill @(StatusClass)">
+            <span class="bi bi-stars"></span>
+            @Summary.Status
+        </span>
         <span class="info-chip">
             <span class="bi bi-controller"></span>
             @Summary.Game
@@ -15,12 +13,10 @@
     <div class="tournament-card-copy">
         <h3>@Summary.Title</h3>
         <p class="tournament-card-season">@Summary.Season</p>
-        <p class="tournament-card-description">@Summary.Description</p>
     </div>
 
     <div class="tournament-card-meta">
         <span><span class="bi bi-columns-gap"></span> @Summary.Format</span>
-        <span><span class="bi bi-geo-alt-fill"></span> @Summary.Venue</span>
         <span><span class="bi bi-calendar-event-fill"></span> @Summary.RegistrationWindow</span>
     </div>
 

@@ -4,33 +4,12 @@
 <PageTitle>@($"{Tournament.Summary.Title} Teams")</PageTitle>
 
 <section class="app-page">
-    <PageHeader Eyebrow="Public Teams"
-                Title="@($"{Tournament.Summary.RegisteredTeams} teams in the pool")"
-                Description="Teams are first-class objects and are intended to persist across multiple tournaments." />
+    <PageHeader Title="Teams" />
 
-    <div class="content-grid">
-        <div class="stack">
-            <div class="teams-grid">
-                @foreach (var team in Tournament.Teams)
-                {
-                    <TeamCard Team="@team" />
-                }
-            </div>
-        </div>
-
-        <div class="stack">
-            <SurfacePanel Title="Why the team model matters"
-                          Subtitle="This is the frontend expression of the README architecture.">
-                <p>
-                    Even solo tournaments can fit this model through teams of one. That keeps invites, ownership, and participation
-                    consistent across the app.
-                </p>
-            </SurfacePanel>
-
-            <SurfacePanel Title="Upcoming attention points"
-                          Subtitle="Pulled from shared tournament updates.">
-                <StatusList Items="@Tournament.Updates" EmptyState="No updates available." />
-            </SurfacePanel>
-        </div>
+    <div class="teams-grid">
+        @foreach (var team in Tournament.Teams)
+        {
+            <TeamCard Team="@team" />
+        }
     </div>
 </section>

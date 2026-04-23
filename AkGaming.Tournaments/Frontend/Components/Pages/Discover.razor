@@ -5,51 +5,19 @@
 
 @{
     var tournaments = Catalog.GetAll();
-    var featured = Catalog.GetFeatured();
 }
 
 <section class="app-page">
-    <PageHeader Eyebrow="Discover"
-                Title="Browse tournaments before choosing a tournament context"
-                Description="This page stays global. Once a tournament is selected, the navigation pivots into public, player, and administration sections for that event.">
+    <PageHeader Title="Discover tournaments">
         <Actions>
             <a href="/captain-hub" class="ghost-button">Captain flow</a>
-            <a href="@($"/tournaments/{featured.Summary.Slug}")" class="solid-button">Featured event</a>
         </Actions>
     </PageHeader>
 
-    <div class="content-grid">
-        <div class="stack">
-            <SurfacePanel Title="Discovery filters"
-                          Subtitle="Placeholder UI only. The backend can later drive actual search, tags, and availability.">
-                <div class="pill-row">
-                    <span class="status-pill status-pill-positive"><span class="bi bi-controller"></span> League of Legends</span>
-                    <span class="status-pill status-pill-neutral"><span class="bi bi-trophy-fill"></span> Remote / Hybrid</span>
-                    <span class="status-pill status-pill-neutral"><span class="bi bi-shuffle"></span> Team and solo formats</span>
-                </div>
-            </SurfacePanel>
-
-            <div class="discover-grid">
-                @foreach (var tournament in tournaments)
-                {
-                    <TournamentCard Summary="@tournament" />
-                }
-            </div>
-        </div>
-
-        <div class="stack">
-            <SurfacePanel Title="Featured rollout"
-                          Subtitle="@featured.Tagline">
-                <StatusList Items="@featured.Timeline" EmptyState="No rollout items defined." />
-            </SurfacePanel>
-
-            <SurfacePanel Title="Why this page matters"
-                          Subtitle="It keeps the global and tournament-specific concerns separate.">
-                <p>
-                    Discovery is shared across all tournaments. Everything below the selector in the sidebar is scoped to one tournament slug.
-                    That structure should survive backend implementation without layout churn.
-                </p>
-            </SurfacePanel>
-        </div>
+    <div class="discover-grid">
+        @foreach (var tournament in tournaments)
+        {
+            <TournamentCard Summary="@tournament" />
+        }
     </div>
 </section>

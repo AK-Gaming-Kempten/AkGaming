@@ -1,5 +1,4 @@
 @page "/"
-@using AkGaming.Core.Constants
 @inject MockTournamentCatalog Catalog
 
 <PageTitle>Tournament Hub</PageTitle>
@@ -10,94 +9,18 @@
 }
 
 <section class="hero-section">
-    <div class="hero-grid">
-        <div class="hero-copy">
-            <span class="eyebrow">AK Gaming Tournaments</span>
-            <h1 class="hero-title">Tournament frontend first, backend later.</h1>
-            <p class="hero-text">
-                This foundation mirrors the management tool shell, uses the AK Gaming identity provider, and already splits public,
-                player, and administration experiences around a selected tournament.
-            </p>
-            <div class="pill-row">
-                <span class="status-pill status-pill-positive">
-                    <span class="bi bi-stars"></span>
-                    LoL-first product fit
-                </span>
-                <span class="status-pill status-pill-neutral">
-                    <span class="bi bi-people-fill"></span>
-                    Teams reused across tournaments
-                </span>
-                <span class="status-pill status-pill-warn">
-                    <span class="bi bi-hammer"></span>
-                    Backend intentionally mocked
-                </span>
-            </div>
-            <div class="hero-actions">
-                <a href="/discover" class="solid-button">Discover tournaments</a>
-                <a href="@($"/tournaments/{featured.Summary.Slug}")" class="ghost-button">Open featured tournament</a>
-            </div>
+    <div class="hero-copy">
+        <span class="eyebrow">AK Gaming Tournaments</span>
+        <h1 class="hero-title">Open a tournament and work from there.</h1>
+        <div class="hero-actions">
+            <a href="/discover" class="solid-button">All tournaments</a>
+            <a href="@($"/tournaments/{featured.Summary.Slug}")" class="ghost-button">Featured tournament</a>
         </div>
-
-        <SurfacePanel Title="Current foundation"
-                      Subtitle="The app already reflects the README structure without committing to backend contracts yet.">
-            <div class="stack">
-                <div class="home-highlight-line">
-                    <strong>@featured.Summary.Title @featured.Summary.Season</strong>
-                    <span>@featured.NextMilestone</span>
-                </div>
-                <div class="stats-grid">
-                    @foreach (var metric in featured.Metrics.Take(2))
-                    {
-                        <MetricCard Label="@metric.Label" Value="@metric.Value" Caption="@metric.Caption" />
-                    }
-                </div>
-            </div>
-        </SurfacePanel>
     </div>
 </section>
 
 <section class="app-page home-content">
-    <PageHeader Eyebrow="Platform Vision"
-                Title="One shell for discovery, team workflows, and tournament operations"
-                Description="The frontend is already organized the same way the future product needs to work: discover events globally, then move into tournament-scoped spaces." />
-
-    <div class="surface-grid">
-        <SurfacePanel Title="Identity already wired"
-                      Subtitle="Authentication works like management, without identity-administration pages.">
-            <p>
-                Public routes stay open. Player routes require login. Administration routes expect an AK Gaming identity with the
-                `Admin` role for now.
-            </p>
-            <a class="inline-link" href="/authentication/login">Login with AK Gaming Identity</a>
-        </SurfacePanel>
-
-        <SurfacePanel Title="Team model stays central"
-                      Subtitle="Single-player tournaments still fit by treating players as one-person teams.">
-            <p>
-                That follows the README directly and keeps future APIs aligned across League, VALORANT, FC, or anything else.
-            </p>
-            <div class="pill-row">
-                <span class="info-chip"><span class="bi bi-diagram-3-fill"></span> shared team records</span>
-                <span class="info-chip"><span class="bi bi-person-check-fill"></span> captain ownership flow</span>
-                <span class="info-chip"><span class="bi bi-person-plus-fill"></span> invited player access</span>
-            </div>
-        </SurfacePanel>
-
-        <SurfacePanel Title="Reusable mock data"
-                      Subtitle="The pages already share cards, panels, stats, and lists instead of hardcoding page-only fragments.">
-            <p>
-                That lets the backend land later without rewriting the shell or throwing away placeholder UI composition.
-            </p>
-            <a class="inline-link" href="/captain-hub">See the captain-focused mock flow</a>
-        </SurfacePanel>
-    </div>
-
-    <div class="section-heading">
-        <div>
-            <h2>What the foundation already exposes</h2>
-            <p>General pages on the left, tournament-scoped pages below the selector.</p>
-        </div>
-    </div>
+    <PageHeader Title="Tournaments" />
 
     <div class="home-tournament-grid">
         @foreach (var tournament in tournaments)
@@ -105,12 +28,4 @@
             <TournamentCard Summary="@tournament" />
         }
     </div>
-
-    <SurfacePanel Title="Club context"
-                  Subtitle="This stays anchored in AK Gaming instead of becoming a generic tournament brand.">
-        <p>
-            The shell uses the same AK Gaming identity provider as management and keeps the product tied to @ClubConstants.Organization.LegalName.
-            It is ready for tournament-specific roles once the backend exists.
-        </p>
-    </SurfacePanel>
 </section>

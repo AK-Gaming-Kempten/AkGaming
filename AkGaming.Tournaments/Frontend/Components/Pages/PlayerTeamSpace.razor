@@ -10,21 +10,17 @@
 }
 
 <section class="app-page">
-    <PageHeader Eyebrow="Player"
-                Title="Team space"
-                Description="Authenticated users get a player-facing workspace for rosters, invites, and match readiness." />
+    <PageHeader Title="Team space" />
 
     <div class="content-grid">
         <div class="stack">
-            <SurfacePanel Title="Readiness checklist"
-                          Subtitle="These placeholders map cleanly to future invite, verification, and consent APIs.">
+            <SurfacePanel Title="Tasks">
                 <StatusList Items="@Tournament.PlayerTasks" EmptyState="No player tasks currently queued." />
             </SurfacePanel>
 
             @if (nextMatch is not null)
             {
-                <SurfacePanel Title="Next match"
-                              Subtitle="Same shared card as public schedule and admin match desk.">
+                <SurfacePanel Title="Next match">
                     <MatchCard Match="@nextMatch" />
                 </SurfacePanel>
             }
@@ -33,19 +29,10 @@
         <div class="stack">
             @if (rosterTeam is not null)
             {
-                <SurfacePanel Title="Active roster"
-                              Subtitle="Later this becomes the captain-controlled team access area.">
+                <SurfacePanel Title="Roster">
                     <TeamCard Team="@rosterTeam" />
                 </SurfacePanel>
             }
-
-            <SurfacePanel Title="What comes next"
-                          Subtitle="Backend work is intentionally deferred.">
-                <p>
-                    Invite acceptance, roster ownership transfer, fair-play consent, and rank verification all belong here eventually.
-                    For now the UI shape is stable and data comes from a shared mock catalog.
-                </p>
-            </SurfacePanel>
         </div>
     </div>
 </section>
