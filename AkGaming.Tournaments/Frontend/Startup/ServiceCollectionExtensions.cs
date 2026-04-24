@@ -1,5 +1,6 @@
 using System.Net.Security;
 using System.Security.Claims;
+using AkGaming.Tournaments.Frontend.Api;
 using AkGaming.Tournaments.Frontend.Authentication;
 using AkGaming.Tournaments.Frontend.Components.Data;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -134,6 +135,19 @@ public static class ServiceCollectionExtensions
         return services;
     }
 
+    public static IServiceCollection AddTournamentApiClients(this IServiceCollection services, IConfiguration config)
+    {
+        services.Configure<TournamentApiOptions>(config.GetSection(TournamentApiOptions.SectionName));
+        services.AddTransient<TournamentApiAuthorizationHandler>();
+
+        services.AddTournamentApiClient<GamesApiClient>(config);
+        services.AddTournamentApiClient<PlayerProfilesApiClient>(config);
+        services.AddTournamentApiClient<TeamsApiClient>(config);
+        services.AddTournamentApiClient<TournamentRegistrationsApiClient>(config);
+
+        return services;
+    }
+
     public static IServiceCollection AddDataProtectionForEnvironment(
         this IServiceCollection services,
         IConfiguration config,
@@ -171,6 +185,24 @@ public static class ServiceCollectionExtensions
             return Path.Combine(userProfile, ".akgaming", "tournaments", "keys");
 
         return Path.Combine(Path.GetTempPath(), "AkGaming.Tournaments", "DataProtection-Keys");
+    }
+
+    private static IHttpClientBuilder AddTournamentApiClient<TClient>(this IServiceCollection services, IConfiguration config)
+        where TClient : class
+    {
+        var options = config.GetSection(TournamentApiOptions.SectionName).Get<TournamentApiOptions>() ?? new();
+        var allowUntrustedLocalCertificates = config.GetValue<bool>("Dev:AllowUntrustedLocalCertificates");
+        var builder = services
+            .AddHttpClient<TClient>(client =>
+            {
+                client.BaseAddress = new Uri(options.BaseAddress);
+            })
+            .AddHttpMessageHandler<TournamentApiAuthorizationHandler>();
+
+        if (allowUntrustedLocalCertificates)
+            builder.ConfigurePrimaryHttpMessageHandler(CreateDevelopmentCertificateRelaxedHandler);
+
+        return builder;
     }
 
     private static HttpClientHandler CreateDevelopmentCertificateRelaxedHandler()

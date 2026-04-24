@@ -13,3 +13,7 @@
 - Add a `[Description("...")]` attribute to each test explaining the behavior it verifies.
 - Separate each test body with explicit `// Arrange`, `// Act`, and `// Assert` comments.
 - Use shared helpers, setup methods, and fixture properties for common arrange logic and dependencies instead of repeating large object graphs in every test. Promote common mocks, services, controllers, stores, and other fixture-level dependencies to class properties initialized by setup methods.
+
+## Blazor/Razor Projects
+
+- Prefer reusable Razor components for repeated UI patterns, repeated forms, repeated cards, and repeated loop markup. Keep pages focused on orchestration and state, and move reusable rendering into components with clear parameters.

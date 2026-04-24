@@ -1,0 +1,93 @@
+@page "/teams/{TeamId:guid}"
+@attribute [Authorize]
+@inject GamesApiClient GamesClient
+@inject TeamsApiClient TeamsClient
+@inject TournamentRegistrationsApiClient RegistrationsClient
+
+<PageTitle>@(team is null ? "Team" : $"{team.Name} Team")</PageTitle>
+
+<section class="app-page">
+    <PageHeader Title="Team details">
+        <Actions>
+            <a class="ghost-button" href="/captain-hub">Captain hub</a>
+        </Actions>
+    </PageHeader>
+
+    <ApiErrorPanel Message="@errorMessage" />
+
+    @if (isLoading)
+    {
+        <SurfacePanel Title="Loading">
+            <p class="muted-copy">Loading team from the tournament backend.</p>
+        </SurfacePanel>
+    }
+    else if (team is null)
+    {
+        <SurfacePanel Title="Team not found">
+            <p class="muted-copy">No backend team exists for this id.</p>
+        </SurfacePanel>
+    }
+    else
+    {
+        <div class="content-grid">
+            <div class="stack">
+                <SurfacePanel Title="Team">
+                    <BackendTeamCard Team="@team" GameName="@GetGameName(team.GameId)" />
+                </SurfacePanel>
+
+                <SurfacePanel Title="Guest profiles">
+                    <PlayerProfileList Profiles="@team.GuestPlayerProfiles" EmptyState="This team does not have guest profiles." />
+                </SurfacePanel>
+            </div>
+
+            <div class="stack">
+                <SurfacePanel Title="Available roster profiles">
+                    <PlayerProfileList Profiles="@availableProfiles" EmptyState="No roster profiles are available for this team's game." />
+                </SurfacePanel>
+
+                <SurfacePanel Title="Registrations">
+                    <RegistrationList Registrations="@registrations" />
+                </SurfacePanel>
+            </div>
+        </div>
+    }
+</section>
+
+@code {
+    [Parameter] public Guid TeamId { get; set; }
+
+    private IReadOnlyList<GameDto> games = [];
+    private IReadOnlyList<PlayerProfileDto> availableProfiles = [];
+    private IReadOnlyList<TournamentRegistrationDto> registrations = [];
+    private TeamDto? team;
+    private string? errorMessage;
+    private bool isLoading = true;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        isLoading = true;
+        errorMessage = null;
+
+        try
+        {
+            games = await GamesClient.GetGamesAsync();
+            team = await TeamsClient.GetTeamAsync(TeamId);
+            if (team is not null)
+            {
+                availableProfiles = await TeamsClient.GetAvailableProfilesAsync(team.Id, team.GameId);
+                registrations = await RegistrationsClient.GetTeamRegistrationsAsync(team.Id);
+            }
+        }
+        catch (TournamentApiException ex)
+        {
+            errorMessage = ex.Message;
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private string GetGameName(string gameId)
+        => games.FirstOrDefault(game => string.Equals(game.Id, gameId, StringComparison.OrdinalIgnoreCase))?.Name ?? gameId;
+}

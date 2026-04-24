@@ -1,0 +1,45 @@
+.profile-list {
+    display: grid;
+    gap: 0.65rem;
+}
+
+.profile-row {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.8rem;
+    border: 1px solid var(--akg-border-subtle, rgba(255, 255, 255, 0.12));
+    border-radius: 8px;
+    background: var(--akg-surface-muted, rgba(255, 255, 255, 0.04));
+}
+
+.profile-row:not(.profile-row-selectable) {
+    grid-template-columns: minmax(0, 1fr) auto;
+}
+
+.profile-row input {
+    width: 1rem;
+    height: 1rem;
+}
+
+.profile-main {
+    display: grid;
+    gap: 0.2rem;
+    min-width: 0;
+}
+
+.profile-main strong,
+.profile-main span {
+    overflow-wrap: anywhere;
+}
+
+.profile-main span {
+    color: var(--akg-text-muted, #94a3b8);
+    font-size: 0.88rem;
+}
+
+.empty-copy {
+    margin: 0;
+    color: var(--akg-text-muted, #94a3b8);
+}

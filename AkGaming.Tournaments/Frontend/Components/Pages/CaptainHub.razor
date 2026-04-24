@@ -1,31 +1,342 @@
 @page "/captain-hub"
-@inject MockTournamentCatalog Catalog
+@attribute [Authorize]
+@using System.Security.Claims
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject GamesApiClient GamesClient
+@inject PlayerProfilesApiClient PlayerProfilesClient
+@inject TeamsApiClient TeamsClient
+@inject TournamentRegistrationsApiClient RegistrationsClient
 
 <PageTitle>Captain Hub</PageTitle>
 
-@{
-    var featured = Catalog.GetFeatured();
-}
-
 <section class="app-page">
-    <PageHeader Title="Captain hub" />
+    <PageHeader Title="Captain hub">
+        <Actions>
+            @if (createdTeam is not null)
+            {
+                <a class="ghost-button" href="@($"/teams/{createdTeam.Id}")">Open team</a>
+            }
+        </Actions>
+    </PageHeader>
 
-    <div class="content-grid">
-        <div class="stack">
-            <SurfacePanel Title="Tasks">
-                <StatusList Items="@featured.PlayerTasks" EmptyState="No captain tasks yet." />
-            </SurfacePanel>
-        </div>
+    <ApiErrorPanel Message="@errorMessage" />
 
-        <div class="stack">
-            <SurfacePanel Title="Teams">
-                <div class="stack">
-                    @foreach (var team in featured.Teams.Take(2))
-                    {
-                        <TeamCard Team="@team" />
-                    }
-                </div>
-            </SurfacePanel>
+    @if (isLoading)
+    {
+        <SurfacePanel Title="Loading">
+            <p class="muted-copy">Loading tournament backend data.</p>
+        </SurfacePanel>
+    }
+    else
+    {
+        <div class="content-grid">
+            <div class="stack">
+                <SurfacePanel Title="Player profile" Subtitle="Profiles are game-specific and can only be used for that game.">
+                    <div class="backend-form">
+                        <label>
+                            <span>Game</span>
+                            <GameSelect Games="@games" Value="@profileGameId" ValueChanged="SetProfileGame" />
+                        </label>
+                        <label>
+                            <span>Display name</span>
+                            <input class="form-input" @bind="profileName" placeholder="Summoner name" />
+                        </label>
+                        <button type="button" class="solid-button" @onclick="SaveProfileAsync" disabled="@isBusy">Save profile</button>
+                    </div>
+                </SurfacePanel>
+
+                <SurfacePanel Title="Create team" Subtitle="Teams are bound to one game and can later register for tournaments in that game.">
+                    <div class="backend-form">
+                        <label>
+                            <span>Game</span>
+                            <GameSelect Games="@games" Value="@teamGameId" ValueChanged="SetTeamGame" />
+                        </label>
+                        <label>
+                            <span>Team name</span>
+                            <input class="form-input" @bind="teamName" placeholder="AKG Blue" />
+                        </label>
+                        <button type="button" class="solid-button" @onclick="CreateTeamAsync" disabled="@isBusy">Create team</button>
+                    </div>
+                </SurfacePanel>
+
+                <SurfacePanel Title="Load existing team" Subtitle="Use a backend team id to continue working with an existing team.">
+                    <div class="backend-form">
+                        <label>
+                            <span>Team id</span>
+                            <input class="form-input" @bind="teamLookupId" placeholder="00000000-0000-0000-0000-000000000000" />
+                        </label>
+                        <button type="button" class="ghost-button" @onclick="LoadTeamAsync" disabled="@isBusy">Load team</button>
+                    </div>
+                </SurfacePanel>
+            </div>
+
+            <div class="stack">
+                <SurfacePanel Title="Your player profiles">
+                    <PlayerProfileList Profiles="@playerProfiles" EmptyState="Create a game-specific player profile to use it in team rosters." />
+                </SurfacePanel>
+
+                @if (createdTeam is not null)
+                {
+                    <SurfacePanel Title="Selected team">
+                        <BackendTeamCard Team="@createdTeam" GameName="@GetGameName(createdTeam.GameId)" />
+                    </SurfacePanel>
+
+                    <SurfacePanel Title="Guest profile" Subtitle="Guest profiles inherit the selected team's game.">
+                        <div class="backend-form">
+                            <label>
+                                <span>Guest name</span>
+                                <input class="form-input" @bind="guestProfileName" placeholder="Guest Support" />
+                            </label>
+                            <button type="button" class="solid-button" @onclick="CreateGuestProfileAsync" disabled="@isBusy">Create guest</button>
+                        </div>
+                    </SurfacePanel>
+
+                    <SurfacePanel Title="Available roster profiles" Subtitle="Only profiles for the team's game are selectable.">
+                        <PlayerProfileList Profiles="@availableProfiles"
+                                           EmptyState="No available profiles for this team and game yet."
+                                           Selectable="true"
+                                           SelectedProfileIds="@selectedProfileIds"
+                                           OnProfileSelected="SelectProfile"
+                                           OnProfileDeselected="DeselectProfile" />
+                    </SurfacePanel>
+
+                    <SurfacePanel Title="Submit registration" Subtitle="The backend expects a tournament id until tournament management endpoints exist.">
+                        <div class="backend-form">
+                            <label>
+                                <span>Tournament id</span>
+                                <input class="form-input" @bind="tournamentId" placeholder="00000000-0000-0000-0000-000000000000" />
+                            </label>
+                            <button type="button" class="solid-button" @onclick="SubmitRegistrationAsync" disabled="@isBusy">Submit registration</button>
+                        </div>
+                    </SurfacePanel>
+
+                    <SurfacePanel Title="Registrations">
+                        <RegistrationList Registrations="@registrations" />
+                    </SurfacePanel>
+                }
+            </div>
         </div>
-    </div>
+    }
 </section>
+
+@code {
+    private IReadOnlyList<GameDto> games = [];
+    private IReadOnlyList<PlayerProfileDto> playerProfiles = [];
+    private IReadOnlyList<PlayerProfileDto> availableProfiles = [];
+    private IReadOnlyList<TournamentRegistrationDto> registrations = [];
+    private HashSet<Guid> selectedProfileIds = [];
+    private TeamDto? createdTeam;
+    private string? currentUserId;
+    private string? errorMessage;
+    private string profileGameId = string.Empty;
+    private string profileName = string.Empty;
+    private string teamGameId = string.Empty;
+    private string teamName = string.Empty;
+    private string teamLookupId = string.Empty;
+    private string guestProfileName = string.Empty;
+    private string tournamentId = string.Empty;
+    private bool isLoading = true;
+    private bool isBusy;
+
+    protected override async Task OnInitializedAsync()
+    {
+        currentUserId = await ResolveCurrentUserIdAsync();
+        await LoadInitialDataAsync();
+    }
+
+    private async Task LoadInitialDataAsync()
+    {
+        await RunApiActionAsync(async () =>
+        {
+            games = await GamesClient.GetGamesAsync();
+            if (games.Count > 0)
+            {
+                profileGameId = games[0].Id;
+                teamGameId = games[0].Id;
+            }
+
+            if (!string.IsNullOrWhiteSpace(currentUserId))
+                playerProfiles = await PlayerProfilesClient.GetUserProfilesAsync(currentUserId);
+        });
+
+        isLoading = false;
+    }
+
+    private Task SetProfileGame(string gameId)
+    {
+        profileGameId = gameId;
+        return Task.CompletedTask;
+    }
+
+    private Task SetTeamGame(string gameId)
+    {
+        teamGameId = gameId;
+        return Task.CompletedTask;
+    }
+
+    private async Task SaveProfileAsync()
+    {
+        if (!ValidateAuthenticatedUser() || !ValidateRequired(profileGameId, "Select a game.") || !ValidateRequired(profileName, "Enter a player profile name."))
+            return;
+
+        await RunApiActionAsync(async () =>
+        {
+            await PlayerProfilesClient.UpsertUserProfileAsync(currentUserId!, profileGameId, profileName);
+            playerProfiles = await PlayerProfilesClient.GetUserProfilesAsync(currentUserId!);
+            profileName = string.Empty;
+            await RefreshAvailableProfilesAsync();
+        });
+    }
+
+    private async Task CreateTeamAsync()
+    {
+        if (!ValidateAuthenticatedUser() || !ValidateRequired(teamGameId, "Select a game.") || !ValidateRequired(teamName, "Enter a team name."))
+            return;
+
+        await RunApiActionAsync(async () =>
+        {
+            createdTeam = await TeamsClient.CreateTeamAsync(currentUserId!, teamGameId, teamName);
+            teamLookupId = createdTeam.Id.ToString();
+            teamName = string.Empty;
+            await RefreshTeamContextAsync();
+        });
+    }
+
+    private async Task LoadTeamAsync()
+    {
+        if (!Guid.TryParse(teamLookupId, out var teamId))
+        {
+            errorMessage = "Enter a valid team id.";
+            return;
+        }
+
+        await RunApiActionAsync(async () =>
+        {
+            createdTeam = await TeamsClient.GetTeamAsync(teamId);
+            if (createdTeam is null)
+            {
+                errorMessage = "No team was found for that id.";
+                return;
+            }
+
+            await RefreshTeamContextAsync();
+        });
+    }
+
+    private async Task CreateGuestProfileAsync()
+    {
+        if (!ValidateAuthenticatedUser() || createdTeam is null || !ValidateRequired(guestProfileName, "Enter a guest profile name."))
+            return;
+
+        await RunApiActionAsync(async () =>
+        {
+            await TeamsClient.CreateGuestPlayerProfileAsync(createdTeam.Id, currentUserId!, guestProfileName);
+            guestProfileName = string.Empty;
+            createdTeam = await TeamsClient.GetTeamAsync(createdTeam.Id);
+            await RefreshAvailableProfilesAsync();
+        });
+    }
+
+    private async Task SubmitRegistrationAsync()
+    {
+        if (!ValidateAuthenticatedUser() || createdTeam is null)
+            return;
+
+        if (!Guid.TryParse(tournamentId, out var parsedTournamentId))
+        {
+            errorMessage = "Enter a valid tournament id.";
+            return;
+        }
+
+        if (selectedProfileIds.Count == 0)
+        {
+            errorMessage = "Select at least one roster profile.";
+            return;
+        }
+
+        await RunApiActionAsync(async () =>
+        {
+            await RegistrationsClient.SubmitRegistrationAsync(createdTeam.Id, parsedTournamentId, currentUserId!, selectedProfileIds.ToList());
+            selectedProfileIds.Clear();
+            registrations = await RegistrationsClient.GetTeamRegistrationsAsync(createdTeam.Id);
+        });
+    }
+
+    private async Task RefreshTeamContextAsync()
+    {
+        await RefreshAvailableProfilesAsync();
+        if (createdTeam is not null)
+            registrations = await RegistrationsClient.GetTeamRegistrationsAsync(createdTeam.Id);
+    }
+
+    private async Task RefreshAvailableProfilesAsync()
+    {
+        if (createdTeam is null)
+        {
+            availableProfiles = [];
+            return;
+        }
+
+        availableProfiles = await TeamsClient.GetAvailableProfilesAsync(createdTeam.Id, createdTeam.GameId);
+        selectedProfileIds.RemoveWhere(profileId => availableProfiles.All(profile => profile.Id != profileId));
+    }
+
+    private Task SelectProfile(Guid profileId)
+    {
+        selectedProfileIds.Add(profileId);
+        return Task.CompletedTask;
+    }
+
+    private Task DeselectProfile(Guid profileId)
+    {
+        selectedProfileIds.Remove(profileId);
+        return Task.CompletedTask;
+    }
+
+    private async Task RunApiActionAsync(Func<Task> action)
+    {
+        errorMessage = null;
+        isBusy = true;
+
+        try
+        {
+            await action();
+        }
+        catch (TournamentApiException ex)
+        {
+            errorMessage = ex.Message;
+        }
+        finally
+        {
+            isBusy = false;
+        }
+    }
+
+    private bool ValidateAuthenticatedUser()
+    {
+        if (!string.IsNullOrWhiteSpace(currentUserId))
+            return true;
+
+        errorMessage = "Login did not provide a user id claim.";
+        return false;
+    }
+
+    private bool ValidateRequired(string value, string message)
+    {
+        if (!string.IsNullOrWhiteSpace(value))
+            return true;
+
+        errorMessage = message;
+        return false;
+    }
+
+    private string GetGameName(string gameId)
+        => games.FirstOrDefault(game => string.Equals(game.Id, gameId, StringComparison.OrdinalIgnoreCase))?.Name ?? gameId;
+
+    private async Task<string?> ResolveCurrentUserIdAsync()
+    {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        return authState.User.FindFirstValue(ClaimTypes.NameIdentifier)
+               ?? authState.User.FindFirstValue("sub");
+    }
+}

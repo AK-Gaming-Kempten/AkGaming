@@ -1,0 +1,11 @@
+@if (!string.IsNullOrWhiteSpace(Message))
+{
+    <div class="api-error-panel" role="alert">
+        <span class="bi bi-exclamation-triangle-fill"></span>
+        <span>@Message</span>
+    </div>
+}
+
+@code {
+    [Parameter] public string? Message { get; set; }
+}

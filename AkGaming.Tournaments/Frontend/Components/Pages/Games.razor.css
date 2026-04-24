@@ -1,0 +1,28 @@
+.game-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+    gap: 1rem;
+}
+
+.game-card {
+    display: grid;
+    gap: 0.75rem;
+    padding: 1rem;
+    border: 1px solid color-mix(in oklab, var(--color-text-secondary) 22%, transparent);
+    border-radius: 8px;
+    background: color-mix(in oklab, var(--color-background-secondary) 78%, transparent);
+}
+
+.game-card h3,
+.game-card p {
+    margin: 0;
+}
+
+.game-card p,
+.muted-copy {
+    color: var(--color-text-secondary);
+}
+
+.muted-copy {
+    margin: 0;
+}

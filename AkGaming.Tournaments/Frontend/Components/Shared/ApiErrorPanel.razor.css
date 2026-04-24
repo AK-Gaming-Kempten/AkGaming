@@ -1,0 +1,16 @@
+.api-error-panel {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.65rem;
+    padding: 0.85rem 1rem;
+    border: 1px solid color-mix(in srgb, var(--akg-danger, #ef4444) 45%, transparent);
+    border-radius: 8px;
+    background: color-mix(in srgb, var(--akg-danger, #ef4444) 12%, transparent);
+    color: var(--akg-text-strong, #f8fafc);
+    font-size: 0.92rem;
+}
+
+.api-error-panel .bi {
+    color: var(--akg-danger, #ef4444);
+    margin-top: 0.1rem;
+}
