@@ -13,6 +13,14 @@ public sealed class TeamRepository(TournamentDbContext dbContext) : ITeamReposit
             .Include(team => team.GuestPlayerProfiles)
             .FirstOrDefaultAsync(team => team.Id == teamId, cancellationToken);
 
+    public async Task<IReadOnlyList<Team>> GetByUserIdAsync(string userId, CancellationToken cancellationToken = default)
+        => await dbContext.Teams
+            .Include(team => team.Memberships)
+            .Include(team => team.GuestPlayerProfiles)
+            .Where(team => team.Memberships.Any(member => member.UserId == userId))
+            .OrderBy(team => team.Name)
+            .ToListAsync(cancellationToken);
+
     public async Task AddAsync(Team team, CancellationToken cancellationToken = default)
         => await dbContext.Teams.AddAsync(team, cancellationToken);
 }

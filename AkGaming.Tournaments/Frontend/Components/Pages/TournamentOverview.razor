@@ -5,12 +5,7 @@
 
 <section class="app-page">
     <PageHeader Eyebrow="@($"{Tournament.Summary.Title} · {Tournament.Summary.Season}")"
-                Title="Overview">
-        <Actions>
-            <a href="@($"/tournaments/{Tournament.Summary.Slug}/schedule")" class="ghost-button">Schedule</a>
-            <a href="@($"/tournaments/{Tournament.Summary.Slug}/teams")" class="solid-button">Teams</a>
-        </Actions>
-    </PageHeader>
+                Title="Overview" />
 
     @if (RequestedTournamentWasMissing)
     {

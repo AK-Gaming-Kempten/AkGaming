@@ -19,6 +19,17 @@ public sealed class TeamManagementService(
         return team?.ToDto();
     }
 
+    public async Task<IReadOnlyList<TeamDto>> GetTeamsForUserAsync(string userId, CancellationToken cancellationToken = default)
+    {
+        ValidateUserId(userId);
+
+        var teams = await teamRepository.GetByUserIdAsync(userId.Trim(), cancellationToken);
+        return teams
+            .OrderBy(team => team.Name, StringComparer.OrdinalIgnoreCase)
+            .Select(team => team.ToDto())
+            .ToList();
+    }
+
     public async Task<TeamDto> CreateTeamAsync(string actingUserId, string gameId, string name, CancellationToken cancellationToken = default)
     {
         ValidateUserId(actingUserId);

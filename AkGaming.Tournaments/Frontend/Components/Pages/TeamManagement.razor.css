@@ -1,33 +1,17 @@
-.backend-form {
+.my-teams-list {
     display: grid;
-    gap: 0.9rem;
+    max-height: min(32rem, 62vh);
+    gap: 0.55rem;
+    overflow-y: auto;
+    padding-right: 0.25rem;
 }
 
-.backend-form label {
-    display: grid;
-    gap: 0.4rem;
-    color: var(--color-text-secondary);
-    font-size: 0.9rem;
-    font-weight: 700;
-}
-
-.form-input {
-    width: 100%;
-    min-height: 2.6rem;
-    box-sizing: border-box;
-    padding: 0.65rem 0.75rem;
-    border: 1px solid color-mix(in oklab, var(--color-text-secondary) 28%, transparent);
-    border-radius: 8px;
-    background: color-mix(in oklab, var(--color-background-primary) 88%, transparent);
-    color: var(--color-text-primary);
-}
-
-.form-input:focus {
-    outline: 2px solid color-mix(in oklab, var(--color-highlight-primary) 46%, transparent);
-    outline-offset: 2px;
-}
-
-.muted-copy {
+.muted-copy,
+.empty-copy {
     margin: 0;
     color: var(--color-text-secondary);
+}
+
+.empty-copy {
+    padding: 0.8rem 0;
 }

@@ -239,6 +239,36 @@ public sealed class TeamManagementServiceTests
     }
 
     [Test]
+    [Description("Verifies that user teams are returned only for teams where the user has a membership.")]
+    public void GetTeamsForUserAsync_ReturnsOnlyTeamsForUserMemberships()
+    {
+        // Arrange
+        TournamentTestData.AddTeam(Store, name: "AKG Blue", memberships: [(TournamentTestData.MemberId, TeamRole.Member)]);
+        TournamentTestData.AddTeam(Store, name: "AKG Red", memberships: [(TournamentTestData.OwnerId, TeamRole.Owner)]);
+        TournamentTestData.AddTeam(Store, name: "AKG Green", memberships: [(TournamentTestData.MemberId, TeamRole.Editor)]);
+
+        // Act
+        var teams = Service.GetTeamsForUserAsync(TournamentTestData.MemberId).GetAwaiter().GetResult();
+
+        // Assert
+        Assert.That(teams.Select(team => team.Name), Is.EqualTo(new[] { "AKG Blue", "AKG Green" }));
+    }
+
+    [Test]
+    [Description("Verifies that listing user teams requires a user id.")]
+    public void GetTeamsForUserAsync_RejectsBlankUserId()
+    {
+        // Arrange
+        const string userId = " ";
+
+        // Act
+        Task Act() => Service.GetTeamsForUserAsync(userId);
+
+        // Assert
+        Assert.ThrowsAsync<ValidationException>(Act);
+    }
+
+    [Test]
     [Description("Verifies that updating a guest profile fails when the profile belongs to another team.")]
     public void UpdateGuestPlayerProfileAsync_RejectsProfileOwnedByAnotherTeam()
     {

@@ -5,6 +5,7 @@ namespace AkGaming.Tournaments.Application.UseCases;
 public interface ITeamManagementService
 {
     Task<TeamDto?> GetTeamAsync(Guid teamId, CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<TeamDto>> GetTeamsForUserAsync(string userId, CancellationToken cancellationToken = default);
     Task<TeamDto> CreateTeamAsync(string actingUserId, string gameId, string name, CancellationToken cancellationToken = default);
     Task<TeamDto> AddMemberAsync(Guid teamId, string actingUserId, string userId, TeamRoleDto role, CancellationToken cancellationToken = default);
     Task<TeamDto> UpdateMemberRoleAsync(Guid teamId, string actingUserId, string userId, TeamRoleDto role, CancellationToken cancellationToken = default);

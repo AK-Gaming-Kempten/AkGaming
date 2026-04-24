@@ -1,4 +1,3 @@
-using System.Security.Claims;
 using AkGaming.Tournaments.Contracts.DTOs;
 using AkGaming.Tournaments.Frontend.Api;
 using Microsoft.AspNetCore.Components;
@@ -6,37 +5,42 @@ using Microsoft.AspNetCore.Components.Authorization;
 
 namespace AkGaming.Tournaments.Frontend.Components.Pages;
 
-public partial class TeamManagement : ComponentBase
+public partial class TeamDetails : ComponentBase
 {
+    [Parameter] public Guid TeamId { get; set; }
+
     [Inject] private AuthenticationStateProvider AuthenticationStateProvider { get; set; } = default!;
     [Inject] private GamesApiClient GamesClient { get; set; } = default!;
     [Inject] private TeamsApiClient TeamsClient { get; set; } = default!;
-    [Inject] private NavigationManager Nav { get; set; } = default!;
+    [Inject] private TournamentRegistrationsApiClient RegistrationsClient { get; set; } = default!;
 
     private IReadOnlyList<GameDto> games = [];
-    private IReadOnlyList<TeamDto> userTeams = [];
-    private string? currentUserId;
+    private IReadOnlyList<PlayerProfileDto> availableProfiles = [];
+    private IReadOnlyList<TournamentRegistrationDto> registrations = [];
+    private TeamDto? team;
     private string? errorMessage;
     private bool isAuthenticated;
     private bool isLoading = true;
 
-    protected override async Task OnInitializedAsync()
+    protected override async Task OnParametersSetAsync()
     {
+        isLoading = true;
+        errorMessage = null;
+        availableProfiles = [];
+        registrations = [];
+
         var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
         isAuthenticated = authState.User.Identity?.IsAuthenticated ?? false;
-        currentUserId = authState.User.FindFirstValue(ClaimTypes.NameIdentifier)
-                        ?? authState.User.FindFirstValue("sub");
-
-        if (!isAuthenticated || string.IsNullOrWhiteSpace(currentUserId))
-        {
-            isLoading = false;
-            return;
-        }
 
         try
         {
             games = await GamesClient.GetGamesAsync();
-            userTeams = await TeamsClient.GetUserTeamsAsync(currentUserId);
+            team = await TeamsClient.GetTeamAsync(TeamId);
+            if (team is not null)
+            {
+                availableProfiles = await TeamsClient.GetAvailableProfilesAsync(team.Id, team.GameId);
+                registrations = await RegistrationsClient.GetTeamRegistrationsAsync(team.Id);
+            }
         }
         catch (TournamentApiException ex)
         {
@@ -48,23 +52,6 @@ public partial class TeamManagement : ComponentBase
         }
     }
 
-    private Task OpenTeamAsync(TeamDto team)
-    {
-        Nav.NavigateTo($"/teams/{team.Id}");
-        return Task.CompletedTask;
-    }
-
     private string GetGameName(string gameId)
         => games.FirstOrDefault(game => string.Equals(game.Id, gameId, StringComparison.OrdinalIgnoreCase))?.Name ?? gameId;
-
-    private string GetUserRoleLabel(TeamDto team)
-    {
-        if (string.IsNullOrWhiteSpace(currentUserId))
-            return "Member";
-
-        var role = team.Memberships.FirstOrDefault(member =>
-            string.Equals(member.UserId, currentUserId, StringComparison.OrdinalIgnoreCase))?.Role;
-
-        return role?.ToString() ?? "Member";
-    }
 }

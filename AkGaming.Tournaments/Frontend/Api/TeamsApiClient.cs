@@ -10,6 +10,9 @@ public sealed class TeamsApiClient(HttpClient httpClient) : TournamentApiClientB
     public Task<TeamDto?> GetTeamAsync(Guid teamId, CancellationToken cancellationToken = default)
         => GetOrDefaultAsync<TeamDto>($"api/teams/{teamId}", cancellationToken);
 
+    public Task<IReadOnlyList<TeamDto>> GetUserTeamsAsync(string userId, CancellationToken cancellationToken = default)
+        => GetAsync<IReadOnlyList<TeamDto>>($"api/users/{Uri.EscapeDataString(userId)}/teams", cancellationToken);
+
     public Task<TeamDto> AddMemberAsync(Guid teamId, string actingUserId, string userId, TeamRoleDto role, CancellationToken cancellationToken = default)
         => PostAsync<TeamDto>($"api/teams/{teamId}/members", new AddTeamMemberApiRequest(actingUserId, userId, role), cancellationToken);
 

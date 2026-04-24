@@ -60,6 +60,12 @@ internal sealed class InMemoryTeamRepository(InMemoryStore store) : ITeamReposit
     public Task<Team?> GetByIdAsync(Guid teamId, CancellationToken cancellationToken = default)
         => Task.FromResult(store.Teams.FirstOrDefault(team => team.Id == teamId));
 
+    public Task<IReadOnlyList<Team>> GetByUserIdAsync(string userId, CancellationToken cancellationToken = default)
+        => Task.FromResult<IReadOnlyList<Team>>(store.Teams
+            .Where(team => team.Memberships.Any(member => member.UserId == userId))
+            .OrderBy(team => team.Name)
+            .ToList());
+
     public Task AddAsync(Team team, CancellationToken cancellationToken = default)
     {
         store.Teams.Add(team);

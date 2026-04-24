@@ -30,6 +30,17 @@ public sealed class TeamsController(ITeamManagementService service) : Controller
         return team is null ? NotFound() : Ok(team);
     }
 
+    [HttpGet("/api/users/{userId}/teams", Name = "GetUserTeams")]
+    [EndpointSummary("List teams that the user is a member of.")]
+    [ProducesResponseType<IReadOnlyList<TeamDto>>(StatusCodes.Status200OK)]
+    public async Task<ActionResult<IReadOnlyList<TeamDto>>> GetUserTeams(
+        string userId,
+        CancellationToken cancellationToken)
+    {
+        var teams = await service.GetTeamsForUserAsync(userId, cancellationToken);
+        return Ok(teams);
+    }
+
     [HttpPost("{teamId:guid}/members", Name = "AddTeamMember")]
     [EndpointSummary("Add a user to a team.")]
     [ProducesResponseType<TeamDto>(StatusCodes.Status200OK)]

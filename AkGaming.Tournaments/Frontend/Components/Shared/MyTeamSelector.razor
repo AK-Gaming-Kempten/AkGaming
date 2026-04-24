@@ -1,0 +1,80 @@
+@if (isLoading)
+{
+    <SurfacePanel Title="My teams">
+        <p class="muted-copy">Loading your teams.</p>
+    </SurfacePanel>
+}
+else if (!isAuthenticated)
+{
+    @if (ShowLoginSuggestion)
+    {
+        <UnauthorizedPanel ImageUrl="images/icons/AKG_Logos/Red.png">
+            <p>Login to select and manage your teams.</p>
+        </UnauthorizedPanel>
+    }
+}
+else
+{
+    <div class="team-selector">
+        <button type="button" class="team-selector-trigger" @onclick="ToggleTeamPicker" disabled="@isBusy">
+            <span class="team-avatar"><span class="bi bi-people-fill"></span></span>
+            <span class="team-selector-main">
+                <span class="team-selector-label">My Teams</span>
+                <strong>Select team</strong>
+                <span>Choose one of your teams or create a new one.</span>
+            </span>
+            <span class="team-selector-chevron bi @(isTeamPickerOpen ? "bi-chevron-up" : "bi-chevron-down")"></span>
+        </button>
+
+        @if (isTeamPickerOpen)
+        {
+            <button type="button" class="team-selector-dismiss-layer" aria-label="Close team selector" @onclick="CloseTeamPicker"></button>
+            <div class="team-selector-menu">
+                <div class="team-selector-actions">
+                    <button type="button" class="solid-button" @onclick="ShowCreateTeamForm" disabled="@isBusy">Create team</button>
+                </div>
+
+                @if (isCreateTeamFormVisible)
+                {
+                    <div class="create-team-panel">
+                        <div class="backend-form">
+                            <label>
+                                <span>Game</span>
+                                <GameSelect Games="@games" Value="@teamGameId" ValueChanged="SetTeamGame" />
+                            </label>
+                            <label>
+                                <span>Team name</span>
+                                <input class="form-input" @bind="teamName" placeholder="AKG Blue" />
+                            </label>
+                            <div class="form-actions">
+                                <button type="button" class="solid-button" @onclick="CreateTeamAsync" disabled="@isBusy">Create</button>
+                                <button type="button" class="ghost-button" @onclick="HideCreateTeamForm" disabled="@isBusy">Cancel</button>
+                            </div>
+                        </div>
+                    </div>
+                }
+
+                <div class="team-selector-list">
+                    @if (userTeams.Count == 0)
+                    {
+                        <p class="empty-copy">You are not part of any teams yet.</p>
+                    }
+                    else
+                    {
+                        @foreach (var team in userTeams)
+                        {
+                            <TeamOptionButton Team="@team"
+                                              GameName="@GetGameName(team.GameId)"
+                                              RoleLabel="@GetUserRoleLabel(team)"
+                                              Selected="@(selectedTeam?.Id == team.Id)"
+                                              Disabled="@isBusy"
+                                              OnSelected="SelectTeamAsync" />
+                        }
+                    }
+                </div>
+            </div>
+        }
+    </div>
+
+    <ApiErrorPanel Message="@errorMessage" />
+}

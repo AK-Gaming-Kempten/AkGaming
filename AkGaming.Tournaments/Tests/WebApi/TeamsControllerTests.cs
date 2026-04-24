@@ -138,6 +138,24 @@ public sealed class TeamsControllerTests
     }
 
     [Test]
+    [Description("Verifies that the teams controller passes the user id to the user-team listing service.")]
+    public async Task GetUserTeams_ReturnsOkWithTeams()
+    {
+        // Arrange
+        var teams = new List<TeamDto> { WebApiControllerTestHelpers.Team(Guid.NewGuid()) };
+        Service
+            .Setup(mock => mock.GetTeamsForUserAsync("captain-1", CancellationToken.None))
+            .ReturnsAsync(teams);
+
+        // Act
+        var response = await Controller.GetUserTeams("captain-1", CancellationToken.None);
+
+        // Assert
+        WebApiControllerTestHelpers.AssertOkValue(response, teams);
+        Service.Verify(mock => mock.GetTeamsForUserAsync("captain-1", CancellationToken.None), Times.Once);
+    }
+
+    [Test]
     [Description("Verifies that the teams controller passes update-guest-profile values to the application service.")]
     public async Task UpdateGuestPlayerProfile_ReturnsOkWithProfile()
     {
