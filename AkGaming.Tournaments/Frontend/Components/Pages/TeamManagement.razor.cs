@@ -17,8 +17,12 @@ public partial class TeamManagement : ComponentBase
     private IReadOnlyList<TeamDto> userTeams = [];
     private string? currentUserId;
     private string? errorMessage;
+    private string teamGameId = string.Empty;
+    private string teamName = string.Empty;
     private bool isAuthenticated;
     private bool isLoading = true;
+    private bool isBusy;
+    private bool isCreateTeamFormVisible;
 
     protected override async Task OnInitializedAsync()
     {
@@ -36,6 +40,9 @@ public partial class TeamManagement : ComponentBase
         try
         {
             games = await GamesClient.GetGamesAsync();
+            if (games.Count > 0)
+                teamGameId = games[0].Id;
+
             userTeams = await TeamsClient.GetUserTeamsAsync(currentUserId);
         }
         catch (TournamentApiException ex)
@@ -45,6 +52,57 @@ public partial class TeamManagement : ComponentBase
         finally
         {
             isLoading = false;
+        }
+    }
+
+    private Task ShowCreateTeamForm()
+    {
+        isCreateTeamFormVisible = true;
+        return Task.CompletedTask;
+    }
+
+    private Task HideCreateTeamForm()
+    {
+        isCreateTeamFormVisible = false;
+        teamName = string.Empty;
+        return Task.CompletedTask;
+    }
+
+    private Task SetTeamGame(string gameId)
+    {
+        teamGameId = gameId;
+        return Task.CompletedTask;
+    }
+
+    private async Task CreateTeamAsync()
+    {
+        if (!ValidateRequired(teamGameId, "Select a game.") || !ValidateRequired(teamName, "Enter a team name."))
+            return;
+
+        if (string.IsNullOrWhiteSpace(currentUserId))
+        {
+            errorMessage = "Login did not provide a user id claim.";
+            return;
+        }
+
+        isBusy = true;
+        errorMessage = null;
+
+        try
+        {
+            var team = await TeamsClient.CreateTeamAsync(currentUserId, teamGameId, teamName);
+            userTeams = await TeamsClient.GetUserTeamsAsync(currentUserId);
+            teamName = string.Empty;
+            isCreateTeamFormVisible = false;
+            Nav.NavigateTo($"/teams/{team.Id}");
+        }
+        catch (TournamentApiException ex)
+        {
+            errorMessage = ex.Message;
+        }
+        finally
+        {
+            isBusy = false;
         }
     }
 
@@ -66,5 +124,14 @@ public partial class TeamManagement : ComponentBase
             string.Equals(member.UserId, currentUserId, StringComparison.OrdinalIgnoreCase))?.Role;
 
         return role?.ToString() ?? "Member";
+    }
+
+    private bool ValidateRequired(string value, string message)
+    {
+        if (!string.IsNullOrWhiteSpace(value))
+            return true;
+
+        errorMessage = message;
+        return false;
     }
 }
