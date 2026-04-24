@@ -1,4 +1,4 @@
-namespace AkGaming.Tournaments.Application.Abstractions;
+namespace AkGaming.Tournaments.Application.Persistence;
 
 public interface IUnitOfWork
 {

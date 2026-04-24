@@ -1,6 +1,6 @@
 using AkGaming.Tournaments.Domain.Entities;
 
-namespace AkGaming.Tournaments.Application.Abstractions;
+namespace AkGaming.Tournaments.Application.Persistence;
 
 public interface IGameRepository
 {

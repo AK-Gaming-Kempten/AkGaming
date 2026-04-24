@@ -1,4 +1,4 @@
-using AkGaming.Tournaments.Application.Abstractions;
+using AkGaming.Tournaments.Application.Persistence;
 using AkGaming.Tournaments.Domain.Entities;
 
 namespace AkGaming.Tournaments.Tests.Fakes;

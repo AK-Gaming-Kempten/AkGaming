@@ -1,4 +1,4 @@
-using AkGaming.Tournaments.Application.Abstractions;
+using AkGaming.Tournaments.Application.Persistence;
 
 namespace AkGaming.Tournaments.Infrastructure.Sqlite.Persistence;
 

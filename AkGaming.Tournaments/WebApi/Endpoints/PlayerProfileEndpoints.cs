@@ -1,4 +1,4 @@
-using AkGaming.Tournaments.Application.Abstractions;
+using AkGaming.Tournaments.Application.UseCases;
 
 namespace AkGaming.Tournaments.WebApi.Endpoints;
 

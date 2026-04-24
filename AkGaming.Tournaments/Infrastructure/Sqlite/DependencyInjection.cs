@@ -1,4 +1,4 @@
-using AkGaming.Tournaments.Application.Abstractions;
+using AkGaming.Tournaments.Application.Persistence;
 using AkGaming.Tournaments.Infrastructure.Sqlite.Persistence;
 using AkGaming.Tournaments.Infrastructure.Sqlite.Repositories;
 using Microsoft.EntityFrameworkCore;

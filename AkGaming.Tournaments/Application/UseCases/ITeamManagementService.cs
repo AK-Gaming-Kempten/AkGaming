@@ -1,6 +1,6 @@
 using AkGaming.Tournaments.Contracts.DTOs;
 
-namespace AkGaming.Tournaments.Application.Abstractions;
+namespace AkGaming.Tournaments.Application.UseCases;
 
 public interface ITeamManagementService
 {

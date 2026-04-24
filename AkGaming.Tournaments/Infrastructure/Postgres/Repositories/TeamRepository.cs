@@ -1,4 +1,4 @@
-using AkGaming.Tournaments.Application.Abstractions;
+using AkGaming.Tournaments.Application.Persistence;
 using AkGaming.Tournaments.Domain.Entities;
 using AkGaming.Tournaments.Infrastructure.Postgres.Persistence;
 using Microsoft.EntityFrameworkCore;
