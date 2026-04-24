@@ -1,0 +1,3 @@
+namespace AkGaming.Tournaments.Application.Exceptions;
+
+public sealed class ForbiddenException(string message) : Exception(message);

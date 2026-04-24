@@ -5,7 +5,7 @@ namespace AkGaming.Tournaments.Domain.Entities;
 public sealed class PlayerProfile
 {
     public Guid Id { get; set; }
-    public Guid TeamId { get; set; }
+    public Guid? TeamId { get; set; }
     public string GameId { get; set; } = string.Empty;
     public Guid? LogoAssetId { get; set; }
     public PlayerProfileType Type { get; set; } = PlayerProfileType.Guest;

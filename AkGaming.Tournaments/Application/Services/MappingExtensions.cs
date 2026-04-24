@@ -1,0 +1,136 @@
+using AkGaming.Tournaments.Contracts.DTOs;
+using AkGaming.Tournaments.Domain.Entities;
+using AkGaming.Tournaments.Domain.Enums;
+
+namespace AkGaming.Tournaments.Application.Services;
+
+internal static class MappingExtensions
+{
+    public static GameDto ToDto(this Game game)
+        => new(game.Id, game.Name, game.LogoAssetId);
+
+    public static PlayerProfileDto ToDto(this PlayerProfile playerProfile)
+        => new(
+            playerProfile.Id,
+            playerProfile.GameId,
+            playerProfile.TeamId,
+            playerProfile.Type.ToDto(),
+            playerProfile.Name,
+            playerProfile.UserId,
+            playerProfile.LogoAssetId,
+            playerProfile.LastRevisionUtc);
+
+    public static TeamMembershipDto ToDto(this TeamMembership membership)
+        => new(membership.UserId, membership.Role.ToDto(), membership.JoinedAtUtc);
+
+    public static TeamDto ToDto(this Team team)
+        => new(
+            team.Id,
+            team.Name,
+            team.LogoAssetId,
+            team.Memberships
+                .OrderBy(member => member.Role)
+                .ThenBy(member => member.UserId, StringComparer.OrdinalIgnoreCase)
+                .Select(member => member.ToDto())
+                .ToList(),
+            team.GuestPlayerProfiles
+                .OrderBy(profile => profile.GameId, StringComparer.OrdinalIgnoreCase)
+                .ThenBy(profile => profile.Name, StringComparer.OrdinalIgnoreCase)
+                .Select(profile => profile.ToDto())
+                .ToList());
+
+    public static TournamentRegistrationDto ToDto(
+        this TournamentRegistration registration,
+        IReadOnlyDictionary<Guid, PlayerProfile> currentProfiles)
+        => new(
+            registration.Id,
+            registration.TournamentId,
+            registration.TeamId,
+            registration.Status.ToDto(),
+            registration.SubmittedAtUtc,
+            registration.ReviewedAtUtc,
+            registration.ReviewNote,
+            registration.ActiveRosterId,
+            registration.Rosters
+                .OrderBy(roster => roster.Version)
+                .Select(roster => roster.ToDto(currentProfiles))
+                .ToList());
+
+    public static RosterDto ToDto(this Roster roster, IReadOnlyDictionary<Guid, PlayerProfile> currentProfiles)
+        => new(
+            roster.Id,
+            roster.Version,
+            roster.Status.ToDto(),
+            roster.SubmittedAtUtc,
+            roster.ReviewedAtUtc,
+            roster.ReviewNote,
+            roster.PlayerSnapshots
+                .OrderBy(snapshot => snapshot.Name, StringComparer.OrdinalIgnoreCase)
+                .Select(snapshot => snapshot.ToDto(currentProfiles))
+                .ToList());
+
+    public static RosterPlayerSnapshotDto ToDto(this RosterPlayerSnapshot snapshot, IReadOnlyDictionary<Guid, PlayerProfile> currentProfiles)
+    {
+        var isPotentiallyOutdated = false;
+        if (snapshot.SourcePlayerProfileId is Guid sourcePlayerProfileId
+            && currentProfiles.TryGetValue(sourcePlayerProfileId, out var playerProfile))
+        {
+            isPotentiallyOutdated = snapshot.IsPotentiallyOutdated(playerProfile);
+        }
+
+        return new RosterPlayerSnapshotDto(
+            snapshot.Id,
+            snapshot.SourcePlayerProfileId,
+            snapshot.PlayerProfileType.ToDto(),
+            snapshot.Name,
+            snapshot.UserId,
+            snapshot.SourcePlayerProfileLastRevisionUtc,
+            snapshot.SnapshotCreatedUtc,
+            isPotentiallyOutdated);
+    }
+
+    public static PlayerProfileTypeDto ToDto(this PlayerProfileType type)
+        => type switch
+        {
+            PlayerProfileType.Guest => PlayerProfileTypeDto.Guest,
+            PlayerProfileType.User => PlayerProfileTypeDto.User,
+            _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
+        };
+
+    public static TeamRoleDto ToDto(this TeamRole role)
+        => role switch
+        {
+            TeamRole.Member => TeamRoleDto.Member,
+            TeamRole.Editor => TeamRoleDto.Editor,
+            TeamRole.Owner => TeamRoleDto.Owner,
+            _ => throw new ArgumentOutOfRangeException(nameof(role), role, null)
+        };
+
+    public static TeamRole ToDomain(this TeamRoleDto role)
+        => role switch
+        {
+            TeamRoleDto.Member => TeamRole.Member,
+            TeamRoleDto.Editor => TeamRole.Editor,
+            TeamRoleDto.Owner => TeamRole.Owner,
+            _ => throw new ArgumentOutOfRangeException(nameof(role), role, null)
+        };
+
+    public static RosterStatusDto ToDto(this RosterStatus status)
+        => status switch
+        {
+            RosterStatus.Pending => RosterStatusDto.Pending,
+            RosterStatus.Approved => RosterStatusDto.Approved,
+            RosterStatus.Rejected => RosterStatusDto.Rejected,
+            _ => throw new ArgumentOutOfRangeException(nameof(status), status, null)
+        };
+
+    public static TournamentRegistrationStatusDto ToDto(this TournamentRegistrationStatus status)
+        => status switch
+        {
+            TournamentRegistrationStatus.Pending => TournamentRegistrationStatusDto.Pending,
+            TournamentRegistrationStatus.Approved => TournamentRegistrationStatusDto.Approved,
+            TournamentRegistrationStatus.Rejected => TournamentRegistrationStatusDto.Rejected,
+            TournamentRegistrationStatus.Withdrawn => TournamentRegistrationStatusDto.Withdrawn,
+            _ => throw new ArgumentOutOfRangeException(nameof(status), status, null)
+        };
+}

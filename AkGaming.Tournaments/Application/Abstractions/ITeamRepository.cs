@@ -1,0 +1,9 @@
+using AkGaming.Tournaments.Domain.Entities;
+
+namespace AkGaming.Tournaments.Application.Abstractions;
+
+public interface ITeamRepository
+{
+    Task<Team?> GetByIdAsync(Guid teamId, CancellationToken cancellationToken = default);
+    Task AddAsync(Team team, CancellationToken cancellationToken = default);
+}

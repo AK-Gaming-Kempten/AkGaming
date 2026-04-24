@@ -11,14 +11,27 @@ This file captures domain and workflow decisions that are intentionally not full
 - If the new revision is rejected, the old active roster stays unchanged.
 
 ## Player Profiles
-- Teams own player profiles.
 - Player profiles are scoped to a specific game.
 - There is one player profile model for both registered users and guest players.
 - A player profile can optionally be linked to an AK Gaming user account.
+- User-backed player profiles are owned by the user, not by a team.
+- Guest player profiles are owned by a team.
 - The profile type distinguishes between:
   - `User`: backed by a real user account
   - `Guest`: created by a captain without a linked user account
 - Guest player profiles exist so a captain can register a full team without waiting for every player to sign up first.
+
+## Teams And Memberships
+- Teams are not scoped to a single game.
+- A team can have members with roles:
+  - `Owner`
+  - `Editor`
+  - `Member`
+- The creator of a team should become an owner automatically.
+- The exact owner constraints should be enforced in the application layer. At minimum, a team should not end up without an owner.
+- A team's available player pool for a game consists of:
+  - guest player profiles owned by the team for that game
+  - user-backed player profiles for team members for that game
 
 ## Games
 - `Game` is its own domain type.
@@ -67,8 +80,11 @@ This file captures domain and workflow decisions that are intentionally not full
 - Submit roster change requests for already approved registrations.
 - Approve or reject pending roster revisions independently from the existing active roster.
 - Surface whether a roster snapshot is potentially outdated compared to the current player profile.
-- Validate that a submitted roster only contains player profiles owned by the registering team.
+- Validate that a submitted roster only contains guest player profiles owned by the registering team or user-backed player profiles belonging to team members.
 - Validate that submitted player profiles belong to the same game as the tournament.
+- Add member removal flows with owner safety rules.
+- Add guest player profile removal flows that respect active and pending roster references.
+- Add authorization for registration review actions once tournament administration roles are modeled.
 - Add upload endpoints and application services for logo assets.
 - Validate uploaded logos for file type, size, and image safety before persisting them.
 - Persist `MediaAsset` metadata separately from binary storage.

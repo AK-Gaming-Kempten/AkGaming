@@ -1,0 +1,20 @@
+using AkGaming.Tournaments.Application.Abstractions;
+using AkGaming.Tournaments.Domain.Entities;
+using AkGaming.Tournaments.Infrastructure.Postgres.Persistence;
+using Microsoft.EntityFrameworkCore;
+
+namespace AkGaming.Tournaments.Infrastructure.Postgres.Repositories;
+
+public sealed class GameRepository(TournamentDbContext dbContext) : IGameRepository
+{
+    public async Task<IReadOnlyList<Game>> GetAllAsync(CancellationToken cancellationToken = default)
+        => await dbContext.Games
+            .AsNoTracking()
+            .OrderBy(game => game.Name)
+            .ToListAsync(cancellationToken);
+
+    public Task<Game?> GetByIdAsync(string gameId, CancellationToken cancellationToken = default)
+        => dbContext.Games
+            .AsNoTracking()
+            .FirstOrDefaultAsync(game => game.Id == gameId, cancellationToken);
+}
