@@ -96,5 +96,11 @@ internal sealed class InMemoryTournamentRegistrationRepository(InMemoryStore sto
 
 internal sealed class FakeUnitOfWork : IUnitOfWork
 {
-    public Task SaveChangesAsync(CancellationToken cancellationToken = default) => Task.CompletedTask;
+    public int SaveChangesCallCount { get; private set; }
+
+    public Task SaveChangesAsync(CancellationToken cancellationToken = default)
+    {
+        SaveChangesCallCount++;
+        return Task.CompletedTask;
+    }
 }

@@ -26,6 +26,7 @@
     <ProjectReference Include="..\Application\AkGaming.Tournaments.Application.csproj" />
     <ProjectReference Include="..\Contracts\AkGaming.Tournaments.Contracts.csproj" />
     <ProjectReference Include="..\Domain\AkGaming.Tournaments.Domain.csproj" />
+    <ProjectReference Include="..\Infrastructure\Sqlite\AkGaming.Tournaments.Infrastructure.Sqlite.csproj" />
   </ItemGroup>
 
 </Project>

@@ -1,0 +1,261 @@
+using AkGaming.Tournaments.Application.Exceptions;
+using AkGaming.Tournaments.Application.Services;
+using AkGaming.Tournaments.Contracts.DTOs;
+using AkGaming.Tournaments.Domain.Enums;
+using AkGaming.Tournaments.Tests.Fakes;
+
+namespace AkGaming.Tournaments.Tests.Application;
+
+public sealed class TeamManagementServiceTests
+{
+
+    private InMemoryStore Store { get; set; } = null!;
+
+    private FakeUnitOfWork UnitOfWork { get; set; } = null!;
+
+    private TeamManagementService Service { get; set; } = null!;
+
+    [SetUp]
+    public void SetUp()
+    {
+        Store = new InMemoryStore();
+        UnitOfWork = new FakeUnitOfWork();
+        Service = new TeamManagementService(
+            new InMemoryGameRepository(Store),
+            new InMemoryPlayerProfileRepository(Store),
+            new InMemoryTeamRepository(Store),
+            UnitOfWork);
+    }
+
+
+    [Test]
+    [Description("Verifies that only owners can add members and that added members receive the requested role.")]
+    public void AddMemberAsync_AddsMemberWhenActorIsOwner()
+    {
+        var team = TournamentTestData.AddTeam(Store);
+
+        var updated = Service.AddMemberAsync(team.Id, TournamentTestData.OwnerId, " member-1 ", TeamRoleDto.Editor).GetAwaiter().GetResult();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(updated.Memberships, Has.Count.EqualTo(2));
+            Assert.That(updated.Memberships.Single(member => member.UserId == TournamentTestData.MemberId).Role, Is.EqualTo(TeamRoleDto.Editor));
+            Assert.That(UnitOfWork.SaveChangesCallCount, Is.EqualTo(1));
+        });
+    }
+
+    [Test]
+    [Description("Verifies that a user cannot be added to the same team twice, even with different casing.")]
+    public void AddMemberAsync_RejectsDuplicateMember()
+    {
+        var team = TournamentTestData.AddTeam(Store, memberships:
+        [
+            (TournamentTestData.OwnerId, TeamRole.Owner),
+            (TournamentTestData.MemberId, TeamRole.Member)
+        ]);
+
+        Assert.ThrowsAsync<ConflictException>(() =>
+            Service.AddMemberAsync(team.Id, TournamentTestData.OwnerId, "MEMBER-1", TeamRoleDto.Member));
+    }
+
+    [Test]
+    [Description("Verifies that non-owners cannot manage team membership.")]
+    public void AddMemberAsync_RejectsNonOwnerMembershipManagement()
+    {
+        var team = TournamentTestData.AddTeam(Store, memberships: [(TournamentTestData.EditorId, TeamRole.Editor)]);
+
+        Assert.ThrowsAsync<ForbiddenException>(() =>
+            Service.AddMemberAsync(team.Id, TournamentTestData.EditorId, TournamentTestData.MemberId, TeamRoleDto.Member));
+    }
+
+    [Test]
+    [Description("Verifies that regular members cannot create guest profiles for the team.")]
+    public void CreateGuestPlayerProfileAsync_RejectsMember()
+    {
+        var team = TournamentTestData.AddTeam(Store, memberships:
+        [
+            (TournamentTestData.OwnerId, TeamRole.Owner),
+            (TournamentTestData.MemberId, TeamRole.Member)
+        ]);
+
+        Assert.ThrowsAsync<ForbiddenException>(() =>
+            Service.CreateGuestPlayerProfileAsync(team.Id, TournamentTestData.MemberId, "Guest Mid"));
+    }
+
+    [Test]
+    [Description("Verifies that owners and editors can create guest profiles and that guest profiles inherit the team's game.")]
+    public void CreateGuestPlayerProfileAsync_UsesTeamGameForEditorsAndOwners()
+    {
+        var team = TournamentTestData.AddTeam(Store, memberships:
+        [
+            (TournamentTestData.OwnerId, TeamRole.Owner),
+            (TournamentTestData.EditorId, TeamRole.Editor)
+        ]);
+
+        var profile = Service.CreateGuestPlayerProfileAsync(team.Id, TournamentTestData.EditorId, " Guest Mid ").GetAwaiter().GetResult();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(profile.GameId, Is.EqualTo(TournamentTestData.GameId));
+            Assert.That(profile.TeamId, Is.EqualTo(team.Id));
+            Assert.That(profile.Name, Is.EqualTo("Guest Mid"));
+            Assert.That(Store.PlayerProfiles.Single().Id, Is.EqualTo(profile.Id));
+        });
+    }
+
+    [Test]
+    [Description("Verifies that creating a team scopes it to a game, trims input, and assigns the creator as owner.")]
+    public void CreateTeamAsync_AssignsCreatorAsOwnerForGame()
+    {
+        TournamentTestData.AddGame(Store);
+
+        var team = Service.CreateTeamAsync(" captain-1 ", " lol ", " AKG Blue ").GetAwaiter().GetResult();
+
+        Assert.That(team.Memberships, Has.Count.EqualTo(1));
+        Assert.Multiple(() =>
+        {
+            Assert.That(team.GameId, Is.EqualTo(TournamentTestData.GameId));
+            Assert.That(team.Name, Is.EqualTo("AKG Blue"));
+            Assert.That(team.Memberships[0].UserId, Is.EqualTo(TournamentTestData.OwnerId));
+            Assert.That(team.Memberships[0].Role, Is.EqualTo(TeamRoleDto.Owner));
+            Assert.That(UnitOfWork.SaveChangesCallCount, Is.EqualTo(1));
+        });
+    }
+
+    [Test]
+    [Description("Verifies that creating a team requires a valid user id, game id, team name, and existing game.")]
+    public void CreateTeamAsync_RejectsInvalidInput()
+    {
+        TournamentTestData.AddGame(Store);
+
+        Assert.Multiple(() =>
+        {
+            Assert.ThrowsAsync<ValidationException>(() => Service.CreateTeamAsync(" ", TournamentTestData.GameId, "AKG Blue"));
+            Assert.ThrowsAsync<ValidationException>(() => Service.CreateTeamAsync(TournamentTestData.OwnerId, " ", "AKG Blue"));
+            Assert.ThrowsAsync<ValidationException>(() => Service.CreateTeamAsync(TournamentTestData.OwnerId, TournamentTestData.GameId, " "));
+            Assert.ThrowsAsync<NotFoundException>(() => Service.CreateTeamAsync(TournamentTestData.OwnerId, TournamentTestData.OtherGameId, "AKG Blue"));
+        });
+    }
+
+    [Test]
+    [Description("Verifies that the available player pool cannot be requested for a game different from the team's game.")]
+    public void GetAvailableProfilesAsync_RejectsGameThatDoesNotMatchTeam()
+    {
+        TournamentTestData.AddGame(Store);
+        TournamentTestData.AddGame(Store, TournamentTestData.OtherGameId, "Valorant");
+        var team = TournamentTestData.AddTeam(Store);
+
+        Assert.ThrowsAsync<ValidationException>(() => Service.GetAvailableProfilesAsync(team.Id, TournamentTestData.OtherGameId));
+    }
+
+    [Test]
+    [Description("Verifies that the available player pool contains team guest profiles and user profiles for team members in the team's game only.")]
+    public void GetAvailableProfilesAsync_ReturnsMemberAndGuestProfilesForTeamGame()
+    {
+        TournamentTestData.AddGame(Store);
+        var team = TournamentTestData.AddTeam(Store, memberships:
+        [
+            (TournamentTestData.OwnerId, TeamRole.Owner),
+            (TournamentTestData.MemberId, TeamRole.Member)
+        ]);
+        TournamentTestData.AddGuestProfile(Store, team, "Guest Mid");
+        TournamentTestData.AddUserProfile(Store, TournamentTestData.MemberId, TournamentTestData.GameId, "Member Jungle");
+        TournamentTestData.AddUserProfile(Store, TournamentTestData.MemberId, TournamentTestData.OtherGameId, "Wrong Game");
+        TournamentTestData.AddUserProfile(Store, TournamentTestData.OtherUserId, TournamentTestData.GameId, "Wrong User");
+
+        var profiles = Service.GetAvailableProfilesAsync(team.Id, TournamentTestData.GameId).GetAwaiter().GetResult();
+
+        Assert.That(profiles.Select(profile => profile.Name), Is.EqualTo(new[] { "Guest Mid", "Member Jungle" }));
+    }
+
+    [Test]
+    [Description("Verifies that getting an unknown team returns null instead of throwing.")]
+    public void GetTeamAsync_ReturnsNullForUnknownTeam()
+    {
+        var team = Service.GetTeamAsync(Guid.NewGuid()).GetAwaiter().GetResult();
+
+        Assert.That(team, Is.Null);
+    }
+
+    [Test]
+    [Description("Verifies that getting a team maps memberships and guest profiles without exposing registrations.")]
+    public void GetTeamAsync_ReturnsTeamWithMembershipsAndGuestProfiles()
+    {
+        var team = TournamentTestData.AddTeam(Store);
+        TournamentTestData.AddGuestProfile(Store, team, "Guest Mid");
+
+        var dto = Service.GetTeamAsync(team.Id).GetAwaiter().GetResult();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(dto, Is.Not.Null);
+            Assert.That(dto!.Id, Is.EqualTo(team.Id));
+            Assert.That(dto.Memberships, Has.Count.EqualTo(1));
+            Assert.That(dto.GuestPlayerProfiles.Single().Name, Is.EqualTo("Guest Mid"));
+        });
+    }
+
+    [Test]
+    [Description("Verifies that updating a guest profile fails when the profile belongs to another team.")]
+    public void UpdateGuestPlayerProfileAsync_RejectsProfileOwnedByAnotherTeam()
+    {
+        var team = TournamentTestData.AddTeam(Store, name: "AKG Blue");
+        var otherTeam = TournamentTestData.AddTeam(Store, name: "AKG Red");
+        var otherProfile = TournamentTestData.AddGuestProfile(Store, otherTeam, "Other Guest");
+
+        Assert.ThrowsAsync<NotFoundException>(() =>
+            Service.UpdateGuestPlayerProfileAsync(team.Id, otherProfile.Id, TournamentTestData.OwnerId, "Guest ADC"));
+    }
+
+    [Test]
+    [Description("Verifies that updating a guest profile changes the live profile and revision timestamp.")]
+    public void UpdateGuestPlayerProfileAsync_UpdatesNameAndRevision()
+    {
+        var team = TournamentTestData.AddTeam(Store);
+        var profile = TournamentTestData.AddGuestProfile(Store, team, "Guest Mid");
+        var previousRevision = profile.LastRevisionUtc;
+
+        var updated = Service.UpdateGuestPlayerProfileAsync(team.Id, profile.Id, TournamentTestData.OwnerId, "Guest ADC").GetAwaiter().GetResult();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(updated.Name, Is.EqualTo("Guest ADC"));
+            Assert.That(profile.LastRevisionUtc, Is.GreaterThan(previousRevision));
+        });
+    }
+
+    [Test]
+    [Description("Verifies that role updates cannot remove the last owner from a team.")]
+    public void UpdateMemberRoleAsync_RejectsRemovingLastOwner()
+    {
+        var team = TournamentTestData.AddTeam(Store);
+
+        Assert.ThrowsAsync<ValidationException>(() =>
+            Service.UpdateMemberRoleAsync(team.Id, TournamentTestData.OwnerId, TournamentTestData.OwnerId, TeamRoleDto.Member));
+    }
+
+    [Test]
+    [Description("Verifies that role updates fail when the target user is not a team member.")]
+    public void UpdateMemberRoleAsync_RejectsUnknownMember()
+    {
+        var team = TournamentTestData.AddTeam(Store);
+
+        Assert.ThrowsAsync<NotFoundException>(() =>
+            Service.UpdateMemberRoleAsync(team.Id, TournamentTestData.OwnerId, TournamentTestData.MemberId, TeamRoleDto.Member));
+    }
+
+    [Test]
+    [Description("Verifies that an owner can update an existing member's role.")]
+    public void UpdateMemberRoleAsync_UpdatesExistingMemberRole()
+    {
+        var team = TournamentTestData.AddTeam(Store, memberships:
+        [
+            (TournamentTestData.OwnerId, TeamRole.Owner),
+            (TournamentTestData.MemberId, TeamRole.Member)
+        ]);
+
+        var updated = Service.UpdateMemberRoleAsync(team.Id, TournamentTestData.OwnerId, TournamentTestData.MemberId, TeamRoleDto.Editor).GetAwaiter().GetResult();
+
+        Assert.That(updated.Memberships.Single(member => member.UserId == TournamentTestData.MemberId).Role, Is.EqualTo(TeamRoleDto.Editor));
+    }
+}
