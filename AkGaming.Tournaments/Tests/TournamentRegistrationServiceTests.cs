@@ -1,3 +1,4 @@
+using AkGaming.Tournaments.Application.Exceptions;
 using AkGaming.Tournaments.Application.Services;
 using AkGaming.Tournaments.Domain.Entities;
 using AkGaming.Tournaments.Domain.Enums;
@@ -15,6 +16,7 @@ public sealed class TournamentRegistrationServiceTests
         var team = new Team
         {
             Id = Guid.NewGuid(),
+            GameId = "lol",
             Name = "AKG Blue",
             Memberships =
             [
@@ -79,6 +81,47 @@ public sealed class TournamentRegistrationServiceTests
             Assert.That(reviewed.ActiveRosterId, Is.EqualTo(pendingChange.Rosters.Single(roster => roster.Version == 2).Id));
             Assert.That(reviewed.Rosters.Single(roster => roster.Version == 2).Status, Is.EqualTo(Contracts.DTOs.RosterStatusDto.Approved));
         });
+    }
+
+    [Test]
+    public void SubmitRegistrationAsync_RejectsTournamentForDifferentGame()
+    {
+        var store = new InMemoryStore();
+        store.Games.Add(new Game { Id = "lol", Name = "League of Legends" });
+        store.Games.Add(new Game { Id = "valorant", Name = "Valorant" });
+        var team = new Team
+        {
+            Id = Guid.NewGuid(),
+            GameId = "lol",
+            Name = "AKG Blue",
+            Memberships =
+            [
+                new TeamMembership { Id = Guid.NewGuid(), UserId = "captain-1", Role = TeamRole.Owner }
+            ]
+        };
+        var memberProfile = new PlayerProfile
+        {
+            Id = Guid.NewGuid(),
+            GameId = "lol",
+            Name = "Captain Top",
+            Type = PlayerProfileType.User,
+            UserId = "captain-1"
+        };
+        store.Teams.Add(team);
+        store.PlayerProfiles.Add(memberProfile);
+        var tournament = new Tournament
+        {
+            Id = Guid.NewGuid(),
+            Name = "Campus Clash",
+            GameId = "valorant",
+            Status = TournamentStatus.RegistrationOpen
+        };
+        store.Tournaments.Add(tournament);
+
+        var service = CreateService(store);
+
+        Assert.ThrowsAsync<ValidationException>(() =>
+            service.SubmitRegistrationAsync(team.Id, tournament.Id, "captain-1", [memberProfile.Id]));
     }
 
     private static TournamentRegistrationService CreateService(InMemoryStore store)

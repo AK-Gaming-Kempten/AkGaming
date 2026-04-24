@@ -39,6 +39,7 @@ public sealed class TournamentRegistrationService(
         var team = await RequireTeamAsync(teamId, cancellationToken);
         EnsureCanEditTeam(team, actingUserId);
         var tournament = await RequireTournamentAsync(tournamentId, cancellationToken);
+        EnsureTeamCanRegisterForTournament(team, tournament);
 
         if (await tournamentRegistrationRepository.GetByTeamAndTournamentAsync(teamId, tournamentId, cancellationToken) is not null)
         {
@@ -112,6 +113,7 @@ public sealed class TournamentRegistrationService(
         var team = registration.Team ?? await RequireTeamAsync(registration.TeamId, cancellationToken);
         EnsureCanEditTeam(team, actingUserId);
         var tournament = await RequireTournamentAsync(registration.TournamentId, cancellationToken);
+        EnsureTeamCanRegisterForTournament(team, tournament);
         var selectedProfiles = await ResolveEligibleProfilesAsync(team, tournament.GameId, playerProfileIds, cancellationToken);
 
         var nextVersion = registration.Rosters.Count == 0 ? 1 : registration.Rosters.Max(roster => roster.Version) + 1;
@@ -181,6 +183,14 @@ public sealed class TournamentRegistrationService(
                 && (member.Role == TeamRole.Owner || member.Role == TeamRole.Editor)))
         {
             throw new ForbiddenException("Only owners and editors can manage registrations.");
+        }
+    }
+
+    private static void EnsureTeamCanRegisterForTournament(Team team, Tournament tournament)
+    {
+        if (!string.Equals(team.GameId, tournament.GameId, StringComparison.OrdinalIgnoreCase))
+        {
+            throw new ValidationException("Teams can only register for tournaments in their game.");
         }
     }
 

@@ -26,6 +26,7 @@ internal static class MappingExtensions
     public static TeamDto ToDto(this Team team)
         => new(
             team.Id,
+            team.GameId,
             team.Name,
             team.LogoAssetId,
             team.Memberships

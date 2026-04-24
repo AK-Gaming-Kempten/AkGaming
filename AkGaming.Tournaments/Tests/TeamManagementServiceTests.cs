@@ -13,13 +13,15 @@ public sealed class TeamManagementServiceTests
     public void CreateTeamAsync_AssignsCreatorAsOwner()
     {
         var store = new InMemoryStore();
+        store.Games.Add(new Game { Id = "lol", Name = "League of Legends" });
         var service = CreateService(store);
 
-        var team = service.CreateTeamAsync("captain-1", "AKG Blue").GetAwaiter().GetResult();
+        var team = service.CreateTeamAsync("captain-1", "lol", "AKG Blue").GetAwaiter().GetResult();
 
         Assert.That(team.Memberships, Has.Count.EqualTo(1));
         Assert.Multiple(() =>
         {
+            Assert.That(team.GameId, Is.EqualTo("lol"));
             Assert.That(team.Name, Is.EqualTo("AKG Blue"));
             Assert.That(team.Memberships[0].UserId, Is.EqualTo("captain-1"));
             Assert.That(team.Memberships[0].Role, Is.EqualTo(TeamRoleDto.Owner));
@@ -33,6 +35,7 @@ public sealed class TeamManagementServiceTests
         store.Teams.Add(new Team
         {
             Id = Guid.NewGuid(),
+            GameId = "lol",
             Name = "AKG Blue",
             Memberships =
             [
@@ -54,6 +57,7 @@ public sealed class TeamManagementServiceTests
         var team = new Team
         {
             Id = Guid.NewGuid(),
+            GameId = "lol",
             Name = "AKG Blue",
             Memberships =
             [
@@ -94,6 +98,53 @@ public sealed class TeamManagementServiceTests
         var profiles = service.GetAvailableProfilesAsync(team.Id, "lol").GetAwaiter().GetResult();
 
         Assert.That(profiles.Select(profile => profile.Name), Is.EquivalentTo(new[] { "Guest Mid", "Member Jungle" }));
+    }
+
+    [Test]
+    public void CreateGuestPlayerProfileAsync_UsesTeamGame()
+    {
+        var store = new InMemoryStore();
+        store.Games.Add(new Game { Id = "lol", Name = "League of Legends" });
+        var team = new Team
+        {
+            Id = Guid.NewGuid(),
+            GameId = "lol",
+            Name = "AKG Blue",
+            Memberships =
+            [
+                new TeamMembership { Id = Guid.NewGuid(), UserId = "captain-1", Role = TeamRole.Owner }
+            ]
+        };
+        store.Teams.Add(team);
+
+        var service = CreateService(store);
+
+        var profile = service.CreateGuestPlayerProfileAsync(team.Id, "captain-1", "Guest Mid").GetAwaiter().GetResult();
+
+        Assert.That(profile.GameId, Is.EqualTo("lol"));
+    }
+
+    [Test]
+    public void GetAvailableProfilesAsync_RejectsGameThatDoesNotMatchTeam()
+    {
+        var store = new InMemoryStore();
+        store.Games.Add(new Game { Id = "lol", Name = "League of Legends" });
+        store.Games.Add(new Game { Id = "valorant", Name = "Valorant" });
+        var team = new Team
+        {
+            Id = Guid.NewGuid(),
+            GameId = "lol",
+            Name = "AKG Blue",
+            Memberships =
+            [
+                new TeamMembership { Id = Guid.NewGuid(), UserId = "captain-1", Role = TeamRole.Owner }
+            ]
+        };
+        store.Teams.Add(team);
+
+        var service = CreateService(store);
+
+        Assert.ThrowsAsync<ValidationException>(() => service.GetAvailableProfilesAsync(team.Id, "valorant"));
     }
 
     private static TeamManagementService CreateService(InMemoryStore store)

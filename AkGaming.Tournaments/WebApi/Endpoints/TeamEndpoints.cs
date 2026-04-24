@@ -11,7 +11,7 @@ public static class TeamEndpoints
             .WithTags("Teams");
 
         group.MapPost("/", async (CreateTeamRequest request, ITeamManagementService service, CancellationToken cancellationToken) =>
-            Results.Ok(await service.CreateTeamAsync(request.ActingUserId, request.Name, cancellationToken)))
+            Results.Ok(await service.CreateTeamAsync(request.ActingUserId, request.GameId, request.Name, cancellationToken)))
             .WithName("CreateTeam")
             .WithSummary("Create a team and assign the creator as owner.");
 
@@ -39,7 +39,7 @@ public static class TeamEndpoints
             .WithSummary("List all player profiles the team can use for a game.");
 
         group.MapPost("/{teamId:guid}/guest-player-profiles", async (Guid teamId, CreateGuestPlayerProfileRequest request, ITeamManagementService service, CancellationToken cancellationToken) =>
-            Results.Ok(await service.CreateGuestPlayerProfileAsync(teamId, request.ActingUserId, request.GameId, request.Name, cancellationToken)))
+            Results.Ok(await service.CreateGuestPlayerProfileAsync(teamId, request.ActingUserId, request.Name, cancellationToken)))
             .WithName("CreateGuestPlayerProfile")
             .WithSummary("Create a guest player profile owned by the team.");
 
@@ -51,9 +51,9 @@ public static class TeamEndpoints
         return endpoints;
     }
 
-    public sealed record CreateTeamRequest(string ActingUserId, string Name);
+    public sealed record CreateTeamRequest(string ActingUserId, string GameId, string Name);
     public sealed record AddTeamMemberRequest(string ActingUserId, string UserId, TeamRoleDto Role);
     public sealed record UpdateTeamMemberRoleRequest(string ActingUserId, TeamRoleDto Role);
-    public sealed record CreateGuestPlayerProfileRequest(string ActingUserId, string GameId, string Name);
+    public sealed record CreateGuestPlayerProfileRequest(string ActingUserId, string Name);
     public sealed record UpdateGuestPlayerProfileRequest(string ActingUserId, string Name);
 }

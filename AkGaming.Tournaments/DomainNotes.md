@@ -22,23 +22,25 @@ This file captures domain and workflow decisions that are intentionally not full
 - Guest player profiles exist so a captain can register a full team without waiting for every player to sign up first.
 
 ## Teams And Memberships
-- Teams are not scoped to a single game.
+- Teams are scoped to a single game.
 - A team can have members with roles:
   - `Owner`
   - `Editor`
   - `Member`
 - The creator of a team should become an owner automatically.
 - The exact owner constraints should be enforced in the application layer. At minimum, a team should not end up without an owner.
-- A team's available player pool for a game consists of:
-  - guest player profiles owned by the team for that game
-  - user-backed player profiles for team members for that game
+- A team's available player pool consists of:
+  - guest player profiles owned by the team for the team's game
+  - user-backed player profiles for team members for the team's game
+- Teams can only register for tournaments in the team's game.
 
 ## Games
 - `Game` is its own domain type.
+- Teams are scoped to a game.
 - Tournaments are scoped to a game.
 - Player profiles are also scoped to a game.
-- This allows one team to maintain separate player profiles per game instead of pretending one profile works across all titles.
-- Later validation should ensure that a roster for a tournament only contains player profiles for that tournament's game.
+- This allows players to maintain separate profiles per game instead of pretending one profile works across all titles.
+- Roster validation ensures that selected player profiles belong to the same game as the team and tournament.
 
 ## Logo Assets
 - Games, tournaments, teams, and player profiles can all have a logo.

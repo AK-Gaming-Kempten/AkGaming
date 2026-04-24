@@ -29,13 +29,14 @@ public sealed class PlayerProfileManagementService(
         ValidateName(name, "Player profile");
         await RequireGameAsync(gameId, cancellationToken);
 
-        var playerProfile = await playerProfileRepository.GetByUserAndGameAsync(userId, gameId, cancellationToken);
+        var trimmedGameId = gameId.Trim();
+        var playerProfile = await playerProfileRepository.GetByUserAndGameAsync(userId.Trim(), trimmedGameId, cancellationToken);
         if (playerProfile is null)
         {
             playerProfile = new PlayerProfile
             {
                 Id = Guid.NewGuid(),
-                GameId = gameId,
+                GameId = trimmedGameId,
                 Name = name.Trim(),
                 Type = PlayerProfileType.User,
                 UserId = userId.Trim()

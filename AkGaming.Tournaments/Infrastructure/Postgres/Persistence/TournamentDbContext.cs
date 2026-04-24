@@ -43,7 +43,12 @@ public sealed class TournamentDbContext(DbContextOptions<TournamentDbContext> op
         {
             entity.ToTable("teams");
             entity.HasKey(team => team.Id);
+            entity.Property(team => team.GameId).HasMaxLength(64);
             entity.Property(team => team.Name).HasMaxLength(256);
+            entity.HasOne(team => team.Game)
+                .WithMany()
+                .HasForeignKey(team => team.GameId)
+                .OnDelete(DeleteBehavior.Restrict);
             entity.HasOne(team => team.LogoAsset)
                 .WithMany()
                 .HasForeignKey(team => team.LogoAssetId)

@@ -18,14 +18,16 @@ public sealed class TeamManagementService(
         return team?.ToDto();
     }
 
-    public async Task<TeamDto> CreateTeamAsync(string actingUserId, string name, CancellationToken cancellationToken = default)
+    public async Task<TeamDto> CreateTeamAsync(string actingUserId, string gameId, string name, CancellationToken cancellationToken = default)
     {
         ValidateUserId(actingUserId);
         ValidateName(name, "Team");
+        await RequireGameAsync(gameId, cancellationToken);
 
         var team = new Team
         {
             Id = Guid.NewGuid(),
+            GameId = gameId.Trim(),
             Name = name.Trim(),
             Memberships =
             [
@@ -93,11 +95,10 @@ public sealed class TeamManagementService(
         return team.ToDto();
     }
 
-    public async Task<PlayerProfileDto> CreateGuestPlayerProfileAsync(Guid teamId, string actingUserId, string gameId, string name, CancellationToken cancellationToken = default)
+    public async Task<PlayerProfileDto> CreateGuestPlayerProfileAsync(Guid teamId, string actingUserId, string name, CancellationToken cancellationToken = default)
     {
         ValidateUserId(actingUserId);
         ValidateName(name, "Player profile");
-        await RequireGameAsync(gameId, cancellationToken);
 
         var team = await RequireTeamAsync(teamId, cancellationToken);
         EnsureCanEditTeam(team, actingUserId);
@@ -106,7 +107,7 @@ public sealed class TeamManagementService(
         {
             Id = Guid.NewGuid(),
             TeamId = team.Id,
-            GameId = gameId.Trim(),
+            GameId = team.GameId,
             Name = name.Trim(),
             Type = PlayerProfileType.Guest
         };
@@ -144,6 +145,8 @@ public sealed class TeamManagementService(
         await RequireGameAsync(gameId, cancellationToken);
 
         var team = await RequireTeamAsync(teamId, cancellationToken);
+        EnsureTeamGame(team, gameId);
+
         var memberUserIds = team.Memberships
             .Select(member => member.UserId)
             .Distinct(StringComparer.OrdinalIgnoreCase)
@@ -158,6 +161,14 @@ public sealed class TeamManagementService(
             .OrderBy(profile => profile.Name, StringComparer.OrdinalIgnoreCase)
             .Select(profile => profile.ToDto())
             .ToList();
+    }
+
+    private static void EnsureTeamGame(Team team, string gameId)
+    {
+        if (!string.Equals(team.GameId, gameId.Trim(), StringComparison.OrdinalIgnoreCase))
+        {
+            throw new ValidationException("Teams can only use player profiles for their game.");
+        }
     }
 
     private async Task<Team> RequireTeamAsync(Guid teamId, CancellationToken cancellationToken)

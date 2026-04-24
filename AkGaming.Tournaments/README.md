@@ -10,7 +10,7 @@ The idea is to build a platform that is both specifically designed for the LoL t
 - Team Captains can register their teams. Optimally, durign signup, it is enforced that he is on the discord
 - Ranks are automatically checked during signup
 - During signup, captains have to agree to out fair play policy
-- Teams are registered by captains and can be used for multiple tournaments. Tournaments have teams as participants, single player tournaments are realized via single player teams
+- Teams are registered by captains for a specific game and can be used for multiple tournaments in that game. Tournaments have teams as participants, single player tournaments are realized via single player teams
 
 ## Architecture
 - We'll use a dotnet backend and a Blazor frontend
