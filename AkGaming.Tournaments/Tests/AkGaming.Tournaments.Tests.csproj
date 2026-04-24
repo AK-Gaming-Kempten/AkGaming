@@ -14,6 +14,7 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.0.1" />
+    <PackageReference Include="Moq" Version="4.20.72" />
     <PackageReference Include="NUnit" Version="4.4.0" />
     <PackageReference Include="NUnit.Analyzers" Version="4.11.2">
       <PrivateAssets>all</PrivateAssets>
@@ -27,6 +28,7 @@
     <ProjectReference Include="..\Contracts\AkGaming.Tournaments.Contracts.csproj" />
     <ProjectReference Include="..\Domain\AkGaming.Tournaments.Domain.csproj" />
     <ProjectReference Include="..\Infrastructure\Sqlite\AkGaming.Tournaments.Infrastructure.Sqlite.csproj" />
+    <ProjectReference Include="..\WebApi\AkGaming.Tournaments.WebApi.csproj" />
   </ItemGroup>
 
 </Project>

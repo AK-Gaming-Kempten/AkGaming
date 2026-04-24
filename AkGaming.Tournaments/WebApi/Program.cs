@@ -2,19 +2,19 @@ using System.Text.Json.Serialization;
 using AkGaming.Tournaments.Application.DependencyInjection;
 using AkGaming.Tournaments.Infrastructure.Postgres;
 using AkGaming.Tournaments.Infrastructure.Sqlite;
-using AkGaming.Tournaments.WebApi.Endpoints;
 using AkGaming.Tournaments.WebApi.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddProblemDetails();
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+    });
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddOpenApi();
 builder.Services.AddSwaggerGen();
-builder.Services.ConfigureHttpJsonOptions(options =>
-{
-    options.SerializerOptions.Converters.Add(new JsonStringEnumConverter());
-});
 builder.Services.AddTournamentApplication();
 
 var provider = builder.Configuration["Persistence:Provider"];
@@ -39,9 +39,6 @@ if (app.Environment.IsDevelopment())
 app.UseMiddleware<ApiExceptionMiddleware>();
 app.UseHttpsRedirection();
 
-app.MapGameEndpoints();
-app.MapPlayerProfileEndpoints();
-app.MapTeamEndpoints();
-app.MapTournamentRegistrationEndpoints();
+app.MapControllers();
 
 app.Run();
