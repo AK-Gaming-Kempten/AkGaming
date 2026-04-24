@@ -17,3 +17,4 @@
 ## Blazor/Razor Projects
 
 - Prefer reusable Razor components for repeated UI patterns, repeated forms, repeated cards, and repeated loop markup. Keep pages focused on orchestration and state, and move reusable rendering into components with clear parameters.
+- Keep C# component logic in code-behind `.razor.cs` files. Avoid `@code` blocks in `.razor` files except for trivial markup-only parameter declarations when a code-behind file would add no value.

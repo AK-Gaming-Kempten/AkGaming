@@ -2,6 +2,7 @@ using System.Text.Json.Serialization;
 using AkGaming.Tournaments.Application.DependencyInjection;
 using AkGaming.Tournaments.Infrastructure.Postgres;
 using AkGaming.Tournaments.Infrastructure.Sqlite;
+using AkGaming.Tournaments.Infrastructure.Sqlite.Persistence;
 using AkGaming.Tournaments.WebApi.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -28,6 +29,11 @@ else
 }
 
 var app = builder.Build();
+
+if (!string.Equals(provider, "Postgres", StringComparison.OrdinalIgnoreCase) && app.Environment.IsDevelopment())
+{
+    await app.Services.InitializeTournamentSqliteDatabaseAsync();
+}
 
 if (app.Environment.IsDevelopment())
 {
