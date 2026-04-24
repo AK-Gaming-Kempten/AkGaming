@@ -9,7 +9,6 @@ namespace AkGaming.Tournaments.Tests.Infrastructure;
 
 public sealed class SqliteRepositoryTests
 {
-
     private SqliteTestDatabase Database { get; set; } = null!;
 
     [SetUp]
@@ -24,11 +23,11 @@ public sealed class SqliteRepositoryTests
         Database.Dispose();
     }
 
-
     [Test]
     [Description("Verifies that the SQLite EF unit of work persists repository additions.")]
     public async Task EfUnitOfWork_SaveChangesAsync_PersistsRepositoryAdditions()
     {
+        // Arrange
         await SeedGamesAsync();
         var team = new Team
         {
@@ -46,6 +45,7 @@ public sealed class SqliteRepositoryTests
             ]
         };
 
+        // Act
         await using (var dbContext = Database.CreateContext())
         {
             var repository = new TeamRepository(dbContext);
@@ -58,6 +58,7 @@ public sealed class SqliteRepositoryTests
         await using var queryContext = Database.CreateContext();
         var saved = await queryContext.Teams.Include(item => item.Memberships).SingleAsync(item => item.Id == team.Id);
 
+        // Assert
         Assert.Multiple(() =>
         {
             Assert.That(saved.Name, Is.EqualTo("AKG Blue"));
@@ -69,6 +70,7 @@ public sealed class SqliteRepositoryTests
     [Description("Verifies that the SQLite game repository returns games ordered by name and can look up a game by id.")]
     public async Task GameRepository_ReturnsOrderedGamesAndFindsById()
     {
+        // Arrange
         await using (var dbContext = Database.CreateContext())
         {
             dbContext.Games.AddRange(
@@ -78,12 +80,14 @@ public sealed class SqliteRepositoryTests
             await dbContext.SaveChangesAsync();
         }
 
+        // Act
         await using var queryContext = Database.CreateContext();
         var repository = new GameRepository(queryContext);
 
         var games = await repository.GetAllAsync();
         var game = await repository.GetByIdAsync("lol");
 
+        // Assert
         Assert.Multiple(() =>
         {
             Assert.That(games.Select(item => item.Name), Is.EqualTo(new[] { "Counter-Strike 2", "League of Legends", "Valorant" }));
@@ -96,6 +100,7 @@ public sealed class SqliteRepositoryTests
     [Description("Verifies that the SQLite player profile repository resolves distinct ids and returns an empty result for an empty id set.")]
     public async Task PlayerProfileRepository_GetByIdsAsync_HandlesDistinctAndEmptyIdSets()
     {
+        // Arrange
         await SeedGamesAsync();
         PlayerProfile first;
         PlayerProfile second;
@@ -107,12 +112,14 @@ public sealed class SqliteRepositoryTests
             await dbContext.SaveChangesAsync();
         }
 
+        // Act
         await using var queryContext = Database.CreateContext();
         var repository = new PlayerProfileRepository(queryContext);
 
         var profiles = await repository.GetByIdsAsync([first.Id, first.Id, second.Id]);
         var empty = await repository.GetByIdsAsync([]);
 
+        // Assert
         Assert.Multiple(() =>
         {
             Assert.That(profiles.Select(profile => profile.Id), Is.EquivalentTo(new[] { first.Id, second.Id }));
@@ -124,6 +131,7 @@ public sealed class SqliteRepositoryTests
     [Description("Verifies that the SQLite player profile repository returns user profiles ordered by game and name.")]
     public async Task PlayerProfileRepository_GetByUserIdAsync_ReturnsProfilesOrderedByGameAndName()
     {
+        // Arrange
         await SeedGamesAsync();
         await using (var dbContext = Database.CreateContext())
         {
@@ -135,11 +143,13 @@ public sealed class SqliteRepositoryTests
             await dbContext.SaveChangesAsync();
         }
 
+        // Act
         await using var queryContext = Database.CreateContext();
         var repository = new PlayerProfileRepository(queryContext);
 
         var profiles = await repository.GetByUserIdAsync("user-1");
 
+        // Assert
         Assert.That(
             profiles.Select(profile => (profile.GameId, profile.Name)),
             Is.EqualTo(new[] { ("lol", "Summoner A"), ("lol", "Summoner B"), ("valorant", "Duelist") }));
@@ -149,6 +159,7 @@ public sealed class SqliteRepositoryTests
     [Description("Verifies that the SQLite player profile repository filters available user profiles by users and game.")]
     public async Task PlayerProfileRepository_GetByUsersAndGameAsync_FiltersByUsersAndGame()
     {
+        // Arrange
         await SeedGamesAsync();
         await using (var dbContext = Database.CreateContext())
         {
@@ -160,12 +171,14 @@ public sealed class SqliteRepositoryTests
             await dbContext.SaveChangesAsync();
         }
 
+        // Act
         await using var queryContext = Database.CreateContext();
         var repository = new PlayerProfileRepository(queryContext);
 
         var profiles = await repository.GetByUsersAndGameAsync(["captain-1", "member-1", "CAPTAIN-1", " "], "lol");
         var empty = await repository.GetByUsersAndGameAsync([], "lol");
 
+        // Assert
         Assert.Multiple(() =>
         {
             Assert.That(profiles.Select(profile => profile.Name), Is.EqualTo(new[] { "Captain Top", "Member Jungle" }));
@@ -177,13 +190,16 @@ public sealed class SqliteRepositoryTests
     [Description("Verifies that the SQLite team repository loads memberships and guest profiles needed by application team rules.")]
     public async Task TeamRepository_GetByIdAsync_LoadsMembershipsAndGuestProfiles()
     {
+        // Arrange
         var team = await SeedTeamWithProfilesAsync();
 
+        // Act
         await using var queryContext = Database.CreateContext();
         var repository = new TeamRepository(queryContext);
 
         var loaded = await repository.GetByIdAsync(team.Id);
 
+        // Assert
         Assert.Multiple(() =>
         {
             Assert.That(loaded, Is.Not.Null);
@@ -196,29 +212,36 @@ public sealed class SqliteRepositoryTests
     [Description("Verifies that the SQLite model enforces one registration per team and tournament.")]
     public async Task TournamentRegistrationModel_EnforcesUniqueTeamTournamentRegistration()
     {
+        // Arrange
         var team = await SeedTeamWithProfilesAsync();
         await using var dbContext = Database.CreateContext();
         var tournament = Tournament("Campus Clash");
         dbContext.Tournaments.Add(tournament);
         await dbContext.SaveChangesAsync();
 
+        // Act
         dbContext.TournamentRegistrations.Add(Registration(team.Id, tournament.Id, DateTimeOffset.UtcNow));
         dbContext.TournamentRegistrations.Add(Registration(team.Id, tournament.Id, DateTimeOffset.UtcNow.AddMinutes(1)));
+        Task Act() => dbContext.SaveChangesAsync();
 
-        Assert.ThrowsAsync<DbUpdateException>(() => dbContext.SaveChangesAsync());
+        // Assert
+        Assert.ThrowsAsync<DbUpdateException>(Act);
     }
 
     [Test]
     [Description("Verifies that the SQLite tournament registration repository loads the aggregate graph needed for registration and roster workflows.")]
     public async Task TournamentRegistrationRepository_GetByIdAsync_LoadsTeamTournamentActiveRosterAndSnapshots()
     {
+        // Arrange
         var registration = await SeedApprovedRegistrationAsync();
 
+        // Act
         await using var queryContext = Database.CreateContext();
         var repository = new TournamentRegistrationRepository(queryContext);
 
         var loaded = await repository.GetByIdAsync(registration.Id);
 
+        // Assert
         Assert.Multiple(() =>
         {
             Assert.That(loaded, Is.Not.Null);
@@ -235,6 +258,7 @@ public sealed class SqliteRepositoryTests
     [Description("Verifies that the SQLite tournament registration repository returns a team's registrations newest first.")]
     public async Task TournamentRegistrationRepository_GetByTeamIdAsync_ReturnsNewestFirst()
     {
+        // Arrange
         var team = await SeedTeamWithProfilesAsync();
         TournamentRegistration older;
         TournamentRegistration newer;
@@ -251,11 +275,13 @@ public sealed class SqliteRepositoryTests
             await dbContext.SaveChangesAsync();
         }
 
+        // Act
         await using var queryContext = Database.CreateContext();
         var repository = new TournamentRegistrationRepository(queryContext);
 
         var registrations = await repository.GetByTeamIdAsync(team.Id);
 
+        // Assert
         Assert.That(registrations.Select(registration => registration.Id), Is.EqualTo(new[] { newer.Id, older.Id }));
     }
 
@@ -267,7 +293,6 @@ public sealed class SqliteRepositoryTests
             new Game { Id = TournamentTestData.OtherGameId, Name = "Valorant" });
         await dbContext.SaveChangesAsync();
     }
-
 
     private async Task<Team> SeedTeamWithProfilesAsync()
     {
@@ -300,7 +325,6 @@ public sealed class SqliteRepositoryTests
         await dbContext.SaveChangesAsync();
         return team;
     }
-
 
     private async Task<TournamentRegistration> SeedApprovedRegistrationAsync()
     {

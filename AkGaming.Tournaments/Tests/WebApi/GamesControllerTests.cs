@@ -7,20 +7,31 @@ namespace AkGaming.Tournaments.Tests.WebApi;
 
 public sealed class GamesControllerTests
 {
+    private Mock<IGameCatalogService> Service { get; set; } = null!;
+    private GamesController Controller { get; set; } = null!;
+
+    [SetUp]
+    public void SetUp()
+    {
+        Service = new Mock<IGameCatalogService>();
+        Controller = new GamesController(Service.Object);
+    }
+
     [Test]
     [Description("Verifies that the games controller returns the game catalog from the application service.")]
     public async Task GetGames_ReturnsOkWithGames()
     {
+        // Arrange
         var games = new List<GameDto> { new("lol", "League of Legends", null) };
-        var service = new Mock<IGameCatalogService>();
-        service
+        Service
             .Setup(mock => mock.GetGamesAsync(CancellationToken.None))
             .ReturnsAsync(games);
-        var controller = new GamesController(service.Object);
 
-        var response = await controller.GetGames(CancellationToken.None);
+        // Act
+        var response = await Controller.GetGames(CancellationToken.None);
 
+        // Assert
         WebApiControllerTestHelpers.AssertOkValue(response, games);
-        service.Verify(mock => mock.GetGamesAsync(CancellationToken.None), Times.Once);
+        Service.Verify(mock => mock.GetGamesAsync(CancellationToken.None), Times.Once);
     }
 }

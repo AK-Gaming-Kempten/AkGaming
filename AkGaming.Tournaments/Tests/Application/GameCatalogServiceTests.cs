@@ -22,12 +22,15 @@ public sealed class GameCatalogServiceTests
     [Description("Verifies that the game catalog returns public game DTOs ordered by display name.")]
     public void GetGamesAsync_ReturnsGamesOrderedByName()
     {
+        // Arrange
         TournamentTestData.AddGame(Store, "valorant", "Valorant");
         TournamentTestData.AddGame(Store, "lol", "League of Legends");
         TournamentTestData.AddGame(Store, "cs2", "Counter-Strike 2");
 
+        // Act
         var games = Service.GetGamesAsync().GetAwaiter().GetResult();
 
+        // Assert
         Assert.That(games.Select(game => game.Name), Is.EqualTo(new[] { "Counter-Strike 2", "League of Legends", "Valorant" }));
     }
 }

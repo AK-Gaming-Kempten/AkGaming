@@ -9,7 +9,6 @@ namespace AkGaming.Tournaments.Tests.Application;
 
 public sealed class TournamentRegistrationSubmissionTests
 {
-
     private InMemoryStore Store { get; set; } = null!;
 
     private TournamentRegistrationService Service { get; set; } = null!;
@@ -21,13 +20,17 @@ public sealed class TournamentRegistrationSubmissionTests
         Service = CreateService();
     }
 
-
     [Test]
     [Description("Verifies that getting an unknown registration returns null.")]
     public void GetRegistrationAsync_ReturnsNullForUnknownRegistration()
     {
-        var registration = Service.GetRegistrationAsync(Guid.NewGuid()).GetAwaiter().GetResult();
+        // Arrange
+        var registrationId = Guid.NewGuid();
 
+        // Act
+        var registration = Service.GetRegistrationAsync(registrationId).GetAwaiter().GetResult();
+
+        // Assert
         Assert.That(registration, Is.Null);
     }
 
@@ -35,13 +38,21 @@ public sealed class TournamentRegistrationSubmissionTests
     [Description("Verifies that listing registrations requires the team to exist.")]
     public void GetTeamRegistrationsAsync_RejectsUnknownTeam()
     {
-        Assert.ThrowsAsync<NotFoundException>(() => Service.GetTeamRegistrationsAsync(Guid.NewGuid()));
+        // Arrange
+        var teamId = Guid.NewGuid();
+
+        // Act
+        Task Act() => Service.GetTeamRegistrationsAsync(teamId);
+
+        // Assert
+        Assert.ThrowsAsync<NotFoundException>(Act);
     }
 
     [Test]
     [Description("Verifies that team registrations are returned newest first for a known team.")]
     public void GetTeamRegistrationsAsync_ReturnsRegistrationsNewestFirst()
     {
+        // Arrange
         var (team, tournament, _, _) = AddRegisterableTeamAndTournament();
         var older = TournamentTestData.AddRegistration(Store, team, tournament);
         older.SubmittedAtUtc = DateTimeOffset.UtcNow.AddDays(-1);
@@ -49,8 +60,10 @@ public sealed class TournamentRegistrationSubmissionTests
         var newer = TournamentTestData.AddRegistration(Store, team, newerTournament);
         newer.SubmittedAtUtc = DateTimeOffset.UtcNow;
 
+        // Act
         var registrations = Service.GetTeamRegistrationsAsync(team.Id).GetAwaiter().GetResult();
 
+        // Assert
         Assert.That(registrations.Select(registration => registration.Id), Is.EqualTo(new[] { newer.Id, older.Id }));
     }
 
@@ -58,14 +71,17 @@ public sealed class TournamentRegistrationSubmissionTests
     [Description("Verifies that editors, not only owners, can submit registrations for a team.")]
     public void SubmitRegistrationAsync_AllowsEditorsToRegisterTeam()
     {
+        // Arrange
         var (team, tournament, memberProfile, _) = AddRegisterableTeamAndTournament(includeEditor: true);
 
+        // Act
         var registration = Service.SubmitRegistrationAsync(
             team.Id,
             tournament.Id,
             TournamentTestData.EditorId,
             [memberProfile.Id]).GetAwaiter().GetResult();
 
+        // Assert
         Assert.That(registration.Status, Is.EqualTo(TournamentRegistrationStatusDto.Pending));
     }
 
@@ -73,14 +89,17 @@ public sealed class TournamentRegistrationSubmissionTests
     [Description("Verifies that submitting a registration creates a tournament-specific pending registration with an immutable initial roster snapshot.")]
     public void SubmitRegistrationAsync_CreatesPendingRegistrationWithInitialRosterSnapshots()
     {
+        // Arrange
         var (team, tournament, memberProfile, guestProfile) = AddRegisterableTeamAndTournament();
 
+        // Act
         var registration = Service.SubmitRegistrationAsync(
             team.Id,
             tournament.Id,
             TournamentTestData.OwnerId,
             [memberProfile.Id, guestProfile.Id]).GetAwaiter().GetResult();
 
+        // Assert
         Assert.Multiple(() =>
         {
             Assert.That(registration.TeamId, Is.EqualTo(team.Id));
@@ -98,86 +117,118 @@ public sealed class TournamentRegistrationSubmissionTests
     [Description("Verifies that a team can only register once for the same tournament.")]
     public void SubmitRegistrationAsync_RejectsDuplicateRegistrationForTournament()
     {
+        // Arrange
         var (team, tournament, memberProfile, _) = AddRegisterableTeamAndTournament();
         TournamentTestData.AddRegistration(Store, team, tournament);
 
-        Assert.ThrowsAsync<ConflictException>(() =>
-            Service.SubmitRegistrationAsync(team.Id, tournament.Id, TournamentTestData.OwnerId, [memberProfile.Id]));
+        // Act
+        Task Act() => Service.SubmitRegistrationAsync(team.Id, tournament.Id, TournamentTestData.OwnerId, [memberProfile.Id]);
+
+        // Assert
+        Assert.ThrowsAsync<ConflictException>(Act);
     }
 
     [Test]
     [Description("Verifies that a submitted roster must contain at least one player profile.")]
     public void SubmitRegistrationAsync_RejectsEmptyRoster()
     {
+        // Arrange
         var (team, tournament, _, _) = AddRegisterableTeamAndTournament();
 
-        Assert.ThrowsAsync<ValidationException>(() =>
-            Service.SubmitRegistrationAsync(team.Id, tournament.Id, TournamentTestData.OwnerId, []));
+        // Act
+        Task Act() => Service.SubmitRegistrationAsync(team.Id, tournament.Id, TournamentTestData.OwnerId, []);
+
+        // Assert
+        Assert.ThrowsAsync<ValidationException>(Act);
     }
 
     [Test]
     [Description("Verifies that guest profiles are available only to the team that owns them.")]
     public void SubmitRegistrationAsync_RejectsGuestProfileOwnedByAnotherTeam()
     {
+        // Arrange
         var (team, tournament, _, _) = AddRegisterableTeamAndTournament();
         var otherTeam = TournamentTestData.AddTeam(Store, name: "AKG Red");
         var otherGuest = TournamentTestData.AddGuestProfile(Store, otherTeam, "Other Guest");
 
-        Assert.ThrowsAsync<ValidationException>(() =>
-            Service.SubmitRegistrationAsync(team.Id, tournament.Id, TournamentTestData.OwnerId, [otherGuest.Id]));
+        // Act
+        Task Act() => Service.SubmitRegistrationAsync(team.Id, tournament.Id, TournamentTestData.OwnerId, [otherGuest.Id]);
+
+        // Assert
+        Assert.ThrowsAsync<ValidationException>(Act);
     }
 
     [Test]
     [Description("Verifies that every selected player profile id must resolve to an existing profile.")]
     public void SubmitRegistrationAsync_RejectsMissingPlayerProfile()
     {
+        // Arrange
         var (team, tournament, memberProfile, _) = AddRegisterableTeamAndTournament();
 
-        Assert.ThrowsAsync<ValidationException>(() =>
-            Service.SubmitRegistrationAsync(team.Id, tournament.Id, TournamentTestData.OwnerId, [memberProfile.Id, Guid.NewGuid()]));
+        // Act
+        Task Act() => Service.SubmitRegistrationAsync(team.Id, tournament.Id, TournamentTestData.OwnerId, [memberProfile.Id, Guid.NewGuid()]);
+
+        // Assert
+        Assert.ThrowsAsync<ValidationException>(Act);
     }
 
     [Test]
     [Description("Verifies that selected player profiles must belong to the same game as the tournament.")]
     public void SubmitRegistrationAsync_RejectsPlayerProfileFromDifferentGame()
     {
+        // Arrange
         var (team, tournament, _, _) = AddRegisterableTeamAndTournament();
         var wrongGameProfile = TournamentTestData.AddUserProfile(Store, TournamentTestData.OwnerId, TournamentTestData.OtherGameId, "Wrong Game");
 
-        Assert.ThrowsAsync<ValidationException>(() =>
-            Service.SubmitRegistrationAsync(team.Id, tournament.Id, TournamentTestData.OwnerId, [wrongGameProfile.Id]));
+        // Act
+        Task Act() => Service.SubmitRegistrationAsync(team.Id, tournament.Id, TournamentTestData.OwnerId, [wrongGameProfile.Id]);
+
+        // Assert
+        Assert.ThrowsAsync<ValidationException>(Act);
     }
 
     [Test]
     [Description("Verifies that regular members cannot submit tournament registrations.")]
     public void SubmitRegistrationAsync_RejectsRegularMemberActor()
     {
+        // Arrange
         var (team, tournament, memberProfile, _) = AddRegisterableTeamAndTournament(includeMember: true);
 
-        Assert.ThrowsAsync<ForbiddenException>(() =>
-            Service.SubmitRegistrationAsync(team.Id, tournament.Id, TournamentTestData.MemberId, [memberProfile.Id]));
+        // Act
+        Task Act() => Service.SubmitRegistrationAsync(team.Id, tournament.Id, TournamentTestData.MemberId, [memberProfile.Id]);
+
+        // Assert
+        Assert.ThrowsAsync<ForbiddenException>(Act);
     }
 
     [Test]
     [Description("Verifies that teams can only register for tournaments in the team's game.")]
     public void SubmitRegistrationAsync_RejectsTournamentForDifferentGame()
     {
+        // Arrange
         var (team, _, memberProfile, _) = AddRegisterableTeamAndTournament();
         var otherTournament = TournamentTestData.AddTournament(Store, TournamentTestData.OtherGameId);
 
-        Assert.ThrowsAsync<ValidationException>(() =>
-            Service.SubmitRegistrationAsync(team.Id, otherTournament.Id, TournamentTestData.OwnerId, [memberProfile.Id]));
+        // Act
+        Task Act() => Service.SubmitRegistrationAsync(team.Id, otherTournament.Id, TournamentTestData.OwnerId, [memberProfile.Id]);
+
+        // Assert
+        Assert.ThrowsAsync<ValidationException>(Act);
     }
 
     [Test]
     [Description("Verifies that user-backed profiles are available only when the linked user is a team member.")]
     public void SubmitRegistrationAsync_RejectsUserProfileForNonMember()
     {
+        // Arrange
         var (team, tournament, _, _) = AddRegisterableTeamAndTournament();
         var nonMemberProfile = TournamentTestData.AddUserProfile(Store, TournamentTestData.OtherUserId, TournamentTestData.GameId, "Other User");
 
-        Assert.ThrowsAsync<ValidationException>(() =>
-            Service.SubmitRegistrationAsync(team.Id, tournament.Id, TournamentTestData.OwnerId, [nonMemberProfile.Id]));
+        // Act
+        Task Act() => Service.SubmitRegistrationAsync(team.Id, tournament.Id, TournamentTestData.OwnerId, [nonMemberProfile.Id]);
+
+        // Assert
+        Assert.ThrowsAsync<ValidationException>(Act);
     }
 
     private (Team Team, Tournament Tournament, PlayerProfile MemberProfile, PlayerProfile GuestProfile)
@@ -202,7 +253,6 @@ public sealed class TournamentRegistrationSubmissionTests
         var guestProfile = TournamentTestData.AddGuestProfile(Store, team);
         return (team, tournament, memberProfile, guestProfile);
     }
-
 
     private TournamentRegistrationService CreateService()
         => new(

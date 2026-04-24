@@ -11,4 +11,5 @@
 - Split tests by target layer and responsibility, for example `Tests/Application`, `Tests/Domain`, `Tests/Infrastructure`, and `Tests/WebApi`.
 - Keep test classes small and focused. Prefer multiple controller/service-specific fixtures over one large catch-all fixture.
 - Add a `[Description("...")]` attribute to each test explaining the behavior it verifies.
-- Use shared helpers, setup methods, and fixture properties for common arrange logic and dependencies instead of repeating large object graphs in every test.
+- Separate each test body with explicit `// Arrange`, `// Act`, and `// Assert` comments.
+- Use shared helpers, setup methods, and fixture properties for common arrange logic and dependencies instead of repeating large object graphs in every test. Promote common mocks, services, controllers, stores, and other fixture-level dependencies to class properties initialized by setup methods.

@@ -9,7 +9,6 @@ namespace AkGaming.Tournaments.Tests.Application;
 
 public sealed class TournamentRegistrationReviewTests
 {
-
     private InMemoryStore Store { get; set; } = null!;
 
     private TournamentRegistrationService Service { get; set; } = null!;
@@ -21,18 +20,20 @@ public sealed class TournamentRegistrationReviewTests
         Service = CreateService();
     }
 
-
     [Test]
     [Description("Verifies that roster snapshots stay immutable and are marked outdated when the source player profile is edited later.")]
     public void GetRegistrationAsync_MarksSnapshotOutdatedAfterProfileRevision()
     {
+        // Arrange
         var (registration, memberProfile) = AddApprovedRegistration();
         memberProfile.Name = "Captain Renamed";
         memberProfile.LastRevisionUtc = DateTimeOffset.UtcNow.AddMinutes(1);
 
+        // Act
         var dto = Service.GetRegistrationAsync(registration.Id).GetAwaiter().GetResult();
         var snapshot = dto!.Rosters.Single().PlayerSnapshots.Single(snapshot => snapshot.SourcePlayerProfileId == memberProfile.Id);
 
+        // Assert
         Assert.Multiple(() =>
         {
             Assert.That(snapshot.Name, Is.EqualTo("Captain Top"));
@@ -44,10 +45,13 @@ public sealed class TournamentRegistrationReviewTests
     [Description("Verifies that approving a pending registration approves its pending roster and makes that roster active.")]
     public void ReviewRegistrationAsync_ApprovesPendingRegistrationAndActivatesRoster()
     {
+        // Arrange
         var (registration, _) = AddPendingRegistration();
 
+        // Act
         var reviewed = Service.ReviewRegistrationAsync(registration.Id, true, " approved ").GetAwaiter().GetResult();
 
+        // Assert
         Assert.Multiple(() =>
         {
             Assert.That(reviewed.Status, Is.EqualTo(TournamentRegistrationStatusDto.Approved));
@@ -61,20 +65,28 @@ public sealed class TournamentRegistrationReviewTests
     [Description("Verifies that only pending registrations can be reviewed.")]
     public void ReviewRegistrationAsync_RejectsNonPendingRegistration()
     {
+        // Arrange
         var (registration, _) = AddPendingRegistration();
         registration.Status = TournamentRegistrationStatus.Approved;
 
-        Assert.ThrowsAsync<ValidationException>(() => Service.ReviewRegistrationAsync(registration.Id, true, null));
+        // Act
+        Task Act() => Service.ReviewRegistrationAsync(registration.Id, true, null);
+
+        // Assert
+        Assert.ThrowsAsync<ValidationException>(Act);
     }
 
     [Test]
     [Description("Verifies that rejecting a pending registration rejects its roster and does not activate a roster.")]
     public void ReviewRegistrationAsync_RejectsPendingRegistrationWithoutActiveRoster()
     {
+        // Arrange
         var (registration, _) = AddPendingRegistration();
 
+        // Act
         var reviewed = Service.ReviewRegistrationAsync(registration.Id, false, " rejected ").GetAwaiter().GetResult();
 
+        // Assert
         Assert.Multiple(() =>
         {
             Assert.That(reviewed.Status, Is.EqualTo(TournamentRegistrationStatusDto.Rejected));
@@ -88,16 +100,22 @@ public sealed class TournamentRegistrationReviewTests
     [Description("Verifies that reviewing a registration requires a pending roster to review.")]
     public void ReviewRegistrationAsync_RejectsRegistrationWithoutPendingRoster()
     {
+        // Arrange
         var (registration, _) = AddPendingRegistration();
         registration.Rosters.Single().Status = RosterStatus.Approved;
 
-        Assert.ThrowsAsync<ValidationException>(() => Service.ReviewRegistrationAsync(registration.Id, true, null));
+        // Act
+        Task Act() => Service.ReviewRegistrationAsync(registration.Id, true, null);
+
+        // Assert
+        Assert.ThrowsAsync<ValidationException>(Act);
     }
 
     [Test]
     [Description("Verifies that approving a pending roster revision replaces the active roster.")]
     public void ReviewRosterAsync_ApprovesPendingRosterAndReplacesActiveRoster()
     {
+        // Arrange
         var (registration, memberProfile) = AddApprovedRegistration();
         var replacementGuest = TournamentTestData.AddGuestProfile(Store, registration.Team!, "Guest ADC");
         var pending = Service.SubmitRosterChangeAsync(
@@ -106,8 +124,10 @@ public sealed class TournamentRegistrationReviewTests
             [memberProfile.Id, replacementGuest.Id]).GetAwaiter().GetResult();
         var pendingRosterId = pending.Rosters.Single(roster => roster.Version == 2).Id;
 
+        // Act
         var reviewed = Service.ReviewRosterAsync(registration.Id, pendingRosterId, true, "approved change").GetAwaiter().GetResult();
 
+        // Assert
         Assert.Multiple(() =>
         {
             Assert.That(reviewed.ActiveRosterId, Is.EqualTo(pendingRosterId));
@@ -119,6 +139,7 @@ public sealed class TournamentRegistrationReviewTests
     [Description("Verifies that rejecting a pending roster revision leaves the previous active roster unchanged.")]
     public void ReviewRosterAsync_RejectsPendingRosterAndKeepsPreviousActiveRoster()
     {
+        // Arrange
         var (registration, memberProfile) = AddApprovedRegistration();
         var previousActiveRosterId = registration.ActiveRosterId;
         var replacementGuest = TournamentTestData.AddGuestProfile(Store, registration.Team!, "Guest ADC");
@@ -128,8 +149,10 @@ public sealed class TournamentRegistrationReviewTests
             [memberProfile.Id, replacementGuest.Id]).GetAwaiter().GetResult();
         var pendingRosterId = pending.Rosters.Single(roster => roster.Version == 2).Id;
 
+        // Act
         var reviewed = Service.ReviewRosterAsync(registration.Id, pendingRosterId, false, "rejected change").GetAwaiter().GetResult();
 
+        // Assert
         Assert.Multiple(() =>
         {
             Assert.That(reviewed.ActiveRosterId, Is.EqualTo(previousActiveRosterId));
@@ -141,46 +164,61 @@ public sealed class TournamentRegistrationReviewTests
     [Description("Verifies that roster reviews require an approved registration.")]
     public void ReviewRosterAsync_RejectsRegistrationThatIsNotApproved()
     {
+        // Arrange
         var (registration, _) = AddPendingRegistration();
         var rosterId = registration.Rosters.Single().Id;
 
-        Assert.ThrowsAsync<ValidationException>(() =>
-            Service.ReviewRosterAsync(registration.Id, rosterId, true, null));
+        // Act
+        Task Act() => Service.ReviewRosterAsync(registration.Id, rosterId, true, null);
+
+        // Assert
+        Assert.ThrowsAsync<ValidationException>(Act);
     }
 
     [Test]
     [Description("Verifies that already reviewed rosters cannot be reviewed again.")]
     public void ReviewRosterAsync_RejectsRosterThatIsNotPending()
     {
+        // Arrange
         var (registration, _) = AddApprovedRegistration();
         var rosterId = registration.ActiveRosterId!.Value;
 
-        Assert.ThrowsAsync<ValidationException>(() =>
-            Service.ReviewRosterAsync(registration.Id, rosterId, true, null));
+        // Act
+        Task Act() => Service.ReviewRosterAsync(registration.Id, rosterId, true, null);
+
+        // Assert
+        Assert.ThrowsAsync<ValidationException>(Act);
     }
 
     [Test]
     [Description("Verifies that roster reviews fail for an unknown roster id.")]
     public void ReviewRosterAsync_RejectsUnknownRoster()
     {
+        // Arrange
         var (registration, _) = AddApprovedRegistration();
 
-        Assert.ThrowsAsync<NotFoundException>(() =>
-            Service.ReviewRosterAsync(registration.Id, Guid.NewGuid(), true, null));
+        // Act
+        Task Act() => Service.ReviewRosterAsync(registration.Id, Guid.NewGuid(), true, null);
+
+        // Assert
+        Assert.ThrowsAsync<NotFoundException>(Act);
     }
 
     [Test]
     [Description("Verifies that roster changes are submitted as a new pending roster revision while the approved roster remains active.")]
     public void SubmitRosterChangeAsync_CreatesPendingRevisionAndKeepsActiveRoster()
     {
+        // Arrange
         var (registration, memberProfile) = AddApprovedRegistration();
         var replacementGuest = TournamentTestData.AddGuestProfile(Store, registration.Team!, "Guest ADC");
 
+        // Act
         var updated = Service.SubmitRosterChangeAsync(
             registration.Id,
             TournamentTestData.OwnerId,
             [memberProfile.Id, replacementGuest.Id]).GetAwaiter().GetResult();
 
+        // Assert
         Assert.Multiple(() =>
         {
             Assert.That(updated.ActiveRosterId, Is.EqualTo(registration.ActiveRosterId));
@@ -193,16 +231,21 @@ public sealed class TournamentRegistrationReviewTests
     [Description("Verifies that roster changes can only be submitted for approved registrations.")]
     public void SubmitRosterChangeAsync_RejectsRegistrationThatIsNotApproved()
     {
+        // Arrange
         var (registration, memberProfile) = AddPendingRegistration();
 
-        Assert.ThrowsAsync<ValidationException>(() =>
-            Service.SubmitRosterChangeAsync(registration.Id, TournamentTestData.OwnerId, [memberProfile.Id]));
+        // Act
+        Task Act() => Service.SubmitRosterChangeAsync(registration.Id, TournamentTestData.OwnerId, [memberProfile.Id]);
+
+        // Assert
+        Assert.ThrowsAsync<ValidationException>(Act);
     }
 
     [Test]
     [Description("Verifies that only one pending roster change can exist for an approved registration.")]
     public void SubmitRosterChangeAsync_RejectsWhenPendingRosterAlreadyExists()
     {
+        // Arrange
         var (registration, memberProfile) = AddApprovedRegistration();
         var pendingRoster = new Roster
         {
@@ -213,8 +256,11 @@ public sealed class TournamentRegistrationReviewTests
         };
         registration.Rosters.Add(pendingRoster);
 
-        Assert.ThrowsAsync<ConflictException>(() =>
-            Service.SubmitRosterChangeAsync(registration.Id, TournamentTestData.OwnerId, [memberProfile.Id]));
+        // Act
+        Task Act() => Service.SubmitRosterChangeAsync(registration.Id, TournamentTestData.OwnerId, [memberProfile.Id]);
+
+        // Assert
+        Assert.ThrowsAsync<ConflictException>(Act);
     }
 
     private (TournamentRegistration Registration, PlayerProfile MemberProfile) AddPendingRegistration()
@@ -230,7 +276,6 @@ public sealed class TournamentRegistrationReviewTests
 
         return (registration, memberProfile);
     }
-
 
     private (TournamentRegistration Registration, PlayerProfile MemberProfile) AddApprovedRegistration()
     {
@@ -256,7 +301,6 @@ public sealed class TournamentRegistrationReviewTests
         var guestProfile = TournamentTestData.AddGuestProfile(Store, team);
         return (team, tournament, memberProfile, guestProfile);
     }
-
 
     private TournamentRegistrationService CreateService()
         => new(

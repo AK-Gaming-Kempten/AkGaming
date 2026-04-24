@@ -6,39 +6,51 @@ namespace AkGaming.Tournaments.Tests.WebApi;
 
 public sealed class PlayerProfilesControllerTests
 {
+    private Mock<IPlayerProfileManagementService> Service { get; set; } = null!;
+    private PlayerProfilesController Controller { get; set; } = null!;
+
+    [SetUp]
+    public void SetUp()
+    {
+        Service = new Mock<IPlayerProfileManagementService>();
+        Controller = new PlayerProfilesController(Service.Object);
+    }
+
     [Test]
     [Description("Verifies that the player profiles controller passes the route user id to the application service.")]
     public async Task GetUserPlayerProfiles_ReturnsOkWithProfiles()
     {
+        // Arrange
         var profiles = new List<Contracts.DTOs.PlayerProfileDto> { WebApiControllerTestHelpers.UserProfile() };
-        var service = new Mock<IPlayerProfileManagementService>();
-        service
+        Service
             .Setup(mock => mock.GetUserProfilesAsync("user-1", CancellationToken.None))
             .ReturnsAsync(profiles);
-        var controller = new PlayerProfilesController(service.Object);
 
-        var response = await controller.GetUserPlayerProfiles("user-1", CancellationToken.None);
+        // Act
+        var response = await Controller.GetUserPlayerProfiles("user-1", CancellationToken.None);
 
+        // Assert
         WebApiControllerTestHelpers.AssertOkValue(response, profiles);
-        service.Verify(mock => mock.GetUserProfilesAsync("user-1", CancellationToken.None), Times.Once);
+        Service.Verify(mock => mock.GetUserProfilesAsync("user-1", CancellationToken.None), Times.Once);
     }
 
     [Test]
     [Description("Verifies that the player profiles controller passes upsert route and request values to the application service.")]
     public async Task UpsertUserPlayerProfile_ReturnsOkWithProfile()
     {
+        // Arrange
         var profile = WebApiControllerTestHelpers.UserProfile(name: "Summoner Prime");
         var request = new UpsertUserPlayerProfileRequest("Summoner Prime");
-        var service = new Mock<IPlayerProfileManagementService>();
-        service
+        Service
             .Setup(mock => mock.UpsertUserProfileAsync("user-1", "lol", "Summoner Prime", CancellationToken.None))
             .ReturnsAsync(profile);
-        var controller = new PlayerProfilesController(service.Object);
 
-        var response = await controller.UpsertUserPlayerProfile("user-1", "lol", request, CancellationToken.None);
+        // Act
+        var response = await Controller.UpsertUserPlayerProfile("user-1", "lol", request, CancellationToken.None);
 
+        // Assert
         WebApiControllerTestHelpers.AssertOkValue(response, profile);
-        service.Verify(
+        Service.Verify(
             mock => mock.UpsertUserProfileAsync("user-1", "lol", "Summoner Prime", CancellationToken.None),
             Times.Once);
     }
