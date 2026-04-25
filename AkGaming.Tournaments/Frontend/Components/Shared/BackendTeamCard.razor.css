@@ -8,9 +8,9 @@
 }
 
 .backend-team-card-header {
-    display: flex;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
     align-items: flex-start;
-    justify-content: space-between;
     gap: 1rem;
 }
 

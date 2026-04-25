@@ -13,5 +13,12 @@ public sealed class PlayerProfilesApiClient(HttpClient httpClient) : TournamentA
             new UpsertUserPlayerProfileApiRequest(name),
             cancellationToken);
 
+    public Task<PlayerProfileDto> UpdateUserProfileLogoAsync(string userId, string gameId, Guid? logoAssetId, CancellationToken cancellationToken = default)
+        => PutAsync<PlayerProfileDto>(
+            $"api/users/{Uri.EscapeDataString(userId)}/player-profiles/{Uri.EscapeDataString(gameId)}/logo",
+            new UpdateUserPlayerProfileLogoApiRequest(logoAssetId),
+            cancellationToken);
+
     private sealed record UpsertUserPlayerProfileApiRequest(string Name);
+    private sealed record UpdateUserPlayerProfileLogoApiRequest(Guid? LogoAssetId);
 }

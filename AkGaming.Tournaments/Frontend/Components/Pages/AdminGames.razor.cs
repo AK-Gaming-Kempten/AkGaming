@@ -13,7 +13,6 @@ public partial class AdminGames : ComponentBase
     private string? errorMessage;
     private string newGameId = string.Empty;
     private string newGameName = string.Empty;
-    private string selectedLogoAssetId = string.Empty;
     private bool isLoading = true;
     private bool isBusy;
     private bool isGameSelectorOpen;
@@ -23,7 +22,6 @@ public partial class AdminGames : ComponentBase
     {
         await LoadGamesAsync();
         selectedGame = games.FirstOrDefault();
-        SetSelectedLogoInput();
         isLoading = false;
     }
 
@@ -36,8 +34,6 @@ public partial class AdminGames : ComponentBase
             selectedGame = !string.IsNullOrWhiteSpace(selectedGameId)
                 ? games.FirstOrDefault(game => string.Equals(game.Id, selectedGameId, StringComparison.OrdinalIgnoreCase))
                 : selectedGame;
-
-            SetSelectedLogoInput();
         });
     }
 
@@ -85,20 +81,19 @@ public partial class AdminGames : ComponentBase
     private Task SelectGameAsync(GameDto game)
     {
         selectedGame = game;
-        SetSelectedLogoInput();
         isGameSelectorOpen = false;
         isCreateGameFormVisible = false;
         return Task.CompletedTask;
     }
 
-    private async Task UpdateSelectedLogoAsync()
+    private async Task SetUploadedLogoAsync(MediaAssetDto asset)
     {
-        if (selectedGame is null || !TryParseOptionalLogoAssetId(selectedLogoAssetId, out var logoAssetId))
+        if (selectedGame is null)
             return;
 
         await RunApiActionAsync(async () =>
         {
-            selectedGame = await GamesClient.UpdateGameLogoAsync(selectedGame.Id, logoAssetId);
+            selectedGame = await GamesClient.UpdateGameLogoAsync(selectedGame.Id, asset.Id);
             await LoadGamesAsync();
         });
     }
@@ -127,7 +122,6 @@ public partial class AdminGames : ComponentBase
             selectedGame = null;
             await LoadGamesAsync();
             selectedGame = games.FirstOrDefault();
-            SetSelectedLogoInput();
         });
     }
 
@@ -150,35 +144,4 @@ public partial class AdminGames : ComponentBase
         }
     }
 
-    private bool TryParseOptionalLogoAssetId(string value, out Guid? logoAssetId)
-    {
-        logoAssetId = null;
-
-        if (string.IsNullOrWhiteSpace(value))
-            return true;
-
-        if (Guid.TryParse(value, out var parsed))
-        {
-            logoAssetId = parsed;
-            return true;
-        }
-
-        errorMessage = "Enter a valid logo asset id.";
-        return false;
-    }
-
-    private void SetSelectedLogoInput()
-        => selectedLogoAssetId = selectedGame?.LogoAssetId?.ToString() ?? string.Empty;
-
-    private static string GetGameInitials(GameDto game)
-    {
-        var parts = game.Name.Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
-        if (parts.Length == 0)
-            return "--";
-
-        if (parts.Length == 1)
-            return parts[0][..Math.Min(parts[0].Length, 2)].ToUpperInvariant();
-
-        return string.Concat(parts.Take(2).Select(part => char.ToUpperInvariant(part[0])));
-    }
 }

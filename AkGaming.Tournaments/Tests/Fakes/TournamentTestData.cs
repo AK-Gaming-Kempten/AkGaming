@@ -24,11 +24,10 @@ internal static class TournamentTestData
         var asset = new MediaAsset
         {
             Id = Guid.NewGuid(),
-            StorageKey = "logos/game.png",
             ContentType = "image/png",
             OriginalFileName = "game.png",
-            SizeBytes = 1024,
-            Sha256 = "test"
+            Content = [1, 2, 3],
+            SizeBytes = 1024
         };
 
         store.MediaAssets.Add(asset);

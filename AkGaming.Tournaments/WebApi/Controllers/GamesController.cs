@@ -1,6 +1,5 @@
 using AkGaming.Tournaments.Application.UseCases;
 using AkGaming.Tournaments.Contracts.DTOs;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AkGaming.Tournaments.WebApi.Controllers;
@@ -19,7 +18,6 @@ public sealed class GamesController(IGameCatalogService service) : ControllerBas
         return Ok(games);
     }
 
-    [Authorize(Roles = "Admin")]
     [HttpPost(Name = "CreateGame")]
     [EndpointSummary("Create a supported game.")]
     [ProducesResponseType<GameDto>(StatusCodes.Status200OK)]
@@ -31,7 +29,6 @@ public sealed class GamesController(IGameCatalogService service) : ControllerBas
         return Ok(game);
     }
 
-    [Authorize(Roles = "Admin")]
     [HttpPut("{gameId}/logo", Name = "UpdateGameLogo")]
     [EndpointSummary("Set or clear a supported game's logo asset.")]
     [ProducesResponseType<GameDto>(StatusCodes.Status200OK)]
@@ -44,7 +41,6 @@ public sealed class GamesController(IGameCatalogService service) : ControllerBas
         return Ok(game);
     }
 
-    [Authorize(Roles = "Admin")]
     [HttpDelete("{gameId}", Name = "DeleteGame")]
     [EndpointSummary("Delete a supported game.")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]

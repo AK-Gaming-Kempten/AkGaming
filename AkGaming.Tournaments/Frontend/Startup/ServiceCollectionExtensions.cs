@@ -141,6 +141,8 @@ public static class ServiceCollectionExtensions
         services.AddTransient<TournamentApiAuthorizationHandler>();
 
         services.AddTournamentApiClient<GamesApiClient>(config);
+        services.AddTournamentApiClient<MediaAssetsApiClient>(config);
+        services.AddTournamentApiNamedClient(nameof(MediaAssetsApiClient), config);
         services.AddTournamentApiClient<PlayerProfilesApiClient>(config);
         services.AddTournamentApiClient<TeamsApiClient>(config);
         services.AddTournamentApiClient<TournamentRegistrationsApiClient>(config);
@@ -198,6 +200,21 @@ public static class ServiceCollectionExtensions
                 client.BaseAddress = new Uri(options.BaseAddress);
             })
             .AddHttpMessageHandler<TournamentApiAuthorizationHandler>();
+
+        if (allowUntrustedLocalCertificates)
+            builder.ConfigurePrimaryHttpMessageHandler(CreateDevelopmentCertificateRelaxedHandler);
+
+        return builder;
+    }
+
+    private static IHttpClientBuilder AddTournamentApiNamedClient(this IServiceCollection services, string name, IConfiguration config)
+    {
+        var options = config.GetSection(TournamentApiOptions.SectionName).Get<TournamentApiOptions>() ?? new();
+        var allowUntrustedLocalCertificates = config.GetValue<bool>("Dev:AllowUntrustedLocalCertificates");
+        var builder = services.AddHttpClient(name, client =>
+        {
+            client.BaseAddress = new Uri(options.BaseAddress);
+        });
 
         if (allowUntrustedLocalCertificates)
             builder.ConfigurePrimaryHttpMessageHandler(CreateDevelopmentCertificateRelaxedHandler);

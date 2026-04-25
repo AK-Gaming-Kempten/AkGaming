@@ -1,0 +1,10 @@
+<span class="logo-image logo-image-@Size.ToString().ToLowerInvariant()">
+    @if (LogoAssetId is Guid logoAssetId)
+    {
+        <img src="@GetLogoUrl(logoAssetId)" alt="@Alt" />
+    }
+    else
+    {
+        <span class="logo-fallback bi @GetFallbackIcon()" aria-hidden="true"></span>
+    }
+</span>

@@ -40,6 +40,18 @@ internal sealed class InMemoryGameRepository(InMemoryStore store) : IGameReposit
         => store.Games.Remove(game);
 }
 
+internal sealed class InMemoryMediaAssetRepository(InMemoryStore store) : IMediaAssetRepository
+{
+    public Task<MediaAsset?> GetByIdAsync(Guid mediaAssetId, CancellationToken cancellationToken = default)
+        => Task.FromResult(store.MediaAssets.FirstOrDefault(mediaAsset => mediaAsset.Id == mediaAssetId));
+
+    public Task AddAsync(MediaAsset mediaAsset, CancellationToken cancellationToken = default)
+    {
+        store.MediaAssets.Add(mediaAsset);
+        return Task.CompletedTask;
+    }
+}
+
 internal sealed class InMemoryPlayerProfileRepository(InMemoryStore store) : IPlayerProfileRepository
 {
     public Task<PlayerProfile?> GetByIdAsync(Guid playerProfileId, CancellationToken cancellationToken = default)

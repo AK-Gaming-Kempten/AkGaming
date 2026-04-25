@@ -19,7 +19,7 @@
         <div class="admin-game-layout">
             <div class="game-selector">
                 <button type="button" class="game-selector-trigger" @onclick="ToggleGameSelector" disabled="@isBusy">
-                    <span class="game-avatar"><span class="bi bi-controller"></span></span>
+                    <LogoImage Type="game" Size="LogoImageSize.Medium" />
                     <span class="game-selector-main">
                         <span class="game-selector-label">Games</span>
                         <strong>Select game</strong>
@@ -69,7 +69,7 @@
                                             class="game-option @(selectedGame?.Id == game.Id ? "game-option-selected" : null)"
                                             @onclick="() => SelectGameAsync(game)"
                                             disabled="@isBusy">
-                                        <span class="game-avatar">@GetGameInitials(game)</span>
+                                        <LogoImage LogoAssetId="@game.LogoAssetId" Type="game" Alt="@($"{game.Name} logo")" Size="LogoImageSize.Medium" />
                                         <span class="game-option-main">
                                             <strong>@game.Name</strong>
                                             <span>@game.Id</span>
@@ -96,7 +96,7 @@
                 {
                     <SurfacePanel Title="@selectedGame.Name" Subtitle="@selectedGame.Id">
                         <div class="selected-game-summary">
-                            <span class="game-avatar game-avatar-large">@GetGameInitials(selectedGame)</span>
+                            <LogoImage LogoAssetId="@selectedGame.LogoAssetId" Type="game" Alt="@($"{selectedGame.Name} logo")" Size="LogoImageSize.Large" />
                             <div>
                                 <strong>@selectedGame.Name</strong>
                                 <span>Logo asset: @(selectedGame.LogoAssetId?.ToString() ?? "None")</span>
@@ -104,12 +104,8 @@
                         </div>
 
                         <div class="admin-game-form">
-                            <label>
-                                <span>Logo asset id</span>
-                                <input class="form-input" @bind="selectedLogoAssetId" placeholder="Optional media asset id" />
-                            </label>
                             <div class="form-actions">
-                                <button type="button" class="solid-button" @onclick="UpdateSelectedLogoAsync" disabled="@isBusy">Set logo</button>
+                                <LogoUploadDialog Uploaded="SetUploadedLogoAsync" />
                                 <button type="button" class="ghost-button" @onclick="ClearSelectedLogoAsync" disabled="@isBusy">Clear logo</button>
                                 <button type="button" class="danger-button" @onclick="DeleteSelectedGameAsync" disabled="@isBusy">Delete game</button>
                             </div>

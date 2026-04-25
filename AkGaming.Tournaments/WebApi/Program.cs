@@ -4,6 +4,8 @@ using AkGaming.Tournaments.Infrastructure.Postgres;
 using AkGaming.Tournaments.Infrastructure.Sqlite;
 using AkGaming.Tournaments.Infrastructure.Sqlite.Persistence;
 using AkGaming.Tournaments.WebApi.Middleware;
+using AkGaming.Tournaments.Application.Services;
+using AkGaming.Tournaments.WebApi.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -17,6 +19,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddOpenApi();
 builder.Services.AddSwaggerGen();
 builder.Services.AddTournamentApplication();
+builder.Services.AddScoped<ILogoFileStorage, LogoFileStorage>();
 
 var provider = builder.Configuration["Persistence:Provider"];
 if (string.Equals(provider, "Postgres", StringComparison.OrdinalIgnoreCase))

@@ -16,6 +16,9 @@ public sealed class TeamsApiClient(HttpClient httpClient) : TournamentApiClientB
     public Task<TeamDto> AddMemberAsync(Guid teamId, string actingUserId, string userId, TeamRoleDto role, CancellationToken cancellationToken = default)
         => PostAsync<TeamDto>($"api/teams/{teamId}/members", new AddTeamMemberApiRequest(actingUserId, userId, role), cancellationToken);
 
+    public Task<TeamDto> UpdateTeamLogoAsync(Guid teamId, string actingUserId, Guid? logoAssetId, CancellationToken cancellationToken = default)
+        => PutAsync<TeamDto>($"api/teams/{teamId}/logo", new UpdateTeamLogoApiRequest(actingUserId, logoAssetId), cancellationToken);
+
     public Task<IReadOnlyList<PlayerProfileDto>> GetAvailableProfilesAsync(Guid teamId, string gameId, CancellationToken cancellationToken = default)
         => GetAsync<IReadOnlyList<PlayerProfileDto>>($"api/teams/{teamId}/available-player-profiles/{Uri.EscapeDataString(gameId)}", cancellationToken);
 
@@ -24,5 +27,6 @@ public sealed class TeamsApiClient(HttpClient httpClient) : TournamentApiClientB
 
     private sealed record CreateTeamApiRequest(string ActingUserId, string GameId, string Name);
     private sealed record AddTeamMemberApiRequest(string ActingUserId, string UserId, TeamRoleDto Role);
+    private sealed record UpdateTeamLogoApiRequest(string ActingUserId, Guid? LogoAssetId);
     private sealed record CreateGuestPlayerProfileApiRequest(string ActingUserId, string Name);
 }

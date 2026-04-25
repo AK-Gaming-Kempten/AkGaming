@@ -1,4 +1,5 @@
 using System.Globalization;
+using AkGaming.Tournaments.Frontend.Api;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
@@ -48,6 +49,22 @@ public static class WebApplicationExtensions
         app.UseAuthentication();
         app.UseAuthorization();
         app.UseAntiforgery();
+
+        app.MapGet("/media-assets/{mediaAssetId:guid}/file", async (
+                Guid mediaAssetId,
+                IHttpClientFactory httpClientFactory,
+                CancellationToken cancellationToken) =>
+            {
+                var client = httpClientFactory.CreateClient(nameof(MediaAssetsApiClient));
+                using var response = await client.GetAsync($"api/media-assets/{mediaAssetId}/file", cancellationToken);
+                if (!response.IsSuccessStatusCode)
+                    return Results.StatusCode((int)response.StatusCode);
+
+                var bytes = await response.Content.ReadAsByteArrayAsync(cancellationToken);
+                var contentType = response.Content.Headers.ContentType?.ToString() ?? "application/octet-stream";
+                return Results.File(bytes, contentType);
+            })
+            .AllowAnonymous();
 
         app.MapStaticAssets();
         app.MapRazorComponents<AkGaming.Tournaments.Frontend.Components.App>()

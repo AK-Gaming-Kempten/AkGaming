@@ -66,6 +66,18 @@ public sealed class TeamsController(ITeamManagementService service) : Controller
         return Ok(team);
     }
 
+    [HttpPut("{teamId:guid}/logo", Name = "UpdateTeamLogo")]
+    [EndpointSummary("Set or clear a team's logo asset.")]
+    [ProducesResponseType<TeamDto>(StatusCodes.Status200OK)]
+    public async Task<ActionResult<TeamDto>> UpdateTeamLogo(
+        Guid teamId,
+        UpdateTeamLogoRequest request,
+        CancellationToken cancellationToken)
+    {
+        var team = await service.UpdateTeamLogoAsync(teamId, request.ActingUserId, request.LogoAssetId, cancellationToken);
+        return Ok(team);
+    }
+
     [HttpGet("{teamId:guid}/available-player-profiles/{gameId}", Name = "GetAvailableTeamProfiles")]
     [EndpointSummary("List all player profiles the team can use for a game.")]
     [ProducesResponseType<IReadOnlyList<PlayerProfileDto>>(StatusCodes.Status200OK)]
@@ -107,5 +119,6 @@ public sealed class TeamsController(ITeamManagementService service) : Controller
 public sealed record CreateTeamRequest(string ActingUserId, string GameId, string Name);
 public sealed record AddTeamMemberRequest(string ActingUserId, string UserId, TeamRoleDto Role);
 public sealed record UpdateTeamMemberRoleRequest(string ActingUserId, TeamRoleDto Role);
+public sealed record UpdateTeamLogoRequest(string ActingUserId, Guid? LogoAssetId);
 public sealed record CreateGuestPlayerProfileRequest(string ActingUserId, string Name);
 public sealed record UpdateGuestPlayerProfileRequest(string ActingUserId, string Name);

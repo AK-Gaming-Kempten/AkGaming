@@ -37,6 +37,28 @@
                 <SurfacePanel Title="Your profiles">
                     <PlayerProfileList Profiles="@playerProfiles" EmptyState="Create a game-specific player profile to use it in team rosters." />
                 </SurfacePanel>
+
+                @if (playerProfiles.Count > 0)
+                {
+                    <SurfacePanel Title="Profile logos">
+                        <div class="profile-logo-list">
+                            @foreach (var profile in playerProfiles)
+                            {
+                                <div class="profile-logo-row">
+                                    <LogoImage LogoAssetId="@profile.LogoAssetId" Type="player" Alt="@($"{profile.Name} logo")" Size="LogoImageSize.Medium" />
+                                    <div>
+                                        <strong>@profile.Name</strong>
+                                        <span>@profile.GameId · Logo: @(profile.LogoAssetId?.ToString() ?? "None")</span>
+                                    </div>
+                                    <div class="profile-logo-actions">
+                                        <LogoUploadDialog Uploaded="asset => SetProfileLogoAsync(profile, asset)" />
+                                        <button type="button" class="ghost-button" @onclick="() => ClearProfileLogoAsync(profile)" disabled="@isBusy">Clear</button>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </SurfacePanel>
+                }
             </div>
         </div>
     }

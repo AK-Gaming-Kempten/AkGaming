@@ -9,6 +9,7 @@ namespace AkGaming.Tournaments.Application.Services;
 
 public sealed class TeamManagementService(
     IGameRepository gameRepository,
+    IMediaAssetRepository mediaAssetRepository,
     IPlayerProfileRepository playerProfileRepository,
     ITeamRepository teamRepository,
     IUnitOfWork unitOfWork) : ITeamManagementService
@@ -107,6 +108,19 @@ public sealed class TeamManagementService(
         return team.ToDto();
     }
 
+    public async Task<TeamDto> UpdateTeamLogoAsync(Guid teamId, string actingUserId, Guid? logoAssetId, CancellationToken cancellationToken = default)
+    {
+        ValidateUserId(actingUserId);
+        await RequireMediaAssetAsync(logoAssetId, cancellationToken);
+
+        var team = await RequireTeamAsync(teamId, cancellationToken);
+        EnsureCanEditTeam(team, actingUserId);
+        team.LogoAssetId = logoAssetId;
+
+        await unitOfWork.SaveChangesAsync(cancellationToken);
+        return team.ToDto();
+    }
+
     public async Task<PlayerProfileDto> CreateGuestPlayerProfileAsync(Guid teamId, string actingUserId, string name, CancellationToken cancellationToken = default)
     {
         ValidateUserId(actingUserId);
@@ -199,6 +213,17 @@ public sealed class TeamManagementService(
         if (await gameRepository.GetByIdAsync(gameId.Trim(), cancellationToken) is null)
         {
             throw new NotFoundException($"Game '{gameId}' was not found.");
+        }
+    }
+
+    private async Task RequireMediaAssetAsync(Guid? mediaAssetId, CancellationToken cancellationToken)
+    {
+        if (mediaAssetId is not Guid assetId)
+            return;
+
+        if (await mediaAssetRepository.GetByIdAsync(assetId, cancellationToken) is null)
+        {
+            throw new NotFoundException($"Media asset '{assetId}' was not found.");
         }
     }
 

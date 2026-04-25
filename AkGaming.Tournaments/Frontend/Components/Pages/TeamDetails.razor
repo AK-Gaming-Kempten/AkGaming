@@ -30,6 +30,13 @@
             <div class="stack">
                 <SurfacePanel Title="Team">
                     <BackendTeamCard Team="@team" GameName="@GetGameName(team.GameId)" />
+                    @if (isAuthenticated)
+                    {
+                        <div class="logo-actions">
+                            <LogoUploadDialog Uploaded="SetTeamLogoAsync" />
+                            <button type="button" class="ghost-button" @onclick="ClearTeamLogoAsync" disabled="@isBusy">Clear logo</button>
+                        </div>
+                    }
                 </SurfacePanel>
 
                 <SurfacePanel Title="Guest profiles">

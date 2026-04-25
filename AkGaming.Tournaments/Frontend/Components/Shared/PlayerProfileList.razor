@@ -14,6 +14,7 @@ else
                            checked="@SelectedProfileIds.Contains(profile.Id)"
                            @onchange="args => ToggleSelection(profile.Id, args)" />
                 }
+                <LogoImage LogoAssetId="@profile.LogoAssetId" Type="player" Alt="@($"{profile.Name} logo")" Size="LogoImageSize.Small" />
                 <span class="profile-main">
                     <strong>@profile.Name</strong>
                     <span>@profile.GameId · @profile.Type</span>

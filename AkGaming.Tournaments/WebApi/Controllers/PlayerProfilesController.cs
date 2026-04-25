@@ -32,6 +32,20 @@ public sealed class PlayerProfilesController(IPlayerProfileManagementService ser
         var profile = await service.UpsertUserProfileAsync(userId, gameId, request.Name, cancellationToken);
         return Ok(profile);
     }
+
+    [HttpPut("{gameId}/logo", Name = "UpdateUserPlayerProfileLogo")]
+    [EndpointSummary("Set or clear a user player profile logo.")]
+    [ProducesResponseType<PlayerProfileDto>(StatusCodes.Status200OK)]
+    public async Task<ActionResult<PlayerProfileDto>> UpdateUserPlayerProfileLogo(
+        string userId,
+        string gameId,
+        UpdateUserPlayerProfileLogoRequest request,
+        CancellationToken cancellationToken)
+    {
+        var profile = await service.UpdateUserProfileLogoAsync(userId, gameId, request.LogoAssetId, cancellationToken);
+        return Ok(profile);
+    }
 }
 
 public sealed record UpsertUserPlayerProfileRequest(string Name);
+public sealed record UpdateUserPlayerProfileLogoRequest(Guid? LogoAssetId);

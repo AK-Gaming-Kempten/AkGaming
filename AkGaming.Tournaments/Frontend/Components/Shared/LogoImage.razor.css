@@ -1,0 +1,40 @@
+.logo-image {
+    display: inline-grid;
+    place-items: center;
+    overflow: hidden;
+    border: 1px solid color-mix(in oklab, var(--color-text-secondary) 18%, transparent);
+    border-radius: 8px;
+    background: color-mix(in oklab, var(--color-highlight-primary) 20%, var(--color-background-primary));
+    color: var(--color-text-primary);
+    flex: 0 0 auto;
+}
+
+.logo-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.logo-image-small {
+    width: 2.2rem;
+    height: 2.2rem;
+}
+
+.logo-image-medium {
+    width: 2.8rem;
+    height: 2.8rem;
+}
+
+.logo-image-large {
+    width: 3.5rem;
+    height: 3.5rem;
+}
+
+.logo-fallback {
+    font-size: 1.2rem;
+    color: var(--color-highlight-primary);
+}
+
+.logo-image-large .logo-fallback {
+    font-size: 1.55rem;
+}

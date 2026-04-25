@@ -9,6 +9,5 @@ public sealed class TournamentRepository(TournamentDbContext dbContext) : ITourn
 {
     public Task<Tournament?> GetByIdAsync(Guid tournamentId, CancellationToken cancellationToken = default)
         => dbContext.Tournaments
-            .AsNoTracking()
             .FirstOrDefaultAsync(tournament => tournament.Id == tournamentId, cancellationToken);
 }

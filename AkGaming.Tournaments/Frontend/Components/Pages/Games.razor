@@ -26,6 +26,7 @@
             @foreach (var game in games)
             {
                 <article class="game-card">
+                    <LogoImage LogoAssetId="@game.LogoAssetId" Type="game" Alt="@($"{game.Name} logo")" Size="LogoImageSize.Large" />
                     <span class="info-chip">
                         <span class="bi bi-controller"></span>
                         @game.Id

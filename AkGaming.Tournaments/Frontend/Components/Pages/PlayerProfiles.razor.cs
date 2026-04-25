@@ -61,6 +61,28 @@ public partial class PlayerProfiles : ComponentBase
         });
     }
 
+    private async Task SetProfileLogoAsync(PlayerProfileDto profile, MediaAssetDto asset)
+    {
+        await UpdateProfileLogoAsync(profile, asset.Id);
+    }
+
+    private async Task ClearProfileLogoAsync(PlayerProfileDto profile)
+    {
+        await UpdateProfileLogoAsync(profile, null);
+    }
+
+    private async Task UpdateProfileLogoAsync(PlayerProfileDto profile, Guid? logoAssetId)
+    {
+        if (!ValidateAuthenticatedUser())
+            return;
+
+        await RunApiActionAsync(async () =>
+        {
+            await PlayerProfilesClient.UpdateUserProfileLogoAsync(currentUserId!, profile.GameId, logoAssetId);
+            playerProfiles = await PlayerProfilesClient.GetUserProfilesAsync(currentUserId!);
+        });
+    }
+
     private async Task RunApiActionAsync(Func<Task> action)
     {
         errorMessage = null;

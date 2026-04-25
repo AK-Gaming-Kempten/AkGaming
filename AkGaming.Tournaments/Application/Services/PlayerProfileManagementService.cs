@@ -9,6 +9,7 @@ namespace AkGaming.Tournaments.Application.Services;
 
 public sealed class PlayerProfileManagementService(
     IGameRepository gameRepository,
+    IMediaAssetRepository mediaAssetRepository,
     IPlayerProfileRepository playerProfileRepository,
     IUnitOfWork unitOfWork) : IPlayerProfileManagementService
 {
@@ -58,6 +59,21 @@ public sealed class PlayerProfileManagementService(
         return playerProfile.ToDto();
     }
 
+    public async Task<PlayerProfileDto> UpdateUserProfileLogoAsync(string userId, string gameId, Guid? logoAssetId, CancellationToken cancellationToken = default)
+    {
+        ValidateUserId(userId);
+        await RequireGameAsync(gameId, cancellationToken);
+        await RequireMediaAssetAsync(logoAssetId, cancellationToken);
+
+        var profile = await playerProfileRepository.GetByUserAndGameAsync(userId.Trim(), gameId.Trim(), cancellationToken)
+                      ?? throw new NotFoundException($"Player profile for game '{gameId}' was not found.");
+
+        profile.LogoAssetId = logoAssetId;
+        profile.LastRevisionUtc = DateTimeOffset.UtcNow;
+        await unitOfWork.SaveChangesAsync(cancellationToken);
+        return profile.ToDto();
+    }
+
     private async Task RequireGameAsync(string gameId, CancellationToken cancellationToken)
     {
         ValidateGameId(gameId);
@@ -65,6 +81,17 @@ public sealed class PlayerProfileManagementService(
         if (await gameRepository.GetByIdAsync(gameId.Trim(), cancellationToken) is null)
         {
             throw new NotFoundException($"Game '{gameId}' was not found.");
+        }
+    }
+
+    private async Task RequireMediaAssetAsync(Guid? mediaAssetId, CancellationToken cancellationToken)
+    {
+        if (mediaAssetId is not Guid assetId)
+            return;
+
+        if (await mediaAssetRepository.GetByIdAsync(assetId, cancellationToken) is null)
+        {
+            throw new NotFoundException($"Media asset '{assetId}' was not found.");
         }
     }
 

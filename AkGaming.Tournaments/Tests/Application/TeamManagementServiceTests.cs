@@ -21,6 +21,7 @@ public sealed class TeamManagementServiceTests
         UnitOfWork = new FakeUnitOfWork();
         Service = new TeamManagementService(
             new InMemoryGameRepository(Store),
+            new InMemoryMediaAssetRepository(Store),
             new InMemoryPlayerProfileRepository(Store),
             new InMemoryTeamRepository(Store),
             UnitOfWork);
@@ -282,6 +283,26 @@ public sealed class TeamManagementServiceTests
 
         // Assert
         Assert.ThrowsAsync<NotFoundException>(Act);
+    }
+
+    [Test]
+    [Description("Verifies that owners and editors can update the team logo.")]
+    public void UpdateTeamLogoAsync_UpdatesLogoForEditors()
+    {
+        // Arrange
+        var team = TournamentTestData.AddTeam(Store, memberships: [(TournamentTestData.EditorId, TeamRole.Editor)]);
+        var asset = TournamentTestData.AddMediaAsset(Store);
+
+        // Act
+        var updated = Service.UpdateTeamLogoAsync(team.Id, TournamentTestData.EditorId, asset.Id).GetAwaiter().GetResult();
+
+        // Assert
+        Assert.Multiple(() =>
+        {
+            Assert.That(updated.LogoAssetId, Is.EqualTo(asset.Id));
+            Assert.That(Store.Teams.Single().LogoAssetId, Is.EqualTo(asset.Id));
+            Assert.That(UnitOfWork.SaveChangesCallCount, Is.EqualTo(1));
+        });
     }
 
     [Test]

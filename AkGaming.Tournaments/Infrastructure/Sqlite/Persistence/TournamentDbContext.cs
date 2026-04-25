@@ -21,10 +21,9 @@ public sealed class TournamentDbContext(DbContextOptions<TournamentDbContext> op
         {
             entity.ToTable("media_assets");
             entity.HasKey(mediaAsset => mediaAsset.Id);
-            entity.Property(mediaAsset => mediaAsset.StorageKey).HasMaxLength(512);
             entity.Property(mediaAsset => mediaAsset.ContentType).HasMaxLength(128);
             entity.Property(mediaAsset => mediaAsset.OriginalFileName).HasMaxLength(256);
-            entity.Property(mediaAsset => mediaAsset.Sha256).HasMaxLength(128);
+            entity.Property(mediaAsset => mediaAsset.Content).IsRequired();
         });
 
         modelBuilder.Entity<Game>(entity =>

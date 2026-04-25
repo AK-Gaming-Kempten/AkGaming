@@ -97,6 +97,41 @@ public sealed class SqliteRepositoryTests
     }
 
     [Test]
+    [Description("Verifies that the SQLite media asset repository persists binary content bytes.")]
+    public async Task MediaAssetRepository_PersistsContentBytes()
+    {
+        // Arrange
+        var mediaAsset = new MediaAsset
+        {
+            Id = Guid.NewGuid(),
+            ContentType = "image/png",
+            OriginalFileName = "logo.png",
+            Content = [1, 2, 3],
+            SizeBytes = 3
+        };
+
+        // Act
+        await using (var dbContext = Database.CreateContext())
+        {
+            var repository = new MediaAssetRepository(dbContext);
+            var unitOfWork = new EfUnitOfWork(dbContext);
+
+            await repository.AddAsync(mediaAsset);
+            await unitOfWork.SaveChangesAsync();
+        }
+
+        await using var queryContext = Database.CreateContext();
+        var saved = await queryContext.MediaAssets.SingleAsync(item => item.Id == mediaAsset.Id);
+
+        // Assert
+        Assert.Multiple(() =>
+        {
+            Assert.That(saved.ContentType, Is.EqualTo("image/png"));
+            Assert.That(saved.Content, Is.EqualTo(new byte[] { 1, 2, 3 }));
+        });
+    }
+
+    [Test]
     [Description("Verifies that the SQLite player profile repository resolves distinct ids and returns an empty result for an empty id set.")]
     public async Task PlayerProfileRepository_GetByIdsAsync_HandlesDistinctAndEmptyIdSets()
     {

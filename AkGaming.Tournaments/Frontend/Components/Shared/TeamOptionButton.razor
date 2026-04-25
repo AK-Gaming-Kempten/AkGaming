@@ -2,10 +2,10 @@
         class="team-option @(Selected ? "team-option-selected" : null)"
         @onclick="SelectAsync"
         disabled="@Disabled">
-    <span class="team-avatar">@GetTeamInitials()</span>
+    <LogoImage LogoAssetId="@Team.LogoAssetId" Type="team" Alt="@($"{Team.Name} logo")" Size="LogoImageSize.Medium" />
     <span class="team-option-main">
         <strong>@Team.Name</strong>
         <span>@RoleLabel · @GameName</span>
     </span>
-    <span class="team-game-badge">@GetGameInitials()</span>
+    <span class="team-game-badge"><span class="bi bi-controller"></span></span>
 </button>

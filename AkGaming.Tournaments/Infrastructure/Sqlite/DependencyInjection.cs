@@ -18,6 +18,7 @@ public static class DependencyInjection
 
         services.AddDbContext<TournamentDbContext>(options => options.UseSqlite(connectionString));
         services.AddScoped<IGameRepository, GameRepository>();
+        services.AddScoped<IMediaAssetRepository, MediaAssetRepository>();
         services.AddScoped<IPlayerProfileRepository, PlayerProfileRepository>();
         services.AddScoped<ITeamRepository, TeamRepository>();
         services.AddScoped<ITournamentRepository, TournamentRepository>();

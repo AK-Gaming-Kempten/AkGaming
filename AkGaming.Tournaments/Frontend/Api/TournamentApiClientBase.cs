@@ -43,6 +43,19 @@ public abstract class TournamentApiClientBase(HttpClient httpClient)
         }
     }
 
+    protected async Task<T> PostMultipartAsync<T>(string uri, MultipartFormDataContent request, CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            using var response = await httpClient.PostAsync(uri, request, cancellationToken);
+            return await ReadResponseAsync<T>(response, cancellationToken);
+        }
+        catch (HttpRequestException ex)
+        {
+            throw CreateConnectionException(ex);
+        }
+    }
+
     protected async Task<T?> GetOrDefaultAsync<T>(string uri, CancellationToken cancellationToken = default)
     {
         try

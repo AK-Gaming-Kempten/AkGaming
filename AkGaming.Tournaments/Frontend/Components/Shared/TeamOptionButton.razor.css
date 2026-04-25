@@ -24,7 +24,6 @@
     background: color-mix(in oklab, var(--color-highlight-primary) 12%, var(--color-background-primary));
 }
 
-.team-avatar,
 .team-game-badge {
     display: inline-grid;
     place-items: center;
@@ -32,16 +31,8 @@
     font-weight: 800;
 }
 
-.team-avatar {
-    width: 2.6rem;
-    height: 2.6rem;
-    border-radius: 8px;
-    background: color-mix(in oklab, var(--color-highlight-primary) 26%, var(--color-background-primary));
-    color: var(--color-text-primary);
-}
-
 .team-game-badge {
-    min-width: 2.3rem;
+    width: 2.3rem;
     height: 2.1rem;
     padding: 0 0.45rem;
     border-radius: 999px;

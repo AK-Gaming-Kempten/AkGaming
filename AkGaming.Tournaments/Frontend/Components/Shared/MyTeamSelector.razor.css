@@ -23,18 +23,6 @@
     opacity: 0.72;
 }
 
-.team-avatar {
-    display: inline-grid;
-    place-items: center;
-    flex: 0 0 auto;
-    font-weight: 800;
-    width: 2.6rem;
-    height: 2.6rem;
-    border-radius: 8px;
-    background: color-mix(in oklab, var(--color-highlight-primary) 26%, var(--color-background-primary));
-    color: var(--color-text-primary);
-}
-
 .team-selector-main {
     display: grid;
     min-width: 0;

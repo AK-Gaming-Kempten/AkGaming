@@ -1,4 +1,5 @@
 using AkGaming.Tournaments.Domain.Entities;
+using System.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -14,6 +15,7 @@ public static class SqliteDatabaseInitializer
         var logger = scope.ServiceProvider.GetRequiredService<ILogger<TournamentDbContext>>();
 
         await dbContext.Database.EnsureCreatedAsync();
+        await dbContext.EnsureMediaAssetContentColumnAsync();
 
         if (await dbContext.Games.AnyAsync())
             return;
@@ -32,5 +34,36 @@ public static class SqliteDatabaseInitializer
 
         await dbContext.SaveChangesAsync();
         logger.LogInformation("Seeded tournament SQLite database with supported games.");
+    }
+
+    private static async Task EnsureMediaAssetContentColumnAsync(this TournamentDbContext dbContext)
+    {
+        var connection = dbContext.Database.GetDbConnection();
+        if (connection.State != ConnectionState.Open)
+            await connection.OpenAsync();
+
+        var hasContentColumn = false;
+        await using (var command = connection.CreateCommand())
+        {
+            command.CommandText = "PRAGMA table_info(media_assets);";
+            await using var reader = await command.ExecuteReaderAsync();
+            while (await reader.ReadAsync())
+            {
+                if (string.Equals(reader.GetString(1), "Content", StringComparison.OrdinalIgnoreCase))
+                {
+                    hasContentColumn = true;
+                    break;
+                }
+            }
+        }
+
+        if (hasContentColumn)
+            return;
+
+        await using (var command = connection.CreateCommand())
+        {
+            command.CommandText = "ALTER TABLE media_assets ADD COLUMN Content BLOB NOT NULL DEFAULT X'';";
+            await command.ExecuteNonQueryAsync();
+        }
     }
 }

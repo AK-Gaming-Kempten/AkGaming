@@ -1,0 +1,63 @@
+@using Microsoft.AspNetCore.Components.Forms
+
+<div class="logo-upload">
+    <button type="button" class="ghost-button" @onclick="OpenDialog">Upload logo</button>
+
+    @if (isOpen)
+    {
+        <div class="logo-dialog-backdrop">
+            <div class="logo-dialog" role="dialog" aria-modal="true">
+                <div class="logo-dialog-header">
+                    <h3>Upload logo</h3>
+                    <button type="button" class="icon-button" @onclick="CloseDialog" aria-label="Close">
+                        <span class="bi bi-x-lg"></span>
+                    </button>
+                </div>
+
+                @if (string.IsNullOrWhiteSpace(sourceImageDataUrl))
+                {
+                    <label class="logo-drop-zone">
+                        <span class="bi bi-cloud-arrow-up-fill"></span>
+                        <strong>Select image</strong>
+                        <span>PNG, JPEG, WebP, or SVG</span>
+                        <InputFile OnChange="HandleFileSelectedAsync" accept="image/png,image/jpeg,image/webp,image/svg+xml,.svg" />
+                    </label>
+                }
+                else
+                {
+                    <div class="logo-preview-grid">
+                        <div class="logo-preview-stage">
+                            <div class="logo-preview-square logo-preview-square-large logo-preview-@logoFitMode" style="@GetPreviewStyle()"></div>
+                        </div>
+
+                        <div class="logo-preview-controls">
+                            <div class="logo-preview-square logo-preview-@logoFitMode" style="@GetPreviewStyle()"></div>
+                            <div class="fit-mode-control" role="radiogroup" aria-label="Logo fit mode">
+                                <button type="button"
+                                        class="fit-mode-button @(logoFitMode == LogoFitMode.CropCenter ? "fit-mode-button-active" : null)"
+                                        @onclick="() => SetFitMode(LogoFitMode.CropCenter)">
+                                    Crop center
+                                </button>
+                                <button type="button"
+                                        class="fit-mode-button @(logoFitMode == LogoFitMode.ContainFill ? "fit-mode-button-active" : null)"
+                                        @onclick="() => SetFitMode(LogoFitMode.ContainFill)">
+                                    Contain + fill
+                                </button>
+                            </div>
+                            <div class="logo-dialog-actions">
+                                <button type="button" class="solid-button" @onclick="UploadAsync" disabled="@isBusy">Use logo</button>
+                                <button type="button" class="ghost-button" @onclick="ResetSelection" disabled="@isBusy">Choose another</button>
+                            </div>
+                            @if (!string.IsNullOrWhiteSpace(statusMessage))
+                            {
+                                <p class="logo-status">@statusMessage</p>
+                            }
+                        </div>
+                    </div>
+                }
+
+                <ApiErrorPanel Message="@errorMessage" />
+            </div>
+        </div>
+    }
+</div>

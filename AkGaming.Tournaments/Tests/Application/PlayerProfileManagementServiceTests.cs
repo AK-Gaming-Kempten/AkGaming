@@ -21,6 +21,7 @@ public sealed class PlayerProfileManagementServiceTests
         UnitOfWork = new FakeUnitOfWork();
         Service = new PlayerProfileManagementService(
             new InMemoryGameRepository(Store),
+            new InMemoryMediaAssetRepository(Store),
             new InMemoryPlayerProfileRepository(Store),
             UnitOfWork);
     }
@@ -141,5 +142,26 @@ public sealed class PlayerProfileManagementServiceTests
 
         // Assert
         Assert.ThrowsAsync<NotFoundException>(Act);
+    }
+
+    [Test]
+    [Description("Verifies that a user can update the logo for their game-specific player profile.")]
+    public void UpdateUserProfileLogoAsync_UpdatesLogo()
+    {
+        // Arrange
+        TournamentTestData.AddGame(Store);
+        TournamentTestData.AddUserProfile(Store, TournamentTestData.MemberId, TournamentTestData.GameId, "Member Jungle");
+        var asset = TournamentTestData.AddMediaAsset(Store);
+
+        // Act
+        var profile = Service.UpdateUserProfileLogoAsync(TournamentTestData.MemberId, TournamentTestData.GameId, asset.Id).GetAwaiter().GetResult();
+
+        // Assert
+        Assert.Multiple(() =>
+        {
+            Assert.That(profile.LogoAssetId, Is.EqualTo(asset.Id));
+            Assert.That(Store.PlayerProfiles.Single().LogoAssetId, Is.EqualTo(asset.Id));
+            Assert.That(UnitOfWork.SaveChangesCallCount, Is.EqualTo(1));
+        });
     }
 }

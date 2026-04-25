@@ -2,6 +2,7 @@ using AkGaming.Tournaments.Contracts.DTOs;
 using AkGaming.Tournaments.Frontend.Api;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
+using System.Security.Claims;
 
 namespace AkGaming.Tournaments.Frontend.Components.Pages;
 
@@ -18,9 +19,11 @@ public partial class TeamDetails : ComponentBase
     private IReadOnlyList<PlayerProfileDto> availableProfiles = [];
     private IReadOnlyList<TournamentRegistrationDto> registrations = [];
     private TeamDto? team;
+    private string? currentUserId;
     private string? errorMessage;
     private bool isAuthenticated;
     private bool isLoading = true;
+    private bool isBusy;
 
     protected override async Task OnParametersSetAsync()
     {
@@ -31,6 +34,8 @@ public partial class TeamDetails : ComponentBase
 
         var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
         isAuthenticated = authState.User.Identity?.IsAuthenticated ?? false;
+        currentUserId = authState.User.FindFirstValue(ClaimTypes.NameIdentifier)
+                        ?? authState.User.FindFirstValue("sub");
 
         try
         {
@@ -54,4 +59,36 @@ public partial class TeamDetails : ComponentBase
 
     private string GetGameName(string gameId)
         => games.FirstOrDefault(game => string.Equals(game.Id, gameId, StringComparison.OrdinalIgnoreCase))?.Name ?? gameId;
+
+    private async Task SetTeamLogoAsync(MediaAssetDto asset)
+    {
+        await UpdateTeamLogoAsync(asset.Id);
+    }
+
+    private async Task ClearTeamLogoAsync()
+    {
+        await UpdateTeamLogoAsync(null);
+    }
+
+    private async Task UpdateTeamLogoAsync(Guid? logoAssetId)
+    {
+        if (team is null || string.IsNullOrWhiteSpace(currentUserId))
+            return;
+
+        isBusy = true;
+        errorMessage = null;
+
+        try
+        {
+            team = await TeamsClient.UpdateTeamLogoAsync(team.Id, currentUserId, logoAssetId);
+        }
+        catch (TournamentApiException ex)
+        {
+            errorMessage = ex.Message;
+        }
+        finally
+        {
+            isBusy = false;
+        }
+    }
 }

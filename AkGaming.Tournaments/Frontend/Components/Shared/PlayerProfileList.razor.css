@@ -5,7 +5,7 @@
 
 .profile-row {
     display: grid;
-    grid-template-columns: auto minmax(0, 1fr) auto;
+    grid-template-columns: auto auto minmax(0, 1fr) auto;
     align-items: center;
     gap: 0.75rem;
     padding: 0.8rem;
@@ -15,7 +15,7 @@
 }
 
 .profile-row:not(.profile-row-selectable) {
-    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-columns: auto minmax(0, 1fr) auto;
 }
 
 .profile-row input {
