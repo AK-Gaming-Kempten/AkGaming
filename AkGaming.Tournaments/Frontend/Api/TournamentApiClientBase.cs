@@ -59,6 +59,23 @@ public abstract class TournamentApiClientBase(HttpClient httpClient)
         }
     }
 
+    protected async Task DeleteAsync(string uri, CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            using var response = await httpClient.DeleteAsync(uri, cancellationToken);
+            if (!response.IsSuccessStatusCode)
+            {
+                var message = await ReadErrorMessageAsync(response, cancellationToken);
+                throw new TournamentApiException(response.StatusCode, message);
+            }
+        }
+        catch (HttpRequestException ex)
+        {
+            throw CreateConnectionException(ex);
+        }
+    }
+
     private static async Task<T> ReadResponseAsync<T>(HttpResponseMessage response, CancellationToken cancellationToken)
     {
         if (!response.IsSuccessStatusCode)

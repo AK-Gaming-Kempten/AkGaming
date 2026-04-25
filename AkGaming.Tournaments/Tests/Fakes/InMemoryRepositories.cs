@@ -6,6 +6,7 @@ namespace AkGaming.Tournaments.Tests.Fakes;
 internal sealed class InMemoryStore
 {
     public List<Game> Games { get; } = [];
+    public List<MediaAsset> MediaAssets { get; } = [];
     public List<PlayerProfile> PlayerProfiles { get; } = [];
     public List<Team> Teams { get; } = [];
     public List<Tournament> Tournaments { get; } = [];
@@ -19,6 +20,24 @@ internal sealed class InMemoryGameRepository(InMemoryStore store) : IGameReposit
 
     public Task<Game?> GetByIdAsync(string gameId, CancellationToken cancellationToken = default)
         => Task.FromResult(store.Games.FirstOrDefault(game => game.Id == gameId));
+
+    public Task<bool> IsGameInUseAsync(string gameId, CancellationToken cancellationToken = default)
+        => Task.FromResult(
+            store.Teams.Any(team => team.GameId == gameId)
+            || store.PlayerProfiles.Any(profile => profile.GameId == gameId)
+            || store.Tournaments.Any(tournament => tournament.GameId == gameId));
+
+    public Task<bool> MediaAssetExistsAsync(Guid mediaAssetId, CancellationToken cancellationToken = default)
+        => Task.FromResult(store.MediaAssets.Any(mediaAsset => mediaAsset.Id == mediaAssetId));
+
+    public Task AddAsync(Game game, CancellationToken cancellationToken = default)
+    {
+        store.Games.Add(game);
+        return Task.CompletedTask;
+    }
+
+    public void Delete(Game game)
+        => store.Games.Remove(game);
 }
 
 internal sealed class InMemoryPlayerProfileRepository(InMemoryStore store) : IPlayerProfileRepository

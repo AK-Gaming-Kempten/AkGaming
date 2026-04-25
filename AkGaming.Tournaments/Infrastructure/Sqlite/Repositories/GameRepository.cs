@@ -15,6 +15,21 @@ public sealed class GameRepository(TournamentDbContext dbContext) : IGameReposit
 
     public Task<Game?> GetByIdAsync(string gameId, CancellationToken cancellationToken = default)
         => dbContext.Games
-            .AsNoTracking()
             .FirstOrDefaultAsync(game => game.Id == gameId, cancellationToken);
+
+    public async Task<bool> IsGameInUseAsync(string gameId, CancellationToken cancellationToken = default)
+    {
+        return await dbContext.Teams.AnyAsync(team => team.GameId == gameId, cancellationToken)
+               || await dbContext.PlayerProfiles.AnyAsync(profile => profile.GameId == gameId, cancellationToken)
+               || await dbContext.Tournaments.AnyAsync(tournament => tournament.GameId == gameId, cancellationToken);
+    }
+
+    public Task<bool> MediaAssetExistsAsync(Guid mediaAssetId, CancellationToken cancellationToken = default)
+        => dbContext.MediaAssets.AnyAsync(mediaAsset => mediaAsset.Id == mediaAssetId, cancellationToken);
+
+    public async Task AddAsync(Game game, CancellationToken cancellationToken = default)
+        => await dbContext.Games.AddAsync(game, cancellationToken);
+
+    public void Delete(Game game)
+        => dbContext.Games.Remove(game);
 }

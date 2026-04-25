@@ -1,0 +1,122 @@
+@page "/administration/games"
+@attribute [Authorize(Roles = "Admin")]
+
+<PageTitle>Game Administration</PageTitle>
+
+<section class="app-page">
+    <PageHeader Title="Game administration" />
+
+    <ApiErrorPanel Message="@errorMessage" />
+
+    @if (isLoading)
+    {
+        <SurfacePanel Title="Loading">
+            <p class="muted-copy">Loading supported games.</p>
+        </SurfacePanel>
+    }
+    else
+    {
+        <div class="admin-game-layout">
+            <div class="game-selector">
+                <button type="button" class="game-selector-trigger" @onclick="ToggleGameSelector" disabled="@isBusy">
+                    <span class="game-avatar"><span class="bi bi-controller"></span></span>
+                    <span class="game-selector-main">
+                        <span class="game-selector-label">Games</span>
+                        <strong>Select game</strong>
+                        <span>@(selectedGame is null ? "Choose a game or create a new one." : $"{selectedGame.Name} is selected.")</span>
+                    </span>
+                    <span class="game-selector-chevron bi @(isGameSelectorOpen ? "bi-chevron-up" : "bi-chevron-down")"></span>
+                </button>
+
+                @if (isGameSelectorOpen)
+                {
+                    <button type="button" class="game-selector-dismiss-layer" aria-label="Close game selector" @onclick="CloseGameSelector"></button>
+                    <div class="game-selector-menu">
+                        <div class="game-selector-actions">
+                            <button type="button" class="solid-button" @onclick="ShowCreateGameForm" disabled="@isBusy">Create game</button>
+                        </div>
+
+                        @if (isCreateGameFormVisible)
+                        {
+                            <div class="create-game-panel">
+                                <div class="admin-game-form">
+                                    <label>
+                                        <span>Game id</span>
+                                        <input class="form-input" @bind="newGameId" placeholder="lol" />
+                                    </label>
+                                    <label>
+                                        <span>Name</span>
+                                        <input class="form-input" @bind="newGameName" placeholder="League of Legends" />
+                                    </label>
+                                    <div class="form-actions">
+                                        <button type="button" class="solid-button" @onclick="CreateGameAsync" disabled="@isBusy">Create</button>
+                                        <button type="button" class="ghost-button" @onclick="HideCreateGameForm" disabled="@isBusy">Cancel</button>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+
+                        <div class="game-selector-list">
+                            @if (games.Count == 0)
+                            {
+                                <p class="empty-copy">No games have been configured yet.</p>
+                            }
+                            else
+                            {
+                                @foreach (var game in games)
+                                {
+                                    <button type="button"
+                                            class="game-option @(selectedGame?.Id == game.Id ? "game-option-selected" : null)"
+                                            @onclick="() => SelectGameAsync(game)"
+                                            disabled="@isBusy">
+                                        <span class="game-avatar">@GetGameInitials(game)</span>
+                                        <span class="game-option-main">
+                                            <strong>@game.Name</strong>
+                                            <span>@game.Id</span>
+                                        </span>
+                                        <span class="game-logo-state @(game.LogoAssetId is null ? null : "game-logo-state-set")">
+                                            @(game.LogoAssetId is null ? "No logo" : "Logo")
+                                        </span>
+                                    </button>
+                                }
+                            }
+                        </div>
+                    </div>
+                }
+            </div>
+
+            <div class="admin-game-editor @(isGameSelectorOpen ? "admin-game-editor-blurred" : null)">
+                @if (selectedGame is null)
+                {
+                    <SurfacePanel Title="No game selected">
+                        <p class="muted-copy">Select a game from the dropdown above to edit it.</p>
+                    </SurfacePanel>
+                }
+                else
+                {
+                    <SurfacePanel Title="@selectedGame.Name" Subtitle="@selectedGame.Id">
+                        <div class="selected-game-summary">
+                            <span class="game-avatar game-avatar-large">@GetGameInitials(selectedGame)</span>
+                            <div>
+                                <strong>@selectedGame.Name</strong>
+                                <span>Logo asset: @(selectedGame.LogoAssetId?.ToString() ?? "None")</span>
+                            </div>
+                        </div>
+
+                        <div class="admin-game-form">
+                            <label>
+                                <span>Logo asset id</span>
+                                <input class="form-input" @bind="selectedLogoAssetId" placeholder="Optional media asset id" />
+                            </label>
+                            <div class="form-actions">
+                                <button type="button" class="solid-button" @onclick="UpdateSelectedLogoAsync" disabled="@isBusy">Set logo</button>
+                                <button type="button" class="ghost-button" @onclick="ClearSelectedLogoAsync" disabled="@isBusy">Clear logo</button>
+                                <button type="button" class="danger-button" @onclick="DeleteSelectedGameAsync" disabled="@isBusy">Delete game</button>
+                            </div>
+                        </div>
+                    </SurfacePanel>
+                }
+            </div>
+        </div>
+    }
+</section>

@@ -39,6 +39,20 @@
                 </NavLink>
             </div>
 
+            @if (isAuthenticated && isAdmin)
+            {
+                <div class="nav-section">
+                    <div class="nav-section-title">
+                        <span class="nav-icon bi-shield-lock-fill"></span>
+                        Administration
+                    </div>
+                    <NavLink href="administration/games" class="nav-item level-1" @onclick="NotifyNavigation">
+                        <span class="nav-icon bi-controller"></span>
+                        <span>Games</span>
+                    </NavLink>
+                </div>
+            }
+
             @if (ShowTournamentContext)
             {
                 <div class="tournament-context">

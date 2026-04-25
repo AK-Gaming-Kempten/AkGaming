@@ -19,6 +19,22 @@ internal static class TournamentTestData
         return game;
     }
 
+    public static MediaAsset AddMediaAsset(InMemoryStore store)
+    {
+        var asset = new MediaAsset
+        {
+            Id = Guid.NewGuid(),
+            StorageKey = "logos/game.png",
+            ContentType = "image/png",
+            OriginalFileName = "game.png",
+            SizeBytes = 1024,
+            Sha256 = "test"
+        };
+
+        store.MediaAssets.Add(asset);
+        return asset;
+    }
+
     public static Team AddTeam(
         InMemoryStore store,
         string gameId = GameId,
