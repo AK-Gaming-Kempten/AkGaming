@@ -1,38 +1,21 @@
-@using Microsoft.AspNetCore.Components.Authorization
-@namespace AkGaming.Management.Frontend.Components.Auth
-@inject NavigationManager Nav
+using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Authorization;
 
-<CascadingAuthenticationState>
-    <AuthorizeView>
-        <Authorized>
-            <div class="user-box">
-                <div class="user-info">
-                    <div class="user-label">Logged in as</div>
-                    <div class="user-name" title="@DisplayName">@DisplayName</div>
-                </div>
-                <button class="btn btn-primary" @onclick="Logout">Logout</button>
-            </div>
-        </Authorized>
+namespace AkGaming.Core.Components.Auth;
 
-        <NotAuthorized>
-            <div class="user-box">
-                <div class="user-info">
-                    <div class="user-label">Not logged in</div>
-                </div>
-                <button class="btn btn-primary" @onclick="Login">Login</button>
-            </div>
-        </NotAuthorized>
-    </AuthorizeView>
-</CascadingAuthenticationState>
-
-@code {
+public partial class UserBox : ComponentBase
+{
     [CascadingParameter] public Task<AuthenticationState> AuthenticationStateTask { get; set; } = default!;
+
+    [Inject] private NavigationManager Nav { get; set; } = default!;
+
     private string? DisplayName;
 
     protected override async Task OnParametersSetAsync()
     {
         var authState = await AuthenticationStateTask;
         var user = authState.User;
+
         DisplayName =
             user.Claims.FirstOrDefault(claim => claim.Type == "preferred_username")?.Value
             ?? user.Claims.FirstOrDefault(claim => claim.Type == "username")?.Value

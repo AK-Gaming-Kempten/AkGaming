@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 
-namespace AkGaming.Tournaments.Frontend.Components.Shared;
+namespace AkGaming.Core.Components.Auth;
 
 public enum Theme
 {
@@ -12,7 +12,7 @@ public enum Theme
 
 public partial class ThemeSwitcherBox : ComponentBase, IAsyncDisposable
 {
-    [Inject] public IJSRuntime JS { get; set; } = default!;
+    [Inject] private IJSRuntime JS { get; set; } = default!;
 
     private Theme _currentTheme = Theme.System;
     private DotNetObjectReference<ThemeSwitcherBox>? _selfRef;
@@ -31,10 +31,7 @@ public partial class ThemeSwitcherBox : ComponentBase, IAsyncDisposable
         };
 
         if (_currentTheme == Theme.System)
-        {
-            _selfRef ??= DotNetObjectReference.Create(this);
-            await JS.InvokeVoidAsync("themeApi.onSystemChanged", _selfRef);
-        }
+            await EnsureSystemThemeCallbackAsync();
 
         StateHasChanged();
     }
@@ -53,12 +50,15 @@ public partial class ThemeSwitcherBox : ComponentBase, IAsyncDisposable
         await JS.InvokeVoidAsync("themeApi.set", jsValue);
 
         if (theme == Theme.System)
-        {
-            _selfRef ??= DotNetObjectReference.Create(this);
-            await JS.InvokeVoidAsync("themeApi.onSystemChanged", _selfRef);
-        }
+            await EnsureSystemThemeCallbackAsync();
 
         StateHasChanged();
+    }
+
+    private async Task EnsureSystemThemeCallbackAsync()
+    {
+        _selfRef ??= DotNetObjectReference.Create(this);
+        await JS.InvokeVoidAsync("themeApi.onSystemChanged", _selfRef);
     }
 
     [JSInvokable]
@@ -68,9 +68,9 @@ public partial class ThemeSwitcherBox : ComponentBase, IAsyncDisposable
         return Task.CompletedTask;
     }
 
-    public async ValueTask DisposeAsync()
+    public ValueTask DisposeAsync()
     {
         _selfRef?.Dispose();
-        await Task.CompletedTask;
+        return ValueTask.CompletedTask;
     }
 }

@@ -34,8 +34,10 @@
     </div>
 </div>
 
-<ReconnectOverlay />
-<BlazorErrorDisplay />
+<ReconnectOverlay AppName="AK Gaming Management"
+                  LogoUrl="images/icons/AKG_Logos/Default.png"
+                  ShowMessage="Trying to restore your live session and reconnect to the management server." />
+<BlazorErrorDisplay AppName="AK Gaming Management" />
 
 @code {
     private bool _isMobileNavOpen;

@@ -33,8 +33,7 @@
     </div>
 </div>
 
-<div id="blazor-error-ui" data-nosnippet>
-    An unhandled error has occurred.
-    <a href="." class="reload">Reload</a>
-    <span class="dismiss">x</span>
-</div>
+<ReconnectOverlay AppName="AK Gaming Tournaments"
+                  LogoUrl="images/icons/AKG_Logos/Default.png"
+                  ShowMessage="Trying to restore your live session and reconnect to the tournament server." />
+<BlazorErrorDisplay AppName="AK Gaming Tournaments" />

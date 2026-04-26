@@ -1,3 +1,5 @@
+@namespace AkGaming.Core.Components.Layout
+
 <div id="blazor-error-ui" data-nosnippet role="alert" aria-live="assertive" aria-atomic="true">
     <div class="error-card">
         <div class="error-card-header">
@@ -6,8 +8,8 @@
                     <span class="bi bi-exclamation-octagon"></span>
                 </div>
                 <div>
-                    <p class="error-card-eyebrow">AK Gaming Management</p>
-                    <h2 class="error-card-title">Unexpected client error</h2>
+                    <p class="error-card-eyebrow">@AppName</p>
+                    <h2 class="error-card-title">@Title</h2>
                 </div>
             </div>
 
@@ -20,11 +22,11 @@
         </div>
 
         <div class="error-card-body">
-            <p class="error-card-message">The current page hit an unexpected error and may no longer respond correctly.</p>
-            <p class="error-card-subtle">Reload the page to restore a clean session. If the issue keeps happening, check the browser console and server logs.</p>
+            <p class="error-card-message">@Message</p>
+            <p class="error-card-subtle">@SubtleMessage</p>
 
             <div class="error-card-actions">
-                <a href="." class="reload btn btn-primary">Reload page</a>
+                <a href="." class="reload btn btn-primary">@ReloadText</a>
             </div>
         </div>
     </div>

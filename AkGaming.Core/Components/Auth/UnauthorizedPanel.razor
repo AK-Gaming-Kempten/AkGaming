@@ -1,7 +1,9 @@
+@namespace AkGaming.Core.Components.Auth
+
 <div class="unauthorized-wrapper">
     @if (!string.IsNullOrWhiteSpace(ImageUrl))
     {
-        <img class="unauthorized-image" src="@ImageUrl" alt="Not Authorized" />
+        <img class="unauthorized-image" src="@ImageUrl" alt="@ImageAlt" />
     }
 
     <div class="unauthorized-content">
@@ -9,6 +11,6 @@
     </div>
 
     <button class="unauthorized-button" @onclick="Login">
-        Login
+        @LoginText
     </button>
 </div>

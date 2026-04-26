@@ -25,4 +25,5 @@
     <Project Path="WebApi/AkGaming.Tournaments.WebApi.csproj" />
   </Folder>
   <Project Path="../AkGaming.Core/Constants/AkGaming.Core.Constants.csproj" />
+  <Project Path="../AkGaming.Core/Components/AkGaming.Core.Components.csproj" />
 </Solution>
