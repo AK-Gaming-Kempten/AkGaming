@@ -98,6 +98,12 @@ public partial class MyTeamSelector : ComponentBase
         return Task.CompletedTask;
     }
 
+    private Task SetTeamName(string value)
+    {
+        teamName = value;
+        return Task.CompletedTask;
+    }
+
     private async Task CreateTeamAsync()
     {
         if (!ValidateAuthenticatedUser() || !ValidateRequired(teamGameId, "Select a game.") || !ValidateRequired(teamName, "Enter a team name."))
@@ -168,17 +174,4 @@ public partial class MyTeamSelector : ComponentBase
         return false;
     }
 
-    private string GetGameName(string gameId)
-        => games.FirstOrDefault(game => string.Equals(game.Id, gameId, StringComparison.OrdinalIgnoreCase))?.Name ?? gameId;
-
-    private string GetUserRoleLabel(TeamDto team)
-    {
-        if (string.IsNullOrWhiteSpace(currentUserId))
-            return "Member";
-
-        var role = team.Memberships.FirstOrDefault(member =>
-            string.Equals(member.UserId, currentUserId, StringComparison.OrdinalIgnoreCase))?.Role;
-
-        return role?.ToString() ?? "Member";
-    }
 }

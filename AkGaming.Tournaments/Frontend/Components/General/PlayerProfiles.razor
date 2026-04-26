@@ -20,17 +20,13 @@
         <div class="content-grid">
             <div class="stack">
                 <SurfacePanel Title="Create or update profile" Subtitle="Profiles are game-specific and can only be used for that game.">
-                    <div class="backend-form">
-                        <label>
-                            <span>Game</span>
-                            <GameSelect Games="@games" Value="@profileGameId" ValueChanged="SetProfileGame" />
-                        </label>
-                        <label>
-                            <span>Display name</span>
-                            <input class="form-input" @bind="profileName" placeholder="Summoner name" />
-                        </label>
-                        <button type="button" class="solid-button" @onclick="SaveProfileAsync" disabled="@isBusy">Save profile</button>
-                    </div>
+                    <PlayerProfileForm Games="@games"
+                                       GameId="@profileGameId"
+                                       GameIdChanged="SetProfileGame"
+                                       ProfileName="@profileName"
+                                       ProfileNameChanged="SetProfileName"
+                                       IsBusy="@isBusy"
+                                       OnSubmit="SaveProfileAsync" />
                 </SurfacePanel>
             </div>
 
@@ -39,27 +35,10 @@
                     <PlayerProfileList Profiles="@playerProfiles" EmptyState="Create a game-specific player profile to use it in team rosters." />
                 </SurfacePanel>
 
-                @if (playerProfiles.Count > 0)
-                {
-                    <SurfacePanel Title="Profile logos">
-                        <div class="profile-logo-list">
-                            @foreach (var profile in playerProfiles)
-                            {
-                                <div class="profile-logo-row">
-                                    <LogoImage LogoAssetId="@profile.LogoAssetId" Type="player" Alt="@($"{profile.Name} logo")" Size="LogoImageSize.Medium" />
-                                    <div>
-                                        <strong>@profile.Name</strong>
-                                        <span>@profile.GameId · Logo: @(profile.LogoAssetId?.ToString() ?? "None")</span>
-                                    </div>
-                                    <div class="profile-logo-actions">
-                                        <LogoUploadDialog Uploaded="asset => SetProfileLogoAsync(profile, asset)" />
-                                        <button type="button" class="ghost-button" @onclick="() => ClearProfileLogoAsync(profile)" disabled="@isBusy">Clear</button>
-                                    </div>
-                                </div>
-                            }
-                        </div>
-                    </SurfacePanel>
-                }
+                <PlayerProfileLogoList Profiles="@playerProfiles"
+                                       IsBusy="@isBusy"
+                                       LogoUploaded="SetProfileLogoAsync"
+                                       LogoCleared="ClearProfileLogoAsync" />
             </div>
         </div>
     }

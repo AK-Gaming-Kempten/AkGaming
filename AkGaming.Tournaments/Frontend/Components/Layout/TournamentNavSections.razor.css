@@ -1,0 +1,69 @@
+.nav-section {
+    margin-top: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.nav-section-toggle {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    width: 100%;
+    border: 0;
+    background: transparent;
+    color: var(--color-text-special-secondary);
+    font-size: 0.9rem;
+    font-weight: 600;
+    padding: 0.35rem 0.9rem 0.35rem 0.5rem;
+    text-align: left;
+    cursor: pointer;
+}
+
+.nav-chevron {
+    margin-left: auto;
+    margin-right: 0.35rem;
+    font-size: 1.05rem;
+}
+
+a.nav-item,
+a.nav-item:visited {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.55rem 1rem;
+    border-radius: 4px;
+    width: 100%;
+    background: transparent;
+    color: var(--color-nav-item-text);
+    text-decoration: none;
+    transition: background 0.2s ease, color 0.2s ease;
+    position: relative;
+    box-sizing: border-box;
+}
+
+a.nav-item.level-2 {
+    padding-left: 2rem;
+}
+
+a.nav-item:hover {
+    background: linear-gradient(90deg, var(--color-nav-bg) 0%, var(--color-nav-item-hover-bg) 100%);
+}
+
+a.nav-item.active {
+    background: linear-gradient(
+        90deg,
+        var(--color-nav-bg) 0%,
+        color-mix(in oklab, var(--color-nav-item-active-bg) 75%, var(--color-highlight-primary) 25%) 100%);
+    color: var(--color-nav-item-active-text);
+}
+
+a.nav-item.active .nav-icon {
+    color: var(--color-nav-item-active-text);
+}
+
+a.nav-item .nav-icon,
+.nav-icon {
+    font-size: 1.1rem;
+    color: var(--color-nav-icon);
+}

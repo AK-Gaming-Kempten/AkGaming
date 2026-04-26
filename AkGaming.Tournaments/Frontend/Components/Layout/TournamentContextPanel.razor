@@ -1,0 +1,29 @@
+@namespace AkGaming.Tournaments.Frontend.Components.Layout
+
+@if (Show)
+{
+    <div class="tournament-context">
+        <div class="tournament-context-heading">
+            <span class="tournament-context-name">@CurrentTournamentName</span>
+            @if (!string.IsNullOrWhiteSpace(CurrentTournamentSubline))
+            {
+                <span class="tournament-context-subline">@CurrentTournamentSubline</span>
+            }
+        </div>
+
+        @if (CanChangeTournament)
+        {
+            <select id="selectedTournament" class="tournament-selector-input" value="@SelectedTournamentSlug" @onchange="TournamentChanged">
+                @if (IsAdmin)
+                {
+                    <option value="">No tournament selected</option>
+                }
+
+                @foreach (var tournament in Tournaments)
+                {
+                    <option value="@tournament.Slug">@tournament.Title @tournament.Season</option>
+                }
+            </select>
+        }
+    </div>
+}

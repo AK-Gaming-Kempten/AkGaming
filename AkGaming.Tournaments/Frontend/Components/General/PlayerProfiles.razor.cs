@@ -1,6 +1,7 @@
 using System.Security.Claims;
 using AkGaming.Tournaments.Contracts.DTOs;
 using AkGaming.Tournaments.Frontend.Api;
+using AkGaming.Tournaments.Frontend.Components.Shared;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 
@@ -48,6 +49,12 @@ public partial class PlayerProfiles : ComponentBase
         return Task.CompletedTask;
     }
 
+    private Task SetProfileName(string value)
+    {
+        profileName = value;
+        return Task.CompletedTask;
+    }
+
     private async Task SaveProfileAsync()
     {
         if (!ValidateAuthenticatedUser() || !ValidateRequired(profileGameId, "Select a game.") || !ValidateRequired(profileName, "Enter a player profile name."))
@@ -61,9 +68,9 @@ public partial class PlayerProfiles : ComponentBase
         });
     }
 
-    private async Task SetProfileLogoAsync(PlayerProfileDto profile, MediaAssetDto asset)
+    private async Task SetProfileLogoAsync(PlayerProfileLogoUpload upload)
     {
-        await UpdateProfileLogoAsync(profile, asset.Id);
+        await UpdateProfileLogoAsync(upload.Profile, upload.Asset.Id);
     }
 
     private async Task ClearProfileLogoAsync(PlayerProfileDto profile)

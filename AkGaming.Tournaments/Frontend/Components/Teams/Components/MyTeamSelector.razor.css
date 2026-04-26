@@ -77,48 +77,10 @@
     box-shadow: 0 18px 36px color-mix(in oklab, black 24%, transparent);
 }
 
-.team-selector-actions,
-.form-actions {
+.team-selector-actions {
     display: flex;
     flex-wrap: wrap;
     gap: 0.65rem;
-}
-
-.create-team-panel {
-    margin-top: 0.75rem;
-    padding: 0.75rem;
-    border: 1px solid color-mix(in oklab, var(--color-highlight-primary) 24%, transparent);
-    border-radius: 8px;
-    background: color-mix(in oklab, var(--color-background-primary) 72%, transparent);
-}
-
-.backend-form {
-    display: grid;
-    gap: 0.9rem;
-}
-
-.backend-form label {
-    display: grid;
-    gap: 0.4rem;
-    color: var(--color-text-secondary);
-    font-size: 0.9rem;
-    font-weight: 700;
-}
-
-.form-input {
-    width: 100%;
-    min-height: 2.6rem;
-    box-sizing: border-box;
-    padding: 0.65rem 0.75rem;
-    border: 1px solid color-mix(in oklab, var(--color-text-secondary) 28%, transparent);
-    border-radius: 8px;
-    background: color-mix(in oklab, var(--color-background-primary) 88%, transparent);
-    color: var(--color-text-primary);
-}
-
-.form-input:focus {
-    outline: 2px solid color-mix(in oklab, var(--color-highlight-primary) 46%, transparent);
-    outline-offset: 2px;
 }
 
 .team-selector-list {
@@ -130,12 +92,7 @@
     padding-right: 0.25rem;
 }
 
-.muted-copy,
-.empty-copy {
+.muted-copy {
     margin: 0;
     color: var(--color-text-secondary);
-}
-
-.empty-copy {
-    padding: 0.8rem;
 }

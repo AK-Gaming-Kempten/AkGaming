@@ -1,0 +1,74 @@
+@namespace AkGaming.Tournaments.Frontend.Components.Layout
+
+@if (HasSelectedTournament)
+{
+    <div class="nav-section">
+        <button type="button" class="nav-section-toggle" @onclick="TogglePublicExpanded">
+            <span class="nav-icon bi-megaphone-fill"></span>
+            Public
+            <span class="nav-chevron bi @(IsPublicExpanded ? "bi-chevron-up" : "bi-chevron-down")"></span>
+        </button>
+
+        @if (IsPublicExpanded)
+        {
+            <NavLink href="@BuildTournamentHref()" Match="NavLinkMatch.All" class="nav-item level-2" @onclick="NotifyNavigation">
+                <span class="nav-icon bi-stars"></span>
+                <span>Overview</span>
+            </NavLink>
+            <NavLink href="@BuildTournamentHref("schedule")" class="nav-item level-2" @onclick="NotifyNavigation">
+                <span class="nav-icon bi-calendar-week-fill"></span>
+                <span>Schedule</span>
+            </NavLink>
+            <NavLink href="@BuildTournamentHref("teams")" class="nav-item level-2" @onclick="NotifyNavigation">
+                <span class="nav-icon bi-people-fill"></span>
+                <span>Teams</span>
+            </NavLink>
+        }
+    </div>
+
+    @if (IsAuthenticated)
+    {
+        <div class="nav-section">
+            <button type="button" class="nav-section-toggle" @onclick="TogglePlayerExpanded">
+                <span class="nav-icon bi-person-circle"></span>
+                Player
+                <span class="nav-chevron bi @(IsPlayerExpanded ? "bi-chevron-up" : "bi-chevron-down")"></span>
+            </button>
+
+            @if (IsPlayerExpanded)
+            {
+                <NavLink href="@BuildTournamentHref("player/team-space")" class="nav-item level-2" @onclick="NotifyNavigation">
+                    <span class="nav-icon bi-diagram-3-fill"></span>
+                    <span>Team Space</span>
+                </NavLink>
+                <NavLink href="@BuildTournamentHref("player/check-in")" class="nav-item level-2" @onclick="NotifyNavigation">
+                    <span class="nav-icon bi-check2-square"></span>
+                    <span>Check-In</span>
+                </NavLink>
+            }
+        </div>
+    }
+
+    @if (IsAuthenticated && IsAdmin)
+    {
+        <div class="nav-section">
+            <button type="button" class="nav-section-toggle" @onclick="ToggleAdministrationExpanded">
+                <span class="nav-icon bi-shield-lock-fill"></span>
+                Administration
+                <span class="nav-chevron bi @(IsAdministrationExpanded ? "bi-chevron-up" : "bi-chevron-down")"></span>
+            </button>
+
+            @if (IsAdministrationExpanded)
+            {
+                <NavLink href="@BuildTournamentHref("administration/control-room")" class="nav-item level-2" @onclick="NotifyNavigation">
+                    <span class="nav-icon bi-command"></span>
+                    <span>Control Room</span>
+                </NavLink>
+                <NavLink href="@BuildTournamentHref("administration/match-desk")" class="nav-item level-2" @onclick="NotifyNavigation">
+                    <span class="nav-icon bi-broadcast-pin"></span>
+                    <span>Match Desk</span>
+                </NavLink>
+            }
+        </div>
+    }
+}

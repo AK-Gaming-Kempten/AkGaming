@@ -1,0 +1,18 @@
+@namespace AkGaming.Tournaments.Frontend.Components.Shared
+
+<div class="create-team-panel">
+    <div class="backend-form">
+        <label>
+            <span>Game</span>
+            <GameSelect Games="@Games" Value="@GameId" ValueChanged="GameIdChanged" Disabled="@IsBusy" />
+        </label>
+        <label>
+            <span>Team name</span>
+            <input class="form-input" value="@TeamName" @oninput="HandleTeamNameChanged" placeholder="AKG Blue" disabled="@IsBusy" />
+        </label>
+        <div class="form-actions">
+            <button type="button" class="solid-button" @onclick="OnSubmit" disabled="@IsBusy">Create</button>
+            <button type="button" class="ghost-button" @onclick="OnCancel" disabled="@IsBusy">Cancel</button>
+        </div>
+    </div>
+</div>

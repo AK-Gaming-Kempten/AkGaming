@@ -1,0 +1,18 @@
+@namespace AkGaming.Tournaments.Frontend.Components.Shared
+
+@if (Teams.Count == 0)
+{
+    <p class="empty-copy">@EmptyState</p>
+}
+else
+{
+    @foreach (var team in Teams)
+    {
+        <TeamOptionButton Team="@team"
+                          GameName="@GetGameName(team.GameId)"
+                          RoleLabel="@GetUserRoleLabel(team)"
+                          Selected="@(SelectedTeamId == team.Id)"
+                          Disabled="@Disabled"
+                          OnSelected="OnSelected" />
+    }
+}

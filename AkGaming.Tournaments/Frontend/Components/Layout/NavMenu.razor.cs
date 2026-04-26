@@ -1,0 +1,99 @@
+using AkGaming.Tournaments.Frontend.Components.Data;
+using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Authorization;
+using Microsoft.AspNetCore.Components.Routing;
+
+namespace AkGaming.Tournaments.Frontend.Components.Layout;
+
+public partial class NavMenu : ComponentBase, IDisposable
+{
+    [Parameter] public EventCallback OnNavigate { get; set; }
+
+    [Inject] private AuthenticationStateProvider AuthenticationStateProvider { get; set; } = default!;
+    [Inject] private NavigationManager Nav { get; set; } = default!;
+    [Inject] private MockTournamentCatalog Catalog { get; set; } = default!;
+
+    private IReadOnlyList<TournamentSummary> tournaments = [];
+    private TournamentSummary? selectedTournament;
+    private string selectedTournamentSlug = string.Empty;
+    private bool isAuthenticated;
+    private bool isAdmin;
+    private bool isPublicExpanded = true;
+    private bool isPlayerExpanded = true;
+    private bool isAdministrationExpanded = true;
+    private bool HasSelectedTournament => selectedTournament is not null;
+    private bool ShowTournamentContext => isAdmin || HasSelectedTournament;
+    private bool CanChangeTournament => isAuthenticated;
+    private string CurrentTournamentName => selectedTournament?.Title ?? "No tournament selected";
+    private string? CurrentTournamentSubline => selectedTournament?.Season;
+
+    protected override async Task OnInitializedAsync()
+    {
+        tournaments = Catalog.GetAll();
+
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+
+        isAuthenticated = user.Identity?.IsAuthenticated ?? false;
+        isAdmin = isAuthenticated && user.IsInRole("Admin");
+
+        UpdateSelectedTournamentFromLocation();
+
+        Nav.LocationChanged += HandleLocationChanged;
+    }
+
+    private void HandleLocationChanged(object? sender, LocationChangedEventArgs e)
+    {
+        UpdateSelectedTournamentFromLocation();
+        InvokeAsync(StateHasChanged);
+    }
+
+    private void UpdateSelectedTournamentFromLocation()
+    {
+        var path = Nav.ToBaseRelativePath(Nav.Uri);
+        var segments = path.Split('/', StringSplitOptions.RemoveEmptyEntries);
+        var requestedSlug = segments.Length >= 2 && string.Equals(segments[0], "tournaments", StringComparison.OrdinalIgnoreCase)
+            ? segments[1]
+            : null;
+
+        selectedTournament = !string.IsNullOrWhiteSpace(requestedSlug)
+            ? Catalog.FindSummary(requestedSlug!)
+            : null;
+        selectedTournamentSlug = selectedTournament?.Slug ?? string.Empty;
+    }
+
+    private Task HandleTournamentChanged(ChangeEventArgs args)
+    {
+        var targetSlug = args.Value?.ToString();
+        Nav.NavigateTo(BuildTournamentHrefForTournament(targetSlug));
+        return Task.CompletedTask;
+    }
+
+    private string BuildTournamentHrefForTournament(string? targetSlug)
+    {
+        if (string.IsNullOrWhiteSpace(targetSlug))
+            return "/discover";
+
+        var path = Nav.ToBaseRelativePath(Nav.Uri);
+        var segments = path.Split('/', StringSplitOptions.RemoveEmptyEntries).ToList();
+        if (segments.Count >= 2 && string.Equals(segments[0], "tournaments", StringComparison.OrdinalIgnoreCase))
+        {
+            segments[1] = targetSlug;
+            return "/" + string.Join('/', segments);
+        }
+
+        return $"/tournaments/{targetSlug}";
+    }
+
+    private void TogglePublicExpanded() => isPublicExpanded = !isPublicExpanded;
+    private void TogglePlayerExpanded() => isPlayerExpanded = !isPlayerExpanded;
+    private void ToggleAdministrationExpanded() => isAdministrationExpanded = !isAdministrationExpanded;
+
+    private Task NotifyNavigation()
+        => OnNavigate.HasDelegate ? OnNavigate.InvokeAsync() : Task.CompletedTask;
+
+    public void Dispose()
+    {
+        Nav.LocationChanged -= HandleLocationChanged;
+    }
+}

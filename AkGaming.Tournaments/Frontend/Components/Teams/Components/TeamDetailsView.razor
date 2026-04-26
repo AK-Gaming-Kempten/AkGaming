@@ -1,0 +1,30 @@
+@namespace AkGaming.Tournaments.Frontend.Components.Shared
+
+<div class="content-grid">
+    <div class="stack">
+        <SurfacePanel Title="Team">
+            <BackendTeamCard Team="@Team" GameName="@GameName" />
+            @if (IsAuthenticated)
+            {
+                <div class="logo-actions">
+                    <LogoUploadDialog Uploaded="OnLogoUploaded" />
+                    <button type="button" class="ghost-button" @onclick="OnLogoCleared" disabled="@IsBusy">Clear logo</button>
+                </div>
+            }
+        </SurfacePanel>
+
+        <SurfacePanel Title="Guest profiles">
+            <PlayerProfileList Profiles="@Team.GuestPlayerProfiles" EmptyState="This team does not have guest profiles." />
+        </SurfacePanel>
+    </div>
+
+    <div class="stack">
+        <SurfacePanel Title="Available roster profiles">
+            <PlayerProfileList Profiles="@AvailableProfiles" EmptyState="No roster profiles are available for this team's game." />
+        </SurfacePanel>
+
+        <SurfacePanel Title="Registrations">
+            <RegistrationList Registrations="@Registrations" />
+        </SurfacePanel>
+    </div>
+</div>

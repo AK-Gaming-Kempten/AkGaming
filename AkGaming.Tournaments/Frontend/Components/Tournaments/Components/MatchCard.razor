@@ -21,14 +21,3 @@
         </div>
     </div>
 </article>
-
-@code {
-    [Parameter] public MatchCardModel Match { get; set; } = default!;
-
-    private string ToneClass => Match.Tone switch
-    {
-        "positive" => "status-pill-positive",
-        "warn" => "status-pill-warn",
-        _ => "status-pill-neutral"
-    };
-}

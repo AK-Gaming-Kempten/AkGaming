@@ -1,0 +1,5 @@
+.empty-copy {
+    margin: 0;
+    padding: 0.8rem;
+    color: var(--color-text-secondary);
+}

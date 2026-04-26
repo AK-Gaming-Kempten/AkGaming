@@ -40,6 +40,18 @@ public partial class AdminGameSelector : ComponentBase
         return Task.CompletedTask;
     }
 
+    private Task SetNewGameId(string value)
+    {
+        newGameId = value;
+        return Task.CompletedTask;
+    }
+
+    private Task SetNewGameName(string value)
+    {
+        newGameName = value;
+        return Task.CompletedTask;
+    }
+
     private async Task CreateGameAsync()
     {
         if (!GameCreateRequested.HasDelegate)

@@ -1,0 +1,48 @@
+.tournament-context {
+    margin: 1rem 0.75rem 0 0;
+    padding-top: 1rem;
+    border-top: 1px solid color-mix(in oklab, var(--color-text-secondary) 32%, transparent);
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+}
+
+.tournament-context-heading {
+    display: flex;
+    flex-direction: column;
+    gap: 0.1rem;
+    padding: 0 0.2rem;
+}
+
+.tournament-context-name {
+    color: var(--color-text-special);
+    font-size: 1rem;
+    font-weight: 700;
+    line-height: 1.2;
+}
+
+.tournament-context-subline {
+    color: var(--color-text-special-secondary);
+    font-size: 0.82rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+.tournament-selector-input {
+    width: 100%;
+    min-width: 0;
+    border: 0;
+    border-bottom: 1px solid color-mix(in oklab, var(--color-text-secondary) 32%, transparent);
+    border-radius: 0;
+    background: transparent;
+    color: var(--color-text-special);
+    padding: 0.45rem 0.2rem 0.55rem;
+    font-weight: 600;
+    box-shadow: none;
+}
+
+.tournament-selector-input:focus {
+    outline: none;
+    border-bottom-color: var(--color-highlight-primary);
+}

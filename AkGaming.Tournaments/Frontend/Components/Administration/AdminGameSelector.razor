@@ -21,39 +21,20 @@
 
             @if (isCreateGameFormVisible)
             {
-                <div class="create-game-panel">
-                    <div class="admin-game-form">
-                        <label>
-                            <span>Game id</span>
-                            <input class="form-input" @bind="newGameId" placeholder="lol" />
-                        </label>
-                        <label>
-                            <span>Name</span>
-                            <input class="form-input" @bind="newGameName" placeholder="League of Legends" />
-                        </label>
-                        <div class="form-actions">
-                            <button type="button" class="solid-button" @onclick="CreateGameAsync" disabled="@IsBusy">Create</button>
-                            <button type="button" class="ghost-button" @onclick="HideCreateGameForm" disabled="@IsBusy">Cancel</button>
-                        </div>
-                    </div>
-                </div>
+                <AdminGameCreateForm GameId="@newGameId"
+                                     GameIdChanged="SetNewGameId"
+                                     GameName="@newGameName"
+                                     GameNameChanged="SetNewGameName"
+                                     IsBusy="@IsBusy"
+                                     OnSubmit="CreateGameAsync"
+                                     OnCancel="HideCreateGameForm" />
             }
 
             <div class="game-selector-list">
-                @if (Games.Count == 0)
-                {
-                    <p class="empty-copy">No games have been configured yet.</p>
-                }
-                else
-                {
-                    @foreach (var game in Games)
-                    {
-                        <AdminGameOptionButton Game="@game"
-                                               Selected="@(SelectedGame?.Id == game.Id)"
-                                               Disabled="@IsBusy"
-                                               OnSelected="SelectGameAsync" />
-                    }
-                }
+                <AdminGameOptionList Games="@Games"
+                                     SelectedGame="@SelectedGame"
+                                     IsBusy="@IsBusy"
+                                     OnSelected="SelectGameAsync" />
             </div>
         </div>
     }

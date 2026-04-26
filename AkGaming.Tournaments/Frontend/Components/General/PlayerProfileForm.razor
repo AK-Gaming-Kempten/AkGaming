@@ -1,0 +1,13 @@
+@namespace AkGaming.Tournaments.Frontend.Components.Shared
+
+<div class="backend-form">
+    <label>
+        <span>Game</span>
+        <GameSelect Games="@Games" Value="@GameId" ValueChanged="GameIdChanged" Disabled="@IsBusy" />
+    </label>
+    <label>
+        <span>Display name</span>
+        <input class="form-input" value="@ProfileName" @oninput="HandleProfileNameChanged" placeholder="Summoner name" disabled="@IsBusy" />
+    </label>
+    <button type="button" class="solid-button" @onclick="OnSubmit" disabled="@IsBusy">Save profile</button>
+</div>

@@ -27,33 +27,13 @@
     }
     else
     {
-        <div class="content-grid">
-            <div class="stack">
-                <SurfacePanel Title="Team">
-                    <BackendTeamCard Team="@team" GameName="@GetGameName(team.GameId)" />
-                    @if (isAuthenticated)
-                    {
-                        <div class="logo-actions">
-                            <LogoUploadDialog Uploaded="SetTeamLogoAsync" />
-                            <button type="button" class="ghost-button" @onclick="ClearTeamLogoAsync" disabled="@isBusy">Clear logo</button>
-                        </div>
-                    }
-                </SurfacePanel>
-
-                <SurfacePanel Title="Guest profiles">
-                    <PlayerProfileList Profiles="@team.GuestPlayerProfiles" EmptyState="This team does not have guest profiles." />
-                </SurfacePanel>
-            </div>
-
-            <div class="stack">
-                <SurfacePanel Title="Available roster profiles">
-                    <PlayerProfileList Profiles="@availableProfiles" EmptyState="No roster profiles are available for this team's game." />
-                </SurfacePanel>
-
-                <SurfacePanel Title="Registrations">
-                    <RegistrationList Registrations="@registrations" />
-                </SurfacePanel>
-            </div>
-        </div>
+        <TeamDetailsView Team="@team"
+                         GameName="@GetGameName(team.GameId)"
+                         AvailableProfiles="@availableProfiles"
+                         Registrations="@registrations"
+                         IsAuthenticated="@isAuthenticated"
+                         IsBusy="@isBusy"
+                         OnLogoUploaded="SetTeamLogoAsync"
+                         OnLogoCleared="ClearTeamLogoAsync" />
     }
 </section>

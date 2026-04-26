@@ -12,12 +12,3 @@
         Login
     </button>
 </div>
-
-@code {
-    [Parameter] public string? ImageUrl { get; set; }
-    [Parameter] public RenderFragment? ChildContent { get; set; }
-
-    [Inject] NavigationManager Nav { get; set; } = default!;
-
-    private void Login() => Nav.NavigateTo("/authentication/login", forceLoad: true);
-}

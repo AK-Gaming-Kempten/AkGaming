@@ -1,0 +1,18 @@
+@namespace AkGaming.Tournaments.Frontend.Components.Pages
+
+<div class="create-game-panel">
+    <div class="admin-game-form">
+        <label>
+            <span>Game id</span>
+            <input class="form-input" value="@GameId" @oninput="HandleGameIdChanged" placeholder="lol" disabled="@IsBusy" />
+        </label>
+        <label>
+            <span>Name</span>
+            <input class="form-input" value="@GameName" @oninput="HandleGameNameChanged" placeholder="League of Legends" disabled="@IsBusy" />
+        </label>
+        <div class="form-actions">
+            <button type="button" class="solid-button" @onclick="OnSubmit" disabled="@IsBusy">Create</button>
+            <button type="button" class="ghost-button" @onclick="OnCancel" disabled="@IsBusy">Cancel</button>
+        </div>
+    </div>
+</div>

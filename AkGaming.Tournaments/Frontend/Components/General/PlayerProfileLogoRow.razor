@@ -1,0 +1,13 @@
+@namespace AkGaming.Tournaments.Frontend.Components.Shared
+
+<div class="profile-logo-row">
+    <LogoImage LogoAssetId="@Profile.LogoAssetId" Type="player" Alt="@($"{Profile.Name} logo")" Size="LogoImageSize.Medium" />
+    <div>
+        <strong>@Profile.Name</strong>
+        <span>@Profile.GameId · Logo: @(Profile.LogoAssetId?.ToString() ?? "None")</span>
+    </div>
+    <div class="profile-logo-actions">
+        <LogoUploadDialog Uploaded="HandleLogoUploadedAsync" />
+        <button type="button" class="ghost-button" @onclick="HandleLogoClearedAsync" disabled="@IsBusy">Clear</button>
+    </div>
+</div>

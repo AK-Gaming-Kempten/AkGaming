@@ -1,0 +1,16 @@
+@namespace AkGaming.Tournaments.Frontend.Components.Pages
+
+@if (Games.Count == 0)
+{
+    <p class="empty-copy">No games have been configured yet.</p>
+}
+else
+{
+    @foreach (var game in Games)
+    {
+        <AdminGameOptionButton Game="@game"
+                               Selected="@(SelectedGame?.Id == game.Id)"
+                               Disabled="@IsBusy"
+                               OnSelected="OnSelected" />
+    }
+}
