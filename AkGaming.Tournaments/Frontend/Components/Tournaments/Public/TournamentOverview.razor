@@ -1,0 +1,48 @@
+@page "/tournaments/{TournamentSlug}"
+@namespace AkGaming.Tournaments.Frontend.Components.Pages
+@inherits TournamentPageBase
+
+<PageTitle>@($"{Tournament.Summary.Title} Overview")</PageTitle>
+
+<section class="app-page">
+    <PageHeader Eyebrow="@($"{Tournament.Summary.Title} · {Tournament.Summary.Season}")"
+                Title="Overview" />
+
+    @if (RequestedTournamentWasMissing)
+    {
+        <SurfacePanel Title="Tournament not found">
+            <p>Pick another tournament from the selector to continue.</p>
+        </SurfacePanel>
+    }
+
+    <div class="stats-grid">
+        @foreach (var metric in Tournament.Metrics)
+        {
+            <MetricCard Label="@metric.Label" Value="@metric.Value" Caption="@metric.Caption" />
+        }
+    </div>
+
+    <div class="content-grid">
+        <div class="stack">
+            <SurfacePanel Title="Matches">
+                <div class="stack">
+                    @foreach (var match in Tournament.Matches.Take(2))
+                    {
+                        <MatchCard Match="@match" />
+                    }
+                </div>
+            </SurfacePanel>
+        </div>
+
+        <div class="stack">
+            <SurfacePanel Title="Teams">
+                <div class="stack">
+                    @foreach (var team in Tournament.Teams.Take(2))
+                    {
+                        <TeamCard Team="@team" />
+                    }
+                </div>
+            </SurfacePanel>
+        </div>
+    </div>
+</section>

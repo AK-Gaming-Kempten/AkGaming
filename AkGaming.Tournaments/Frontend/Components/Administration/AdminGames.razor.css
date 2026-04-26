@@ -1,0 +1,22 @@
+.admin-game-layout {
+    display: grid;
+    gap: 1rem;
+    position: relative;
+}
+
+.admin-game-editor {
+    transition: filter 140ms ease, opacity 140ms ease;
+}
+
+.admin-game-editor-blurred {
+    filter: blur(4px);
+    opacity: 0.58;
+    pointer-events: none;
+    user-select: none;
+}
+
+.muted-copy,
+.empty-copy {
+    margin: 0;
+    color: var(--color-text-secondary);
+}

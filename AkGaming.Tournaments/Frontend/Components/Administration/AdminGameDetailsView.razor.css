@@ -1,0 +1,51 @@
+.admin-game-summary {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    margin-bottom: 1rem;
+}
+
+.admin-game-summary-main {
+    display: grid;
+    min-width: 0;
+    gap: 0.2rem;
+}
+
+.admin-game-summary strong,
+.admin-game-summary span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.admin-game-summary span {
+    color: var(--color-text-secondary);
+    font-size: 0.9rem;
+}
+
+.admin-game-form {
+    display: grid;
+    gap: 0.9rem;
+}
+
+.form-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.65rem;
+}
+
+.danger-button {
+    min-height: 2.6rem;
+    padding: 0.65rem 0.9rem;
+    border: 1px solid color-mix(in oklab, #ef4444 62%, transparent);
+    border-radius: 8px;
+    background: color-mix(in oklab, #ef4444 18%, transparent);
+    color: var(--color-text-primary);
+    cursor: pointer;
+    font-weight: 800;
+}
+
+.danger-button:disabled {
+    cursor: wait;
+    opacity: 0.72;
+}

@@ -1,0 +1,34 @@
+@namespace AkGaming.Tournaments.Frontend.Components.Shared
+
+@if (Registrations.Count == 0)
+{
+    <p class="empty-copy">@EmptyState</p>
+}
+else
+{
+    <div class="registration-list">
+        @foreach (var registration in Registrations)
+        {
+            <article class="registration-row">
+                <div>
+                    <h4>@registration.TournamentId</h4>
+                    <p>Submitted @registration.SubmittedAtUtc.ToLocalTime().ToString("g")</p>
+                </div>
+                <span class="status-pill @StatusClass(registration.Status)">@registration.Status</span>
+            </article>
+        }
+    </div>
+}
+
+@code {
+    [Parameter] public IReadOnlyList<TournamentRegistrationDto> Registrations { get; set; } = [];
+    [Parameter] public string EmptyState { get; set; } = "No registrations found.";
+
+    private static string StatusClass(TournamentRegistrationStatusDto status)
+        => status switch
+        {
+            TournamentRegistrationStatusDto.Approved => "status-pill-positive",
+            TournamentRegistrationStatusDto.Pending => "status-pill-warn",
+            _ => "status-pill-neutral"
+        };
+}

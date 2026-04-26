@@ -1,0 +1,14 @@
+@page "/tournaments/{TournamentSlug}/player/check-in"
+@namespace AkGaming.Tournaments.Frontend.Components.Pages
+@attribute [Authorize]
+@inherits TournamentPageBase
+
+<PageTitle>@($"{Tournament.Summary.Title} Check-In")</PageTitle>
+
+<section class="app-page">
+    <PageHeader Title="Check-in" />
+
+    <SurfacePanel Title="Tasks">
+        <StatusList Items="@Tournament.PlayerTasks" EmptyState="No check-in tasks yet." />
+    </SurfacePanel>
+</section>

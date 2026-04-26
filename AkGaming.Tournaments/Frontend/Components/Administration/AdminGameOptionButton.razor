@@ -1,0 +1,12 @@
+@namespace AkGaming.Tournaments.Frontend.Components.Pages
+
+<button type="button"
+        class="game-option @(Selected ? "game-option-selected" : null)"
+        @onclick="SelectAsync"
+        disabled="@Disabled">
+    <LogoImage LogoAssetId="@Game.LogoAssetId" Type="game" Alt="@($"{Game.Name} logo")" Size="LogoImageSize.Medium" />
+    <span class="game-option-main">
+        <strong>@Game.Name</strong>
+        <span>@Game.Id</span>
+    </span>
+</button>

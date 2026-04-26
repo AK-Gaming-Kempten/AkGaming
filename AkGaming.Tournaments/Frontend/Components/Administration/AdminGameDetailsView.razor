@@ -1,0 +1,24 @@
+@namespace AkGaming.Tournaments.Frontend.Components.Pages
+
+@if (Game is null)
+{
+    <SurfacePanel Title="No game selected">
+        <p class="muted-copy">Select a game from the dropdown above to edit it.</p>
+    </SurfacePanel>
+}
+else
+{
+    <SurfacePanel Title="@Game.Name" Subtitle="@Game.Id">
+        <div class="admin-game-summary">
+            <LogoImage LogoAssetId="@Game.LogoAssetId" Type="game" Alt="@($"{Game.Name} logo")" Size="LogoImageSize.Large" />
+        </div>
+
+        <div class="admin-game-form">
+            <div class="form-actions">
+                <LogoUploadDialog Uploaded="LogoUploaded" />
+                <button type="button" class="ghost-button" @onclick="ClearLogoRequested" disabled="@IsBusy">Clear logo</button>
+                <button type="button" class="danger-button" @onclick="DeleteGameRequested" disabled="@IsBusy">Delete game</button>
+            </div>
+        </div>
+    </SurfacePanel>
+}

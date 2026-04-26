@@ -1,0 +1,20 @@
+@page "/discover"
+@namespace AkGaming.Tournaments.Frontend.Components.Pages
+@inject MockTournamentCatalog Catalog
+
+<PageTitle>Discover Tournaments</PageTitle>
+
+@{
+    var tournaments = Catalog.GetAll();
+}
+
+<section class="app-page">
+    <PageHeader Title="Discover tournaments" />
+
+    <div class="discover-grid">
+        @foreach (var tournament in tournaments)
+        {
+            <TournamentCard Summary="@tournament" />
+        }
+    </div>
+</section>

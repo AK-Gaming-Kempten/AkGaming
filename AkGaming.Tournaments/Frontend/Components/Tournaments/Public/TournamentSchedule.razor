@@ -1,0 +1,18 @@
+@page "/tournaments/{TournamentSlug}/schedule"
+@namespace AkGaming.Tournaments.Frontend.Components.Pages
+@inherits TournamentPageBase
+
+<PageTitle>@($"{Tournament.Summary.Title} Schedule")</PageTitle>
+
+<section class="app-page">
+    <PageHeader Title="Schedule" />
+
+    <SurfacePanel Title="Matches">
+        <div class="stack">
+            @foreach (var match in Tournament.Matches)
+            {
+                <MatchCard Match="@match" />
+            }
+        </div>
+    </SurfacePanel>
+</section>

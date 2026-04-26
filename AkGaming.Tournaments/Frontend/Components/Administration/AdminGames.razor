@@ -1,0 +1,37 @@
+@page "/administration/games"
+@namespace AkGaming.Tournaments.Frontend.Components.Pages
+@attribute [Authorize(Roles = "Admin")]
+
+<PageTitle>Game Administration</PageTitle>
+
+<section class="app-page">
+    <PageHeader Title="Game administration" />
+
+    <ApiErrorPanel Message="@errorMessage" />
+
+    @if (isLoading)
+    {
+        <SurfacePanel Title="Loading">
+            <p class="muted-copy">Loading supported games.</p>
+        </SurfacePanel>
+    }
+    else
+    {
+        <div class="admin-game-layout">
+            <AdminGameSelector Games="@games"
+                               SelectedGame="@selectedGame"
+                               IsBusy="@isBusy"
+                               @bind-IsOpen="isGameSelectorOpen"
+                               GameSelected="SelectGameAsync"
+                               GameCreateRequested="CreateGameAsync" />
+
+            <div class="admin-game-editor @(isGameSelectorOpen ? "admin-game-editor-blurred" : null)">
+                <AdminGameDetailsView Game="@selectedGame"
+                                      IsBusy="@isBusy"
+                                      LogoUploaded="SetUploadedLogoAsync"
+                                      ClearLogoRequested="ClearSelectedLogoAsync"
+                                      DeleteGameRequested="DeleteSelectedGameAsync" />
+            </div>
+        </div>
+    }
+</section>

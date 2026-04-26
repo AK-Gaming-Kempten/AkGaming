@@ -1,0 +1,30 @@
+@namespace AkGaming.Tournaments.Frontend.Components.Shared
+
+@if (Profiles.Count == 0)
+{
+    <p class="empty-copy">@EmptyState</p>
+}
+else
+{
+    <div class="profile-list">
+        @foreach (var profile in Profiles)
+        {
+            <label class="profile-row @(Selectable ? "profile-row-selectable" : null)">
+                @if (Selectable)
+                {
+                    <input type="checkbox"
+                           checked="@SelectedProfileIds.Contains(profile.Id)"
+                           @onchange="args => ToggleSelection(profile.Id, args)" />
+                }
+                <LogoImage LogoAssetId="@profile.LogoAssetId" Type="player" Alt="@($"{profile.Name} logo")" Size="LogoImageSize.Small" />
+                <span class="profile-main">
+                    <strong>@profile.Name</strong>
+                    <span>@profile.GameId · @profile.Type</span>
+                </span>
+                <span class="status-pill @(profile.Type == PlayerProfileTypeDto.User ? "status-pill-positive" : "status-pill-neutral")">
+                    @FormatOwner(profile)
+                </span>
+            </label>
+        }
+    </div>
+}

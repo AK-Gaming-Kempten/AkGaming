@@ -1,0 +1,32 @@
+@page "/"
+@namespace AkGaming.Tournaments.Frontend.Components.Pages
+@inject MockTournamentCatalog Catalog
+
+<PageTitle>Tournament Hub</PageTitle>
+
+@{
+    var featured = Catalog.GetFeatured();
+    var tournaments = Catalog.GetAll();
+}
+
+<section class="hero-section">
+    <div class="hero-copy">
+        <span class="eyebrow">AK Gaming Tournaments</span>
+        <h1 class="hero-title">Open a tournament and work from there.</h1>
+        <div class="hero-actions">
+            <a href="/discover" class="solid-button">All tournaments</a>
+            <a href="@($"/tournaments/{featured.Summary.Slug}")" class="ghost-button">Featured tournament</a>
+        </div>
+    </div>
+</section>
+
+<section class="app-page home-content">
+    <PageHeader Title="Tournaments" />
+
+    <div class="home-tournament-grid">
+        @foreach (var tournament in tournaments)
+        {
+            <TournamentCard Summary="@tournament" />
+        }
+    </div>
+</section>

@@ -1,0 +1,22 @@
+@namespace AkGaming.Tournaments.Frontend.Components.Shared
+
+<select id="@Id" class="@CssClass" value="@Value" @onchange="HandleChanged" disabled="@Disabled">
+    <option value="">@Placeholder</option>
+    @foreach (var game in Games)
+    {
+        <option value="@game.Id">@game.Name</option>
+    }
+</select>
+
+@code {
+    [Parameter] public string Id { get; set; } = "game";
+    [Parameter] public string CssClass { get; set; } = "form-input";
+    [Parameter] public IReadOnlyList<GameDto> Games { get; set; } = [];
+    [Parameter] public string Value { get; set; } = string.Empty;
+    [Parameter] public EventCallback<string> ValueChanged { get; set; }
+    [Parameter] public string Placeholder { get; set; } = "Select game";
+    [Parameter] public bool Disabled { get; set; }
+
+    private Task HandleChanged(ChangeEventArgs args)
+        => ValueChanged.InvokeAsync(args.Value?.ToString() ?? string.Empty);
+}

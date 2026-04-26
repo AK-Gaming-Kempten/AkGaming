@@ -1,0 +1,68 @@
+@page "/teams/manage"
+@namespace AkGaming.Tournaments.Frontend.Components.Pages
+
+<PageTitle>My Teams</PageTitle>
+
+<section class="app-page">
+    <PageHeader Title="My Teams" />
+
+    <ApiErrorPanel Message="@errorMessage" />
+
+    @if (isLoading)
+    {
+        <SurfacePanel Title="My teams">
+            <p class="muted-copy">Loading your teams.</p>
+        </SurfacePanel>
+    }
+    else if (!isAuthenticated)
+    {
+        <UnauthorizedPanel ImageUrl="images/icons/AKG_Logos/Red.png">
+            <p>Login to view and manage your teams.</p>
+        </UnauthorizedPanel>
+    }
+    else
+    {
+        <SurfacePanel Title="My teams">
+            <div class="my-teams-actions">
+                <button type="button" class="solid-button" @onclick="ShowCreateTeamForm" disabled="@isBusy">Create team</button>
+            </div>
+
+            @if (isCreateTeamFormVisible)
+            {
+                <div class="create-team-panel">
+                    <div class="backend-form">
+                        <label>
+                            <span>Game</span>
+                            <GameSelect Games="@games" Value="@teamGameId" ValueChanged="SetTeamGame" />
+                        </label>
+                        <label>
+                            <span>Team name</span>
+                            <input class="form-input" @bind="teamName" placeholder="AKG Blue" />
+                        </label>
+                        <div class="form-actions">
+                            <button type="button" class="solid-button" @onclick="CreateTeamAsync" disabled="@isBusy">Create</button>
+                            <button type="button" class="ghost-button" @onclick="HideCreateTeamForm" disabled="@isBusy">Cancel</button>
+                        </div>
+                    </div>
+                </div>
+            }
+
+            <div class="my-teams-list">
+                @if (userTeams.Count == 0)
+                {
+                    <p class="empty-copy">You are not part of any teams yet.</p>
+                }
+                else
+                {
+                    @foreach (var team in userTeams)
+                    {
+                        <TeamOptionButton Team="@team"
+                                          GameName="@GetGameName(team.GameId)"
+                                          RoleLabel="@GetUserRoleLabel(team)"
+                                          OnSelected="OpenTeamAsync" />
+                    }
+                }
+            </div>
+        </SurfacePanel>
+    }
+</section>

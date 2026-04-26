@@ -1,0 +1,16 @@
+@page "/tournaments/{TournamentSlug}/teams"
+@namespace AkGaming.Tournaments.Frontend.Components.Pages
+@inherits TournamentPageBase
+
+<PageTitle>@($"{Tournament.Summary.Title} Teams")</PageTitle>
+
+<section class="app-page">
+    <PageHeader Title="Teams" />
+
+    <div class="teams-grid">
+        @foreach (var team in Tournament.Teams)
+        {
+            <TeamCard Team="@team" />
+        }
+    </div>
+</section>
