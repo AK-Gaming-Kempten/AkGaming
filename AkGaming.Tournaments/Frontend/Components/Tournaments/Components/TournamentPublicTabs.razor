@@ -1,0 +1,25 @@
+@namespace AkGaming.Tournaments.Frontend.Components.Shared
+
+<nav class="tournament-tabs" aria-label="Tournament public sections">
+    <NavLink href="@BuildHref(null)"
+             Match="NavLinkMatch.All"
+             class="@GetTabClass("overview")">
+        <span class="bi bi-info-circle-fill"></span>
+        Overview
+    </NavLink>
+    <NavLink href="@BuildHref("schedule")"
+             class="@GetTabClass("schedule")">
+        <span class="bi bi-calendar-week-fill"></span>
+        Schedule
+    </NavLink>
+    <NavLink href="@BuildHref("teams")"
+             class="@GetTabClass("teams")">
+        <span class="bi bi-people-fill"></span>
+        Teams
+    </NavLink>
+    <NavLink href="@BuildHref("register")"
+             class="@GetTabClass("register")">
+        <span class="bi bi-pencil-square"></span>
+        Register
+    </NavLink>
+</nav>

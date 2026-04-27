@@ -1,0 +1,68 @@
+.tournament-tabs {
+    display: inline-flex;
+    flex-wrap: wrap;
+    gap: 0.25rem;
+    width: fit-content;
+    max-width: 100%;
+    padding: 0.3rem;
+    border: 1px solid color-mix(in oklab, var(--color-highlight-primary) 26%, var(--color-text-secondary) 12%);
+    border-radius: 8px;
+    background: color-mix(in oklab, var(--color-background-special) 88%, var(--color-background-primary));
+    box-shadow: 0 10px 26px color-mix(in oklab, black 14%, transparent);
+}
+
+::deep .tournament-tab {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.45rem;
+    min-height: 2.35rem;
+    padding: 0.48rem 0.8rem;
+    border: 1px solid transparent;
+    border-radius: 6px;
+    color: var(--color-text-special-secondary);
+    font-weight: 700;
+    text-decoration: none;
+    line-height: 1;
+    white-space: nowrap;
+    transition: background-color 0.16s ease, border-color 0.16s ease, color 0.16s ease, transform 0.12s ease;
+}
+
+::deep .tournament-tab:visited {
+    color: var(--color-text-special-secondary);
+}
+
+::deep .tournament-tab .bi {
+    color: var(--color-highlight-primary);
+    font-size: 1rem;
+}
+
+::deep .tournament-tab:hover,
+::deep .tournament-tab.is-active,
+::deep .tournament-tab.active {
+    border-color: color-mix(in oklab, var(--color-highlight-primary) 28%, transparent);
+    background: color-mix(in oklab, var(--color-highlight-secondary) 72%, transparent);
+    color: var(--color-text-special);
+    text-decoration: none;
+}
+
+::deep .tournament-tab:hover {
+    transform: translateY(-1px);
+}
+
+::deep .tournament-tab.is-active,
+::deep .tournament-tab.active {
+    box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--color-highlight-primary) 22%, transparent);
+}
+
+@media (max-width: 640px) {
+    .tournament-tabs {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        width: 100%;
+    }
+
+    ::deep .tournament-tab {
+        width: 100%;
+    }
+}

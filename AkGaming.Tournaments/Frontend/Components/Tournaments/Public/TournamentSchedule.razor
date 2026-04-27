@@ -5,6 +5,7 @@
 <PageTitle>@($"{Tournament.Summary.Title} Schedule")</PageTitle>
 
 <section class="app-page">
+    <TournamentPublicTabs TournamentSlug="@Tournament.Summary.Slug" ActiveSection="schedule" />
     <PageHeader Title="Schedule" />
 
     <SurfacePanel Title="Matches">

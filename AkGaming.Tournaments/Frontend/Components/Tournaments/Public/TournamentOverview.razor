@@ -1,12 +1,12 @@
 @page "/tournaments/{TournamentSlug}"
 @namespace AkGaming.Tournaments.Frontend.Components.Pages
+@using TournamentInfoFieldGrid = AkGaming.Tournaments.Frontend.Components.Tournaments.Components.TournamentInfoFieldGrid
 @inherits TournamentPageBase
 
 <PageTitle>@($"{Tournament.Summary.Title} Overview")</PageTitle>
 
 <section class="app-page">
-    <PageHeader Eyebrow="@($"{Tournament.Summary.Title} · {Tournament.Summary.Season}")"
-                Title="Overview" />
+    <TournamentPublicTabs TournamentSlug="@Tournament.Summary.Slug" ActiveSection="overview" />
 
     @if (RequestedTournamentWasMissing)
     {
@@ -15,34 +15,32 @@
         </SurfacePanel>
     }
 
-    <div class="stats-grid">
-        @foreach (var metric in Tournament.Metrics)
-        {
-            <MetricCard Label="@metric.Label" Value="@metric.Value" Caption="@metric.Caption" />
-        }
-    </div>
+    <section class="tournament-hero">
+        <div class="tournament-banner" aria-label="@($"{Tournament.Summary.Title} tournament banner")">
+            <img src="@Tournament.LogoUrl" alt="" aria-hidden="true" />
+        </div>
+
+        <div class="tournament-hero-copy">
+            <img class="tournament-logo" src="@Tournament.LogoUrl" alt="@($"{Tournament.Summary.Title} logo")" />
+            <div>
+                <span class="eyebrow">@Tournament.Summary.Season · @Tournament.Summary.Status</span>
+                <h1>@Tournament.Summary.Title</h1>
+                <p>@Tournament.HeroDescription</p>
+            </div>
+        </div>
+
+        <a class="solid-button tournament-register-button" href="@($"/tournaments/{Tournament.Summary.Slug}/register")">
+            Register team
+        </a>
+    </section>
 
     <div class="content-grid">
-        <div class="stack">
-            <SurfacePanel Title="Matches">
-                <div class="stack">
-                    @foreach (var match in Tournament.Matches.Take(2))
-                    {
-                        <MatchCard Match="@match" />
-                    }
-                </div>
-            </SurfacePanel>
-        </div>
+        <SurfacePanel Title="Tournament info" Subtitle="@Tournament.Tagline">
+            <TournamentInfoFieldGrid Fields="@Tournament.InfoFields" />
+        </SurfacePanel>
 
-        <div class="stack">
-            <SurfacePanel Title="Teams">
-                <div class="stack">
-                    @foreach (var team in Tournament.Teams.Take(2))
-                    {
-                        <TeamCard Team="@team" />
-                    }
-                </div>
-            </SurfacePanel>
-        </div>
+        <SurfacePanel Title="Timeline" Subtitle="Key dates for registration, check-in, and play.">
+            <TournamentTimeline Items="@Tournament.KeyDates" />
+        </SurfacePanel>
     </div>
 </section>

@@ -1,0 +1,11 @@
+@namespace AkGaming.Tournaments.Frontend.Components.Tournaments.Components
+
+<div class="tournament-info-grid">
+    @foreach (var field in Fields)
+    {
+        <article class="tournament-info-field">
+            <h3>@field.Header</h3>
+            <p>@field.Text</p>
+        </article>
+    }
+</div>

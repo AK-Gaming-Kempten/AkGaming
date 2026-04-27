@@ -1,0 +1,72 @@
+.tournament-timeline {
+    display: grid;
+    gap: 0;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.tournament-timeline-item {
+    display: grid;
+    grid-template-columns: 1.25rem minmax(0, 1fr);
+    gap: 0.8rem;
+    position: relative;
+    padding-bottom: 1.1rem;
+}
+
+.tournament-timeline-item::before {
+    content: "";
+    position: absolute;
+    top: 1rem;
+    bottom: 0;
+    left: 0.48rem;
+    width: 2px;
+    background: color-mix(in oklab, var(--color-text-secondary) 24%, transparent);
+}
+
+.tournament-timeline-item:last-child {
+    padding-bottom: 0;
+}
+
+.tournament-timeline-item:last-child::before {
+    display: none;
+}
+
+.timeline-dot {
+    width: 1rem;
+    height: 1rem;
+    margin-top: 0.2rem;
+    border-radius: 999px;
+    background: var(--color-highlight-secondary);
+    box-shadow: 0 0 0 4px color-mix(in oklab, var(--color-highlight-secondary) 20%, transparent);
+}
+
+.tournament-timeline-item-positive .timeline-dot {
+    background: var(--color-highlight-primary);
+}
+
+.tournament-timeline-item-warn .timeline-dot {
+    background: var(--color-yellow, #f3c969);
+}
+
+.timeline-copy {
+    display: grid;
+    gap: 0.18rem;
+}
+
+.timeline-label {
+    color: var(--color-text-secondary);
+    font-size: 0.78rem;
+    font-weight: 800;
+    text-transform: uppercase;
+}
+
+.timeline-copy strong {
+    color: var(--color-text-primary);
+}
+
+.timeline-copy p {
+    margin: 0;
+    color: var(--color-text-secondary);
+    line-height: 1.45;
+}

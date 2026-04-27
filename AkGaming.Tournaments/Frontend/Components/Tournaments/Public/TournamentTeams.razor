@@ -5,6 +5,7 @@
 <PageTitle>@($"{Tournament.Summary.Title} Teams")</PageTitle>
 
 <section class="app-page">
+    <TournamentPublicTabs TournamentSlug="@Tournament.Summary.Slug" ActiveSection="teams" />
     <PageHeader Title="Teams" />
 
     <div class="teams-grid">
