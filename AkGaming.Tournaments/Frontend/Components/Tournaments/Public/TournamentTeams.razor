@@ -2,40 +2,52 @@
 @namespace AkGaming.Tournaments.Frontend.Components.Tournaments.Public
 @inherits TournamentPageBase
 
-<PageTitle>@($"{Tournament.Summary.Title} Teams")</PageTitle>
+<PageTitle>@($"{Tournament?.Name ?? "Tournament"} Teams")</PageTitle>
 
 <section class="app-page">
-    <TournamentPublicTabs TournamentSlug="@Tournament.Summary.Slug"
-                          ActiveSection="teams"
-                          OnRegisterRequested="ShowRegistrationDialogAsync" />
-    <PageHeader Title="Teams" />
+    @if (Tournament is null)
+    {
+        <TournamentPublicTabs TournamentSlug="@TournamentSlug"
+                              ActiveSection="teams"
+                              OnRegisterRequested="ShowRegistrationDialogAsync" />
+        <SurfacePanel Title="Tournament not found">
+            <p>Pick another tournament from the selector to continue.</p>
+        </SurfacePanel>
+    }
+    else
+    {
+        <TournamentPublicTabs TournamentSlug="@Tournament.Slug"
+                              ActiveSection="teams"
+                              OnRegisterRequested="ShowRegistrationDialogAsync" />
+        <PageHeader Title="Teams" />
 
-    <ApiErrorPanel Message="@PublicPageErrorMessage" />
+        <ApiErrorPanel Message="@PublicPageErrorMessage" />
 
-    <SurfacePanel Title="Registered teams">
-        @if (RegisteredTeams.Count == 0)
-        {
-            <p class="muted-copy">No teams have registered yet.</p>
-        }
-        else
-        {
-            <div class="stack">
-                @foreach (var team in RegisteredTeams)
-                {
-                    var registration = RegistrationByTeamId.TryGetValue(team.Id, out var teamRegistration) ? teamRegistration : null;
-                    <TeamOptionButton Team="@team"
-                                      GameName="@Tournament.Summary.Game"
-                                      RoleLabel="@($"{team.Memberships.Count} members")"
-                                      StatusLabel="@registration?.Status.ToString()"
-                                      StatusClass="@GetStatusClass(registration?.Status)"
-                                      Href="@($"/teams/{team.Id}")" />
-                }
-            </div>
-        }
-    </SurfacePanel>
+        <SurfacePanel Title="Registered teams">
+            @if (RegisteredTeams.Count == 0)
+            {
+                <p class="muted-copy">No teams have registered yet.</p>
+            }
+            else
+            {
+                <div class="stack">
+                    @foreach (var team in RegisteredTeams)
+                    {
+                        var registration = RegistrationByTeamId.TryGetValue(team.Id, out var teamRegistration) ? teamRegistration : null;
+                        <TeamOptionButton Team="@team"
+                                          GameName="@Tournament.GameName"
+                                          RoleLabel="@($"{team.Memberships.Count} members")"
+                                          StatusLabel="@registration?.Status.ToString()"
+                                          StatusClass="@GetStatusClass(registration?.Status)"
+                                          Href="@($"/teams/{team.Id}")" />
+                    }
+                </div>
+            }
+        </SurfacePanel>
 
-    <TournamentRegistrationDialog Tournament="@Tournament"
-                                  IsOpen="@IsRegistrationDialogOpen"
-                                  IsOpenChanged="SetRegistrationDialogOpenAsync"
-                                  RegistrationSubmitted="HandleRegistrationSubmittedAsync" />
+        <TournamentRegistrationDialog Tournament="@Tournament"
+                                      IsOpen="@IsRegistrationDialogOpen"
+                                      IsOpenChanged="SetRegistrationDialogOpenAsync"
+                                      RegistrationSubmitted="HandleRegistrationSubmittedAsync" />
+    }
 </section>

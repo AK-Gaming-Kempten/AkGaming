@@ -115,8 +115,16 @@ internal sealed class InMemoryTeamRepository(InMemoryStore store) : ITeamReposit
 
 internal sealed class InMemoryTournamentRepository(InMemoryStore store) : ITournamentRepository
 {
+    public Task<IReadOnlyList<Tournament>> GetAllAsync(CancellationToken cancellationToken = default)
+        => Task.FromResult<IReadOnlyList<Tournament>>(store.Tournaments
+            .OrderBy(tournament => tournament.Name, StringComparer.OrdinalIgnoreCase)
+            .ToList());
+
     public Task<Tournament?> GetByIdAsync(Guid tournamentId, CancellationToken cancellationToken = default)
         => Task.FromResult(store.Tournaments.FirstOrDefault(tournament => tournament.Id == tournamentId));
+
+    public Task<Tournament?> GetBySlugAsync(string slug, CancellationToken cancellationToken = default)
+        => Task.FromResult(store.Tournaments.FirstOrDefault(tournament => string.Equals(tournament.Slug, slug, StringComparison.OrdinalIgnoreCase)));
 }
 
 internal sealed class InMemoryTournamentRegistrationRepository(InMemoryStore store) : ITournamentRegistrationRepository

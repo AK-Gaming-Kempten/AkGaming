@@ -1,6 +1,5 @@
 using AkGaming.Tournaments.Contracts.DTOs;
 using AkGaming.Tournaments.Frontend.Api;
-using AkGaming.Tournaments.Frontend.Components.Data;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 using System.Security.Claims;
@@ -14,8 +13,8 @@ public partial class TeamDetails : ComponentBase
     [Inject] private AuthenticationStateProvider AuthenticationStateProvider { get; set; } = default!;
     [Inject] private GamesApiClient GamesClient { get; set; } = default!;
     [Inject] private TeamsApiClient TeamsClient { get; set; } = default!;
+    [Inject] private TournamentsApiClient TournamentsClient { get; set; } = default!;
     [Inject] private TournamentRegistrationsApiClient RegistrationsClient { get; set; } = default!;
-    [Inject] private MockTournamentCatalog TournamentCatalog { get; set; } = default!;
 
     private IReadOnlyList<GameDto> games = [];
     private IReadOnlyList<PlayerProfileDto> availableProfiles = [];
@@ -41,9 +40,7 @@ public partial class TeamDetails : ComponentBase
         errorMessage = null;
         availableProfiles = [];
         registrations = [];
-        tournamentNames = TournamentCatalog.GetAll()
-            .GroupBy(tournament => tournament.Id)
-            .ToDictionary(group => group.Key, group => group.First().Title);
+        tournamentNames = new Dictionary<Guid, string>();
 
         var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
         isAuthenticated = authState.User.Identity?.IsAuthenticated ?? false;
@@ -54,6 +51,9 @@ public partial class TeamDetails : ComponentBase
         try
         {
             games = await GamesClient.GetGamesAsync();
+            tournamentNames = (await TournamentsClient.GetTournamentsAsync())
+                .GroupBy(tournament => tournament.Id)
+                .ToDictionary(group => group.Key, group => group.First().Name);
             team = await TeamsClient.GetTeamAsync(TeamId);
             if (team is not null)
             {

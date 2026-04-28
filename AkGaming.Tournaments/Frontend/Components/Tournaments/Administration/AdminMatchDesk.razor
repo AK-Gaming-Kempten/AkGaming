@@ -3,27 +3,12 @@
 @attribute [Authorize(Roles = "Admin")]
 @inherits TournamentPageBase
 
-<PageTitle>@($"{Tournament.Summary.Title} Match Desk")</PageTitle>
+<PageTitle>@($"{Tournament?.Name ?? "Tournament"} Match Desk")</PageTitle>
 
 <section class="app-page">
     <PageHeader Title="Match desk" />
 
-    <div class="content-grid">
-        <div class="stack">
-            <SurfacePanel Title="Matches">
-                <div class="stack">
-                    @foreach (var match in Tournament.Matches)
-                    {
-                        <MatchCard Match="@match" />
-                    }
-                </div>
-            </SurfacePanel>
-        </div>
-
-        <div class="stack">
-            <SurfacePanel Title="Handoff">
-                <StatusList Items="@Tournament.AdminQueue" EmptyState="No handoff tasks." />
-            </SurfacePanel>
-        </div>
-    </div>
+    <SurfacePanel Title="Match desk">
+        <p class="muted-copy">Match operations are TBA.</p>
+    </SurfacePanel>
 </section>

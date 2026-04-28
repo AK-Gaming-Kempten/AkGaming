@@ -63,6 +63,7 @@ internal static class TournamentTestData
         InMemoryStore store,
         string gameId = GameId,
         string name = "Campus Clash",
+        string slug = "campus-clash",
         TournamentStatus status = TournamentStatus.RegistrationOpen,
         int minimumPlayers = 1,
         int maximumPlayers = 99,
@@ -72,6 +73,7 @@ internal static class TournamentTestData
         var tournament = new Tournament
         {
             Id = Guid.NewGuid(),
+            Slug = slug,
             GameId = gameId,
             Name = name,
             Status = status

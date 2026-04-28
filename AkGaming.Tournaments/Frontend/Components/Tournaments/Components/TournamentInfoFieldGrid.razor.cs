@@ -1,9 +1,9 @@
-using AkGaming.Tournaments.Frontend.Components.Data;
+using AkGaming.Tournaments.Contracts.DTOs;
 using Microsoft.AspNetCore.Components;
 
 namespace AkGaming.Tournaments.Frontend.Components.Tournaments.Components;
 
 public partial class TournamentInfoFieldGrid : ComponentBase
 {
-    [Parameter] public IReadOnlyList<TournamentInfoField> Fields { get; set; } = [];
+    [Parameter] public IReadOnlyList<TournamentInfoSectionDto> Sections { get; set; } = [];
 }

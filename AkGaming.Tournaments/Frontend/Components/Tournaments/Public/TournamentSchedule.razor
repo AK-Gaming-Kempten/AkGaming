@@ -2,20 +2,32 @@
 @namespace AkGaming.Tournaments.Frontend.Components.Tournaments.Public
 @inherits TournamentPageBase
 
-<PageTitle>@($"{Tournament.Summary.Title} Schedule")</PageTitle>
+<PageTitle>@($"{Tournament?.Name ?? "Tournament"} Schedule")</PageTitle>
 
 <section class="app-page">
-    <TournamentPublicTabs TournamentSlug="@Tournament.Summary.Slug"
-                          ActiveSection="schedule"
-                          OnRegisterRequested="ShowRegistrationDialogAsync" />
-    <PageHeader Title="Schedule" />
+    @if (Tournament is null)
+    {
+        <TournamentPublicTabs TournamentSlug="@TournamentSlug"
+                              ActiveSection="schedule"
+                              OnRegisterRequested="ShowRegistrationDialogAsync" />
+        <SurfacePanel Title="Tournament not found">
+            <p>Pick another tournament from the selector to continue.</p>
+        </SurfacePanel>
+    }
+    else
+    {
+        <TournamentPublicTabs TournamentSlug="@Tournament.Slug"
+                              ActiveSection="schedule"
+                              OnRegisterRequested="ShowRegistrationDialogAsync" />
+        <PageHeader Title="Schedule" />
 
-    <SurfacePanel Title="Schedule">
-        <p class="muted-copy">TBA</p>
-    </SurfacePanel>
+        <SurfacePanel Title="Schedule">
+            <p class="muted-copy">TBA</p>
+        </SurfacePanel>
 
-    <TournamentRegistrationDialog Tournament="@Tournament"
-                                  IsOpen="@IsRegistrationDialogOpen"
-                                  IsOpenChanged="SetRegistrationDialogOpenAsync"
-                                  RegistrationSubmitted="HandleRegistrationSubmittedAsync" />
+        <TournamentRegistrationDialog Tournament="@Tournament"
+                                      IsOpen="@IsRegistrationDialogOpen"
+                                      IsOpenChanged="SetRegistrationDialogOpenAsync"
+                                      RegistrationSubmitted="HandleRegistrationSubmittedAsync" />
+    }
 </section>

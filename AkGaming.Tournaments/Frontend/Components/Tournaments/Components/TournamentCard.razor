@@ -4,30 +4,26 @@
     <div class="tournament-card-top">
         <span class="status-pill @(StatusClass)">
             <span class="bi bi-stars"></span>
-            @Summary.Status
+            @StatusLabel
         </span>
         <span class="info-chip">
             <span class="bi bi-controller"></span>
-            @Summary.Game
+            @Summary.GameName
         </span>
     </div>
 
     <div class="tournament-card-copy">
-        <LogoImage Type="tournament" Alt="@($"{Summary.Title} logo")" Size="LogoImageSize.Large" />
-        <h3>@Summary.Title</h3>
-        <p class="tournament-card-season">@Summary.Season</p>
+        <LogoImage LogoAssetId="@Summary.LogoAssetId" Type="tournament" Alt="@($"{Summary.Name} logo")" Size="LogoImageSize.Large" />
+        <h3>@Summary.Name</h3>
+        <p class="tournament-card-season">@Summary.GameName</p>
     </div>
 
     <div class="tournament-card-meta">
-        <span><span class="bi bi-columns-gap"></span> @Summary.Format</span>
-        <span><span class="bi bi-calendar-event-fill"></span> @Summary.RegistrationWindow</span>
+        <span><span class="bi bi-calendar-event-fill"></span> @DateLabel</span>
+        <span><span class="bi bi-people-fill"></span> @Summary.RegisteredTeamCount registered</span>
     </div>
 
     <div class="tournament-card-footer">
-        <div class="tournament-card-capacity">
-            <strong>@Summary.RegisteredTeams</strong>
-            <span>registered of @Summary.TotalSlots</span>
-        </div>
         <a class="solid-button" href="@($"/tournaments/{Summary.Slug}")">Open tournament</a>
     </div>
 </article>

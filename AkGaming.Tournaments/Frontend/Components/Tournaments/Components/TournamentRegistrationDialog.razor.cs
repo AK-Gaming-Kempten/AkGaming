@@ -1,7 +1,6 @@
 using System.Security.Claims;
 using AkGaming.Tournaments.Contracts.DTOs;
 using AkGaming.Tournaments.Frontend.Api;
-using AkGaming.Tournaments.Frontend.Components.Data;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 
@@ -9,7 +8,7 @@ namespace AkGaming.Tournaments.Frontend.Components.Tournaments.Components;
 
 public partial class TournamentRegistrationDialog : ComponentBase
 {
-    [Parameter] public TournamentDetail Tournament { get; set; } = default!;
+    [Parameter] public TournamentDto Tournament { get; set; } = default!;
     [Parameter] public bool IsOpen { get; set; }
     [Parameter] public EventCallback<bool> IsOpenChanged { get; set; }
     [Parameter] public EventCallback<TournamentRegistrationDto> RegistrationSubmitted { get; set; }
@@ -109,7 +108,7 @@ public partial class TournamentRegistrationDialog : ComponentBase
             var selectedIds = useCurrentSelection ? selectedPlayerProfileIds.ToArray() : Array.Empty<Guid>();
             eligibility = await RegistrationsClient.GetEligibilityAsync(
                 selectedTeam.Id,
-                Tournament.Summary.Id,
+                Tournament.Id,
                 currentUserId,
                 selectedIds);
             selectedPlayerProfileIds = eligibility.Players
@@ -128,7 +127,7 @@ public partial class TournamentRegistrationDialog : ComponentBase
         {
             var registration = await RegistrationsClient.SubmitRegistrationAsync(
                 selectedTeam.Id,
-                Tournament.Summary.Id,
+                Tournament.Id,
                 currentUserId,
                 selectedPlayerProfileIds.ToArray());
             if (RegistrationSubmitted.HasDelegate)

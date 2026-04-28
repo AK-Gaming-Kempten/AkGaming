@@ -2,7 +2,6 @@ using System.Net.Security;
 using System.Security.Claims;
 using AkGaming.Tournaments.Frontend.Api;
 using AkGaming.Tournaments.Frontend.Authentication;
-using AkGaming.Tournaments.Frontend.Components.Data;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Components.Server.Circuits;
@@ -129,12 +128,6 @@ public static class ServiceCollectionExtensions
         return services;
     }
 
-    public static IServiceCollection AddTournamentMockData(this IServiceCollection services)
-    {
-        services.AddSingleton<MockTournamentCatalog>();
-        return services;
-    }
-
     public static IServiceCollection AddTournamentApiClients(this IServiceCollection services, IConfiguration config)
     {
         services.Configure<TournamentApiOptions>(config.GetSection(TournamentApiOptions.SectionName));
@@ -145,6 +138,7 @@ public static class ServiceCollectionExtensions
         services.AddTournamentApiNamedClient(nameof(MediaAssetsApiClient), config);
         services.AddTournamentApiClient<PlayerProfilesApiClient>(config);
         services.AddTournamentApiClient<TeamsApiClient>(config);
+        services.AddTournamentApiClient<TournamentsApiClient>(config);
         services.AddTournamentApiClient<TournamentRegistrationsApiClient>(config);
 
         return services;

@@ -1,11 +1,18 @@
 @namespace AkGaming.Tournaments.Frontend.Components.Tournaments.Components
 
-<div class="tournament-info-grid">
-    @foreach (var field in Fields)
-    {
-        <article class="tournament-info-field">
-            <h3>@field.Header</h3>
-            <p>@field.Text</p>
-        </article>
-    }
-</div>
+@if (Sections.Count == 0)
+{
+    <p class="muted-copy">No tournament information has been published yet.</p>
+}
+else
+{
+    <div class="tournament-info-grid">
+        @foreach (var infoSection in Sections)
+        {
+            <article class="tournament-info-field">
+                <h3>@infoSection.Header</h3>
+                <MarkdownContent Markdown="@infoSection.ContentMarkdown" />
+            </article>
+        }
+    </div>
+}

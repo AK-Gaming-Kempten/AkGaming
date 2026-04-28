@@ -3,29 +3,22 @@
 @attribute [Authorize(Roles = "Admin")]
 @inherits TournamentPageBase
 
-<PageTitle>@($"{Tournament.Summary.Title} Control Room")</PageTitle>
+<PageTitle>@($"{Tournament?.Name ?? "Tournament"} Control Room")</PageTitle>
 
 <section class="app-page">
     <PageHeader Title="Control room" />
 
-    <div class="stats-grid">
-        @foreach (var metric in Tournament.Metrics.Take(3))
-        {
-            <MetricCard Label="@metric.Label" Value="@metric.Value" Caption="@metric.Caption" />
-        }
-    </div>
-
-    <div class="content-grid">
-        <div class="stack">
-            <SurfacePanel Title="Queue">
-                <StatusList Items="@Tournament.AdminQueue" EmptyState="No queued admin work." />
-            </SurfacePanel>
-        </div>
-
-        <div class="stack">
-            <SurfacePanel Title="Updates">
-                <StatusList Items="@Tournament.Updates" EmptyState="No updates yet." />
-            </SurfacePanel>
-        </div>
-    </div>
+    @if (Tournament is null)
+    {
+        <SurfacePanel Title="Tournament not found">
+            <p>Pick another tournament from the selector to continue.</p>
+        </SurfacePanel>
+    }
+    else
+    {
+        <TournamentContentEditor Tournament="@Tournament"
+                                 IsBusy="@isBusy"
+                                 ErrorMessage="@errorMessage"
+                                 SaveRequested="HandleSaveRequestedAsync" />
+    }
 </section>

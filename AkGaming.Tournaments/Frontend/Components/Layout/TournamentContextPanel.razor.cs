@@ -1,4 +1,4 @@
-using AkGaming.Tournaments.Frontend.Components.Data;
+using AkGaming.Tournaments.Contracts.DTOs;
 using Microsoft.AspNetCore.Components;
 
 namespace AkGaming.Tournaments.Frontend.Components.Layout;
@@ -11,6 +11,6 @@ public partial class TournamentContextPanel : ComponentBase
     [Parameter] public string CurrentTournamentName { get; set; } = string.Empty;
     [Parameter] public string? CurrentTournamentSubline { get; set; }
     [Parameter] public string SelectedTournamentSlug { get; set; } = string.Empty;
-    [Parameter] public IReadOnlyList<TournamentSummary> Tournaments { get; set; } = [];
+    [Parameter] public IReadOnlyList<TournamentSummaryDto> Tournaments { get; set; } = [];
     [Parameter] public EventCallback<ChangeEventArgs> TournamentChanged { get; set; }
 }

@@ -13,6 +13,7 @@ public sealed class TournamentDbContext(DbContextOptions<TournamentDbContext> op
     public DbSet<Team> Teams => Set<Team>();
     public DbSet<TeamMembership> TeamMemberships => Set<TeamMembership>();
     public DbSet<Tournament> Tournaments => Set<Tournament>();
+    public DbSet<TournamentInfoSection> TournamentInfoSections => Set<TournamentInfoSection>();
     public DbSet<TournamentRegistrationRule> TournamentRegistrationRules => Set<TournamentRegistrationRule>();
     public DbSet<TournamentRegistration> TournamentRegistrations => Set<TournamentRegistration>();
 
@@ -100,8 +101,10 @@ public sealed class TournamentDbContext(DbContextOptions<TournamentDbContext> op
             entity.ToTable("tournaments");
             entity.HasKey(tournament => tournament.Id);
             entity.Property(tournament => tournament.GameId).HasMaxLength(64);
+            entity.Property(tournament => tournament.Slug).HasMaxLength(128);
             entity.Property(tournament => tournament.Name).HasMaxLength(256);
             entity.Property(tournament => tournament.Status).HasConversion<string>();
+            entity.HasIndex(tournament => tournament.Slug).IsUnique();
             entity.HasOne(tournament => tournament.Game)
                 .WithMany()
                 .HasForeignKey(tournament => tournament.GameId)
@@ -118,6 +121,19 @@ public sealed class TournamentDbContext(DbContextOptions<TournamentDbContext> op
                 .WithOne(rule => rule.Tournament)
                 .HasForeignKey(rule => rule.TournamentId)
                 .OnDelete(DeleteBehavior.Cascade);
+            entity.HasMany(tournament => tournament.InfoSections)
+                .WithOne(section => section.Tournament)
+                .HasForeignKey(section => section.TournamentId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<TournamentInfoSection>(entity =>
+        {
+            entity.ToTable("tournament_info_sections");
+            entity.HasKey(section => section.Id);
+            entity.Property(section => section.Header).HasMaxLength(256);
+            entity.Property(section => section.ContentMarkdown).IsRequired();
+            entity.HasIndex(section => new { section.TournamentId, section.SortOrder });
         });
 
         modelBuilder.Entity<TournamentRegistrationRule>(entity =>

@@ -1,0 +1,56 @@
+@namespace AkGaming.Tournaments.Frontend.Components.Tournaments.Administration
+
+<div class="admin-control-grid">
+    <SurfacePanel Title="Timeline" Subtitle="Persistent tournament dates used by the public overview and registration flow.">
+        <ApiErrorPanel Message="@ErrorMessage" />
+
+        <div class="content-editor-grid">
+            <label class="field-block">
+                <span>Registration opens</span>
+                <input class="text-input" type="datetime-local" value="@registrationOpenValue" @onchange="HandleRegistrationOpenChanged" disabled="@IsBusy" />
+            </label>
+            <label class="field-block">
+                <span>Registration closes</span>
+                <input class="text-input" type="datetime-local" value="@registrationClosedValue" @onchange="HandleRegistrationClosedChanged" disabled="@IsBusy" />
+            </label>
+            <label class="field-block">
+                <span>Start</span>
+                <input class="text-input" type="datetime-local" value="@startValue" @onchange="HandleStartChanged" disabled="@IsBusy" />
+            </label>
+            <label class="field-block">
+                <span>End</span>
+                <input class="text-input" type="datetime-local" value="@endValue" @onchange="HandleEndChanged" disabled="@IsBusy" />
+            </label>
+        </div>
+    </SurfacePanel>
+
+    <SurfacePanel Title="Info sections" Subtitle="These sections are rendered as markdown on the public tournament page.">
+        <div class="stack">
+            @foreach (var section in sections)
+            {
+                <article class="section-editor-card">
+                    <label class="field-block">
+                        <span>Header</span>
+                        <input class="text-input" @bind="section.Header" disabled="@IsBusy" />
+                    </label>
+
+                    <label class="field-block">
+                        <span>Markdown</span>
+                        <textarea class="text-input section-editor-markdown" @bind="section.ContentMarkdown" disabled="@IsBusy"></textarea>
+                    </label>
+
+                    <div class="section-editor-actions">
+                        <button type="button" class="ghost-button" @onclick="() => RemoveSection(section.Id)" disabled="@IsBusy">
+                            Remove section
+                        </button>
+                    </div>
+                </article>
+            }
+        </div>
+
+        <div class="content-editor-footer">
+            <button type="button" class="ghost-button" @onclick="AddSection" disabled="@IsBusy">Add section</button>
+            <button type="button" class="solid-button" @onclick="SaveAsync" disabled="@IsBusy">Save tournament content</button>
+        </div>
+    </SurfacePanel>
+</div>

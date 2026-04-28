@@ -1,20 +1,23 @@
 @page "/discover"
 @namespace AkGaming.Tournaments.Frontend.Components.General
-@inject MockTournamentCatalog Catalog
 
 <PageTitle>Discover Tournaments</PageTitle>
 
-@{
-    var tournaments = Catalog.GetAll();
-}
-
 <section class="app-page">
     <PageHeader Title="Discover tournaments" />
+    <ApiErrorPanel Message="@errorMessage" />
 
-    <div class="discover-grid">
-        @foreach (var tournament in tournaments)
-        {
-            <TournamentCard Summary="@tournament" />
-        }
-    </div>
+    @if (isLoading)
+    {
+        <p class="muted-copy">Loading tournaments.</p>
+    }
+    else
+    {
+        <div class="discover-grid">
+            @foreach (var tournament in tournaments)
+            {
+                <TournamentCard Summary="@tournament" />
+            }
+        </div>
+    }
 </section>

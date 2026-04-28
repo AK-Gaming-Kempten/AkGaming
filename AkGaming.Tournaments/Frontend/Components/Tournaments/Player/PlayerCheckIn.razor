@@ -3,12 +3,12 @@
 @attribute [Authorize]
 @inherits TournamentPageBase
 
-<PageTitle>@($"{Tournament.Summary.Title} Check-In")</PageTitle>
+<PageTitle>@($"{Tournament?.Name ?? "Tournament"} Check-In")</PageTitle>
 
 <section class="app-page">
     <PageHeader Title="Check-in" />
 
-    <SurfacePanel Title="Tasks">
-        <StatusList Items="@Tournament.PlayerTasks" EmptyState="No check-in tasks yet." />
+    <SurfacePanel Title="Check-in">
+        <p class="muted-copy">Check-in workflow is TBA.</p>
     </SurfacePanel>
 </section>

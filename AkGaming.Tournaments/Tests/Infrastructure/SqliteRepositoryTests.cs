@@ -420,6 +420,7 @@ public sealed class SqliteRepositoryTests
         => new()
         {
             Id = Guid.NewGuid(),
+            Slug = name.Trim().ToLowerInvariant().Replace(' ', '-'),
             GameId = TournamentTestData.GameId,
             Name = name,
             Status = TournamentStatus.RegistrationOpen

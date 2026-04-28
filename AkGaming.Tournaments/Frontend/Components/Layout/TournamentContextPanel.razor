@@ -21,7 +21,7 @@
 
                 @foreach (var tournament in Tournaments)
                 {
-                    <option value="@tournament.Slug">@tournament.Title @tournament.Season</option>
+                    <option value="@tournament.Slug">@tournament.Name @tournament.GameName</option>
                 }
             </select>
         }

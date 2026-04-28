@@ -41,6 +41,43 @@ internal static class MappingExtensions
                 .Select(profile => profile.ToDto())
                 .ToList());
 
+    public static TournamentSummaryDto ToSummaryDto(this Tournament tournament)
+        => new(
+            tournament.Id,
+            tournament.Slug,
+            tournament.GameId,
+            tournament.Game?.Name ?? tournament.GameId,
+            tournament.Name,
+            tournament.LogoAssetId,
+            tournament.Status.ToDto(),
+            tournament.RegistrationOpenUtc,
+            tournament.RegistrationClosedUtc,
+            tournament.StartUtc,
+            tournament.EndUtc,
+            tournament.Registrations.Count);
+
+    public static TournamentDto ToDto(this Tournament tournament)
+        => new(
+            tournament.Id,
+            tournament.Slug,
+            tournament.GameId,
+            tournament.Game?.Name ?? tournament.GameId,
+            tournament.Name,
+            tournament.LogoAssetId,
+            tournament.Status.ToDto(),
+            tournament.RegistrationOpenUtc,
+            tournament.RegistrationClosedUtc,
+            tournament.StartUtc,
+            tournament.EndUtc,
+            tournament.InfoSections
+                .OrderBy(section => section.SortOrder)
+                .ThenBy(section => section.Header, StringComparer.OrdinalIgnoreCase)
+                .Select(section => section.ToDto())
+                .ToList());
+
+    public static TournamentInfoSectionDto ToDto(this TournamentInfoSection section)
+        => new(section.Id, section.Header, section.ContentMarkdown, section.SortOrder);
+
     public static TournamentRegistrationDto ToDto(
         this TournamentRegistration registration,
         IReadOnlyDictionary<Guid, PlayerProfile> currentProfiles)
@@ -133,6 +170,18 @@ internal static class MappingExtensions
             TournamentRegistrationStatus.Approved => TournamentRegistrationStatusDto.Approved,
             TournamentRegistrationStatus.Rejected => TournamentRegistrationStatusDto.Rejected,
             TournamentRegistrationStatus.Withdrawn => TournamentRegistrationStatusDto.Withdrawn,
+            _ => throw new ArgumentOutOfRangeException(nameof(status), status, null)
+        };
+
+    public static TournamentStatusDto ToDto(this TournamentStatus status)
+        => status switch
+        {
+            TournamentStatus.Draft => TournamentStatusDto.Draft,
+            TournamentStatus.RegistrationOpen => TournamentStatusDto.RegistrationOpen,
+            TournamentStatus.RegistrationClosed => TournamentStatusDto.RegistrationClosed,
+            TournamentStatus.InProgress => TournamentStatusDto.InProgress,
+            TournamentStatus.Completed => TournamentStatusDto.Completed,
+            TournamentStatus.Archived => TournamentStatusDto.Archived,
             _ => throw new ArgumentOutOfRangeException(nameof(status), status, null)
         };
 }

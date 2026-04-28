@@ -6,7 +6,6 @@ builder.WebHost.UseStaticWebAssets();
 builder.Services.AddRazorAndBlazor();
 builder.Services.AddAuthenticationAndAuthorization(builder.Configuration, builder.Environment);
 builder.Services.ConfigureForwardedHeaders();
-builder.Services.AddTournamentMockData();
 builder.Services.AddTournamentApiClients(builder.Configuration);
 builder.Services.AddDataProtectionForEnvironment(builder.Configuration, builder.Environment);
 

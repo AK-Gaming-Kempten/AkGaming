@@ -2,51 +2,69 @@
 @namespace AkGaming.Tournaments.Frontend.Components.Tournaments.Public
 @inherits TournamentPageBase
 
-<PageTitle>@($"{Tournament.Summary.Title} Overview")</PageTitle>
+<PageTitle>@($"{Tournament?.Name ?? "Tournament"} Overview")</PageTitle>
 
 <section class="app-page">
-    <TournamentPublicTabs TournamentSlug="@Tournament.Summary.Slug"
-                          ActiveSection="overview"
-                          OnRegisterRequested="ShowRegistrationDialogAsync" />
+    <ApiErrorPanel Message="@PublicPageErrorMessage" />
 
-    @if (RequestedTournamentWasMissing)
+    @if (Tournament is null)
     {
+        <TournamentPublicTabs TournamentSlug="@TournamentSlug"
+                              ActiveSection="overview"
+                              OnRegisterRequested="ShowRegistrationDialogAsync" />
+
         <SurfacePanel Title="Tournament not found">
             <p>Pick another tournament from the selector to continue.</p>
         </SurfacePanel>
     }
+    else
+    {
+        <TournamentPublicTabs TournamentSlug="@Tournament.Slug"
+                              ActiveSection="overview"
+                              OnRegisterRequested="ShowRegistrationDialogAsync" />
 
-    <section class="tournament-hero">
-        <div class="tournament-banner" aria-label="@($"{Tournament.Summary.Title} tournament banner")">
-            <img src="@Tournament.LogoUrl" alt="" aria-hidden="true" />
-        </div>
-
-        <div class="tournament-hero-copy">
-            <img class="tournament-logo" src="@Tournament.LogoUrl" alt="@($"{Tournament.Summary.Title} logo")" />
-            <div>
-                <span class="eyebrow">@Tournament.Summary.Season · @Tournament.Summary.Status</span>
-                <h1>@Tournament.Summary.Title</h1>
-                <p>@Tournament.HeroDescription</p>
+        <section class="tournament-hero">
+            <div class="tournament-banner" aria-label="@($"{Tournament.Name} tournament banner")">
+                <div class="tournament-banner-copy">
+                    <span class="eyebrow">@Tournament.GameName</span>
+                    <h1>@Tournament.Name</h1>
+                    <span class="status-pill @(Tournament.Status == TournamentStatusDto.RegistrationOpen ? "status-pill-positive" : "status-pill-neutral")">
+                        @Tournament.Status
+                    </span>
+                </div>
             </div>
+
+            <div class="tournament-hero-copy">
+                <div class="tournament-logo">
+                    <LogoImage LogoAssetId="@Tournament.LogoAssetId"
+                               Type="tournament"
+                               Alt="@($"{Tournament.Name} logo")"
+                               Size="LogoImageSize.Large" />
+                </div>
+                <div>
+                    <span class="eyebrow">@Tournament.GameName tournament</span>
+                    <h1>@Tournament.Name</h1>
+                </div>
+            </div>
+
+            <button type="button" class="solid-button tournament-register-button" @onclick="ShowRegistrationDialogAsync">
+                Register team
+            </button>
+        </section>
+
+        <div class="content-grid">
+            <SurfacePanel Title="Tournament info">
+                <TournamentInfoFieldGrid Sections="@Tournament.InfoSections" />
+            </SurfacePanel>
+
+            <SurfacePanel Title="Timeline" Subtitle="Key dates for registration and play.">
+                <TournamentTimeline Items="@TimelineItems" />
+            </SurfacePanel>
         </div>
 
-        <button type="button" class="solid-button tournament-register-button" @onclick="ShowRegistrationDialogAsync">
-            Register team
-        </button>
-    </section>
-
-    <div class="content-grid">
-        <SurfacePanel Title="Tournament info" Subtitle="@Tournament.Tagline">
-            <TournamentInfoFieldGrid Fields="@Tournament.InfoFields" />
-        </SurfacePanel>
-
-        <SurfacePanel Title="Timeline" Subtitle="Key dates for registration, check-in, and play.">
-            <TournamentTimeline Items="@Tournament.KeyDates" />
-        </SurfacePanel>
-    </div>
-
-    <TournamentRegistrationDialog Tournament="@Tournament"
-                                  IsOpen="@IsRegistrationDialogOpen"
-                                  IsOpenChanged="SetRegistrationDialogOpenAsync"
-                                  RegistrationSubmitted="HandleRegistrationSubmittedAsync" />
+        <TournamentRegistrationDialog Tournament="@Tournament"
+                                      IsOpen="@IsRegistrationDialogOpen"
+                                      IsOpenChanged="SetRegistrationDialogOpenAsync"
+                                      RegistrationSubmitted="HandleRegistrationSubmittedAsync" />
+    }
 </section>

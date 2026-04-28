@@ -3,12 +3,11 @@
 <ol class="tournament-timeline">
     @foreach (var item in Items)
     {
-        <li class="tournament-timeline-item tournament-timeline-item-@item.Tone">
+        <li class="tournament-timeline-item">
             <span class="timeline-dot"></span>
             <div class="timeline-copy">
                 <span class="timeline-label">@item.Label</span>
                 <strong>@item.Date</strong>
-                <p>@item.Description</p>
             </div>
         </li>
     }
