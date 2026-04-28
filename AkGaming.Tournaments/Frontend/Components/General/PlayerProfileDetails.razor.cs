@@ -4,7 +4,7 @@ using AkGaming.Tournaments.Frontend.Api;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 
-namespace AkGaming.Tournaments.Frontend.Components.Pages;
+namespace AkGaming.Tournaments.Frontend.Components.General;
 
 public partial class PlayerProfileDetails : ComponentBase
 {

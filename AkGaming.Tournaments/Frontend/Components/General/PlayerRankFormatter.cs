@@ -1,4 +1,4 @@
-namespace AkGaming.Tournaments.Frontend.Components.Shared;
+namespace AkGaming.Tournaments.Frontend.Components.General;
 
 public static class PlayerRankFormatter
 {

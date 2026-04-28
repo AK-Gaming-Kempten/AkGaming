@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 using System.Security.Claims;
 
-namespace AkGaming.Tournaments.Frontend.Components.Pages;
+namespace AkGaming.Tournaments.Frontend.Components.Teams;
 
 public partial class TeamDetails : ComponentBase
 {

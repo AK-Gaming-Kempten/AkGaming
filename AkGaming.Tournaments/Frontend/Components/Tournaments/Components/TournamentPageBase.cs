@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Components;
 using AkGaming.Tournaments.Frontend.Components.Data;
 
-namespace AkGaming.Tournaments.Frontend.Components.Pages;
+namespace AkGaming.Tournaments.Frontend.Components.Tournaments.Components;
 
 public abstract class TournamentPageBase : ComponentBase
 {

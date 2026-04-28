@@ -1,7 +1,7 @@
 using AkGaming.Tournaments.Contracts.DTOs;
 using Microsoft.AspNetCore.Components;
 
-namespace AkGaming.Tournaments.Frontend.Components.Shared;
+namespace AkGaming.Tournaments.Frontend.Components.Teams.Components;
 
 public partial class TeamDetailsView : ComponentBase
 {

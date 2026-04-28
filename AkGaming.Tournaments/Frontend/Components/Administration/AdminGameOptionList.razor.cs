@@ -1,7 +1,7 @@
 using AkGaming.Tournaments.Contracts.DTOs;
 using Microsoft.AspNetCore.Components;
 
-namespace AkGaming.Tournaments.Frontend.Components.Pages;
+namespace AkGaming.Tournaments.Frontend.Components.Administration;
 
 public partial class AdminGameOptionList : ComponentBase
 {

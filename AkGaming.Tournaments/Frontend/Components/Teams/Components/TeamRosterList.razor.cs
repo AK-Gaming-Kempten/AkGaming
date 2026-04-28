@@ -1,7 +1,8 @@
 using AkGaming.Tournaments.Contracts.DTOs;
+using AkGaming.Tournaments.Frontend.Components.General;
 using Microsoft.AspNetCore.Components;
 
-namespace AkGaming.Tournaments.Frontend.Components.Shared;
+namespace AkGaming.Tournaments.Frontend.Components.Teams.Components;
 
 public partial class TeamRosterList : ComponentBase
 {

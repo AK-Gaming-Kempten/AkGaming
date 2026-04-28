@@ -1,4 +1,4 @@
-@namespace AkGaming.Tournaments.Frontend.Components.Pages
+@namespace AkGaming.Tournaments.Frontend.Components.Administration
 
 <div class="game-selector">
     <button type="button" class="game-selector-trigger" @onclick="ToggleGameSelectorAsync" disabled="@IsBusy">
@@ -10,7 +10,6 @@
         </span>
         <span class="game-selector-chevron bi @(IsOpen ? "bi-chevron-up" : "bi-chevron-down")"></span>
     </button>
-
     @if (IsOpen)
     {
         <button type="button" class="game-selector-dismiss-layer" aria-label="Close game selector" @onclick="CloseGameSelectorAsync"></button>

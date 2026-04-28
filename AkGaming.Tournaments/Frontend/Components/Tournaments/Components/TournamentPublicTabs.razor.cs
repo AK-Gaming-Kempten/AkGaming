@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Components;
 
-namespace AkGaming.Tournaments.Frontend.Components.Shared;
+namespace AkGaming.Tournaments.Frontend.Components.Tournaments.Components;
 
 public partial class TournamentPublicTabs : ComponentBase
 {
