@@ -11,7 +11,13 @@
             <strong>@Team.Name</strong>
             <span>@RoleLabel · @GameName</span>
         </span>
-        <span class="team-game-badge"><span class="bi bi-controller"></span></span>
+        <span class="team-option-meta">
+            @if (!string.IsNullOrWhiteSpace(StatusLabel))
+            {
+                <span class="status-pill @StatusClass">@StatusLabel</span>
+            }
+            <span class="team-game-badge"><span class="bi bi-controller"></span></span>
+        </span>
     </button>
 }
 else
@@ -24,6 +30,12 @@ else
             <strong>@Team.Name</strong>
             <span>@RoleLabel · @GameName</span>
         </span>
-        <span class="team-game-badge"><span class="bi bi-controller"></span></span>
+        <span class="team-option-meta">
+            @if (!string.IsNullOrWhiteSpace(StatusLabel))
+            {
+                <span class="status-pill @StatusClass">@StatusLabel</span>
+            }
+            <span class="team-game-badge"><span class="bi bi-controller"></span></span>
+        </span>
     </a>
 }

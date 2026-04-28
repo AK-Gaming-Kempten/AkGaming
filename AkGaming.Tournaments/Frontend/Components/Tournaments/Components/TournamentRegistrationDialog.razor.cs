@@ -12,6 +12,7 @@ public partial class TournamentRegistrationDialog : ComponentBase
     [Parameter] public TournamentDetail Tournament { get; set; } = default!;
     [Parameter] public bool IsOpen { get; set; }
     [Parameter] public EventCallback<bool> IsOpenChanged { get; set; }
+    [Parameter] public EventCallback<TournamentRegistrationDto> RegistrationSubmitted { get; set; }
 
     [Inject] private AuthenticationStateProvider AuthenticationStateProvider { get; set; } = default!;
     [Inject] private TeamsApiClient TeamsClient { get; set; } = default!;
@@ -130,6 +131,12 @@ public partial class TournamentRegistrationDialog : ComponentBase
                 Tournament.Summary.Id,
                 currentUserId,
                 selectedPlayerProfileIds.ToArray());
+            if (RegistrationSubmitted.HasDelegate)
+            {
+                await RegistrationSubmitted.InvokeAsync(registration);
+                return;
+            }
+
             successMessage = $"Registration submitted with status {registration.Status}.";
             await RefreshEligibilityAsync(useCurrentSelection: true);
         });

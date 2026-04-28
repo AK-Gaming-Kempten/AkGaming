@@ -11,7 +11,7 @@ else
         {
             <article class="registration-row">
                 <div>
-                    <h4>@registration.TournamentId</h4>
+                    <h4>@GetTournamentName(registration.TournamentId)</h4>
                     <p>Submitted @registration.SubmittedAtUtc.ToLocalTime().ToString("g")</p>
                 </div>
                 <span class="status-pill @StatusClass(registration.Status)">@registration.Status</span>

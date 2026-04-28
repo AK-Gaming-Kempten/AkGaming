@@ -10,6 +10,7 @@ public abstract class TournamentPageBase : ComponentBase
     [Inject] protected MockTournamentCatalog Catalog { get; set; } = default!;
     [Inject] protected TeamsApiClient TeamsClient { get; set; } = default!;
     [Inject] protected TournamentRegistrationsApiClient RegistrationsClient { get; set; } = default!;
+    [Inject] protected NavigationManager Navigation { get; set; } = default!;
 
     [Parameter] public string TournamentSlug { get; set; } = string.Empty;
 
@@ -17,6 +18,7 @@ public abstract class TournamentPageBase : ComponentBase
     protected bool RequestedTournamentWasMissing { get; private set; }
     protected bool IsRegistrationDialogOpen { get; private set; }
     protected IReadOnlyList<TeamDto> RegisteredTeams { get; private set; } = [];
+    protected IReadOnlyDictionary<Guid, TournamentRegistrationDto> RegistrationByTeamId { get; private set; } = new Dictionary<Guid, TournamentRegistrationDto>();
     protected string? PublicPageErrorMessage { get; private set; }
 
     protected override async Task OnParametersSetAsync()
@@ -24,11 +26,20 @@ public abstract class TournamentPageBase : ComponentBase
         Tournament = Catalog.Find(TournamentSlug) ?? Catalog.GetFeatured();
         RequestedTournamentWasMissing = Catalog.Find(TournamentSlug) is null;
         PublicPageErrorMessage = null;
+        await LoadRegisteredTeamsAsync();
+    }
+
+    private async Task LoadRegisteredTeamsAsync()
+    {
         RegisteredTeams = [];
+        RegistrationByTeamId = new Dictionary<Guid, TournamentRegistrationDto>();
 
         try
         {
             var registrations = await RegistrationsClient.GetTournamentRegistrationsAsync(Tournament.Summary.Id);
+            RegistrationByTeamId = registrations
+                .GroupBy(registration => registration.TeamId)
+                .ToDictionary(group => group.Key, group => group.First());
             var distinctTeamIds = registrations
                 .Select(registration => registration.TeamId)
                 .Distinct()
@@ -64,5 +75,18 @@ public abstract class TournamentPageBase : ComponentBase
     {
         IsRegistrationDialogOpen = value;
         return Task.CompletedTask;
+    }
+
+    protected async Task HandleRegistrationSubmittedAsync(TournamentRegistrationDto registration)
+    {
+        IsRegistrationDialogOpen = false;
+        await LoadRegisteredTeamsAsync();
+
+        var targetPath = $"/tournaments/{Tournament.Summary.Slug}/teams";
+        var currentPath = Navigation.ToBaseRelativePath(Navigation.Uri);
+        if (!string.Equals(currentPath, targetPath.TrimStart('/'), StringComparison.OrdinalIgnoreCase))
+        {
+            Navigation.NavigateTo(targetPath);
+        }
     }
 }

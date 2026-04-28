@@ -9,6 +9,7 @@ public partial class TeamDetailsView : ComponentBase
     [Parameter] public string GameName { get; set; } = string.Empty;
     [Parameter] public IReadOnlyList<PlayerProfileDto> AvailableProfiles { get; set; } = [];
     [Parameter] public IReadOnlyList<TournamentRegistrationDto> Registrations { get; set; } = [];
+    [Parameter] public IReadOnlyDictionary<Guid, string> TournamentNames { get; set; } = new Dictionary<Guid, string>();
     [Parameter] public bool IsAuthenticated { get; set; }
     [Parameter] public string? CurrentUserId { get; set; }
     [Parameter] public string? CurrentUserDisplayName { get; set; }

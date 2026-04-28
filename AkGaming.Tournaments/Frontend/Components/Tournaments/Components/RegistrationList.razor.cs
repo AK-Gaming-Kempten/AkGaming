@@ -6,6 +6,7 @@ namespace AkGaming.Tournaments.Frontend.Components.Tournaments.Components;
 public partial class RegistrationList : ComponentBase
 {
     [Parameter] public IReadOnlyList<TournamentRegistrationDto> Registrations { get; set; } = [];
+    [Parameter] public IReadOnlyDictionary<Guid, string> TournamentNames { get; set; } = new Dictionary<Guid, string>();
     [Parameter] public string EmptyState { get; set; } = "No registrations found.";
 
     private static string StatusClass(TournamentRegistrationStatusDto status)
@@ -15,4 +16,7 @@ public partial class RegistrationList : ComponentBase
             TournamentRegistrationStatusDto.Pending => "status-pill-warn",
             _ => "status-pill-neutral"
         };
+
+    private string GetTournamentName(Guid tournamentId)
+        => TournamentNames.TryGetValue(tournamentId, out var name) ? name : tournamentId.ToString();
 }

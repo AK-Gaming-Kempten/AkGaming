@@ -1,5 +1,6 @@
 using AkGaming.Tournaments.Contracts.DTOs;
 using AkGaming.Tournaments.Frontend.Api;
+using AkGaming.Tournaments.Frontend.Components.Data;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 using System.Security.Claims;
@@ -14,10 +15,12 @@ public partial class TeamDetails : ComponentBase
     [Inject] private GamesApiClient GamesClient { get; set; } = default!;
     [Inject] private TeamsApiClient TeamsClient { get; set; } = default!;
     [Inject] private TournamentRegistrationsApiClient RegistrationsClient { get; set; } = default!;
+    [Inject] private MockTournamentCatalog TournamentCatalog { get; set; } = default!;
 
     private IReadOnlyList<GameDto> games = [];
     private IReadOnlyList<PlayerProfileDto> availableProfiles = [];
     private IReadOnlyList<TournamentRegistrationDto> registrations = [];
+    private IReadOnlyDictionary<Guid, string> tournamentNames = new Dictionary<Guid, string>();
     private TeamDto? team;
     private string? currentUserId;
     private string? currentUserDisplayName;
@@ -38,6 +41,9 @@ public partial class TeamDetails : ComponentBase
         errorMessage = null;
         availableProfiles = [];
         registrations = [];
+        tournamentNames = TournamentCatalog.GetAll()
+            .GroupBy(tournament => tournament.Id)
+            .ToDictionary(group => group.Key, group => group.First().Title);
 
         var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
         isAuthenticated = authState.User.Identity?.IsAuthenticated ?? false;

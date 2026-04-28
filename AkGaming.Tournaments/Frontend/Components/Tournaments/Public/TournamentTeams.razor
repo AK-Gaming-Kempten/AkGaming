@@ -22,9 +22,12 @@
             <div class="stack">
                 @foreach (var team in RegisteredTeams)
                 {
+                    var registration = RegistrationByTeamId.TryGetValue(team.Id, out var teamRegistration) ? teamRegistration : null;
                     <TeamOptionButton Team="@team"
                                       GameName="@Tournament.Summary.Game"
                                       RoleLabel="@($"{team.Memberships.Count} members")"
+                                      StatusLabel="@registration?.Status.ToString()"
+                                      StatusClass="@GetStatusClass(registration?.Status)"
                                       Href="@($"/teams/{team.Id}")" />
                 }
             </div>
@@ -33,5 +36,6 @@
 
     <TournamentRegistrationDialog Tournament="@Tournament"
                                   IsOpen="@IsRegistrationDialogOpen"
-                                  IsOpenChanged="SetRegistrationDialogOpenAsync" />
+                                  IsOpenChanged="SetRegistrationDialogOpenAsync"
+                                  RegistrationSubmitted="HandleRegistrationSubmittedAsync" />
 </section>
