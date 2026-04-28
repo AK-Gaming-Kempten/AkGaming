@@ -8,6 +8,17 @@ namespace AkGaming.Tournaments.WebApi.Controllers;
 [Tags("Tournament Registrations")]
 public sealed class TournamentRegistrationsController(ITournamentRegistrationService service) : ControllerBase
 {
+    [HttpGet("api/tournaments/{tournamentId:guid}/registrations", Name = "GetTournamentRegistrations")]
+    [EndpointSummary("List tournament registrations for a tournament.")]
+    [ProducesResponseType<IReadOnlyList<TournamentRegistrationDto>>(StatusCodes.Status200OK)]
+    public async Task<ActionResult<IReadOnlyList<TournamentRegistrationDto>>> GetTournamentRegistrations(
+        Guid tournamentId,
+        CancellationToken cancellationToken)
+    {
+        var registrations = await service.GetTournamentRegistrationsAsync(tournamentId, cancellationToken);
+        return Ok(registrations);
+    }
+
     [HttpGet("api/teams/{teamId:guid}/registrations", Name = "GetTeamRegistrations")]
     [EndpointSummary("List tournament registrations for a team.")]
     [ProducesResponseType<IReadOnlyList<TournamentRegistrationDto>>(StatusCodes.Status200OK)]

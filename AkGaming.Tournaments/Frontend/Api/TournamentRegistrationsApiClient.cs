@@ -4,6 +4,9 @@ namespace AkGaming.Tournaments.Frontend.Api;
 
 public sealed class TournamentRegistrationsApiClient(HttpClient httpClient) : TournamentApiClientBase(httpClient)
 {
+    public Task<IReadOnlyList<TournamentRegistrationDto>> GetTournamentRegistrationsAsync(Guid tournamentId, CancellationToken cancellationToken = default)
+        => GetAsync<IReadOnlyList<TournamentRegistrationDto>>($"api/tournaments/{tournamentId}/registrations", cancellationToken);
+
     public Task<IReadOnlyList<TournamentRegistrationDto>> GetTeamRegistrationsAsync(Guid teamId, CancellationToken cancellationToken = default)
         => GetAsync<IReadOnlyList<TournamentRegistrationDto>>($"api/teams/{teamId}/registrations", cancellationToken);
 

@@ -69,6 +69,25 @@ public sealed class TournamentRegistrationSubmissionTests
     }
 
     [Test]
+    [Description("Verifies that tournament registrations can be listed for a known tournament and include each registered team once.")]
+    public void GetTournamentRegistrationsAsync_ReturnsRegistrationsForTournament()
+    {
+        // Arrange
+        var (team, tournament, _, _) = AddRegisterableTeamAndTournament();
+        var otherTeam = TournamentTestData.AddTeam(Store, name: "AKG Red");
+        var otherProfile = TournamentTestData.AddUserProfile(Store, TournamentTestData.OtherUserId, TournamentTestData.GameId, "Other Mid");
+        otherTeam.Memberships.Add(new TeamMembership { TeamId = otherTeam.Id, UserId = TournamentTestData.OtherUserId, Role = TeamRole.Owner });
+        var first = TournamentTestData.AddRegistration(Store, team, tournament);
+        var second = TournamentTestData.AddRegistration(Store, otherTeam, tournament);
+
+        // Act
+        var registrations = Service.GetTournamentRegistrationsAsync(tournament.Id).GetAwaiter().GetResult();
+
+        // Assert
+        Assert.That(registrations.Select(registration => registration.Id), Is.EquivalentTo(new[] { first.Id, second.Id }));
+    }
+
+    [Test]
     [Description("Verifies that editors, not only owners, can submit registrations for a team.")]
     public void SubmitRegistrationAsync_AllowsEditorsToRegisterTeam()
     {

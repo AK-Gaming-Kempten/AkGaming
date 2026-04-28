@@ -10,6 +10,7 @@
     background: color-mix(in oklab, var(--color-background-primary) 82%, transparent);
     color: var(--color-text-primary);
     text-align: left;
+    text-decoration: none;
     cursor: pointer;
 }
 

@@ -75,6 +75,25 @@ public sealed class TournamentRegistrationsControllerTests
     }
 
     [Test]
+    [Description("Verifies that the tournament registration controller passes tournament id to the listing use case.")]
+    public async Task GetTournamentRegistrations_ReturnsOkWithRegistrations()
+    {
+        // Arrange
+        var tournamentId = Guid.NewGuid();
+        var registrations = new List<TournamentRegistrationDto> { WebApiControllerTestHelpers.Registration(Guid.NewGuid(), tournamentId: tournamentId) };
+        Service
+            .Setup(mock => mock.GetTournamentRegistrationsAsync(tournamentId, CancellationToken.None))
+            .ReturnsAsync(registrations);
+
+        // Act
+        var response = await Controller.GetTournamentRegistrations(tournamentId, CancellationToken.None);
+
+        // Assert
+        WebApiControllerTestHelpers.AssertOkValue(response, registrations);
+        Service.Verify(mock => mock.GetTournamentRegistrationsAsync(tournamentId, CancellationToken.None), Times.Once);
+    }
+
+    [Test]
     [Description("Verifies that the tournament registration controller passes registration review values to the application service.")]
     public async Task ReviewTournamentRegistration_ReturnsOkWithRegistration()
     {

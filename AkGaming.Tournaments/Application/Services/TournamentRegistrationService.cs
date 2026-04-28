@@ -24,6 +24,14 @@ public sealed class TournamentRegistrationService(
         return await MapRegistrationsAsync(registrations, cancellationToken);
     }
 
+    public async Task<IReadOnlyList<TournamentRegistrationDto>> GetTournamentRegistrationsAsync(Guid tournamentId, CancellationToken cancellationToken = default)
+    {
+        _ = await RequireTournamentAsync(tournamentId, cancellationToken);
+
+        var registrations = await tournamentRegistrationRepository.GetByTournamentIdAsync(tournamentId, cancellationToken);
+        return await MapRegistrationsAsync(registrations, cancellationToken);
+    }
+
     public async Task<TournamentRegistrationDto?> GetRegistrationAsync(Guid registrationId, CancellationToken cancellationToken = default)
     {
         var registration = await tournamentRegistrationRepository.GetByIdAsync(registrationId, cancellationToken);

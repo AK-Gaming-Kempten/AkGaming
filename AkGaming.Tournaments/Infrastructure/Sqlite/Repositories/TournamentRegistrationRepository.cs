@@ -22,6 +22,18 @@ public sealed class TournamentRegistrationRepository(TournamentDbContext dbConte
             .ToList();
     }
 
+    public async Task<IReadOnlyList<TournamentRegistration>> GetByTournamentIdAsync(Guid tournamentId, CancellationToken cancellationToken = default)
+    {
+        var registrations = await Query()
+            .Where(registration => registration.TournamentId == tournamentId)
+            .ToListAsync(cancellationToken);
+
+        return registrations
+            .OrderBy(registration => registration.Team?.Name ?? string.Empty, StringComparer.OrdinalIgnoreCase)
+            .ThenBy(registration => registration.SubmittedAtUtc)
+            .ToList();
+    }
+
     public Task<TournamentRegistration?> GetByTeamAndTournamentAsync(Guid teamId, Guid tournamentId, CancellationToken cancellationToken = default)
         => Query()
             .FirstOrDefaultAsync(

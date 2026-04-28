@@ -10,12 +10,26 @@
                           OnRegisterRequested="ShowRegistrationDialogAsync" />
     <PageHeader Title="Teams" />
 
-    <div class="teams-grid">
-        @foreach (var team in Tournament.Teams)
+    <ApiErrorPanel Message="@PublicPageErrorMessage" />
+
+    <SurfacePanel Title="Registered teams">
+        @if (RegisteredTeams.Count == 0)
         {
-            <TeamCard Team="@team" />
+            <p class="muted-copy">No teams have registered yet.</p>
         }
-    </div>
+        else
+        {
+            <div class="stack">
+                @foreach (var team in RegisteredTeams)
+                {
+                    <TeamOptionButton Team="@team"
+                                      GameName="@Tournament.Summary.Game"
+                                      RoleLabel="@($"{team.Memberships.Count} members")"
+                                      Href="@($"/teams/{team.Id}")" />
+                }
+            </div>
+        }
+    </SurfacePanel>
 
     <TournamentRegistrationDialog Tournament="@Tournament"
                                   IsOpen="@IsRegistrationDialogOpen"

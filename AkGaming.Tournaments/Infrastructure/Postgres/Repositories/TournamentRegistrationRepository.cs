@@ -17,6 +17,13 @@ public sealed class TournamentRegistrationRepository(TournamentDbContext dbConte
             .OrderByDescending(registration => registration.SubmittedAtUtc)
             .ToListAsync(cancellationToken);
 
+    public async Task<IReadOnlyList<TournamentRegistration>> GetByTournamentIdAsync(Guid tournamentId, CancellationToken cancellationToken = default)
+        => await Query()
+            .Where(registration => registration.TournamentId == tournamentId)
+            .OrderBy(registration => registration.Team != null ? registration.Team.Name : string.Empty)
+            .ThenBy(registration => registration.SubmittedAtUtc)
+            .ToListAsync(cancellationToken);
+
     public Task<TournamentRegistration?> GetByTeamAndTournamentAsync(Guid teamId, Guid tournamentId, CancellationToken cancellationToken = default)
         => Query()
             .FirstOrDefaultAsync(

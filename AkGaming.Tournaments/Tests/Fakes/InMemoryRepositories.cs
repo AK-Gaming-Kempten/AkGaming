@@ -127,6 +127,9 @@ internal sealed class InMemoryTournamentRegistrationRepository(InMemoryStore sto
     public Task<IReadOnlyList<TournamentRegistration>> GetByTeamIdAsync(Guid teamId, CancellationToken cancellationToken = default)
         => Task.FromResult<IReadOnlyList<TournamentRegistration>>(store.Registrations.Where(registration => registration.TeamId == teamId).ToList());
 
+    public Task<IReadOnlyList<TournamentRegistration>> GetByTournamentIdAsync(Guid tournamentId, CancellationToken cancellationToken = default)
+        => Task.FromResult<IReadOnlyList<TournamentRegistration>>(store.Registrations.Where(registration => registration.TournamentId == tournamentId).ToList());
+
     public Task<TournamentRegistration?> GetByTeamAndTournamentAsync(Guid teamId, Guid tournamentId, CancellationToken cancellationToken = default)
         => Task.FromResult(store.Registrations.FirstOrDefault(registration => registration.TeamId == teamId && registration.TournamentId == tournamentId));
 

@@ -5,6 +5,7 @@ namespace AkGaming.Tournaments.Application.UseCases;
 public interface ITournamentRegistrationService
 {
     Task<IReadOnlyList<TournamentRegistrationDto>> GetTeamRegistrationsAsync(Guid teamId, CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<TournamentRegistrationDto>> GetTournamentRegistrationsAsync(Guid tournamentId, CancellationToken cancellationToken = default);
     Task<TournamentRegistrationDto?> GetRegistrationAsync(Guid registrationId, CancellationToken cancellationToken = default);
     Task<TournamentRegistrationEligibilityDto> GetRegistrationEligibilityAsync(Guid teamId, Guid tournamentId, string actingUserId, IReadOnlyCollection<Guid> playerProfileIds, CancellationToken cancellationToken = default);
     Task<TournamentRegistrationDto> SubmitRegistrationAsync(Guid teamId, Guid tournamentId, string actingUserId, IReadOnlyCollection<Guid> playerProfileIds, CancellationToken cancellationToken = default);
