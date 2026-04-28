@@ -20,7 +20,14 @@ public partial class TeamDetails : ComponentBase
     private IReadOnlyList<TournamentRegistrationDto> registrations = [];
     private TeamDto? team;
     private string? currentUserId;
+    private string? currentUserDisplayName;
     private string? errorMessage;
+    private string teamName = string.Empty;
+    private string guestName = string.Empty;
+    private int? guestRankRating;
+    private PlayerProfileDto? editingGuestProfile;
+    private bool isGuestFormOpen;
+    private bool isTeamEditMode;
     private bool isAuthenticated;
     private bool isLoading = true;
     private bool isBusy;
@@ -36,6 +43,7 @@ public partial class TeamDetails : ComponentBase
         isAuthenticated = authState.User.Identity?.IsAuthenticated ?? false;
         currentUserId = authState.User.FindFirstValue(ClaimTypes.NameIdentifier)
                         ?? authState.User.FindFirstValue("sub");
+        currentUserDisplayName = ResolveDisplayName(authState.User);
 
         try
         {
@@ -43,6 +51,7 @@ public partial class TeamDetails : ComponentBase
             team = await TeamsClient.GetTeamAsync(TeamId);
             if (team is not null)
             {
+                teamName = team.Name;
                 availableProfiles = await TeamsClient.GetAvailableProfilesAsync(team.Id, team.GameId);
                 registrations = await RegistrationsClient.GetTeamRegistrationsAsync(team.Id);
             }
@@ -59,6 +68,73 @@ public partial class TeamDetails : ComponentBase
 
     private string GetGameName(string gameId)
         => games.FirstOrDefault(game => string.Equals(game.Id, gameId, StringComparison.OrdinalIgnoreCase))?.Name ?? gameId;
+
+    private Task SetGuestName(string value)
+    {
+        guestName = value;
+        return Task.CompletedTask;
+    }
+
+    private Task SetTeamName(string value)
+    {
+        teamName = value;
+        return Task.CompletedTask;
+    }
+
+    private Task StartTeamEditAsync()
+    {
+        if (team is not null)
+        {
+            teamName = team.Name;
+        }
+
+        isTeamEditMode = true;
+        return Task.CompletedTask;
+    }
+
+    private Task CancelTeamEditAsync()
+    {
+        if (team is not null)
+        {
+            teamName = team.Name;
+        }
+
+        isTeamEditMode = false;
+        return Task.CompletedTask;
+    }
+
+    private Task SetGuestRankRating(int? value)
+    {
+        guestRankRating = value;
+        return Task.CompletedTask;
+    }
+
+    private Task StartGuestEdit(PlayerProfileDto profile)
+    {
+        isGuestFormOpen = true;
+        editingGuestProfile = profile;
+        guestName = profile.Name;
+        guestRankRating = profile.RankRating;
+        return Task.CompletedTask;
+    }
+
+    private Task StartGuestCreate()
+    {
+        isGuestFormOpen = true;
+        editingGuestProfile = null;
+        guestName = string.Empty;
+        guestRankRating = 0;
+        return Task.CompletedTask;
+    }
+
+    private Task CancelGuestEdit()
+    {
+        isGuestFormOpen = false;
+        editingGuestProfile = null;
+        guestName = string.Empty;
+        guestRankRating = 0;
+        return Task.CompletedTask;
+    }
 
     private async Task SetTeamLogoAsync(MediaAssetDto asset)
     {
@@ -91,4 +167,106 @@ public partial class TeamDetails : ComponentBase
             isBusy = false;
         }
     }
+
+    private async Task SaveTeamAsync()
+    {
+        if (team is null || string.IsNullOrWhiteSpace(currentUserId) || string.IsNullOrWhiteSpace(teamName))
+            return;
+
+        isBusy = true;
+        errorMessage = null;
+
+        try
+        {
+            team = await TeamsClient.UpdateTeamAsync(team.Id, currentUserId, teamName);
+            isTeamEditMode = false;
+        }
+        catch (TournamentApiException ex)
+        {
+            errorMessage = ex.Message;
+        }
+        finally
+        {
+            isBusy = false;
+        }
+    }
+
+    private async Task SaveGuestProfileAsync()
+    {
+        if (team is null || string.IsNullOrWhiteSpace(currentUserId) || string.IsNullOrWhiteSpace(guestName))
+            return;
+
+        isBusy = true;
+        errorMessage = null;
+
+        try
+        {
+            if (editingGuestProfile is null)
+            {
+                await TeamsClient.CreateGuestPlayerProfileAsync(team.Id, currentUserId, guestName, guestRankRating);
+            }
+            else
+            {
+                await TeamsClient.UpdateGuestPlayerProfileAsync(team.Id, editingGuestProfile.Id, currentUserId, guestName, guestRankRating);
+            }
+
+            await RefreshTeamProfilesAsync();
+            await CancelGuestEdit();
+        }
+        catch (TournamentApiException ex)
+        {
+            errorMessage = ex.Message;
+        }
+        finally
+        {
+            isBusy = false;
+        }
+    }
+
+    private async Task DeleteGuestProfileAsync(PlayerProfileDto profile)
+    {
+        if (team is null || string.IsNullOrWhiteSpace(currentUserId))
+            return;
+
+        isBusy = true;
+        errorMessage = null;
+
+        try
+        {
+            team = await TeamsClient.DeleteGuestPlayerProfileAsync(team.Id, profile.Id, currentUserId);
+            await RefreshTeamProfilesAsync();
+            if (editingGuestProfile?.Id == profile.Id)
+            {
+                await CancelGuestEdit();
+            }
+        }
+        catch (TournamentApiException ex)
+        {
+            errorMessage = ex.Message;
+        }
+        finally
+        {
+            isBusy = false;
+        }
+    }
+
+    private async Task RefreshTeamProfilesAsync()
+    {
+        if (team is null)
+            return;
+
+        team = await TeamsClient.GetTeamAsync(team.Id);
+        if (team is not null)
+        {
+            teamName = team.Name;
+            availableProfiles = await TeamsClient.GetAvailableProfilesAsync(team.Id, team.GameId);
+        }
+    }
+
+    private static string? ResolveDisplayName(ClaimsPrincipal user)
+        => user.Claims.FirstOrDefault(claim => claim.Type == "preferred_username")?.Value
+           ?? user.Claims.FirstOrDefault(claim => claim.Type == "username")?.Value
+           ?? user.Claims.FirstOrDefault(claim => claim.Type == "discord_username")?.Value
+           ?? user.Claims.FirstOrDefault(claim => claim.Type == "email")?.Value
+           ?? user.Claims.FirstOrDefault(claim => claim.Type == "sub")?.Value;
 }

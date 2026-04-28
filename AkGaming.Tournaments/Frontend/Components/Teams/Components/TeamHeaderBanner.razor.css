@@ -1,0 +1,115 @@
+.team-header-banner {
+    position: relative;
+    z-index: 12;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 1rem;
+    padding: 1rem 1.1rem;
+    border: 1px solid color-mix(in oklab, var(--color-highlight-primary) 24%, transparent);
+    border-radius: 8px;
+    background:
+        linear-gradient(135deg,
+            color-mix(in oklab, var(--color-highlight-primary) 12%, transparent),
+            color-mix(in oklab, var(--color-background-secondary) 92%, transparent));
+}
+
+.team-header-main {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 1rem;
+    align-items: center;
+}
+
+.team-header-copy {
+    display: grid;
+    gap: 0.35rem;
+    min-width: 0;
+}
+
+.team-header-copy h2,
+.team-header-copy p {
+    margin: 0;
+}
+
+.team-header-copy p {
+    color: var(--color-text-secondary);
+}
+
+.team-header-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.team-header-menu {
+    position: relative;
+    z-index: 14;
+}
+
+.team-header-menu-trigger {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.3rem;
+    height: 2.3rem;
+    border: 1px solid color-mix(in oklab, var(--color-text-secondary) 22%, transparent);
+    border-radius: 999px;
+    background: color-mix(in oklab, var(--color-background-primary) 86%, transparent);
+    color: var(--color-text-primary);
+    cursor: pointer;
+}
+
+.team-header-menu-trigger:disabled {
+    cursor: wait;
+    opacity: 0.72;
+}
+
+.team-header-menu-popover {
+    position: absolute;
+    top: calc(100% + 0.3rem);
+    right: 0;
+    z-index: 20;
+    display: grid;
+    min-width: 9rem;
+    padding: 0.35rem;
+    border: 1px solid color-mix(in oklab, var(--color-text-secondary) 24%, transparent);
+    border-radius: 8px;
+    background: var(--color-background-primary);
+    box-shadow: 0 14px 28px color-mix(in oklab, black 24%, transparent);
+}
+
+.team-header-menu-popover button {
+    padding: 0.55rem 0.65rem;
+    border: 0;
+    border-radius: 6px;
+    background: transparent;
+    color: var(--color-text-primary);
+    text-align: left;
+    cursor: pointer;
+}
+
+.team-header-menu-popover button:hover {
+    background: color-mix(in oklab, var(--color-highlight-secondary) 40%, transparent);
+}
+
+.team-header-menu-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 10;
+    border: 0;
+    background: transparent;
+}
+
+@media (max-width: 700px) {
+    .team-header-banner {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .team-header-main {
+        align-items: start;
+    }
+
+    .team-header-menu {
+        justify-self: end;
+    }
+}

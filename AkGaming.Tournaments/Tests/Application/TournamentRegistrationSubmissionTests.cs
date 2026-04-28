@@ -1,4 +1,5 @@
 using AkGaming.Tournaments.Application.Exceptions;
+using AkGaming.Tournaments.Application.RegistrationRules;
 using AkGaming.Tournaments.Application.Services;
 using AkGaming.Tournaments.Contracts.DTOs;
 using AkGaming.Tournaments.Domain.Entities;
@@ -231,6 +232,115 @@ public sealed class TournamentRegistrationSubmissionTests
         Assert.ThrowsAsync<ValidationException>(Act);
     }
 
+    [Test]
+    [Description("Verifies that registration submission enforces tournament rank caps.")]
+    public void SubmitRegistrationAsync_RejectsRosterAboveRankCaps()
+    {
+        // Arrange
+        TournamentTestData.AddGame(Store);
+        var team = TournamentTestData.AddTeam(Store);
+        var tournament = TournamentTestData.AddTournament(
+            Store,
+            minimumPlayers: 1,
+            maximumPlayers: 5,
+            maximumPlayerRankRating: 1599,
+            maximumTeamAverageRankRating: 1599);
+        var profile = TournamentTestData.AddUserProfile(Store, TournamentTestData.OwnerId, TournamentTestData.GameId, "Captain Top", rankRating: 1999);
+
+        // Act
+        Task Act() => Service.SubmitRegistrationAsync(team.Id, tournament.Id, TournamentTestData.OwnerId, [profile.Id]);
+
+        // Assert
+        Assert.ThrowsAsync<ValidationException>(Act);
+    }
+
+    [Test]
+    [Description("Verifies that registration submission enforces tournament average rank caps independently from player rank caps.")]
+    public void SubmitRegistrationAsync_RejectsRosterAboveAverageRankCap()
+    {
+        // Arrange
+        TournamentTestData.AddGame(Store);
+        var team = TournamentTestData.AddTeam(Store);
+        var tournament = TournamentTestData.AddTournament(
+            Store,
+            minimumPlayers: 2,
+            maximumPlayers: 5,
+            maximumTeamAverageRankRating: 1599);
+        var silverProfile = TournamentTestData.AddUserProfile(Store, TournamentTestData.OwnerId, TournamentTestData.GameId, "Captain Top", rankRating: 1199);
+        var diamondProfile = TournamentTestData.AddGuestProfile(Store, team, "Guest Mid", rankRating: 2799);
+
+        // Act
+        Task Act() => Service.SubmitRegistrationAsync(team.Id, tournament.Id, TournamentTestData.OwnerId, [silverProfile.Id, diamondProfile.Id]);
+
+        // Assert
+        Assert.ThrowsAsync<ValidationException>(Act);
+    }
+
+    [Test]
+    [Description("Verifies that registration eligibility returns player and team rule checks before submission.")]
+    public void GetRegistrationEligibilityAsync_ReturnsRuleChecksForSelectedRoster()
+    {
+        // Arrange
+        TournamentTestData.AddGame(Store);
+        var team = TournamentTestData.AddTeam(Store);
+        var tournament = TournamentTestData.AddTournament(
+            Store,
+            minimumPlayers: 1,
+            maximumPlayers: 5,
+            maximumPlayerRankRating: 1599,
+            maximumTeamAverageRankRating: 1599);
+        var profile = TournamentTestData.AddUserProfile(Store, TournamentTestData.OwnerId, TournamentTestData.GameId, "Captain Top", rankRating: 1199);
+
+        // Act
+        var eligibility = Service.GetRegistrationEligibilityAsync(
+            team.Id,
+            tournament.Id,
+            TournamentTestData.OwnerId,
+            [profile.Id]).GetAwaiter().GetResult();
+
+        // Assert
+        Assert.Multiple(() =>
+        {
+            Assert.That(eligibility.CanSubmit, Is.True);
+            Assert.That(eligibility.Players.Single().RankName, Is.EqualTo("Silver"));
+            Assert.That(eligibility.Players.Single().RankRating, Is.EqualTo(1199));
+            Assert.That(eligibility.Rules.Select(rule => rule.Type), Does.Contain("MaxPlayerRankRating"));
+            Assert.That(eligibility.Checks.All(check => check.Passed), Is.True);
+        });
+    }
+
+    [Test]
+    [Description("Verifies that registration eligibility reports rank and roster-size failures before submission.")]
+    public void GetRegistrationEligibilityAsync_ReturnsFailuresForInvalidSelectedRoster()
+    {
+        // Arrange
+        TournamentTestData.AddGame(Store);
+        var team = TournamentTestData.AddTeam(Store);
+        var tournament = TournamentTestData.AddTournament(
+            Store,
+            minimumPlayers: 2,
+            maximumPlayers: 5,
+            maximumPlayerRankRating: 1599,
+            maximumTeamAverageRankRating: 1599);
+        var profile = TournamentTestData.AddUserProfile(Store, TournamentTestData.OwnerId, TournamentTestData.GameId, "Captain Top", rankRating: 1999);
+
+        // Act
+        var eligibility = Service.GetRegistrationEligibilityAsync(
+            team.Id,
+            tournament.Id,
+            TournamentTestData.OwnerId,
+            [profile.Id]).GetAwaiter().GetResult();
+
+        // Assert
+        Assert.Multiple(() =>
+        {
+            Assert.That(eligibility.CanSubmit, Is.False);
+            Assert.That(eligibility.Players.Single().Qualifies, Is.False);
+            Assert.That(eligibility.Checks.Single(check => check.Label == "Minimum players").Passed, Is.False);
+            Assert.That(eligibility.Checks.Single(check => check.Label == "Player rank cap").Passed, Is.False);
+        });
+    }
+
     private (Team Team, Tournament Tournament, PlayerProfile MemberProfile, PlayerProfile GuestProfile)
         AddRegisterableTeamAndTournament(bool includeEditor = false, bool includeMember = false)
     {
@@ -260,5 +370,6 @@ public sealed class TournamentRegistrationSubmissionTests
             new InMemoryTeamRepository(Store),
             new InMemoryTournamentRegistrationRepository(Store),
             new InMemoryTournamentRepository(Store),
+            new GameRankSystemRegistry(),
             new FakeUnitOfWork());
 }

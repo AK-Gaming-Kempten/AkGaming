@@ -19,6 +19,24 @@ public sealed class TournamentRegistrationsController(ITournamentRegistrationSer
         return Ok(registrations);
     }
 
+    [HttpPost("api/teams/{teamId:guid}/registrations/eligibility", Name = "GetTournamentRegistrationEligibility")]
+    [EndpointSummary("Preview whether a team roster can register for a tournament.")]
+    [ProducesResponseType<TournamentRegistrationEligibilityDto>(StatusCodes.Status200OK)]
+    public async Task<ActionResult<TournamentRegistrationEligibilityDto>> GetTournamentRegistrationEligibility(
+        Guid teamId,
+        TournamentRegistrationEligibilityRequest request,
+        CancellationToken cancellationToken)
+    {
+        var eligibility = await service.GetRegistrationEligibilityAsync(
+            teamId,
+            request.TournamentId,
+            request.ActingUserId,
+            request.PlayerProfileIds,
+            cancellationToken);
+
+        return Ok(eligibility);
+    }
+
     [HttpPost("api/teams/{teamId:guid}/registrations", Name = "SubmitTournamentRegistration")]
     [EndpointSummary("Submit an initial tournament registration.")]
     [ProducesResponseType<TournamentRegistrationDto>(StatusCodes.Status200OK)]
@@ -104,5 +122,6 @@ public sealed class TournamentRegistrationsController(ITournamentRegistrationSer
 }
 
 public sealed record SubmitTournamentRegistrationRequest(string ActingUserId, Guid TournamentId, IReadOnlyCollection<Guid> PlayerProfileIds);
+public sealed record TournamentRegistrationEligibilityRequest(string ActingUserId, Guid TournamentId, IReadOnlyCollection<Guid> PlayerProfileIds);
 public sealed record SubmitRosterChangeRequest(string ActingUserId, IReadOnlyCollection<Guid> PlayerProfileIds);
 public sealed record ReviewRegistrationRequest(bool Approve, string? ReviewNote);

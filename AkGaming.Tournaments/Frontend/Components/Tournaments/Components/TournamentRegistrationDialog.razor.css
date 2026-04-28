@@ -1,0 +1,96 @@
+.registration-dialog-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 1500;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 1rem;
+    background: color-mix(in oklab, black 58%, transparent);
+    backdrop-filter: blur(10px);
+}
+
+.registration-dialog {
+    display: grid;
+    grid-template-rows: auto minmax(0, 1fr) auto;
+    width: min(100%, 54rem);
+    max-height: min(92vh, 58rem);
+    overflow: hidden;
+    border: 1px solid color-mix(in oklab, var(--color-highlight-primary) 36%, transparent);
+    border-radius: 8px;
+    background: var(--color-background-primary);
+    color: var(--color-text-primary);
+    box-shadow: 0 26px 60px color-mix(in oklab, black 36%, transparent);
+}
+
+.registration-dialog-header,
+.registration-dialog-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1rem;
+    background: color-mix(in oklab, var(--color-background-special) 92%, black 8%);
+}
+
+.registration-dialog-header h2 {
+    margin: 0;
+    color: var(--color-text-special);
+}
+
+.icon-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    border: 1px solid color-mix(in oklab, white 22%, transparent);
+    border-radius: 999px;
+    background: color-mix(in oklab, white 10%, transparent);
+    color: var(--color-text-special);
+    cursor: pointer;
+}
+
+.registration-dialog-body {
+    display: grid;
+    gap: 1rem;
+    min-height: 0;
+    overflow-y: auto;
+    padding: 1rem;
+}
+
+.registration-dialog-footer {
+    justify-content: flex-end;
+    border-top: 1px solid color-mix(in oklab, var(--color-text-secondary) 20%, transparent);
+}
+
+.registration-success {
+    display: flex;
+    gap: 0.6rem;
+    align-items: center;
+    padding: 0.75rem;
+    border: 1px solid color-mix(in oklab, var(--color-highlight-primary) 34%, transparent);
+    border-radius: 8px;
+    background: color-mix(in oklab, var(--color-highlight-primary) 14%, transparent);
+}
+
+.muted-copy {
+    margin: 0;
+    color: var(--color-text-secondary);
+}
+
+@media (max-width: 640px) {
+    .registration-dialog-backdrop {
+        align-items: stretch;
+        padding: 0.5rem;
+    }
+
+    .registration-dialog {
+        max-height: none;
+    }
+
+    .registration-dialog-footer {
+        flex-direction: column-reverse;
+        align-items: stretch;
+    }
+}

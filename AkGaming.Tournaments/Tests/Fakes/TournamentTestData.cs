@@ -63,7 +63,11 @@ internal static class TournamentTestData
         InMemoryStore store,
         string gameId = GameId,
         string name = "Campus Clash",
-        TournamentStatus status = TournamentStatus.RegistrationOpen)
+        TournamentStatus status = TournamentStatus.RegistrationOpen,
+        int minimumPlayers = 1,
+        int maximumPlayers = 99,
+        int? maximumPlayerRankRating = null,
+        int? maximumTeamAverageRankRating = null)
     {
         var tournament = new Tournament
         {
@@ -72,6 +76,19 @@ internal static class TournamentTestData
             Name = name,
             Status = status
         };
+        tournament.RegistrationRules.Add(new MinPlayersPerTeamRegistrationRule { Id = Guid.NewGuid(), SortOrder = 0, Value = minimumPlayers });
+        tournament.RegistrationRules.Add(new MaxPlayersPerTeamRegistrationRule { Id = Guid.NewGuid(), SortOrder = 1, Value = maximumPlayers });
+
+        var sortOrder = 2;
+        if (maximumPlayerRankRating is int playerRating)
+        {
+            tournament.RegistrationRules.Add(new MaxPlayerRankRatingRegistrationRule { Id = Guid.NewGuid(), SortOrder = sortOrder++, Value = playerRating });
+        }
+
+        if (maximumTeamAverageRankRating is int averageRating)
+        {
+            tournament.RegistrationRules.Add(new MaxTeamAverageRankRatingRegistrationRule { Id = Guid.NewGuid(), SortOrder = sortOrder, Value = averageRating });
+        }
 
         store.Tournaments.Add(tournament);
         return tournament;
@@ -81,13 +98,15 @@ internal static class TournamentTestData
         InMemoryStore store,
         string userId = MemberId,
         string gameId = GameId,
-        string name = "Member Jungle")
+        string name = "Member Jungle",
+        int? rankRating = null)
     {
         var profile = new PlayerProfile
         {
             Id = Guid.NewGuid(),
             GameId = gameId,
             Name = name,
+            RankRating = rankRating,
             Type = PlayerProfileType.User,
             UserId = userId
         };
@@ -100,7 +119,8 @@ internal static class TournamentTestData
         InMemoryStore store,
         Team team,
         string name = "Guest Support",
-        string? gameId = null)
+        string? gameId = null,
+        int? rankRating = null)
     {
         var profile = new PlayerProfile
         {
@@ -108,6 +128,7 @@ internal static class TournamentTestData
             TeamId = team.Id,
             GameId = gameId ?? team.GameId,
             Name = name,
+            RankRating = rankRating,
             Type = PlayerProfileType.Guest
         };
 
@@ -167,4 +188,5 @@ internal static class TournamentTestData
         tournament.Registrations.Add(registration);
         return registration;
     }
+
 }

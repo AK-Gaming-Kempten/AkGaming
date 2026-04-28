@@ -13,6 +13,7 @@ public sealed class TournamentDbContext(DbContextOptions<TournamentDbContext> op
     public DbSet<Team> Teams => Set<Team>();
     public DbSet<TeamMembership> TeamMemberships => Set<TeamMembership>();
     public DbSet<Tournament> Tournaments => Set<Tournament>();
+    public DbSet<TournamentRegistrationRule> TournamentRegistrationRules => Set<TournamentRegistrationRule>();
     public DbSet<TournamentRegistration> TournamentRegistrations => Set<TournamentRegistration>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -113,6 +114,23 @@ public sealed class TournamentDbContext(DbContextOptions<TournamentDbContext> op
                 .WithOne(registration => registration.Tournament)
                 .HasForeignKey(registration => registration.TournamentId)
                 .OnDelete(DeleteBehavior.Cascade);
+            entity.HasMany(tournament => tournament.RegistrationRules)
+                .WithOne(rule => rule.Tournament)
+                .HasForeignKey(rule => rule.TournamentId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<TournamentRegistrationRule>(entity =>
+        {
+            entity.ToTable("tournament_registration_rules");
+            entity.HasKey(rule => rule.Id);
+            entity.Property(rule => rule.Value).IsRequired();
+            entity.HasDiscriminator<string>("RuleType")
+                .HasValue<MinPlayersPerTeamRegistrationRule>("MinPlayersPerTeam")
+                .HasValue<MaxPlayersPerTeamRegistrationRule>("MaxPlayersPerTeam")
+                .HasValue<MaxPlayerRankRatingRegistrationRule>("MaxPlayerRankRating")
+                .HasValue<MaxTeamAverageRankRatingRegistrationRule>("MaxTeamAverageRankRating");
+            entity.HasIndex(rule => new { rule.TournamentId, rule.SortOrder });
         });
 
         modelBuilder.Entity<TournamentRegistration>(entity =>

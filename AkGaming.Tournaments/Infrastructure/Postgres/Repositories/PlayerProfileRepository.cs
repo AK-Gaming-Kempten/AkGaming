@@ -62,4 +62,7 @@ public sealed class PlayerProfileRepository(TournamentDbContext dbContext) : IPl
 
     public async Task AddAsync(PlayerProfile playerProfile, CancellationToken cancellationToken = default)
         => await dbContext.PlayerProfiles.AddAsync(playerProfile, cancellationToken);
+
+    public void Delete(PlayerProfile playerProfile)
+        => dbContext.PlayerProfiles.Remove(playerProfile);
 }

@@ -10,4 +10,5 @@ public interface IPlayerProfileRepository
     Task<PlayerProfile?> GetByUserAndGameAsync(string userId, string gameId, CancellationToken cancellationToken = default);
     Task<IReadOnlyList<PlayerProfile>> GetByUsersAndGameAsync(IEnumerable<string> userIds, string gameId, CancellationToken cancellationToken = default);
     Task AddAsync(PlayerProfile playerProfile, CancellationToken cancellationToken = default);
+    void Delete(PlayerProfile playerProfile);
 }

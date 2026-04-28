@@ -1,6 +1,7 @@
 namespace AkGaming.Tournaments.Frontend.Components.Data;
 
 public sealed record TournamentSummary(
+    Guid Id,
     string Slug,
     string Title,
     string Season,
@@ -79,6 +80,14 @@ public sealed record TournamentDetail(
         "VALORANT" => "images/icons/AKG_Logos/Red.png",
         "EA Sports FC" => "images/icons/AKG_Logos/Blue.png",
         _ => "images/icons/AKG_Logos/Default.png"
+    };
+
+    public string GameId => Summary.Game switch
+    {
+        "League of Legends" => "lol",
+        "VALORANT" => "valorant",
+        "EA Sports FC" => "ea-sports-fc",
+        _ => Summary.Game.ToLowerInvariant().Replace(' ', '-')
     };
 
     public IReadOnlyList<TournamentInfoField> InfoFields =>

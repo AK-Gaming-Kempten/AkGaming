@@ -31,6 +31,7 @@ internal static class WebApiControllerTestHelpers
             null,
             PlayerProfileTypeDto.User,
             name,
+            null,
             "user-1",
             null,
             DateTimeOffset.UtcNow);
@@ -47,6 +48,7 @@ internal static class WebApiControllerTestHelpers
             teamId,
             PlayerProfileTypeDto.Guest,
             name,
+            null,
             null,
             null,
             DateTimeOffset.UtcNow);

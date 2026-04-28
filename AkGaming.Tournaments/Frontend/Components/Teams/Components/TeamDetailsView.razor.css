@@ -2,5 +2,101 @@
     display: flex;
     flex-wrap: wrap;
     gap: 0.65rem;
+}
+
+.team-edit-form,
+.team-member-list,
+.guest-profile-form {
+    display: grid;
+    gap: 0.7rem;
+}
+
+.team-edit-form {
     margin-top: 1rem;
+}
+
+.team-edit-form label {
+    display: grid;
+    gap: 0.35rem;
+}
+
+.team-edit-form label > span {
+    color: var(--color-text-secondary);
+    font-size: 0.9rem;
+    font-weight: 700;
+}
+
+.team-edit-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+}
+
+.roster-toolbar {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 1rem;
+}
+
+.team-member-row {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.8rem;
+    border: 1px solid color-mix(in oklab, var(--color-highlight-primary) 24%, transparent);
+    border-radius: 8px;
+    background: color-mix(in oklab, var(--color-background-secondary) 76%, transparent);
+}
+
+.team-member-row span:last-child {
+    display: grid;
+    min-width: 0;
+}
+
+.team-member-row strong,
+.team-member-row span span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.team-member-row span span {
+    color: var(--color-text-secondary);
+    font-size: 0.88rem;
+}
+
+.team-member-avatar {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.4rem;
+    height: 2.4rem;
+    border-radius: 999px;
+    background: color-mix(in oklab, var(--color-highlight-primary) 28%, transparent);
+    color: var(--color-text-special);
+    font-weight: 800;
+}
+
+.guest-profile-form {
+    margin-bottom: 1rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid color-mix(in oklab, var(--color-text-secondary) 18%, transparent);
+}
+
+.guest-profile-form label {
+    display: grid;
+    gap: 0.35rem;
+}
+
+.guest-profile-form label > span {
+    color: var(--color-text-secondary);
+    font-size: 0.9rem;
+    font-weight: 700;
+}
+
+.guest-profile-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
 }

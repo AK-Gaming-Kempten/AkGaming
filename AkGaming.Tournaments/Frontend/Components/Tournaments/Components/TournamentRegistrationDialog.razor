@@ -1,0 +1,67 @@
+@namespace AkGaming.Tournaments.Frontend.Components.Shared
+
+@if (IsOpen)
+{
+    <div class="registration-dialog-backdrop" role="presentation">
+        <section class="registration-dialog" role="dialog" aria-modal="true" aria-labelledby="registration-dialog-title">
+            <header class="registration-dialog-header">
+                <div>
+                    <span class="eyebrow">@Tournament.Summary.Title</span>
+                    <h2 id="registration-dialog-title">Register team</h2>
+                </div>
+                <button type="button" class="icon-button" aria-label="Close registration dialog" @onclick="CloseAsync">
+                    <span class="bi bi-x-lg"></span>
+                </button>
+            </header>
+
+            <div class="registration-dialog-body">
+                <ApiErrorPanel Message="@errorMessage" />
+
+                @if (successMessage is not null)
+                {
+                    <div class="registration-success" role="status">
+                        <span class="bi bi-check-circle-fill"></span>
+                        <span>@successMessage</span>
+                    </div>
+                }
+
+                @if (isLoading)
+                {
+                    <p class="muted-copy">Loading teams and registration rules.</p>
+                }
+                else if (string.IsNullOrWhiteSpace(currentUserId))
+                {
+                    <p class="muted-copy">Login to register one of your teams.</p>
+                }
+                else if (teams.Count == 0)
+                {
+                    <p class="muted-copy">You do not have an editable team for this tournament game.</p>
+                }
+                else
+                {
+                    <TournamentRegistrationTeamPicker Teams="@teams"
+                                                      SelectedTeam="@selectedTeam"
+                                                      Disabled="@isBusy"
+                                                      TeamSelected="SelectTeamAsync" />
+
+                    @if (eligibility is not null)
+                    {
+                        <TournamentRegistrationEligibilityView Eligibility="@eligibility"
+                                                               IsBusy="@isBusy"
+                                                               PlayerSelectionChanged="SetPlayerSelectionAsync" />
+                    }
+                }
+            </div>
+
+            <footer class="registration-dialog-footer">
+                <button type="button" class="ghost-button" @onclick="CloseAsync" disabled="@isBusy">Cancel</button>
+                <button type="button"
+                        class="solid-button"
+                        @onclick="SubmitAsync"
+                        disabled="@(!CanSubmit)">
+                    Submit registration
+                </button>
+            </footer>
+        </section>
+    </div>
+}

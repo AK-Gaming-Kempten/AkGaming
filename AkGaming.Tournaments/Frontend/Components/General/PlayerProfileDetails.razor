@@ -1,0 +1,50 @@
+@page "/player-profiles/new"
+@page "/player-profiles/{GameId}"
+@namespace AkGaming.Tournaments.Frontend.Components.Pages
+@attribute [Authorize]
+
+<PageTitle>Player Profile</PageTitle>
+
+<section class="app-page">
+    <PageHeader Title="Player profile" />
+
+    <ApiErrorPanel Message="@errorMessage" />
+
+    @if (isLoading)
+    {
+        <SurfacePanel Title="Loading">
+            <p class="muted-copy">Loading your player profiles.</p>
+        </SurfacePanel>
+    }
+    else
+    {
+        <div class="player-profile-layout">
+            <MyPlayerProfileSelector Games="@games"
+                                     Profiles="@playerProfiles"
+                                     SelectedProfile="@selectedProfile"
+                                     IsBusy="@isBusy"
+                                     @bind-IsOpen="isProfileSelectorOpen"
+                                     ProfileSelected="SelectProfileAsync"
+                                     CreateRequested="StartCreateAsync" />
+
+            <div class="player-profile-editor @(isProfileSelectorOpen ? "player-profile-editor-blurred" : null)">
+                <PlayerProfileDetailsView Games="@GetFormGames()"
+                                          Profile="@selectedProfile"
+                                          IsCreating="@IsCreateMode"
+                                          IsEditMode="@isEditMode"
+                                          GameId="@profileGameId"
+                                          GameIdChanged="SetProfileGameAsync"
+                                          ProfileName="@profileName"
+                                          ProfileNameChanged="SetProfileNameAsync"
+                                          RankRating="@profileRankRating"
+                                          RankRatingChanged="SetProfileRankAsync"
+                                          IsBusy="@isBusy"
+                                          OnSubmit="SaveProfileAsync"
+                                          OnCancel="CancelAsync"
+                                          OnEditRequested="StartEditAsync"
+                                          OnLogoUploaded="SetProfileLogoAsync"
+                                          OnLogoCleared="ClearProfileLogoAsync" />
+            </div>
+        </div>
+    }
+</section>

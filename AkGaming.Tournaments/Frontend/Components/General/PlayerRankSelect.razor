@@ -1,0 +1,22 @@
+@namespace AkGaming.Tournaments.Frontend.Components.Shared
+
+<div class="rank-slider">
+    <div class="rank-slider-header">
+        <strong>@PlayerRankFormatter.Format(GameId, EffectiveValue)</strong>
+        <span>@EffectiveValue MMR</span>
+    </div>
+    <input class="rank-range"
+           type="range"
+           min="@MinimumRating"
+           max="@SliderMaximumRating"
+           step="1"
+           value="@SliderValue"
+           @oninput="HandleSliderChanged"
+           disabled="@Disabled" />
+    <input class="form-input"
+           type="number"
+           min="@MinimumRating"
+           value="@EffectiveValue"
+           @oninput="HandleNumberChanged"
+           disabled="@Disabled" />
+</div>

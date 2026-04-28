@@ -1,0 +1,64 @@
+.registration-eligibility,
+.registration-rule-grid,
+.registration-player-list {
+    display: grid;
+    gap: 0.7rem;
+}
+
+.registration-rule {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 0.65rem;
+    padding: 0.75rem;
+    border: 1px solid color-mix(in oklab, var(--color-text-secondary) 18%, transparent);
+    border-radius: 8px;
+    background: color-mix(in oklab, var(--color-background-primary) 74%, transparent);
+}
+
+.registration-rule-positive .bi {
+    color: var(--color-highlight-primary);
+}
+
+.registration-rule-warn .bi {
+    color: var(--color-yellow, #f3c969);
+}
+
+.registration-rule strong,
+.registration-rule p {
+    margin: 0;
+}
+
+.registration-rule p {
+    margin-top: 0.18rem;
+    color: var(--color-text-secondary);
+    line-height: 1.4;
+}
+
+.registration-player-row {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 0.7rem;
+    align-items: start;
+    padding: 0.75rem;
+    border: 1px solid color-mix(in oklab, var(--color-text-secondary) 18%, transparent);
+    border-radius: 8px;
+    background: color-mix(in oklab, var(--color-background-secondary) 62%, transparent);
+}
+
+.registration-player-row.is-blocked {
+    border-color: color-mix(in oklab, var(--color-red-light) 42%, transparent);
+}
+
+.registration-player-copy {
+    display: grid;
+    gap: 0.18rem;
+}
+
+.registration-player-copy span {
+    color: var(--color-text-secondary);
+    font-size: 0.88rem;
+}
+
+.registration-player-warning {
+    color: var(--color-red-light) !important;
+}

@@ -78,6 +78,18 @@ public sealed class TeamsController(ITeamManagementService service) : Controller
         return Ok(team);
     }
 
+    [HttpPut("{teamId:guid}", Name = "UpdateTeam")]
+    [EndpointSummary("Update editable team details.")]
+    [ProducesResponseType<TeamDto>(StatusCodes.Status200OK)]
+    public async Task<ActionResult<TeamDto>> UpdateTeam(
+        Guid teamId,
+        UpdateTeamRequest request,
+        CancellationToken cancellationToken)
+    {
+        var team = await service.UpdateTeamAsync(teamId, request.ActingUserId, request.Name, cancellationToken);
+        return Ok(team);
+    }
+
     [HttpGet("{teamId:guid}/available-player-profiles/{gameId}", Name = "GetAvailableTeamProfiles")]
     [EndpointSummary("List all player profiles the team can use for a game.")]
     [ProducesResponseType<IReadOnlyList<PlayerProfileDto>>(StatusCodes.Status200OK)]
@@ -98,7 +110,7 @@ public sealed class TeamsController(ITeamManagementService service) : Controller
         CreateGuestPlayerProfileRequest request,
         CancellationToken cancellationToken)
     {
-        var profile = await service.CreateGuestPlayerProfileAsync(teamId, request.ActingUserId, request.Name, cancellationToken);
+        var profile = await service.CreateGuestPlayerProfileAsync(teamId, request.ActingUserId, request.Name, request.RankRating, cancellationToken);
         return Ok(profile);
     }
 
@@ -111,14 +123,28 @@ public sealed class TeamsController(ITeamManagementService service) : Controller
         UpdateGuestPlayerProfileRequest request,
         CancellationToken cancellationToken)
     {
-        var profile = await service.UpdateGuestPlayerProfileAsync(teamId, playerProfileId, request.ActingUserId, request.Name, cancellationToken);
+        var profile = await service.UpdateGuestPlayerProfileAsync(teamId, playerProfileId, request.ActingUserId, request.Name, request.RankRating, cancellationToken);
         return Ok(profile);
+    }
+
+    [HttpDelete("{teamId:guid}/guest-player-profiles/{playerProfileId:guid}", Name = "DeleteGuestPlayerProfile")]
+    [EndpointSummary("Delete a guest player profile.")]
+    [ProducesResponseType<TeamDto>(StatusCodes.Status200OK)]
+    public async Task<ActionResult<TeamDto>> DeleteGuestPlayerProfile(
+        Guid teamId,
+        Guid playerProfileId,
+        [FromQuery] string actingUserId,
+        CancellationToken cancellationToken)
+    {
+        var team = await service.DeleteGuestPlayerProfileAsync(teamId, playerProfileId, actingUserId, cancellationToken);
+        return Ok(team);
     }
 }
 
 public sealed record CreateTeamRequest(string ActingUserId, string GameId, string Name);
 public sealed record AddTeamMemberRequest(string ActingUserId, string UserId, TeamRoleDto Role);
 public sealed record UpdateTeamMemberRoleRequest(string ActingUserId, TeamRoleDto Role);
+public sealed record UpdateTeamRequest(string ActingUserId, string Name);
 public sealed record UpdateTeamLogoRequest(string ActingUserId, Guid? LogoAssetId);
-public sealed record CreateGuestPlayerProfileRequest(string ActingUserId, string Name);
-public sealed record UpdateGuestPlayerProfileRequest(string ActingUserId, string Name);
+public sealed record CreateGuestPlayerProfileRequest(string ActingUserId, string Name, int? RankRating = null);
+public sealed record UpdateGuestPlayerProfileRequest(string ActingUserId, string Name, int? RankRating = null);

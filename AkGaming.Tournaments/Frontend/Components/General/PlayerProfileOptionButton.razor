@@ -1,0 +1,15 @@
+@namespace AkGaming.Tournaments.Frontend.Components.Shared
+
+<button type="button"
+        class="player-profile-option @(Selected ? "player-profile-option-selected" : null)"
+        @onclick="SelectAsync"
+        disabled="@Disabled">
+    <LogoImage LogoAssetId="@Profile.LogoAssetId" Type="player" Alt="@($"{Profile.Name} logo")" Size="LogoImageSize.Medium" />
+    <span class="player-profile-option-main">
+        <strong>@Profile.Name</strong>
+        <span>@GameName · @PlayerRankFormatter.Format(Profile.GameId, Profile.RankRating)</span>
+    </span>
+    <span class="player-profile-option-badge">
+        <LogoImage LogoAssetId="@GameLogoAssetId" Type="game" Alt="@($"{GameName} logo")" Size="LogoImageSize.Small" />
+    </span>
+</button>

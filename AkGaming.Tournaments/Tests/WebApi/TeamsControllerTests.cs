@@ -66,9 +66,9 @@ public sealed class TeamsControllerTests
         // Arrange
         var teamId = Guid.NewGuid();
         var profile = WebApiControllerTestHelpers.GuestProfile(teamId);
-        var request = new CreateGuestPlayerProfileRequest("captain-1", "Guest Mid");
+        var request = new CreateGuestPlayerProfileRequest("captain-1", "Guest Mid", 1200);
         Service
-            .Setup(mock => mock.CreateGuestPlayerProfileAsync(teamId, "captain-1", "Guest Mid", CancellationToken.None))
+            .Setup(mock => mock.CreateGuestPlayerProfileAsync(teamId, "captain-1", "Guest Mid", 1200, CancellationToken.None))
             .ReturnsAsync(profile);
 
         // Act
@@ -77,7 +77,7 @@ public sealed class TeamsControllerTests
         // Assert
         WebApiControllerTestHelpers.AssertOkValue(response, profile);
         Service.Verify(
-            mock => mock.CreateGuestPlayerProfileAsync(teamId, "captain-1", "Guest Mid", CancellationToken.None),
+            mock => mock.CreateGuestPlayerProfileAsync(teamId, "captain-1", "Guest Mid", 1200, CancellationToken.None),
             Times.Once);
     }
 
@@ -163,9 +163,9 @@ public sealed class TeamsControllerTests
         var teamId = Guid.NewGuid();
         var profileId = Guid.NewGuid();
         var profile = WebApiControllerTestHelpers.GuestProfile(teamId, profileId, "Guest ADC");
-        var request = new UpdateGuestPlayerProfileRequest("captain-1", "Guest ADC");
+        var request = new UpdateGuestPlayerProfileRequest("captain-1", "Guest ADC", 1300);
         Service
-            .Setup(mock => mock.UpdateGuestPlayerProfileAsync(teamId, profileId, "captain-1", "Guest ADC", CancellationToken.None))
+            .Setup(mock => mock.UpdateGuestPlayerProfileAsync(teamId, profileId, "captain-1", "Guest ADC", 1300, CancellationToken.None))
             .ReturnsAsync(profile);
 
         // Act
@@ -174,7 +174,51 @@ public sealed class TeamsControllerTests
         // Assert
         WebApiControllerTestHelpers.AssertOkValue(response, profile);
         Service.Verify(
-            mock => mock.UpdateGuestPlayerProfileAsync(teamId, profileId, "captain-1", "Guest ADC", CancellationToken.None),
+            mock => mock.UpdateGuestPlayerProfileAsync(teamId, profileId, "captain-1", "Guest ADC", 1300, CancellationToken.None),
+            Times.Once);
+    }
+
+    [Test]
+    [Description("Verifies that the teams controller passes update-team values to the application service.")]
+    public async Task UpdateTeam_ReturnsOkWithTeam()
+    {
+        // Arrange
+        var teamId = Guid.NewGuid();
+        var team = WebApiControllerTestHelpers.Team(teamId);
+        var request = new UpdateTeamRequest("captain-1", "AKG Crimson");
+        Service
+            .Setup(mock => mock.UpdateTeamAsync(teamId, "captain-1", "AKG Crimson", CancellationToken.None))
+            .ReturnsAsync(team);
+
+        // Act
+        var response = await Controller.UpdateTeam(teamId, request, CancellationToken.None);
+
+        // Assert
+        WebApiControllerTestHelpers.AssertOkValue(response, team);
+        Service.Verify(
+            mock => mock.UpdateTeamAsync(teamId, "captain-1", "AKG Crimson", CancellationToken.None),
+            Times.Once);
+    }
+
+    [Test]
+    [Description("Verifies that the teams controller passes delete-guest-profile values to the application service.")]
+    public async Task DeleteGuestPlayerProfile_ReturnsOkWithTeam()
+    {
+        // Arrange
+        var teamId = Guid.NewGuid();
+        var profileId = Guid.NewGuid();
+        var team = WebApiControllerTestHelpers.Team(teamId);
+        Service
+            .Setup(mock => mock.DeleteGuestPlayerProfileAsync(teamId, profileId, "captain-1", CancellationToken.None))
+            .ReturnsAsync(team);
+
+        // Act
+        var response = await Controller.DeleteGuestPlayerProfile(teamId, profileId, "captain-1", CancellationToken.None);
+
+        // Assert
+        WebApiControllerTestHelpers.AssertOkValue(response, team);
+        Service.Verify(
+            mock => mock.DeleteGuestPlayerProfileAsync(teamId, profileId, "captain-1", CancellationToken.None),
             Times.Once);
     }
 

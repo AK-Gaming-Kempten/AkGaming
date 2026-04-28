@@ -1,0 +1,16 @@
+.player-profile-layout {
+    display: grid;
+    gap: 1rem;
+    position: relative;
+}
+
+.player-profile-editor {
+    transition: filter 140ms ease, opacity 140ms ease;
+}
+
+.player-profile-editor-blurred {
+    filter: blur(4px);
+    opacity: 0.58;
+    pointer-events: none;
+    user-select: none;
+}

@@ -1,0 +1,31 @@
+@namespace AkGaming.Tournaments.Frontend.Components.Shared
+
+<div class="player-profile-selector">
+    <button type="button" class="player-profile-selector-trigger" @onclick="ToggleAsync" disabled="@IsBusy">
+        <LogoImage Type="player" Size="LogoImageSize.Medium" />
+        <span class="player-profile-selector-main">
+            <span class="player-profile-selector-label">Player Profiles</span>
+            <strong>@GetSelectedTitle()</strong>
+            <span>@GetSelectedSummary()</span>
+        </span>
+        <span class="player-profile-selector-chevron bi @(IsOpen ? "bi-chevron-up" : "bi-chevron-down")"></span>
+    </button>
+
+    @if (IsOpen)
+    {
+        <button type="button" class="player-profile-selector-dismiss-layer" aria-label="Close player profile selector" @onclick="CloseAsync"></button>
+        <div class="player-profile-selector-menu">
+            <div class="player-profile-selector-actions">
+                <button type="button" class="solid-button" @onclick="CreateAsync" disabled="@IsBusy">Create profile</button>
+            </div>
+
+            <div class="player-profile-selector-list">
+                <PlayerProfileOptionList Profiles="@Profiles"
+                                         Games="@Games"
+                                         SelectedGameId="@SelectedProfile?.GameId"
+                                         Disabled="@IsBusy"
+                                         OnSelected="SelectAsync" />
+            </div>
+        </div>
+    }
+</div>

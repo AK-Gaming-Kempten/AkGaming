@@ -1,0 +1,100 @@
+.team-roster-list {
+    position: relative;
+    display: grid;
+    gap: 0.6rem;
+}
+
+.row-menu-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 10;
+    border: 0;
+    background: transparent;
+}
+
+.team-roster-row {
+    position: relative;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto auto;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.78rem;
+    border: 1px solid color-mix(in oklab, var(--color-text-secondary) 20%, transparent);
+    border-radius: 8px;
+    background: color-mix(in oklab, var(--color-background-secondary) 72%, transparent);
+}
+
+.team-roster-row.is-guest {
+    border-style: dashed;
+}
+
+.team-roster-main {
+    display: grid;
+    min-width: 0;
+}
+
+.team-roster-main strong,
+.team-roster-main span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.team-roster-main span {
+    color: var(--color-text-secondary);
+    font-size: 0.88rem;
+}
+
+.row-menu {
+    position: relative;
+    z-index: 11;
+}
+
+.row-menu-trigger {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    border: 1px solid color-mix(in oklab, var(--color-text-secondary) 22%, transparent);
+    border-radius: 999px;
+    background: transparent;
+    color: var(--color-text-primary);
+    cursor: pointer;
+}
+
+.row-menu-popover {
+    position: absolute;
+    z-index: 20;
+    top: calc(100% + 0.3rem);
+    right: 0;
+    display: grid;
+    min-width: 8rem;
+    padding: 0.35rem;
+    border: 1px solid color-mix(in oklab, var(--color-text-secondary) 24%, transparent);
+    border-radius: 8px;
+    background: var(--color-background-primary);
+    box-shadow: 0 14px 28px color-mix(in oklab, black 24%, transparent);
+}
+
+.row-menu-popover button,
+.row-menu-popover span {
+    padding: 0.55rem 0.65rem;
+    border: 0;
+    border-radius: 6px;
+    background: transparent;
+    color: var(--color-text-primary);
+    text-align: left;
+}
+
+.row-menu-popover button {
+    cursor: pointer;
+}
+
+.row-menu-popover button:hover {
+    background: color-mix(in oklab, var(--color-highlight-secondary) 40%, transparent);
+}
+
+.danger-action {
+    color: var(--color-red-light) !important;
+}

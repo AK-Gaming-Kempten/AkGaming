@@ -16,6 +16,7 @@ internal static class MappingExtensions
             playerProfile.TeamId,
             playerProfile.Type.ToDto(),
             playerProfile.Name,
+            playerProfile.RankRating,
             playerProfile.UserId,
             playerProfile.LogoAssetId,
             playerProfile.LastRevisionUtc);

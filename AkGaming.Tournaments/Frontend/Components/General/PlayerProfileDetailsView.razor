@@ -1,0 +1,57 @@
+@namespace AkGaming.Tournaments.Frontend.Components.Shared
+
+@if (IsCreating)
+{
+    <SurfacePanel Title="Create profile" Subtitle="Profiles are game-specific and can only be used for that game.">
+        <PlayerProfileForm Games="@Games"
+                           GameId="@GameId"
+                           GameIdChanged="GameIdChanged"
+                           GameSelectionEnabled="true"
+                           ProfileName="@ProfileName"
+                           ProfileNameChanged="ProfileNameChanged"
+                           RankRating="@RankRating"
+                           RankRatingChanged="RankRatingChanged"
+                           IsBusy="@IsBusy"
+                           OnSubmit="OnSubmit"
+                           OnCancel="OnCancel" />
+    </SurfacePanel>
+}
+else if (Profile is null)
+{
+    <SurfacePanel Title="Profile not found">
+        <p class="muted-copy">No player profile exists for this game.</p>
+    </SurfacePanel>
+}
+else if (IsEditMode)
+{
+    <SurfacePanel Title="Edit profile" Subtitle="The game is fixed once the profile exists.">
+        <PlayerProfileForm Games="@Games"
+                           GameId="@GameId"
+                           GameIdChanged="GameIdChanged"
+                           GameSelectionEnabled="false"
+                           ProfileName="@ProfileName"
+                           ProfileNameChanged="ProfileNameChanged"
+                           RankRating="@RankRating"
+                           RankRatingChanged="RankRatingChanged"
+                           EditingProfile="@Profile"
+                           IsBusy="@IsBusy"
+                           OnSubmit="OnSubmit"
+                           OnLogoUploaded="OnLogoUploaded"
+                           OnLogoCleared="OnLogoCleared"
+                           OnCancel="OnCancel" />
+    </SurfacePanel>
+}
+else
+{
+    <SurfacePanel Title="Profile">
+        <div class="player-profile-summary">
+            <LogoImage LogoAssetId="@Profile.LogoAssetId" Type="player" Alt="@($"{Profile.Name} logo")" Size="LogoImageSize.Large" />
+            <div class="player-profile-summary-main">
+                <h3>@Profile.Name</h3>
+                <p>@GetGameName()</p>
+                <span>@PlayerRankFormatter.Format(Profile.GameId, Profile.RankRating)</span>
+            </div>
+            <button type="button" class="solid-button" @onclick="OnEditRequested" disabled="@IsBusy">Edit profile</button>
+        </div>
+    </SurfacePanel>
+}

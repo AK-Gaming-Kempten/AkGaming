@@ -11,5 +11,6 @@ public sealed class Tournament
     public TournamentStatus Status { get; set; } = TournamentStatus.Draft;
     public Game? Game { get; set; }
     public MediaAsset? LogoAsset { get; set; }
+    public ICollection<TournamentRegistrationRule> RegistrationRules { get; set; } = [];
     public ICollection<TournamentRegistration> Registrations { get; set; } = [];
 }

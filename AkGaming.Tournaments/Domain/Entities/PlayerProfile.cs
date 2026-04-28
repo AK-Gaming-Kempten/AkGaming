@@ -10,6 +10,7 @@ public sealed class PlayerProfile
     public Guid? LogoAssetId { get; set; }
     public PlayerProfileType Type { get; set; } = PlayerProfileType.Guest;
     public string Name { get; set; } = string.Empty;
+    public int? RankRating { get; set; }
     public string? UserId { get; set; }
     public DateTimeOffset LastRevisionUtc { get; set; } = DateTimeOffset.UtcNow;
     public Team? Team { get; set; }

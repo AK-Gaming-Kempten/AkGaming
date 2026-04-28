@@ -1,4 +1,5 @@
 using AkGaming.Tournaments.Application.Exceptions;
+using AkGaming.Tournaments.Application.RegistrationRules;
 using AkGaming.Tournaments.Application.Services;
 using AkGaming.Tournaments.Contracts.DTOs;
 using AkGaming.Tournaments.Domain.Entities;
@@ -308,5 +309,6 @@ public sealed class TournamentRegistrationReviewTests
             new InMemoryTeamRepository(Store),
             new InMemoryTournamentRegistrationRepository(Store),
             new InMemoryTournamentRepository(Store),
+            new GameRankSystemRegistry(),
             new FakeUnitOfWork());
 }

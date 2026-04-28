@@ -108,7 +108,7 @@ public sealed class TeamManagementServiceTests
         ]);
 
         // Act
-        var profile = Service.CreateGuestPlayerProfileAsync(team.Id, TournamentTestData.EditorId, " Guest Mid ").GetAwaiter().GetResult();
+        var profile = Service.CreateGuestPlayerProfileAsync(team.Id, TournamentTestData.EditorId, " Guest Mid ", 1400).GetAwaiter().GetResult();
 
         // Assert
         Assert.Multiple(() =>
@@ -116,6 +116,7 @@ public sealed class TeamManagementServiceTests
             Assert.That(profile.GameId, Is.EqualTo(TournamentTestData.GameId));
             Assert.That(profile.TeamId, Is.EqualTo(team.Id));
             Assert.That(profile.Name, Is.EqualTo("Guest Mid"));
+            Assert.That(profile.RankRating, Is.EqualTo(1400));
             Assert.That(Store.PlayerProfiles.Single().Id, Is.EqualTo(profile.Id));
         });
     }
@@ -306,6 +307,25 @@ public sealed class TeamManagementServiceTests
     }
 
     [Test]
+    [Description("Verifies that owners and editors can rename a team and that input is trimmed before saving.")]
+    public void UpdateTeamAsync_UpdatesTeamNameForEditors()
+    {
+        // Arrange
+        var team = TournamentTestData.AddTeam(Store, memberships: [(TournamentTestData.EditorId, TeamRole.Editor)]);
+
+        // Act
+        var updated = Service.UpdateTeamAsync(team.Id, TournamentTestData.EditorId, " AKG Crimson ").GetAwaiter().GetResult();
+
+        // Assert
+        Assert.Multiple(() =>
+        {
+            Assert.That(updated.Name, Is.EqualTo("AKG Crimson"));
+            Assert.That(Store.Teams.Single().Name, Is.EqualTo("AKG Crimson"));
+            Assert.That(UnitOfWork.SaveChangesCallCount, Is.EqualTo(1));
+        });
+    }
+
+    [Test]
     [Description("Verifies that updating a guest profile changes the live profile and revision timestamp.")]
     public void UpdateGuestPlayerProfileAsync_UpdatesNameAndRevision()
     {
@@ -315,13 +335,34 @@ public sealed class TeamManagementServiceTests
         var previousRevision = profile.LastRevisionUtc;
 
         // Act
-        var updated = Service.UpdateGuestPlayerProfileAsync(team.Id, profile.Id, TournamentTestData.OwnerId, "Guest ADC").GetAwaiter().GetResult();
+        var updated = Service.UpdateGuestPlayerProfileAsync(team.Id, profile.Id, TournamentTestData.OwnerId, "Guest ADC", 1500).GetAwaiter().GetResult();
 
         // Assert
         Assert.Multiple(() =>
         {
             Assert.That(updated.Name, Is.EqualTo("Guest ADC"));
+            Assert.That(updated.RankRating, Is.EqualTo(1500));
             Assert.That(profile.LastRevisionUtc, Is.GreaterThan(previousRevision));
+        });
+    }
+
+    [Test]
+    [Description("Verifies that owners and editors can delete guest profiles from the team roster.")]
+    public void DeleteGuestPlayerProfileAsync_RemovesGuestProfile()
+    {
+        // Arrange
+        var team = TournamentTestData.AddTeam(Store, memberships: [(TournamentTestData.EditorId, TeamRole.Editor)]);
+        var profile = TournamentTestData.AddGuestProfile(Store, team, "Guest Mid");
+
+        // Act
+        var updated = Service.DeleteGuestPlayerProfileAsync(team.Id, profile.Id, TournamentTestData.EditorId).GetAwaiter().GetResult();
+
+        // Assert
+        Assert.Multiple(() =>
+        {
+            Assert.That(updated.GuestPlayerProfiles, Is.Empty);
+            Assert.That(Store.PlayerProfiles, Does.Not.Contain(profile));
+            Assert.That(UnitOfWork.SaveChangesCallCount, Is.EqualTo(1));
         });
     }
 

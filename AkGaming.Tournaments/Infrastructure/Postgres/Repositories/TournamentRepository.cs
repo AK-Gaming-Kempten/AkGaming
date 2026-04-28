@@ -9,5 +9,6 @@ public sealed class TournamentRepository(TournamentDbContext dbContext) : ITourn
 {
     public Task<Tournament?> GetByIdAsync(Guid tournamentId, CancellationToken cancellationToken = default)
         => dbContext.Tournaments
+            .Include(tournament => tournament.RegistrationRules)
             .FirstOrDefaultAsync(tournament => tournament.Id == tournamentId, cancellationToken);
 }

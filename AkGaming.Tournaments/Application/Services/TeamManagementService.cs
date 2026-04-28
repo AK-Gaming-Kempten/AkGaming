@@ -108,6 +108,19 @@ public sealed class TeamManagementService(
         return team.ToDto();
     }
 
+    public async Task<TeamDto> UpdateTeamAsync(Guid teamId, string actingUserId, string name, CancellationToken cancellationToken = default)
+    {
+        ValidateUserId(actingUserId);
+        ValidateName(name, "Team");
+
+        var team = await RequireTeamAsync(teamId, cancellationToken);
+        EnsureCanEditTeam(team, actingUserId);
+        team.Name = name.Trim();
+
+        await unitOfWork.SaveChangesAsync(cancellationToken);
+        return team.ToDto();
+    }
+
     public async Task<TeamDto> UpdateTeamLogoAsync(Guid teamId, string actingUserId, Guid? logoAssetId, CancellationToken cancellationToken = default)
     {
         ValidateUserId(actingUserId);
@@ -121,7 +134,7 @@ public sealed class TeamManagementService(
         return team.ToDto();
     }
 
-    public async Task<PlayerProfileDto> CreateGuestPlayerProfileAsync(Guid teamId, string actingUserId, string name, CancellationToken cancellationToken = default)
+    public async Task<PlayerProfileDto> CreateGuestPlayerProfileAsync(Guid teamId, string actingUserId, string name, int? rankRating = null, CancellationToken cancellationToken = default)
     {
         ValidateUserId(actingUserId);
         ValidateName(name, "Player profile");
@@ -135,6 +148,7 @@ public sealed class TeamManagementService(
             TeamId = team.Id,
             GameId = team.GameId,
             Name = name.Trim(),
+            RankRating = NormalizeRankRating(rankRating),
             Type = PlayerProfileType.Guest
         };
 
@@ -145,7 +159,7 @@ public sealed class TeamManagementService(
         return profile.ToDto();
     }
 
-    public async Task<PlayerProfileDto> UpdateGuestPlayerProfileAsync(Guid teamId, Guid playerProfileId, string actingUserId, string name, CancellationToken cancellationToken = default)
+    public async Task<PlayerProfileDto> UpdateGuestPlayerProfileAsync(Guid teamId, Guid playerProfileId, string actingUserId, string name, int? rankRating = null, CancellationToken cancellationToken = default)
     {
         ValidateUserId(actingUserId);
         ValidateName(name, "Player profile");
@@ -160,10 +174,31 @@ public sealed class TeamManagementService(
         }
 
         profile.Name = name.Trim();
+        profile.RankRating = NormalizeRankRating(rankRating);
         profile.LastRevisionUtc = DateTimeOffset.UtcNow;
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
         return profile.ToDto();
+    }
+
+    public async Task<TeamDto> DeleteGuestPlayerProfileAsync(Guid teamId, Guid playerProfileId, string actingUserId, CancellationToken cancellationToken = default)
+    {
+        ValidateUserId(actingUserId);
+
+        var team = await RequireTeamAsync(teamId, cancellationToken);
+        EnsureCanEditTeam(team, actingUserId);
+
+        var profile = team.GuestPlayerProfiles.FirstOrDefault(candidate => candidate.Id == playerProfileId);
+        if (profile is null)
+        {
+            throw new NotFoundException($"Guest player profile '{playerProfileId}' was not found for team '{teamId}'.");
+        }
+
+        playerProfileRepository.Delete(profile);
+        team.GuestPlayerProfiles.Remove(profile);
+        await unitOfWork.SaveChangesAsync(cancellationToken);
+
+        return team.ToDto();
     }
 
     public async Task<IReadOnlyList<PlayerProfileDto>> GetAvailableProfilesAsync(Guid teamId, string gameId, CancellationToken cancellationToken = default)
@@ -262,4 +297,7 @@ public sealed class TeamManagementService(
             throw new ValidationException($"{subject} name is required.");
         }
     }
+
+    private static int? NormalizeRankRating(int? rankRating)
+        => rankRating.HasValue ? Math.Max(0, rankRating.Value) : null;
 }

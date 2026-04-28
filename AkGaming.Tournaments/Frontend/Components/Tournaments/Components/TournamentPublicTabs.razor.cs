@@ -6,6 +6,7 @@ public partial class TournamentPublicTabs : ComponentBase
 {
     [Parameter] public string TournamentSlug { get; set; } = string.Empty;
     [Parameter] public string ActiveSection { get; set; } = "overview";
+    [Parameter] public EventCallback OnRegisterRequested { get; set; }
 
     private string BuildHref(string? childPath)
     {

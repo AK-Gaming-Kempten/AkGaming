@@ -1,4 +1,5 @@
 using AkGaming.Tournaments.Application.Persistence;
+using AkGaming.Tournaments.Application.RegistrationRules;
 using AkGaming.Tournaments.Application.UseCases;
 using AkGaming.Tournaments.Application.Exceptions;
 using AkGaming.Tournaments.Contracts.DTOs;
@@ -12,6 +13,7 @@ public sealed class TournamentRegistrationService(
     ITeamRepository teamRepository,
     ITournamentRegistrationRepository tournamentRegistrationRepository,
     ITournamentRepository tournamentRepository,
+    IGameRankSystemRegistry rankSystemRegistry,
     IUnitOfWork unitOfWork) : ITournamentRegistrationService
 {
     public async Task<IReadOnlyList<TournamentRegistrationDto>> GetTeamRegistrationsAsync(Guid teamId, CancellationToken cancellationToken = default)
@@ -28,6 +30,29 @@ public sealed class TournamentRegistrationService(
         return registration is null
             ? null
             : await MapRegistrationAsync(registration, cancellationToken);
+    }
+
+    public async Task<TournamentRegistrationEligibilityDto> GetRegistrationEligibilityAsync(
+        Guid teamId,
+        Guid tournamentId,
+        string actingUserId,
+        IReadOnlyCollection<Guid> playerProfileIds,
+        CancellationToken cancellationToken = default)
+    {
+        var team = await RequireTeamAsync(teamId, cancellationToken);
+        var tournament = await RequireTournamentAsync(tournamentId, cancellationToken);
+        var availableProfiles = await LoadAvailableProfilesAsync(team, tournament.GameId, cancellationToken);
+        var selectedIds = NormalizeSelectedProfileIds(playerProfileIds, availableProfiles);
+        var existingRegistration = await tournamentRegistrationRepository.GetByTeamAndTournamentAsync(teamId, tournamentId, cancellationToken);
+        var canEditTeam = CanEditTeam(team, actingUserId);
+
+        return EvaluateRegistrationEligibility(
+            team,
+            tournament,
+            availableProfiles,
+            selectedIds,
+            canEditTeam,
+            existingRegistration);
     }
 
     public async Task<TournamentRegistrationDto> SubmitRegistrationAsync(
@@ -48,6 +73,7 @@ public sealed class TournamentRegistrationService(
         }
 
         var selectedProfiles = await ResolveEligibleProfilesAsync(team, tournament.GameId, playerProfileIds, cancellationToken);
+        EnsureRosterQualifies(team, tournament, selectedProfiles);
         var roster = CreateRoster(1, selectedProfiles);
         var registration = new TournamentRegistration
         {
@@ -116,6 +142,7 @@ public sealed class TournamentRegistrationService(
         var tournament = await RequireTournamentAsync(registration.TournamentId, cancellationToken);
         EnsureTeamCanRegisterForTournament(team, tournament);
         var selectedProfiles = await ResolveEligibleProfilesAsync(team, tournament.GameId, playerProfileIds, cancellationToken);
+        EnsureRosterQualifies(team, tournament, selectedProfiles);
 
         var nextVersion = registration.Rosters.Count == 0 ? 1 : registration.Rosters.Max(roster => roster.Version) + 1;
         var roster = CreateRoster(nextVersion, selectedProfiles);
@@ -179,13 +206,17 @@ public sealed class TournamentRegistrationService(
             throw new ValidationException("User id is required.");
         }
 
-        if (!team.Memberships.Any(member =>
-                string.Equals(member.UserId, actingUserId.Trim(), StringComparison.OrdinalIgnoreCase)
-                && (member.Role == TeamRole.Owner || member.Role == TeamRole.Editor)))
+        if (!CanEditTeam(team, actingUserId))
         {
             throw new ForbiddenException("Only owners and editors can manage registrations.");
         }
     }
+
+    private static bool CanEditTeam(Team team, string actingUserId)
+        => !string.IsNullOrWhiteSpace(actingUserId)
+           && team.Memberships.Any(member =>
+               string.Equals(member.UserId, actingUserId.Trim(), StringComparison.OrdinalIgnoreCase)
+               && (member.Role == TeamRole.Owner || member.Role == TeamRole.Editor));
 
     private static void EnsureTeamCanRegisterForTournament(Team team, Tournament tournament)
     {
@@ -238,6 +269,268 @@ public sealed class TournamentRegistrationService(
         }
 
         return profiles;
+    }
+
+    private async Task<IReadOnlyList<PlayerProfile>> LoadAvailableProfilesAsync(
+        Team team,
+        string tournamentGameId,
+        CancellationToken cancellationToken)
+    {
+        var memberUserIds = team.Memberships
+            .Select(member => member.UserId)
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToArray();
+
+        var memberProfiles = await playerProfileRepository.GetByUsersAndGameAsync(memberUserIds, tournamentGameId, cancellationToken);
+        var guestProfiles = team.GuestPlayerProfiles
+            .Where(profile => string.Equals(profile.GameId, tournamentGameId, StringComparison.OrdinalIgnoreCase));
+
+        return memberProfiles
+            .Concat(guestProfiles)
+            .OrderBy(profile => profile.Name, StringComparer.OrdinalIgnoreCase)
+            .ToList();
+    }
+
+    private static IReadOnlySet<Guid> NormalizeSelectedProfileIds(
+        IReadOnlyCollection<Guid> requestedProfileIds,
+        IReadOnlyList<PlayerProfile> availableProfiles)
+    {
+        if (requestedProfileIds.Count > 0)
+            return requestedProfileIds.Distinct().ToHashSet();
+
+        return availableProfiles.Select(profile => profile.Id).ToHashSet();
+    }
+
+    private void EnsureRosterQualifies(Team team, Tournament tournament, IReadOnlyList<PlayerProfile> selectedProfiles)
+    {
+        var eligibility = EvaluateRegistrationEligibility(
+            team,
+            tournament,
+            selectedProfiles,
+            selectedProfiles.Select(profile => profile.Id).ToHashSet(),
+            canEditTeam: true,
+            existingRegistration: null);
+
+        if (eligibility.CanSubmit)
+            return;
+
+        var failedChecks = eligibility.Checks
+            .Where(check => !check.Passed)
+            .Select(check => check.Description)
+            .ToArray();
+
+        throw new ValidationException(string.Join(" ", failedChecks));
+    }
+
+    private TournamentRegistrationEligibilityDto EvaluateRegistrationEligibility(
+        Team team,
+        Tournament tournament,
+        IReadOnlyList<PlayerProfile> availableProfiles,
+        IReadOnlySet<Guid> selectedIds,
+        bool canEditTeam,
+        TournamentRegistration? existingRegistration)
+    {
+        var rankSystem = rankSystemRegistry.GetRankSystem(tournament.GameId);
+        var selectedProfiles = availableProfiles.Where(profile => selectedIds.Contains(profile.Id)).ToList();
+        var activeRules = GetEffectiveRegistrationRules(tournament);
+        var checks = new List<TournamentRegistrationRuleCheckDto>();
+        var unknownSelectedCount = selectedIds.Count - selectedProfiles.Count;
+
+        checks.Add(new TournamentRegistrationRuleCheckDto(
+            "Permission",
+            canEditTeam ? "You can submit registrations for this team." : "Only team owners and editors can submit registrations.",
+            canEditTeam,
+            canEditTeam ? "positive" : "warn"));
+
+        checks.Add(new TournamentRegistrationRuleCheckDto(
+            "Tournament",
+            string.Equals(team.GameId, tournament.GameId, StringComparison.OrdinalIgnoreCase)
+                ? "The team belongs to this tournament's game."
+                : "The team belongs to a different game.",
+            string.Equals(team.GameId, tournament.GameId, StringComparison.OrdinalIgnoreCase),
+            string.Equals(team.GameId, tournament.GameId, StringComparison.OrdinalIgnoreCase) ? "positive" : "warn"));
+
+        checks.Add(new TournamentRegistrationRuleCheckDto(
+            "Existing registration",
+            existingRegistration is null
+                ? "This team has not registered for this tournament yet."
+                : $"This team already has a {existingRegistration.Status} registration for this tournament.",
+            existingRegistration is null,
+            existingRegistration is null ? "positive" : "warn"));
+
+        if (unknownSelectedCount > 0)
+        {
+            checks.Add(new TournamentRegistrationRuleCheckDto(
+                "Roster profiles",
+                $"{unknownSelectedCount} selected player profile id(s) are not available to this team.",
+                false,
+                "warn"));
+        }
+
+        var maxPlayerRankRating = activeRules
+            .OfType<MaxPlayerRankRatingRegistrationRule>()
+            .Select(rule => (int?)rule.Value)
+            .Min();
+        var playerEligibility = availableProfiles
+            .Select(profile => CreatePlayerEligibility(profile, selectedIds.Contains(profile.Id), rankSystem, maxPlayerRankRating))
+            .ToList();
+
+        foreach (var rule in activeRules.OrderBy(rule => rule.SortOrder))
+        {
+            checks.Add(EvaluateRule(rule, selectedProfiles.Count, playerEligibility, rankSystem));
+        }
+
+        return new TournamentRegistrationEligibilityDto(
+            tournament.Id,
+            team.Id,
+            checks.All(check => check.Passed),
+            canEditTeam,
+            existingRegistration?.Status.ToString(),
+            activeRules.OrderBy(rule => rule.SortOrder).Select(rule => ToRuleDto(rule, rankSystem)).ToList(),
+            playerEligibility,
+            checks);
+    }
+
+    private static TournamentRegistrationRuleCheckDto EvaluateRule(
+        TournamentRegistrationRule rule,
+        int selectedPlayerCount,
+        IReadOnlyList<TournamentRegistrationPlayerEligibilityDto> playerEligibility,
+        IGameRankSystem rankSystem)
+        => rule switch
+        {
+            MinPlayersPerTeamRegistrationRule minRule => EvaluateMinPlayersRule(minRule, selectedPlayerCount),
+            MaxPlayersPerTeamRegistrationRule maxRule => EvaluateMaxPlayersRule(maxRule, selectedPlayerCount),
+            MaxPlayerRankRatingRegistrationRule maxRankRule => EvaluateMaxPlayerRankRule(maxRankRule, playerEligibility, rankSystem),
+            MaxTeamAverageRankRatingRegistrationRule maxAverageRule => EvaluateMaxTeamAverageRule(maxAverageRule, playerEligibility, rankSystem),
+            _ => new TournamentRegistrationRuleCheckDto("Unknown rule", "This tournament has an unsupported registration rule.", false, "warn")
+        };
+
+    private static TournamentRegistrationRuleCheckDto EvaluateMinPlayersRule(
+        MinPlayersPerTeamRegistrationRule rule,
+        int selectedPlayerCount)
+    {
+        var passed = selectedPlayerCount >= rule.Value;
+        return new TournamentRegistrationRuleCheckDto(
+            "Minimum players",
+            passed
+                ? $"{selectedPlayerCount} selected players meets the minimum of {rule.Value}."
+                : $"Select at least {rule.Value} players.",
+            passed,
+            passed ? "positive" : "warn");
+    }
+
+    private static TournamentRegistrationRuleCheckDto EvaluateMaxPlayersRule(
+        MaxPlayersPerTeamRegistrationRule rule,
+        int selectedPlayerCount)
+    {
+        var passed = selectedPlayerCount <= rule.Value;
+        return new TournamentRegistrationRuleCheckDto(
+            "Maximum players",
+            passed
+                ? $"{selectedPlayerCount} selected players is within the maximum of {rule.Value}."
+                : $"Select no more than {rule.Value} players.",
+            passed,
+            passed ? "positive" : "warn");
+    }
+
+    private static TournamentRegistrationRuleCheckDto EvaluateMaxPlayerRankRule(
+        MaxPlayerRankRatingRegistrationRule rule,
+        IReadOnlyList<TournamentRegistrationPlayerEligibilityDto> playerEligibility,
+        IGameRankSystem rankSystem)
+    {
+        var cap = rankSystem.DescribeRating(rule.Value);
+        var selectedPlayers = playerEligibility.Where(player => player.Selected).ToList();
+        var passed = selectedPlayers.All(player => player.RankRating.HasValue && player.RankRating.Value <= rule.Value);
+
+        return new TournamentRegistrationRuleCheckDto(
+            "Player rank cap",
+            passed
+                ? $"Every selected player is at or below {cap.Label}."
+                : $"Every selected player must have known MMR at or below {cap.Label}.",
+            passed,
+            passed ? "positive" : "warn");
+    }
+
+    private static TournamentRegistrationRuleCheckDto EvaluateMaxTeamAverageRule(
+        MaxTeamAverageRankRatingRegistrationRule rule,
+        IReadOnlyList<TournamentRegistrationPlayerEligibilityDto> playerEligibility,
+        IGameRankSystem rankSystem)
+    {
+        var cap = rankSystem.DescribeRating(rule.Value);
+        var selectedRatings = playerEligibility
+            .Where(player => player.Selected)
+            .Select(player => player.RankRating)
+            .ToList();
+        var hasAllRatings = selectedRatings.Count > 0 && selectedRatings.All(value => value.HasValue);
+        var averageRating = hasAllRatings ? selectedRatings.Average(value => value!.Value) : double.NaN;
+        var passed = hasAllRatings && averageRating <= rule.Value;
+
+        return new TournamentRegistrationRuleCheckDto(
+            "Average rank cap",
+            passed
+                ? $"Selected roster average is at or below {cap.Label}."
+                : $"Selected roster needs known MMR with an average at or below {cap.Label}.",
+            passed,
+            passed ? "positive" : "warn");
+    }
+
+    private static TournamentRegistrationRuleDto ToRuleDto(TournamentRegistrationRule rule, IGameRankSystem rankSystem)
+        => rule switch
+        {
+            MinPlayersPerTeamRegistrationRule => new TournamentRegistrationRuleDto("MinPlayersPerTeam", "Minimum players", rule.Value, rule.Value.ToString()),
+            MaxPlayersPerTeamRegistrationRule => new TournamentRegistrationRuleDto("MaxPlayersPerTeam", "Maximum players", rule.Value, rule.Value.ToString()),
+            MaxPlayerRankRatingRegistrationRule => new TournamentRegistrationRuleDto("MaxPlayerRankRating", "Maximum player MMR", rule.Value, $"{rankSystem.DescribeRating(rule.Value).Label} ({rule.Value} MMR)"),
+            MaxTeamAverageRankRatingRegistrationRule => new TournamentRegistrationRuleDto("MaxTeamAverageRankRating", "Maximum team average MMR", rule.Value, $"{rankSystem.DescribeRating(rule.Value).Label} ({rule.Value} MMR)"),
+            _ => new TournamentRegistrationRuleDto("Unknown", "Unknown rule", rule.Value, rule.Value.ToString())
+        };
+
+    private static IReadOnlyList<TournamentRegistrationRule> GetEffectiveRegistrationRules(Tournament tournament)
+    {
+        if (tournament.RegistrationRules.Count > 0)
+            return tournament.RegistrationRules.OrderBy(rule => rule.SortOrder).ToList();
+
+        return
+        [
+            new MinPlayersPerTeamRegistrationRule { SortOrder = 0, Value = 1 },
+            new MaxPlayersPerTeamRegistrationRule { SortOrder = 1, Value = 99 }
+        ];
+    }
+
+    private static TournamentRegistrationPlayerEligibilityDto CreatePlayerEligibility(
+        PlayerProfile profile,
+        bool selected,
+        IGameRankSystem rankSystem,
+        int? maxPlayerRankRating)
+    {
+        var reasons = new List<string>();
+        var hasRank = rankSystem.TryDescribeRating(profile.RankRating, out var rank);
+        var rankLabel = hasRank ? rank.Label : "MMR missing";
+
+        if (maxPlayerRankRating is int maximumRating)
+        {
+            if (!hasRank)
+            {
+                reasons.Add("MMR is required for this tournament.");
+            }
+            else if (rank.Rating > maximumRating)
+            {
+                reasons.Add($"MMR is above the player cap of {rankSystem.DescribeRating(maximumRating).Label}.");
+            }
+        }
+
+        return new TournamentRegistrationPlayerEligibilityDto(
+            profile.Id,
+            profile.Name,
+            profile.Type.ToDto(),
+            profile.UserId,
+            profile.RankRating,
+            rankLabel,
+            hasRank ? rank.Rank : null,
+            hasRank ? rank.Division : null,
+            hasRank ? rank.Points : null,
+            selected,
+            reasons.Count == 0,
+            reasons);
     }
 
     private static Roster CreateRoster(int version, IReadOnlyList<PlayerProfile> playerProfiles)

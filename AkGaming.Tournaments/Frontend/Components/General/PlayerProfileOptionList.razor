@@ -1,0 +1,18 @@
+@namespace AkGaming.Tournaments.Frontend.Components.Shared
+
+@if (Profiles.Count == 0)
+{
+    <p class="empty-copy">@EmptyState</p>
+}
+else
+{
+    @foreach (var profile in Profiles)
+    {
+        <PlayerProfileOptionButton Profile="@profile"
+                                   GameName="@GetGameName(profile.GameId)"
+                                   GameLogoAssetId="@GetGameLogoAssetId(profile.GameId)"
+                                   Selected="@IsSelected(profile)"
+                                   Disabled="@Disabled"
+                                   OnSelected="OnSelected" />
+    }
+}

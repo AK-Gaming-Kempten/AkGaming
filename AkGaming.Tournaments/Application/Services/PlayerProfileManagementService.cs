@@ -25,7 +25,7 @@ public sealed class PlayerProfileManagementService(
             .ToList();
     }
 
-    public async Task<PlayerProfileDto> UpsertUserProfileAsync(string userId, string gameId, string name, CancellationToken cancellationToken = default)
+    public async Task<PlayerProfileDto> UpsertUserProfileAsync(string userId, string gameId, string name, int? rankRating = null, CancellationToken cancellationToken = default)
     {
         ValidateUserId(userId);
         ValidateName(name, "Player profile");
@@ -40,6 +40,7 @@ public sealed class PlayerProfileManagementService(
                 Id = Guid.NewGuid(),
                 GameId = trimmedGameId,
                 Name = name.Trim(),
+                RankRating = NormalizeRankRating(rankRating),
                 Type = PlayerProfileType.User,
                 UserId = userId.Trim()
             };
@@ -49,6 +50,7 @@ public sealed class PlayerProfileManagementService(
         else
         {
             playerProfile.Name = name.Trim();
+            playerProfile.RankRating = NormalizeRankRating(rankRating);
             playerProfile.LastRevisionUtc = DateTimeOffset.UtcNow;
             playerProfile.Type = PlayerProfileType.User;
             playerProfile.TeamId = null;
@@ -118,4 +120,7 @@ public sealed class PlayerProfileManagementService(
             throw new ValidationException($"{subject} name is required.");
         }
     }
+
+    private static int? NormalizeRankRating(int? rankRating)
+        => rankRating.HasValue ? Math.Max(0, rankRating.Value) : null;
 }

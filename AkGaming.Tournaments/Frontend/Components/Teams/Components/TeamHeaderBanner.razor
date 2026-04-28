@@ -1,0 +1,46 @@
+@namespace AkGaming.Tournaments.Frontend.Components.Shared
+
+@if (isMenuOpen)
+{
+    <button type="button" class="team-header-menu-backdrop" @onclick="CloseMenuAsync" aria-label="Close team actions"></button>
+}
+
+<section class="team-header-banner">
+    <div class="team-header-main">
+        <LogoImage LogoAssetId="@Team.LogoAssetId" Type="team" Alt="@($"{Team.Name} logo")" Size="LogoImageSize.Large" />
+        <div class="team-header-copy">
+            <h2>@Team.Name</h2>
+            <p>@GameName</p>
+            <div class="team-header-meta">
+                <span class="info-chip">
+                    <span class="bi bi-people-fill"></span>
+                    @Team.Memberships.Count members
+                </span>
+                <span class="info-chip">
+                    <span class="bi bi-person-badge-fill"></span>
+                    @Team.GuestPlayerProfiles.Count guests
+                </span>
+            </div>
+        </div>
+    </div>
+
+    @if (CanEdit)
+    {
+        <div class="team-header-menu">
+            <button type="button"
+                    class="team-header-menu-trigger"
+                    aria-label="@($"Open actions for {Team.Name}")"
+                    @onclick="ToggleMenuAsync"
+                    disabled="@IsBusy">
+                <span class="bi bi-three-dots"></span>
+            </button>
+
+            @if (isMenuOpen)
+            {
+                <div class="team-header-menu-popover">
+                    <button type="button" @onclick="RequestEditAsync" disabled="@IsBusy">Edit team</button>
+                </div>
+            }
+        </div>
+    }
+</section>

@@ -1,0 +1,36 @@
+@namespace AkGaming.Tournaments.Frontend.Components.Shared
+
+<div class="registration-eligibility">
+    <div class="registration-rule-grid">
+        @foreach (var check in Eligibility.Checks)
+        {
+            <article class="registration-rule registration-rule-@check.Tone">
+                <span class="bi @(check.Passed ? "bi-check-circle-fill" : "bi-exclamation-triangle-fill")"></span>
+                <div>
+                    <strong>@check.Label</strong>
+                    <p>@check.Description</p>
+                </div>
+            </article>
+        }
+    </div>
+
+    <div class="registration-player-list">
+        @foreach (var player in Eligibility.Players)
+        {
+            <label class="registration-player-row @(player.Qualifies ? null : "is-blocked")">
+                <input type="checkbox"
+                       checked="@player.Selected"
+                       disabled="@IsBusy"
+                       @onchange="args => TogglePlayerAsync(player.PlayerProfileId, args)" />
+                <span class="registration-player-copy">
+                    <strong>@player.Name</strong>
+                    <span>@player.Type · @player.RankLabel · @(player.RankRating?.ToString() ?? "No MMR") MMR</span>
+                    @if (player.Reasons.Count > 0)
+                    {
+                        <span class="registration-player-warning">@string.Join(" ", player.Reasons)</span>
+                    }
+                </span>
+            </label>
+        }
+    </div>
+</div>

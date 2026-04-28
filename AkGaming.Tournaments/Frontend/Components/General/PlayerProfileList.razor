@@ -6,6 +6,11 @@
 }
 else
 {
+    @if (openMenuProfileId is not null)
+    {
+        <button type="button" class="profile-menu-backdrop" @onclick="CloseMenuAsync" aria-label="Close profile actions"></button>
+    }
+
     <div class="profile-list">
         @foreach (var profile in Profiles)
         {
@@ -19,11 +24,28 @@ else
                 <LogoImage LogoAssetId="@profile.LogoAssetId" Type="player" Alt="@($"{profile.Name} logo")" Size="LogoImageSize.Small" />
                 <span class="profile-main">
                     <strong>@profile.Name</strong>
-                    <span>@profile.GameId · @profile.Type</span>
+                    <span>@profile.GameId · @profile.Type · @PlayerRankFormatter.Format(profile.GameId, profile.RankRating)</span>
                 </span>
                 <span class="status-pill @(profile.Type == PlayerProfileTypeDto.User ? "status-pill-positive" : "status-pill-neutral")">
                     @FormatOwner(profile)
                 </span>
+                @if (AllowActions)
+                {
+                    <div class="profile-menu">
+                        <button type="button"
+                                class="profile-menu-trigger"
+                                aria-label="@($"Open actions for {profile.Name}")"
+                                @onclick="() => ToggleMenuAsync(profile.Id)">
+                            <span class="bi bi-three-dots-vertical"></span>
+                        </button>
+                        @if (openMenuProfileId == profile.Id)
+                        {
+                            <div class="profile-menu-popover">
+                                <button type="button" @onclick="() => RequestEditAsync(profile)" disabled="@IsBusy">Edit</button>
+                            </div>
+                        }
+                    </div>
+                }
             </label>
         }
     </div>

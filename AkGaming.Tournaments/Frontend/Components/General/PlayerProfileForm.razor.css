@@ -11,6 +11,30 @@
     font-weight: 700;
 }
 
+.profile-form-game {
+    display: grid;
+    gap: 0.4rem;
+    color: var(--color-text-secondary);
+    font-size: 0.9rem;
+    font-weight: 700;
+}
+
+.profile-form-game-row {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: center;
+    gap: 0.8rem;
+    min-height: 2.6rem;
+    padding: 0.65rem 0.75rem;
+    border: 1px solid color-mix(in oklab, var(--color-text-secondary) 18%, transparent);
+    border-radius: 8px;
+    background: color-mix(in oklab, var(--color-background-secondary) 68%, transparent);
+}
+
+.profile-form-game-row strong {
+    color: var(--color-text-primary);
+}
+
 .form-input {
     width: 100%;
     min-height: 2.6rem;
@@ -25,4 +49,27 @@
 .form-input:focus {
     outline: 2px solid color-mix(in oklab, var(--color-highlight-primary) 46%, transparent);
     outline-offset: 2px;
+}
+
+.profile-form-logo {
+    display: grid;
+    gap: 0.45rem;
+}
+
+.profile-form-logo-row {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 0.8rem;
+    align-items: center;
+    padding: 0.8rem;
+    border: 1px solid color-mix(in oklab, var(--color-text-secondary) 20%, transparent);
+    border-radius: 8px;
+    background: color-mix(in oklab, var(--color-background-secondary) 68%, transparent);
+}
+
+.profile-form-logo-actions,
+.profile-form-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
 }

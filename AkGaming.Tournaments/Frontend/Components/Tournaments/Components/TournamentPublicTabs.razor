@@ -17,9 +17,10 @@
         <span class="bi bi-people-fill"></span>
         Teams
     </NavLink>
-    <NavLink href="@BuildHref("register")"
-             class="@GetTabClass("register")">
+    <button type="button"
+            class="tournament-tab tournament-tab-button"
+            @onclick="OnRegisterRequested">
         <span class="bi bi-pencil-square"></span>
         Register
-    </NavLink>
+    </button>
 </nav>

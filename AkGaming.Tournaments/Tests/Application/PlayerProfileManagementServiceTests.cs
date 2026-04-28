@@ -70,8 +70,8 @@ public sealed class PlayerProfileManagementServiceTests
         TournamentTestData.AddGame(Store);
 
         // Act
-        var created = Service.UpsertUserProfileAsync("user-1", " lol ", " Summoner One ").GetAwaiter().GetResult();
-        var updated = Service.UpsertUserProfileAsync(" user-1 ", "lol", "Summoner Prime").GetAwaiter().GetResult();
+        var created = Service.UpsertUserProfileAsync("user-1", " lol ", " Summoner One ", 1205).GetAwaiter().GetResult();
+        var updated = Service.UpsertUserProfileAsync(" user-1 ", "lol", "Summoner Prime", 1599).GetAwaiter().GetResult();
 
         // Assert
         Assert.That(Store.PlayerProfiles, Has.Count.EqualTo(1));
@@ -82,7 +82,9 @@ public sealed class PlayerProfileManagementServiceTests
             Assert.That(created.Name, Is.EqualTo("Summoner One"));
             Assert.That(updated.Id, Is.EqualTo(created.Id));
             Assert.That(updated.Name, Is.EqualTo("Summoner Prime"));
+            Assert.That(updated.RankRating, Is.EqualTo(1599));
             Assert.That(Store.PlayerProfiles[0].Type, Is.EqualTo(PlayerProfileType.User));
+            Assert.That(Store.PlayerProfiles[0].RankRating, Is.EqualTo(1599));
             Assert.That(Store.PlayerProfiles[0].TeamId, Is.Null);
             Assert.That(UnitOfWork.SaveChangesCallCount, Is.EqualTo(2));
         });

@@ -5,7 +5,9 @@
 <PageTitle>@($"{Tournament.Summary.Title} Schedule")</PageTitle>
 
 <section class="app-page">
-    <TournamentPublicTabs TournamentSlug="@Tournament.Summary.Slug" ActiveSection="schedule" />
+    <TournamentPublicTabs TournamentSlug="@Tournament.Summary.Slug"
+                          ActiveSection="schedule"
+                          OnRegisterRequested="ShowRegistrationDialogAsync" />
     <PageHeader Title="Schedule" />
 
     <SurfacePanel Title="Matches">
@@ -16,4 +18,8 @@
             }
         </div>
     </SurfacePanel>
+
+    <TournamentRegistrationDialog Tournament="@Tournament"
+                                  IsOpen="@IsRegistrationDialogOpen"
+                                  IsOpenChanged="SetRegistrationDialogOpenAsync" />
 </section>

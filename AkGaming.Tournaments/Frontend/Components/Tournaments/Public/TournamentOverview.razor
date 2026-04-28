@@ -1,12 +1,13 @@
 @page "/tournaments/{TournamentSlug}"
 @namespace AkGaming.Tournaments.Frontend.Components.Pages
-@using TournamentInfoFieldGrid = AkGaming.Tournaments.Frontend.Components.Tournaments.Components.TournamentInfoFieldGrid
 @inherits TournamentPageBase
 
 <PageTitle>@($"{Tournament.Summary.Title} Overview")</PageTitle>
 
 <section class="app-page">
-    <TournamentPublicTabs TournamentSlug="@Tournament.Summary.Slug" ActiveSection="overview" />
+    <TournamentPublicTabs TournamentSlug="@Tournament.Summary.Slug"
+                          ActiveSection="overview"
+                          OnRegisterRequested="ShowRegistrationDialogAsync" />
 
     @if (RequestedTournamentWasMissing)
     {
@@ -29,9 +30,9 @@
             </div>
         </div>
 
-        <a class="solid-button tournament-register-button" href="@($"/tournaments/{Tournament.Summary.Slug}/register")">
+        <button type="button" class="solid-button tournament-register-button" @onclick="ShowRegistrationDialogAsync">
             Register team
-        </a>
+        </button>
     </section>
 
     <div class="content-grid">
@@ -43,4 +44,8 @@
             <TournamentTimeline Items="@Tournament.KeyDates" />
         </SurfacePanel>
     </div>
+
+    <TournamentRegistrationDialog Tournament="@Tournament"
+                                  IsOpen="@IsRegistrationDialogOpen"
+                                  IsOpenChanged="SetRegistrationDialogOpenAsync" />
 </section>

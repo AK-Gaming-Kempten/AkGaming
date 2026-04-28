@@ -10,6 +10,17 @@ public sealed class TournamentRegistrationsApiClient(HttpClient httpClient) : To
     public Task<TournamentRegistrationDto?> GetRegistrationAsync(Guid registrationId, CancellationToken cancellationToken = default)
         => GetOrDefaultAsync<TournamentRegistrationDto>($"api/registrations/{registrationId}", cancellationToken);
 
+    public Task<TournamentRegistrationEligibilityDto> GetEligibilityAsync(
+        Guid teamId,
+        Guid tournamentId,
+        string actingUserId,
+        IReadOnlyCollection<Guid> playerProfileIds,
+        CancellationToken cancellationToken = default)
+        => PostAsync<TournamentRegistrationEligibilityDto>(
+            $"api/teams/{teamId}/registrations/eligibility",
+            new TournamentRegistrationEligibilityApiRequest(actingUserId, tournamentId, playerProfileIds),
+            cancellationToken);
+
     public Task<TournamentRegistrationDto> SubmitRegistrationAsync(
         Guid teamId,
         Guid tournamentId,
@@ -32,5 +43,6 @@ public sealed class TournamentRegistrationsApiClient(HttpClient httpClient) : To
             cancellationToken);
 
     private sealed record SubmitTournamentRegistrationApiRequest(string ActingUserId, Guid TournamentId, IReadOnlyCollection<Guid> PlayerProfileIds);
+    private sealed record TournamentRegistrationEligibilityApiRequest(string ActingUserId, Guid TournamentId, IReadOnlyCollection<Guid> PlayerProfileIds);
     private sealed record SubmitRosterChangeApiRequest(string ActingUserId, IReadOnlyCollection<Guid> PlayerProfileIds);
 }

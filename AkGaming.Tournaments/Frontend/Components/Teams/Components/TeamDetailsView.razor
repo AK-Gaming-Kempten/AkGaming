@@ -1,30 +1,88 @@
 @namespace AkGaming.Tournaments.Frontend.Components.Shared
 
-<div class="content-grid">
-    <div class="stack">
-        <SurfacePanel Title="Team">
-            <BackendTeamCard Team="@Team" GameName="@GameName" />
-            @if (IsAuthenticated)
-            {
+<div class="stack">
+    <TeamHeaderBanner Team="@Team"
+                      GameName="@GameName"
+                      CanEdit="@CanEditTeam"
+                      IsBusy="@IsBusy"
+                      EditRequested="OnTeamEditRequested" />
+
+    @if (IsTeamEditMode)
+    {
+        <SurfacePanel Title="Edit team">
+            <div class="team-edit-form">
+                <label>
+                    <span>Team name</span>
+                    <input class="form-input" value="@TeamName" @oninput="HandleTeamNameChanged" placeholder="Team name" disabled="@IsBusy" />
+                </label>
                 <div class="logo-actions">
                     <LogoUploadDialog Uploaded="OnLogoUploaded" />
                     <button type="button" class="ghost-button" @onclick="OnLogoCleared" disabled="@IsBusy">Clear logo</button>
                 </div>
+                <div class="team-edit-actions">
+                    <button type="button" class="solid-button" @onclick="OnTeamSubmitted" disabled="@(IsBusy || string.IsNullOrWhiteSpace(TeamName))">Save team</button>
+                    <button type="button" class="ghost-button" @onclick="OnTeamEditCanceled" disabled="@IsBusy">Cancel</button>
+                </div>
+            </div>
+        </SurfacePanel>
+    }
+
+    <div class="content-grid">
+        <div class="stack">
+        <SurfacePanel Title="Roster profiles" Subtitle="User and guest player profiles available for tournament registration.">
+            @if (CanEditTeam)
+            {
+                <div class="roster-toolbar">
+                    <button type="button" class="solid-button" @onclick="OnGuestCreateRequested" disabled="@IsBusy">Add guest profile</button>
+                </div>
             }
-        </SurfacePanel>
 
-        <SurfacePanel Title="Guest profiles">
-            <PlayerProfileList Profiles="@Team.GuestPlayerProfiles" EmptyState="This team does not have guest profiles." />
-        </SurfacePanel>
-    </div>
+            @if (CanEditTeam && IsGuestFormVisible)
+            {
+                <div class="guest-profile-form">
+                    <label>
+                        <span>Guest name</span>
+                        <input class="form-input" value="@GuestName" @oninput="HandleGuestNameChanged" placeholder="Guest player" disabled="@IsBusy" />
+                    </label>
+                    <label>
+                        <span>MMR</span>
+                        <PlayerRankSelect GameId="@Team.GameId" Value="@GuestRankRating" ValueChanged="GuestRankRatingChanged" Disabled="@IsBusy" />
+                    </label>
+                    <div class="guest-profile-actions">
+                        <button type="button" class="solid-button" @onclick="OnGuestSubmitted" disabled="@(IsBusy || string.IsNullOrWhiteSpace(GuestName))">@GuestSubmitLabel</button>
+                        <button type="button" class="ghost-button" @onclick="OnGuestEditCanceled" disabled="@IsBusy">Cancel</button>
+                    </div>
+                </div>
+            }
 
-    <div class="stack">
-        <SurfacePanel Title="Available roster profiles">
-            <PlayerProfileList Profiles="@AvailableProfiles" EmptyState="No roster profiles are available for this team's game." />
+            <TeamRosterList Profiles="@AvailableProfiles"
+                            CanEdit="@CanEditTeam"
+                            IsBusy="@IsBusy"
+                            EditGuestRequested="OnGuestEditRequested"
+                            DeleteGuestRequested="OnGuestDeleteRequested"
+                            EmptyState="No roster profiles are available for this team's game." />
         </SurfacePanel>
+        </div>
 
-        <SurfacePanel Title="Registrations">
-            <RegistrationList Registrations="@Registrations" />
-        </SurfacePanel>
+        <div class="stack">
+            <SurfacePanel Title="Members" Subtitle="Users who can contribute player profiles to this team's roster.">
+                <div class="team-member-list">
+                    @foreach (var member in Team.Memberships)
+                    {
+                        <article class="team-member-row">
+                            <span class="team-member-avatar">@GetMemberInitial(member)</span>
+                            <span>
+                                <strong>@GetMemberDisplayName(member)</strong>
+                                <span>@member.Role</span>
+                            </span>
+                        </article>
+                    }
+                </div>
+            </SurfacePanel>
+
+            <SurfacePanel Title="Registrations">
+                <RegistrationList Registrations="@Registrations" />
+            </SurfacePanel>
+        </div>
     </div>
 </div>

@@ -120,6 +120,48 @@ public sealed class TournamentRegistrationsControllerTests
     }
 
     [Test]
+    [Description("Verifies that the tournament registration controller passes eligibility values to the application service.")]
+    public async Task GetTournamentRegistrationEligibility_ReturnsOkWithEligibility()
+    {
+        // Arrange
+        var teamId = Guid.NewGuid();
+        var tournamentId = Guid.NewGuid();
+        var profileIds = new[] { Guid.NewGuid(), Guid.NewGuid() };
+        var eligibility = new TournamentRegistrationEligibilityDto(
+            tournamentId,
+            teamId,
+            true,
+            true,
+            null,
+            [new TournamentRegistrationRuleDto("MinPlayersPerTeam", "Minimum players", 2, "2")],
+            [],
+            []);
+        var request = new TournamentRegistrationEligibilityRequest("captain-1", tournamentId, profileIds);
+        Service
+            .Setup(mock => mock.GetRegistrationEligibilityAsync(
+                teamId,
+                tournamentId,
+                "captain-1",
+                It.Is<IReadOnlyCollection<Guid>>(ids => ids.SequenceEqual(profileIds)),
+                CancellationToken.None))
+            .ReturnsAsync(eligibility);
+
+        // Act
+        var response = await Controller.GetTournamentRegistrationEligibility(teamId, request, CancellationToken.None);
+
+        // Assert
+        WebApiControllerTestHelpers.AssertOkValue(response, eligibility);
+        Service.Verify(
+            mock => mock.GetRegistrationEligibilityAsync(
+                teamId,
+                tournamentId,
+                "captain-1",
+                It.Is<IReadOnlyCollection<Guid>>(ids => ids.SequenceEqual(profileIds)),
+                CancellationToken.None),
+            Times.Once);
+    }
+
+    [Test]
     [Description("Verifies that the tournament registration controller passes submit-roster-change values to the application service.")]
     public async Task SubmitRosterChange_ReturnsOkWithRegistration()
     {

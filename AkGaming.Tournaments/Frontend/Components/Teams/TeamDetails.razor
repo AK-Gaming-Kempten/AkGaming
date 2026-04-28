@@ -32,8 +32,27 @@
                          AvailableProfiles="@availableProfiles"
                          Registrations="@registrations"
                          IsAuthenticated="@isAuthenticated"
+                         CurrentUserId="@currentUserId"
+                         CurrentUserDisplayName="@currentUserDisplayName"
+                         TeamName="@teamName"
+                         TeamNameChanged="SetTeamName"
+                         IsTeamEditMode="@isTeamEditMode"
+                         GuestName="@guestName"
+                         GuestNameChanged="SetGuestName"
+                         GuestRankRating="@guestRankRating"
+                         GuestRankRatingChanged="SetGuestRankRating"
+                         IsGuestFormVisible="@isGuestFormOpen"
+                         EditingGuestProfile="@editingGuestProfile"
                          IsBusy="@isBusy"
                          OnLogoUploaded="SetTeamLogoAsync"
-                         OnLogoCleared="ClearTeamLogoAsync" />
+                         OnLogoCleared="ClearTeamLogoAsync"
+                         OnTeamEditRequested="StartTeamEditAsync"
+                         OnTeamSubmitted="SaveTeamAsync"
+                         OnTeamEditCanceled="CancelTeamEditAsync"
+                         OnGuestCreateRequested="StartGuestCreate"
+                         OnGuestSubmitted="SaveGuestProfileAsync"
+                         OnGuestEditRequested="StartGuestEdit"
+                         OnGuestEditCanceled="CancelGuestEdit"
+                         OnGuestDeleteRequested="DeleteGuestProfileAsync" />
     }
 </section>

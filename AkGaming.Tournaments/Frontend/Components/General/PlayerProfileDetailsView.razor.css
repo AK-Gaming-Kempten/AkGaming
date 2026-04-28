@@ -1,0 +1,29 @@
+.player-profile-summary {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: start;
+    gap: 1rem;
+}
+
+.player-profile-summary-main {
+    display: grid;
+    gap: 0.25rem;
+    min-width: 0;
+}
+
+.player-profile-summary-main h3,
+.player-profile-summary-main p,
+.player-profile-summary-main span {
+    margin: 0;
+}
+
+.player-profile-summary-main p,
+.player-profile-summary-main span {
+    color: var(--color-text-secondary);
+}
+
+@media (max-width: 700px) {
+    .player-profile-summary {
+        grid-template-columns: auto minmax(0, 1fr);
+    }
+}

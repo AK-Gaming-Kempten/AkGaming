@@ -5,7 +5,9 @@
 <PageTitle>@($"{Tournament.Summary.Title} Teams")</PageTitle>
 
 <section class="app-page">
-    <TournamentPublicTabs TournamentSlug="@Tournament.Summary.Slug" ActiveSection="teams" />
+    <TournamentPublicTabs TournamentSlug="@Tournament.Summary.Slug"
+                          ActiveSection="teams"
+                          OnRegisterRequested="ShowRegistrationDialogAsync" />
     <PageHeader Title="Teams" />
 
     <div class="teams-grid">
@@ -14,4 +16,8 @@
             <TeamCard Team="@team" />
         }
     </div>
+
+    <TournamentRegistrationDialog Tournament="@Tournament"
+                                  IsOpen="@IsRegistrationDialogOpen"
+                                  IsOpenChanged="SetRegistrationDialogOpenAsync" />
 </section>

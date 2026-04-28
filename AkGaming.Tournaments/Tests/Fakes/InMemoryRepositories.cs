@@ -84,6 +84,15 @@ internal sealed class InMemoryPlayerProfileRepository(InMemoryStore store) : IPl
         store.PlayerProfiles.Add(playerProfile);
         return Task.CompletedTask;
     }
+
+    public void Delete(PlayerProfile playerProfile)
+    {
+        store.PlayerProfiles.Remove(playerProfile);
+        if (playerProfile.TeamId is Guid teamId)
+        {
+            store.Teams.FirstOrDefault(team => team.Id == teamId)?.GuestPlayerProfiles.Remove(playerProfile);
+        }
+    }
 }
 
 internal sealed class InMemoryTeamRepository(InMemoryStore store) : ITeamRepository

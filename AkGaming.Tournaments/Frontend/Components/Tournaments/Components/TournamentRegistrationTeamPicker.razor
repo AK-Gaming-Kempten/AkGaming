@@ -1,0 +1,46 @@
+@namespace AkGaming.Tournaments.Frontend.Components.Shared
+
+<div class="registration-team-picker">
+    <button type="button"
+            class="registration-team-trigger"
+            @onclick="ToggleOpenAsync"
+            disabled="@Disabled">
+        @if (SelectedTeam is null)
+        {
+            <LogoImage Type="team" Size="LogoImageSize.Medium" />
+            <span class="registration-team-main">
+                <strong>Select team</strong>
+                <span>Choose one of your teams for this game.</span>
+            </span>
+        }
+        else
+        {
+            <LogoImage LogoAssetId="@SelectedTeam.LogoAssetId" Type="team" Alt="@($"{SelectedTeam.Name} logo")" Size="LogoImageSize.Medium" />
+            <span class="registration-team-main">
+                <strong>@SelectedTeam.Name</strong>
+                <span>@SelectedTeam.GameId</span>
+            </span>
+        }
+        <span class="bi @(isOpen ? "bi-chevron-up" : "bi-chevron-down")"></span>
+    </button>
+
+    @if (isOpen)
+    {
+        <div class="registration-team-menu">
+            @foreach (var team in Teams)
+            {
+                <button type="button"
+                        class="registration-team-option @(SelectedTeam?.Id == team.Id ? "is-selected" : null)"
+                        @onclick="() => SelectTeamAsync(team)"
+                        disabled="@Disabled">
+                    <LogoImage LogoAssetId="@team.LogoAssetId" Type="team" Alt="@($"{team.Name} logo")" Size="LogoImageSize.Small" />
+                    <span>
+                        <strong>@team.Name</strong>
+                        <span>@team.GameId</span>
+                    </span>
+                    <LogoImage Type="game" Size="LogoImageSize.Small" />
+                </button>
+            }
+        </div>
+    }
+</div>

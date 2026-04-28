@@ -1,13 +1,46 @@
 @namespace AkGaming.Tournaments.Frontend.Components.Shared
 
 <div class="backend-form">
-    <label>
-        <span>Game</span>
-        <GameSelect Games="@Games" Value="@GameId" ValueChanged="GameIdChanged" Disabled="@IsBusy" />
-    </label>
+    @if (GameSelectionEnabled)
+    {
+        <label>
+            <span>Game</span>
+            <GameSelect Games="@Games" Value="@GameId" ValueChanged="GameIdChanged" Disabled="@IsBusy" />
+        </label>
+    }
+    else
+    {
+        <div class="profile-form-game">
+            <span>Game</span>
+            <div class="profile-form-game-row">
+                <LogoImage LogoAssetId="@GetGameLogoAssetId()" Type="game" Alt="@($"{GetGameName()} logo")" Size="LogoImageSize.Medium" />
+                <strong>@GetGameName()</strong>
+            </div>
+        </div>
+    }
     <label>
         <span>Display name</span>
         <input class="form-input" value="@ProfileName" @oninput="HandleProfileNameChanged" placeholder="Summoner name" disabled="@IsBusy" />
     </label>
-    <button type="button" class="solid-button" @onclick="OnSubmit" disabled="@IsBusy">Save profile</button>
+    <label>
+        <span>MMR</span>
+        <PlayerRankSelect GameId="@GameId" Value="@RankRating" ValueChanged="RankRatingChanged" Disabled="@IsBusy" />
+    </label>
+    @if (CanEditLogo)
+    {
+        <div class="profile-form-logo">
+            <span>Logo</span>
+            <div class="profile-form-logo-row">
+                <LogoImage LogoAssetId="@EditingProfile!.LogoAssetId" Type="player" Alt="@($"{EditingProfile.Name} logo")" Size="LogoImageSize.Medium" />
+                <div class="profile-form-logo-actions">
+                    <LogoUploadDialog Uploaded="HandleLogoUploadedAsync" />
+                    <button type="button" class="ghost-button" @onclick="OnLogoCleared" disabled="@IsBusy">Clear logo</button>
+                </div>
+            </div>
+        </div>
+    }
+    <div class="profile-form-actions">
+        <button type="button" class="solid-button" @onclick="OnSubmit" disabled="@IsBusy">@SubmitLabel</button>
+        <button type="button" class="ghost-button" @onclick="OnCancel" disabled="@IsBusy">Cancel</button>
+    </div>
 </div>

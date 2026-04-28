@@ -6,6 +6,7 @@ public sealed class MockTournamentCatalog
     [
         new(
             new TournamentSummary(
+                Guid.Parse("11111111-1111-1111-1111-111111111111"),
                 "rift-rumble-summer-2026",
                 "Rift Rumble",
                 "Summer 2026",
@@ -77,6 +78,7 @@ public sealed class MockTournamentCatalog
             ]),
         new(
             new TournamentSummary(
+                Guid.Parse("22222222-2222-2222-2222-222222222222"),
                 "valorant-campus-clash-2026",
                 "Campus Clash",
                 "Autumn 2026",
@@ -121,6 +123,7 @@ public sealed class MockTournamentCatalog
             ]),
         new(
             new TournamentSummary(
+                Guid.Parse("33333333-3333-3333-3333-333333333333"),
                 "fc-showdown-2026",
                 "FC Showdown",
                 "Winter 2026",
