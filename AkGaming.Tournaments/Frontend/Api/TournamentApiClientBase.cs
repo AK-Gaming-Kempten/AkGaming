@@ -43,6 +43,23 @@ public abstract class TournamentApiClientBase(HttpClient httpClient)
         }
     }
 
+    protected async Task PutAsync(string uri, object request, CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            using var response = await httpClient.PutAsJsonAsync(uri, request, TournamentApiJson.Options, cancellationToken);
+            if (!response.IsSuccessStatusCode)
+            {
+                var message = await ReadErrorMessageAsync(response, cancellationToken);
+                throw new TournamentApiException(response.StatusCode, message);
+            }
+        }
+        catch (HttpRequestException ex)
+        {
+            throw CreateConnectionException(ex);
+        }
+    }
+
     protected async Task<T> PostMultipartAsync<T>(string uri, MultipartFormDataContent request, CancellationToken cancellationToken = default)
     {
         try

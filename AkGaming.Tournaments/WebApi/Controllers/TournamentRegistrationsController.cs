@@ -95,6 +95,17 @@ public sealed class TournamentRegistrationsController(ITournamentRegistrationSer
         return Ok(registration);
     }
 
+    [HttpDelete("api/registrations/{registrationId:guid}", Name = "DeleteTournamentRegistration")]
+    [EndpointSummary("Delete a tournament registration.")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    public async Task<IActionResult> DeleteTournamentRegistration(
+        Guid registrationId,
+        CancellationToken cancellationToken)
+    {
+        await service.DeleteRegistrationAsync(registrationId, cancellationToken);
+        return NoContent();
+    }
+
     [HttpPost("api/registrations/{registrationId:guid}/rosters", Name = "SubmitRosterChange")]
     [EndpointSummary("Submit a roster change for an approved registration.")]
     [ProducesResponseType<TournamentRegistrationDto>(StatusCodes.Status200OK)]

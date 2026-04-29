@@ -10,6 +10,7 @@ public interface ITournamentRegistrationService
     Task<TournamentRegistrationEligibilityDto> GetRegistrationEligibilityAsync(Guid teamId, Guid tournamentId, string actingUserId, IReadOnlyCollection<Guid> playerProfileIds, CancellationToken cancellationToken = default);
     Task<TournamentRegistrationDto> SubmitRegistrationAsync(Guid teamId, Guid tournamentId, string actingUserId, IReadOnlyCollection<Guid> playerProfileIds, CancellationToken cancellationToken = default);
     Task<TournamentRegistrationDto> ReviewRegistrationAsync(Guid registrationId, bool approve, string? reviewNote, CancellationToken cancellationToken = default);
+    Task DeleteRegistrationAsync(Guid registrationId, CancellationToken cancellationToken = default);
     Task<TournamentRegistrationDto> SubmitRosterChangeAsync(Guid registrationId, string actingUserId, IReadOnlyCollection<Guid> playerProfileIds, CancellationToken cancellationToken = default);
     Task<TournamentRegistrationDto> ReviewRosterAsync(Guid registrationId, Guid rosterId, bool approve, string? reviewNote, CancellationToken cancellationToken = default);
 }

@@ -113,6 +113,25 @@ public sealed class TournamentRegistrationReviewTests
     }
 
     [Test]
+    [Description("Verifies that deleting a registration removes it from the registration store and its owning aggregate collections.")]
+    public async Task DeleteRegistrationAsync_RemovesRegistration()
+    {
+        // Arrange
+        var (registration, _) = AddPendingRegistration();
+
+        // Act
+        await Service.DeleteRegistrationAsync(registration.Id);
+
+        // Assert
+        Assert.Multiple(() =>
+        {
+            Assert.That(Store.Registrations.Any(candidate => candidate.Id == registration.Id), Is.False);
+            Assert.That(registration.Team!.Registrations.Any(candidate => candidate.Id == registration.Id), Is.False);
+            Assert.That(registration.Tournament!.Registrations.Any(candidate => candidate.Id == registration.Id), Is.False);
+        });
+    }
+
+    [Test]
     [Description("Verifies that approving a pending roster revision replaces the active roster.")]
     public void ReviewRosterAsync_ApprovesPendingRosterAndReplacesActiveRoster()
     {

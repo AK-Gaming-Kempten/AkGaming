@@ -1,0 +1,37 @@
+@namespace AkGaming.Tournaments.Frontend.Components.Tournaments.Administration
+
+<SurfacePanel Title="Registration rules" Subtitle="Add, edit, and remove the rules used during tournament registration.">
+    <div class="stack">
+        @foreach (var rule in rules)
+        {
+            <article class="rule-editor-card">
+                <div class="rule-editor-grid">
+                    <label class="field-block">
+                        <span>Rule</span>
+                        <select class="text-input" value="@rule.Type" @onchange="args => HandleRuleTypeChanged(rule.Id, args)" disabled="@IsBusy">
+                            @foreach (var option in ruleOptions)
+                            {
+                                <option value="@option.Type">@option.Label</option>
+                            }
+                        </select>
+                    </label>
+
+                    <label class="field-block">
+                        <span>Value</span>
+                        <input class="text-input" type="number" value="@rule.Value" @onchange="args => HandleRuleValueChanged(rule.Id, args)" disabled="@IsBusy" />
+                    </label>
+                </div>
+
+                <div class="rule-editor-actions">
+                    <span class="muted-copy">@GetRuleDescription(rule.Type)</span>
+                    <button type="button" class="ghost-button" @onclick="() => RemoveRule(rule.Id)" disabled="@IsBusy">Remove rule</button>
+                </div>
+            </article>
+        }
+    </div>
+
+    <div class="content-editor-footer">
+        <button type="button" class="ghost-button" @onclick="AddRule" disabled="@IsBusy">Add rule</button>
+        <button type="button" class="solid-button" @onclick="SaveAsync" disabled="@IsBusy">Save registration rules</button>
+    </div>
+</SurfacePanel>

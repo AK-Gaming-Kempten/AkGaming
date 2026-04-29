@@ -48,7 +48,7 @@ public abstract class TournamentPageBase : ComponentBase
         }
     }
 
-    private async Task LoadRegisteredTeamsAsync()
+    protected async Task LoadRegisteredTeamsAsync()
     {
         if (Tournament is null)
             return;

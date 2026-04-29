@@ -263,9 +263,14 @@ public static class SqliteDatabaseInitializer
 
     private static async Task BackfillTournamentContentAsync(this TournamentDbContext dbContext, ILogger logger)
     {
-        var tournaments = await dbContext.Tournaments
-            .Include(tournament => tournament.InfoSections)
+        var tournaments = await dbContext.Tournaments.ToListAsync();
+        var tournamentIdsWithSections = await dbContext.TournamentInfoSections
+            .AsNoTracking()
+            .Select(section => section.TournamentId)
+            .Distinct()
             .ToListAsync();
+        var tournamentIdsWithSectionsSet = tournamentIdsWithSections.ToHashSet();
+        var sectionsToInsert = new List<TournamentInfoSection>();
 
         foreach (var tournament in tournaments)
         {
@@ -331,13 +336,9 @@ public static class SqliteDatabaseInitializer
                 wasChanged = true;
             }
 
-            if (tournament.InfoSections.Count == 0)
+            if (!tournamentIdsWithSectionsSet.Contains(tournament.Id))
             {
-                foreach (var template in GetDefaultTournamentInfoSections(tournament.Id))
-                {
-                    tournament.InfoSections.Add(template);
-                }
-
+                sectionsToInsert.AddRange(GetDefaultTournamentInfoSections(tournament.Id));
                 wasChanged = true;
             }
 
@@ -345,6 +346,11 @@ public static class SqliteDatabaseInitializer
             {
                 logger.LogDebug("Backfilled tournament content for {TournamentId}.", tournament.Id);
             }
+        }
+
+        if (sectionsToInsert.Count > 0)
+        {
+            await dbContext.TournamentInfoSections.AddRangeAsync(sectionsToInsert);
         }
 
         await dbContext.SaveChangesAsync();

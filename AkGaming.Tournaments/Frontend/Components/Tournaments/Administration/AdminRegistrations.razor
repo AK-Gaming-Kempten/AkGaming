@@ -1,0 +1,26 @@
+@page "/tournaments/{TournamentSlug}/administration/registrations"
+@namespace AkGaming.Tournaments.Frontend.Components.Tournaments.Administration
+@attribute [Authorize(Roles = "Admin")]
+@inherits TournamentPageBase
+
+<PageTitle>@($"{Tournament?.Name ?? "Tournament"} Registrations")</PageTitle>
+
+<section class="app-page">
+    <PageHeader Title="Registrations" />
+
+    @if (Tournament is null)
+    {
+        <SurfacePanel Title="Tournament not found">
+            <p>Pick another tournament from the selector to continue.</p>
+        </SurfacePanel>
+    }
+    else
+    {
+        <TournamentRegistrationAdminList Registrations="@registrations"
+                                         TeamNames="@teamNames"
+                                         IsBusy="@isBusy"
+                                         ErrorMessage="@errorMessage"
+                                         ReviewRequested="HandleReviewRequestedAsync"
+                                         DeleteRequested="HandleDeleteRequestedAsync" />
+    }
+</section>

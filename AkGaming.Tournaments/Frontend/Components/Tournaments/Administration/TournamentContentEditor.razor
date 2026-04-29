@@ -1,9 +1,37 @@
 @namespace AkGaming.Tournaments.Frontend.Components.Tournaments.Administration
 
 <div class="admin-control-grid">
-    <SurfacePanel Title="Timeline" Subtitle="Persistent tournament dates used by the public overview and registration flow.">
+    <SurfacePanel Title="Tournament" Subtitle="Public tournament identity and state.">
         <ApiErrorPanel Message="@ErrorMessage" />
 
+        <div class="content-editor-grid">
+            <label class="field-block">
+                <span>Name</span>
+                <input class="text-input" value="@name" @onchange="HandleNameChanged" disabled="@IsBusy" />
+            </label>
+            <label class="field-block">
+                <span>Status</span>
+                <select class="text-input" value="@status" @onchange="HandleStatusChanged" disabled="@IsBusy">
+                    @foreach (var option in Enum.GetValues<TournamentStatusDto>())
+                    {
+                        <option value="@option">@option</option>
+                    }
+                </select>
+            </label>
+        </div>
+
+        <div class="content-editor-logo-row">
+            <LogoImage LogoAssetId="@Tournament.LogoAssetId" Type="tournament" Alt="@($"{Tournament.Name} logo")" Size="LogoImageSize.Large" />
+            <div class="content-editor-logo-actions">
+                <LogoUploadDialog Uploaded="HandleLogoUploadedAsync" />
+                <button type="button" class="ghost-button" @onclick="ClearLogoAsync" disabled="@IsBusy || Tournament.LogoAssetId is null">
+                    Clear logo
+                </button>
+            </div>
+        </div>
+    </SurfacePanel>
+
+    <SurfacePanel Title="Timeline" Subtitle="Persistent tournament dates used by the public overview and registration flow.">
         <div class="content-editor-grid">
             <label class="field-block">
                 <span>Registration opens</span>
@@ -53,4 +81,8 @@
             <button type="button" class="solid-button" @onclick="SaveAsync" disabled="@IsBusy">Save tournament content</button>
         </div>
     </SurfacePanel>
+
+    <TournamentRegistrationRulesEditor Rules="@Tournament.RegistrationRules"
+                                       IsBusy="@IsBusy"
+                                       SaveRequested="HandleSaveRulesAsync" />
 </div>

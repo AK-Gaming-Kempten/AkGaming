@@ -24,16 +24,18 @@ public sealed class TournamentRegistrationRuleManagementService(
             throw new ValidationException("At least one registration rule is required.");
         }
 
-        tournament.RegistrationRules.Clear();
+        var replacementRules = new List<TournamentRegistrationRule>();
         for (var index = 0; index < rules.Count; index++)
         {
-            tournament.RegistrationRules.Add(CreateRule(rules[index], index, tournamentId));
+            replacementRules.Add(CreateRule(rules[index], index, tournamentId));
         }
 
+        await tournamentRepository.ReplaceRegistrationRulesAsync(tournament.Id, replacementRules, cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
+        tournament.RegistrationRules = replacementRules;
 
         var rankSystem = rankSystemRegistry.GetRankSystem(tournament.GameId);
-        return tournament.RegistrationRules
+        return replacementRules
             .OrderBy(rule => rule.SortOrder)
             .Select(rule => ToDto(rule, rankSystem))
             .ToList();

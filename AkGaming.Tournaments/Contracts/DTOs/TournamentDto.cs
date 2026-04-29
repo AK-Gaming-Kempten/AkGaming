@@ -12,4 +12,5 @@ public sealed record TournamentDto(
     DateTimeOffset? RegistrationClosedUtc,
     DateTimeOffset? StartUtc,
     DateTimeOffset? EndUtc,
-    IReadOnlyList<TournamentInfoSectionDto> InfoSections);
+    IReadOnlyList<TournamentInfoSectionDto> InfoSections,
+    IReadOnlyList<TournamentRegistrationRuleDto> RegistrationRules);

@@ -125,6 +125,20 @@ internal sealed class InMemoryTournamentRepository(InMemoryStore store) : ITourn
 
     public Task<Tournament?> GetBySlugAsync(string slug, CancellationToken cancellationToken = default)
         => Task.FromResult(store.Tournaments.FirstOrDefault(tournament => string.Equals(tournament.Slug, slug, StringComparison.OrdinalIgnoreCase)));
+
+    public Task ReplaceInfoSectionsAsync(Guid tournamentId, IReadOnlyList<TournamentInfoSection> sections, CancellationToken cancellationToken = default)
+    {
+        var tournament = store.Tournaments.First(tournament => tournament.Id == tournamentId);
+        tournament.InfoSections = sections.ToList();
+        return Task.CompletedTask;
+    }
+
+    public Task ReplaceRegistrationRulesAsync(Guid tournamentId, IReadOnlyList<TournamentRegistrationRule> rules, CancellationToken cancellationToken = default)
+    {
+        var tournament = store.Tournaments.First(tournament => tournament.Id == tournamentId);
+        tournament.RegistrationRules = rules.ToList();
+        return Task.CompletedTask;
+    }
 }
 
 internal sealed class InMemoryTournamentRegistrationRepository(InMemoryStore store) : ITournamentRegistrationRepository
@@ -148,6 +162,13 @@ internal sealed class InMemoryTournamentRegistrationRepository(InMemoryStore sto
         store.Registrations.Add(registration);
         registration.Team?.Registrations.Add(registration);
         return Task.CompletedTask;
+    }
+
+    public void Delete(TournamentRegistration registration)
+    {
+        store.Registrations.Remove(registration);
+        registration.Team?.Registrations.Remove(registration);
+        registration.Tournament?.Registrations.Remove(registration);
     }
 }
 

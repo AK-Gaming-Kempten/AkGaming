@@ -1,0 +1,56 @@
+@namespace AkGaming.Tournaments.Frontend.Components.Tournaments.Administration
+
+<SurfacePanel Title="Registrations" Subtitle="Approve, reject, or remove team registrations.">
+    <ApiErrorPanel Message="@ErrorMessage" />
+
+    @if (Registrations.Count == 0)
+    {
+        <p class="muted-copy">No registrations yet.</p>
+    }
+    else
+    {
+        <div class="stack">
+            @foreach (var registration in Registrations)
+            {
+                <article class="registration-admin-card">
+                    <div class="registration-admin-main">
+                        <div>
+                            <h3>@GetTeamName(registration.TeamId)</h3>
+                            <p class="muted-copy">@registration.SubmittedAtUtc.ToLocalTime().ToString("dd MMM yyyy, HH:mm")</p>
+                        </div>
+                        <span class="status-pill @GetStatusClass(registration.Status)">@registration.Status</span>
+                    </div>
+
+                    @if (!string.IsNullOrWhiteSpace(registration.ReviewNote))
+                    {
+                        <p class="registration-admin-note">@registration.ReviewNote</p>
+                    }
+
+                    <div class="registration-admin-meta">
+                        <span>@registration.Rosters.Count roster version(s)</span>
+                        @if (registration.ActiveRosterId is not null)
+                        {
+                            <span>Active roster set</span>
+                        }
+                    </div>
+
+                    <div class="registration-admin-actions">
+                        @if (registration.Status == TournamentRegistrationStatusDto.Pending)
+                        {
+                            <button type="button" class="solid-button" @onclick="() => ReviewAsync(registration.Id, true)" disabled="@IsBusy">
+                                Accept
+                            </button>
+                            <button type="button" class="ghost-button" @onclick="() => ReviewAsync(registration.Id, false)" disabled="@IsBusy">
+                                Deny
+                            </button>
+                        }
+
+                        <button type="button" class="ghost-button danger-button" @onclick="() => DeleteAsync(registration.Id)" disabled="@IsBusy">
+                            Remove
+                        </button>
+                    </div>
+                </article>
+            }
+        </div>
+    }
+</SurfacePanel>

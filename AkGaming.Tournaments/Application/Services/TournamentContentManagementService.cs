@@ -12,6 +12,8 @@ public sealed class TournamentContentManagementService(
 {
     public async Task<TournamentDto> UpdateTournamentContentAsync(
         Guid tournamentId,
+        string name,
+        TournamentStatusDto status,
         DateTimeOffset? registrationOpenUtc,
         DateTimeOffset? registrationClosedUtc,
         DateTimeOffset? startUtc,
@@ -22,14 +24,19 @@ public sealed class TournamentContentManagementService(
         var tournament = await tournamentRepository.GetByIdAsync(tournamentId, cancellationToken)
                          ?? throw new NotFoundException($"Tournament '{tournamentId}' was not found.");
 
+        if (string.IsNullOrWhiteSpace(name))
+            throw new ValidationException("Tournament name is required.");
+
         ValidateTimeline(registrationOpenUtc, registrationClosedUtc, startUtc, endUtc);
 
+        tournament.Name = name.Trim();
+        tournament.Status = status.ToDomain();
         tournament.RegistrationOpenUtc = registrationOpenUtc;
         tournament.RegistrationClosedUtc = registrationClosedUtc;
         tournament.StartUtc = startUtc;
         tournament.EndUtc = endUtc;
 
-        tournament.InfoSections.Clear();
+        var replacementSections = new List<TournamentInfoSection>();
         for (var index = 0; index < infoSections.Count; index++)
         {
             var update = infoSections[index];
@@ -39,7 +46,7 @@ public sealed class TournamentContentManagementService(
             if (string.IsNullOrWhiteSpace(update.Header))
                 throw new ValidationException("Tournament info section header is required.");
 
-            tournament.InfoSections.Add(new TournamentInfoSection
+            replacementSections.Add(new TournamentInfoSection
             {
                 Id = Guid.NewGuid(),
                 TournamentId = tournament.Id,
@@ -49,7 +56,9 @@ public sealed class TournamentContentManagementService(
             });
         }
 
+        await tournamentRepository.ReplaceInfoSectionsAsync(tournament.Id, replacementSections, cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
+        tournament.InfoSections = replacementSections;
         return tournament.ToDto();
     }
 

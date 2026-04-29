@@ -59,6 +59,8 @@ public sealed class TournamentsController(
     {
         var tournament = await contentService.UpdateTournamentContentAsync(
             tournamentId,
+            request.Name,
+            request.Status,
             request.RegistrationOpenUtc,
             request.RegistrationClosedUtc,
             request.StartUtc,
@@ -83,6 +85,8 @@ public sealed class TournamentsController(
 
 public sealed record UpdateTournamentLogoRequest(Guid? LogoAssetId);
 public sealed record UpdateTournamentContentRequest(
+    string Name,
+    TournamentStatusDto Status,
     DateTimeOffset? RegistrationOpenUtc,
     DateTimeOffset? RegistrationClosedUtc,
     DateTimeOffset? StartUtc,

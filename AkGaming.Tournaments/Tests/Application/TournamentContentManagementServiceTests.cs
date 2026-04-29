@@ -1,6 +1,7 @@
 using AkGaming.Tournaments.Application.Exceptions;
 using AkGaming.Tournaments.Application.Services;
 using AkGaming.Tournaments.Application.UseCases;
+using AkGaming.Tournaments.Contracts.DTOs;
 using AkGaming.Tournaments.Domain.Entities;
 using AkGaming.Tournaments.Tests.Fakes;
 
@@ -49,6 +50,8 @@ public sealed class TournamentContentManagementServiceTests
         // Act
         var result = await Service.UpdateTournamentContentAsync(
             tournament.Id,
+            "Updated name",
+            TournamentStatusDto.InProgress,
             registrationOpenUtc,
             registrationClosedUtc,
             startUtc,
@@ -58,6 +61,8 @@ public sealed class TournamentContentManagementServiceTests
         // Assert
         Assert.Multiple(() =>
         {
+            Assert.That(result.Name, Is.EqualTo("Updated name"));
+            Assert.That(result.Status, Is.EqualTo(TournamentStatusDto.InProgress));
             Assert.That(result.RegistrationOpenUtc, Is.EqualTo(registrationOpenUtc));
             Assert.That(result.InfoSections.Select(section => section.Header), Is.EqualTo(new[] { "Format", "Rules" }));
             Assert.That(tournament.InfoSections.Select(section => section.SortOrder), Is.EqualTo(new[] { 0, 1 }));
@@ -76,6 +81,8 @@ public sealed class TournamentContentManagementServiceTests
         // Act
         Task Act() => Service.UpdateTournamentContentAsync(
             tournament.Id,
+            tournament.Name,
+            TournamentStatusDto.RegistrationOpen,
             new DateTimeOffset(2026, 4, 1, 16, 0, 0, TimeSpan.Zero),
             new DateTimeOffset(2026, 4, 15, 16, 0, 0, TimeSpan.Zero),
             new DateTimeOffset(2026, 4, 10, 12, 0, 0, TimeSpan.Zero),

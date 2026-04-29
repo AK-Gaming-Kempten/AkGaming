@@ -86,6 +86,8 @@ public sealed class TournamentsControllerTests
         // Arrange
         var tournamentId = Guid.NewGuid();
         var request = new UpdateTournamentContentRequest(
+            "Rift Rumble",
+            TournamentStatusDto.RegistrationOpen,
             new DateTimeOffset(2026, 4, 1, 16, 0, 0, TimeSpan.Zero),
             new DateTimeOffset(2026, 4, 10, 16, 0, 0, TimeSpan.Zero),
             new DateTimeOffset(2026, 4, 12, 12, 0, 0, TimeSpan.Zero),
@@ -103,10 +105,13 @@ public sealed class TournamentsControllerTests
             request.RegistrationClosedUtc,
             request.StartUtc,
             request.EndUtc,
-            [new TournamentInfoSectionDto(Guid.NewGuid(), "Format", "Markdown", 0)]);
+            [new TournamentInfoSectionDto(Guid.NewGuid(), "Format", "Markdown", 0)],
+            [new TournamentRegistrationRuleDto("MinPlayersPerTeam", "Minimum players", 5, "5")]);
         ContentService
             .Setup(mock => mock.UpdateTournamentContentAsync(
                 tournamentId,
+                request.Name,
+                request.Status,
                 request.RegistrationOpenUtc,
                 request.RegistrationClosedUtc,
                 request.StartUtc,

@@ -1,7 +1,26 @@
+.admin-control-grid {
+    display: grid;
+    gap: 1.25rem;
+}
+
 .content-editor-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
     gap: 1rem;
+}
+
+.content-editor-logo-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.content-editor-logo-actions {
+    display: flex;
+    gap: 0.75rem;
+    align-items: center;
 }
 
 .field-block {
@@ -39,6 +58,8 @@
 }
 
 @media (max-width: 720px) {
+    .content-editor-logo-row,
+    .content-editor-logo-actions,
     .section-editor-actions,
     .content-editor-footer {
         flex-direction: column;

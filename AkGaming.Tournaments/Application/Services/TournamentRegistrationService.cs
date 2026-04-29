@@ -128,6 +128,13 @@ public sealed class TournamentRegistrationService(
         return await MapRegistrationAsync(registration, cancellationToken);
     }
 
+    public async Task DeleteRegistrationAsync(Guid registrationId, CancellationToken cancellationToken = default)
+    {
+        var registration = await RequireRegistrationAsync(registrationId, cancellationToken);
+        tournamentRegistrationRepository.Delete(registration);
+        await unitOfWork.SaveChangesAsync(cancellationToken);
+    }
+
     public async Task<TournamentRegistrationDto> SubmitRosterChangeAsync(
         Guid registrationId,
         string actingUserId,

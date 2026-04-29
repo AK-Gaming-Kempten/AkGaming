@@ -6,6 +6,8 @@ public interface ITournamentContentManagementService
 {
     Task<TournamentDto> UpdateTournamentContentAsync(
         Guid tournamentId,
+        string name,
+        TournamentStatusDto status,
         DateTimeOffset? registrationOpenUtc,
         DateTimeOffset? registrationClosedUtc,
         DateTimeOffset? startUtc,

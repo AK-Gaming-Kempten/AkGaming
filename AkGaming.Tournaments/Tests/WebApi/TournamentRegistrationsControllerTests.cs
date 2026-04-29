@@ -116,6 +116,24 @@ public sealed class TournamentRegistrationsControllerTests
     }
 
     [Test]
+    [Description("Verifies that the tournament registration controller forwards delete requests to the application service.")]
+    public async Task DeleteTournamentRegistration_ReturnsNoContent()
+    {
+        // Arrange
+        var registrationId = Guid.NewGuid();
+        Service
+            .Setup(mock => mock.DeleteRegistrationAsync(registrationId, CancellationToken.None))
+            .Returns(Task.CompletedTask);
+
+        // Act
+        var response = await Controller.DeleteTournamentRegistration(registrationId, CancellationToken.None);
+
+        // Assert
+        Assert.That(response, Is.InstanceOf<NoContentResult>());
+        Service.Verify(mock => mock.DeleteRegistrationAsync(registrationId, CancellationToken.None), Times.Once);
+    }
+
+    [Test]
     [Description("Verifies that the tournament registration controller passes roster review values to the application service.")]
     public async Task ReviewRosterChange_ReturnsOkWithRegistration()
     {

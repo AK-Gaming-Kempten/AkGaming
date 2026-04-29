@@ -1,12 +1,13 @@
+@page "/tournaments/{TournamentSlug}/administration/base-settings"
 @page "/tournaments/{TournamentSlug}/administration/control-room"
 @namespace AkGaming.Tournaments.Frontend.Components.Tournaments.Administration
 @attribute [Authorize(Roles = "Admin")]
 @inherits TournamentPageBase
 
-<PageTitle>@($"{Tournament?.Name ?? "Tournament"} Control Room")</PageTitle>
+<PageTitle>@($"{Tournament?.Name ?? "Tournament"} Base Settings")</PageTitle>
 
 <section class="app-page">
-    <PageHeader Title="Control room" />
+    <PageHeader Title="Base Settings" />
 
     @if (Tournament is null)
     {
@@ -16,9 +17,14 @@
     }
     else
     {
-        <TournamentContentEditor Tournament="@Tournament"
-                                 IsBusy="@isBusy"
-                                 ErrorMessage="@errorMessage"
-                                 SaveRequested="HandleSaveRequestedAsync" />
+        <div class="stack">
+            <TournamentContentEditor Tournament="@Tournament"
+                                     IsBusy="@isBusy"
+                                     ErrorMessage="@errorMessage"
+                                     SaveRequested="HandleSaveRequestedAsync"
+                                     RegistrationRulesSaveRequested="HandleRegistrationRulesSaveRequestedAsync"
+                                     LogoUploaded="HandleLogoUploadedAsync"
+                                     ClearLogoRequested="HandleClearLogoRequestedAsync" />
+        </div>
     }
 </section>

@@ -60,9 +60,13 @@
 
             @if (IsAdministrationExpanded)
             {
-                <NavLink href="@BuildTournamentHref("administration/control-room")" class="nav-item level-2" @onclick="NotifyNavigation">
+                <NavLink href="@BuildTournamentHref("administration/base-settings")" class="nav-item level-2" @onclick="NotifyNavigation">
                     <span class="nav-icon bi-command"></span>
-                    <span>Control Room</span>
+                    <span>Base Settings</span>
+                </NavLink>
+                <NavLink href="@BuildTournamentHref("administration/registrations")" class="nav-item level-2" @onclick="NotifyNavigation">
+                    <span class="nav-icon bi-person-check-fill"></span>
+                    <span>Registrations</span>
                 </NavLink>
                 <NavLink href="@BuildTournamentHref("administration/match-desk")" class="nav-item level-2" @onclick="NotifyNavigation">
                     <span class="nav-icon bi-broadcast-pin"></span>

@@ -73,10 +73,24 @@ internal static class MappingExtensions
                 .OrderBy(section => section.SortOrder)
                 .ThenBy(section => section.Header, StringComparer.OrdinalIgnoreCase)
                 .Select(section => section.ToDto())
+                .ToList(),
+            tournament.RegistrationRules
+                .OrderBy(rule => rule.SortOrder)
+                .Select(rule => rule.ToDto())
                 .ToList());
 
     public static TournamentInfoSectionDto ToDto(this TournamentInfoSection section)
         => new(section.Id, section.Header, section.ContentMarkdown, section.SortOrder);
+
+    public static TournamentRegistrationRuleDto ToDto(this TournamentRegistrationRule rule)
+        => rule switch
+        {
+            MinPlayersPerTeamRegistrationRule => new TournamentRegistrationRuleDto("MinPlayersPerTeam", "Minimum players", rule.Value, rule.Value.ToString()),
+            MaxPlayersPerTeamRegistrationRule => new TournamentRegistrationRuleDto("MaxPlayersPerTeam", "Maximum players", rule.Value, rule.Value.ToString()),
+            MaxPlayerRankRatingRegistrationRule => new TournamentRegistrationRuleDto("MaxPlayerRankRating", "Maximum player MMR", rule.Value, rule.Value.ToString()),
+            MaxTeamAverageRankRatingRegistrationRule => new TournamentRegistrationRuleDto("MaxTeamAverageRankRating", "Maximum team average MMR", rule.Value, rule.Value.ToString()),
+            _ => new TournamentRegistrationRuleDto("Unknown", "Unknown rule", rule.Value, rule.Value.ToString())
+        };
 
     public static TournamentRegistrationDto ToDto(
         this TournamentRegistration registration,
@@ -182,6 +196,18 @@ internal static class MappingExtensions
             TournamentStatus.InProgress => TournamentStatusDto.InProgress,
             TournamentStatus.Completed => TournamentStatusDto.Completed,
             TournamentStatus.Archived => TournamentStatusDto.Archived,
+            _ => throw new ArgumentOutOfRangeException(nameof(status), status, null)
+        };
+
+    public static TournamentStatus ToDomain(this TournamentStatusDto status)
+        => status switch
+        {
+            TournamentStatusDto.Draft => TournamentStatus.Draft,
+            TournamentStatusDto.RegistrationOpen => TournamentStatus.RegistrationOpen,
+            TournamentStatusDto.RegistrationClosed => TournamentStatus.RegistrationClosed,
+            TournamentStatusDto.InProgress => TournamentStatus.InProgress,
+            TournamentStatusDto.Completed => TournamentStatus.Completed,
+            TournamentStatusDto.Archived => TournamentStatus.Archived,
             _ => throw new ArgumentOutOfRangeException(nameof(status), status, null)
         };
 }
