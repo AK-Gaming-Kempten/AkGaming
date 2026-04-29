@@ -1,0 +1,87 @@
+@page "/teams/{TeamId:guid}/invite"
+@namespace AkGaming.Tournaments.Frontend.Components.Teams
+
+<PageTitle>Team Invites</PageTitle>
+
+<section class="app-page">
+    <PageHeader Title="Team invites" />
+    <ApiErrorPanel Message="@errorMessage" />
+
+    @if (isLoading)
+    {
+        <SurfacePanel Title="Invites">
+            <p class="muted-copy">Loading team invite keys.</p>
+        </SurfacePanel>
+    }
+    else if (!isAuthenticated)
+    {
+        <UnauthorizedPanel ImageUrl="images/icons/AKG_Logos/Red.png">
+            <p>Login required to manage team invite keys.</p>
+        </UnauthorizedPanel>
+    }
+    else if (team is null)
+    {
+        <SurfacePanel Title="Team not found">
+            <p class="muted-copy">No team exists for this id.</p>
+        </SurfacePanel>
+    }
+    else if (!canEdit)
+    {
+        <UnauthorizedPanel ImageUrl="images/icons/AKG_Logos/Red.png">
+            <p>Only owners and editors can manage invite keys.</p>
+        </UnauthorizedPanel>
+    }
+    else
+    {
+        @if (isCreateDialogOpen)
+        {
+            <button type="button" class="team-invite-dialog-backdrop" @onclick="CloseCreateDialogAsync" aria-label="Close create invite dialog"></button>
+        }
+
+        <div class="team-invite-layout">
+            <div class="team-invite-content @(isCreateDialogOpen ? "team-invite-content-blurred" : null)">
+                <SurfacePanel Title="@($"{team.Name} invites")">
+                    <div class="my-teams-actions">
+                        <button type="button" class="solid-button" @onclick="OpenCreateDialogAsync" disabled="@isBusy">Create invite</button>
+                    </div>
+
+                    <div class="my-teams-list">
+                        @if (invites.Count == 0)
+                        {
+                            <p class="muted-copy">No invite keys yet.</p>
+                        }
+                        else
+                        {
+                            @foreach (var invite in invites)
+                            {
+                                <TeamInviteListItem Invite="@invite"
+                                                    InviteUrl="@GetInviteUrl(invite)"
+                                                    IsBusy="@isBusy"
+                                                    CopyRequested="CopyInviteAsync"
+                                                    RevokeRequested="RevokeInviteAsync" />
+                            }
+                        }
+                    </div>
+                </SurfacePanel>
+            </div>
+
+            @if (isCreateDialogOpen)
+            {
+                <section class="team-invite-dialog">
+                    <SurfacePanel Title="Create invite">
+                        <div class="team-invite-dialog-form">
+                            <label>
+                                <span>Max uses</span>
+                                <input class="form-input" type="number" min="1" value="@maxUses" @oninput="HandleMaxUsesChanged" />
+                            </label>
+                            <div class="team-edit-actions">
+                                <button type="button" class="solid-button" @onclick="CreateInviteAsync" disabled="@isBusy">Create link</button>
+                                <button type="button" class="ghost-button" @onclick="CloseCreateDialogAsync" disabled="@isBusy">Cancel</button>
+                            </div>
+                        </div>
+                    </SurfacePanel>
+                </section>
+            }
+        </div>
+    }
+</section>

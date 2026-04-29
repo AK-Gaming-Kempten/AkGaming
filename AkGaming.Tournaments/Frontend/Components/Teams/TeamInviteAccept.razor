@@ -1,0 +1,37 @@
+@page "/teams/{TeamId:guid}/invite/{Key}"
+@namespace AkGaming.Tournaments.Frontend.Components.Teams
+
+<PageTitle>Join Team</PageTitle>
+
+<section class="app-page">
+    <PageHeader Title="Join team" />
+    <ApiErrorPanel Message="@errorMessage" />
+
+    @if (isLoading)
+    {
+        <SurfacePanel Title="Invite">
+            <p class="muted-copy">Loading team invite.</p>
+        </SurfacePanel>
+    }
+    else if (team is null)
+    {
+        <SurfacePanel Title="Invite not found">
+            <p class="muted-copy">This invite is invalid or the team does not exist.</p>
+        </SurfacePanel>
+    }
+    else if (!isAuthenticated || string.IsNullOrWhiteSpace(currentUserId))
+    {
+        <UnauthorizedPanel ImageUrl="images/icons/AKG_Logos/Red.png">
+            <p>Login to accept this invite.</p>
+            <a class="solid-button" href="@loginUrl">Login</a>
+        </UnauthorizedPanel>
+    }
+    else
+    {
+        <SurfacePanel Title="Confirm team join">
+            <p>You are about to join <strong>@team.Name</strong>.</p>
+            <p class="muted-copy">Signed in as: @currentUserDisplayName (@currentUserId)</p>
+            <button type="button" class="solid-button" @onclick="AcceptInviteAsync" disabled="@isBusy">Accept invite</button>
+        </SurfacePanel>
+    }
+</section>

@@ -20,6 +20,7 @@ public static class SqliteDatabaseInitializer
         await dbContext.EnsurePlayerProfileRankColumnAsync();
         await dbContext.EnsureTournamentContentSchemaAsync();
         await dbContext.EnsureTournamentRegistrationRulesTableAsync();
+        await dbContext.EnsureTeamInviteKeysTableAsync();
 
         if (!await dbContext.Games.AnyAsync())
         {
@@ -258,6 +259,27 @@ public static class SqliteDatabaseInitializer
         await dbContext.ExecuteSqlAsync("""
             CREATE INDEX IF NOT EXISTS IX_tournament_info_sections_TournamentId_SortOrder
             ON tournament_info_sections (TournamentId, SortOrder);
+            """);
+    }
+
+    private static async Task EnsureTeamInviteKeysTableAsync(this TournamentDbContext dbContext)
+    {
+        await dbContext.ExecuteSqlAsync("""
+            CREATE TABLE IF NOT EXISTS team_invite_keys (
+                Id TEXT NOT NULL CONSTRAINT PK_team_invite_keys PRIMARY KEY,
+                TeamId TEXT NOT NULL,
+                Key TEXT NOT NULL,
+                RemainingUses INTEGER NOT NULL DEFAULT 1,
+                CreatedUtc TEXT NOT NULL,
+                RevokedUtc TEXT NULL,
+                CONSTRAINT FK_team_invite_keys_teams_TeamId
+                    FOREIGN KEY (TeamId) REFERENCES teams (Id) ON DELETE CASCADE
+            );
+            """);
+
+        await dbContext.ExecuteSqlAsync("""
+            CREATE UNIQUE INDEX IF NOT EXISTS IX_team_invite_keys_TeamId_Key
+            ON team_invite_keys (TeamId, Key);
             """);
     }
 

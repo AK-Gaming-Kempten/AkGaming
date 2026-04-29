@@ -10,6 +10,7 @@ public partial class TeamHeaderBanner : ComponentBase
     [Parameter] public bool CanEdit { get; set; }
     [Parameter] public bool IsBusy { get; set; }
     [Parameter] public EventCallback EditRequested { get; set; }
+    [Parameter] public EventCallback InviteManagementRequested { get; set; }
 
     private bool isMenuOpen;
 
@@ -29,5 +30,11 @@ public partial class TeamHeaderBanner : ComponentBase
     {
         isMenuOpen = false;
         await EditRequested.InvokeAsync();
+    }
+
+    private async Task RequestInvitesAsync()
+    {
+        isMenuOpen = false;
+        await InviteManagementRequested.InvokeAsync();
     }
 }

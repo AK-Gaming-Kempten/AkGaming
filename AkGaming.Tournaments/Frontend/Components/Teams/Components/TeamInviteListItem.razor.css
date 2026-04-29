@@ -1,0 +1,87 @@
+.invite-item {
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.8rem;
+    border: 1px solid color-mix(in oklab, var(--color-highlight-primary) 24%, transparent);
+    border-radius: 8px;
+    background: color-mix(in oklab, var(--color-background-secondary) 76%, transparent);
+}
+
+.invite-item-copy {
+    display: grid;
+    min-width: 0;
+}
+
+.invite-item-copy strong,
+.invite-item-copy span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.invite-item-copy strong {
+    font-size: 0.9rem;
+}
+
+.invite-item-copy span {
+    color: var(--color-text-secondary);
+    font-size: 0.88rem;
+}
+
+.invite-item-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+}
+
+.invite-item-menu {
+    position: relative;
+}
+
+.invite-item-menu-trigger {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.2rem;
+    height: 2.2rem;
+    border: 1px solid color-mix(in oklab, var(--color-text-secondary) 24%, transparent);
+    border-radius: 999px;
+    background: color-mix(in oklab, var(--color-background-primary) 85%, transparent);
+    color: var(--color-text-primary);
+    cursor: pointer;
+}
+
+.invite-item-menu-popover {
+    position: absolute;
+    top: calc(100% + 0.3rem);
+    right: 0;
+    z-index: 40;
+    padding: 0.35rem;
+    border: 1px solid color-mix(in oklab, var(--color-text-secondary) 24%, transparent);
+    border-radius: 8px;
+    background: var(--color-background-primary);
+}
+
+.invite-item-menu-popover button {
+    padding: 0.55rem 0.7rem;
+    border: 0;
+    border-radius: 6px;
+    background: transparent;
+    color: var(--color-text-primary);
+    cursor: pointer;
+}
+
+.invite-item-menu-popover button:hover {
+    background: color-mix(in oklab, var(--color-highlight-secondary) 36%, transparent);
+}
+
+.invite-item-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 30;
+    border: 0;
+    background: transparent;
+}

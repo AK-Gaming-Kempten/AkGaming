@@ -100,15 +100,53 @@ internal sealed class InMemoryTeamRepository(InMemoryStore store) : ITeamReposit
     public Task<Team?> GetByIdAsync(Guid teamId, CancellationToken cancellationToken = default)
         => Task.FromResult(store.Teams.FirstOrDefault(team => team.Id == teamId));
 
+    public Task<Team?> GetByInviteKeyAsync(Guid teamId, string key, CancellationToken cancellationToken = default)
+        => Task.FromResult(store.Teams.FirstOrDefault(team =>
+            team.Id == teamId && team.InviteKeys.Any(invite => invite.Key == key)));
+
+    public Task<TeamInviteKey?> GetInviteKeyAsync(Guid teamId, string key, CancellationToken cancellationToken = default)
+        => Task.FromResult(store.Teams
+            .Where(team => team.Id == teamId)
+            .SelectMany(team => team.InviteKeys)
+            .FirstOrDefault(invite => invite.Key == key));
+
     public Task<IReadOnlyList<Team>> GetByUserIdAsync(string userId, CancellationToken cancellationToken = default)
         => Task.FromResult<IReadOnlyList<Team>>(store.Teams
             .Where(team => team.Memberships.Any(member => member.UserId == userId))
             .OrderBy(team => team.Name)
             .ToList());
 
+    public Task<bool> IsUserMemberAsync(Guid teamId, string userId, CancellationToken cancellationToken = default)
+        => Task.FromResult(store.Teams.Any(team =>
+            team.Id == teamId && team.Memberships.Any(member => member.UserId == userId)));
+
     public Task AddAsync(Team team, CancellationToken cancellationToken = default)
     {
         store.Teams.Add(team);
+        return Task.CompletedTask;
+    }
+
+    public Task AddMembershipAsync(TeamMembership membership, CancellationToken cancellationToken = default)
+    {
+        var team = store.Teams.FirstOrDefault(item => item.Id == membership.TeamId);
+        if (team is not null)
+        {
+            membership.Team = team;
+            team.Memberships.Add(membership);
+        }
+
+        return Task.CompletedTask;
+    }
+
+    public Task AddInviteKeyAsync(TeamInviteKey inviteKey, CancellationToken cancellationToken = default)
+    {
+        var team = store.Teams.FirstOrDefault(item => item.Id == inviteKey.TeamId);
+        if (team is not null)
+        {
+            inviteKey.Team = team;
+            team.InviteKeys.Add(inviteKey);
+        }
+
         return Task.CompletedTask;
     }
 }

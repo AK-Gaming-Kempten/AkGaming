@@ -41,6 +41,15 @@ internal static class MappingExtensions
                 .Select(profile => profile.ToDto())
                 .ToList());
 
+    public static TeamInviteKeyDto ToDto(this TeamInviteKey inviteKey)
+        => new(
+            inviteKey.Id,
+            inviteKey.TeamId,
+            inviteKey.Key,
+            inviteKey.RemainingUses,
+            inviteKey.CreatedUtc,
+            inviteKey.RevokedUtc);
+
     public static TournamentSummaryDto ToSummaryDto(this Tournament tournament)
         => new(
             tournament.Id,

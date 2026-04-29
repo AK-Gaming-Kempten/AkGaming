@@ -1,0 +1,28 @@
+@namespace AkGaming.Tournaments.Frontend.Components.Teams.Components
+
+@if (isMenuOpen)
+{
+    <button type="button" class="invite-item-backdrop" @onclick="CloseMenuAsync" aria-label="Close invite actions"></button>
+}
+
+<article class="invite-item">
+    <span class="invite-item-copy">
+        <strong>@InviteDisplayText</strong>
+        <span>Uses left: @Invite.RemainingUses</span>
+    </span>
+    <div class="invite-item-actions">
+        <button type="button" class="ghost-button" @onclick="ToggleVisibilityAsync" disabled="@IsBusy">@(isUrlVisible ? "Hide" : "Show")</button>
+        <button type="button" class="ghost-button" @onclick="OnCopy" disabled="@IsBusy">Copy</button>
+        <div class="invite-item-menu">
+            <button type="button" class="invite-item-menu-trigger" @onclick="ToggleMenuAsync" disabled="@IsBusy" aria-label="Open invite actions">
+                <span class="bi bi-three-dots"></span>
+            </button>
+            @if (isMenuOpen)
+            {
+                <div class="invite-item-menu-popover">
+                    <button type="button" @onclick="OnRevoke" disabled="@(IsBusy || Invite.RemainingUses == 0)">Revoke</button>
+                </div>
+            }
+        </div>
+    </div>
+</article>

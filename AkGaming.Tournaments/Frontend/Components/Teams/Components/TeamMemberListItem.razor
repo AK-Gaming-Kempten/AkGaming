@@ -1,0 +1,40 @@
+@namespace AkGaming.Tournaments.Frontend.Components.Teams.Components
+
+@if (isMenuOpen)
+{
+    <button type="button" class="team-member-backdrop" @onclick="CloseMenuAsync" aria-label="Close member actions"></button>
+}
+
+<article class="team-member-row">
+    <span class="team-member-avatar">@Initial</span>
+    <span class="team-member-body">
+        <strong>@DisplayName</strong>
+        <span>@Member.Role</span>
+    </span>
+
+    @if (CanManageRoles)
+    {
+        <div class="team-member-menu">
+            <button type="button" class="team-member-menu-trigger" @onclick="ToggleMenuAsync" disabled="@IsBusy" aria-label="Open member actions">
+                <span class="bi bi-three-dots"></span>
+            </button>
+            @if (isMenuOpen)
+            {
+                <div class="team-member-menu-popover">
+                    @if (Member.Role == TeamRoleDto.Member)
+                    {
+                        <button type="button" @onclick="PromoteToEditorAsync" disabled="@IsBusy">Make editor</button>
+                    }
+                    @if (Member.Role == TeamRoleDto.Editor)
+                    {
+                        <button type="button" @onclick="DemoteToMemberAsync" disabled="@IsBusy">Make member</button>
+                    }
+                    @if (Member.Role != TeamRoleDto.Owner)
+                    {
+                        <button type="button" @onclick="TransferOwnershipRequestedAsync" disabled="@IsBusy">Transfer ownership</button>
+                    }
+                </div>
+            }
+        </div>
+    }
+</article>

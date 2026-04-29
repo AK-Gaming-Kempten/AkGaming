@@ -9,6 +9,7 @@ public sealed class Team
     public Game? Game { get; set; }
     public MediaAsset? LogoAsset { get; set; }
     public ICollection<TeamMembership> Memberships { get; set; } = [];
+    public ICollection<TeamInviteKey> InviteKeys { get; set; } = [];
     public ICollection<PlayerProfile> GuestPlayerProfiles { get; set; } = [];
     public ICollection<TournamentRegistration> Registrations { get; set; } = [];
 }

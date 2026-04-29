@@ -1,0 +1,56 @@
+.team-invite-layout {
+    position: relative;
+}
+
+.team-invite-content {
+    transition: filter 140ms ease, opacity 140ms ease;
+}
+
+.team-invite-content :deep(.my-teams-list) {
+    display: grid;
+    gap: 0.75rem;
+}
+
+.team-invite-content-blurred {
+    filter: blur(4px);
+    opacity: 0.58;
+    pointer-events: none;
+    user-select: none;
+}
+
+.team-invite-dialog-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 30;
+    border: 0;
+    background: color-mix(in oklab, black 24%, transparent);
+}
+
+.team-invite-dialog {
+    position: fixed;
+    inset: 0;
+    z-index: 32;
+    display: grid;
+    place-items: center;
+    padding: 1rem;
+}
+
+.team-invite-dialog :deep(.surface-panel) {
+    width: min(28rem, 100%);
+}
+
+.team-invite-dialog-form {
+    display: grid;
+    gap: 0.8rem;
+}
+
+.team-invite-dialog-form label {
+    display: grid;
+    gap: 0.35rem;
+}
+
+.team-invite-dialog-form label > span {
+    color: var(--color-text-secondary);
+    font-size: 0.9rem;
+    font-weight: 700;
+}

@@ -66,6 +66,19 @@ public sealed class TeamsController(ITeamManagementService service) : Controller
         return Ok(team);
     }
 
+    [HttpPost("{teamId:guid}/members/{userId}/transfer-ownership", Name = "TransferTeamOwnership")]
+    [EndpointSummary("Transfer team ownership to another member.")]
+    [ProducesResponseType<TeamDto>(StatusCodes.Status200OK)]
+    public async Task<ActionResult<TeamDto>> TransferTeamOwnership(
+        Guid teamId,
+        string userId,
+        TransferTeamOwnershipRequest request,
+        CancellationToken cancellationToken)
+    {
+        var team = await service.TransferOwnershipAsync(teamId, request.ActingUserId, userId, cancellationToken);
+        return Ok(team);
+    }
+
     [HttpPut("{teamId:guid}/logo", Name = "UpdateTeamLogo")]
     [EndpointSummary("Set or clear a team's logo asset.")]
     [ProducesResponseType<TeamDto>(StatusCodes.Status200OK)]
@@ -76,6 +89,56 @@ public sealed class TeamsController(ITeamManagementService service) : Controller
     {
         var team = await service.UpdateTeamLogoAsync(teamId, request.ActingUserId, request.LogoAssetId, cancellationToken);
         return Ok(team);
+    }
+
+    [HttpGet("{teamId:guid}/invite-keys", Name = "GetTeamInviteKeys")]
+    [EndpointSummary("List invite keys for a team.")]
+    [ProducesResponseType<IReadOnlyList<TeamInviteKeyDto>>(StatusCodes.Status200OK)]
+    public async Task<ActionResult<IReadOnlyList<TeamInviteKeyDto>>> GetTeamInviteKeys(
+        Guid teamId,
+        [FromQuery] string actingUserId,
+        CancellationToken cancellationToken)
+    {
+        var inviteKeys = await service.GetInviteKeysAsync(teamId, actingUserId, cancellationToken);
+        return Ok(inviteKeys);
+    }
+
+    [HttpPost("{teamId:guid}/invite-keys", Name = "CreateTeamInviteKey")]
+    [EndpointSummary("Create an invite key for a team.")]
+    [ProducesResponseType<TeamInviteKeyDto>(StatusCodes.Status200OK)]
+    public async Task<ActionResult<TeamInviteKeyDto>> CreateTeamInviteKey(
+        Guid teamId,
+        CreateTeamInviteKeyRequest request,
+        CancellationToken cancellationToken)
+    {
+        var inviteKey = await service.CreateInviteKeyAsync(teamId, request.ActingUserId, request.MaxUses, cancellationToken);
+        return Ok(inviteKey);
+    }
+
+    [HttpDelete("{teamId:guid}/invite-keys/{key}", Name = "RevokeTeamInviteKey")]
+    [EndpointSummary("Revoke an invite key for a team.")]
+    [ProducesResponseType<TeamInviteKeyDto>(StatusCodes.Status200OK)]
+    public async Task<ActionResult<TeamInviteKeyDto>> RevokeTeamInviteKey(
+        Guid teamId,
+        string key,
+        [FromQuery] string actingUserId,
+        CancellationToken cancellationToken)
+    {
+        var inviteKey = await service.RevokeInviteKeyAsync(teamId, key, actingUserId, cancellationToken);
+        return Ok(inviteKey);
+    }
+
+    [HttpPost("{teamId:guid}/invite-keys/{key}/accept", Name = "AcceptTeamInviteKey")]
+    [EndpointSummary("Accept a team invite key as the current user.")]
+    [ProducesResponseType<TeamInviteKeyDto>(StatusCodes.Status200OK)]
+    public async Task<ActionResult<TeamInviteKeyDto>> AcceptTeamInviteKey(
+        Guid teamId,
+        string key,
+        AcceptTeamInviteKeyRequest request,
+        CancellationToken cancellationToken)
+    {
+        var inviteKey = await service.AcceptInviteAsync(teamId, key, request.UserId, cancellationToken);
+        return Ok(inviteKey);
     }
 
     [HttpPut("{teamId:guid}", Name = "UpdateTeam")]
@@ -144,7 +207,10 @@ public sealed class TeamsController(ITeamManagementService service) : Controller
 public sealed record CreateTeamRequest(string ActingUserId, string GameId, string Name);
 public sealed record AddTeamMemberRequest(string ActingUserId, string UserId, TeamRoleDto Role);
 public sealed record UpdateTeamMemberRoleRequest(string ActingUserId, TeamRoleDto Role);
+public sealed record TransferTeamOwnershipRequest(string ActingUserId);
 public sealed record UpdateTeamRequest(string ActingUserId, string Name);
 public sealed record UpdateTeamLogoRequest(string ActingUserId, Guid? LogoAssetId);
+public sealed record CreateTeamInviteKeyRequest(string ActingUserId, int MaxUses = 1);
+public sealed record AcceptTeamInviteKeyRequest(string UserId);
 public sealed record CreateGuestPlayerProfileRequest(string ActingUserId, string Name, int? RankRating = null);
 public sealed record UpdateGuestPlayerProfileRequest(string ActingUserId, string Name, int? RankRating = null);

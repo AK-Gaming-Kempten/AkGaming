@@ -12,6 +12,7 @@ public sealed class TournamentDbContext(DbContextOptions<TournamentDbContext> op
     public DbSet<RosterPlayerSnapshot> RosterPlayerSnapshots => Set<RosterPlayerSnapshot>();
     public DbSet<Team> Teams => Set<Team>();
     public DbSet<TeamMembership> TeamMemberships => Set<TeamMembership>();
+    public DbSet<TeamInviteKey> TeamInviteKeys => Set<TeamInviteKey>();
     public DbSet<Tournament> Tournaments => Set<Tournament>();
     public DbSet<TournamentInfoSection> TournamentInfoSections => Set<TournamentInfoSection>();
     public DbSet<TournamentRegistrationRule> TournamentRegistrationRules => Set<TournamentRegistrationRule>();
@@ -58,6 +59,10 @@ public sealed class TournamentDbContext(DbContextOptions<TournamentDbContext> op
                 .WithOne(membership => membership.Team)
                 .HasForeignKey(membership => membership.TeamId)
                 .OnDelete(DeleteBehavior.Cascade);
+            entity.HasMany(team => team.InviteKeys)
+                .WithOne(invite => invite.Team)
+                .HasForeignKey(invite => invite.TeamId)
+                .OnDelete(DeleteBehavior.Cascade);
             entity.HasMany(team => team.GuestPlayerProfiles)
                 .WithOne(playerProfile => playerProfile.Team)
                 .HasForeignKey(playerProfile => playerProfile.TeamId)
@@ -75,6 +80,14 @@ public sealed class TournamentDbContext(DbContextOptions<TournamentDbContext> op
             entity.Property(membership => membership.UserId).HasMaxLength(128);
             entity.Property(membership => membership.Role).HasConversion<string>();
             entity.HasIndex(membership => new { membership.TeamId, membership.UserId }).IsUnique();
+        });
+
+        modelBuilder.Entity<TeamInviteKey>(entity =>
+        {
+            entity.ToTable("team_invite_keys");
+            entity.HasKey(invite => invite.Id);
+            entity.Property(invite => invite.Key).HasMaxLength(128);
+            entity.HasIndex(invite => new { invite.TeamId, invite.Key }).IsUnique();
         });
 
         modelBuilder.Entity<PlayerProfile>(entity =>

@@ -4,6 +4,7 @@ using AkGaming.Tournaments.Application.Exceptions;
 using AkGaming.Tournaments.Contracts.DTOs;
 using AkGaming.Tournaments.Domain.Entities;
 using AkGaming.Tournaments.Domain.Enums;
+using System.Security.Cryptography;
 
 namespace AkGaming.Tournaments.Application.Services;
 
@@ -108,6 +109,35 @@ public sealed class TeamManagementService(
         return team.ToDto();
     }
 
+    public async Task<TeamDto> TransferOwnershipAsync(Guid teamId, string actingUserId, string targetUserId, CancellationToken cancellationToken = default)
+    {
+        ValidateUserId(actingUserId);
+        ValidateUserId(targetUserId);
+
+        var team = await RequireTeamAsync(teamId, cancellationToken);
+        EnsureOwner(team, actingUserId);
+
+        var normalizedTargetUserId = targetUserId.Trim();
+        var targetMembership = team.Memberships.FirstOrDefault(member =>
+            string.Equals(member.UserId, normalizedTargetUserId, StringComparison.OrdinalIgnoreCase));
+        if (targetMembership is null)
+        {
+            throw new NotFoundException($"User '{targetUserId}' is not a member of team '{teamId}'.");
+        }
+
+        var actingMembership = team.Memberships.First(member =>
+            string.Equals(member.UserId, actingUserId.Trim(), StringComparison.OrdinalIgnoreCase));
+
+        targetMembership.Role = TeamRole.Owner;
+        if (!string.Equals(actingMembership.UserId, targetMembership.UserId, StringComparison.OrdinalIgnoreCase))
+        {
+            actingMembership.Role = TeamRole.Editor;
+        }
+
+        await unitOfWork.SaveChangesAsync(cancellationToken);
+        return team.ToDto();
+    }
+
     public async Task<TeamDto> UpdateTeamAsync(Guid teamId, string actingUserId, string name, CancellationToken cancellationToken = default)
     {
         ValidateUserId(actingUserId);
@@ -132,6 +162,115 @@ public sealed class TeamManagementService(
 
         await unitOfWork.SaveChangesAsync(cancellationToken);
         return team.ToDto();
+    }
+
+    public async Task<IReadOnlyList<TeamInviteKeyDto>> GetInviteKeysAsync(Guid teamId, string actingUserId, CancellationToken cancellationToken = default)
+    {
+        ValidateUserId(actingUserId);
+        var team = await RequireTeamAsync(teamId, cancellationToken);
+        EnsureCanEditTeam(team, actingUserId);
+
+        return team.InviteKeys
+            .OrderByDescending(invite => invite.CreatedUtc)
+            .Select(invite => invite.ToDto())
+            .ToList();
+    }
+
+    public async Task<TeamInviteKeyDto> CreateInviteKeyAsync(Guid teamId, string actingUserId, int maxUses = 1, CancellationToken cancellationToken = default)
+    {
+        ValidateUserId(actingUserId);
+        var team = await RequireTeamAsync(teamId, cancellationToken);
+        EnsureCanEditTeam(team, actingUserId);
+
+        var normalizedUses = Math.Max(1, maxUses);
+        var invite = new TeamInviteKey
+        {
+            Id = Guid.NewGuid(),
+            TeamId = team.Id,
+            Key = GenerateInviteKey(),
+            RemainingUses = normalizedUses,
+            CreatedUtc = DateTimeOffset.UtcNow
+        };
+
+        await teamRepository.AddInviteKeyAsync(invite, cancellationToken);
+        await unitOfWork.SaveChangesAsync(cancellationToken);
+        return invite.ToDto();
+    }
+
+    public async Task<TeamInviteKeyDto> RevokeInviteKeyAsync(Guid teamId, string key, string actingUserId, CancellationToken cancellationToken = default)
+    {
+        ValidateUserId(actingUserId);
+        if (string.IsNullOrWhiteSpace(key))
+        {
+            throw new ValidationException("Invite key is required.");
+        }
+
+        var team = await RequireTeamAsync(teamId, cancellationToken);
+        EnsureCanEditTeam(team, actingUserId);
+
+        var invite = await teamRepository.GetInviteKeyAsync(teamId, key.Trim(), cancellationToken);
+        if (invite is null)
+        {
+            throw new NotFoundException($"Invite key '{key}' was not found for team '{teamId}'.");
+        }
+
+        invite.RemainingUses = 0;
+        invite.RevokedUtc = DateTimeOffset.UtcNow;
+        await unitOfWork.SaveChangesAsync(cancellationToken);
+        return invite.ToDto();
+    }
+
+    public async Task<TeamInviteKeyDto> AcceptInviteAsync(Guid teamId, string key, string userId, CancellationToken cancellationToken = default)
+    {
+        ValidateUserId(userId);
+        if (string.IsNullOrWhiteSpace(key))
+        {
+            throw new ValidationException("Invite key is required.");
+        }
+
+        var normalizedKey = key.Trim();
+        var invite = await teamRepository.GetInviteKeyAsync(teamId, normalizedKey, cancellationToken)
+            ?? throw new NotFoundException($"Invite key '{key}' was not found for team '{teamId}'.");
+
+        if (invite.RemainingUses <= 0)
+        {
+            throw new ValidationException("This invite key has no remaining uses.");
+        }
+
+        var normalizedUserId = userId.Trim();
+        if (await teamRepository.IsUserMemberAsync(teamId, normalizedUserId, cancellationToken))
+        {
+            throw new ConflictException($"User '{normalizedUserId}' is already a member of team '{teamId}'.");
+        }
+
+        invite.RemainingUses = Math.Max(0, invite.RemainingUses - 1);
+        if (invite.RemainingUses == 0)
+        {
+            invite.RevokedUtc ??= DateTimeOffset.UtcNow;
+        }
+
+        await teamRepository.AddMembershipAsync(new TeamMembership
+        {
+            Id = Guid.NewGuid(),
+            TeamId = teamId,
+            UserId = normalizedUserId,
+            Role = TeamRole.Member
+        }, cancellationToken);
+
+        try
+        {
+            await unitOfWork.SaveChangesAsync(cancellationToken);
+        }
+        catch (Exception ex) when (string.Equals(ex.GetType().Name, "DbUpdateConcurrencyException", StringComparison.Ordinal))
+        {
+            throw new ValidationException("This invite key is no longer valid.");
+        }
+        catch (Exception ex) when (string.Equals(ex.GetType().Name, "DbUpdateException", StringComparison.Ordinal))
+        {
+            throw new ConflictException($"User '{normalizedUserId}' is already a member of team '{teamId}'.");
+        }
+
+        return invite.ToDto();
     }
 
     public async Task<PlayerProfileDto> CreateGuestPlayerProfileAsync(Guid teamId, string actingUserId, string name, int? rankRating = null, CancellationToken cancellationToken = default)
@@ -300,4 +439,19 @@ public sealed class TeamManagementService(
 
     private static int? NormalizeRankRating(int? rankRating)
         => rankRating.HasValue ? Math.Max(0, rankRating.Value) : null;
+
+    private static string GenerateInviteKey()
+    {
+        const string alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789";
+        Span<byte> bytes = stackalloc byte[16];
+        RandomNumberGenerator.Fill(bytes);
+        var chars = new char[16];
+
+        for (var index = 0; index < chars.Length; index++)
+        {
+            chars[index] = alphabet[bytes[index] % alphabet.Length];
+        }
+
+        return new string(chars);
+    }
 }

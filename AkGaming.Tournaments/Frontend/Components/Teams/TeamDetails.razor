@@ -27,6 +27,11 @@
     }
     else
     {
+        @if (isTransferOwnershipDialogOpen && transferOwnershipTargetMember is not null)
+        {
+            <button type="button" class="team-invite-dialog-backdrop" @onclick="CancelTransferOwnershipAsync" aria-label="Close ownership transfer dialog"></button>
+        }
+
         <TeamDetailsView Team="@team"
                          GameName="@GetGameName(team.GameId)"
                          AvailableProfiles="@availableProfiles"
@@ -48,12 +53,32 @@
                          OnLogoUploaded="SetTeamLogoAsync"
                          OnLogoCleared="ClearTeamLogoAsync"
                          OnTeamEditRequested="StartTeamEditAsync"
+                         OnInviteManagementRequested="OpenInviteManagementAsync"
                          OnTeamSubmitted="SaveTeamAsync"
                          OnTeamEditCanceled="CancelTeamEditAsync"
                          OnGuestCreateRequested="StartGuestCreate"
                          OnGuestSubmitted="SaveGuestProfileAsync"
                          OnGuestEditRequested="StartGuestEdit"
                          OnGuestEditCanceled="CancelGuestEdit"
-                         OnGuestDeleteRequested="DeleteGuestProfileAsync" />
+                         OnGuestDeleteRequested="DeleteGuestProfileAsync"
+                         OnPromoteToEditorRequested="PromoteToEditorAsync"
+                         OnDemoteToMemberRequested="DemoteToMemberAsync"
+                         OnTransferOwnershipRequested="StartTransferOwnershipAsync" />
+
+        @if (isTransferOwnershipDialogOpen && transferOwnershipTargetMember is not null)
+        {
+            <section class="team-invite-dialog">
+                <SurfacePanel Title="Transfer ownership">
+                    <p>
+                        Transfer ownership to
+                        <strong>@GetMemberDisplayName(transferOwnershipTargetMember)</strong>?
+                    </p>
+                    <div class="team-edit-actions">
+                        <button type="button" class="solid-button" @onclick="ConfirmTransferOwnershipAsync" disabled="@isBusy">Confirm transfer</button>
+                        <button type="button" class="ghost-button" @onclick="CancelTransferOwnershipAsync" disabled="@isBusy">Cancel</button>
+                    </div>
+                </SurfacePanel>
+            </section>
+        }
     }
 </section>

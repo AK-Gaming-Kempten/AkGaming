@@ -15,6 +15,7 @@ public partial class TeamDetails : ComponentBase
     [Inject] private TeamsApiClient TeamsClient { get; set; } = default!;
     [Inject] private TournamentsApiClient TournamentsClient { get; set; } = default!;
     [Inject] private TournamentRegistrationsApiClient RegistrationsClient { get; set; } = default!;
+    [Inject] private NavigationManager Nav { get; set; } = default!;
 
     private IReadOnlyList<GameDto> games = [];
     private IReadOnlyList<PlayerProfileDto> availableProfiles = [];
@@ -27,9 +28,11 @@ public partial class TeamDetails : ComponentBase
     private string teamName = string.Empty;
     private string guestName = string.Empty;
     private int? guestRankRating;
+    private TeamMembershipDto? transferOwnershipTargetMember;
     private PlayerProfileDto? editingGuestProfile;
     private bool isGuestFormOpen;
     private bool isTeamEditMode;
+    private bool isTransferOwnershipDialogOpen;
     private bool isAuthenticated;
     private bool isLoading = true;
     private bool isBusy;
@@ -197,6 +200,16 @@ public partial class TeamDetails : ComponentBase
         }
     }
 
+    private Task OpenInviteManagementAsync()
+    {
+        if (team is not null)
+        {
+            Nav.NavigateTo($"/teams/{team.Id}/invite");
+        }
+
+        return Task.CompletedTask;
+    }
+
     private async Task SaveGuestProfileAsync()
     {
         if (team is null || string.IsNullOrWhiteSpace(currentUserId) || string.IsNullOrWhiteSpace(guestName))
@@ -218,6 +231,75 @@ public partial class TeamDetails : ComponentBase
 
             await RefreshTeamProfilesAsync();
             await CancelGuestEdit();
+        }
+        catch (TournamentApiException ex)
+        {
+            errorMessage = ex.Message;
+        }
+        finally
+        {
+            isBusy = false;
+        }
+    }
+
+    private async Task PromoteToEditorAsync(TeamMembershipDto member)
+    {
+        await UpdateMemberRoleAsync(member.UserId, TeamRoleDto.Editor);
+    }
+
+    private async Task DemoteToMemberAsync(TeamMembershipDto member)
+    {
+        await UpdateMemberRoleAsync(member.UserId, TeamRoleDto.Member);
+    }
+
+    private Task StartTransferOwnershipAsync(TeamMembershipDto member)
+    {
+        transferOwnershipTargetMember = member;
+        isTransferOwnershipDialogOpen = true;
+        return Task.CompletedTask;
+    }
+
+    private Task CancelTransferOwnershipAsync()
+    {
+        isTransferOwnershipDialogOpen = false;
+        transferOwnershipTargetMember = null;
+        return Task.CompletedTask;
+    }
+
+    private async Task ConfirmTransferOwnershipAsync()
+    {
+        if (team is null || string.IsNullOrWhiteSpace(currentUserId) || transferOwnershipTargetMember is null)
+            return;
+
+        isBusy = true;
+        errorMessage = null;
+        try
+        {
+            team = await TeamsClient.TransferOwnershipAsync(team.Id, currentUserId, transferOwnershipTargetMember.UserId);
+            await RefreshTeamProfilesAsync();
+            await CancelTransferOwnershipAsync();
+        }
+        catch (TournamentApiException ex)
+        {
+            errorMessage = ex.Message;
+        }
+        finally
+        {
+            isBusy = false;
+        }
+    }
+
+    private async Task UpdateMemberRoleAsync(string memberUserId, TeamRoleDto role)
+    {
+        if (team is null || string.IsNullOrWhiteSpace(currentUserId))
+            return;
+
+        isBusy = true;
+        errorMessage = null;
+        try
+        {
+            team = await TeamsClient.UpdateMemberRoleAsync(team.Id, currentUserId, memberUserId, role);
+            await RefreshTeamProfilesAsync();
         }
         catch (TournamentApiException ex)
         {
@@ -275,4 +357,22 @@ public partial class TeamDetails : ComponentBase
            ?? user.Claims.FirstOrDefault(claim => claim.Type == "discord_username")?.Value
            ?? user.Claims.FirstOrDefault(claim => claim.Type == "email")?.Value
            ?? user.Claims.FirstOrDefault(claim => claim.Type == "sub")?.Value;
+
+    private string GetMemberDisplayName(TeamMembershipDto member)
+    {
+        if (!string.IsNullOrWhiteSpace(currentUserId)
+            && string.Equals(member.UserId, currentUserId, StringComparison.OrdinalIgnoreCase)
+            && !string.IsNullOrWhiteSpace(currentUserDisplayName))
+        {
+            return currentUserDisplayName;
+        }
+
+        var profileName = availableProfiles
+            .FirstOrDefault(profile => profile.Type == PlayerProfileTypeDto.User
+                                       && !string.IsNullOrWhiteSpace(profile.UserId)
+                                       && string.Equals(profile.UserId, member.UserId, StringComparison.OrdinalIgnoreCase))
+            ?.Name;
+
+        return !string.IsNullOrWhiteSpace(profileName) ? profileName : member.UserId;
+    }
 }

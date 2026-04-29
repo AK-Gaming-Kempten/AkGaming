@@ -2,3 +2,24 @@
     margin: 0;
     color: var(--color-text-secondary);
 }
+
+.team-invite-dialog-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 30;
+    border: 0;
+    background: color-mix(in oklab, black 24%, transparent);
+}
+
+.team-invite-dialog {
+    position: fixed;
+    inset: 0;
+    z-index: 32;
+    display: grid;
+    place-items: center;
+    padding: 1rem;
+}
+
+.team-invite-dialog :deep(.surface-panel) {
+    width: min(30rem, 100%);
+}

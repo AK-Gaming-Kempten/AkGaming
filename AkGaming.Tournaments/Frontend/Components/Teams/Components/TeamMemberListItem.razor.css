@@ -1,0 +1,91 @@
+.team-member-row {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.8rem;
+    border: 1px solid color-mix(in oklab, var(--color-highlight-primary) 24%, transparent);
+    border-radius: 8px;
+    background: color-mix(in oklab, var(--color-background-secondary) 76%, transparent);
+}
+
+.team-member-avatar {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.4rem;
+    height: 2.4rem;
+    border-radius: 999px;
+    background: color-mix(in oklab, var(--color-highlight-primary) 28%, transparent);
+    color: var(--color-text-special);
+    font-weight: 800;
+}
+
+.team-member-body {
+    display: grid;
+    min-width: 0;
+}
+
+.team-member-body strong,
+.team-member-body span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.team-member-body span {
+    color: var(--color-text-secondary);
+    font-size: 0.88rem;
+}
+
+.team-member-menu {
+    position: relative;
+    justify-self: end;
+}
+
+.team-member-menu-trigger {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.2rem;
+    height: 2.2rem;
+    border: 1px solid color-mix(in oklab, var(--color-text-secondary) 24%, transparent);
+    border-radius: 999px;
+    background: color-mix(in oklab, var(--color-background-primary) 85%, transparent);
+    color: var(--color-text-primary);
+    cursor: pointer;
+}
+
+.team-member-menu-popover {
+    position: absolute;
+    top: calc(100% + 0.3rem);
+    right: 0;
+    z-index: 40;
+    display: grid;
+    padding: 0.35rem;
+    border: 1px solid color-mix(in oklab, var(--color-text-secondary) 24%, transparent);
+    border-radius: 8px;
+    background: var(--color-background-primary);
+}
+
+.team-member-menu-popover button {
+    padding: 0.55rem 0.7rem;
+    border: 0;
+    border-radius: 6px;
+    background: transparent;
+    color: var(--color-text-primary);
+    text-align: left;
+    cursor: pointer;
+}
+
+.team-member-menu-popover button:hover {
+    background: color-mix(in oklab, var(--color-highlight-secondary) 36%, transparent);
+}
+
+.team-member-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 30;
+    border: 0;
+    background: transparent;
+}

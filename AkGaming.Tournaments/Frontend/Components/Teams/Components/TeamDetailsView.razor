@@ -5,7 +5,8 @@
                       GameName="@GameName"
                       CanEdit="@CanEditTeam"
                       IsBusy="@IsBusy"
-                      EditRequested="OnTeamEditRequested" />
+                      EditRequested="OnTeamEditRequested"
+                      InviteManagementRequested="OnInviteManagementRequested" />
 
     @if (IsTeamEditMode)
     {
@@ -66,16 +67,23 @@
 
         <div class="stack">
             <SurfacePanel Title="Members" Subtitle="Users who can contribute player profiles to this team's roster.">
+                @if (CanEditTeam)
+                {
+                    <div class="team-members-toolbar">
+                        <button type="button" class="solid-button" @onclick="OnInviteManagementRequested" disabled="@IsBusy">Invite</button>
+                    </div>
+                }
                 <div class="team-member-list">
                     @foreach (var member in Team.Memberships)
                     {
-                        <article class="team-member-row">
-                            <span class="team-member-avatar">@GetMemberInitial(member)</span>
-                            <span>
-                                <strong>@GetMemberDisplayName(member)</strong>
-                                <span>@member.Role</span>
-                            </span>
-                        </article>
+                        <TeamMemberListItem Member="@member"
+                                            DisplayName="@GetMemberDisplayName(member)"
+                                            Initial="@GetMemberInitial(member)"
+                                            CanManageRoles="@CanManageRoles"
+                                            IsBusy="@IsBusy"
+                                            PromoteToEditorRequested="OnPromoteToEditorRequested"
+                                            DemoteToMemberRequested="OnDemoteToMemberRequested"
+                                            TransferOwnershipRequested="OnTransferOwnershipRequested" />
                     }
                 </div>
             </SurfacePanel>

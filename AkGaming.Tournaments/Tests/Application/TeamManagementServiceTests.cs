@@ -79,6 +79,49 @@ public sealed class TeamManagementServiceTests
     }
 
     [Test]
+    [Description("Verifies that owners and editors can create and revoke invite keys for their team.")]
+    public void CreateInviteKeyAsync_AndRevokeInviteKeyAsync_WorkForEditors()
+    {
+        // Arrange
+        var team = TournamentTestData.AddTeam(Store, memberships:
+        [
+            (TournamentTestData.OwnerId, TeamRole.Owner),
+            (TournamentTestData.EditorId, TeamRole.Editor)
+        ]);
+
+        // Act
+        var created = Service.CreateInviteKeyAsync(team.Id, TournamentTestData.EditorId, 3).GetAwaiter().GetResult();
+        var revoked = Service.RevokeInviteKeyAsync(team.Id, created.Key, TournamentTestData.OwnerId).GetAwaiter().GetResult();
+
+        // Assert
+        Assert.Multiple(() =>
+        {
+            Assert.That(created.RemainingUses, Is.EqualTo(3));
+            Assert.That(revoked.RemainingUses, Is.EqualTo(0));
+            Assert.That(revoked.RevokedUtc, Is.Not.Null);
+        });
+    }
+
+    [Test]
+    [Description("Verifies that accepting an invite key adds the user as member and decrements remaining uses.")]
+    public void AcceptInviteAsync_AddsMemberAndConsumesUse()
+    {
+        // Arrange
+        var team = TournamentTestData.AddTeam(Store, memberships: [(TournamentTestData.OwnerId, TeamRole.Owner)]);
+        var invite = Service.CreateInviteKeyAsync(team.Id, TournamentTestData.OwnerId, 1).GetAwaiter().GetResult();
+
+        // Act
+        var accepted = Service.AcceptInviteAsync(team.Id, invite.Key, TournamentTestData.MemberId).GetAwaiter().GetResult();
+
+        // Assert
+        Assert.Multiple(() =>
+        {
+            Assert.That(accepted.RemainingUses, Is.EqualTo(0));
+            Assert.That(team.Memberships.Any(member => member.UserId == TournamentTestData.MemberId), Is.True);
+        });
+    }
+
+    [Test]
     [Description("Verifies that regular members cannot create guest profiles for the team.")]
     public void CreateGuestPlayerProfileAsync_RejectsMember()
     {
