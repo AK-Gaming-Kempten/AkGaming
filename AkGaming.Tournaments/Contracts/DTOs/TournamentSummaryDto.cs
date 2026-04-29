@@ -7,6 +7,8 @@ public sealed record TournamentSummaryDto(
     string GameName,
     string Name,
     Guid? LogoAssetId,
+    Guid? BannerAssetId,
+    string? PrimaryColor,
     TournamentStatusDto Status,
     DateTimeOffset? RegistrationOpenUtc,
     DateTimeOffset? RegistrationClosedUtc,

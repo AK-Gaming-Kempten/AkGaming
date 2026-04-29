@@ -8,12 +8,15 @@ namespace AkGaming.Tournaments.Application.Services;
 
 public sealed class TournamentContentManagementService(
     ITournamentRepository tournamentRepository,
+    IMediaAssetRepository mediaAssetRepository,
     IUnitOfWork unitOfWork) : ITournamentContentManagementService
 {
     public async Task<TournamentDto> UpdateTournamentContentAsync(
         Guid tournamentId,
         string name,
         TournamentStatusDto status,
+        Guid? bannerAssetId,
+        string? primaryColor,
         DateTimeOffset? registrationOpenUtc,
         DateTimeOffset? registrationClosedUtc,
         DateTimeOffset? startUtc,
@@ -26,10 +29,13 @@ public sealed class TournamentContentManagementService(
 
         if (string.IsNullOrWhiteSpace(name))
             throw new ValidationException("Tournament name is required.");
+        await RequireMediaAssetAsync(bannerAssetId, cancellationToken);
 
         ValidateTimeline(registrationOpenUtc, registrationClosedUtc, startUtc, endUtc);
 
         tournament.Name = name.Trim();
+        tournament.BannerAssetId = bannerAssetId;
+        tournament.PrimaryColor = NormalizePrimaryColor(primaryColor);
         tournament.Status = status.ToDomain();
         tournament.RegistrationOpenUtc = registrationOpenUtc;
         tournament.RegistrationClosedUtc = registrationClosedUtc;
@@ -60,6 +66,29 @@ public sealed class TournamentContentManagementService(
         await unitOfWork.SaveChangesAsync(cancellationToken);
         tournament.InfoSections = replacementSections;
         return tournament.ToDto();
+    }
+
+    private async Task RequireMediaAssetAsync(Guid? mediaAssetId, CancellationToken cancellationToken)
+    {
+        if (mediaAssetId is not Guid assetId)
+            return;
+
+        if (await mediaAssetRepository.GetByIdAsync(assetId, cancellationToken) is null)
+        {
+            throw new NotFoundException($"Media asset '{assetId}' was not found.");
+        }
+    }
+
+    private static string? NormalizePrimaryColor(string? value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+            return null;
+
+        var normalized = value.Trim();
+        if (!normalized.StartsWith('#'))
+            normalized = $"#{normalized}";
+
+        return normalized.Length is 4 or 7 ? normalized : null;
     }
 
     private static void ValidateTimeline(

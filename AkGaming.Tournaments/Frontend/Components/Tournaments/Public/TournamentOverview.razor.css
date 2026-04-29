@@ -4,16 +4,28 @@
 }
 
 .tournament-banner {
+    position: relative;
     display: flex;
     align-items: center;
     justify-content: flex-start;
     min-height: clamp(12rem, 28vw, 22rem);
     overflow: hidden;
     border-radius: 8px;
+    background-image:
+        linear-gradient(90deg, var(--tournament-banner-left) 0%, color-mix(in oklab, var(--tournament-banner-base) 86%, transparent) 48%, transparent 75%),
+        var(--tournament-banner-image);
+    background-position: left center, right center;
+    background-size: 100% 100%, cover;
+    background-repeat: no-repeat, no-repeat;
+}
+
+.tournament-banner::after {
+    content: "";
+    position: absolute;
+    inset: 0;
     border: 1px solid color-mix(in oklab, var(--color-text-secondary) 18%, transparent);
-    background:
-        radial-gradient(circle at 76% 24%, color-mix(in oklab, var(--color-highlight-primary) 38%, transparent), transparent 34%),
-        linear-gradient(135deg, color-mix(in oklab, var(--color-background-special) 88%, black 12%), color-mix(in oklab, var(--color-highlight-secondary) 50%, var(--color-background-primary)));
+    border-radius: 8px;
+    pointer-events: none;
 }
 
 .tournament-banner-copy {

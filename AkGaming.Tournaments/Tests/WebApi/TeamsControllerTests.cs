@@ -185,9 +185,9 @@ public sealed class TeamsControllerTests
         // Arrange
         var teamId = Guid.NewGuid();
         var team = WebApiControllerTestHelpers.Team(teamId);
-        var request = new UpdateTeamRequest("captain-1", "AKG Crimson");
+        var request = new UpdateTeamRequest("captain-1", "AKG Crimson", null, null);
         Service
-            .Setup(mock => mock.UpdateTeamAsync(teamId, "captain-1", "AKG Crimson", CancellationToken.None))
+            .Setup(mock => mock.UpdateTeamAsync(teamId, "captain-1", "AKG Crimson", null, null, CancellationToken.None))
             .ReturnsAsync(team);
 
         // Act
@@ -196,7 +196,7 @@ public sealed class TeamsControllerTests
         // Assert
         WebApiControllerTestHelpers.AssertOkValue(response, team);
         Service.Verify(
-            mock => mock.UpdateTeamAsync(teamId, "captain-1", "AKG Crimson", CancellationToken.None),
+            mock => mock.UpdateTeamAsync(teamId, "captain-1", "AKG Crimson", null, null, CancellationToken.None),
             Times.Once);
     }
 

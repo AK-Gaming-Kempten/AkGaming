@@ -13,6 +13,24 @@ public partial class TeamHeaderBanner : ComponentBase
     [Parameter] public EventCallback InviteManagementRequested { get; set; }
 
     private bool isMenuOpen;
+    private const string DefaultMediumGreen = "#1f7a52";
+    private const string DefaultDarkGreen = "#0f3f2a";
+
+    private string BannerStyle
+    {
+        get
+        {
+            var baseColor = string.IsNullOrWhiteSpace(Team.PrimaryColor) ? DefaultDarkGreen : Team.PrimaryColor!;
+            var bannerUrl = Team.BannerAssetId is Guid bannerAssetId
+                ? $"/media-assets/{bannerAssetId}/file"
+                : null;
+            var imageLayer = bannerUrl is null
+                ? "none"
+                : $"url('{bannerUrl}')";
+            var leftColor = bannerUrl is null ? DefaultMediumGreen : baseColor;
+            return $"--team-banner-left:{leftColor};--team-banner-base:{baseColor};--team-banner-image:{imageLayer};";
+        }
+    }
 
     private Task ToggleMenuAsync()
     {

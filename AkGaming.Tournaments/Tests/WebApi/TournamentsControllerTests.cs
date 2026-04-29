@@ -31,7 +31,7 @@ public sealed class TournamentsControllerTests
         // Arrange
         var tournaments = new[]
         {
-            new TournamentSummaryDto(Guid.NewGuid(), "rift-rumble", "lol", "League of Legends", "Rift Rumble", null, TournamentStatusDto.RegistrationOpen, null, null, null, null, 4)
+            new TournamentSummaryDto(Guid.NewGuid(), "rift-rumble", "lol", "League of Legends", "Rift Rumble", null, null, null, TournamentStatusDto.RegistrationOpen, null, null, null, null, 4)
         };
         CatalogService
             .Setup(mock => mock.GetTournamentsAsync(CancellationToken.None))
@@ -88,6 +88,8 @@ public sealed class TournamentsControllerTests
         var request = new UpdateTournamentContentRequest(
             "Rift Rumble",
             TournamentStatusDto.RegistrationOpen,
+            null,
+            null,
             new DateTimeOffset(2026, 4, 1, 16, 0, 0, TimeSpan.Zero),
             new DateTimeOffset(2026, 4, 10, 16, 0, 0, TimeSpan.Zero),
             new DateTimeOffset(2026, 4, 12, 12, 0, 0, TimeSpan.Zero),
@@ -99,6 +101,8 @@ public sealed class TournamentsControllerTests
             "lol",
             "League of Legends",
             "Rift Rumble",
+            null,
+            null,
             null,
             TournamentStatusDto.RegistrationOpen,
             request.RegistrationOpenUtc,
@@ -112,6 +116,8 @@ public sealed class TournamentsControllerTests
                 tournamentId,
                 request.Name,
                 request.Status,
+                request.BannerAssetId,
+                request.PrimaryColor,
                 request.RegistrationOpenUtc,
                 request.RegistrationClosedUtc,
                 request.StartUtc,

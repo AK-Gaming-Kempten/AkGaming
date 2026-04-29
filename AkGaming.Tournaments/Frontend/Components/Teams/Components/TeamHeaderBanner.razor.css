@@ -5,12 +5,22 @@
     grid-template-columns: minmax(0, 1fr) auto;
     gap: 1rem;
     padding: 1rem 1.1rem;
+    border-radius: 8px;
+    background-image:
+        linear-gradient(90deg, var(--team-banner-left) 0%, color-mix(in oklab, var(--team-banner-base) 86%, transparent) 48%, transparent 75%),
+        var(--team-banner-image);
+    background-position: left center, right center;
+    background-size: 100% 100%, cover;
+    background-repeat: no-repeat, no-repeat;
+}
+
+.team-header-banner::after {
+    content: "";
+    position: absolute;
+    inset: 0;
     border: 1px solid color-mix(in oklab, var(--color-highlight-primary) 24%, transparent);
     border-radius: 8px;
-    background:
-        linear-gradient(135deg,
-            color-mix(in oklab, var(--color-highlight-primary) 12%, transparent),
-            color-mix(in oklab, var(--color-background-secondary) 92%, transparent));
+    pointer-events: none;
 }
 
 .team-header-main {

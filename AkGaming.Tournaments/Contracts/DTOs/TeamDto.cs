@@ -5,5 +5,7 @@ public sealed record TeamDto(
     string GameId,
     string Name,
     Guid? LogoAssetId,
+    Guid? BannerAssetId,
+    string? PrimaryColor,
     IReadOnlyList<TeamMembershipDto> Memberships,
     IReadOnlyList<PlayerProfileDto> GuestPlayerProfiles);

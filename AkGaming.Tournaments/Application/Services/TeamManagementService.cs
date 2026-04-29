@@ -138,14 +138,23 @@ public sealed class TeamManagementService(
         return team.ToDto();
     }
 
-    public async Task<TeamDto> UpdateTeamAsync(Guid teamId, string actingUserId, string name, CancellationToken cancellationToken = default)
+    public async Task<TeamDto> UpdateTeamAsync(
+        Guid teamId,
+        string actingUserId,
+        string name,
+        Guid? bannerAssetId,
+        string? primaryColor,
+        CancellationToken cancellationToken = default)
     {
         ValidateUserId(actingUserId);
         ValidateName(name, "Team");
+        await RequireMediaAssetAsync(bannerAssetId, cancellationToken);
 
         var team = await RequireTeamAsync(teamId, cancellationToken);
         EnsureCanEditTeam(team, actingUserId);
         team.Name = name.Trim();
+        team.BannerAssetId = bannerAssetId;
+        team.PrimaryColor = NormalizePrimaryColor(primaryColor);
 
         await unitOfWork.SaveChangesAsync(cancellationToken);
         return team.ToDto();
@@ -439,6 +448,22 @@ public sealed class TeamManagementService(
 
     private static int? NormalizeRankRating(int? rankRating)
         => rankRating.HasValue ? Math.Max(0, rankRating.Value) : null;
+
+    private static string? NormalizePrimaryColor(string? value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return null;
+        }
+
+        var normalized = value.Trim();
+        if (!normalized.StartsWith('#'))
+        {
+            normalized = $"#{normalized}";
+        }
+
+        return normalized.Length is 4 or 7 ? normalized : null;
+    }
 
     private static string GenerateInviteKey()
     {

@@ -16,9 +16,15 @@
                     <span>Team name</span>
                     <input class="form-input" value="@TeamName" @oninput="HandleTeamNameChanged" placeholder="Team name" disabled="@IsBusy" />
                 </label>
+                <label>
+                    <span>Primary color</span>
+                    <input class="form-input" value="@TeamPrimaryColor" @oninput="HandleTeamPrimaryColorChanged" placeholder="#0f3f2a" disabled="@IsBusy" />
+                </label>
                 <div class="logo-actions">
                     <LogoUploadDialog Uploaded="OnLogoUploaded" />
                     <button type="button" class="ghost-button" @onclick="OnLogoCleared" disabled="@IsBusy">Clear logo</button>
+                    <LogoUploadDialog ButtonLabel="Upload banner" Uploaded="OnBannerUploaded" />
+                    <button type="button" class="ghost-button" @onclick="OnBannerCleared" disabled="@IsBusy">Clear banner</button>
                 </div>
                 <div class="team-edit-actions">
                     <button type="button" class="solid-button" @onclick="OnTeamSubmitted" disabled="@(IsBusy || string.IsNullOrWhiteSpace(TeamName))">Save team</button>

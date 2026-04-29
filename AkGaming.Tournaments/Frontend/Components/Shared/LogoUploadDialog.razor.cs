@@ -16,6 +16,7 @@ public partial class LogoUploadDialog : ComponentBase
     }
 
     [Parameter] public EventCallback<MediaAssetDto> Uploaded { get; set; }
+    [Parameter] public string ButtonLabel { get; set; } = "Upload logo";
 
     [Inject] private MediaAssetsApiClient MediaAssetsClient { get; set; } = default!;
 

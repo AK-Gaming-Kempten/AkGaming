@@ -22,6 +22,8 @@ public partial class AdminControlRoom
                 Tournament.Id,
                 request.Name,
                 request.Status,
+                request.BannerAssetId,
+                request.PrimaryColor,
                 request.RegistrationOpenUtc,
                 request.RegistrationClosedUtc,
                 request.StartUtc,
@@ -69,6 +71,24 @@ public partial class AdminControlRoom
     private async Task HandleClearLogoRequestedAsync()
     {
         await UpdateLogoAsync(null);
+    }
+
+    private Task HandleBannerUploadedAsync(MediaAssetDto asset)
+    {
+        if (Tournament is null)
+            return Task.CompletedTask;
+
+        Tournament = Tournament with { BannerAssetId = asset.Id };
+        return Task.CompletedTask;
+    }
+
+    private Task HandleClearBannerRequestedAsync()
+    {
+        if (Tournament is null)
+            return Task.CompletedTask;
+
+        Tournament = Tournament with { BannerAssetId = null };
+        return Task.CompletedTask;
     }
 
     private async Task UpdateLogoAsync(Guid? logoAssetId)

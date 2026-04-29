@@ -5,7 +5,7 @@
     <button type="button" class="team-header-menu-backdrop" @onclick="CloseMenuAsync" aria-label="Close team actions"></button>
 }
 
-<section class="team-header-banner">
+<section class="team-header-banner" style="@BannerStyle">
     <div class="team-header-main">
         <LogoImage LogoAssetId="@Team.LogoAssetId" Type="team" Alt="@($"{Team.Name} logo")" Size="LogoImageSize.Large" />
         <div class="team-header-copy">

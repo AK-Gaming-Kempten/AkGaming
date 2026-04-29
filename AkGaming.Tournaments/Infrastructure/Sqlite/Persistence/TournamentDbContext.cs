@@ -47,6 +47,7 @@ public sealed class TournamentDbContext(DbContextOptions<TournamentDbContext> op
             entity.HasKey(team => team.Id);
             entity.Property(team => team.GameId).HasMaxLength(64);
             entity.Property(team => team.Name).HasMaxLength(256);
+            entity.Property(team => team.PrimaryColor).HasMaxLength(16);
             entity.HasOne(team => team.Game)
                 .WithMany()
                 .HasForeignKey(team => team.GameId)
@@ -54,6 +55,10 @@ public sealed class TournamentDbContext(DbContextOptions<TournamentDbContext> op
             entity.HasOne(team => team.LogoAsset)
                 .WithMany()
                 .HasForeignKey(team => team.LogoAssetId)
+                .OnDelete(DeleteBehavior.SetNull);
+            entity.HasOne(team => team.BannerAsset)
+                .WithMany()
+                .HasForeignKey(team => team.BannerAssetId)
                 .OnDelete(DeleteBehavior.SetNull);
             entity.HasMany(team => team.Memberships)
                 .WithOne(membership => membership.Team)
@@ -116,6 +121,7 @@ public sealed class TournamentDbContext(DbContextOptions<TournamentDbContext> op
             entity.Property(tournament => tournament.GameId).HasMaxLength(64);
             entity.Property(tournament => tournament.Slug).HasMaxLength(128);
             entity.Property(tournament => tournament.Name).HasMaxLength(256);
+            entity.Property(tournament => tournament.PrimaryColor).HasMaxLength(16);
             entity.Property(tournament => tournament.Status).HasConversion<string>();
             entity.HasIndex(tournament => tournament.Slug).IsUnique();
             entity.HasOne(tournament => tournament.Game)
@@ -125,6 +131,10 @@ public sealed class TournamentDbContext(DbContextOptions<TournamentDbContext> op
             entity.HasOne(tournament => tournament.LogoAsset)
                 .WithMany()
                 .HasForeignKey(tournament => tournament.LogoAssetId)
+                .OnDelete(DeleteBehavior.SetNull);
+            entity.HasOne(tournament => tournament.BannerAsset)
+                .WithMany()
+                .HasForeignKey(tournament => tournament.BannerAssetId)
                 .OnDelete(DeleteBehavior.SetNull);
             entity.HasMany(tournament => tournament.Registrations)
                 .WithOne(registration => registration.Tournament)

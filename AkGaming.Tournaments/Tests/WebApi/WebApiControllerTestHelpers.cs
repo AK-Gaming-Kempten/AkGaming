@@ -18,7 +18,7 @@ internal static class WebApiControllerTestHelpers
 
     public static TeamDto Team(Guid id)
     {
-        return new TeamDto(id, "lol", "AKG Blue", null, [], []);
+        return new TeamDto(id, "lol", "AKG Blue", null, null, null, [], []);
     }
 
     public static PlayerProfileDto UserProfile(

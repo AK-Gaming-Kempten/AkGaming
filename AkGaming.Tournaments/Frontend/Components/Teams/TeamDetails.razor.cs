@@ -26,6 +26,8 @@ public partial class TeamDetails : ComponentBase
     private string? currentUserDisplayName;
     private string? errorMessage;
     private string teamName = string.Empty;
+    private string teamPrimaryColor = string.Empty;
+    private Guid? teamBannerAssetId;
     private string guestName = string.Empty;
     private int? guestRankRating;
     private TeamMembershipDto? transferOwnershipTargetMember;
@@ -61,6 +63,8 @@ public partial class TeamDetails : ComponentBase
             if (team is not null)
             {
                 teamName = team.Name;
+                teamPrimaryColor = team.PrimaryColor ?? string.Empty;
+                teamBannerAssetId = team.BannerAssetId;
                 availableProfiles = await TeamsClient.GetAvailableProfilesAsync(team.Id, team.GameId);
                 registrations = await RegistrationsClient.GetTeamRegistrationsAsync(team.Id);
             }
@@ -90,11 +94,19 @@ public partial class TeamDetails : ComponentBase
         return Task.CompletedTask;
     }
 
+    private Task SetTeamPrimaryColor(string value)
+    {
+        teamPrimaryColor = value;
+        return Task.CompletedTask;
+    }
+
     private Task StartTeamEditAsync()
     {
         if (team is not null)
         {
             teamName = team.Name;
+            teamPrimaryColor = team.PrimaryColor ?? string.Empty;
+            teamBannerAssetId = team.BannerAssetId;
         }
 
         isTeamEditMode = true;
@@ -106,6 +118,8 @@ public partial class TeamDetails : ComponentBase
         if (team is not null)
         {
             teamName = team.Name;
+            teamPrimaryColor = team.PrimaryColor ?? string.Empty;
+            teamBannerAssetId = team.BannerAssetId;
         }
 
         isTeamEditMode = false;
@@ -187,7 +201,7 @@ public partial class TeamDetails : ComponentBase
 
         try
         {
-            team = await TeamsClient.UpdateTeamAsync(team.Id, currentUserId, teamName);
+            team = await TeamsClient.UpdateTeamAsync(team.Id, currentUserId, teamName, teamBannerAssetId, teamPrimaryColor);
             isTeamEditMode = false;
         }
         catch (TournamentApiException ex)
@@ -207,6 +221,18 @@ public partial class TeamDetails : ComponentBase
             Nav.NavigateTo($"/teams/{team.Id}/invite");
         }
 
+        return Task.CompletedTask;
+    }
+
+    private Task SetTeamBannerAsync(MediaAssetDto asset)
+    {
+        teamBannerAssetId = asset.Id;
+        return Task.CompletedTask;
+    }
+
+    private Task ClearTeamBannerAsync()
+    {
+        teamBannerAssetId = null;
         return Task.CompletedTask;
     }
 
@@ -347,6 +373,8 @@ public partial class TeamDetails : ComponentBase
         if (team is not null)
         {
             teamName = team.Name;
+            teamPrimaryColor = team.PrimaryColor ?? string.Empty;
+            teamBannerAssetId = team.BannerAssetId;
             availableProfiles = await TeamsClient.GetAvailableProfilesAsync(team.Id, team.GameId);
         }
     }

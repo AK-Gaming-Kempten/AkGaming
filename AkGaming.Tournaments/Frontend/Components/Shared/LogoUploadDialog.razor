@@ -1,7 +1,7 @@
 @using Microsoft.AspNetCore.Components.Forms
 
 <div class="logo-upload">
-    <button type="button" class="ghost-button" @onclick="OpenDialog">Upload logo</button>
+    <button type="button" class="ghost-button" @onclick="OpenDialog">@ButtonLabel</button>
 
     @if (isOpen)
     {

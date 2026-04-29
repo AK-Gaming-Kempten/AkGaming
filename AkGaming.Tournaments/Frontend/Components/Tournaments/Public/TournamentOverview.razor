@@ -24,7 +24,7 @@
                               OnRegisterRequested="ShowRegistrationDialogAsync" />
 
         <section class="tournament-hero">
-            <div class="tournament-banner" aria-label="@($"{Tournament.Name} tournament banner")">
+            <div class="tournament-banner" style="@GetBannerStyle(Tournament)" aria-label="@($"{Tournament.Name} tournament banner")">
                 <div class="tournament-banner-copy">
                     <span class="eyebrow">@Tournament.GameName</span>
                     <h1>@Tournament.Name</h1>

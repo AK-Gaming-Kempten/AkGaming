@@ -18,14 +18,22 @@
                     }
                 </select>
             </label>
+            <label class="field-block">
+                <span>Primary color</span>
+                <input class="text-input" value="@primaryColor" @onchange="HandlePrimaryColorChanged" placeholder="#0f3f2a" disabled="@IsBusy" />
+            </label>
         </div>
 
         <div class="content-editor-logo-row">
             <LogoImage LogoAssetId="@Tournament.LogoAssetId" Type="tournament" Alt="@($"{Tournament.Name} logo")" Size="LogoImageSize.Large" />
             <div class="content-editor-logo-actions">
                 <LogoUploadDialog Uploaded="HandleLogoUploadedAsync" />
+                <LogoUploadDialog ButtonLabel="Upload banner" Uploaded="HandleBannerUploadedAsync" />
                 <button type="button" class="ghost-button" @onclick="ClearLogoAsync" disabled="@IsBusy || Tournament.LogoAssetId is null">
                     Clear logo
+                </button>
+                <button type="button" class="ghost-button" @onclick="ClearBannerAsync" disabled="@IsBusy || bannerAssetId is null">
+                    Clear banner
                 </button>
             </div>
         </div>

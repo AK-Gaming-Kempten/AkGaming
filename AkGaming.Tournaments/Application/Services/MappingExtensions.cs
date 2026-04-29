@@ -30,6 +30,8 @@ internal static class MappingExtensions
             team.GameId,
             team.Name,
             team.LogoAssetId,
+            team.BannerAssetId,
+            team.PrimaryColor,
             team.Memberships
                 .OrderBy(member => member.Role)
                 .ThenBy(member => member.UserId, StringComparer.OrdinalIgnoreCase)
@@ -58,6 +60,8 @@ internal static class MappingExtensions
             tournament.Game?.Name ?? tournament.GameId,
             tournament.Name,
             tournament.LogoAssetId,
+            tournament.BannerAssetId,
+            tournament.PrimaryColor,
             tournament.Status.ToDto(),
             tournament.RegistrationOpenUtc,
             tournament.RegistrationClosedUtc,
@@ -73,6 +77,8 @@ internal static class MappingExtensions
             tournament.Game?.Name ?? tournament.GameId,
             tournament.Name,
             tournament.LogoAssetId,
+            tournament.BannerAssetId,
+            tournament.PrimaryColor,
             tournament.Status.ToDto(),
             tournament.RegistrationOpenUtc,
             tournament.RegistrationClosedUtc,

@@ -15,6 +15,8 @@ public partial class TeamDetailsView : ComponentBase
     [Parameter] public string? CurrentUserDisplayName { get; set; }
     [Parameter] public string TeamName { get; set; } = string.Empty;
     [Parameter] public EventCallback<string> TeamNameChanged { get; set; }
+    [Parameter] public string TeamPrimaryColor { get; set; } = string.Empty;
+    [Parameter] public EventCallback<string> TeamPrimaryColorChanged { get; set; }
     [Parameter] public bool IsTeamEditMode { get; set; }
     [Parameter] public string GuestName { get; set; } = string.Empty;
     [Parameter] public EventCallback<string> GuestNameChanged { get; set; }
@@ -25,6 +27,8 @@ public partial class TeamDetailsView : ComponentBase
     [Parameter] public bool IsBusy { get; set; }
     [Parameter] public EventCallback<MediaAssetDto> OnLogoUploaded { get; set; }
     [Parameter] public EventCallback OnLogoCleared { get; set; }
+    [Parameter] public EventCallback<MediaAssetDto> OnBannerUploaded { get; set; }
+    [Parameter] public EventCallback OnBannerCleared { get; set; }
     [Parameter] public EventCallback OnTeamEditRequested { get; set; }
     [Parameter] public EventCallback OnTeamSubmitted { get; set; }
     [Parameter] public EventCallback OnTeamEditCanceled { get; set; }
@@ -55,6 +59,9 @@ public partial class TeamDetailsView : ComponentBase
 
     private Task HandleTeamNameChanged(ChangeEventArgs args)
         => TeamNameChanged.InvokeAsync(args.Value?.ToString() ?? string.Empty);
+
+    private Task HandleTeamPrimaryColorChanged(ChangeEventArgs args)
+        => TeamPrimaryColorChanged.InvokeAsync(args.Value?.ToString() ?? string.Empty);
 
     private string GetMemberInitial(TeamMembershipDto member)
     {

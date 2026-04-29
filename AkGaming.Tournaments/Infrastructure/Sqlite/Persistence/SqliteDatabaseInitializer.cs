@@ -244,6 +244,26 @@ public static class SqliteDatabaseInitializer
             await dbContext.ExecuteSqlAsync("ALTER TABLE tournaments ADD COLUMN EndUtc TEXT NULL;");
         }
 
+        if (!await dbContext.HasColumnAsync("tournaments", "BannerAssetId"))
+        {
+            await dbContext.ExecuteSqlAsync("ALTER TABLE tournaments ADD COLUMN BannerAssetId TEXT NULL;");
+        }
+
+        if (!await dbContext.HasColumnAsync("tournaments", "PrimaryColor"))
+        {
+            await dbContext.ExecuteSqlAsync("ALTER TABLE tournaments ADD COLUMN PrimaryColor TEXT NULL;");
+        }
+
+        if (!await dbContext.HasColumnAsync("teams", "BannerAssetId"))
+        {
+            await dbContext.ExecuteSqlAsync("ALTER TABLE teams ADD COLUMN BannerAssetId TEXT NULL;");
+        }
+
+        if (!await dbContext.HasColumnAsync("teams", "PrimaryColor"))
+        {
+            await dbContext.ExecuteSqlAsync("ALTER TABLE teams ADD COLUMN PrimaryColor TEXT NULL;");
+        }
+
         await dbContext.ExecuteSqlAsync("""
             CREATE TABLE IF NOT EXISTS tournament_info_sections (
                 Id TEXT NOT NULL CONSTRAINT PK_tournament_info_sections PRIMARY KEY,

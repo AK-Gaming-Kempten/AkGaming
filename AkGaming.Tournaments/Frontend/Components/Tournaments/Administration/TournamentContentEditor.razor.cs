@@ -13,9 +13,13 @@ public partial class TournamentContentEditor : ComponentBase
     [Parameter] public EventCallback<IReadOnlyList<TournamentRegistrationRuleUpdateRequest>> RegistrationRulesSaveRequested { get; set; }
     [Parameter] public EventCallback<MediaAssetDto> LogoUploaded { get; set; }
     [Parameter] public EventCallback ClearLogoRequested { get; set; }
+    [Parameter] public EventCallback<MediaAssetDto> BannerUploaded { get; set; }
+    [Parameter] public EventCallback ClearBannerRequested { get; set; }
 
     private string? currentTournamentStateKey;
     private string name = string.Empty;
+    private string primaryColor = string.Empty;
+    private Guid? bannerAssetId;
     private TournamentStatusDto status;
     private string? registrationOpenValue;
     private string? registrationClosedValue;
@@ -31,6 +35,8 @@ public partial class TournamentContentEditor : ComponentBase
 
         currentTournamentStateKey = stateKey;
         name = Tournament.Name;
+        primaryColor = Tournament.PrimaryColor ?? string.Empty;
+        bannerAssetId = Tournament.BannerAssetId;
         status = Tournament.Status;
         registrationOpenValue = ToInputValue(Tournament.RegistrationOpenUtc);
         registrationClosedValue = ToInputValue(Tournament.RegistrationClosedUtc);
@@ -66,6 +72,7 @@ public partial class TournamentContentEditor : ComponentBase
     private void HandleStartChanged(ChangeEventArgs args) => startValue = args.Value?.ToString();
     private void HandleEndChanged(ChangeEventArgs args) => endValue = args.Value?.ToString();
     private void HandleNameChanged(ChangeEventArgs args) => name = args.Value?.ToString() ?? string.Empty;
+    private void HandlePrimaryColorChanged(ChangeEventArgs args) => primaryColor = args.Value?.ToString() ?? string.Empty;
     private void HandleStatusChanged(ChangeEventArgs args)
     {
         if (Enum.TryParse<TournamentStatusDto>(args.Value?.ToString(), out var parsed))
@@ -78,6 +85,18 @@ public partial class TournamentContentEditor : ComponentBase
     private Task ClearLogoAsync()
         => ClearLogoRequested.InvokeAsync();
 
+    private Task HandleBannerUploadedAsync(MediaAssetDto asset)
+    {
+        bannerAssetId = asset.Id;
+        return BannerUploaded.InvokeAsync(asset);
+    }
+
+    private Task ClearBannerAsync()
+    {
+        bannerAssetId = null;
+        return ClearBannerRequested.InvokeAsync();
+    }
+
     private Task HandleSaveRulesAsync(IReadOnlyList<TournamentRegistrationRuleUpdateRequest> rules)
         => RegistrationRulesSaveRequested.InvokeAsync(rules);
 
@@ -86,6 +105,8 @@ public partial class TournamentContentEditor : ComponentBase
         var request = new TournamentContentSaveRequest(
             name,
             status,
+            bannerAssetId,
+            primaryColor,
             ParseInputValue(registrationOpenValue),
             ParseInputValue(registrationClosedValue),
             ParseInputValue(startValue),
@@ -115,6 +136,8 @@ public partial class TournamentContentEditor : ComponentBase
             tournament.RegistrationClosedUtc,
             tournament.StartUtc,
             tournament.EndUtc,
+            tournament.BannerAssetId,
+            tournament.PrimaryColor,
             string.Join(";", tournament.InfoSections.Select(section => $"{section.Id}:{section.SortOrder}:{section.Header}:{section.ContentMarkdown}")));
 
     private sealed class EditableTournamentInfoSection(Guid id, string header, string contentMarkdown)
@@ -128,6 +151,8 @@ public partial class TournamentContentEditor : ComponentBase
 public sealed record TournamentContentSaveRequest(
     string Name,
     TournamentStatusDto Status,
+    Guid? BannerAssetId,
+    string? PrimaryColor,
     DateTimeOffset? RegistrationOpenUtc,
     DateTimeOffset? RegistrationClosedUtc,
     DateTimeOffset? StartUtc,

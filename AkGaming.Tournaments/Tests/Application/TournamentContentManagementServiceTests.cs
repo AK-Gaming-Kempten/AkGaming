@@ -18,7 +18,7 @@ public sealed class TournamentContentManagementServiceTests
     {
         Store = new InMemoryStore();
         UnitOfWork = new FakeUnitOfWork();
-        Service = new TournamentContentManagementService(new InMemoryTournamentRepository(Store), UnitOfWork);
+        Service = new TournamentContentManagementService(new InMemoryTournamentRepository(Store), new InMemoryMediaAssetRepository(Store), UnitOfWork);
     }
 
     [Test]
@@ -52,6 +52,8 @@ public sealed class TournamentContentManagementServiceTests
             tournament.Id,
             "Updated name",
             TournamentStatusDto.InProgress,
+            null,
+            null,
             registrationOpenUtc,
             registrationClosedUtc,
             startUtc,
@@ -83,6 +85,8 @@ public sealed class TournamentContentManagementServiceTests
             tournament.Id,
             tournament.Name,
             TournamentStatusDto.RegistrationOpen,
+            null,
+            null,
             new DateTimeOffset(2026, 4, 1, 16, 0, 0, TimeSpan.Zero),
             new DateTimeOffset(2026, 4, 15, 16, 0, 0, TimeSpan.Zero),
             new DateTimeOffset(2026, 4, 10, 12, 0, 0, TimeSpan.Zero),

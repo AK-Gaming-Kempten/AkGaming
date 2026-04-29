@@ -22,6 +22,8 @@ public sealed class TournamentsApiClient(HttpClient httpClient) : TournamentApiC
         Guid tournamentId,
         string name,
         TournamentStatusDto status,
+        Guid? bannerAssetId,
+        string? primaryColor,
         DateTimeOffset? registrationOpenUtc,
         DateTimeOffset? registrationClosedUtc,
         DateTimeOffset? startUtc,
@@ -33,6 +35,8 @@ public sealed class TournamentsApiClient(HttpClient httpClient) : TournamentApiC
             new UpdateTournamentContentApiRequest(
                 name,
                 status,
+                bannerAssetId,
+                primaryColor,
                 registrationOpenUtc,
                 registrationClosedUtc,
                 startUtc,
@@ -55,6 +59,8 @@ public sealed class TournamentsApiClient(HttpClient httpClient) : TournamentApiC
     private sealed record UpdateTournamentContentApiRequest(
         string Name,
         TournamentStatusDto Status,
+        Guid? BannerAssetId,
+        string? PrimaryColor,
         DateTimeOffset? RegistrationOpenUtc,
         DateTimeOffset? RegistrationClosedUtc,
         DateTimeOffset? StartUtc,

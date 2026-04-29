@@ -8,6 +8,8 @@ public interface ITournamentContentManagementService
         Guid tournamentId,
         string name,
         TournamentStatusDto status,
+        Guid? bannerAssetId,
+        string? primaryColor,
         DateTimeOffset? registrationOpenUtc,
         DateTimeOffset? registrationClosedUtc,
         DateTimeOffset? startUtc,

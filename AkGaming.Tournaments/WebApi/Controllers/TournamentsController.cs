@@ -61,6 +61,8 @@ public sealed class TournamentsController(
             tournamentId,
             request.Name,
             request.Status,
+            request.BannerAssetId,
+            request.PrimaryColor,
             request.RegistrationOpenUtc,
             request.RegistrationClosedUtc,
             request.StartUtc,
@@ -87,6 +89,8 @@ public sealed record UpdateTournamentLogoRequest(Guid? LogoAssetId);
 public sealed record UpdateTournamentContentRequest(
     string Name,
     TournamentStatusDto Status,
+    Guid? BannerAssetId,
+    string? PrimaryColor,
     DateTimeOffset? RegistrationOpenUtc,
     DateTimeOffset? RegistrationClosedUtc,
     DateTimeOffset? StartUtc,

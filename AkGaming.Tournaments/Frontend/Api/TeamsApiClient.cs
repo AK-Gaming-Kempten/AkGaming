@@ -22,8 +22,8 @@ public sealed class TeamsApiClient(HttpClient httpClient) : TournamentApiClientB
     public Task<TeamDto> TransferOwnershipAsync(Guid teamId, string actingUserId, string targetUserId, CancellationToken cancellationToken = default)
         => PostAsync<TeamDto>($"api/teams/{teamId}/members/{Uri.EscapeDataString(targetUserId)}/transfer-ownership", new TransferOwnershipApiRequest(actingUserId), cancellationToken);
 
-    public Task<TeamDto> UpdateTeamAsync(Guid teamId, string actingUserId, string name, CancellationToken cancellationToken = default)
-        => PutAsync<TeamDto>($"api/teams/{teamId}", new UpdateTeamApiRequest(actingUserId, name), cancellationToken);
+    public Task<TeamDto> UpdateTeamAsync(Guid teamId, string actingUserId, string name, Guid? bannerAssetId, string? primaryColor, CancellationToken cancellationToken = default)
+        => PutAsync<TeamDto>($"api/teams/{teamId}", new UpdateTeamApiRequest(actingUserId, name, bannerAssetId, primaryColor), cancellationToken);
 
     public Task<TeamDto> UpdateTeamLogoAsync(Guid teamId, string actingUserId, Guid? logoAssetId, CancellationToken cancellationToken = default)
         => PutAsync<TeamDto>($"api/teams/{teamId}/logo", new UpdateTeamLogoApiRequest(actingUserId, logoAssetId), cancellationToken);
@@ -56,7 +56,7 @@ public sealed class TeamsApiClient(HttpClient httpClient) : TournamentApiClientB
     private sealed record AddTeamMemberApiRequest(string ActingUserId, string UserId, TeamRoleDto Role);
     private sealed record UpdateTeamMemberRoleApiRequest(string ActingUserId, TeamRoleDto Role);
     private sealed record TransferOwnershipApiRequest(string ActingUserId);
-    private sealed record UpdateTeamApiRequest(string ActingUserId, string Name);
+    private sealed record UpdateTeamApiRequest(string ActingUserId, string Name, Guid? BannerAssetId, string? PrimaryColor);
     private sealed record UpdateTeamLogoApiRequest(string ActingUserId, Guid? LogoAssetId);
     private sealed record CreateTeamInviteKeyApiRequest(string ActingUserId, int MaxUses);
     private sealed record AcceptTeamInviteKeyApiRequest(string UserId);
