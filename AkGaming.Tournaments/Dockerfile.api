@@ -1,0 +1,24 @@
+FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
+WORKDIR /src
+
+# Monorepo root build context expected.
+COPY . .
+
+RUN dotnet restore "AkGaming.Tournaments/WebApi/AkGaming.Tournaments.WebApi.csproj"
+
+RUN dotnet publish "AkGaming.Tournaments/WebApi/AkGaming.Tournaments.WebApi.csproj" \
+    -c Release \
+    -o /app/publish \
+    --no-restore \
+    /p:UseAppHost=false
+
+FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS final
+WORKDIR /app
+
+COPY --from=build /app/publish .
+RUN mkdir -p /app/wwwroot/media/logos
+
+ENV ASPNETCORE_URLS=http://+:8080
+EXPOSE 8080
+
+ENTRYPOINT ["dotnet", "AkGaming.Tournaments.WebApi.dll"]
