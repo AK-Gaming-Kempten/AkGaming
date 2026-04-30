@@ -2,7 +2,8 @@ name: Deploy Website
 
 on:
   push:
-    branches: ["main", "prod-website"]
+    branches: ["develop"]
+    tags: ["website v*"]
 
 concurrency:
   group: deploy-website-${{ github.ref_name }}
@@ -10,7 +11,7 @@ concurrency:
 
 jobs:
   should-deploy:
-    if: github.ref == 'refs/heads/main'
+    if: github.ref == 'refs/heads/develop'
     runs-on: ubuntu-latest
     outputs:
       deploy: ${{ steps.evaluate.outputs.deploy }}
@@ -50,15 +51,16 @@ jobs:
 
   deploy-test:
     needs: should-deploy
-    if: github.ref == 'refs/heads/main' && needs.should-deploy.outputs.deploy == 'true'
+    if: github.ref == 'refs/heads/develop' && needs.should-deploy.outputs.deploy == 'true'
     runs-on: ubuntu-latest
     steps:
       - name: Trigger Coolify Test Deploy
         run: |
           curl --fail --request GET "${{ secrets.COOLIFY_WEBHOOK_WEBSITE_TEST }}" \
             --header "Authorization: Bearer ${{ secrets.COOLIFY_TOKEN }}"
+
   deploy-production:
-    if: github.ref == 'refs/heads/prod-website'
+    if: startsWith(github.ref, 'refs/tags/website v')
     runs-on: ubuntu-latest
     steps:
       - name: Trigger Coolify Production Deploy

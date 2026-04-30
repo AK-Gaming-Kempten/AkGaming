@@ -1,12 +1,12 @@
-name: Deploy Identity
+name: Deploy Tournaments
 
 on:
   push:
     branches: ["develop"]
-    tags: ["identity v*"]
+    tags: ["tournaments v*"]
 
 concurrency:
-  group: deploy-identity-${{ github.ref_name }}
+  group: deploy-tournaments-${{ github.ref_name }}
   cancel-in-progress: false
 
 jobs:
@@ -20,7 +20,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - name: Evaluate Identity Deploy Trigger
+      - name: Evaluate Tournaments Deploy Trigger
         id: evaluate
         env:
           BEFORE_SHA: ${{ github.event.before }}
@@ -39,11 +39,11 @@ jobs:
 
           deploy=false
 
-          if printf '%s\n' "$changed_files" | grep -Eq '^(AkGaming\.Identity/|AkGaming\.Core/)'; then
+          if printf '%s\n' "$changed_files" | grep -Eq '^(AkGaming\.Tournaments/|AkGaming\.Core/)'; then
             deploy=true
           fi
 
-          if printf '%s\n' "$commit_messages" | grep -Eiq '\[[^]]*(Identity|All Projects|Core)[^]]*\]'; then
+          if printf '%s\n' "$commit_messages" | grep -Eiq '\[[^]]*(Tournaments|All Projects|Core)[^]]*\]'; then
             deploy=true
           fi
 
@@ -51,7 +51,7 @@ jobs:
 
   test:
     needs: should-deploy
-    if: ${{ always() && ((github.ref == 'refs/heads/develop' && needs.should-deploy.outputs.deploy == 'true') || startsWith(github.ref, 'refs/tags/identity v')) }}
+    if: ${{ always() && ((github.ref == 'refs/heads/develop' && needs.should-deploy.outputs.deploy == 'true') || startsWith(github.ref, 'refs/tags/tournaments v')) }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -60,21 +60,16 @@ jobs:
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: 10.0.x
-      - name: Restore Identity Tests
+      - name: Restore Tournaments Tests
         env:
           DOTNET_CLI_HOME: /tmp
           DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
-        run: dotnet restore AkGaming.Identity/AkGaming.Identity.sln
-      - name: Run Identity Application Unit Tests
+        run: dotnet restore AkGaming.Tournaments/Tests/AkGaming.Tournaments.Tests.csproj
+      - name: Run Tournaments Tests
         env:
           DOTNET_CLI_HOME: /tmp
           DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
-        run: dotnet test AkGaming.Identity/Tests/Application.UnitTests/AkGaming.Identity.Application.UnitTests.csproj --configuration Release --no-restore
-      - name: Run Identity API Integration Tests
-        env:
-          DOTNET_CLI_HOME: /tmp
-          DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
-        run: dotnet test AkGaming.Identity/Tests/Api.IntegrationTests/AkGaming.Identity.Api.IntegrationTests.csproj --configuration Release --no-restore
+        run: dotnet test AkGaming.Tournaments/Tests/AkGaming.Tournaments.Tests.csproj --configuration Release --no-restore
 
   deploy-test:
     needs:
@@ -83,7 +78,7 @@ jobs:
     if: github.ref == 'refs/heads/develop' && needs.should-deploy.outputs.deploy == 'true'
     runs-on: ubuntu-latest
     env:
-      IDENTITY_TEST_DB_CONNECTION_STRING: ${{ secrets.IDENTITY_TEST_DB_CONNECTION_STRING }}
+      TOURNAMENTS_TEST_DB_CONNECTION_STRING: ${{ secrets.TOURNAMENTS_TEST_DB_CONNECTION_STRING }}
       DB_SSH_HOST: ${{ secrets.DB_SSH_HOST }}
       DB_SSH_PORT: ${{ secrets.DB_SSH_PORT }}
       DB_SSH_USER: ${{ secrets.DB_SSH_USER }}
@@ -103,11 +98,11 @@ jobs:
         run: dotnet tool install --global dotnet-ef --version 10.*
       - name: Add .NET tools to PATH
         run: echo "$HOME/.dotnet/tools" >> "$GITHUB_PATH"
-      - name: Restore Identity Migration Project
+      - name: Restore Tournaments Postgres Project
         env:
           DOTNET_CLI_HOME: /tmp
           DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
-        run: dotnet restore AkGaming.Identity/Migrations/Postgres/AkGaming.Identity.Migrations.Postgres.csproj
+        run: dotnet restore AkGaming.Tournaments/Infrastructure/Postgres/AkGaming.Tournaments.Infrastructure.Postgres.csproj
       - name: Configure SSH For Test Database Tunnel
         if: ${{ env.DB_SSH_HOST != '' && env.DB_SSH_USER != '' && env.DB_SSH_PRIVATE_KEY != '' && env.DB_SSH_KNOWN_HOSTS != '' }}
         run: |
@@ -130,50 +125,62 @@ jobs:
             -fN \
             -L "127.0.0.1:${TEST_DB_TUNNEL_LOCAL_PORT}:${target_host}:${target_port}" \
             "${DB_SSH_USER}@${DB_SSH_HOST}"
-      - name: Validate Identity Test Connection String
-        if: ${{ env.IDENTITY_TEST_DB_CONNECTION_STRING != '' }}
+      - name: Validate Tournaments Test Connection String
+        if: ${{ env.TOURNAMENTS_TEST_DB_CONNECTION_STRING != '' }}
         env:
-          CONNECTION_STRING: ${{ env.IDENTITY_TEST_DB_CONNECTION_STRING }}
+          CONNECTION_STRING: ${{ env.TOURNAMENTS_TEST_DB_CONNECTION_STRING }}
         run: |
           case "$CONNECTION_STRING" in
             Host=*|Server=*)
               ;;
             *)
-              echo "::error::IDENTITY_TEST_DB_CONNECTION_STRING must be a raw Npgsql connection string like Host=...;Port=5432;Database=...;Username=...;Password=..."
-              echo "::error::Do not include surrounding quotes, a ConnectionStrings__IdentityDb= prefix, or a postgres:// URL."
+              echo "::error::TOURNAMENTS_TEST_DB_CONNECTION_STRING must be a raw Npgsql connection string like Host=...;Port=5432;Database=...;Username=...;Password=..."
+              echo "::error::Do not include surrounding quotes, a ConnectionStrings__Postgres= prefix, or a postgres:// URL."
               exit 1
               ;;
           esac
 
           if [ -n "$DB_SSH_HOST" ]; then
             if ! printf '%s\n' "$CONNECTION_STRING" | grep -Eiq '(^|;)(Host|Server)=(127\.0\.0\.1|localhost)(;|$)'; then
-              echo "::error::IDENTITY_TEST_DB_CONNECTION_STRING must use Host=127.0.0.1 or Host=localhost when DB_SSH_* tunnel secrets are configured."
+              echo "::error::TOURNAMENTS_TEST_DB_CONNECTION_STRING must use Host=127.0.0.1 or Host=localhost when DB_SSH_* tunnel secrets are configured."
               exit 1
             fi
 
             if ! printf '%s\n' "$CONNECTION_STRING" | grep -Eiq "(^|;)Port=${TEST_DB_TUNNEL_LOCAL_PORT}(;|$)"; then
-              echo "::error::IDENTITY_TEST_DB_CONNECTION_STRING must use Port=${TEST_DB_TUNNEL_LOCAL_PORT} when DB_SSH_* tunnel secrets are configured."
+              echo "::error::TOURNAMENTS_TEST_DB_CONNECTION_STRING must use Port=${TEST_DB_TUNNEL_LOCAL_PORT} when DB_SSH_* tunnel secrets are configured."
               exit 1
             fi
           fi
       - name: Apply Test Database Migrations
-        if: ${{ env.IDENTITY_TEST_DB_CONNECTION_STRING != '' }}
+        if: ${{ env.TOURNAMENTS_TEST_DB_CONNECTION_STRING != '' }}
         env:
           DOTNET_CLI_HOME: /tmp
           DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
-          ConnectionStrings__IdentityDb: ${{ env.IDENTITY_TEST_DB_CONNECTION_STRING }}
-        run: dotnet ef database update --project AkGaming.Identity/Migrations/Postgres/AkGaming.Identity.Migrations.Postgres.csproj --context AuthDbContext
-      - name: Trigger Coolify Test Deploy
+          ConnectionStrings__Postgres: ${{ env.TOURNAMENTS_TEST_DB_CONNECTION_STRING }}
         run: |
-          curl --fail --request GET "${{ secrets.COOLIFY_WEBHOOK_IDENTITY_TEST }}" \
+          if find AkGaming.Tournaments/Infrastructure/Postgres -path '*/Migrations/*.cs' -print -quit | grep -q .; then
+            dotnet ef database update \
+              --project AkGaming.Tournaments/Infrastructure/Postgres/AkGaming.Tournaments.Infrastructure.Postgres.csproj \
+              --startup-project AkGaming.Tournaments/WebApi/AkGaming.Tournaments.WebApi.csproj \
+              --context TournamentDbContext
+          else
+            echo "No tournaments migrations were found. Skipping database update."
+          fi
+      - name: Trigger Coolify Test Deploy for Backend
+        run: |
+          curl --fail --request GET "${{ secrets.COOLIFY_WEBHOOK_TOURNAMENTS_BACKEND_TEST }}" \
+            --header "Authorization: Bearer ${{ secrets.COOLIFY_TOKEN }}"
+      - name: Trigger Coolify Test Deploy for Frontend
+        run: |
+          curl --fail --request GET "${{ secrets.COOLIFY_WEBHOOK_TOURNAMENTS_FRONTEND_TEST }}" \
             --header "Authorization: Bearer ${{ secrets.COOLIFY_TOKEN }}"
 
   deploy-production:
     needs: test
-    if: ${{ always() && startsWith(github.ref, 'refs/tags/identity v') && needs.test.result == 'success' }}
+    if: ${{ always() && startsWith(github.ref, 'refs/tags/tournaments v') && needs.test.result == 'success' }}
     runs-on: ubuntu-latest
     env:
-      IDENTITY_PRODUCTION_DB_CONNECTION_STRING: ${{ secrets.IDENTITY_PRODUCTION_DB_CONNECTION_STRING }}
+      TOURNAMENTS_PRODUCTION_DB_CONNECTION_STRING: ${{ secrets.TOURNAMENTS_PRODUCTION_DB_CONNECTION_STRING }}
       DB_SSH_HOST: ${{ secrets.DB_SSH_HOST }}
       DB_SSH_PORT: ${{ secrets.DB_SSH_PORT }}
       DB_SSH_USER: ${{ secrets.DB_SSH_USER }}
@@ -193,11 +200,11 @@ jobs:
         run: dotnet tool install --global dotnet-ef --version 10.*
       - name: Add .NET tools to PATH
         run: echo "$HOME/.dotnet/tools" >> "$GITHUB_PATH"
-      - name: Restore Identity Migration Project
+      - name: Restore Tournaments Postgres Project
         env:
           DOTNET_CLI_HOME: /tmp
           DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
-        run: dotnet restore AkGaming.Identity/Migrations/Postgres/AkGaming.Identity.Migrations.Postgres.csproj
+        run: dotnet restore AkGaming.Tournaments/Infrastructure/Postgres/AkGaming.Tournaments.Infrastructure.Postgres.csproj
       - name: Configure SSH For Production Database Tunnel
         if: ${{ env.DB_SSH_HOST != '' && env.DB_SSH_USER != '' && env.DB_SSH_PRIVATE_KEY != '' && env.DB_SSH_KNOWN_HOSTS != '' }}
         run: |
@@ -220,40 +227,52 @@ jobs:
             -fN \
             -L "127.0.0.1:${PRODUCTION_DB_TUNNEL_LOCAL_PORT}:${target_host}:${target_port}" \
             "${DB_SSH_USER}@${DB_SSH_HOST}"
-      - name: Validate Identity Production Connection String
-        if: ${{ env.IDENTITY_PRODUCTION_DB_CONNECTION_STRING != '' }}
+      - name: Validate Tournaments Production Connection String
+        if: ${{ env.TOURNAMENTS_PRODUCTION_DB_CONNECTION_STRING != '' }}
         env:
-          CONNECTION_STRING: ${{ env.IDENTITY_PRODUCTION_DB_CONNECTION_STRING }}
+          CONNECTION_STRING: ${{ env.TOURNAMENTS_PRODUCTION_DB_CONNECTION_STRING }}
         run: |
           case "$CONNECTION_STRING" in
             Host=*|Server=*)
               ;;
             *)
-              echo "::error::IDENTITY_PRODUCTION_DB_CONNECTION_STRING must be a raw Npgsql connection string like Host=...;Port=5432;Database=...;Username=...;Password=..."
-              echo "::error::Do not include surrounding quotes, a ConnectionStrings__IdentityDb= prefix, or a postgres:// URL."
+              echo "::error::TOURNAMENTS_PRODUCTION_DB_CONNECTION_STRING must be a raw Npgsql connection string like Host=...;Port=5432;Database=...;Username=...;Password=..."
+              echo "::error::Do not include surrounding quotes, a ConnectionStrings__Postgres= prefix, or a postgres:// URL."
               exit 1
               ;;
           esac
 
           if [ -n "$DB_SSH_HOST" ]; then
             if ! printf '%s\n' "$CONNECTION_STRING" | grep -Eiq '(^|;)(Host|Server)=(127\.0\.0\.1|localhost)(;|$)'; then
-              echo "::error::IDENTITY_PRODUCTION_DB_CONNECTION_STRING must use Host=127.0.0.1 or Host=localhost when DB_SSH_* tunnel secrets are configured."
+              echo "::error::TOURNAMENTS_PRODUCTION_DB_CONNECTION_STRING must use Host=127.0.0.1 or Host=localhost when DB_SSH_* tunnel secrets are configured."
               exit 1
             fi
 
             if ! printf '%s\n' "$CONNECTION_STRING" | grep -Eiq "(^|;)Port=${PRODUCTION_DB_TUNNEL_LOCAL_PORT}(;|$)"; then
-              echo "::error::IDENTITY_PRODUCTION_DB_CONNECTION_STRING must use Port=${PRODUCTION_DB_TUNNEL_LOCAL_PORT} when DB_SSH_* tunnel secrets are configured."
+              echo "::error::TOURNAMENTS_PRODUCTION_DB_CONNECTION_STRING must use Port=${PRODUCTION_DB_TUNNEL_LOCAL_PORT} when DB_SSH_* tunnel secrets are configured."
               exit 1
             fi
           fi
       - name: Apply Production Database Migrations
-        if: ${{ env.IDENTITY_PRODUCTION_DB_CONNECTION_STRING != '' }}
+        if: ${{ env.TOURNAMENTS_PRODUCTION_DB_CONNECTION_STRING != '' }}
         env:
           DOTNET_CLI_HOME: /tmp
           DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
-          ConnectionStrings__IdentityDb: ${{ env.IDENTITY_PRODUCTION_DB_CONNECTION_STRING }}
-        run: dotnet ef database update --project AkGaming.Identity/Migrations/Postgres/AkGaming.Identity.Migrations.Postgres.csproj --context AuthDbContext
-      - name: Trigger Coolify Production Deploy
+          ConnectionStrings__Postgres: ${{ env.TOURNAMENTS_PRODUCTION_DB_CONNECTION_STRING }}
         run: |
-          curl --fail --request GET "${{ secrets.COOLIFY_WEBHOOK_IDENTITY }}" \
+          if find AkGaming.Tournaments/Infrastructure/Postgres -path '*/Migrations/*.cs' -print -quit | grep -q .; then
+            dotnet ef database update \
+              --project AkGaming.Tournaments/Infrastructure/Postgres/AkGaming.Tournaments.Infrastructure.Postgres.csproj \
+              --startup-project AkGaming.Tournaments/WebApi/AkGaming.Tournaments.WebApi.csproj \
+              --context TournamentDbContext
+          else
+            echo "No tournaments migrations were found. Skipping database update."
+          fi
+      - name: Trigger Coolify Production Deploy for Backend
+        run: |
+          curl --fail --request GET "${{ secrets.COOLIFY_WEBHOOK_TOURNAMENTS_BACKEND }}" \
+            --header "Authorization: Bearer ${{ secrets.COOLIFY_TOKEN }}"
+      - name: Trigger Coolify Production Deploy for Frontend
+        run: |
+          curl --fail --request GET "${{ secrets.COOLIFY_WEBHOOK_TOURNAMENTS_FRONTEND }}" \
             --header "Authorization: Bearer ${{ secrets.COOLIFY_TOKEN }}"
