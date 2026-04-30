@@ -28,9 +28,6 @@
                 <div class="tournament-banner-copy">
                     <span class="eyebrow">@Tournament.GameName</span>
                     <h1>@Tournament.Name</h1>
-                    <span class="status-pill @(Tournament.Status == TournamentStatusDto.RegistrationOpen ? "status-pill-positive" : "status-pill-neutral")">
-                        @Tournament.Status
-                    </span>
                 </div>
             </div>
 
@@ -40,10 +37,6 @@
                                Type="tournament"
                                Alt="@($"{Tournament.Name} logo")"
                                Size="LogoImageSize.Large" />
-                </div>
-                <div>
-                    <span class="eyebrow">@Tournament.GameName tournament</span>
-                    <h1>@Tournament.Name</h1>
                 </div>
             </div>
 
