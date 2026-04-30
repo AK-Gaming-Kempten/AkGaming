@@ -1,5 +1,6 @@
 using AkGaming.Tournaments.Contracts.DTOs;
 using AkGaming.Tournaments.Frontend.Api;
+using AkGaming.Tournaments.Frontend.Components.General;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 using System.Security.Claims;
@@ -25,6 +26,8 @@ public partial class TeamDetails : ComponentBase
     private string? currentUserId;
     private string? currentUserDisplayName;
     private string? errorMessage;
+    private string? transferOwnershipDialogErrorMessage;
+    private string? rosterRefreshDialogErrorMessage;
     private string teamName = string.Empty;
     private string teamProfileLink = string.Empty;
     private string teamPrimaryColor = string.Empty;
@@ -34,9 +37,12 @@ public partial class TeamDetails : ComponentBase
     private int? guestRankRating;
     private TeamMembershipDto? transferOwnershipTargetMember;
     private PlayerProfileDto? editingGuestProfile;
+    private TournamentRegistrationDto? rosterRefreshRegistration;
+    private HashSet<Guid> rosterRefreshSelectedProfileIds = [];
     private bool isGuestFormOpen;
     private bool isTeamEditMode;
     private bool isTransferOwnershipDialogOpen;
+    private bool isRosterRefreshDialogOpen;
     private bool isAuthenticated;
     private bool isLoading = true;
     private bool isBusy;
@@ -301,6 +307,7 @@ public partial class TeamDetails : ComponentBase
     private Task StartTransferOwnershipAsync(TeamMembershipDto member)
     {
         transferOwnershipTargetMember = member;
+        transferOwnershipDialogErrorMessage = null;
         isTransferOwnershipDialogOpen = true;
         return Task.CompletedTask;
     }
@@ -309,6 +316,7 @@ public partial class TeamDetails : ComponentBase
     {
         isTransferOwnershipDialogOpen = false;
         transferOwnershipTargetMember = null;
+        transferOwnershipDialogErrorMessage = null;
         return Task.CompletedTask;
     }
 
@@ -319,6 +327,7 @@ public partial class TeamDetails : ComponentBase
 
         isBusy = true;
         errorMessage = null;
+        transferOwnershipDialogErrorMessage = null;
         try
         {
             team = await TeamsClient.TransferOwnershipAsync(team.Id, currentUserId, transferOwnershipTargetMember.UserId);
@@ -328,6 +337,7 @@ public partial class TeamDetails : ComponentBase
         catch (TournamentApiException ex)
         {
             errorMessage = ex.Message;
+            transferOwnershipDialogErrorMessage = ex.Message;
         }
         finally
         {
@@ -397,7 +407,188 @@ public partial class TeamDetails : ComponentBase
             teamPrimaryColor = team.PrimaryColor ?? string.Empty;
             teamBannerAssetId = team.BannerAssetId;
             availableProfiles = await TeamsClient.GetAvailableProfilesAsync(team.Id, team.GameId);
+            registrations = await RegistrationsClient.GetTeamRegistrationsAsync(team.Id);
         }
+    }
+
+    private Task StartRosterRefreshAsync(TournamentRegistrationDto registration)
+    {
+        rosterRefreshRegistration = registration;
+        rosterRefreshSelectedProfileIds = GetInitialRosterRefreshSelection(registration);
+        rosterRefreshDialogErrorMessage = null;
+        isRosterRefreshDialogOpen = true;
+        return Task.CompletedTask;
+    }
+
+    private Task CancelRosterRefreshAsync()
+    {
+        isRosterRefreshDialogOpen = false;
+        rosterRefreshRegistration = null;
+        rosterRefreshSelectedProfileIds = [];
+        rosterRefreshDialogErrorMessage = null;
+        return Task.CompletedTask;
+    }
+
+    private async Task ConfirmRosterRefreshAsync()
+    {
+        if (team is null || string.IsNullOrWhiteSpace(currentUserId) || rosterRefreshRegistration is null)
+            return;
+
+        var selectedProfileIds = rosterRefreshSelectedProfileIds.ToArray();
+        if (selectedProfileIds.Length == 0)
+        {
+            rosterRefreshDialogErrorMessage = "Select at least one roster profile.";
+            errorMessage = rosterRefreshDialogErrorMessage;
+            return;
+        }
+
+        isBusy = true;
+        errorMessage = null;
+        rosterRefreshDialogErrorMessage = null;
+        try
+        {
+            await RegistrationsClient.SubmitRosterChangeAsync(rosterRefreshRegistration.Id, currentUserId, selectedProfileIds);
+            await RefreshTeamProfilesAsync();
+            await CancelRosterRefreshAsync();
+        }
+        catch (TournamentApiException ex)
+        {
+            errorMessage = ex.Message;
+            rosterRefreshDialogErrorMessage = ex.Message;
+        }
+        finally
+        {
+            isBusy = false;
+        }
+    }
+
+    private Task SetRosterRefreshSelectionAsync(Guid profileId, bool selected)
+    {
+        rosterRefreshDialogErrorMessage = null;
+
+        if (selected)
+        {
+            rosterRefreshSelectedProfileIds.Add(profileId);
+        }
+        else
+        {
+            rosterRefreshSelectedProfileIds.Remove(profileId);
+        }
+
+        return Task.CompletedTask;
+    }
+
+    private static string FormatRank(PlayerProfileDto profile)
+    {
+        return PlayerRankFormatter.Format(profile.GameId, profile.RankRating);
+    }
+
+    private HashSet<Guid> GetInitialRosterRefreshSelection(TournamentRegistrationDto registration)
+    {
+        var selection = new HashSet<Guid>();
+        var activeRoster = registration.Rosters.FirstOrDefault(roster => roster.Id == registration.ActiveRosterId);
+        if (activeRoster is null)
+        {
+            return selection;
+        }
+
+        foreach (var profile in availableProfiles)
+        {
+            if (activeRoster.PlayerSnapshots.Any(snapshot => snapshot.SourcePlayerProfileId == profile.Id))
+            {
+                selection.Add(profile.Id);
+            }
+        }
+
+        if (selection.Count == 0)
+        {
+            foreach (var profile in availableProfiles)
+            {
+                selection.Add(profile.Id);
+            }
+        }
+
+        return selection;
+    }
+
+    private RosterRefreshDiffDto GetRosterRefreshDiff()
+    {
+        if (rosterRefreshRegistration is null)
+        {
+            return new RosterRefreshDiffDto([], [], [], [], []);
+        }
+
+        var activeRoster = rosterRefreshRegistration.Rosters.FirstOrDefault(roster => roster.Id == rosterRefreshRegistration.ActiveRosterId);
+        if (activeRoster is null)
+        {
+            return new RosterRefreshDiffDto([], [], [], [], []);
+        }
+
+        var currentProfilesById = availableProfiles.ToDictionary(profile => profile.Id, profile => profile);
+        var selectedNewIds = rosterRefreshSelectedProfileIds;
+        var oldSnapshotBySourceId = activeRoster.PlayerSnapshots
+            .Where(snapshot => snapshot.SourcePlayerProfileId is Guid)
+            .ToDictionary(snapshot => snapshot.SourcePlayerProfileId!.Value, snapshot => snapshot);
+
+        var oldRoster = activeRoster.PlayerSnapshots
+            .Select(snapshot => snapshot.Name)
+            .OrderBy(name => name, StringComparer.OrdinalIgnoreCase)
+            .ToList();
+
+        var added = new List<string>();
+        var removed = new List<string>();
+        var renamed = new List<string>();
+        var unchanged = new List<string>();
+
+        foreach (var oldSnapshot in activeRoster.PlayerSnapshots)
+        {
+            if (oldSnapshot.SourcePlayerProfileId is not Guid sourceId)
+            {
+                removed.Add($"{oldSnapshot.Name} (legacy snapshot)");
+                continue;
+            }
+
+            if (!selectedNewIds.Contains(sourceId))
+            {
+                removed.Add(oldSnapshot.Name);
+                continue;
+            }
+
+            if (!currentProfilesById.TryGetValue(sourceId, out var currentProfile))
+            {
+                removed.Add($"{oldSnapshot.Name} (profile unavailable)");
+                continue;
+            }
+
+            if (!string.Equals(oldSnapshot.Name, currentProfile.Name, StringComparison.Ordinal))
+            {
+                renamed.Add($"{oldSnapshot.Name} -> {currentProfile.Name}");
+            }
+            else
+            {
+                unchanged.Add(currentProfile.Name);
+            }
+        }
+
+        foreach (var profileId in selectedNewIds)
+        {
+            if (!currentProfilesById.TryGetValue(profileId, out var profile))
+            {
+                continue;
+            }
+
+            if (!oldSnapshotBySourceId.ContainsKey(profileId))
+            {
+                added.Add(profile.Name);
+            }
+        }
+
+        added.Sort(StringComparer.OrdinalIgnoreCase);
+        removed.Sort(StringComparer.OrdinalIgnoreCase);
+        renamed.Sort(StringComparer.OrdinalIgnoreCase);
+        unchanged.Sort(StringComparer.OrdinalIgnoreCase);
+
+        return new RosterRefreshDiffDto(oldRoster, added, removed, renamed, unchanged);
     }
 
     private static string? ResolveDisplayName(ClaimsPrincipal user)
@@ -425,3 +616,10 @@ public partial class TeamDetails : ComponentBase
         return !string.IsNullOrWhiteSpace(profileName) ? profileName : member.UserId;
     }
 }
+
+public sealed record RosterRefreshDiffDto(
+    IReadOnlyList<string> OldRoster,
+    IReadOnlyList<string> Added,
+    IReadOnlyList<string> Removed,
+    IReadOnlyList<string> Renamed,
+    IReadOnlyList<string> Unchanged);

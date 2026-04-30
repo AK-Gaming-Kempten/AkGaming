@@ -9,4 +9,5 @@ public sealed record TournamentRegistrationDto(
     DateTimeOffset? ReviewedAtUtc,
     string? ReviewNote,
     Guid? ActiveRosterId,
+    bool IsActiveRosterOutdated,
     IReadOnlyList<RosterDto> Rosters);

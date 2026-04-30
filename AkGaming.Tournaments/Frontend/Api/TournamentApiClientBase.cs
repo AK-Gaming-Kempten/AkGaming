@@ -1,4 +1,5 @@
 using System.Net.Http.Json;
+using System.Text.Json;
 
 namespace AkGaming.Tournaments.Frontend.Api;
 
@@ -135,7 +136,40 @@ public abstract class TournamentApiClientBase(HttpClient httpClient)
     {
         var content = await response.Content.ReadAsStringAsync(cancellationToken);
         if (!string.IsNullOrWhiteSpace(content))
+        {
+            try
+            {
+                using var json = JsonDocument.Parse(content);
+                if (json.RootElement.ValueKind == JsonValueKind.Object)
+                {
+                    if (json.RootElement.TryGetProperty("detail", out var detailElement)
+                        && detailElement.ValueKind == JsonValueKind.String)
+                    {
+                        var detail = detailElement.GetString();
+                        if (!string.IsNullOrWhiteSpace(detail))
+                        {
+                            return detail;
+                        }
+                    }
+
+                    if (json.RootElement.TryGetProperty("title", out var titleElement)
+                        && titleElement.ValueKind == JsonValueKind.String)
+                    {
+                        var title = titleElement.GetString();
+                        if (!string.IsNullOrWhiteSpace(title))
+                        {
+                            return title;
+                        }
+                    }
+                }
+            }
+            catch (JsonException)
+            {
+                // Fall through to plain-text response body.
+            }
+
             return content;
+        }
 
         return $"The tournament API returned {(int)response.StatusCode} {response.ReasonPhrase}.";
     }

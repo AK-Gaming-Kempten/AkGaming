@@ -14,6 +14,7 @@ public sealed class EfUnitOfWork(TournamentDbContext dbContext) : IUnitOfWork
         }
         catch (DbUpdateConcurrencyException)
         {
+            dbContext.ChangeTracker.Clear();
             throw new ConflictException("The requested data changed while this operation was running. Reload and try again.");
         }
     }

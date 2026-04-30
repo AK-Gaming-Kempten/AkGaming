@@ -33,6 +33,9 @@ public sealed class TournamentRegistrationRepository(TournamentDbContext dbConte
     public async Task AddAsync(TournamentRegistration registration, CancellationToken cancellationToken = default)
         => await dbContext.TournamentRegistrations.AddAsync(registration, cancellationToken);
 
+    public async Task AddRosterAsync(Roster roster, CancellationToken cancellationToken = default)
+        => await dbContext.Rosters.AddAsync(roster, cancellationToken);
+
     public void Delete(TournamentRegistration registration)
         => dbContext.TournamentRegistrations.Remove(registration);
 

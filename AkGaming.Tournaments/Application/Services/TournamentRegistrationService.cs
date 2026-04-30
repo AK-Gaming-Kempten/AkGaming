@@ -141,31 +141,44 @@ public sealed class TournamentRegistrationService(
         IReadOnlyCollection<Guid> playerProfileIds,
         CancellationToken cancellationToken = default)
     {
-        var registration = await RequireRegistrationAsync(registrationId, cancellationToken);
-        if (registration.Status != TournamentRegistrationStatus.Approved)
+        for (var attempt = 0; attempt < 2; attempt++)
         {
-            throw new ValidationException("Roster changes can only be submitted for approved registrations.");
+            var registration = await RequireRegistrationAsync(registrationId, cancellationToken);
+            if (registration.Status != TournamentRegistrationStatus.Approved)
+            {
+                throw new ValidationException("Roster changes can only be submitted for approved registrations.");
+            }
+
+            if (registration.Rosters.Any(roster => roster.Status == RosterStatus.Pending))
+            {
+                throw new ConflictException("The registration already has a pending roster review.");
+            }
+
+            var team = registration.Team ?? await RequireTeamAsync(registration.TeamId, cancellationToken);
+            EnsureCanEditTeam(team, actingUserId);
+            var tournament = await RequireTournamentAsync(registration.TournamentId, cancellationToken);
+            EnsureTeamCanRegisterForTournament(team, tournament);
+            var selectedProfiles = await ResolveEligibleProfilesAsync(team, tournament.GameId, playerProfileIds, cancellationToken);
+            EnsureRosterQualifies(team, tournament, selectedProfiles);
+
+            var nextVersion = registration.Rosters.Count == 0 ? 1 : registration.Rosters.Max(roster => roster.Version) + 1;
+            var roster = CreateRoster(nextVersion, selectedProfiles);
+            roster.TournamentRegistrationId = registration.Id;
+            await tournamentRegistrationRepository.AddRosterAsync(roster, cancellationToken);
+
+            try
+            {
+                await unitOfWork.SaveChangesAsync(cancellationToken);
+                var persistedRegistration = await RequireRegistrationAsync(registration.Id, cancellationToken);
+                return await MapRegistrationAsync(persistedRegistration, cancellationToken);
+            }
+            catch (ConflictException) when (attempt == 0)
+            {
+                // Retry once with a fresh aggregate snapshot to absorb transient optimistic concurrency races.
+            }
         }
 
-        if (registration.Rosters.Any(roster => roster.Status == RosterStatus.Pending))
-        {
-            throw new ConflictException("The registration already has a pending roster review.");
-        }
-
-        var team = registration.Team ?? await RequireTeamAsync(registration.TeamId, cancellationToken);
-        EnsureCanEditTeam(team, actingUserId);
-        var tournament = await RequireTournamentAsync(registration.TournamentId, cancellationToken);
-        EnsureTeamCanRegisterForTournament(team, tournament);
-        var selectedProfiles = await ResolveEligibleProfilesAsync(team, tournament.GameId, playerProfileIds, cancellationToken);
-        EnsureRosterQualifies(team, tournament, selectedProfiles);
-
-        var nextVersion = registration.Rosters.Count == 0 ? 1 : registration.Rosters.Max(roster => roster.Version) + 1;
-        var roster = CreateRoster(nextVersion, selectedProfiles);
-        roster.TournamentRegistrationId = registration.Id;
-        registration.Rosters.Add(roster);
-
-        await unitOfWork.SaveChangesAsync(cancellationToken);
-        return await MapRegistrationAsync(registration, cancellationToken);
+        throw new ConflictException("The roster changed while this request was running. Reload and try again.");
     }
 
     public async Task<TournamentRegistrationDto> ReviewRosterAsync(
@@ -576,7 +589,8 @@ public sealed class TournamentRegistrationService(
     private async Task<TournamentRegistrationDto> MapRegistrationAsync(TournamentRegistration registration, CancellationToken cancellationToken)
     {
         var currentProfiles = await LoadCurrentProfilesAsync(registration.Rosters, cancellationToken);
-        return registration.ToDto(currentProfiles);
+        var isOutdated = IsActiveRosterOutdated(registration, currentProfiles);
+        return registration.ToDto(currentProfiles, isOutdated);
     }
 
     private async Task<IReadOnlyList<TournamentRegistrationDto>> MapRegistrationsAsync(
@@ -586,8 +600,57 @@ public sealed class TournamentRegistrationService(
         var currentProfiles = await LoadCurrentProfilesAsync(registrations.SelectMany(registration => registration.Rosters), cancellationToken);
         return registrations
             .OrderByDescending(registration => registration.SubmittedAtUtc)
-            .Select(registration => registration.ToDto(currentProfiles))
+            .Select(registration => registration.ToDto(currentProfiles, IsActiveRosterOutdated(registration, currentProfiles)))
             .ToList();
+    }
+
+    private static bool IsActiveRosterOutdated(
+        TournamentRegistration registration,
+        IReadOnlyDictionary<Guid, PlayerProfile> currentProfiles)
+    {
+        if (registration.ActiveRosterId is not Guid activeRosterId)
+            return false;
+
+        var activeRoster = registration.Rosters.FirstOrDefault(roster => roster.Id == activeRosterId);
+        if (activeRoster is null)
+            return false;
+
+        var team = registration.Team;
+        var memberUserIds = team?.Memberships.Select(member => member.UserId).ToHashSet(StringComparer.OrdinalIgnoreCase)
+                            ?? new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        var guestProfileIds = team?.GuestPlayerProfiles.Select(profile => profile.Id).ToHashSet()
+                             ?? [];
+
+        foreach (var snapshot in activeRoster.PlayerSnapshots)
+        {
+            if (snapshot.SourcePlayerProfileId is not Guid sourceProfileId
+                || !currentProfiles.TryGetValue(sourceProfileId, out var currentProfile))
+            {
+                return true;
+            }
+
+            if (snapshot.IsPotentiallyOutdated(currentProfile))
+            {
+                return true;
+            }
+
+            if (snapshot.PlayerProfileType == PlayerProfileType.User)
+            {
+                if (string.IsNullOrWhiteSpace(snapshot.UserId) || !memberUserIds.Contains(snapshot.UserId))
+                {
+                    return true;
+                }
+            }
+            else if (snapshot.PlayerProfileType == PlayerProfileType.Guest)
+            {
+                if (!guestProfileIds.Contains(sourceProfileId))
+                {
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 
     private async Task<IReadOnlyDictionary<Guid, PlayerProfile>> LoadCurrentProfilesAsync(

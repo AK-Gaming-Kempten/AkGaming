@@ -31,6 +31,10 @@
         {
             <button type="button" class="team-invite-dialog-backdrop" @onclick="CancelTransferOwnershipAsync" aria-label="Close ownership transfer dialog"></button>
         }
+        @if (isRosterRefreshDialogOpen && rosterRefreshRegistration is not null)
+        {
+            <button type="button" class="team-invite-dialog-backdrop" @onclick="CancelRosterRefreshAsync" aria-label="Close roster refresh dialog"></button>
+        }
 
         <TeamDetailsView Team="@team"
                          GameName="@GetGameName(team.GameId)"
@@ -69,6 +73,7 @@
                          OnGuestEditRequested="StartGuestEdit"
                          OnGuestEditCanceled="CancelGuestEdit"
                          OnGuestDeleteRequested="DeleteGuestProfileAsync"
+                         OnRosterRefreshRequested="StartRosterRefreshAsync"
                          OnPromoteToEditorRequested="PromoteToEditorAsync"
                          OnDemoteToMemberRequested="DemoteToMemberAsync"
                          OnTransferOwnershipRequested="StartTransferOwnershipAsync" />
@@ -77,6 +82,7 @@
         {
             <section class="team-invite-dialog">
                 <SurfacePanel Title="Transfer ownership">
+                    <ApiErrorPanel Message="@transferOwnershipDialogErrorMessage" />
                     <p>
                         Transfer ownership to
                         <strong>@GetMemberDisplayName(transferOwnershipTargetMember)</strong>?
@@ -86,6 +92,111 @@
                         <button type="button" class="ghost-button" @onclick="CancelTransferOwnershipAsync" disabled="@isBusy">Cancel</button>
                     </div>
                 </SurfacePanel>
+            </section>
+        }
+
+        @if (isRosterRefreshDialogOpen && rosterRefreshRegistration is not null)
+        {
+            var rosterDiff = GetRosterRefreshDiff();
+            <section class="team-invite-dialog">
+                <div class="team-roster-refresh-dialog">
+                    <SurfacePanel Title="Request roster refresh">
+                        <ApiErrorPanel Message="@rosterRefreshDialogErrorMessage" />
+                        <p class="team-roster-refresh-copy">Select the new roster for this registration and submit it for admin review.</p>
+
+                    <div class="team-roster-refresh-layout">
+                        <div class="team-roster-refresh-block">
+                            <h4>Selected players (@rosterRefreshSelectedProfileIds.Count)</h4>
+                            <div class="registration-player-list">
+                                @foreach (var profile in availableProfiles)
+                                {
+                                    <label class="registration-player-row">
+                                        <input type="checkbox"
+                                               checked="@rosterRefreshSelectedProfileIds.Contains(profile.Id)"
+                                               disabled="@isBusy"
+                                               @onchange="args => SetRosterRefreshSelectionAsync(profile.Id, args.Value as bool? ?? false)" />
+                                        <span class="registration-player-copy">
+                                            <strong>@profile.Name</strong>
+                                            <span>@profile.Type · @FormatRank(profile)</span>
+                                        </span>
+                                    </label>
+                                }
+                            </div>
+                        </div>
+
+                        <div class="team-roster-refresh-block">
+                            <h4>Roster changes</h4>
+                            <div class="team-roster-diff-grid">
+                                <section class="team-roster-diff-card">
+                                    <h5>Current roster</h5>
+                                    <ul>
+                                        @foreach (var name in rosterDiff.OldRoster)
+                                        {
+                                            <li>@name</li>
+                                        }
+                                    </ul>
+                                </section>
+
+                                <section class="team-roster-diff-card">
+                                    <h5>Added</h5>
+                                    @if (rosterDiff.Added.Count == 0)
+                                    {
+                                        <p class="muted-copy">No additions.</p>
+                                    }
+                                    else
+                                    {
+                                        <ul>
+                                            @foreach (var line in rosterDiff.Added)
+                                            {
+                                                <li>@line</li>
+                                            }
+                                        </ul>
+                                    }
+                                </section>
+
+                                <section class="team-roster-diff-card">
+                                    <h5>Removed</h5>
+                                    @if (rosterDiff.Removed.Count == 0)
+                                    {
+                                        <p class="muted-copy">No removals.</p>
+                                    }
+                                    else
+                                    {
+                                        <ul>
+                                            @foreach (var line in rosterDiff.Removed)
+                                            {
+                                                <li>@line</li>
+                                            }
+                                        </ul>
+                                    }
+                                </section>
+
+                                <section class="team-roster-diff-card">
+                                    <h5>Renamed</h5>
+                                    @if (rosterDiff.Renamed.Count == 0)
+                                    {
+                                        <p class="muted-copy">No renames.</p>
+                                    }
+                                    else
+                                    {
+                                        <ul>
+                                            @foreach (var line in rosterDiff.Renamed)
+                                            {
+                                                <li>@line</li>
+                                            }
+                                        </ul>
+                                    }
+                                </section>
+                            </div>
+                        </div>
+                    </div>
+
+                        <div class="team-edit-actions">
+                            <button type="button" class="solid-button" @onclick="ConfirmRosterRefreshAsync" disabled="@(isBusy || rosterRefreshSelectedProfileIds.Count == 0)">Submit request</button>
+                            <button type="button" class="ghost-button" @onclick="CancelRosterRefreshAsync" disabled="@isBusy">Cancel</button>
+                        </div>
+                    </SurfacePanel>
+                </div>
             </section>
         }
     }

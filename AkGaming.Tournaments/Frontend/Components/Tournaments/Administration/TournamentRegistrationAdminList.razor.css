@@ -16,6 +16,33 @@
     gap: 0.75rem;
 }
 
+.registration-admin-main-actions {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.65rem;
+}
+
+.registration-admin-team-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.7rem;
+    border: 1px solid transparent;
+    border-radius: 8px;
+    padding: 0.3rem 0.45rem;
+    text-decoration: none;
+    color: inherit;
+    transition: border-color 120ms ease;
+}
+
+.registration-admin-team-link:hover {
+    border-color: color-mix(in oklab, var(--color-text-secondary) 24%, transparent);
+}
+
+.registration-admin-team-copy {
+    display: grid;
+    gap: 0.15rem;
+}
+
 .registration-admin-main h3,
 .registration-admin-note {
     margin: 0;
@@ -24,6 +51,62 @@
 .registration-admin-meta {
     color: var(--color-text-secondary);
     font-size: 0.92rem;
+}
+
+.registration-admin-roster h4 {
+    margin: 0 0 0.4rem;
+    font-size: 0.98rem;
+}
+
+.registration-admin-roster-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    margin-bottom: 0.35rem;
+}
+
+.registration-admin-player-list {
+    margin: 0;
+    padding-left: 1rem;
+    display: grid;
+    gap: 0.5rem;
+}
+
+.registration-admin-player-item {
+    display: grid;
+    gap: 0.3rem;
+    padding: 0.55rem 0.6rem;
+    border: 1px solid color-mix(in oklab, var(--color-text-secondary) 16%, transparent);
+    border-radius: 8px;
+    background: color-mix(in oklab, var(--color-background-secondary) 28%, transparent);
+}
+
+.registration-admin-player-main {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.registration-admin-player-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem 0.75rem;
+    color: var(--color-text-secondary);
+    font-size: 0.86rem;
+}
+
+.registration-admin-user-link {
+    color: var(--color-text-secondary);
+}
+
+.registration-admin-confirm {
+    border-top: 1px solid color-mix(in oklab, var(--color-text-secondary) 18%, transparent);
+    padding-top: 0.75rem;
+}
+
+.registration-admin-confirm p {
+    margin: 0 0 0.55rem;
 }
 
 .danger-button {
@@ -37,5 +120,9 @@
     .registration-admin-actions {
         flex-direction: column;
         align-items: stretch;
+    }
+
+    .registration-admin-main-actions {
+        justify-content: space-between;
     }
 }

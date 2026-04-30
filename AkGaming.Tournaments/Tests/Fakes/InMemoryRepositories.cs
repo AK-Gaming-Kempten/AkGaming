@@ -202,6 +202,18 @@ internal sealed class InMemoryTournamentRegistrationRepository(InMemoryStore sto
         return Task.CompletedTask;
     }
 
+    public Task AddRosterAsync(Roster roster, CancellationToken cancellationToken = default)
+    {
+        var registration = store.Registrations.FirstOrDefault(item => item.Id == roster.TournamentRegistrationId);
+        if (registration is not null)
+        {
+            roster.TournamentRegistration = registration;
+            registration.Rosters.Add(roster);
+        }
+
+        return Task.CompletedTask;
+    }
+
     public void Delete(TournamentRegistration registration)
     {
         store.Registrations.Remove(registration);

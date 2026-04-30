@@ -6,20 +6,141 @@
 .team-invite-dialog-backdrop {
     position: fixed;
     inset: 0;
-    z-index: 30;
+    z-index: 1500;
     border: 0;
-    background: color-mix(in oklab, black 24%, transparent);
+    background: color-mix(in oklab, black 58%, transparent);
+    backdrop-filter: blur(10px);
 }
 
 .team-invite-dialog {
     position: fixed;
     inset: 0;
-    z-index: 32;
-    display: grid;
-    place-items: center;
+    z-index: 1510;
+    display: flex;
+    justify-content: center;
+    align-items: center;
     padding: 1rem;
 }
 
 .team-invite-dialog :deep(.surface-panel) {
-    width: min(30rem, 100%);
+    width: min(46rem, 100%);
+    max-height: min(90vh, 56rem);
+    overflow: hidden;
+}
+
+.team-roster-refresh-dialog :deep(.surface-panel-body) {
+    display: grid;
+    gap: 0.9rem;
+    overflow-y: auto;
+}
+
+.team-roster-refresh-copy {
+    margin: 0;
+}
+
+.team-roster-refresh-layout {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.9rem;
+    align-items: start;
+}
+
+.team-roster-refresh-block {
+    display: grid;
+    gap: 0.45rem;
+    min-width: 0;
+}
+
+.team-roster-refresh-block h4 {
+    margin: 0;
+    font-size: 1rem;
+}
+
+.registration-player-list {
+    display: grid;
+    gap: 0.55rem;
+    max-height: min(42vh, 14rem);
+    overflow-y: auto;
+    padding-right: 0.25rem;
+    align-content: start;
+}
+
+.registration-player-row {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 0.6rem;
+    align-items: center;
+    border: 1px solid color-mix(in oklab, var(--color-text-secondary) 16%, transparent);
+    border-radius: 8px;
+    padding: 0.45rem 0.6rem;
+}
+
+.registration-player-copy {
+    display: grid;
+    gap: 0.1rem;
+    min-width: 0;
+}
+
+.registration-player-copy span {
+    color: var(--color-text-secondary);
+    font-size: 0.9rem;
+}
+
+.team-roster-diff-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.7rem;
+}
+
+.team-roster-diff-card {
+    border: 1px solid color-mix(in oklab, var(--color-text-secondary) 16%, transparent);
+    border-radius: 8px;
+    padding: 0.65rem;
+    background: color-mix(in oklab, var(--color-background-secondary) 35%, transparent);
+}
+
+.team-roster-diff-card h5 {
+    margin: 0 0 0.35rem;
+    font-size: 0.92rem;
+}
+
+.team-roster-diff-card ul {
+    margin: 0;
+    padding-left: 1rem;
+    display: grid;
+    gap: 0.2rem;
+}
+
+.team-roster-diff-card .muted-copy {
+    font-size: 0.9rem;
+}
+
+@media (max-width: 900px) {
+    .team-roster-diff-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (min-width: 980px) {
+    .team-roster-refresh-layout {
+        grid-template-columns: minmax(18rem, 24rem) 1fr;
+    }
+
+    .registration-player-list {
+        max-height: min(42vh, 20rem);
+    }
+}
+
+@media (max-width: 640px) {
+    .team-roster-diff-grid {
+        grid-template-columns: 1fr;
+    }
+    .team-invite-dialog {
+        align-items: stretch;
+        padding: 0.5rem;
+    }
+
+    .team-invite-dialog :deep(.surface-panel) {
+        max-height: none;
+    }
 }

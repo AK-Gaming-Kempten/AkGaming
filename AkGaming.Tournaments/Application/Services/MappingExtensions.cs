@@ -111,7 +111,8 @@ internal static class MappingExtensions
 
     public static TournamentRegistrationDto ToDto(
         this TournamentRegistration registration,
-        IReadOnlyDictionary<Guid, PlayerProfile> currentProfiles)
+        IReadOnlyDictionary<Guid, PlayerProfile> currentProfiles,
+        bool isActiveRosterOutdated)
         => new(
             registration.Id,
             registration.TournamentId,
@@ -121,6 +122,7 @@ internal static class MappingExtensions
             registration.ReviewedAtUtc,
             registration.ReviewNote,
             registration.ActiveRosterId,
+            isActiveRosterOutdated,
             registration.Rosters
                 .OrderBy(roster => roster.Version)
                 .Select(roster => roster.ToDto(currentProfiles))

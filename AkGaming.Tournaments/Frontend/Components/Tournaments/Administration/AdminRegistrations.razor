@@ -18,9 +18,11 @@
     {
         <TournamentRegistrationAdminList Registrations="@registrations"
                                          TeamNames="@teamNames"
+                                         TeamLogos="@teamLogos"
                                          IsBusy="@isBusy"
                                          ErrorMessage="@errorMessage"
                                          ReviewRequested="HandleReviewRequestedAsync"
+                                         RosterReviewRequested="HandleRosterReviewRequestedAsync"
                                          DeleteRequested="HandleDeleteRequestedAsync" />
     }
 </section>

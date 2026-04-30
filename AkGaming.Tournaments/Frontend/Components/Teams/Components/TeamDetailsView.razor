@@ -104,7 +104,10 @@
 
             <SurfacePanel Title="Registrations">
                 <RegistrationList Registrations="@Registrations"
-                                  TournamentNames="@TournamentNames" />
+                                  TournamentNames="@TournamentNames"
+                                  CanRequestRosterRefresh="@CanManageRegistrations"
+                                  IsBusy="@IsBusy"
+                                  RosterRefreshRequested="OnRosterRefreshRequested" />
             </SurfacePanel>
         </div>
     </div>

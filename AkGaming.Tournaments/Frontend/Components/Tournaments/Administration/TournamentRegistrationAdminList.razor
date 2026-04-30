@@ -14,11 +14,16 @@
             {
                 <article class="registration-admin-card">
                     <div class="registration-admin-main">
-                        <div>
-                            <h3>@GetTeamName(registration.TeamId)</h3>
-                            <p class="muted-copy">@registration.SubmittedAtUtc.ToLocalTime().ToString("dd MMM yyyy, HH:mm")</p>
+                        <a class="registration-admin-team-link" href="@($"/teams/{registration.TeamId}")" target="_blank" rel="noopener noreferrer">
+                            <LogoImage LogoAssetId="@GetTeamLogoAssetId(registration.TeamId)" Type="team" Size="LogoImageSize.Medium" Alt="@($"{GetTeamName(registration.TeamId)} logo")" />
+                            <span class="registration-admin-team-copy">
+                                <strong>@GetTeamName(registration.TeamId)</strong>
+                                <span class="muted-copy">@registration.SubmittedAtUtc.ToLocalTime().ToString("dd MMM yyyy, HH:mm")</span>
+                            </span>
+                        </a>
+                        <div class="registration-admin-main-actions">
+                            <span class="status-pill @GetStatusClass(registration.Status)">@registration.Status</span>
                         </div>
-                        <span class="status-pill @GetStatusClass(registration.Status)">@registration.Status</span>
                     </div>
 
                     @if (!string.IsNullOrWhiteSpace(registration.ReviewNote))
@@ -32,7 +37,102 @@
                         {
                             <span>Active roster set</span>
                         }
+                        @if (registration.IsActiveRosterOutdated)
+                        {
+                            <span>Active roster outdated</span>
+                        }
                     </div>
+
+                    @{
+                        var activeRoster = GetActiveRoster(registration);
+                        var pendingRoster = GetPendingRoster(registration);
+                    }
+
+                    @if (activeRoster is not null)
+                    {
+                        <div class="registration-admin-roster">
+                            <div class="registration-admin-roster-header">
+                                <h4>@($"Active roster (v{activeRoster.Version})")</h4>
+                                <button type="button" class="ghost-button" @onclick="() => ToggleRosterExpandedAsync(registration.Id, activeRoster.Id)" disabled="@IsBusy">
+                                    @(IsRosterExpanded(registration.Id, activeRoster.Id) ? "Hide players" : $"Show players ({activeRoster.PlayerSnapshots.Count})")
+                                </button>
+                            </div>
+                            @if (IsRosterExpanded(registration.Id, activeRoster.Id))
+                            {
+                                <ul class="registration-admin-player-list">
+                                    @foreach (var snapshot in activeRoster.PlayerSnapshots)
+                                    {
+                                        <li class="registration-admin-player-item">
+                                            <div class="registration-admin-player-main">
+                                                <strong>@snapshot.Name</strong>
+                                                @if (snapshot.IsPotentiallyOutdated)
+                                                {
+                                                    <span class="status-pill status-pill-warn">Outdated</span>
+                                                }
+                                            </div>
+                                            <div class="registration-admin-player-meta">
+                                                <span>@GetPlayerKind(snapshot)</span>
+                                                @if (HasUserLink(snapshot))
+                                                {
+                                                    <a class="registration-admin-user-link" href="@GetUserProfileHref(snapshot)" target="_blank" rel="noopener noreferrer">@GetPlayerIdentity(snapshot)</a>
+                                                }
+                                                else
+                                                {
+                                                    <span>@GetPlayerIdentity(snapshot)</span>
+                                                }
+                                                <span>Snapshot: @snapshot.SnapshotCreatedUtc.ToLocalTime().ToString("dd MMM yyyy, HH:mm")</span>
+                                            </div>
+                                        </li>
+                                    }
+                                </ul>
+                            }
+                        </div>
+                    }
+
+                    @if (pendingRoster is not null)
+                    {
+                        <div class="registration-admin-roster">
+                            <div class="registration-admin-roster-header">
+                                <h4>@($"Pending roster refresh (v{pendingRoster.Version})")</h4>
+                                <button type="button" class="ghost-button" @onclick="() => ToggleRosterExpandedAsync(registration.Id, pendingRoster.Id)" disabled="@IsBusy">
+                                    @(IsRosterExpanded(registration.Id, pendingRoster.Id) ? "Hide players" : $"Show players ({pendingRoster.PlayerSnapshots.Count})")
+                                </button>
+                            </div>
+                            @if (IsRosterExpanded(registration.Id, pendingRoster.Id))
+                            {
+                                <ul class="registration-admin-player-list">
+                                    @foreach (var snapshot in pendingRoster.PlayerSnapshots)
+                                    {
+                                        <li class="registration-admin-player-item">
+                                            <div class="registration-admin-player-main">
+                                                <strong>@snapshot.Name</strong>
+                                            </div>
+                                            <div class="registration-admin-player-meta">
+                                                <span>@GetPlayerKind(snapshot)</span>
+                                                @if (HasUserLink(snapshot))
+                                                {
+                                                    <a class="registration-admin-user-link" href="@GetUserProfileHref(snapshot)" target="_blank" rel="noopener noreferrer">@GetPlayerIdentity(snapshot)</a>
+                                                }
+                                                else
+                                                {
+                                                    <span>@GetPlayerIdentity(snapshot)</span>
+                                                }
+                                                <span>Snapshot: @snapshot.SnapshotCreatedUtc.ToLocalTime().ToString("dd MMM yyyy, HH:mm")</span>
+                                            </div>
+                                        </li>
+                                    }
+                                </ul>
+                            }
+                            <div class="registration-admin-actions">
+                                <button type="button" class="solid-button" @onclick="() => ReviewRosterAsync(registration.Id, pendingRoster.Id, true)" disabled="@IsBusy">
+                                    Accept refresh
+                                </button>
+                                <button type="button" class="ghost-button" @onclick="() => ReviewRosterAsync(registration.Id, pendingRoster.Id, false)" disabled="@IsBusy">
+                                    Reject refresh
+                                </button>
+                            </div>
+                        </div>
+                    }
 
                     <div class="registration-admin-actions">
                         @if (registration.Status == TournamentRegistrationStatusDto.Pending)
@@ -45,10 +145,21 @@
                             </button>
                         }
 
-                        <button type="button" class="ghost-button danger-button" @onclick="() => DeleteAsync(registration.Id)" disabled="@IsBusy">
+                        <button type="button" class="ghost-button danger-button" @onclick="() => RequestDeleteAsync(registration.Id)" disabled="@IsBusy">
                             Remove
                         </button>
                     </div>
+
+                    @if (IsDeleteDialogOpen(registration.Id))
+                    {
+                        <div class="registration-admin-confirm">
+                            <p>Remove this registration?</p>
+                            <div class="registration-admin-actions">
+                                <button type="button" class="solid-button danger-button" @onclick="ConfirmDeleteAsync" disabled="@IsBusy">Confirm remove</button>
+                                <button type="button" class="ghost-button" @onclick="CancelDeleteAsync" disabled="@IsBusy">Cancel</button>
+                            </div>
+                        </div>
+                    }
                 </article>
             }
         </div>

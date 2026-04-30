@@ -13,8 +13,23 @@ else
                 <div>
                     <h4>@GetTournamentName(registration.TournamentId)</h4>
                     <p>Submitted @registration.SubmittedAtUtc.ToLocalTime().ToString("g")</p>
+                    @if (registration.IsActiveRosterOutdated)
+                    {
+                        <p class="muted-copy">Active roster is outdated.</p>
+                    }
+                    @if (HasPendingRoster(registration))
+                    {
+                        <p class="muted-copy">Roster refresh request pending admin review.</p>
+                    }
                 </div>
                 <span class="status-pill @StatusClass(registration.Status)">@registration.Status</span>
+                @if (CanRequestRosterRefresh
+                     && registration.Status == TournamentRegistrationStatusDto.Approved
+                     && registration.IsActiveRosterOutdated
+                     && !HasPendingRoster(registration))
+                {
+                    <button type="button" class="ghost-button" @onclick="() => RequestRefreshAsync(registration)" disabled="@IsBusy">Request roster refresh</button>
+                }
             </article>
         }
     </div>

@@ -9,6 +9,7 @@ public partial class AdminRegistrations
     private string? errorMessage;
     private IReadOnlyList<TournamentRegistrationDto> registrations = [];
     private IReadOnlyDictionary<Guid, string> teamNames = new Dictionary<Guid, string>();
+    private IReadOnlyDictionary<Guid, Guid?> teamLogos = new Dictionary<Guid, Guid?>();
 
     protected override async Task OnParametersSetAsync()
     {
@@ -56,12 +57,33 @@ public partial class AdminRegistrations
         }
     }
 
+    private async Task HandleRosterReviewRequestedAsync(TournamentRosterReviewAction action)
+    {
+        isBusy = true;
+        errorMessage = null;
+
+        try
+        {
+            await RegistrationsClient.ReviewRosterChangeAsync(action.RegistrationId, action.RosterId, action.Approve, null);
+            await RefreshRegistrationStateAsync();
+        }
+        catch (TournamentApiException ex)
+        {
+            errorMessage = ex.Message;
+        }
+        finally
+        {
+            isBusy = false;
+        }
+    }
+
     private async Task RefreshRegistrationStateAsync()
     {
         if (Tournament is null)
         {
             registrations = [];
             teamNames = new Dictionary<Guid, string>();
+            teamLogos = new Dictionary<Guid, Guid?>();
             return;
         }
 
@@ -70,5 +92,6 @@ public partial class AdminRegistrations
             .OrderBy(registration => registration.SubmittedAtUtc)
             .ToList();
         teamNames = RegisteredTeams.ToDictionary(team => team.Id, team => team.Name);
+        teamLogos = RegisteredTeams.ToDictionary(team => team.Id, team => team.LogoAssetId);
     }
 }

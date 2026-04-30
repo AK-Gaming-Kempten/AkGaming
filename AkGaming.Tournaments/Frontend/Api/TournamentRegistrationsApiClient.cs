@@ -55,6 +55,17 @@ public sealed class TournamentRegistrationsApiClient(HttpClient httpClient) : To
             new ReviewRegistrationApiRequest(approve, reviewNote),
             cancellationToken);
 
+    public Task<TournamentRegistrationDto> ReviewRosterChangeAsync(
+        Guid registrationId,
+        Guid rosterId,
+        bool approve,
+        string? reviewNote,
+        CancellationToken cancellationToken = default)
+        => PostAsync<TournamentRegistrationDto>(
+            $"api/registrations/{registrationId}/rosters/{rosterId}/review",
+            new ReviewRegistrationApiRequest(approve, reviewNote),
+            cancellationToken);
+
     public Task DeleteRegistrationAsync(Guid registrationId, CancellationToken cancellationToken = default)
         => DeleteAsync($"api/registrations/{registrationId}", cancellationToken);
 

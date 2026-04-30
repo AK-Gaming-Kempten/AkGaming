@@ -70,6 +70,7 @@ internal static class WebApiControllerTestHelpers
             null,
             null,
             null,
+            false,
             []);
     }
 }

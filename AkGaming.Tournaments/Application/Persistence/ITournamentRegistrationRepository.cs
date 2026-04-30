@@ -9,5 +9,6 @@ public interface ITournamentRegistrationRepository
     Task<IReadOnlyList<TournamentRegistration>> GetByTournamentIdAsync(Guid tournamentId, CancellationToken cancellationToken = default);
     Task<TournamentRegistration?> GetByTeamAndTournamentAsync(Guid teamId, Guid tournamentId, CancellationToken cancellationToken = default);
     Task AddAsync(TournamentRegistration registration, CancellationToken cancellationToken = default);
+    Task AddRosterAsync(Roster roster, CancellationToken cancellationToken = default);
     void Delete(TournamentRegistration registration);
 }

@@ -42,6 +42,7 @@ public partial class TeamDetailsView : ComponentBase
     [Parameter] public EventCallback<PlayerProfileDto> OnGuestEditRequested { get; set; }
     [Parameter] public EventCallback OnGuestEditCanceled { get; set; }
     [Parameter] public EventCallback<PlayerProfileDto> OnGuestDeleteRequested { get; set; }
+    [Parameter] public EventCallback<TournamentRegistrationDto> OnRosterRefreshRequested { get; set; }
     [Parameter] public EventCallback<TeamMembershipDto> OnPromoteToEditorRequested { get; set; }
     [Parameter] public EventCallback<TeamMembershipDto> OnDemoteToMemberRequested { get; set; }
     [Parameter] public EventCallback<TeamMembershipDto> OnTransferOwnershipRequested { get; set; }
@@ -55,6 +56,11 @@ public partial class TeamDetailsView : ComponentBase
                                    && Team.Memberships.Any(member =>
                                        string.Equals(member.UserId, CurrentUserId, StringComparison.OrdinalIgnoreCase)
                                        && member.Role == TeamRoleDto.Owner);
+
+    private bool CanManageRegistrations => !string.IsNullOrWhiteSpace(CurrentUserId)
+                                           && Team.Memberships.Any(member =>
+                                               string.Equals(member.UserId, CurrentUserId, StringComparison.OrdinalIgnoreCase)
+                                               && (member.Role == TeamRoleDto.Owner || member.Role == TeamRoleDto.Editor));
 
     private string GuestSubmitLabel => EditingGuestProfile is null ? "Add guest" : "Save guest";
 
