@@ -11,6 +11,8 @@ public partial class PlayerProfileForm : ComponentBase
     [Parameter] public bool GameSelectionEnabled { get; set; } = true;
     [Parameter] public string ProfileName { get; set; } = string.Empty;
     [Parameter] public EventCallback<string> ProfileNameChanged { get; set; }
+    [Parameter] public string ProfileLink { get; set; } = string.Empty;
+    [Parameter] public EventCallback<string> ProfileLinkChanged { get; set; }
     [Parameter] public int? RankRating { get; set; }
     [Parameter] public EventCallback<int?> RankRatingChanged { get; set; }
     [Parameter] public PlayerProfileDto? EditingProfile { get; set; }
@@ -25,6 +27,9 @@ public partial class PlayerProfileForm : ComponentBase
 
     private Task HandleProfileNameChanged(ChangeEventArgs args)
         => ProfileNameChanged.InvokeAsync(args.Value?.ToString() ?? string.Empty);
+
+    private Task HandleProfileLinkChanged(ChangeEventArgs args)
+        => ProfileLinkChanged.InvokeAsync(args.Value?.ToString() ?? string.Empty);
 
     private Task HandleLogoUploadedAsync(MediaAssetDto asset)
         => OnLogoUploaded.InvokeAsync(asset);

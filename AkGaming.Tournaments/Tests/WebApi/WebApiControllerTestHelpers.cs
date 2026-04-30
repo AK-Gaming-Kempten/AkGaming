@@ -18,7 +18,7 @@ internal static class WebApiControllerTestHelpers
 
     public static TeamDto Team(Guid id)
     {
-        return new TeamDto(id, "lol", "AKG Blue", null, null, null, [], []);
+        return new TeamDto(id, "lol", "AKG Blue", null, null, null, null, [], []);
     }
 
     public static PlayerProfileDto UserProfile(
@@ -34,6 +34,7 @@ internal static class WebApiControllerTestHelpers
             null,
             "user-1",
             null,
+            null,
             DateTimeOffset.UtcNow);
     }
 
@@ -48,6 +49,7 @@ internal static class WebApiControllerTestHelpers
             teamId,
             PlayerProfileTypeDto.Guest,
             name,
+            null,
             null,
             null,
             null,

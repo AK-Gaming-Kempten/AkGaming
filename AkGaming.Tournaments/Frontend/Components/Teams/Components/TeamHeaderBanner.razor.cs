@@ -1,5 +1,6 @@
 using AkGaming.Tournaments.Contracts.DTOs;
 using Microsoft.AspNetCore.Components;
+using Microsoft.JSInterop;
 
 namespace AkGaming.Tournaments.Frontend.Components.Teams.Components;
 
@@ -11,6 +12,7 @@ public partial class TeamHeaderBanner : ComponentBase
     [Parameter] public bool IsBusy { get; set; }
     [Parameter] public EventCallback EditRequested { get; set; }
     [Parameter] public EventCallback InviteManagementRequested { get; set; }
+    [Inject] private IJSRuntime Js { get; set; } = default!;
 
     private bool isMenuOpen;
     private const string DefaultMediumGreen = "#1f7a52";
@@ -31,6 +33,8 @@ public partial class TeamHeaderBanner : ComponentBase
             return $"--team-banner-left:{leftColor};--team-banner-base:{baseColor};--team-banner-image:{imageLayer};";
         }
     }
+
+    private bool CanShowMenu => true;
 
     private Task ToggleMenuAsync()
     {
@@ -54,5 +58,14 @@ public partial class TeamHeaderBanner : ComponentBase
     {
         isMenuOpen = false;
         await InviteManagementRequested.InvokeAsync();
+    }
+
+    private async Task OpenTeamLinkAsync()
+    {
+        if (string.IsNullOrWhiteSpace(Team.ProfileLink))
+            return;
+
+        await Js.InvokeVoidAsync("open", Team.ProfileLink, "_blank", "noopener,noreferrer");
+        isMenuOpen = false;
     }
 }

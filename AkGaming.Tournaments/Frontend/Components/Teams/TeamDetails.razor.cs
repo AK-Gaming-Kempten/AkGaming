@@ -26,9 +26,11 @@ public partial class TeamDetails : ComponentBase
     private string? currentUserDisplayName;
     private string? errorMessage;
     private string teamName = string.Empty;
+    private string teamProfileLink = string.Empty;
     private string teamPrimaryColor = string.Empty;
     private Guid? teamBannerAssetId;
     private string guestName = string.Empty;
+    private string guestProfileLink = string.Empty;
     private int? guestRankRating;
     private TeamMembershipDto? transferOwnershipTargetMember;
     private PlayerProfileDto? editingGuestProfile;
@@ -63,6 +65,7 @@ public partial class TeamDetails : ComponentBase
             if (team is not null)
             {
                 teamName = team.Name;
+                teamProfileLink = team.ProfileLink ?? string.Empty;
                 teamPrimaryColor = team.PrimaryColor ?? string.Empty;
                 teamBannerAssetId = team.BannerAssetId;
                 availableProfiles = await TeamsClient.GetAvailableProfilesAsync(team.Id, team.GameId);
@@ -88,9 +91,21 @@ public partial class TeamDetails : ComponentBase
         return Task.CompletedTask;
     }
 
+    private Task SetGuestProfileLink(string value)
+    {
+        guestProfileLink = value;
+        return Task.CompletedTask;
+    }
+
     private Task SetTeamName(string value)
     {
         teamName = value;
+        return Task.CompletedTask;
+    }
+
+    private Task SetTeamProfileLink(string value)
+    {
+        teamProfileLink = value;
         return Task.CompletedTask;
     }
 
@@ -105,6 +120,7 @@ public partial class TeamDetails : ComponentBase
         if (team is not null)
         {
             teamName = team.Name;
+            teamProfileLink = team.ProfileLink ?? string.Empty;
             teamPrimaryColor = team.PrimaryColor ?? string.Empty;
             teamBannerAssetId = team.BannerAssetId;
         }
@@ -118,6 +134,7 @@ public partial class TeamDetails : ComponentBase
         if (team is not null)
         {
             teamName = team.Name;
+            teamProfileLink = team.ProfileLink ?? string.Empty;
             teamPrimaryColor = team.PrimaryColor ?? string.Empty;
             teamBannerAssetId = team.BannerAssetId;
         }
@@ -137,6 +154,7 @@ public partial class TeamDetails : ComponentBase
         isGuestFormOpen = true;
         editingGuestProfile = profile;
         guestName = profile.Name;
+        guestProfileLink = profile.ProfileLink ?? string.Empty;
         guestRankRating = profile.RankRating;
         return Task.CompletedTask;
     }
@@ -146,6 +164,7 @@ public partial class TeamDetails : ComponentBase
         isGuestFormOpen = true;
         editingGuestProfile = null;
         guestName = string.Empty;
+        guestProfileLink = string.Empty;
         guestRankRating = 0;
         return Task.CompletedTask;
     }
@@ -155,6 +174,7 @@ public partial class TeamDetails : ComponentBase
         isGuestFormOpen = false;
         editingGuestProfile = null;
         guestName = string.Empty;
+        guestProfileLink = string.Empty;
         guestRankRating = 0;
         return Task.CompletedTask;
     }
@@ -201,7 +221,7 @@ public partial class TeamDetails : ComponentBase
 
         try
         {
-            team = await TeamsClient.UpdateTeamAsync(team.Id, currentUserId, teamName, teamBannerAssetId, teamPrimaryColor);
+            team = await TeamsClient.UpdateTeamAsync(team.Id, currentUserId, teamName, teamBannerAssetId, teamPrimaryColor, teamProfileLink);
             isTeamEditMode = false;
         }
         catch (TournamentApiException ex)
@@ -248,11 +268,11 @@ public partial class TeamDetails : ComponentBase
         {
             if (editingGuestProfile is null)
             {
-                await TeamsClient.CreateGuestPlayerProfileAsync(team.Id, currentUserId, guestName, guestRankRating);
+                await TeamsClient.CreateGuestPlayerProfileAsync(team.Id, currentUserId, guestName, guestRankRating, guestProfileLink);
             }
             else
             {
-                await TeamsClient.UpdateGuestPlayerProfileAsync(team.Id, editingGuestProfile.Id, currentUserId, guestName, guestRankRating);
+                await TeamsClient.UpdateGuestPlayerProfileAsync(team.Id, editingGuestProfile.Id, currentUserId, guestName, guestRankRating, guestProfileLink);
             }
 
             await RefreshTeamProfilesAsync();
@@ -373,6 +393,7 @@ public partial class TeamDetails : ComponentBase
         if (team is not null)
         {
             teamName = team.Name;
+            teamProfileLink = team.ProfileLink ?? string.Empty;
             teamPrimaryColor = team.PrimaryColor ?? string.Empty;
             teamBannerAssetId = team.BannerAssetId;
             availableProfiles = await TeamsClient.GetAvailableProfilesAsync(team.Id, team.GameId);

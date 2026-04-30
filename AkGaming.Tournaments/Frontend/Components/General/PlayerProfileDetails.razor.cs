@@ -22,6 +22,7 @@ public partial class PlayerProfileDetails : ComponentBase
     private string? errorMessage;
     private string profileGameId = string.Empty;
     private string profileName = string.Empty;
+    private string profileLink = string.Empty;
     private int? profileRankRating;
     private bool isEditMode;
     private bool isLoading = true;
@@ -63,6 +64,7 @@ public partial class PlayerProfileDetails : ComponentBase
                 isEditMode = true;
                 profileGameId = GetAvailableCreateGames().FirstOrDefault()?.Id ?? games.FirstOrDefault()?.Id ?? string.Empty;
                 profileName = string.Empty;
+                profileLink = string.Empty;
                 profileRankRating = 0;
             }
             else if (selectedProfile is not null)
@@ -70,6 +72,7 @@ public partial class PlayerProfileDetails : ComponentBase
                 isEditMode = false;
                 profileGameId = selectedProfile.GameId;
                 profileName = selectedProfile.Name;
+                profileLink = selectedProfile.ProfileLink ?? string.Empty;
                 profileRankRating = selectedProfile.RankRating;
             }
         }
@@ -111,6 +114,12 @@ public partial class PlayerProfileDetails : ComponentBase
         return Task.CompletedTask;
     }
 
+    private Task SetProfileLinkAsync(string value)
+    {
+        profileLink = value;
+        return Task.CompletedTask;
+    }
+
     private Task SetProfileRankAsync(int? value)
     {
         profileRankRating = value;
@@ -125,6 +134,7 @@ public partial class PlayerProfileDetails : ComponentBase
         isEditMode = true;
         profileGameId = selectedProfile.GameId;
         profileName = selectedProfile.Name;
+        profileLink = selectedProfile.ProfileLink ?? string.Empty;
         profileRankRating = selectedProfile.RankRating;
         return Task.CompletedTask;
     }
@@ -154,6 +164,7 @@ public partial class PlayerProfileDetails : ComponentBase
         {
             profileGameId = selectedProfile.GameId;
             profileName = selectedProfile.Name;
+            profileLink = selectedProfile.ProfileLink ?? string.Empty;
             profileRankRating = selectedProfile.RankRating;
         }
 
@@ -177,12 +188,13 @@ public partial class PlayerProfileDetails : ComponentBase
 
         await RunApiActionAsync(async () =>
         {
-            var savedProfile = await PlayerProfilesClient.UpsertUserProfileAsync(currentUserId!, targetGameId, profileName, profileRankRating);
+            var savedProfile = await PlayerProfilesClient.UpsertUserProfileAsync(currentUserId!, targetGameId, profileName, profileRankRating, profileLink);
             playerProfiles = await PlayerProfilesClient.GetUserProfilesAsync(currentUserId!);
             selectedProfile = playerProfiles.FirstOrDefault(profile => string.Equals(profile.GameId, savedProfile.GameId, StringComparison.OrdinalIgnoreCase))
                               ?? savedProfile;
             profileGameId = selectedProfile.GameId;
             profileName = selectedProfile.Name;
+            profileLink = selectedProfile.ProfileLink ?? string.Empty;
             profileRankRating = selectedProfile.RankRating;
 
             if (IsCreateMode)
@@ -224,6 +236,7 @@ public partial class PlayerProfileDetails : ComponentBase
             if (selectedProfile is not null)
             {
                 profileName = selectedProfile.Name;
+                profileLink = selectedProfile.ProfileLink ?? string.Empty;
                 profileRankRating = selectedProfile.RankRating;
             }
         });

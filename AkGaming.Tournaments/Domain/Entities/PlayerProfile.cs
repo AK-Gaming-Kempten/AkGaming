@@ -12,6 +12,7 @@ public sealed class PlayerProfile
     public string Name { get; set; } = string.Empty;
     public int? RankRating { get; set; }
     public string? UserId { get; set; }
+    public string? ProfileLink { get; set; }
     public DateTimeOffset LastRevisionUtc { get; set; } = DateTimeOffset.UtcNow;
     public Team? Team { get; set; }
     public Game? Game { get; set; }

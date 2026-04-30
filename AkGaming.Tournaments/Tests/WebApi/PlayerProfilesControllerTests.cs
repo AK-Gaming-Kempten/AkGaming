@@ -42,7 +42,7 @@ public sealed class PlayerProfilesControllerTests
         var profile = WebApiControllerTestHelpers.UserProfile(name: "Summoner Prime");
         var request = new UpsertUserPlayerProfileRequest("Summoner Prime", 1599);
         Service
-            .Setup(mock => mock.UpsertUserProfileAsync("user-1", "lol", "Summoner Prime", 1599, CancellationToken.None))
+            .Setup(mock => mock.UpsertUserProfileAsync("user-1", "lol", "Summoner Prime", 1599, null, CancellationToken.None))
             .ReturnsAsync(profile);
 
         // Act
@@ -51,7 +51,7 @@ public sealed class PlayerProfilesControllerTests
         // Assert
         WebApiControllerTestHelpers.AssertOkValue(response, profile);
         Service.Verify(
-            mock => mock.UpsertUserProfileAsync("user-1", "lol", "Summoner Prime", 1599, CancellationToken.None),
+            mock => mock.UpsertUserProfileAsync("user-1", "lol", "Summoner Prime", 1599, null, CancellationToken.None),
             Times.Once);
     }
 }

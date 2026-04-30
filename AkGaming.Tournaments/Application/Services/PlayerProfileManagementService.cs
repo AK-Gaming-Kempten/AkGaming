@@ -25,11 +25,12 @@ public sealed class PlayerProfileManagementService(
             .ToList();
     }
 
-    public async Task<PlayerProfileDto> UpsertUserProfileAsync(string userId, string gameId, string name, int? rankRating = null, CancellationToken cancellationToken = default)
+    public async Task<PlayerProfileDto> UpsertUserProfileAsync(string userId, string gameId, string name, int? rankRating = null, string? profileLink = null, CancellationToken cancellationToken = default)
     {
         ValidateUserId(userId);
         ValidateName(name, "Player profile");
         await RequireGameAsync(gameId, cancellationToken);
+        var normalizedProfileLink = NormalizeHttpsLink(profileLink, "Player profile link");
 
         var trimmedGameId = gameId.Trim();
         var playerProfile = await playerProfileRepository.GetByUserAndGameAsync(userId.Trim(), trimmedGameId, cancellationToken);
@@ -41,6 +42,7 @@ public sealed class PlayerProfileManagementService(
                 GameId = trimmedGameId,
                 Name = name.Trim(),
                 RankRating = NormalizeRankRating(rankRating),
+                ProfileLink = normalizedProfileLink,
                 Type = PlayerProfileType.User,
                 UserId = userId.Trim()
             };
@@ -51,6 +53,7 @@ public sealed class PlayerProfileManagementService(
         {
             playerProfile.Name = name.Trim();
             playerProfile.RankRating = NormalizeRankRating(rankRating);
+            playerProfile.ProfileLink = normalizedProfileLink;
             playerProfile.LastRevisionUtc = DateTimeOffset.UtcNow;
             playerProfile.Type = PlayerProfileType.User;
             playerProfile.TeamId = null;
@@ -123,4 +126,18 @@ public sealed class PlayerProfileManagementService(
 
     private static int? NormalizeRankRating(int? rankRating)
         => rankRating.HasValue ? Math.Max(0, rankRating.Value) : null;
+
+    private static string? NormalizeHttpsLink(string? value, string fieldName)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+            return null;
+
+        var normalized = value.Trim();
+        if (Uri.TryCreate(normalized, UriKind.Absolute, out var uri) && uri.Scheme == Uri.UriSchemeHttps)
+        {
+            return uri.ToString();
+        }
+
+        throw new ValidationException($"{fieldName} must be a valid https URL.");
+    }
 }

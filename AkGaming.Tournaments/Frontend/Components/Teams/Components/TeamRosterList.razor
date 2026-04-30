@@ -23,31 +23,32 @@ else
                 <span class="status-pill @(profile.Type == PlayerProfileTypeDto.Guest ? "status-pill-neutral" : "status-pill-positive")">
                     @(profile.Type == PlayerProfileTypeDto.Guest ? "Guest" : "Member")
                 </span>
-                @if (CanEdit)
-                {
-                    <div class="row-menu">
-                        <button type="button"
-                                class="row-menu-trigger"
-                                aria-label="@($"Open actions for {profile.Name}")"
-                                @onclick="() => ToggleMenuAsync(profile.Id)">
-                            <span class="bi bi-three-dots-vertical"></span>
-                        </button>
-                        @if (openMenuProfileId == profile.Id)
+                <div class="row-menu">
+                    <button type="button"
+                            class="row-menu-trigger"
+                            aria-label="@($"Open actions for {profile.Name}")"
+                            @onclick="() => ToggleMenuAsync(profile.Id)">
+                        <span class="bi bi-three-dots-vertical"></span>
+                    </button>
+                    @if (openMenuProfileId == profile.Id)
+                    {
+                        <div class="row-menu-popover">
+                        @if (!string.IsNullOrWhiteSpace(profile.ProfileLink))
                         {
-                            <div class="row-menu-popover">
-                            @if (profile.Type == PlayerProfileTypeDto.Guest)
-                            {
-                                <button type="button" @onclick="() => RequestEditAsync(profile)" disabled="@IsBusy">Edit</button>
-                                <button type="button" class="danger-action" @onclick="() => RequestDeleteAsync(profile)" disabled="@IsBusy">Remove</button>
-                            }
-                            else
-                            {
-                                <span>Member profile</span>
-                            }
-                            </div>
+                            <button type="button" @onclick="() => OpenProfileLinkAsync(profile)" disabled="@IsBusy">Open profile</button>
                         }
-                    </div>
-                }
+                        else
+                        {
+                            <span class="muted-menu-label">No link</span>
+                        }
+                        @if (CanEdit && profile.Type == PlayerProfileTypeDto.Guest)
+                        {
+                            <button type="button" @onclick="() => RequestEditAsync(profile)" disabled="@IsBusy">Edit</button>
+                            <button type="button" class="danger-action" @onclick="() => RequestDeleteAsync(profile)" disabled="@IsBusy">Remove</button>
+                        }
+                        </div>
+                    }
+                </div>
             </article>
         }
     </div>

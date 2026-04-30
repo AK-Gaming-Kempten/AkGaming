@@ -18,6 +18,7 @@ internal static class MappingExtensions
             playerProfile.Name,
             playerProfile.RankRating,
             playerProfile.UserId,
+            playerProfile.ProfileLink,
             playerProfile.LogoAssetId,
             playerProfile.LastRevisionUtc);
 
@@ -32,6 +33,7 @@ internal static class MappingExtensions
             team.LogoAssetId,
             team.BannerAssetId,
             team.PrimaryColor,
+            team.ProfileLink,
             team.Memberships
                 .OrderBy(member => member.Role)
                 .ThenBy(member => member.UserId, StringComparer.OrdinalIgnoreCase)

@@ -13,6 +13,8 @@ public partial class PlayerProfileDetailsView : ComponentBase
     [Parameter] public EventCallback<string> GameIdChanged { get; set; }
     [Parameter] public string ProfileName { get; set; } = string.Empty;
     [Parameter] public EventCallback<string> ProfileNameChanged { get; set; }
+    [Parameter] public string ProfileLink { get; set; } = string.Empty;
+    [Parameter] public EventCallback<string> ProfileLinkChanged { get; set; }
     [Parameter] public int? RankRating { get; set; }
     [Parameter] public EventCallback<int?> RankRatingChanged { get; set; }
     [Parameter] public bool IsBusy { get; set; }

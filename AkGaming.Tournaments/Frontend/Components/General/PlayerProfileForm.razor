@@ -26,6 +26,10 @@
         <span>MMR</span>
         <PlayerRankSelect GameId="@GameId" Value="@RankRating" ValueChanged="RankRatingChanged" Disabled="@IsBusy" />
     </label>
+    <label>
+        <span>Profile link</span>
+        <input class="form-input" value="@ProfileLink" @oninput="HandleProfileLinkChanged" placeholder="OP.GG, Steam Profile,..." disabled="@IsBusy" />
+    </label>
     @if (CanEditLogo)
     {
         <div class="profile-form-logo">

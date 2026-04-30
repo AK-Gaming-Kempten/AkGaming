@@ -98,7 +98,21 @@
     cursor: pointer;
 }
 
-.team-header-menu-popover button:hover {
+.team-header-menu-popover a {
+    padding: 0.55rem 0.65rem;
+    border-radius: 6px;
+    color: var(--color-text-primary);
+    text-decoration: none;
+}
+
+.team-header-menu-popover span {
+    padding: 0.55rem 0.65rem;
+    border-radius: 6px;
+    color: var(--color-text-secondary);
+}
+
+.team-header-menu-popover button:hover,
+.team-header-menu-popover a:hover {
     background: color-mix(in oklab, var(--color-highlight-secondary) 40%, transparent);
 }
 

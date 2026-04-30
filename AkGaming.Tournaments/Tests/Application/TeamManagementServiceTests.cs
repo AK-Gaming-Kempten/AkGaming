@@ -357,7 +357,7 @@ public sealed class TeamManagementServiceTests
         var team = TournamentTestData.AddTeam(Store, memberships: [(TournamentTestData.EditorId, TeamRole.Editor)]);
 
         // Act
-        var updated = Service.UpdateTeamAsync(team.Id, TournamentTestData.EditorId, " AKG Crimson ", null, null).GetAwaiter().GetResult();
+        var updated = Service.UpdateTeamAsync(team.Id, TournamentTestData.EditorId, " AKG Crimson ", null, null, null).GetAwaiter().GetResult();
 
         // Assert
         Assert.Multiple(() =>

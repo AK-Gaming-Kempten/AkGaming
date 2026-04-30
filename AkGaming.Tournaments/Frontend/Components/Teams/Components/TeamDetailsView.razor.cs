@@ -17,9 +17,13 @@ public partial class TeamDetailsView : ComponentBase
     [Parameter] public EventCallback<string> TeamNameChanged { get; set; }
     [Parameter] public string TeamPrimaryColor { get; set; } = string.Empty;
     [Parameter] public EventCallback<string> TeamPrimaryColorChanged { get; set; }
+    [Parameter] public string TeamProfileLink { get; set; } = string.Empty;
+    [Parameter] public EventCallback<string> TeamProfileLinkChanged { get; set; }
     [Parameter] public bool IsTeamEditMode { get; set; }
     [Parameter] public string GuestName { get; set; } = string.Empty;
     [Parameter] public EventCallback<string> GuestNameChanged { get; set; }
+    [Parameter] public string GuestProfileLink { get; set; } = string.Empty;
+    [Parameter] public EventCallback<string> GuestProfileLinkChanged { get; set; }
     [Parameter] public int? GuestRankRating { get; set; }
     [Parameter] public EventCallback<int?> GuestRankRatingChanged { get; set; }
     [Parameter] public bool IsGuestFormVisible { get; set; }
@@ -62,6 +66,12 @@ public partial class TeamDetailsView : ComponentBase
 
     private Task HandleTeamPrimaryColorChanged(ChangeEventArgs args)
         => TeamPrimaryColorChanged.InvokeAsync(args.Value?.ToString() ?? string.Empty);
+
+    private Task HandleTeamProfileLinkChanged(ChangeEventArgs args)
+        => TeamProfileLinkChanged.InvokeAsync(args.Value?.ToString() ?? string.Empty);
+
+    private Task HandleGuestProfileLinkChanged(ChangeEventArgs args)
+        => GuestProfileLinkChanged.InvokeAsync(args.Value?.ToString() ?? string.Empty);
 
     private string GetMemberInitial(TeamMembershipDto member)
     {

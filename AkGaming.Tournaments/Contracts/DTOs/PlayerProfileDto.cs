@@ -8,5 +8,6 @@ public sealed record PlayerProfileDto(
     string Name,
     int? RankRating,
     string? UserId,
+    string? ProfileLink,
     Guid? LogoAssetId,
     DateTimeOffset LastRevisionUtc);

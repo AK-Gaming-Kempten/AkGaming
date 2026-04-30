@@ -48,6 +48,7 @@ public sealed class TournamentDbContext(DbContextOptions<TournamentDbContext> op
             entity.Property(team => team.GameId).HasMaxLength(64);
             entity.Property(team => team.Name).HasMaxLength(256);
             entity.Property(team => team.PrimaryColor).HasMaxLength(16);
+            entity.Property(team => team.ProfileLink).HasMaxLength(1024);
             entity.HasOne(team => team.Game)
                 .WithMany()
                 .HasForeignKey(team => team.GameId)
@@ -103,6 +104,7 @@ public sealed class TournamentDbContext(DbContextOptions<TournamentDbContext> op
             entity.Property(playerProfile => playerProfile.Type).HasConversion<string>();
             entity.Property(playerProfile => playerProfile.Name).HasMaxLength(256);
             entity.Property(playerProfile => playerProfile.UserId).HasMaxLength(128);
+            entity.Property(playerProfile => playerProfile.ProfileLink).HasMaxLength(1024);
             entity.HasOne(playerProfile => playerProfile.Game)
                 .WithMany()
                 .HasForeignKey(playerProfile => playerProfile.GameId)

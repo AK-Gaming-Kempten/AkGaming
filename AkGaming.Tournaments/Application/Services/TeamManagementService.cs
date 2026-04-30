@@ -144,6 +144,7 @@ public sealed class TeamManagementService(
         string name,
         Guid? bannerAssetId,
         string? primaryColor,
+        string? profileLink,
         CancellationToken cancellationToken = default)
     {
         ValidateUserId(actingUserId);
@@ -155,6 +156,7 @@ public sealed class TeamManagementService(
         team.Name = name.Trim();
         team.BannerAssetId = bannerAssetId;
         team.PrimaryColor = NormalizePrimaryColor(primaryColor);
+        team.ProfileLink = NormalizeHttpsLink(profileLink, "Team profile link");
 
         await unitOfWork.SaveChangesAsync(cancellationToken);
         return team.ToDto();
@@ -282,7 +284,7 @@ public sealed class TeamManagementService(
         return invite.ToDto();
     }
 
-    public async Task<PlayerProfileDto> CreateGuestPlayerProfileAsync(Guid teamId, string actingUserId, string name, int? rankRating = null, CancellationToken cancellationToken = default)
+    public async Task<PlayerProfileDto> CreateGuestPlayerProfileAsync(Guid teamId, string actingUserId, string name, int? rankRating = null, string? profileLink = null, CancellationToken cancellationToken = default)
     {
         ValidateUserId(actingUserId);
         ValidateName(name, "Player profile");
@@ -297,6 +299,7 @@ public sealed class TeamManagementService(
             GameId = team.GameId,
             Name = name.Trim(),
             RankRating = NormalizeRankRating(rankRating),
+            ProfileLink = NormalizeHttpsLink(profileLink, "Player profile link"),
             Type = PlayerProfileType.Guest
         };
 
@@ -307,7 +310,7 @@ public sealed class TeamManagementService(
         return profile.ToDto();
     }
 
-    public async Task<PlayerProfileDto> UpdateGuestPlayerProfileAsync(Guid teamId, Guid playerProfileId, string actingUserId, string name, int? rankRating = null, CancellationToken cancellationToken = default)
+    public async Task<PlayerProfileDto> UpdateGuestPlayerProfileAsync(Guid teamId, Guid playerProfileId, string actingUserId, string name, int? rankRating = null, string? profileLink = null, CancellationToken cancellationToken = default)
     {
         ValidateUserId(actingUserId);
         ValidateName(name, "Player profile");
@@ -323,6 +326,7 @@ public sealed class TeamManagementService(
 
         profile.Name = name.Trim();
         profile.RankRating = NormalizeRankRating(rankRating);
+        profile.ProfileLink = NormalizeHttpsLink(profileLink, "Player profile link");
         profile.LastRevisionUtc = DateTimeOffset.UtcNow;
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
@@ -463,6 +467,20 @@ public sealed class TeamManagementService(
         }
 
         return normalized.Length is 4 or 7 ? normalized : null;
+    }
+
+    private static string? NormalizeHttpsLink(string? value, string fieldName)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+            return null;
+
+        var normalized = value.Trim();
+        if (Uri.TryCreate(normalized, UriKind.Absolute, out var uri) && uri.Scheme == Uri.UriSchemeHttps)
+        {
+            return uri.ToString();
+        }
+
+        throw new ValidationException($"{fieldName} must be a valid https URL.");
     }
 
     private static string GenerateInviteKey()

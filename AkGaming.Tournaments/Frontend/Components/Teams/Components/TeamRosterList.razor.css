@@ -78,7 +78,8 @@
 }
 
 .row-menu-popover button,
-.row-menu-popover span {
+.row-menu-popover span,
+.row-menu-popover a {
     padding: 0.55rem 0.65rem;
     border: 0;
     border-radius: 6px;
@@ -87,11 +88,20 @@
     text-align: left;
 }
 
+.muted-menu-label {
+    color: var(--color-text-secondary) !important;
+}
+
+.row-menu-popover a {
+    text-decoration: none;
+}
+
 .row-menu-popover button {
     cursor: pointer;
 }
 
-.row-menu-popover button:hover {
+.row-menu-popover button:hover,
+.row-menu-popover a:hover {
     background: color-mix(in oklab, var(--color-highlight-secondary) 40%, transparent);
 }
 

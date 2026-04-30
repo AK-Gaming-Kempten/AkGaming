@@ -22,8 +22,8 @@ public sealed class TeamsApiClient(HttpClient httpClient) : TournamentApiClientB
     public Task<TeamDto> TransferOwnershipAsync(Guid teamId, string actingUserId, string targetUserId, CancellationToken cancellationToken = default)
         => PostAsync<TeamDto>($"api/teams/{teamId}/members/{Uri.EscapeDataString(targetUserId)}/transfer-ownership", new TransferOwnershipApiRequest(actingUserId), cancellationToken);
 
-    public Task<TeamDto> UpdateTeamAsync(Guid teamId, string actingUserId, string name, Guid? bannerAssetId, string? primaryColor, CancellationToken cancellationToken = default)
-        => PutAsync<TeamDto>($"api/teams/{teamId}", new UpdateTeamApiRequest(actingUserId, name, bannerAssetId, primaryColor), cancellationToken);
+    public Task<TeamDto> UpdateTeamAsync(Guid teamId, string actingUserId, string name, Guid? bannerAssetId, string? primaryColor, string? profileLink, CancellationToken cancellationToken = default)
+        => PutAsync<TeamDto>($"api/teams/{teamId}", new UpdateTeamApiRequest(actingUserId, name, bannerAssetId, primaryColor, profileLink), cancellationToken);
 
     public Task<TeamDto> UpdateTeamLogoAsync(Guid teamId, string actingUserId, Guid? logoAssetId, CancellationToken cancellationToken = default)
         => PutAsync<TeamDto>($"api/teams/{teamId}/logo", new UpdateTeamLogoApiRequest(actingUserId, logoAssetId), cancellationToken);
@@ -43,11 +43,11 @@ public sealed class TeamsApiClient(HttpClient httpClient) : TournamentApiClientB
     public Task<IReadOnlyList<PlayerProfileDto>> GetAvailableProfilesAsync(Guid teamId, string gameId, CancellationToken cancellationToken = default)
         => GetAsync<IReadOnlyList<PlayerProfileDto>>($"api/teams/{teamId}/available-player-profiles/{Uri.EscapeDataString(gameId)}", cancellationToken);
 
-    public Task<PlayerProfileDto> CreateGuestPlayerProfileAsync(Guid teamId, string actingUserId, string name, int? rankRating = null, CancellationToken cancellationToken = default)
-        => PostAsync<PlayerProfileDto>($"api/teams/{teamId}/guest-player-profiles", new CreateGuestPlayerProfileApiRequest(actingUserId, name, rankRating), cancellationToken);
+    public Task<PlayerProfileDto> CreateGuestPlayerProfileAsync(Guid teamId, string actingUserId, string name, int? rankRating = null, string? profileLink = null, CancellationToken cancellationToken = default)
+        => PostAsync<PlayerProfileDto>($"api/teams/{teamId}/guest-player-profiles", new CreateGuestPlayerProfileApiRequest(actingUserId, name, rankRating, profileLink), cancellationToken);
 
-    public Task<PlayerProfileDto> UpdateGuestPlayerProfileAsync(Guid teamId, Guid playerProfileId, string actingUserId, string name, int? rankRating = null, CancellationToken cancellationToken = default)
-        => PutAsync<PlayerProfileDto>($"api/teams/{teamId}/guest-player-profiles/{playerProfileId}", new UpdateGuestPlayerProfileApiRequest(actingUserId, name, rankRating), cancellationToken);
+    public Task<PlayerProfileDto> UpdateGuestPlayerProfileAsync(Guid teamId, Guid playerProfileId, string actingUserId, string name, int? rankRating = null, string? profileLink = null, CancellationToken cancellationToken = default)
+        => PutAsync<PlayerProfileDto>($"api/teams/{teamId}/guest-player-profiles/{playerProfileId}", new UpdateGuestPlayerProfileApiRequest(actingUserId, name, rankRating, profileLink), cancellationToken);
 
     public Task<TeamDto> DeleteGuestPlayerProfileAsync(Guid teamId, Guid playerProfileId, string actingUserId, CancellationToken cancellationToken = default)
         => DeleteAsync<TeamDto>($"api/teams/{teamId}/guest-player-profiles/{playerProfileId}?actingUserId={Uri.EscapeDataString(actingUserId)}", cancellationToken);
@@ -56,10 +56,10 @@ public sealed class TeamsApiClient(HttpClient httpClient) : TournamentApiClientB
     private sealed record AddTeamMemberApiRequest(string ActingUserId, string UserId, TeamRoleDto Role);
     private sealed record UpdateTeamMemberRoleApiRequest(string ActingUserId, TeamRoleDto Role);
     private sealed record TransferOwnershipApiRequest(string ActingUserId);
-    private sealed record UpdateTeamApiRequest(string ActingUserId, string Name, Guid? BannerAssetId, string? PrimaryColor);
+    private sealed record UpdateTeamApiRequest(string ActingUserId, string Name, Guid? BannerAssetId, string? PrimaryColor, string? ProfileLink);
     private sealed record UpdateTeamLogoApiRequest(string ActingUserId, Guid? LogoAssetId);
     private sealed record CreateTeamInviteKeyApiRequest(string ActingUserId, int MaxUses);
     private sealed record AcceptTeamInviteKeyApiRequest(string UserId);
-    private sealed record CreateGuestPlayerProfileApiRequest(string ActingUserId, string Name, int? RankRating);
-    private sealed record UpdateGuestPlayerProfileApiRequest(string ActingUserId, string Name, int? RankRating);
+    private sealed record CreateGuestPlayerProfileApiRequest(string ActingUserId, string Name, int? RankRating, string? ProfileLink);
+    private sealed record UpdateGuestPlayerProfileApiRequest(string ActingUserId, string Name, int? RankRating, string? ProfileLink);
 }

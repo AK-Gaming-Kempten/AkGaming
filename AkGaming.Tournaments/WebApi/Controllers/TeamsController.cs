@@ -149,7 +149,7 @@ public sealed class TeamsController(ITeamManagementService service) : Controller
         UpdateTeamRequest request,
         CancellationToken cancellationToken)
     {
-        var team = await service.UpdateTeamAsync(teamId, request.ActingUserId, request.Name, request.BannerAssetId, request.PrimaryColor, cancellationToken);
+        var team = await service.UpdateTeamAsync(teamId, request.ActingUserId, request.Name, request.BannerAssetId, request.PrimaryColor, request.ProfileLink, cancellationToken);
         return Ok(team);
     }
 
@@ -173,7 +173,7 @@ public sealed class TeamsController(ITeamManagementService service) : Controller
         CreateGuestPlayerProfileRequest request,
         CancellationToken cancellationToken)
     {
-        var profile = await service.CreateGuestPlayerProfileAsync(teamId, request.ActingUserId, request.Name, request.RankRating, cancellationToken);
+        var profile = await service.CreateGuestPlayerProfileAsync(teamId, request.ActingUserId, request.Name, request.RankRating, request.ProfileLink, cancellationToken);
         return Ok(profile);
     }
 
@@ -186,7 +186,7 @@ public sealed class TeamsController(ITeamManagementService service) : Controller
         UpdateGuestPlayerProfileRequest request,
         CancellationToken cancellationToken)
     {
-        var profile = await service.UpdateGuestPlayerProfileAsync(teamId, playerProfileId, request.ActingUserId, request.Name, request.RankRating, cancellationToken);
+        var profile = await service.UpdateGuestPlayerProfileAsync(teamId, playerProfileId, request.ActingUserId, request.Name, request.RankRating, request.ProfileLink, cancellationToken);
         return Ok(profile);
     }
 
@@ -208,9 +208,9 @@ public sealed record CreateTeamRequest(string ActingUserId, string GameId, strin
 public sealed record AddTeamMemberRequest(string ActingUserId, string UserId, TeamRoleDto Role);
 public sealed record UpdateTeamMemberRoleRequest(string ActingUserId, TeamRoleDto Role);
 public sealed record TransferTeamOwnershipRequest(string ActingUserId);
-public sealed record UpdateTeamRequest(string ActingUserId, string Name, Guid? BannerAssetId, string? PrimaryColor);
+public sealed record UpdateTeamRequest(string ActingUserId, string Name, Guid? BannerAssetId, string? PrimaryColor, string? ProfileLink);
 public sealed record UpdateTeamLogoRequest(string ActingUserId, Guid? LogoAssetId);
 public sealed record CreateTeamInviteKeyRequest(string ActingUserId, int MaxUses = 1);
 public sealed record AcceptTeamInviteKeyRequest(string UserId);
-public sealed record CreateGuestPlayerProfileRequest(string ActingUserId, string Name, int? RankRating = null);
-public sealed record UpdateGuestPlayerProfileRequest(string ActingUserId, string Name, int? RankRating = null);
+public sealed record CreateGuestPlayerProfileRequest(string ActingUserId, string Name, int? RankRating = null, string? ProfileLink = null);
+public sealed record UpdateGuestPlayerProfileRequest(string ActingUserId, string Name, int? RankRating = null, string? ProfileLink = null);

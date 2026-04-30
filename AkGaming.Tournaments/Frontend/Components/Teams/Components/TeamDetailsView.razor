@@ -20,6 +20,10 @@
                     <span>Primary color</span>
                     <input class="form-input" value="@TeamPrimaryColor" @oninput="HandleTeamPrimaryColorChanged" placeholder="#0f3f2a" disabled="@IsBusy" />
                 </label>
+                <label>
+                    <span>Team link</span>
+                    <input class="form-input" value="@TeamProfileLink" @oninput="HandleTeamProfileLinkChanged" placeholder="OP.GG, Steam Profile,..." disabled="@IsBusy" />
+                </label>
                 <div class="logo-actions">
                     <LogoUploadDialog Uploaded="OnLogoUploaded" />
                     <button type="button" class="ghost-button" @onclick="OnLogoCleared" disabled="@IsBusy">Clear logo</button>
@@ -54,6 +58,10 @@
                     <label>
                         <span>MMR</span>
                         <PlayerRankSelect GameId="@Team.GameId" Value="@GuestRankRating" ValueChanged="GuestRankRatingChanged" Disabled="@IsBusy" />
+                    </label>
+                    <label>
+                        <span>Profile link</span>
+                        <input class="form-input" value="@GuestProfileLink" @oninput="HandleGuestProfileLinkChanged" placeholder="OP.GG, Steam Profile,..." disabled="@IsBusy" />
                     </label>
                     <div class="guest-profile-actions">
                         <button type="button" class="solid-button" @onclick="OnGuestSubmitted" disabled="@(IsBusy || string.IsNullOrWhiteSpace(GuestName))">@GuestSubmitLabel</button>

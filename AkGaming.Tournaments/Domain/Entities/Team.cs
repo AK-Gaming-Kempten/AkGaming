@@ -8,6 +8,7 @@ public sealed class Team
     public Guid? LogoAssetId { get; set; }
     public Guid? BannerAssetId { get; set; }
     public string? PrimaryColor { get; set; }
+    public string? ProfileLink { get; set; }
     public Game? Game { get; set; }
     public MediaAsset? LogoAsset { get; set; }
     public MediaAsset? BannerAsset { get; set; }

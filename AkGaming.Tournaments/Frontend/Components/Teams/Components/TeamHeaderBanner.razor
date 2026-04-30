@@ -24,24 +24,35 @@
         </div>
     </div>
 
-    @if (CanEdit)
+    @if (CanShowMenu)
     {
-        <div class="team-header-menu">
-            <button type="button"
-                    class="team-header-menu-trigger"
-                    aria-label="@($"Open actions for {Team.Name}")"
-                    @onclick="ToggleMenuAsync"
-                    disabled="@IsBusy">
-                <span class="bi bi-three-dots"></span>
-            </button>
+    <div class="team-header-menu">
+        <button type="button"
+                class="team-header-menu-trigger"
+                aria-label="@($"Open actions for {Team.Name}")"
+                @onclick="ToggleMenuAsync"
+                disabled="@IsBusy">
+            <span class="bi bi-three-dots"></span>
+        </button>
 
-            @if (isMenuOpen)
-            {
-                <div class="team-header-menu-popover">
+        @if (isMenuOpen)
+        {
+            <div class="team-header-menu-popover">
+                @if (!string.IsNullOrWhiteSpace(Team.ProfileLink))
+                {
+                    <button type="button" @onclick="OpenTeamLinkAsync">Open profile</button>
+                }
+                else
+                {
+                    <span class="muted-menu-label">No link</span>
+                }
+                @if (CanEdit)
+                {
                     <button type="button" @onclick="RequestEditAsync" disabled="@IsBusy">Edit team</button>
                     <button type="button" @onclick="RequestInvitesAsync" disabled="@IsBusy">Manage invites</button>
-                </div>
-            }
-        </div>
+                }
+            </div>
+        }
+    </div>
     }
 </section>

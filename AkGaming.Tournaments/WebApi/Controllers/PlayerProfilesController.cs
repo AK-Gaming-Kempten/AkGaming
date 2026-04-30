@@ -29,7 +29,7 @@ public sealed class PlayerProfilesController(IPlayerProfileManagementService ser
         UpsertUserPlayerProfileRequest request,
         CancellationToken cancellationToken)
     {
-        var profile = await service.UpsertUserProfileAsync(userId, gameId, request.Name, request.RankRating, cancellationToken);
+        var profile = await service.UpsertUserProfileAsync(userId, gameId, request.Name, request.RankRating, request.ProfileLink, cancellationToken);
         return Ok(profile);
     }
 
@@ -47,5 +47,5 @@ public sealed class PlayerProfilesController(IPlayerProfileManagementService ser
     }
 }
 
-public sealed record UpsertUserPlayerProfileRequest(string Name, int? RankRating = null);
+public sealed record UpsertUserPlayerProfileRequest(string Name, int? RankRating = null, string? ProfileLink = null);
 public sealed record UpdateUserPlayerProfileLogoRequest(Guid? LogoAssetId);

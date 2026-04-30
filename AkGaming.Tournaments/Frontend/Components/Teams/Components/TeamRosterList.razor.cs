@@ -1,6 +1,7 @@
 using AkGaming.Tournaments.Contracts.DTOs;
 using AkGaming.Tournaments.Frontend.Components.General;
 using Microsoft.AspNetCore.Components;
+using Microsoft.JSInterop;
 
 namespace AkGaming.Tournaments.Frontend.Components.Teams.Components;
 
@@ -12,6 +13,7 @@ public partial class TeamRosterList : ComponentBase
     [Parameter] public bool IsBusy { get; set; }
     [Parameter] public EventCallback<PlayerProfileDto> EditGuestRequested { get; set; }
     [Parameter] public EventCallback<PlayerProfileDto> DeleteGuestRequested { get; set; }
+    [Inject] private IJSRuntime Js { get; set; } = default!;
 
     private Guid? openMenuProfileId;
 
@@ -43,5 +45,14 @@ public partial class TeamRosterList : ComponentBase
     {
         openMenuProfileId = null;
         await DeleteGuestRequested.InvokeAsync(profile);
+    }
+
+    private async Task OpenProfileLinkAsync(PlayerProfileDto profile)
+    {
+        if (string.IsNullOrWhiteSpace(profile.ProfileLink))
+            return;
+
+        await Js.InvokeVoidAsync("open", profile.ProfileLink, "_blank", "noopener,noreferrer");
+        openMenuProfileId = null;
     }
 }

@@ -264,6 +264,16 @@ public static class SqliteDatabaseInitializer
             await dbContext.ExecuteSqlAsync("ALTER TABLE teams ADD COLUMN PrimaryColor TEXT NULL;");
         }
 
+        if (!await dbContext.HasColumnAsync("teams", "ProfileLink"))
+        {
+            await dbContext.ExecuteSqlAsync("ALTER TABLE teams ADD COLUMN ProfileLink TEXT NULL;");
+        }
+
+        if (!await dbContext.HasColumnAsync("player_profiles", "ProfileLink"))
+        {
+            await dbContext.ExecuteSqlAsync("ALTER TABLE player_profiles ADD COLUMN ProfileLink TEXT NULL;");
+        }
+
         await dbContext.ExecuteSqlAsync("""
             CREATE TABLE IF NOT EXISTS tournament_info_sections (
                 Id TEXT NOT NULL CONSTRAINT PK_tournament_info_sections PRIMARY KEY,

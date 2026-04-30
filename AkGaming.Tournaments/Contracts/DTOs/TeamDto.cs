@@ -7,5 +7,6 @@ public sealed record TeamDto(
     Guid? LogoAssetId,
     Guid? BannerAssetId,
     string? PrimaryColor,
+    string? ProfileLink,
     IReadOnlyList<TeamMembershipDto> Memberships,
     IReadOnlyList<PlayerProfileDto> GuestPlayerProfiles);
