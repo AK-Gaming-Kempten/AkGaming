@@ -103,6 +103,11 @@ jobs:
           DOTNET_CLI_HOME: /tmp
           DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
         run: dotnet restore AkGaming.Tournaments/Infrastructure/Postgres/AkGaming.Tournaments.Infrastructure.Postgres.csproj
+      - name: Restore Tournaments Web API Project
+        env:
+          DOTNET_CLI_HOME: /tmp
+          DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
+        run: dotnet restore AkGaming.Tournaments/WebApi/AkGaming.Tournaments.WebApi.csproj
       - name: Configure SSH For Test Database Tunnel
         if: ${{ env.DB_SSH_HOST != '' && env.DB_SSH_USER != '' && env.DB_SSH_PRIVATE_KEY != '' && env.DB_SSH_KNOWN_HOSTS != '' }}
         run: |
@@ -205,6 +210,11 @@ jobs:
           DOTNET_CLI_HOME: /tmp
           DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
         run: dotnet restore AkGaming.Tournaments/Infrastructure/Postgres/AkGaming.Tournaments.Infrastructure.Postgres.csproj
+      - name: Restore Tournaments Web API Project
+        env:
+          DOTNET_CLI_HOME: /tmp
+          DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
+        run: dotnet restore AkGaming.Tournaments/WebApi/AkGaming.Tournaments.WebApi.csproj
       - name: Configure SSH For Production Database Tunnel
         if: ${{ env.DB_SSH_HOST != '' && env.DB_SSH_USER != '' && env.DB_SSH_PRIVATE_KEY != '' && env.DB_SSH_KNOWN_HOSTS != '' }}
         run: |
