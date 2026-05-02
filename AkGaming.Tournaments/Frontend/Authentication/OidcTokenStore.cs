@@ -15,6 +15,13 @@ public sealed class OidcTokenStore
         if (IsInitialized)
             return;
 
+        if (string.IsNullOrWhiteSpace(accessToken) &&
+            string.IsNullOrWhiteSpace(refreshToken) &&
+            string.IsNullOrWhiteSpace(expiresAt))
+        {
+            return;
+        }
+
         SetTokens(accessToken, refreshToken, expiresAt);
         IsInitialized = true;
     }

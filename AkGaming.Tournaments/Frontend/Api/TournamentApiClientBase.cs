@@ -5,11 +5,12 @@ namespace AkGaming.Tournaments.Frontend.Api;
 
 public abstract class TournamentApiClientBase(HttpClient httpClient)
 {
-    protected async Task<T> GetAsync<T>(string uri, CancellationToken cancellationToken = default)
+    protected async Task<T> GetAsync<T>(string uri, CancellationToken cancellationToken = default, bool authorize = true)
     {
         try
         {
-            using var response = await httpClient.GetAsync(uri, cancellationToken);
+            using var request = CreateGetRequest(uri, authorize);
+            using var response = await httpClient.SendAsync(request, cancellationToken);
             return await ReadResponseAsync<T>(response, cancellationToken);
         }
         catch (HttpRequestException ex)
@@ -74,11 +75,12 @@ public abstract class TournamentApiClientBase(HttpClient httpClient)
         }
     }
 
-    protected async Task<T?> GetOrDefaultAsync<T>(string uri, CancellationToken cancellationToken = default)
+    protected async Task<T?> GetOrDefaultAsync<T>(string uri, CancellationToken cancellationToken = default, bool authorize = true)
     {
         try
         {
-            using var response = await httpClient.GetAsync(uri, cancellationToken);
+            using var request = CreateGetRequest(uri, authorize);
+            using var response = await httpClient.SendAsync(request, cancellationToken);
             if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
                 return default;
 
@@ -176,4 +178,13 @@ public abstract class TournamentApiClientBase(HttpClient httpClient)
 
     private static TournamentApiException CreateConnectionException(HttpRequestException exception)
         => new("The tournament API could not be reached. Check that the backend is running and that the configured API URL is correct.", exception);
+
+    private static HttpRequestMessage CreateGetRequest(string uri, bool authorize)
+    {
+        var request = new HttpRequestMessage(HttpMethod.Get, uri);
+        if (!authorize)
+            request.Options.Set(TournamentApiAuthorizationHandler.SkipAuthorizationOptionKey, true);
+
+        return request;
+    }
 }

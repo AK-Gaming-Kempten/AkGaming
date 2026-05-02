@@ -5,7 +5,7 @@ namespace AkGaming.Tournaments.Frontend.Api;
 public sealed class GamesApiClient(HttpClient httpClient) : TournamentApiClientBase(httpClient)
 {
     public Task<IReadOnlyList<GameDto>> GetGamesAsync(CancellationToken cancellationToken = default)
-        => GetAsync<IReadOnlyList<GameDto>>("api/games", cancellationToken);
+        => GetAsync<IReadOnlyList<GameDto>>("api/games", cancellationToken, authorize: false);
 
     public Task<GameDto> CreateGameAsync(string id, string name, Guid? logoAssetId, CancellationToken cancellationToken = default)
         => PostAsync<GameDto>("api/games", new CreateGameApiRequest(id, name, logoAssetId), cancellationToken);

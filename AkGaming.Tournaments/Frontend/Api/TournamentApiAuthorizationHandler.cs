@@ -12,6 +12,7 @@ namespace AkGaming.Tournaments.Frontend.Api;
 public sealed class TournamentApiAuthorizationHandler : DelegatingHandler
 {
     private static readonly HttpRequestOptionsKey<bool> RetryAttemptedOptionKey = new("__akg_tournaments_retry_attempted");
+    internal static readonly HttpRequestOptionsKey<bool> SkipAuthorizationOptionKey = new("__akg_tournaments_skip_authorization");
 
     private readonly IHttpClientFactory _httpClientFactory;
     private readonly IOptionsMonitor<OpenIdConnectOptions> _oidcOptionsMonitor;
@@ -29,6 +30,9 @@ public sealed class TournamentApiAuthorizationHandler : DelegatingHandler
 
     protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
     {
+        if (request.Options.TryGetValue(SkipAuthorizationOptionKey, out var skipAuthorization) && skipAuthorization)
+            return await base.SendAsync(request, cancellationToken);
+
         var applicationServices = ResolveApplicationServices(request);
         if (applicationServices is null)
             return await base.SendAsync(request, cancellationToken);
@@ -50,7 +54,16 @@ public sealed class TournamentApiAuthorizationHandler : DelegatingHandler
             }
 
             if (string.IsNullOrWhiteSpace(accessToken))
+            {
+                if (tokenStore.IsInitialized)
+                {
+                    _logger.LogWarning("No tournaments bearer token is available for an initialized session. Re-authentication required.");
+                    await HandleExpiredSessionAsync(tokenStore, sessionCoordinator);
+                    return new HttpResponseMessage(System.Net.HttpStatusCode.Unauthorized);
+                }
+
                 return await base.SendAsync(request, cancellationToken);
+            }
         }
 
         if (IsExpired(expiresAtRaw))

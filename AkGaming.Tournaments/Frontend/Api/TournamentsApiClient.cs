@@ -5,7 +5,7 @@ namespace AkGaming.Tournaments.Frontend.Api;
 public sealed class TournamentsApiClient(HttpClient httpClient) : TournamentApiClientBase(httpClient)
 {
     public Task<IReadOnlyList<TournamentSummaryDto>> GetTournamentsAsync(CancellationToken cancellationToken = default)
-        => GetAsync<IReadOnlyList<TournamentSummaryDto>>("api/tournaments", cancellationToken);
+        => GetAsync<IReadOnlyList<TournamentSummaryDto>>("api/tournaments", cancellationToken, authorize: false);
 
     public Task<IReadOnlyList<TournamentSummaryDto>> GetAdminTournamentsAsync(CancellationToken cancellationToken = default)
         => GetAsync<IReadOnlyList<TournamentSummaryDto>>("api/tournaments/admin", cancellationToken);
@@ -16,7 +16,7 @@ public sealed class TournamentsApiClient(HttpClient httpClient) : TournamentApiC
         var uri = includeHidden
             ? $"api/tournaments/admin/by-slug/{encodedSlug}"
             : $"api/tournaments/{encodedSlug}";
-        return GetOrDefaultAsync<TournamentDto>(uri, cancellationToken);
+        return GetOrDefaultAsync<TournamentDto>(uri, cancellationToken, authorize: includeHidden);
     }
 
     public Task<TournamentDto> CreateTournamentAsync(
