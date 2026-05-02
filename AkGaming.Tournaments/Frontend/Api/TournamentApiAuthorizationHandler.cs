@@ -2,37 +2,61 @@ using System.Globalization;
 using System.Net.Http.Headers;
 using System.Text.Json;
 using AkGaming.Tournaments.Frontend.Authentication;
+using AkGaming.Tournaments.Frontend.Startup;
 using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.Extensions.Options;
 
 namespace AkGaming.Tournaments.Frontend.Api;
 
-public sealed class TournamentApiAuthorizationHandler(
-    OidcTokenStore tokenStore,
-    IHttpContextAccessor httpContextAccessor,
-    IHttpClientFactory httpClientFactory,
-    IOptionsMonitor<OpenIdConnectOptions> oidcOptionsMonitor,
-    ILogger<TournamentApiAuthorizationHandler> logger) : DelegatingHandler
+public sealed class TournamentApiAuthorizationHandler : DelegatingHandler
 {
     private static readonly HttpRequestOptionsKey<bool> RetryAttemptedOptionKey = new("__akg_tournaments_retry_attempted");
 
+    private readonly IHttpClientFactory _httpClientFactory;
+    private readonly IOptionsMonitor<OpenIdConnectOptions> _oidcOptionsMonitor;
+    private readonly ILogger<TournamentApiAuthorizationHandler> _logger;
+
+    public TournamentApiAuthorizationHandler(
+        IHttpClientFactory httpClientFactory,
+        IOptionsMonitor<OpenIdConnectOptions> oidcOptionsMonitor,
+        ILogger<TournamentApiAuthorizationHandler> logger)
+    {
+        _httpClientFactory = httpClientFactory;
+        _oidcOptionsMonitor = oidcOptionsMonitor;
+        _logger = logger;
+    }
+
     protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
     {
-        await EnsureTokenStoreInitializedAsync();
+        var applicationServices = ResolveApplicationServices(request);
+        if (applicationServices is null)
+            return await base.SendAsync(request, cancellationToken);
+
+        var tokenStore = applicationServices.GetRequiredService<OidcTokenStore>();
+        var sessionCoordinator = applicationServices.GetRequiredService<FrontendSessionCoordinator>();
+        await EnsureTokenStoreInitializedAsync(applicationServices, tokenStore);
 
         var accessToken = tokenStore.AccessToken;
+        var refreshToken = tokenStore.RefreshToken;
+        var expiresAtRaw = tokenStore.ExpiresAt;
+
         if (string.IsNullOrWhiteSpace(accessToken))
         {
-            accessToken = await RefreshAccessTokenAsync(tokenStore.RefreshToken, cancellationToken);
+            if (!string.IsNullOrWhiteSpace(refreshToken))
+            {
+                _logger.LogInformation("No tournaments access token available in the current circuit scope, attempting refresh.");
+                accessToken = await RefreshAccessTokenAsync(tokenStore, sessionCoordinator, refreshToken, cancellationToken);
+            }
+
             if (string.IsNullOrWhiteSpace(accessToken))
                 return await base.SendAsync(request, cancellationToken);
         }
 
-        if (IsExpired(tokenStore.ExpiresAt))
+        if (IsExpired(expiresAtRaw))
         {
-            accessToken = await RefreshAccessTokenAsync(tokenStore.RefreshToken, cancellationToken);
+            _logger.LogInformation("Tournaments access token expired, refreshing.");
+            accessToken = await RefreshAccessTokenAsync(tokenStore, sessionCoordinator, refreshToken, cancellationToken);
             if (string.IsNullOrWhiteSpace(accessToken))
                 return new HttpResponseMessage(System.Net.HttpStatusCode.Unauthorized);
         }
@@ -42,15 +66,20 @@ public sealed class TournamentApiAuthorizationHandler(
         if (response.StatusCode != System.Net.HttpStatusCode.Unauthorized)
             return response;
 
+        if (!tokenStore.IsInitialized)
+            return response;
+
         if (request.Options.TryGetValue(RetryAttemptedOptionKey, out var retryAttempted) && retryAttempted)
         {
-            tokenStore.Clear();
+            _logger.LogWarning("Tournaments API request still returned 401 after refresh attempt. Re-authentication required.");
+            await HandleExpiredSessionAsync(tokenStore, sessionCoordinator);
             return response;
         }
 
+        _logger.LogWarning("Tournaments API request returned 401. Attempting token refresh and retry.");
         response.Dispose();
 
-        accessToken = await RefreshAccessTokenAsync(tokenStore.RefreshToken, cancellationToken);
+        accessToken = await RefreshAccessTokenAsync(tokenStore, sessionCoordinator, tokenStore.RefreshToken, cancellationToken, force: true);
         if (string.IsNullOrWhiteSpace(accessToken))
             return new HttpResponseMessage(System.Net.HttpStatusCode.Unauthorized);
 
@@ -59,17 +88,26 @@ public sealed class TournamentApiAuthorizationHandler(
         retryRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
         var retryResponse = await base.SendAsync(retryRequest, cancellationToken);
         if (retryResponse.StatusCode == System.Net.HttpStatusCode.Unauthorized)
-            tokenStore.Clear();
+            await HandleExpiredSessionAsync(tokenStore, sessionCoordinator);
 
         return retryResponse;
     }
 
-    private async Task EnsureTokenStoreInitializedAsync()
+    private IServiceProvider? ResolveApplicationServices(HttpRequestMessage request)
+    {
+        if (request.Options.TryGetValue(ApplicationScopeHttpClientExtensions.ScopeKey, out var services))
+            return services;
+
+        _logger.LogWarning("No application scope was attached to the outgoing tournaments request.");
+        return null;
+    }
+
+    private static async Task EnsureTokenStoreInitializedAsync(IServiceProvider services, OidcTokenStore tokenStore)
     {
         if (tokenStore.IsInitialized)
             return;
 
-        var httpContext = httpContextAccessor.HttpContext;
+        var httpContext = services.GetService<IHttpContextAccessor>()?.HttpContext;
         if (httpContext is null)
             return;
 
@@ -79,32 +117,56 @@ public sealed class TournamentApiAuthorizationHandler(
         tokenStore.Initialize(accessToken, refreshToken, expiresAt);
     }
 
-    private async Task<string?> RefreshAccessTokenAsync(string? refreshToken, CancellationToken cancellationToken)
+    private async Task<string?> ResolveTokenEndpointAsync(CancellationToken cancellationToken)
+    {
+        var oidcOptions = _oidcOptionsMonitor.Get(OpenIdConnectDefaults.AuthenticationScheme);
+        if (oidcOptions.ConfigurationManager is null)
+            return null;
+
+        try
+        {
+            var configuration = await oidcOptions.ConfigurationManager.GetConfigurationAsync(cancellationToken);
+            return configuration.TokenEndpoint;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Failed to resolve tournaments token endpoint from OIDC discovery.");
+            return null;
+        }
+    }
+
+    private async Task<string?> RefreshAccessTokenAsync(
+        OidcTokenStore tokenStore,
+        FrontendSessionCoordinator sessionCoordinator,
+        string? refreshToken,
+        CancellationToken cancellationToken,
+        bool force = false)
     {
         if (string.IsNullOrWhiteSpace(refreshToken))
         {
-            logger.LogWarning("No refresh token available for tournaments frontend token refresh.");
-            tokenStore.Clear();
+            _logger.LogWarning("Tournaments access token refresh requested but no refresh token is present.");
+            await HandleExpiredSessionAsync(tokenStore, sessionCoordinator);
             return null;
         }
 
         var tokenEndpoint = await ResolveTokenEndpointAsync(cancellationToken);
         if (string.IsNullOrWhiteSpace(tokenEndpoint))
         {
-            logger.LogWarning("OIDC discovery did not return a token endpoint.");
-            tokenStore.Clear();
+            _logger.LogWarning("No tournaments token endpoint configured/discovered.");
+            await HandleExpiredSessionAsync(tokenStore, sessionCoordinator);
             return null;
         }
 
-        var oidcOptions = oidcOptionsMonitor.Get(OpenIdConnectDefaults.AuthenticationScheme);
+        var oidcOptions = _oidcOptionsMonitor.Get(OpenIdConnectDefaults.AuthenticationScheme);
         if (string.IsNullOrWhiteSpace(oidcOptions.ClientId))
         {
-            logger.LogWarning("OIDC client id is not configured for tournaments frontend.");
-            tokenStore.Clear();
+            _logger.LogWarning("Tournaments OIDC client id is not configured.");
+            await HandleExpiredSessionAsync(tokenStore, sessionCoordinator);
             return null;
         }
 
-        var requestContent = new Dictionary<string, string>
+        var client = _httpClientFactory.CreateClient("OidcBackchannel");
+        var payload = new Dictionary<string, string>
         {
             ["grant_type"] = "refresh_token",
             ["refresh_token"] = refreshToken,
@@ -112,110 +174,66 @@ public sealed class TournamentApiAuthorizationHandler(
         };
 
         if (!string.IsNullOrWhiteSpace(oidcOptions.ClientSecret))
-            requestContent["client_secret"] = oidcOptions.ClientSecret;
+            payload["client_secret"] = oidcOptions.ClientSecret;
 
-        using var refreshRequest = new HttpRequestMessage(HttpMethod.Post, tokenEndpoint)
-        {
-            Content = new FormUrlEncodedContent(requestContent)
-        };
-
-        using var client = httpClientFactory.CreateClient("OidcBackchannel");
-        using var response = await client.SendAsync(refreshRequest, cancellationToken);
-        var responseContent = await response.Content.ReadAsStringAsync(cancellationToken);
-        if (!response.IsSuccessStatusCode)
-        {
-            logger.LogWarning("Tournaments token refresh failed with status {StatusCode}.", response.StatusCode);
-            tokenStore.Clear();
-            return null;
-        }
-
-        using var json = JsonDocument.Parse(responseContent);
-        var root = json.RootElement;
-        var newAccessToken = GetString(root, "access_token");
-        var newRefreshToken = GetString(root, "refresh_token") ?? refreshToken;
-        var expiresIn = GetInteger(root, "expires_in");
-        if (string.IsNullOrWhiteSpace(newAccessToken))
-        {
-            logger.LogWarning("Tournaments token refresh response did not contain an access token.");
-            tokenStore.Clear();
-            return null;
-        }
-
-        var expiresAt = expiresIn.HasValue
-            ? DateTime.UtcNow.AddSeconds(expiresIn.Value)
-            : DateTime.UtcNow.AddMinutes(10);
-        var expiresAtRaw = expiresAt.ToString("o", CultureInfo.InvariantCulture);
-
-        tokenStore.SetTokens(newAccessToken, newRefreshToken, expiresAtRaw);
-        await PersistTokensAsync(newAccessToken, newRefreshToken, expiresAtRaw);
-        return newAccessToken;
-    }
-
-    private async Task<string?> ResolveTokenEndpointAsync(CancellationToken cancellationToken)
-    {
-        var oidcOptions = oidcOptionsMonitor.Get(OpenIdConnectDefaults.AuthenticationScheme);
-        if (oidcOptions.ConfigurationManager is not null)
-        {
-            try
-            {
-                var configuration = await oidcOptions.ConfigurationManager.GetConfigurationAsync(cancellationToken);
-                if (!string.IsNullOrWhiteSpace(configuration.TokenEndpoint))
-                    return configuration.TokenEndpoint;
-            }
-            catch (Exception ex)
-            {
-                logger.LogWarning(ex, "Failed to resolve OIDC token endpoint from discovery.");
-            }
-        }
-
-        if (Uri.TryCreate(oidcOptions.Authority, UriKind.Absolute, out var authority))
-            return new Uri(authority, "/connect/token").ToString();
-
-        return null;
-    }
-
-    private async Task PersistTokensAsync(string accessToken, string refreshToken, string expiresAt)
-    {
-        var httpContext = httpContextAccessor.HttpContext;
-        if (httpContext is null)
-            return;
-
-        if (httpContext.Response.HasStarted)
-        {
-            logger.LogDebug("Skipping tournaments auth cookie refresh because the HTTP response has already started.");
-            return;
-        }
-
-        var authenticationResult = await httpContext.AuthenticateAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-        if (!authenticationResult.Succeeded || authenticationResult.Principal is null || authenticationResult.Properties is null)
-            return;
-
-        var tokens = authenticationResult.Properties.GetTokens().ToList();
-        SetToken(tokens, "access_token", accessToken);
-        SetToken(tokens, "refresh_token", refreshToken);
-        SetToken(tokens, "expires_at", expiresAt);
-        authenticationResult.Properties.StoreTokens(tokens);
-
+        HttpResponseMessage response;
         try
         {
-            await httpContext.SignInAsync(
-                CookieAuthenticationDefaults.AuthenticationScheme,
-                authenticationResult.Principal,
-                authenticationResult.Properties);
+            using var refreshRequest = new HttpRequestMessage(HttpMethod.Post, tokenEndpoint)
+            {
+                Content = new FormUrlEncodedContent(payload)
+            };
+            response = await client.SendAsync(refreshRequest, cancellationToken);
         }
-        catch (InvalidOperationException ex) when (httpContext.Response.HasStarted)
+        catch (Exception ex)
         {
-            logger.LogDebug(ex, "Skipping tournaments auth cookie refresh because headers are no longer writable.");
+            _logger.LogError(ex, "Failed to call tournaments token endpoint.");
+            await HandleExpiredSessionAsync(tokenStore, sessionCoordinator);
+            return null;
+        }
+
+        using (response)
+        {
+            var responseContent = await response.Content.ReadAsStringAsync(cancellationToken);
+            if (!response.IsSuccessStatusCode)
+            {
+                var bodyPreview = responseContent.Length > 512 ? responseContent[..512] + "..." : responseContent;
+                _logger.LogWarning("Tournaments token refresh failed: {Status}. Body: {Body}", response.StatusCode, bodyPreview);
+                await HandleExpiredSessionAsync(tokenStore, sessionCoordinator);
+                return null;
+            }
+
+            using var json = JsonDocument.Parse(responseContent);
+            var root = json.RootElement;
+
+            var newAccessToken = GetTokenValue(root, "access_token", "accessToken");
+            var newRefreshToken = GetTokenValue(root, "refresh_token", "refreshToken") ?? refreshToken;
+            var expiresIn = GetIntegerValue(root, "expires_in", "expiresIn");
+
+            if (string.IsNullOrWhiteSpace(newAccessToken))
+            {
+                _logger.LogWarning("Tournaments token refresh succeeded but did not return an access token.");
+                await HandleExpiredSessionAsync(tokenStore, sessionCoordinator);
+                return null;
+            }
+
+            var newExpiry = expiresIn.HasValue
+                ? DateTime.UtcNow.AddSeconds(expiresIn.Value)
+                : DateTime.UtcNow.AddMinutes(10);
+
+            tokenStore.SetTokens(newAccessToken, newRefreshToken, newExpiry.ToString("o", CultureInfo.InvariantCulture));
+
+            if (force)
+                _logger.LogInformation("Forced tournaments token refresh completed successfully after API 401.");
+
+            return newAccessToken;
         }
     }
 
-    private static void SetToken(ICollection<AuthenticationToken> tokens, string name, string value)
+    private async Task HandleExpiredSessionAsync(OidcTokenStore tokenStore, FrontendSessionCoordinator sessionCoordinator)
     {
-        var existingToken = tokens.FirstOrDefault(token => string.Equals(token.Name, name, StringComparison.Ordinal));
-        if (existingToken is not null)
-            tokens.Remove(existingToken);
-
-        tokens.Add(new AuthenticationToken { Name = name, Value = value });
+        tokenStore.Clear();
+        await sessionCoordinator.NotifySessionExpiredAsync();
     }
 
     private static bool IsExpired(string? expiresAtRaw)
@@ -229,24 +247,41 @@ public sealed class TournamentApiAuthorizationHandler(
         return expiresAt.UtcDateTime <= DateTime.UtcNow.AddSeconds(30);
     }
 
-    private static string? GetString(JsonElement root, string propertyName)
+    private static string? GetTokenValue(JsonElement root, params string[] names)
     {
-        return root.TryGetProperty(propertyName, out var value) && value.ValueKind == JsonValueKind.String
-            ? value.GetString()
-            : null;
+        foreach (var name in names)
+        {
+            if (root.TryGetProperty(name, out var value) && value.ValueKind == JsonValueKind.String)
+                return value.GetString();
+        }
+
+        if (root.TryGetProperty("tokens", out var tokens) && tokens.ValueKind == JsonValueKind.Object)
+        {
+            foreach (var name in names)
+            {
+                if (tokens.TryGetProperty(name, out var value) && value.ValueKind == JsonValueKind.String)
+                    return value.GetString();
+            }
+        }
+
+        return null;
     }
 
-    private static int? GetInteger(JsonElement root, string propertyName)
+    private static int? GetIntegerValue(JsonElement root, params string[] names)
     {
-        if (!root.TryGetProperty(propertyName, out var value))
-            return null;
+        foreach (var name in names)
+        {
+            if (!root.TryGetProperty(name, out var value))
+                continue;
 
-        if (value.ValueKind == JsonValueKind.Number && value.TryGetInt32(out var integer))
-            return integer;
+            if (value.ValueKind == JsonValueKind.Number && value.TryGetInt32(out var asInt))
+                return asInt;
 
-        return value.ValueKind == JsonValueKind.String && int.TryParse(value.GetString(), out var parsed)
-            ? parsed
-            : null;
+            if (value.ValueKind == JsonValueKind.String && int.TryParse(value.GetString(), out var parsed))
+                return parsed;
+        }
+
+        return null;
     }
 
     private static async Task<HttpRequestMessage> CloneRequestAsync(HttpRequestMessage request, CancellationToken cancellationToken)

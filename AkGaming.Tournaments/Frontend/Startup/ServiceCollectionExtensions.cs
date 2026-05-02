@@ -23,6 +23,7 @@ public static class ServiceCollectionExtensions
         services.AddRazorPages();
         services.AddServerSideBlazor();
         services.AddHttpContextAccessor();
+        services.AddScoped<FrontendSessionCoordinator>();
         services.AddScoped<OidcTokenStore>();
         services.TryAddEnumerable(ServiceDescriptor.Scoped<CircuitHandler, OidcTokenCircuitHandler>());
 
@@ -133,13 +134,19 @@ public static class ServiceCollectionExtensions
         services.Configure<TournamentApiOptions>(config.GetSection(TournamentApiOptions.SectionName));
         services.AddTransient<TournamentApiAuthorizationHandler>();
 
-        services.AddTournamentApiClient<GamesApiClient>(config);
-        services.AddTournamentApiClient<MediaAssetsApiClient>(config);
-        services.AddTournamentApiNamedClient(nameof(MediaAssetsApiClient), config);
-        services.AddTournamentApiClient<PlayerProfilesApiClient>(config);
-        services.AddTournamentApiClient<TeamsApiClient>(config);
-        services.AddTournamentApiClient<TournamentsApiClient>(config);
-        services.AddTournamentApiClient<TournamentRegistrationsApiClient>(config);
+        services.AddTournamentApiNamedClient(nameof(GamesApiClient), config, authorize: true);
+        services.AddTournamentApiNamedClient(nameof(MediaAssetsApiClient), config, authorize: true);
+        services.AddTournamentApiNamedClient(nameof(PlayerProfilesApiClient), config, authorize: true);
+        services.AddTournamentApiNamedClient(nameof(TeamsApiClient), config, authorize: true);
+        services.AddTournamentApiNamedClient(nameof(TournamentsApiClient), config, authorize: true);
+        services.AddTournamentApiNamedClient(nameof(TournamentRegistrationsApiClient), config, authorize: true);
+
+        services.AddScoped<GamesApiClient>(sp => new GamesApiClient(sp.GetRequiredKeyedService<HttpClient>(nameof(GamesApiClient))));
+        services.AddScoped<MediaAssetsApiClient>(sp => new MediaAssetsApiClient(sp.GetRequiredKeyedService<HttpClient>(nameof(MediaAssetsApiClient))));
+        services.AddScoped<PlayerProfilesApiClient>(sp => new PlayerProfilesApiClient(sp.GetRequiredKeyedService<HttpClient>(nameof(PlayerProfilesApiClient))));
+        services.AddScoped<TeamsApiClient>(sp => new TeamsApiClient(sp.GetRequiredKeyedService<HttpClient>(nameof(TeamsApiClient))));
+        services.AddScoped<TournamentsApiClient>(sp => new TournamentsApiClient(sp.GetRequiredKeyedService<HttpClient>(nameof(TournamentsApiClient))));
+        services.AddScoped<TournamentRegistrationsApiClient>(sp => new TournamentRegistrationsApiClient(sp.GetRequiredKeyedService<HttpClient>(nameof(TournamentRegistrationsApiClient))));
 
         var allowUntrustedLocalCertificates = config.GetValue<bool>("Dev:AllowUntrustedLocalCertificates");
         var oidcBackchannelClient = services.AddHttpClient("OidcBackchannel");
@@ -188,32 +195,17 @@ public static class ServiceCollectionExtensions
         return Path.Combine(Path.GetTempPath(), "AkGaming.Tournaments", "DataProtection-Keys");
     }
 
-    private static IHttpClientBuilder AddTournamentApiClient<TClient>(this IServiceCollection services, IConfiguration config)
-        where TClient : class
-    {
-        var options = config.GetSection(TournamentApiOptions.SectionName).Get<TournamentApiOptions>() ?? new();
-        var allowUntrustedLocalCertificates = config.GetValue<bool>("Dev:AllowUntrustedLocalCertificates");
-        var builder = services
-            .AddHttpClient<TClient>(client =>
-            {
-                client.BaseAddress = new Uri(options.BaseAddress);
-            })
-            .AddHttpMessageHandler<TournamentApiAuthorizationHandler>();
-
-        if (allowUntrustedLocalCertificates)
-            builder.ConfigurePrimaryHttpMessageHandler(CreateDevelopmentCertificateRelaxedHandler);
-
-        return builder;
-    }
-
-    private static IHttpClientBuilder AddTournamentApiNamedClient(this IServiceCollection services, string name, IConfiguration config)
+    private static IHttpClientBuilder AddTournamentApiNamedClient(this IServiceCollection services, string name, IConfiguration config, bool authorize)
     {
         var options = config.GetSection(TournamentApiOptions.SectionName).Get<TournamentApiOptions>() ?? new();
         var allowUntrustedLocalCertificates = config.GetValue<bool>("Dev:AllowUntrustedLocalCertificates");
         var builder = services.AddHttpClient(name, client =>
         {
             client.BaseAddress = new Uri(options.BaseAddress);
-        });
+        }).AddApplicationScopeHandler();
+
+        if (authorize)
+            builder.AddHttpMessageHandler<TournamentApiAuthorizationHandler>();
 
         if (allowUntrustedLocalCertificates)
             builder.ConfigurePrimaryHttpMessageHandler(CreateDevelopmentCertificateRelaxedHandler);
