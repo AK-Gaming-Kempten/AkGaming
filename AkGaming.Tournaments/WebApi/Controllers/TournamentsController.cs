@@ -1,5 +1,6 @@
 using AkGaming.Tournaments.Application.UseCases;
 using AkGaming.Tournaments.Contracts.DTOs;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AkGaming.Tournaments.WebApi.Controllers;
@@ -38,6 +39,7 @@ public sealed class TournamentsController(
     }
 
     [HttpPut("{tournamentId:guid}/logo", Name = "UpdateTournamentLogo")]
+    [Authorize(Policy = "AdminOnly")]
     [EndpointSummary("Set or clear a tournament logo asset.")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<IActionResult> UpdateTournamentLogo(
@@ -50,6 +52,7 @@ public sealed class TournamentsController(
     }
 
     [HttpPut("{tournamentId:guid}/content", Name = "UpdateTournamentContent")]
+    [Authorize(Policy = "AdminOnly")]
     [EndpointSummary("Replace tournament timeline fields and info sections.")]
     [ProducesResponseType<TournamentDto>(StatusCodes.Status200OK)]
     public async Task<ActionResult<TournamentDto>> UpdateTournamentContent(
@@ -73,6 +76,7 @@ public sealed class TournamentsController(
     }
 
     [HttpPut("{tournamentId:guid}/registration-rules", Name = "ReplaceTournamentRegistrationRules")]
+    [Authorize(Policy = "AdminOnly")]
     [EndpointSummary("Replace the registration rules for a tournament.")]
     [ProducesResponseType<IReadOnlyList<TournamentRegistrationRuleDto>>(StatusCodes.Status200OK)]
     public async Task<ActionResult<IReadOnlyList<TournamentRegistrationRuleDto>>> ReplaceTournamentRegistrationRules(

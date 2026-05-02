@@ -1,5 +1,6 @@
 using AkGaming.Tournaments.Application.UseCases;
 using AkGaming.Tournaments.Contracts.DTOs;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AkGaming.Tournaments.WebApi.Controllers;
@@ -10,6 +11,7 @@ namespace AkGaming.Tournaments.WebApi.Controllers;
 public sealed class PlayerProfilesController(IPlayerProfileManagementService service) : ControllerBase
 {
     [HttpGet(Name = "GetUserPlayerProfiles")]
+    [Authorize(Policy = "AdminOrSelfRouteUserId")]
     [EndpointSummary("List player profiles for a user.")]
     [ProducesResponseType<IReadOnlyList<PlayerProfileDto>>(StatusCodes.Status200OK)]
     public async Task<ActionResult<IReadOnlyList<PlayerProfileDto>>> GetUserPlayerProfiles(
@@ -21,6 +23,7 @@ public sealed class PlayerProfilesController(IPlayerProfileManagementService ser
     }
 
     [HttpPut("{gameId}", Name = "UpsertUserPlayerProfile")]
+    [Authorize(Policy = "AdminOrSelfRouteUserId")]
     [EndpointSummary("Create or update a user player profile for a game.")]
     [ProducesResponseType<PlayerProfileDto>(StatusCodes.Status200OK)]
     public async Task<ActionResult<PlayerProfileDto>> UpsertUserPlayerProfile(
@@ -34,6 +37,7 @@ public sealed class PlayerProfilesController(IPlayerProfileManagementService ser
     }
 
     [HttpPut("{gameId}/logo", Name = "UpdateUserPlayerProfileLogo")]
+    [Authorize(Policy = "AdminOrSelfRouteUserId")]
     [EndpointSummary("Set or clear a user player profile logo.")]
     [ProducesResponseType<PlayerProfileDto>(StatusCodes.Status200OK)]
     public async Task<ActionResult<PlayerProfileDto>> UpdateUserPlayerProfileLogo(

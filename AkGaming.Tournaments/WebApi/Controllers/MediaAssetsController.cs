@@ -2,6 +2,7 @@ using AkGaming.Tournaments.Application.Exceptions;
 using AkGaming.Tournaments.Application.Services;
 using AkGaming.Tournaments.Application.UseCases;
 using AkGaming.Tournaments.Contracts.DTOs;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AkGaming.Tournaments.WebApi.Controllers;
@@ -28,6 +29,7 @@ public sealed class MediaAssetsController(
     }
 
     [HttpPost("logos", Name = "UploadLogoAsset")]
+    [Authorize]
     [EndpointSummary("Upload a cropped logo image.")]
     [ProducesResponseType<MediaAssetDto>(StatusCodes.Status200OK)]
     public async Task<ActionResult<MediaAssetDto>> UploadLogoAsset(IFormFile file, [FromForm] string? fitMode, CancellationToken cancellationToken)

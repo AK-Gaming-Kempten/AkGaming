@@ -1,5 +1,7 @@
+using AkGaming.Tournaments.WebApi.Authentication;
 using AkGaming.Tournaments.Application.UseCases;
 using AkGaming.Tournaments.Contracts.DTOs;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AkGaming.Tournaments.WebApi.Controllers;
@@ -10,13 +12,15 @@ namespace AkGaming.Tournaments.WebApi.Controllers;
 public sealed class TeamsController(ITeamManagementService service) : ControllerBase
 {
     [HttpPost(Name = "CreateTeam")]
+    [Authorize]
     [EndpointSummary("Create a team and assign the creator as owner.")]
     [ProducesResponseType<TeamDto>(StatusCodes.Status200OK)]
     public async Task<ActionResult<TeamDto>> CreateTeam(
         CreateTeamRequest request,
         CancellationToken cancellationToken)
     {
-        var team = await service.CreateTeamAsync(request.ActingUserId, request.GameId, request.Name, cancellationToken);
+        var currentUserId = User.GetRequiredUserId();
+        var team = await service.CreateTeamAsync(currentUserId, request.GameId, request.Name, cancellationToken);
         return Ok(team);
     }
 
@@ -31,6 +35,7 @@ public sealed class TeamsController(ITeamManagementService service) : Controller
     }
 
     [HttpGet("/api/users/{userId}/teams", Name = "GetUserTeams")]
+    [Authorize(Policy = "AdminOrSelfRouteUserId")]
     [EndpointSummary("List teams that the user is a member of.")]
     [ProducesResponseType<IReadOnlyList<TeamDto>>(StatusCodes.Status200OK)]
     public async Task<ActionResult<IReadOnlyList<TeamDto>>> GetUserTeams(
@@ -42,6 +47,7 @@ public sealed class TeamsController(ITeamManagementService service) : Controller
     }
 
     [HttpPost("{teamId:guid}/members", Name = "AddTeamMember")]
+    [Authorize]
     [EndpointSummary("Add a user to a team.")]
     [ProducesResponseType<TeamDto>(StatusCodes.Status200OK)]
     public async Task<ActionResult<TeamDto>> AddTeamMember(
@@ -49,11 +55,13 @@ public sealed class TeamsController(ITeamManagementService service) : Controller
         AddTeamMemberRequest request,
         CancellationToken cancellationToken)
     {
-        var team = await service.AddMemberAsync(teamId, request.ActingUserId, request.UserId, request.Role, cancellationToken);
+        var currentUserId = User.GetRequiredUserId();
+        var team = await service.AddMemberAsync(teamId, currentUserId, request.UserId, request.Role, cancellationToken);
         return Ok(team);
     }
 
     [HttpPut("{teamId:guid}/members/{userId}", Name = "UpdateTeamMemberRole")]
+    [Authorize]
     [EndpointSummary("Update a team member role.")]
     [ProducesResponseType<TeamDto>(StatusCodes.Status200OK)]
     public async Task<ActionResult<TeamDto>> UpdateTeamMemberRole(
@@ -62,11 +70,13 @@ public sealed class TeamsController(ITeamManagementService service) : Controller
         UpdateTeamMemberRoleRequest request,
         CancellationToken cancellationToken)
     {
-        var team = await service.UpdateMemberRoleAsync(teamId, request.ActingUserId, userId, request.Role, cancellationToken);
+        var currentUserId = User.GetRequiredUserId();
+        var team = await service.UpdateMemberRoleAsync(teamId, currentUserId, userId, request.Role, cancellationToken);
         return Ok(team);
     }
 
     [HttpPost("{teamId:guid}/members/{userId}/transfer-ownership", Name = "TransferTeamOwnership")]
+    [Authorize]
     [EndpointSummary("Transfer team ownership to another member.")]
     [ProducesResponseType<TeamDto>(StatusCodes.Status200OK)]
     public async Task<ActionResult<TeamDto>> TransferTeamOwnership(
@@ -75,11 +85,13 @@ public sealed class TeamsController(ITeamManagementService service) : Controller
         TransferTeamOwnershipRequest request,
         CancellationToken cancellationToken)
     {
-        var team = await service.TransferOwnershipAsync(teamId, request.ActingUserId, userId, cancellationToken);
+        var currentUserId = User.GetRequiredUserId();
+        var team = await service.TransferOwnershipAsync(teamId, currentUserId, userId, cancellationToken);
         return Ok(team);
     }
 
     [HttpPut("{teamId:guid}/logo", Name = "UpdateTeamLogo")]
+    [Authorize]
     [EndpointSummary("Set or clear a team's logo asset.")]
     [ProducesResponseType<TeamDto>(StatusCodes.Status200OK)]
     public async Task<ActionResult<TeamDto>> UpdateTeamLogo(
@@ -87,23 +99,26 @@ public sealed class TeamsController(ITeamManagementService service) : Controller
         UpdateTeamLogoRequest request,
         CancellationToken cancellationToken)
     {
-        var team = await service.UpdateTeamLogoAsync(teamId, request.ActingUserId, request.LogoAssetId, cancellationToken);
+        var currentUserId = User.GetRequiredUserId();
+        var team = await service.UpdateTeamLogoAsync(teamId, currentUserId, request.LogoAssetId, cancellationToken);
         return Ok(team);
     }
 
     [HttpGet("{teamId:guid}/invite-keys", Name = "GetTeamInviteKeys")]
+    [Authorize]
     [EndpointSummary("List invite keys for a team.")]
     [ProducesResponseType<IReadOnlyList<TeamInviteKeyDto>>(StatusCodes.Status200OK)]
     public async Task<ActionResult<IReadOnlyList<TeamInviteKeyDto>>> GetTeamInviteKeys(
         Guid teamId,
-        [FromQuery] string actingUserId,
         CancellationToken cancellationToken)
     {
-        var inviteKeys = await service.GetInviteKeysAsync(teamId, actingUserId, cancellationToken);
+        var currentUserId = User.GetRequiredUserId();
+        var inviteKeys = await service.GetInviteKeysAsync(teamId, currentUserId, cancellationToken);
         return Ok(inviteKeys);
     }
 
     [HttpPost("{teamId:guid}/invite-keys", Name = "CreateTeamInviteKey")]
+    [Authorize]
     [EndpointSummary("Create an invite key for a team.")]
     [ProducesResponseType<TeamInviteKeyDto>(StatusCodes.Status200OK)]
     public async Task<ActionResult<TeamInviteKeyDto>> CreateTeamInviteKey(
@@ -111,24 +126,27 @@ public sealed class TeamsController(ITeamManagementService service) : Controller
         CreateTeamInviteKeyRequest request,
         CancellationToken cancellationToken)
     {
-        var inviteKey = await service.CreateInviteKeyAsync(teamId, request.ActingUserId, request.MaxUses, cancellationToken);
+        var currentUserId = User.GetRequiredUserId();
+        var inviteKey = await service.CreateInviteKeyAsync(teamId, currentUserId, request.MaxUses, cancellationToken);
         return Ok(inviteKey);
     }
 
     [HttpDelete("{teamId:guid}/invite-keys/{key}", Name = "RevokeTeamInviteKey")]
+    [Authorize]
     [EndpointSummary("Revoke an invite key for a team.")]
     [ProducesResponseType<TeamInviteKeyDto>(StatusCodes.Status200OK)]
     public async Task<ActionResult<TeamInviteKeyDto>> RevokeTeamInviteKey(
         Guid teamId,
         string key,
-        [FromQuery] string actingUserId,
         CancellationToken cancellationToken)
     {
-        var inviteKey = await service.RevokeInviteKeyAsync(teamId, key, actingUserId, cancellationToken);
+        var currentUserId = User.GetRequiredUserId();
+        var inviteKey = await service.RevokeInviteKeyAsync(teamId, key, currentUserId, cancellationToken);
         return Ok(inviteKey);
     }
 
     [HttpPost("{teamId:guid}/invite-keys/{key}/accept", Name = "AcceptTeamInviteKey")]
+    [Authorize]
     [EndpointSummary("Accept a team invite key as the current user.")]
     [ProducesResponseType<TeamInviteKeyDto>(StatusCodes.Status200OK)]
     public async Task<ActionResult<TeamInviteKeyDto>> AcceptTeamInviteKey(
@@ -137,11 +155,13 @@ public sealed class TeamsController(ITeamManagementService service) : Controller
         AcceptTeamInviteKeyRequest request,
         CancellationToken cancellationToken)
     {
-        var inviteKey = await service.AcceptInviteAsync(teamId, key, request.UserId, cancellationToken);
+        var currentUserId = User.GetRequiredUserId();
+        var inviteKey = await service.AcceptInviteAsync(teamId, key, currentUserId, cancellationToken);
         return Ok(inviteKey);
     }
 
     [HttpPut("{teamId:guid}", Name = "UpdateTeam")]
+    [Authorize]
     [EndpointSummary("Update editable team details.")]
     [ProducesResponseType<TeamDto>(StatusCodes.Status200OK)]
     public async Task<ActionResult<TeamDto>> UpdateTeam(
@@ -149,7 +169,8 @@ public sealed class TeamsController(ITeamManagementService service) : Controller
         UpdateTeamRequest request,
         CancellationToken cancellationToken)
     {
-        var team = await service.UpdateTeamAsync(teamId, request.ActingUserId, request.Name, request.BannerAssetId, request.PrimaryColor, request.ProfileLink, cancellationToken);
+        var currentUserId = User.GetRequiredUserId();
+        var team = await service.UpdateTeamAsync(teamId, currentUserId, request.Name, request.BannerAssetId, request.PrimaryColor, request.ProfileLink, cancellationToken);
         return Ok(team);
     }
 
@@ -166,6 +187,7 @@ public sealed class TeamsController(ITeamManagementService service) : Controller
     }
 
     [HttpPost("{teamId:guid}/guest-player-profiles", Name = "CreateGuestPlayerProfile")]
+    [Authorize]
     [EndpointSummary("Create a guest player profile owned by the team.")]
     [ProducesResponseType<PlayerProfileDto>(StatusCodes.Status200OK)]
     public async Task<ActionResult<PlayerProfileDto>> CreateGuestPlayerProfile(
@@ -173,11 +195,13 @@ public sealed class TeamsController(ITeamManagementService service) : Controller
         CreateGuestPlayerProfileRequest request,
         CancellationToken cancellationToken)
     {
-        var profile = await service.CreateGuestPlayerProfileAsync(teamId, request.ActingUserId, request.Name, request.RankRating, request.ProfileLink, cancellationToken);
+        var currentUserId = User.GetRequiredUserId();
+        var profile = await service.CreateGuestPlayerProfileAsync(teamId, currentUserId, request.Name, request.RankRating, request.ProfileLink, cancellationToken);
         return Ok(profile);
     }
 
     [HttpPut("{teamId:guid}/guest-player-profiles/{playerProfileId:guid}", Name = "UpdateGuestPlayerProfile")]
+    [Authorize]
     [EndpointSummary("Update a guest player profile.")]
     [ProducesResponseType<PlayerProfileDto>(StatusCodes.Status200OK)]
     public async Task<ActionResult<PlayerProfileDto>> UpdateGuestPlayerProfile(
@@ -186,20 +210,22 @@ public sealed class TeamsController(ITeamManagementService service) : Controller
         UpdateGuestPlayerProfileRequest request,
         CancellationToken cancellationToken)
     {
-        var profile = await service.UpdateGuestPlayerProfileAsync(teamId, playerProfileId, request.ActingUserId, request.Name, request.RankRating, request.ProfileLink, cancellationToken);
+        var currentUserId = User.GetRequiredUserId();
+        var profile = await service.UpdateGuestPlayerProfileAsync(teamId, playerProfileId, currentUserId, request.Name, request.RankRating, request.ProfileLink, cancellationToken);
         return Ok(profile);
     }
 
     [HttpDelete("{teamId:guid}/guest-player-profiles/{playerProfileId:guid}", Name = "DeleteGuestPlayerProfile")]
+    [Authorize]
     [EndpointSummary("Delete a guest player profile.")]
     [ProducesResponseType<TeamDto>(StatusCodes.Status200OK)]
     public async Task<ActionResult<TeamDto>> DeleteGuestPlayerProfile(
         Guid teamId,
         Guid playerProfileId,
-        [FromQuery] string actingUserId,
         CancellationToken cancellationToken)
     {
-        var team = await service.DeleteGuestPlayerProfileAsync(teamId, playerProfileId, actingUserId, cancellationToken);
+        var currentUserId = User.GetRequiredUserId();
+        var team = await service.DeleteGuestPlayerProfileAsync(teamId, playerProfileId, currentUserId, cancellationToken);
         return Ok(team);
     }
 }

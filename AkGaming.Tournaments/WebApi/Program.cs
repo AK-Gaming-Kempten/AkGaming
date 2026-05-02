@@ -1,24 +1,25 @@
-using System.Text.Json.Serialization;
 using AkGaming.Tournaments.Application.DependencyInjection;
+using AkGaming.Tournaments.Application.Services;
 using AkGaming.Tournaments.Infrastructure.Postgres;
 using AkGaming.Tournaments.Infrastructure.Sqlite;
 using AkGaming.Tournaments.Infrastructure.Sqlite.Persistence;
-using AkGaming.Tournaments.WebApi.Middleware;
-using AkGaming.Tournaments.Application.Services;
 using AkGaming.Tournaments.WebApi.Services;
+using AkGaming.Tournaments.WebApi.Middleware;
+using AkGaming.Tournaments.WebApi.Startup;
 
 var builder = WebApplication.CreateBuilder(args);
 
+if (builder.Environment.IsDevelopment())
+    builder.Configuration.AddUserSecrets<Program>();
+builder.Configuration.AddEnvironmentVariables();
+
 builder.Services.AddProblemDetails();
-builder.Services.AddControllers()
-    .AddJsonOptions(options =>
-    {
-        options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
-    });
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddOpenApi();
-builder.Services.AddSwaggerGen();
-builder.Services.AddTournamentApplication();
+builder.Services
+    .AddTournamentJsonAndControllers()
+    .AddTournamentSwagger()
+    .AddOpenIddictAuthentication(builder.Configuration, builder.Environment)
+    .AddTournamentAuthorization()
+    .AddTournamentApplication();
 builder.Services.AddScoped<ILogoFileStorage, LogoFileStorage>();
 
 var provider = builder.Configuration["Persistence:Provider"];
@@ -47,6 +48,8 @@ if (app.Environment.IsDevelopment())
 
 app.UseMiddleware<ApiExceptionMiddleware>();
 app.UseHttpsRedirection();
+app.UseAuthentication();
+app.UseAuthorization();
 
 app.MapControllers();
 

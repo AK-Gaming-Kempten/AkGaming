@@ -213,7 +213,7 @@ public sealed class TeamsControllerTests
             .ReturnsAsync(team);
 
         // Act
-        var response = await Controller.DeleteGuestPlayerProfile(teamId, profileId, "captain-1", CancellationToken.None);
+        var response = await Controller.DeleteGuestPlayerProfile(teamId, profileId, CancellationToken.None);
 
         // Assert
         WebApiControllerTestHelpers.AssertOkValue(response, team);

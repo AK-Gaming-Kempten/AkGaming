@@ -1,5 +1,7 @@
+using AkGaming.Tournaments.WebApi.Authentication;
 using AkGaming.Tournaments.Application.UseCases;
 using AkGaming.Tournaments.Contracts.DTOs;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AkGaming.Tournaments.WebApi.Controllers;
@@ -31,6 +33,7 @@ public sealed class TournamentRegistrationsController(ITournamentRegistrationSer
     }
 
     [HttpPost("api/teams/{teamId:guid}/registrations/eligibility", Name = "GetTournamentRegistrationEligibility")]
+    [Authorize]
     [EndpointSummary("Preview whether a team roster can register for a tournament.")]
     [ProducesResponseType<TournamentRegistrationEligibilityDto>(StatusCodes.Status200OK)]
     public async Task<ActionResult<TournamentRegistrationEligibilityDto>> GetTournamentRegistrationEligibility(
@@ -38,10 +41,11 @@ public sealed class TournamentRegistrationsController(ITournamentRegistrationSer
         TournamentRegistrationEligibilityRequest request,
         CancellationToken cancellationToken)
     {
+        var currentUserId = User.GetRequiredUserId();
         var eligibility = await service.GetRegistrationEligibilityAsync(
             teamId,
             request.TournamentId,
-            request.ActingUserId,
+            currentUserId,
             request.PlayerProfileIds,
             cancellationToken);
 
@@ -49,6 +53,7 @@ public sealed class TournamentRegistrationsController(ITournamentRegistrationSer
     }
 
     [HttpPost("api/teams/{teamId:guid}/registrations", Name = "SubmitTournamentRegistration")]
+    [Authorize]
     [EndpointSummary("Submit an initial tournament registration.")]
     [ProducesResponseType<TournamentRegistrationDto>(StatusCodes.Status200OK)]
     public async Task<ActionResult<TournamentRegistrationDto>> SubmitTournamentRegistration(
@@ -56,10 +61,11 @@ public sealed class TournamentRegistrationsController(ITournamentRegistrationSer
         SubmitTournamentRegistrationRequest request,
         CancellationToken cancellationToken)
     {
+        var currentUserId = User.GetRequiredUserId();
         var registration = await service.SubmitRegistrationAsync(
             teamId,
             request.TournamentId,
-            request.ActingUserId,
+            currentUserId,
             request.PlayerProfileIds,
             cancellationToken);
 
@@ -79,6 +85,7 @@ public sealed class TournamentRegistrationsController(ITournamentRegistrationSer
     }
 
     [HttpPost("api/registrations/{registrationId:guid}/review", Name = "ReviewTournamentRegistration")]
+    [Authorize(Policy = "AdminOnly")]
     [EndpointSummary("Approve or reject a pending tournament registration.")]
     [ProducesResponseType<TournamentRegistrationDto>(StatusCodes.Status200OK)]
     public async Task<ActionResult<TournamentRegistrationDto>> ReviewTournamentRegistration(
@@ -96,6 +103,7 @@ public sealed class TournamentRegistrationsController(ITournamentRegistrationSer
     }
 
     [HttpDelete("api/registrations/{registrationId:guid}", Name = "DeleteTournamentRegistration")]
+    [Authorize(Policy = "AdminOnly")]
     [EndpointSummary("Delete a tournament registration.")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<IActionResult> DeleteTournamentRegistration(
@@ -107,6 +115,7 @@ public sealed class TournamentRegistrationsController(ITournamentRegistrationSer
     }
 
     [HttpPost("api/registrations/{registrationId:guid}/rosters", Name = "SubmitRosterChange")]
+    [Authorize]
     [EndpointSummary("Submit a roster change for an approved registration.")]
     [ProducesResponseType<TournamentRegistrationDto>(StatusCodes.Status200OK)]
     public async Task<ActionResult<TournamentRegistrationDto>> SubmitRosterChange(
@@ -114,9 +123,10 @@ public sealed class TournamentRegistrationsController(ITournamentRegistrationSer
         SubmitRosterChangeRequest request,
         CancellationToken cancellationToken)
     {
+        var currentUserId = User.GetRequiredUserId();
         var registration = await service.SubmitRosterChangeAsync(
             registrationId,
-            request.ActingUserId,
+            currentUserId,
             request.PlayerProfileIds,
             cancellationToken);
 
@@ -124,6 +134,7 @@ public sealed class TournamentRegistrationsController(ITournamentRegistrationSer
     }
 
     [HttpPost("api/registrations/{registrationId:guid}/rosters/{rosterId:guid}/review", Name = "ReviewRosterChange")]
+    [Authorize(Policy = "AdminOnly")]
     [EndpointSummary("Approve or reject a pending roster change.")]
     [ProducesResponseType<TournamentRegistrationDto>(StatusCodes.Status200OK)]
     public async Task<ActionResult<TournamentRegistrationDto>> ReviewRosterChange(
