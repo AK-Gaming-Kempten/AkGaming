@@ -7,8 +7,15 @@ public sealed class PostgresTournamentDbContextFactory : IDesignTimeDbContextFac
 {
     public TournamentDbContext CreateDbContext(string[] args)
     {
+        var connectionString =
+            Environment.GetEnvironmentVariable("ConnectionStrings__Postgres")
+            ?? Environment.GetEnvironmentVariable("Persistence__PostgresConnectionString")
+            ?? throw new InvalidOperationException(
+                "A Postgres connection string could not be resolved for the tournaments design-time DbContext. " +
+                "Set ConnectionStrings__Postgres or Persistence__PostgresConnectionString.");
+
         var optionsBuilder = new DbContextOptionsBuilder<TournamentDbContext>();
-        optionsBuilder.UseNpgsql("Host=localhost;Port=5432;Database=akgaming_tournaments;Username=postgres;Password=postgres");
+        optionsBuilder.UseNpgsql(connectionString);
         return new TournamentDbContext(optionsBuilder.Options);
     }
 }
