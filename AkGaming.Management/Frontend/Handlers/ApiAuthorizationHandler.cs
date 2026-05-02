@@ -41,7 +41,7 @@ public class ApiAuthorizationHandler : DelegatingHandler {
         if (string.IsNullOrWhiteSpace(accessToken)) {
             if (!string.IsNullOrWhiteSpace(refreshToken)) {
                 _log.LogInformation("No access token available in the current circuit scope, attempting refresh.");
-                accessToken = await RefreshAccessTokenAsync(tokenStore, sessionCoordinator, refreshToken, ct);
+                accessToken = await RefreshAccessTokenAsync(tokenStore, sessionCoordinator, refreshToken, accessToken, ct);
             }
 
             if (string.IsNullOrWhiteSpace(accessToken))
@@ -50,7 +50,7 @@ public class ApiAuthorizationHandler : DelegatingHandler {
 
         if (IsExpired(expiresAtRaw)) {
             _log.LogInformation("Access token expired, refreshing...");
-            accessToken = await RefreshAccessTokenAsync(tokenStore, sessionCoordinator, refreshToken, ct);
+            accessToken = await RefreshAccessTokenAsync(tokenStore, sessionCoordinator, refreshToken, accessToken, ct);
             if (string.IsNullOrWhiteSpace(accessToken))
                 return new HttpResponseMessage(System.Net.HttpStatusCode.Unauthorized);
         }
@@ -72,7 +72,7 @@ public class ApiAuthorizationHandler : DelegatingHandler {
         _log.LogWarning("API request returned 401. Attempting token refresh and retry.");
         response.Dispose();
 
-        accessToken = await RefreshAccessTokenAsync(tokenStore, sessionCoordinator, tokenStore.RefreshToken, ct, force: true);
+        accessToken = await RefreshAccessTokenAsync(tokenStore, sessionCoordinator, tokenStore.RefreshToken, tokenStore.AccessToken, ct, force: true);
         if (string.IsNullOrWhiteSpace(accessToken))
             return new HttpResponseMessage(System.Net.HttpStatusCode.Unauthorized);
 
@@ -157,81 +157,97 @@ public class ApiAuthorizationHandler : DelegatingHandler {
         OidcTokenStore tokenStore,
         FrontendSessionCoordinator sessionCoordinator,
         string? refreshToken,
+        string? staleAccessToken,
         CancellationToken ct,
         bool force = false) {
-        if (string.IsNullOrWhiteSpace(refreshToken)) {
-            _log.LogWarning("Access token refresh requested but no refresh token is present.");
-            await HandleExpiredSessionAsync(tokenStore, sessionCoordinator);
-            return null;
-        }
+        await tokenStore.RefreshLock.WaitAsync(ct);
 
-        var tokenEndpoint = await ResolveTokenEndpointAsync(ct);
-        if (string.IsNullOrWhiteSpace(tokenEndpoint)) {
-            _log.LogWarning("No token endpoint configured/discovered.");
-            await HandleExpiredSessionAsync(tokenStore, sessionCoordinator);
-            return null;
-        }
-
-        var oidcOptions = _oidcOptionsMonitor.Get(OpenIdConnectDefaults.AuthenticationScheme);
-        if (string.IsNullOrWhiteSpace(oidcOptions.ClientId)) {
-            _log.LogWarning("OIDC client id is not configured.");
-            await HandleExpiredSessionAsync(tokenStore, sessionCoordinator);
-            return null;
-        }
-
-        var client = _factory.CreateClient("OidcBackchannel");
-        var payload = new Dictionary<string, string> {
-            ["grant_type"] = "refresh_token",
-            ["refresh_token"] = refreshToken,
-            ["client_id"] = oidcOptions.ClientId
-        };
-        if (!string.IsNullOrWhiteSpace(oidcOptions.ClientSecret))
-            payload["client_secret"] = oidcOptions.ClientSecret;
-
-        HttpResponseMessage resp;
         try {
-            using var refreshRequest = new HttpRequestMessage(HttpMethod.Post, tokenEndpoint) {
-                Content = new FormUrlEncodedContent(payload)
+            var currentAccessToken = tokenStore.AccessToken;
+            var currentExpiresAt = tokenStore.ExpiresAt;
+            if (!string.IsNullOrWhiteSpace(currentAccessToken)
+                && !IsExpired(currentExpiresAt)
+                && (!force || !string.Equals(currentAccessToken, staleAccessToken, StringComparison.Ordinal))) {
+                return currentAccessToken;
+            }
+
+            refreshToken = tokenStore.RefreshToken ?? refreshToken;
+            if (string.IsNullOrWhiteSpace(refreshToken)) {
+                _log.LogWarning("Access token refresh requested but no refresh token is present.");
+                await HandleExpiredSessionAsync(tokenStore, sessionCoordinator);
+                return null;
+            }
+
+            var tokenEndpoint = await ResolveTokenEndpointAsync(ct);
+            if (string.IsNullOrWhiteSpace(tokenEndpoint)) {
+                _log.LogWarning("No token endpoint configured/discovered.");
+                await HandleExpiredSessionAsync(tokenStore, sessionCoordinator);
+                return null;
+            }
+
+            var oidcOptions = _oidcOptionsMonitor.Get(OpenIdConnectDefaults.AuthenticationScheme);
+            if (string.IsNullOrWhiteSpace(oidcOptions.ClientId)) {
+                _log.LogWarning("OIDC client id is not configured.");
+                await HandleExpiredSessionAsync(tokenStore, sessionCoordinator);
+                return null;
+            }
+
+            var client = _factory.CreateClient("OidcBackchannel");
+            var payload = new Dictionary<string, string> {
+                ["grant_type"] = "refresh_token",
+                ["refresh_token"] = refreshToken,
+                ["client_id"] = oidcOptions.ClientId
             };
-            resp = await client.SendAsync(refreshRequest, ct);
-        } catch (Exception ex) {
-            _log.LogError(ex, "Failed to call token endpoint");
-            await HandleExpiredSessionAsync(tokenStore, sessionCoordinator);
-            return null;
-        }
+            if (!string.IsNullOrWhiteSpace(oidcOptions.ClientSecret))
+                payload["client_secret"] = oidcOptions.ClientSecret;
 
-        using (resp) {
-            var responseContent = await resp.Content.ReadAsStringAsync(ct);
-            if (!resp.IsSuccessStatusCode) {
-                var bodyPreview = responseContent.Length > 512 ? responseContent[..512] + "..." : responseContent;
-                _log.LogWarning("Token refresh failed: {Status}. Body: {Body}", resp.StatusCode, bodyPreview);
+            HttpResponseMessage resp;
+            try {
+                using var refreshRequest = new HttpRequestMessage(HttpMethod.Post, tokenEndpoint) {
+                    Content = new FormUrlEncodedContent(payload)
+                };
+                resp = await client.SendAsync(refreshRequest, ct);
+            } catch (Exception ex) {
+                _log.LogError(ex, "Failed to call token endpoint");
                 await HandleExpiredSessionAsync(tokenStore, sessionCoordinator);
                 return null;
             }
 
-            using var json = JsonDocument.Parse(responseContent);
-            var root = json.RootElement;
+            using (resp) {
+                var responseContent = await resp.Content.ReadAsStringAsync(ct);
+                if (!resp.IsSuccessStatusCode) {
+                    var bodyPreview = responseContent.Length > 512 ? responseContent[..512] + "..." : responseContent;
+                    _log.LogWarning("Token refresh failed: {Status}. Body: {Body}", resp.StatusCode, bodyPreview);
+                    await HandleExpiredSessionAsync(tokenStore, sessionCoordinator);
+                    return null;
+                }
 
-            var newAccess = GetTokenValue(root, "access_token", "accessToken");
-            var newRefresh = GetTokenValue(root, "refresh_token", "refreshToken") ?? refreshToken;
-            var expiresIn = GetIntegerValue(root, "expires_in", "expiresIn");
+                using var json = JsonDocument.Parse(responseContent);
+                var root = json.RootElement;
 
-            if (string.IsNullOrWhiteSpace(newAccess)) {
-                _log.LogWarning("Token refresh succeeded but response did not contain an access token.");
-                await HandleExpiredSessionAsync(tokenStore, sessionCoordinator);
-                return null;
+                var newAccess = GetTokenValue(root, "access_token", "accessToken");
+                var newRefresh = GetTokenValue(root, "refresh_token", "refreshToken") ?? refreshToken;
+                var expiresIn = GetIntegerValue(root, "expires_in", "expiresIn");
+
+                if (string.IsNullOrWhiteSpace(newAccess)) {
+                    _log.LogWarning("Token refresh succeeded but response did not contain an access token.");
+                    await HandleExpiredSessionAsync(tokenStore, sessionCoordinator);
+                    return null;
+                }
+
+                var newExpiry = expiresIn.HasValue
+                    ? DateTime.UtcNow.AddSeconds(expiresIn.Value)
+                    : DateTime.UtcNow.AddMinutes(10);
+
+                tokenStore.SetTokens(newAccess, newRefresh, newExpiry.ToString("o", CultureInfo.InvariantCulture));
+
+                if (force)
+                    _log.LogInformation("Forced token refresh completed successfully after API 401.");
+
+                return newAccess!;
             }
-
-            var newExpiry = expiresIn.HasValue
-                ? DateTime.UtcNow.AddSeconds(expiresIn.Value)
-                : DateTime.UtcNow.AddMinutes(10);
-
-            tokenStore.SetTokens(newAccess, newRefresh, newExpiry.ToString("o", CultureInfo.InvariantCulture));
-
-            if (force)
-                _log.LogInformation("Forced token refresh completed successfully after API 401.");
-
-            return newAccess!;
+        } finally {
+            tokenStore.RefreshLock.Release();
         }
     }
 

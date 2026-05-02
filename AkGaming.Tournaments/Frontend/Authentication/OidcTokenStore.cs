@@ -2,10 +2,13 @@ namespace AkGaming.Tournaments.Frontend.Authentication;
 
 public sealed class OidcTokenStore
 {
+    private readonly SemaphoreSlim _refreshLock = new(1, 1);
+
     public string? AccessToken { get; private set; }
     public string? RefreshToken { get; private set; }
     public string? ExpiresAt { get; private set; }
     public bool IsInitialized { get; private set; }
+    public SemaphoreSlim RefreshLock => _refreshLock;
 
     public void Initialize(string? accessToken, string? refreshToken, string? expiresAt)
     {
