@@ -1,96 +1,131 @@
 @namespace AkGaming.Tournaments.Frontend.Components.Tournaments.Administration
 
-<div class="admin-control-grid">
-    <SurfacePanel Title="Tournament" Subtitle="Public tournament identity and state.">
-        <ApiErrorPanel Message="@ErrorMessage" />
+<div class="admin-settings-stack">
+    <ApiErrorPanel Message="@ErrorMessage" />
 
-        <div class="content-editor-grid">
-            <label class="field-block">
-                <span>Name</span>
-                <input class="text-input" value="@name" @onchange="HandleNameChanged" disabled="@IsBusy" />
-            </label>
-            <label class="field-block">
-                <span>Status</span>
-                <select class="text-input" value="@status" @onchange="HandleStatusChanged" disabled="@IsBusy">
-                    @foreach (var option in Enum.GetValues<TournamentStatusDto>())
-                    {
-                        <option value="@option">@option</option>
-                    }
-                </select>
-            </label>
-            <label class="field-block">
-                <span>Primary color</span>
-                <input class="text-input" value="@primaryColor" @onchange="HandlePrimaryColorChanged" placeholder="#0f3f2a" disabled="@IsBusy" />
-            </label>
+    @if (!string.IsNullOrWhiteSpace(SuccessMessage))
+    {
+        <div class="admin-settings-toast" role="status" aria-live="polite">
+            <i class="bi bi-check-circle"></i>
+            <span>@SuccessMessage</span>
         </div>
+    }
 
-        <div class="content-editor-logo-row">
-            <LogoImage LogoAssetId="@Tournament.LogoAssetId" Type="tournament" Alt="@($"{Tournament.Name} logo")" Size="LogoImageSize.Large" />
-            <div class="content-editor-logo-actions">
-                <LogoUploadDialog Uploaded="HandleLogoUploadedAsync" />
-                <LogoUploadDialog ButtonLabel="Upload banner" Uploaded="HandleBannerUploadedAsync" />
-                <button type="button" class="ghost-button" @onclick="ClearLogoAsync" disabled="@IsBusy || Tournament.LogoAssetId is null">
-                    Clear logo
-                </button>
-                <button type="button" class="ghost-button" @onclick="ClearBannerAsync" disabled="@IsBusy || bannerAssetId is null">
-                    Clear banner
-                </button>
+    <nav class="admin-settings-tabs" aria-label="Tournament base settings sections">
+        <button type="button" class="@GetTabClass(BaseSettingsTab.Identity)" @onclick="() => activeTab = BaseSettingsTab.Identity">Identity</button>
+        <button type="button" class="@GetTabClass(BaseSettingsTab.Timeline)" @onclick="() => activeTab = BaseSettingsTab.Timeline">Timeline</button>
+        <button type="button" class="@GetTabClass(BaseSettingsTab.InfoSections)" @onclick="() => activeTab = BaseSettingsTab.InfoSections">Info sections</button>
+        <button type="button" class="@GetTabClass(BaseSettingsTab.RegistrationRules)" @onclick="() => activeTab = BaseSettingsTab.RegistrationRules">Registration rules</button>
+    </nav>
+
+    @if (activeTab == BaseSettingsTab.Identity)
+    {
+        <SurfacePanel Title="Tournament identity" Subtitle="Public tournament identity, visual assets, and state.">
+            <div class="content-editor-grid">
+                <label class="field-block">
+                    <span>Name</span>
+                    <input class="text-input" value="@name" @onchange="HandleNameChanged" disabled="@IsBusy" />
+                </label>
+                <label class="field-block">
+                    <span>Status</span>
+                    <select class="text-input" value="@status" @onchange="HandleStatusChanged" disabled="@IsBusy">
+                        @foreach (var option in Enum.GetValues<TournamentStatusDto>())
+                        {
+                            <option value="@option">@option</option>
+                        }
+                    </select>
+                </label>
+                <label class="field-block">
+                    <span>Primary color</span>
+                    <input class="text-input" value="@primaryColor" @onchange="HandlePrimaryColorChanged" placeholder="#0f3f2a" disabled="@IsBusy" />
+                </label>
             </div>
-        </div>
-    </SurfacePanel>
 
-    <SurfacePanel Title="Timeline" Subtitle="Persistent tournament dates used by the public overview and registration flow.">
-        <div class="content-editor-grid">
-            <label class="field-block">
-                <span>Registration opens</span>
-                <input class="text-input" type="datetime-local" value="@registrationOpenValue" @onchange="HandleRegistrationOpenChanged" disabled="@IsBusy" />
-            </label>
-            <label class="field-block">
-                <span>Registration closes</span>
-                <input class="text-input" type="datetime-local" value="@registrationClosedValue" @onchange="HandleRegistrationClosedChanged" disabled="@IsBusy" />
-            </label>
-            <label class="field-block">
-                <span>Start</span>
-                <input class="text-input" type="datetime-local" value="@startValue" @onchange="HandleStartChanged" disabled="@IsBusy" />
-            </label>
-            <label class="field-block">
-                <span>End</span>
-                <input class="text-input" type="datetime-local" value="@endValue" @onchange="HandleEndChanged" disabled="@IsBusy" />
-            </label>
-        </div>
-    </SurfacePanel>
+            <div class="content-editor-logo-row">
+                <LogoImage LogoAssetId="@Tournament.LogoAssetId" Type="tournament" Alt="@($"{Tournament.Name} logo")" Size="LogoImageSize.Large" />
+                <div class="content-editor-logo-actions">
+                    <LogoUploadDialog Uploaded="HandleLogoUploadedAsync" />
+                    <LogoUploadDialog ButtonLabel="Upload banner" Uploaded="HandleBannerUploadedAsync" />
+                    <button type="button" class="ghost-button" @onclick="ClearLogoAsync" disabled="@IsBusy || Tournament.LogoAssetId is null">
+                        Clear logo
+                    </button>
+                    <button type="button" class="ghost-button" @onclick="ClearBannerAsync" disabled="@IsBusy || bannerAssetId is null">
+                        Clear banner
+                    </button>
+                </div>
+            </div>
 
-    <SurfacePanel Title="Info sections" Subtitle="These sections are rendered as markdown on the public tournament page.">
-        <div class="stack">
-            @foreach (var section in sections)
-            {
-                <article class="section-editor-card">
-                    <label class="field-block">
-                        <span>Header</span>
-                        <input class="text-input" @bind="section.Header" disabled="@IsBusy" />
-                    </label>
+            <div class="content-editor-footer">
+                <button type="button" class="solid-button" @onclick="SaveIdentityAsync" disabled="@IsBusy">Save identity</button>
+            </div>
+        </SurfacePanel>
+    }
 
-                    <label class="field-block">
-                        <span>Markdown</span>
-                        <textarea class="text-input section-editor-markdown" @bind="section.ContentMarkdown" disabled="@IsBusy"></textarea>
-                    </label>
+    @if (activeTab == BaseSettingsTab.Timeline)
+    {
+        <SurfacePanel Title="Timeline" Subtitle="Persistent tournament dates used by the public overview and registration flow.">
+            <div class="content-editor-grid">
+                <label class="field-block">
+                    <span>Registration opens</span>
+                    <input class="text-input" type="datetime-local" value="@registrationOpenValue" @onchange="HandleRegistrationOpenChanged" disabled="@IsBusy" />
+                </label>
+                <label class="field-block">
+                    <span>Registration closes</span>
+                    <input class="text-input" type="datetime-local" value="@registrationClosedValue" @onchange="HandleRegistrationClosedChanged" disabled="@IsBusy" />
+                </label>
+                <label class="field-block">
+                    <span>Start</span>
+                    <input class="text-input" type="datetime-local" value="@startValue" @onchange="HandleStartChanged" disabled="@IsBusy" />
+                </label>
+                <label class="field-block">
+                    <span>End</span>
+                    <input class="text-input" type="datetime-local" value="@endValue" @onchange="HandleEndChanged" disabled="@IsBusy" />
+                </label>
+            </div>
 
-                    <div class="section-editor-actions">
-                        <button type="button" class="ghost-button" @onclick="() => RemoveSection(section.Id)" disabled="@IsBusy">
-                            Remove section
-                        </button>
-                    </div>
-                </article>
-            }
-        </div>
+            <div class="content-editor-footer">
+                <button type="button" class="solid-button" @onclick="SaveTimelineAsync" disabled="@IsBusy">Save timeline</button>
+            </div>
+        </SurfacePanel>
+    }
 
-        <div class="content-editor-footer">
-            <button type="button" class="ghost-button" @onclick="AddSection" disabled="@IsBusy">Add section</button>
-            <button type="button" class="solid-button" @onclick="SaveAsync" disabled="@IsBusy">Save tournament content</button>
-        </div>
-    </SurfacePanel>
+    @if (activeTab == BaseSettingsTab.InfoSections)
+    {
+        <SurfacePanel Title="Info sections" Subtitle="These sections are rendered as markdown on the public tournament page.">
+            <div class="stack">
+                @foreach (var section in sections)
+                {
+                    <article class="section-editor-card">
+                        <label class="field-block">
+                            <span>Header</span>
+                            <input class="text-input" @bind="section.Header" disabled="@IsBusy" />
+                        </label>
 
-    <TournamentRegistrationRulesEditor Rules="@Tournament.RegistrationRules"
-                                       IsBusy="@IsBusy"
-                                       SaveRequested="HandleSaveRulesAsync" />
+                        <label class="field-block">
+                            <span>Markdown</span>
+                            <textarea class="text-input section-editor-markdown" @bind="section.ContentMarkdown" disabled="@IsBusy"></textarea>
+                        </label>
+
+                        <div class="section-editor-actions">
+                            <button type="button" class="ghost-button" @onclick="() => RemoveSection(section.Id)" disabled="@IsBusy">
+                                Remove section
+                            </button>
+                        </div>
+                    </article>
+                }
+            </div>
+
+            <div class="content-editor-footer">
+                <button type="button" class="ghost-button" @onclick="AddSection" disabled="@IsBusy">Add section</button>
+                <button type="button" class="solid-button" @onclick="SaveInfoSectionsAsync" disabled="@IsBusy">Save info sections</button>
+            </div>
+        </SurfacePanel>
+    }
+
+    @if (activeTab == BaseSettingsTab.RegistrationRules)
+    {
+        <TournamentRegistrationRulesEditor Rules="@Tournament.RegistrationRules"
+                                           IsBusy="@IsBusy"
+                                           SaveRequested="HandleSaveRulesAsync" />
+    }
 </div>

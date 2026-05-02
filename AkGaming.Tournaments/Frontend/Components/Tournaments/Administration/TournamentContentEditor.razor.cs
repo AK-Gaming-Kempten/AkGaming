@@ -9,7 +9,10 @@ public partial class TournamentContentEditor : ComponentBase
     [Parameter] public TournamentDto Tournament { get; set; } = default!;
     [Parameter] public bool IsBusy { get; set; }
     [Parameter] public string? ErrorMessage { get; set; }
-    [Parameter] public EventCallback<TournamentContentSaveRequest> SaveRequested { get; set; }
+    [Parameter] public string? SuccessMessage { get; set; }
+    [Parameter] public EventCallback<TournamentIdentitySaveRequest> IdentitySaveRequested { get; set; }
+    [Parameter] public EventCallback<TournamentTimelineSaveRequest> TimelineSaveRequested { get; set; }
+    [Parameter] public EventCallback<IReadOnlyList<TournamentInfoSectionDto>> InfoSectionsSaveRequested { get; set; }
     [Parameter] public EventCallback<IReadOnlyList<TournamentRegistrationRuleUpdateRequest>> RegistrationRulesSaveRequested { get; set; }
     [Parameter] public EventCallback<MediaAssetDto> LogoUploaded { get; set; }
     [Parameter] public EventCallback ClearLogoRequested { get; set; }
@@ -26,6 +29,7 @@ public partial class TournamentContentEditor : ComponentBase
     private string? startValue;
     private string? endValue;
     private List<EditableTournamentInfoSection> sections = [];
+    private BaseSettingsTab activeTab = BaseSettingsTab.Identity;
 
     protected override void OnParametersSet()
     {
@@ -100,19 +104,34 @@ public partial class TournamentContentEditor : ComponentBase
     private Task HandleSaveRulesAsync(IReadOnlyList<TournamentRegistrationRuleUpdateRequest> rules)
         => RegistrationRulesSaveRequested.InvokeAsync(rules);
 
-    private Task SaveAsync()
+    private string GetTabClass(BaseSettingsTab tab)
+        => activeTab == tab ? "admin-settings-tab is-active" : "admin-settings-tab";
+
+    private Task SaveIdentityAsync()
     {
-        var request = new TournamentContentSaveRequest(
+        var request = new TournamentIdentitySaveRequest(
             name,
             status,
-            bannerAssetId,
-            primaryColor,
+            primaryColor);
+        return IdentitySaveRequested.InvokeAsync(request);
+    }
+
+    private Task SaveTimelineAsync()
+    {
+        var request = new TournamentTimelineSaveRequest(
             ParseInputValue(registrationOpenValue),
             ParseInputValue(registrationClosedValue),
             ParseInputValue(startValue),
-            ParseInputValue(endValue),
-            sections.Select((section, index) => new TournamentInfoSectionDto(section.Id, section.Header, section.ContentMarkdown, index)).ToList());
-        return SaveRequested.InvokeAsync(request);
+            ParseInputValue(endValue));
+        return TimelineSaveRequested.InvokeAsync(request);
+    }
+
+    private Task SaveInfoSectionsAsync()
+    {
+        var request = sections
+            .Select((section, index) => new TournamentInfoSectionDto(section.Id, section.Header, section.ContentMarkdown, index))
+            .ToList();
+        return InfoSectionsSaveRequested.InvokeAsync(request);
     }
 
     private static string? ToInputValue(DateTimeOffset? value)
@@ -146,15 +165,23 @@ public partial class TournamentContentEditor : ComponentBase
         public string Header { get; set; } = header;
         public string ContentMarkdown { get; set; } = contentMarkdown;
     }
+
+    private enum BaseSettingsTab
+    {
+        Identity,
+        Timeline,
+        InfoSections,
+        RegistrationRules
+    }
 }
 
-public sealed record TournamentContentSaveRequest(
+public sealed record TournamentIdentitySaveRequest(
     string Name,
     TournamentStatusDto Status,
-    Guid? BannerAssetId,
-    string? PrimaryColor,
+    string? PrimaryColor);
+
+public sealed record TournamentTimelineSaveRequest(
     DateTimeOffset? RegistrationOpenUtc,
     DateTimeOffset? RegistrationClosedUtc,
     DateTimeOffset? StartUtc,
-    DateTimeOffset? EndUtc,
-    IReadOnlyList<TournamentInfoSectionDto> InfoSections);
+    DateTimeOffset? EndUtc);
