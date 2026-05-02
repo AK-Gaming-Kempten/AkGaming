@@ -13,21 +13,16 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace AkGaming.Identity.Api.IntegrationTests;
 
-public sealed class OidcAdminEndpointsTests : IClassFixture<TestApiFactory>
+public sealed class OidcAdminEndpointsTests
 {
     private static readonly Uri BaseUri = new("https://localhost");
-    private readonly TestApiFactory _factory;
-
-    public OidcAdminEndpointsTests(TestApiFactory factory)
-    {
-        _factory = factory;
-    }
 
     [Fact]
     public async Task ProtectedClient_CannotBeUpdatedOrDeleted()
     {
-        using var client = CreateNoRedirectClient();
-        var accessToken = await AuthenticateAdminAsync(client, $"protected-client-{Guid.NewGuid():N}@example.com");
+        using var factory = CreateFactory();
+        using var client = CreateNoRedirectClient(factory);
+        var accessToken = await AuthenticateAdminAsync(factory, client, $"protected-client-{Guid.NewGuid():N}@example.com");
 
         using var listRequest = CreateAdminRequest(HttpMethod.Get, "/admin/oidc/clients", accessToken);
         using var listResponse = await client.SendAsync(listRequest);
@@ -60,8 +55,9 @@ public sealed class OidcAdminEndpointsTests : IClassFixture<TestApiFactory>
     [Fact]
     public async Task OidcClient_CanBeCreatedUpdatedAndDeleted()
     {
-        using var client = CreateNoRedirectClient();
-        var accessToken = await AuthenticateAdminAsync(client, $"mutable-client-{Guid.NewGuid():N}@example.com");
+        using var factory = CreateFactory();
+        using var client = CreateNoRedirectClient(factory);
+        var accessToken = await AuthenticateAdminAsync(factory, client, $"mutable-client-{Guid.NewGuid():N}@example.com");
 
         const string scopeName = "members_portal";
         const string clientId = "members-portal";
@@ -123,10 +119,115 @@ public sealed class OidcAdminEndpointsTests : IClassFixture<TestApiFactory>
     }
 
     [Fact]
+    public async Task ConfidentialOidcClient_CanBeUpdatedWithoutReplacingSecret()
+    {
+        using var factory = CreateFactory();
+        using var client = CreateNoRedirectClient(factory);
+        var accessToken = await AuthenticateAdminAsync(factory, client, $"confidential-update-{Guid.NewGuid():N}@example.com");
+
+        const string scopeName = "tournaments_api";
+        const string clientId = "tournaments-frontend";
+
+        await CreateScopeAsync(client, accessToken, new AdminCreateOidcScopeRequest(
+            Name: scopeName,
+            DisplayName: "Tournaments API",
+            Description: "Tournament backend access",
+            Resources: [scopeName]));
+
+        await CreateClientAsync(client, accessToken, new AdminCreateOidcClientRequest(
+            ClientId: clientId,
+            ClientSecret: "tournaments-secret",
+            DisplayName: "Tournaments Frontend",
+            ClientType: "confidential",
+            ConsentType: "explicit",
+            RequirePkce: true,
+            AllowAuthorizationCodeFlow: true,
+            AllowRefreshTokenFlow: true,
+            RedirectUris: ["https://tournaments.akgaming.de/signin-oidc"],
+            PostLogoutRedirectUris: ["https://tournaments.akgaming.de/signout-callback-oidc"],
+            Scopes: ["openid", "profile", "email", "offline_access", scopeName]));
+
+        using var updateRequest = CreateAdminRequest(HttpMethod.Put, $"/admin/oidc/clients/{clientId}", accessToken);
+        updateRequest.Content = JsonContent.Create(new AdminUpdateOidcClientRequest(
+            DisplayName: "Tournaments Frontend Updated",
+            ClientType: "confidential",
+            ConsentType: "explicit",
+            RequirePkce: true,
+            AllowAuthorizationCodeFlow: true,
+            AllowRefreshTokenFlow: true,
+            NewClientSecret: null,
+            RedirectUris: ["https://tournaments.akgaming.de/signin-oidc"],
+            PostLogoutRedirectUris: ["https://tournaments.akgaming.de/signout-callback-oidc"],
+            Scopes: ["openid", "profile", "email", "offline_access", scopeName]));
+
+        using var updateResponse = await client.SendAsync(updateRequest);
+        updateResponse.EnsureSuccessStatusCode();
+
+        var updatedClient = await updateResponse.Content.ReadFromJsonAsync<OidcClientResponse>();
+        Assert.NotNull(updatedClient);
+        Assert.Equal("Tournaments Frontend Updated", updatedClient!.DisplayName);
+        Assert.Equal("confidential", updatedClient.ClientType);
+        Assert.True(updatedClient.HasClientSecret);
+    }
+
+    [Fact]
+    public async Task ConfidentialOidcClient_CanRotateSecret()
+    {
+        using var factory = CreateFactory();
+        using var client = CreateNoRedirectClient(factory);
+        var accessToken = await AuthenticateAdminAsync(factory, client, $"confidential-rotate-{Guid.NewGuid():N}@example.com");
+
+        const string scopeName = "billing_api";
+        const string clientId = "billing-frontend";
+
+        await CreateScopeAsync(client, accessToken, new AdminCreateOidcScopeRequest(
+            Name: scopeName,
+            DisplayName: "Billing API",
+            Description: "Billing backend access",
+            Resources: [scopeName]));
+
+        await CreateClientAsync(client, accessToken, new AdminCreateOidcClientRequest(
+            ClientId: clientId,
+            ClientSecret: "billing-secret-old",
+            DisplayName: "Billing Frontend",
+            ClientType: "confidential",
+            ConsentType: "explicit",
+            RequirePkce: true,
+            AllowAuthorizationCodeFlow: true,
+            AllowRefreshTokenFlow: true,
+            RedirectUris: ["https://billing.akgaming.de/signin-oidc"],
+            PostLogoutRedirectUris: ["https://billing.akgaming.de/signout-callback-oidc"],
+            Scopes: ["openid", "profile", "email", "offline_access", scopeName]));
+
+        using var updateRequest = CreateAdminRequest(HttpMethod.Put, $"/admin/oidc/clients/{clientId}", accessToken);
+        updateRequest.Content = JsonContent.Create(new AdminUpdateOidcClientRequest(
+            DisplayName: "Billing Frontend Updated",
+            ClientType: "confidential",
+            ConsentType: "explicit",
+            RequirePkce: true,
+            AllowAuthorizationCodeFlow: true,
+            AllowRefreshTokenFlow: true,
+            NewClientSecret: "billing-secret-new",
+            RedirectUris: ["https://billing.akgaming.de/signin-oidc"],
+            PostLogoutRedirectUris: ["https://billing.akgaming.de/signout-callback-oidc"],
+            Scopes: ["openid", "profile", "email", "offline_access", scopeName]));
+
+        using var updateResponse = await client.SendAsync(updateRequest);
+        updateResponse.EnsureSuccessStatusCode();
+
+        var updatedClient = await updateResponse.Content.ReadFromJsonAsync<OidcClientResponse>();
+        Assert.NotNull(updatedClient);
+        Assert.Equal("Billing Frontend Updated", updatedClient!.DisplayName);
+        Assert.Equal("confidential", updatedClient.ClientType);
+        Assert.True(updatedClient.HasClientSecret);
+    }
+
+    [Fact]
     public async Task ProtectedScope_CannotBeUpdatedOrDeleted()
     {
-        using var client = CreateNoRedirectClient();
-        var accessToken = await AuthenticateAdminAsync(client, $"protected-scope-{Guid.NewGuid():N}@example.com");
+        using var factory = CreateFactory();
+        using var client = CreateNoRedirectClient(factory);
+        var accessToken = await AuthenticateAdminAsync(factory, client, $"protected-scope-{Guid.NewGuid():N}@example.com");
 
         using var getRequest = CreateAdminRequest(HttpMethod.Get, "/admin/oidc/scopes/management_api", accessToken);
         using var getResponse = await client.SendAsync(getRequest);
@@ -152,8 +253,9 @@ public sealed class OidcAdminEndpointsTests : IClassFixture<TestApiFactory>
     [Fact]
     public async Task OidcScope_CanBeCreatedUpdatedAndDeleted_WhenNotAssignedToAClient()
     {
-        using var client = CreateNoRedirectClient();
-        var accessToken = await AuthenticateAdminAsync(client, $"mutable-scope-{Guid.NewGuid():N}@example.com");
+        using var factory = CreateFactory();
+        using var client = CreateNoRedirectClient(factory);
+        var accessToken = await AuthenticateAdminAsync(factory, client, $"mutable-scope-{Guid.NewGuid():N}@example.com");
 
         const string scopeName = "billing_api";
 
@@ -187,20 +289,25 @@ public sealed class OidcAdminEndpointsTests : IClassFixture<TestApiFactory>
         Assert.Equal(HttpStatusCode.NotFound, getDeletedResponse.StatusCode);
     }
 
-    private HttpClient CreateNoRedirectClient()
+    private static TestApiFactory CreateFactory()
     {
-        return _factory.CreateClient(new Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactoryClientOptions
+        return new TestApiFactory();
+    }
+
+    private static HttpClient CreateNoRedirectClient(TestApiFactory factory)
+    {
+        return factory.CreateClient(new Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactoryClientOptions
         {
             BaseAddress = BaseUri,
             AllowAutoRedirect = false
         });
     }
 
-    private async Task<string> AuthenticateAdminAsync(HttpClient client, string email)
+    private async Task<string> AuthenticateAdminAsync(TestApiFactory factory, HttpClient client, string email)
     {
         await RegisterInteractiveAsync(client, "/account/manage", email);
         await VerifyEmailAsync(client, email);
-        await PromoteUserToAdminAsync(email);
+        await PromoteUserToAdminAsync(factory, email);
 
         var pkce = PkceState.Create();
         var authorizeUrl = BuildAuthorizeUrl(
@@ -236,9 +343,9 @@ public sealed class OidcAdminEndpointsTests : IClassFixture<TestApiFactory>
         return accessToken!;
     }
 
-    private async Task PromoteUserToAdminAsync(string email)
+    private static async Task PromoteUserToAdminAsync(TestApiFactory factory, string email)
     {
-        using var scope = _factory.Services.CreateScope();
+        using var scope = factory.Services.CreateScope();
         var dbContext = scope.ServiceProvider.GetRequiredService<AuthDbContext>();
 
         var user = dbContext.Users

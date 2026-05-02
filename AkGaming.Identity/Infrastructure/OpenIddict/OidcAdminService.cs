@@ -123,10 +123,11 @@ public sealed class OidcAdminService : IOidcAdminService
     {
         var application = await FindApplicationAsync(clientId, cancellationToken);
         EnsureClientIsMutable(application.ClientId);
+        var existingClientSecret = application.ClientSecret;
 
         var descriptor = await BuildApplicationDescriptorAsync(
             application.ClientId!,
-            clientSecret: null,
+            clientSecret: request.NewClientSecret,
             request.DisplayName,
             request.ClientType,
             request.ConsentType,
@@ -136,14 +137,29 @@ public sealed class OidcAdminService : IOidcAdminService
             request.RedirectUris,
             request.PostLogoutRedirectUris,
             request.Scopes,
-            requireClientSecretForConfidentialClient: string.IsNullOrWhiteSpace(application.ClientSecret),
+            requireClientSecretForConfidentialClient:
+                string.IsNullOrWhiteSpace(application.ClientSecret) && string.IsNullOrWhiteSpace(request.NewClientSecret),
             cancellationToken);
 
         await _applicationManager.PopulateAsync(application, descriptor, cancellationToken);
-        await _applicationManager.UpdateAsync(application, cancellationToken);
 
-        if (!string.IsNullOrWhiteSpace(request.NewClientSecret))
-            await _applicationManager.UpdateAsync(application, request.NewClientSecret, cancellationToken);
+        if (string.Equals(descriptor.ClientType, OpenIddictConstants.ClientTypes.Confidential, StringComparison.Ordinal))
+        {
+            if (!string.IsNullOrWhiteSpace(request.NewClientSecret))
+            {
+                await _applicationManager.UpdateAsync(application, request.NewClientSecret.Trim(), cancellationToken);
+            }
+            else
+            {
+                application.ClientSecret = existingClientSecret;
+                await _applicationManager.UpdateAsync(application, cancellationToken);
+            }
+        }
+        else
+        {
+            application.ClientSecret = null;
+            await _applicationManager.UpdateAsync(application, cancellationToken);
+        }
 
         await WriteAuditAsync(
             "admin.oidc.clients.updated",
