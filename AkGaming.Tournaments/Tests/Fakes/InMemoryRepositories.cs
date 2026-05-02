@@ -153,16 +153,25 @@ internal sealed class InMemoryTeamRepository(InMemoryStore store) : ITeamReposit
 
 internal sealed class InMemoryTournamentRepository(InMemoryStore store) : ITournamentRepository
 {
-    public Task<IReadOnlyList<Tournament>> GetAllAsync(CancellationToken cancellationToken = default)
+    public Task<IReadOnlyList<Tournament>> GetAllAsync(bool includeHidden = false, CancellationToken cancellationToken = default)
         => Task.FromResult<IReadOnlyList<Tournament>>(store.Tournaments
+            .Where(tournament => includeHidden || tournament.IsVisible)
             .OrderBy(tournament => tournament.Name, StringComparer.OrdinalIgnoreCase)
             .ToList());
 
     public Task<Tournament?> GetByIdAsync(Guid tournamentId, CancellationToken cancellationToken = default)
         => Task.FromResult(store.Tournaments.FirstOrDefault(tournament => tournament.Id == tournamentId));
 
-    public Task<Tournament?> GetBySlugAsync(string slug, CancellationToken cancellationToken = default)
-        => Task.FromResult(store.Tournaments.FirstOrDefault(tournament => string.Equals(tournament.Slug, slug, StringComparison.OrdinalIgnoreCase)));
+    public Task<Tournament?> GetBySlugAsync(string slug, bool includeHidden = false, CancellationToken cancellationToken = default)
+        => Task.FromResult(store.Tournaments.FirstOrDefault(tournament =>
+            string.Equals(tournament.Slug, slug, StringComparison.OrdinalIgnoreCase)
+            && (includeHidden || tournament.IsVisible)));
+
+    public Task AddAsync(Tournament tournament, CancellationToken cancellationToken = default)
+    {
+        store.Tournaments.Add(tournament);
+        return Task.CompletedTask;
+    }
 
     public Task ReplaceInfoSectionsAsync(Guid tournamentId, IReadOnlyList<TournamentInfoSection> sections, CancellationToken cancellationToken = default)
     {
@@ -177,6 +186,9 @@ internal sealed class InMemoryTournamentRepository(InMemoryStore store) : ITourn
         tournament.RegistrationRules = rules.ToList();
         return Task.CompletedTask;
     }
+
+    public void Delete(Tournament tournament)
+        => store.Tournaments.Remove(tournament);
 }
 
 internal sealed class InMemoryTournamentRegistrationRepository(InMemoryStore store) : ITournamentRegistrationRepository

@@ -6,6 +6,7 @@ public sealed record TournamentDto(
     string GameId,
     string GameName,
     string Name,
+    bool IsVisible,
     Guid? LogoAssetId,
     Guid? BannerAssetId,
     string? PrimaryColor,

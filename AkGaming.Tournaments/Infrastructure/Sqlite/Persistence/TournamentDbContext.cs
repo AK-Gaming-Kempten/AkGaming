@@ -123,6 +123,7 @@ public sealed class TournamentDbContext(DbContextOptions<TournamentDbContext> op
             entity.Property(tournament => tournament.GameId).HasMaxLength(64);
             entity.Property(tournament => tournament.Slug).HasMaxLength(128);
             entity.Property(tournament => tournament.Name).HasMaxLength(256);
+            entity.Property(tournament => tournament.IsVisible).HasDefaultValue(false);
             entity.Property(tournament => tournament.PrimaryColor).HasMaxLength(16);
             entity.Property(tournament => tournament.Status).HasConversion<string>();
             entity.HasIndex(tournament => tournament.Slug).IsUnique();

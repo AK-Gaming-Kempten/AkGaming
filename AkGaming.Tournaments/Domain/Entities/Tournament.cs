@@ -8,6 +8,7 @@ public sealed class Tournament
     public string Slug { get; set; } = string.Empty;
     public string GameId { get; set; } = string.Empty;
     public string Name { get; set; } = string.Empty;
+    public bool IsVisible { get; set; }
     public Guid? LogoAssetId { get; set; }
     public Guid? BannerAssetId { get; set; }
     public string? PrimaryColor { get; set; }

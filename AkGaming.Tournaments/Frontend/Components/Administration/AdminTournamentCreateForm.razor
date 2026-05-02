@@ -1,0 +1,32 @@
+@namespace AkGaming.Tournaments.Frontend.Components.Administration
+
+<div class="create-game-panel">
+    <div class="admin-game-form">
+        <label>
+            <span>Name</span>
+            <input class="form-input" value="@TournamentName" @oninput="HandleTournamentNameChanged" placeholder="Spring Showdown" disabled="@IsBusy" />
+        </label>
+        <label>
+            <span>Slug</span>
+            <input class="form-input" value="@TournamentSlug" @oninput="HandleTournamentSlugChanged" placeholder="spring-showdown" disabled="@IsBusy" />
+        </label>
+        <label>
+            <span>Game</span>
+            <select class="form-input" value="@GameId" @onchange="HandleGameIdChanged" disabled="@IsBusy">
+                <option value="">Select a game</option>
+                @foreach (var game in Games)
+                {
+                    <option value="@game.Id">@game.Name</option>
+                }
+            </select>
+        </label>
+        <label class="toggle-row">
+            <input type="checkbox" checked="@IsVisible" @onchange="HandleVisibilityChanged" disabled="@IsBusy" />
+            <span>Visible to non-admin users immediately</span>
+        </label>
+        <div class="form-actions">
+            <button type="button" class="solid-button" @onclick="OnSubmit" disabled="@IsBusy">Create</button>
+            <button type="button" class="ghost-button" @onclick="OnCancel" disabled="@IsBusy">Cancel</button>
+        </div>
+    </div>
+</div>

@@ -5,6 +5,8 @@ namespace AkGaming.Tournaments.Frontend.Components.Tournaments.Administration;
 
 public partial class AdminControlRoom
 {
+    protected override bool IncludeHiddenTournament => true;
+
     private bool isBusy;
     private string? errorMessage;
     private string? successMessage;
@@ -175,7 +177,7 @@ public partial class AdminControlRoom
         try
         {
             await TournamentsClient.UpdateTournamentLogoAsync(Tournament.Id, logoAssetId);
-            Tournament = await TournamentsClient.GetTournamentAsync(Tournament.Slug);
+            Tournament = await TournamentsClient.GetTournamentAsync(Tournament.Slug, includeHidden: true);
             successMessage = logoAssetId.HasValue ? "Tournament logo saved." : "Tournament logo cleared.";
         }
         catch (TournamentApiException ex)

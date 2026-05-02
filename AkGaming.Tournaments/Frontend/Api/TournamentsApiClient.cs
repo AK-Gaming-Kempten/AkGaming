@@ -7,8 +7,28 @@ public sealed class TournamentsApiClient(HttpClient httpClient) : TournamentApiC
     public Task<IReadOnlyList<TournamentSummaryDto>> GetTournamentsAsync(CancellationToken cancellationToken = default)
         => GetAsync<IReadOnlyList<TournamentSummaryDto>>("api/tournaments", cancellationToken);
 
-    public Task<TournamentDto?> GetTournamentAsync(string slug, CancellationToken cancellationToken = default)
-        => GetOrDefaultAsync<TournamentDto>($"api/tournaments/{Uri.EscapeDataString(slug)}", cancellationToken);
+    public Task<IReadOnlyList<TournamentSummaryDto>> GetAdminTournamentsAsync(CancellationToken cancellationToken = default)
+        => GetAsync<IReadOnlyList<TournamentSummaryDto>>("api/tournaments/admin", cancellationToken);
+
+    public Task<TournamentDto?> GetTournamentAsync(string slug, bool includeHidden = false, CancellationToken cancellationToken = default)
+    {
+        var encodedSlug = Uri.EscapeDataString(slug);
+        var uri = includeHidden
+            ? $"api/tournaments/admin/by-slug/{encodedSlug}"
+            : $"api/tournaments/{encodedSlug}";
+        return GetOrDefaultAsync<TournamentDto>(uri, cancellationToken);
+    }
+
+    public Task<TournamentDto> CreateTournamentAsync(
+        string slug,
+        string gameId,
+        string name,
+        bool isVisible,
+        CancellationToken cancellationToken = default)
+        => PostAsync<TournamentDto>(
+            "api/tournaments/admin",
+            new CreateTournamentApiRequest(slug, gameId, name, isVisible),
+            cancellationToken);
 
     public async Task UpdateTournamentLogoAsync(Guid tournamentId, Guid? logoAssetId, CancellationToken cancellationToken = default)
     {
@@ -17,6 +37,12 @@ public sealed class TournamentsApiClient(HttpClient httpClient) : TournamentApiC
             new UpdateTournamentLogoApiRequest(logoAssetId),
             cancellationToken);
     }
+
+    public Task<TournamentDto> UpdateTournamentVisibilityAsync(Guid tournamentId, bool isVisible, CancellationToken cancellationToken = default)
+        => PutAsync<TournamentDto>(
+            $"api/tournaments/{tournamentId}/visibility",
+            new UpdateTournamentVisibilityApiRequest(isVisible),
+            cancellationToken);
 
     public Task<TournamentDto> UpdateTournamentContentAsync(
         Guid tournamentId,
@@ -53,7 +79,12 @@ public sealed class TournamentsApiClient(HttpClient httpClient) : TournamentApiC
             new ReplaceTournamentRegistrationRulesApiRequest(rules),
             cancellationToken);
 
+    public Task DeleteTournamentAsync(Guid tournamentId, CancellationToken cancellationToken = default)
+        => DeleteAsync($"api/tournaments/{tournamentId}", cancellationToken);
+
+    private sealed record CreateTournamentApiRequest(string Slug, string GameId, string Name, bool IsVisible);
     private sealed record UpdateTournamentLogoApiRequest(Guid? LogoAssetId);
+    private sealed record UpdateTournamentVisibilityApiRequest(bool IsVisible);
     private sealed record ReplaceTournamentRegistrationRulesApiRequest(IReadOnlyList<TournamentRegistrationRuleUpdateRequest> Rules);
 
     private sealed record UpdateTournamentContentApiRequest(

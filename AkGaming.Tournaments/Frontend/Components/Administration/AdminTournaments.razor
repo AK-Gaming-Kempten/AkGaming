@@ -1,0 +1,47 @@
+@page "/administration/tournaments"
+@namespace AkGaming.Tournaments.Frontend.Components.Administration
+@attribute [Authorize(Roles = "Admin")]
+
+<PageTitle>Tournament Administration</PageTitle>
+
+<section class="app-page">
+    <PageHeader Title="Tournament administration" Description="Create tournaments, control public visibility, and open their detailed administration pages." />
+
+    <ApiErrorPanel Message="@errorMessage" />
+
+    @if (!string.IsNullOrWhiteSpace(successMessage))
+    {
+        <div class="admin-tournament-toast" role="status" aria-live="polite">
+            <span class="bi bi-check-circle-fill"></span>
+            <span>@successMessage</span>
+        </div>
+    }
+
+    @if (isLoading)
+    {
+        <SurfacePanel Title="Loading">
+            <p class="muted-copy">Loading tournaments and supported games.</p>
+        </SurfacePanel>
+    }
+    else
+    {
+        <div class="admin-game-layout">
+            <AdminTournamentSelector Tournaments="@tournaments"
+                                     Games="@games"
+                                     SelectedTournament="@selectedTournament"
+                                     IsBusy="@isBusy"
+                                     @bind-IsOpen="isTournamentSelectorOpen"
+                                     TournamentSelected="SelectTournamentAsync"
+                                     TournamentCreateRequested="CreateTournamentAsync" />
+
+            <div class="admin-game-editor @(isTournamentSelectorOpen ? "admin-game-editor-blurred" : null)">
+                <AdminTournamentDetailsView Tournament="@selectedTournament"
+                                            IsVisible="@selectedTournamentIsVisible"
+                                            IsVisibleChanged="SetSelectedTournamentVisibilityAsync"
+                                            IsBusy="@isBusy"
+                                            SaveVisibilityRequested="SaveSelectedTournamentVisibilityAsync"
+                                            DeleteTournamentRequested="DeleteSelectedTournamentAsync" />
+            </div>
+        </div>
+    }
+</section>

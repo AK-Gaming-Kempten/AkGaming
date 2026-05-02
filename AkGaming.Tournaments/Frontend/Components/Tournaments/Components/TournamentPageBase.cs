@@ -20,6 +20,7 @@ public abstract class TournamentPageBase : ComponentBase
     protected IReadOnlyDictionary<Guid, TournamentRegistrationDto> RegistrationByTeamId { get; private set; } = new Dictionary<Guid, TournamentRegistrationDto>();
     protected IReadOnlyList<TournamentTimelineItem> TimelineItems { get; private set; } = [];
     protected string? PublicPageErrorMessage { get; private set; }
+    protected virtual bool IncludeHiddenTournament => false;
 
     protected override async Task OnParametersSetAsync()
     {
@@ -31,7 +32,7 @@ public abstract class TournamentPageBase : ComponentBase
 
         try
         {
-            Tournament = await TournamentsClient.GetTournamentAsync(TournamentSlug);
+            Tournament = await TournamentsClient.GetTournamentAsync(TournamentSlug, IncludeHiddenTournament);
             RequestedTournamentWasMissing = Tournament is null;
             if (Tournament is null)
             {

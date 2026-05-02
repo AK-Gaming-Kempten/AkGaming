@@ -49,6 +49,7 @@ public static class SqliteDatabaseInitializer
                     Slug = "rift-rumble",
                     GameId = "lol",
                     Name = "Rift Rumble",
+                    IsVisible = true,
                     Status = TournamentStatus.RegistrationOpen,
                     RegistrationOpenUtc = new DateTimeOffset(2026, 4, 1, 16, 0, 0, TimeSpan.Zero),
                     RegistrationClosedUtc = new DateTimeOffset(2026, 5, 10, 21, 0, 0, TimeSpan.Zero),
@@ -85,6 +86,7 @@ public static class SqliteDatabaseInitializer
                     Slug = "campus-clash",
                     GameId = "valorant",
                     Name = "Campus Clash",
+                    IsVisible = false,
                     Status = TournamentStatus.Draft,
                     RegistrationOpenUtc = new DateTimeOffset(2026, 5, 3, 16, 0, 0, TimeSpan.Zero),
                     RegistrationClosedUtc = new DateTimeOffset(2026, 6, 1, 21, 0, 0, TimeSpan.Zero),
@@ -114,6 +116,7 @@ public static class SqliteDatabaseInitializer
                     Slug = "fc-showdown",
                     GameId = "ea-sports-fc",
                     Name = "FC Showdown",
+                    IsVisible = false,
                     Status = TournamentStatus.Draft,
                     RegistrationOpenUtc = new DateTimeOffset(2026, 6, 10, 16, 0, 0, TimeSpan.Zero),
                     RegistrationClosedUtc = new DateTimeOffset(2026, 7, 5, 21, 0, 0, TimeSpan.Zero),
@@ -252,6 +255,11 @@ public static class SqliteDatabaseInitializer
         if (!await dbContext.HasColumnAsync("tournaments", "PrimaryColor"))
         {
             await dbContext.ExecuteSqlAsync("ALTER TABLE tournaments ADD COLUMN PrimaryColor TEXT NULL;");
+        }
+
+        if (!await dbContext.HasColumnAsync("tournaments", "IsVisible"))
+        {
+            await dbContext.ExecuteSqlAsync("ALTER TABLE tournaments ADD COLUMN IsVisible INTEGER NOT NULL DEFAULT 1;");
         }
 
         if (!await dbContext.HasColumnAsync("teams", "BannerAssetId"))

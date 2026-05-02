@@ -1,0 +1,62 @@
+.game-option {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 0.75rem;
+    width: 100%;
+    padding: 0.65rem;
+    border: 1px solid transparent;
+    border-radius: 8px;
+    background: color-mix(in oklab, var(--color-background-primary) 82%, transparent);
+    color: var(--color-text-primary);
+    text-align: left;
+    cursor: pointer;
+}
+
+.game-option:disabled {
+    cursor: wait;
+    opacity: 0.72;
+}
+
+.game-option:hover,
+.game-option-selected {
+    border-color: color-mix(in oklab, var(--color-highlight-primary) 36%, transparent);
+    background: color-mix(in oklab, var(--color-highlight-primary) 12%, var(--color-background-primary));
+}
+
+.game-option-main {
+    display: grid;
+    min-width: 0;
+    gap: 0.15rem;
+}
+
+.game-option-main strong,
+.game-option-main span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.game-option-main span {
+    color: var(--color-text-secondary);
+    font-size: 0.86rem;
+}
+
+.game-logo-state {
+    display: inline-grid;
+    place-items: center;
+    flex: 0 0 auto;
+    min-width: 4.6rem;
+    height: 2.1rem;
+    padding: 0 0.55rem;
+    border-radius: 999px;
+    background: color-mix(in oklab, var(--color-text-secondary) 14%, transparent);
+    color: var(--color-text-secondary);
+    font-size: 0.78rem;
+    font-weight: 800;
+}
+
+.game-logo-state-set {
+    background: color-mix(in oklab, var(--color-highlight-primary) 18%, transparent);
+    color: var(--color-highlight-primary);
+}

@@ -1,0 +1,15 @@
+@namespace AkGaming.Tournaments.Frontend.Components.Administration
+
+<button type="button"
+        class="game-option @(Selected ? "game-option-selected" : null)"
+        @onclick="SelectAsync"
+        disabled="@Disabled">
+    <LogoImage LogoAssetId="@Tournament.LogoAssetId" Type="tournament" Alt="@($"{Tournament.Name} logo")" Size="LogoImageSize.Medium" />
+    <span class="game-option-main">
+        <strong>@Tournament.Name</strong>
+        <span>@Tournament.GameName</span>
+    </span>
+    <span class="game-logo-state @(Tournament.IsVisible ? "game-logo-state-set" : null)">
+        @(Tournament.IsVisible ? "Public" : "Hidden")
+    </span>
+</button>

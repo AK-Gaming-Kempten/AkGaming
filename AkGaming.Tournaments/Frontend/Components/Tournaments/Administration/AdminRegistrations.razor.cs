@@ -5,6 +5,8 @@ namespace AkGaming.Tournaments.Frontend.Components.Tournaments.Administration;
 
 public partial class AdminRegistrations
 {
+    protected override bool IncludeHiddenTournament => true;
+
     private bool isBusy;
     private string? errorMessage;
     private IReadOnlyList<TournamentRegistrationDto> registrations = [];

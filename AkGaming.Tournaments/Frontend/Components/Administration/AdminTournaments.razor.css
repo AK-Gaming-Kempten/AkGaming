@@ -1,0 +1,42 @@
+.admin-tournament-summary {
+    display: grid;
+    gap: 1rem;
+}
+
+.admin-tournament-toast {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    width: fit-content;
+    max-width: 100%;
+    margin-bottom: 1rem;
+    padding: 0.75rem 1rem;
+    border: 1px solid color-mix(in oklab, #2f9e44 38%, transparent);
+    border-radius: 8px;
+    background: color-mix(in oklab, #2f9e44 16%, var(--color-background-secondary));
+    color: var(--color-text-primary);
+}
+
+.admin-tournament-toast .bi {
+    color: #2f9e44;
+}
+
+.summary-label {
+    display: block;
+    margin-bottom: 0.2rem;
+    color: var(--color-text-secondary);
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.toggle-row {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    color: var(--color-text-primary);
+}
+
+.admin-tournament-link {
+    text-decoration: none;
+}

@@ -9,6 +9,7 @@ namespace AkGaming.Tournaments.Tests.WebApi;
 public sealed class TournamentsControllerTests
 {
     private Mock<ITournamentCatalogService> CatalogService { get; set; } = null!;
+    private Mock<ITournamentAdministrationService> AdministrationService { get; set; } = null!;
     private Mock<ITournamentContentManagementService> ContentService { get; set; } = null!;
     private Mock<ITournamentLogoManagementService> LogoService { get; set; } = null!;
     private Mock<ITournamentRegistrationRuleManagementService> RuleService { get; set; } = null!;
@@ -18,10 +19,11 @@ public sealed class TournamentsControllerTests
     public void SetUp()
     {
         CatalogService = new Mock<ITournamentCatalogService>();
+        AdministrationService = new Mock<ITournamentAdministrationService>();
         ContentService = new Mock<ITournamentContentManagementService>();
         LogoService = new Mock<ITournamentLogoManagementService>();
         RuleService = new Mock<ITournamentRegistrationRuleManagementService>();
-        Controller = new TournamentsController(CatalogService.Object, ContentService.Object, LogoService.Object, RuleService.Object);
+        Controller = new TournamentsController(CatalogService.Object, AdministrationService.Object, ContentService.Object, LogoService.Object, RuleService.Object);
     }
 
     [Test]
@@ -31,7 +33,7 @@ public sealed class TournamentsControllerTests
         // Arrange
         var tournaments = new[]
         {
-            new TournamentSummaryDto(Guid.NewGuid(), "rift-rumble", "lol", "League of Legends", "Rift Rumble", null, null, null, TournamentStatusDto.RegistrationOpen, null, null, null, null, 4)
+            new TournamentSummaryDto(Guid.NewGuid(), "rift-rumble", "lol", "League of Legends", "Rift Rumble", true, null, null, null, TournamentStatusDto.RegistrationOpen, null, null, null, null, 4)
         };
         CatalogService
             .Setup(mock => mock.GetTournamentsAsync(CancellationToken.None))
@@ -101,6 +103,7 @@ public sealed class TournamentsControllerTests
             "lol",
             "League of Legends",
             "Rift Rumble",
+            true,
             null,
             null,
             null,
@@ -152,5 +155,39 @@ public sealed class TournamentsControllerTests
         // Assert
         WebApiControllerTestHelpers.AssertOkValue(response, rules);
         RuleService.Verify(mock => mock.ReplaceRegistrationRulesAsync(tournamentId, ruleUpdates, CancellationToken.None), Times.Once);
+    }
+
+    [Test]
+    [Description("Verifies that the tournaments controller forwards visibility changes to the administration service.")]
+    public async Task UpdateTournamentVisibility_ReturnsOkWithUpdatedTournament()
+    {
+        // Arrange
+        var tournamentId = Guid.NewGuid();
+        var tournament = new TournamentDto(
+            tournamentId,
+            "rift-rumble",
+            "lol",
+            "League of Legends",
+            "Rift Rumble",
+            true,
+            null,
+            null,
+            null,
+            TournamentStatusDto.Draft,
+            null,
+            null,
+            null,
+            null,
+            [],
+            []);
+        AdministrationService
+            .Setup(mock => mock.UpdateTournamentVisibilityAsync(tournamentId, true, CancellationToken.None))
+            .ReturnsAsync(tournament);
+
+        // Act
+        var response = await Controller.UpdateTournamentVisibility(tournamentId, new UpdateTournamentVisibilityRequest(true), CancellationToken.None);
+
+        // Assert
+        WebApiControllerTestHelpers.AssertOkValue(response, tournament);
     }
 }

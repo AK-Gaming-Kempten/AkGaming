@@ -7,14 +7,21 @@ namespace AkGaming.Tournaments.Infrastructure.Sqlite.Repositories;
 
 public sealed class TournamentRepository(TournamentDbContext dbContext) : ITournamentRepository
 {
-    public async Task<IReadOnlyList<Tournament>> GetAllAsync(CancellationToken cancellationToken = default)
+    public async Task<IReadOnlyList<Tournament>> GetAllAsync(bool includeHidden = false, CancellationToken cancellationToken = default)
     {
-        var tournaments = await dbContext.Tournaments
+        var query = dbContext.Tournaments
             .Include(tournament => tournament.Game)
             .Include(tournament => tournament.InfoSections)
             .Include(tournament => tournament.RegistrationRules)
             .Include(tournament => tournament.Registrations)
-            .ToListAsync(cancellationToken);
+            .AsQueryable();
+
+        if (!includeHidden)
+        {
+            query = query.Where(tournament => tournament.IsVisible);
+        }
+
+        var tournaments = await query.ToListAsync(cancellationToken);
 
         return tournaments;
     }
@@ -27,13 +34,18 @@ public sealed class TournamentRepository(TournamentDbContext dbContext) : ITourn
             .Include(tournament => tournament.Registrations)
             .FirstOrDefaultAsync(tournament => tournament.Id == tournamentId, cancellationToken);
 
-    public Task<Tournament?> GetBySlugAsync(string slug, CancellationToken cancellationToken = default)
+    public Task<Tournament?> GetBySlugAsync(string slug, bool includeHidden = false, CancellationToken cancellationToken = default)
         => dbContext.Tournaments
             .Include(tournament => tournament.Game)
             .Include(tournament => tournament.InfoSections)
             .Include(tournament => tournament.RegistrationRules)
             .Include(tournament => tournament.Registrations)
-            .FirstOrDefaultAsync(tournament => tournament.Slug == slug, cancellationToken);
+            .FirstOrDefaultAsync(
+                tournament => tournament.Slug == slug && (includeHidden || tournament.IsVisible),
+                cancellationToken);
+
+    public Task AddAsync(Tournament tournament, CancellationToken cancellationToken = default)
+        => dbContext.Tournaments.AddAsync(tournament, cancellationToken).AsTask();
 
     public async Task ReplaceInfoSectionsAsync(Guid tournamentId, IReadOnlyList<TournamentInfoSection> sections, CancellationToken cancellationToken = default)
     {
@@ -78,4 +90,7 @@ public sealed class TournamentRepository(TournamentDbContext dbContext) : ITourn
             await dbContext.TournamentRegistrationRules.AddRangeAsync(rules, cancellationToken);
         }
     }
+
+    public void Delete(Tournament tournament)
+        => dbContext.Tournaments.Remove(tournament);
 }

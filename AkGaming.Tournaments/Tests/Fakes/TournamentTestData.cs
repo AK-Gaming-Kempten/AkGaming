@@ -64,6 +64,7 @@ internal static class TournamentTestData
         string gameId = GameId,
         string name = "Campus Clash",
         string slug = "campus-clash",
+        bool isVisible = true,
         TournamentStatus status = TournamentStatus.RegistrationOpen,
         int minimumPlayers = 1,
         int maximumPlayers = 99,
@@ -76,6 +77,7 @@ internal static class TournamentTestData
             Slug = slug,
             GameId = gameId,
             Name = name,
+            IsVisible = isVisible,
             Status = status
         };
         tournament.RegistrationRules.Add(new MinPlayersPerTeamRegistrationRule { Id = Guid.NewGuid(), SortOrder = 0, Value = minimumPlayers });

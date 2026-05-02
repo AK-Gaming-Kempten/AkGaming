@@ -1,0 +1,40 @@
+@namespace AkGaming.Tournaments.Frontend.Components.Administration
+
+@if (Tournament is null)
+{
+    <SurfacePanel Title="No tournament selected">
+        <p class="muted-copy">Select a tournament from the dropdown above to manage it.</p>
+    </SurfacePanel>
+}
+else
+{
+    <SurfacePanel Title="@Tournament.Name" Subtitle="@Tournament.Slug">
+        <div class="admin-tournament-summary">
+            <div>
+                <span class="summary-label">Game</span>
+                <strong>@Tournament.GameName</strong>
+            </div>
+            <div>
+                <span class="summary-label">Status</span>
+                <strong>@Tournament.Status</strong>
+            </div>
+            <div>
+                <span class="summary-label">Registrations</span>
+                <strong>@Tournament.RegisteredTeamCount</strong>
+            </div>
+        </div>
+
+        <div class="admin-game-form">
+            <label class="toggle-row">
+                <input type="checkbox" checked="@IsVisible" @onchange="HandleVisibilityChanged" disabled="@IsBusy" />
+                <span>Visible to non-admin users</span>
+            </label>
+
+            <div class="form-actions">
+                <button type="button" class="solid-button" @onclick="SaveVisibilityRequested" disabled="@IsBusy">Save visibility</button>
+                <a class="ghost-button admin-tournament-link" href="@GetBaseSettingsHref()">Open base settings</a>
+                <button type="button" class="danger-button" @onclick="DeleteTournamentRequested" disabled="@IsBusy">Delete tournament</button>
+            </div>
+        </div>
+    </SurfacePanel>
+}

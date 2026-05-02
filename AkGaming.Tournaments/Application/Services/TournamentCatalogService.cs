@@ -8,7 +8,7 @@ public sealed class TournamentCatalogService(ITournamentRepository tournamentRep
 {
     public async Task<IReadOnlyList<TournamentSummaryDto>> GetTournamentsAsync(CancellationToken cancellationToken = default)
     {
-        var tournaments = await tournamentRepository.GetAllAsync(cancellationToken);
+        var tournaments = await tournamentRepository.GetAllAsync(includeHidden: false, cancellationToken);
         return tournaments
             .OrderBy(tournament => tournament.StartUtc ?? DateTimeOffset.MaxValue)
             .ThenBy(tournament => tournament.Name, StringComparer.OrdinalIgnoreCase)
@@ -21,7 +21,7 @@ public sealed class TournamentCatalogService(ITournamentRepository tournamentRep
         if (string.IsNullOrWhiteSpace(slug))
             return null;
 
-        var tournament = await tournamentRepository.GetBySlugAsync(slug.Trim(), cancellationToken);
+        var tournament = await tournamentRepository.GetBySlugAsync(slug.Trim(), includeHidden: false, cancellationToken);
         return tournament?.ToDto();
     }
 }

@@ -1,0 +1,16 @@
+@namespace AkGaming.Tournaments.Frontend.Components.Administration
+
+@if (Tournaments.Count == 0)
+{
+    <p class="empty-copy">No tournaments have been configured yet.</p>
+}
+else
+{
+    @foreach (var tournament in Tournaments)
+    {
+        <AdminTournamentOptionButton Tournament="@tournament"
+                                     Selected="@(SelectedTournament?.Id == tournament.Id)"
+                                     Disabled="@IsBusy"
+                                     OnSelected="OnSelected" />
+    }
+}

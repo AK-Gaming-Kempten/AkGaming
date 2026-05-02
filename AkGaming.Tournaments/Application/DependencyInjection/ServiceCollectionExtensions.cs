@@ -15,6 +15,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IPlayerProfileManagementService, PlayerProfileManagementService>();
         services.AddScoped<ITeamManagementService, TeamManagementService>();
         services.AddScoped<ITournamentCatalogService, TournamentCatalogService>();
+        services.AddScoped<ITournamentAdministrationService, TournamentAdministrationService>();
         services.AddScoped<ITournamentContentManagementService, TournamentContentManagementService>();
         services.AddScoped<ITournamentLogoManagementService, TournamentLogoManagementService>();
         services.AddScoped<ITournamentRegistrationRuleManagementService, TournamentRegistrationRuleManagementService>();

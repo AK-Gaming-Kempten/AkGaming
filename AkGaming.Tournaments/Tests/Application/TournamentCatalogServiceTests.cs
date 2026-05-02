@@ -42,9 +42,41 @@ public sealed class TournamentCatalogServiceTests
         {
             Assert.That(result, Is.Not.Null);
             Assert.That(result!.Name, Is.EqualTo("Rift Rumble"));
+            Assert.That(result.IsVisible, Is.True);
             Assert.That(result.GameName, Is.EqualTo(game.Name));
             Assert.That(result.RegistrationOpenUtc, Is.EqualTo(tournament.RegistrationOpenUtc));
             Assert.That(result.InfoSections.Select(section => section.Header), Is.EqualTo(new[] { "Overview" }));
         });
+    }
+
+    [Test]
+    [Description("Verifies that hidden tournaments are excluded from the public tournament catalog.")]
+    public async Task GetTournamentsAsync_ExcludesHiddenTournaments()
+    {
+        // Arrange
+        TournamentTestData.AddGame(Store);
+        TournamentTestData.AddTournament(Store, name: "Public", slug: "public", isVisible: true);
+        TournamentTestData.AddTournament(Store, name: "Hidden", slug: "hidden", isVisible: false);
+
+        // Act
+        var result = await Service.GetTournamentsAsync();
+
+        // Assert
+        Assert.That(result.Select(tournament => tournament.Slug), Is.EqualTo(new[] { "public" }));
+    }
+
+    [Test]
+    [Description("Verifies that hidden tournaments are not returned from the public slug lookup.")]
+    public async Task GetTournamentBySlugAsync_ReturnsNullForHiddenTournament()
+    {
+        // Arrange
+        TournamentTestData.AddGame(Store);
+        TournamentTestData.AddTournament(Store, slug: "hidden", isVisible: false);
+
+        // Act
+        var result = await Service.GetTournamentBySlugAsync("hidden");
+
+        // Assert
+        Assert.That(result, Is.Null);
     }
 }
