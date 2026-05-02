@@ -141,6 +141,11 @@ public static class ServiceCollectionExtensions
         services.AddTournamentApiClient<TournamentsApiClient>(config);
         services.AddTournamentApiClient<TournamentRegistrationsApiClient>(config);
 
+        var allowUntrustedLocalCertificates = config.GetValue<bool>("Dev:AllowUntrustedLocalCertificates");
+        var oidcBackchannelClient = services.AddHttpClient("OidcBackchannel");
+        if (allowUntrustedLocalCertificates)
+            oidcBackchannelClient.ConfigurePrimaryHttpMessageHandler(CreateDevelopmentCertificateRelaxedHandler);
+
         return services;
     }
 

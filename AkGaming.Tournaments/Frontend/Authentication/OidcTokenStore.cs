@@ -22,4 +22,11 @@ public sealed class OidcTokenStore
         RefreshToken = refreshToken;
         ExpiresAt = expiresAt;
     }
+
+    public void Clear()
+    {
+        AccessToken = null;
+        RefreshToken = null;
+        ExpiresAt = null;
+    }
 }
