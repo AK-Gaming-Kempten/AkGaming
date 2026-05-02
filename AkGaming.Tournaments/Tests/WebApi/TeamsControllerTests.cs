@@ -16,6 +16,7 @@ public sealed class TeamsControllerTests
     {
         Service = new Mock<ITeamManagementService>();
         Controller = new TeamsController(Service.Object);
+        WebApiControllerTestHelpers.SetAuthenticatedUser(Controller);
     }
 
     [Test]

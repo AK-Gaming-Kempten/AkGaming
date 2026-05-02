@@ -16,6 +16,7 @@ public sealed class TournamentRegistrationsControllerTests
     {
         Service = new Mock<ITournamentRegistrationService>();
         Controller = new TournamentRegistrationsController(Service.Object);
+        WebApiControllerTestHelpers.SetAuthenticatedUser(Controller);
     }
 
     [Test]

@@ -1,5 +1,7 @@
 using AkGaming.Tournaments.Contracts.DTOs;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace AkGaming.Tournaments.Tests.WebApi;
 
@@ -14,6 +16,25 @@ internal static class WebApiControllerTestHelpers
             Assert.That(ok, Is.Not.Null);
             Assert.That(ok!.Value, Is.SameAs((object?)expectedValue));
         });
+    }
+
+    public static void SetAuthenticatedUser(ControllerBase controller, string userId = "captain-1", params string[] roles)
+    {
+        var claims = new List<Claim>
+        {
+            new(ClaimTypes.NameIdentifier, userId),
+            new("sub", userId)
+        };
+
+        claims.AddRange(roles.Select(role => new Claim(ClaimTypes.Role, role)));
+
+        controller.ControllerContext = new ControllerContext
+        {
+            HttpContext = new DefaultHttpContext
+            {
+                User = new ClaimsPrincipal(new ClaimsIdentity(claims, "TestAuth"))
+            }
+        };
     }
 
     public static TeamDto Team(Guid id)
