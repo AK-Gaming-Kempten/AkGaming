@@ -23,7 +23,15 @@ public partial class MemberDueEntry : ComponentBase {
     private bool _showReminderPreview;
     private bool _loadingReminderPreview;
     private string? _reminderPreviewError;
+    private bool _isActionMenuOpen { get; set; }
 
+    private void ToggleActionMenu() {
+        _isActionMenuOpen = !_isActionMenuOpen;
+    }
+
+    private void CloseActionMenu() {
+        _isActionMenuOpen = false;
+    }
     protected override void OnParametersSet() {
         var previewCacheKey = BuildPreviewCacheKey(Due);
         if (_previewCacheKey != previewCacheKey) {
@@ -44,6 +52,7 @@ public partial class MemberDueEntry : ComponentBase {
         if (!EditMode) {
             _editingDue = CloneDue(Due);
         }
+        CloseActionMenu();
     }
 
     private void CancelEditing() {
@@ -84,6 +93,7 @@ public partial class MemberDueEntry : ComponentBase {
             return;
         }
 
+        CloseActionMenu();
         _reminderPreview = result.Value;
         _loadingReminderPreview = false;
     }
