@@ -30,13 +30,19 @@ public partial class MemberManagementDuesPage : ComponentBase {
     private bool _creatingPeriod;
     private bool _showCreatePeriodForm;
     private bool _isReminderDialogOpen;
+    private bool _isSuspensionDialogOpen;
     private bool _loadingReminderDispatchPreview;
+    private bool _loadingSuspensionPreview;
     private bool _sendingReminderDispatch;
+    private bool _sendingSuspension;
     private bool _sendingReminderDispatchCompleted;
     private string? _errorMessage;
     private string? _statusMessage;
     private string? _reminderDialogError;
+    private string? _suspensionDialogError;
     private string _reminderDialogTitle = "Send reminder emails";
+    private MembershipDueDto? _suspensionDue;
+    private MembershipDueEmailPreviewDto? _suspensionPreview;
     private MembershipDueReminderDispatchPreviewDto? _reminderDispatchPreview;
 
     protected override async Task OnInitializedAsync() {
@@ -184,6 +190,25 @@ public partial class MemberManagementDuesPage : ComponentBase {
         await OpenReminderDialogAsync(() => MemberApi.GetReminderDispatchPreviewForDueAsync(due.Id));
     }
 
+    private async Task OpenSuspensionDialogAsync(MembershipDueDto due) {
+        _isSuspensionDialogOpen = true;
+        _loadingSuspensionPreview = true;
+        _sendingSuspension = false;
+        _suspensionDialogError = null;
+        _suspensionDue = due;
+        _suspensionPreview = null;
+
+        var result = await MemberApi.GetSuspensionEmailPreviewAsync(due.Id);
+        if (!result.IsSuccess) {
+            _suspensionDialogError = result.Error ?? "Failed to load suspension preview.";
+            _loadingSuspensionPreview = false;
+            return;
+        }
+
+        _suspensionPreview = result.Value;
+        _loadingSuspensionPreview = false;
+    }
+
     private async Task OpenReminderDialogAsync(Func<Task<Result<MembershipDueReminderDispatchPreviewDto>>> loader) {
         _isReminderDialogOpen = true;
         _loadingReminderDispatchPreview = true;
@@ -259,6 +284,39 @@ public partial class MemberManagementDuesPage : ComponentBase {
         _dispatchRecipientStates = [];
     }
 
+    private async Task SendSuspensionAsync() {
+        if (_suspensionDue is null)
+            return;
+
+        _sendingSuspension = true;
+        _suspensionDialogError = null;
+
+        var result = await MemberApi.SendSuspensionEmailAsync(_suspensionDue.Id);
+        if (!result.IsSuccess) {
+            _suspensionDialogError = result.Error ?? "Failed to send suspension email.";
+            _sendingSuspension = false;
+            return;
+        }
+
+        _sendingSuspension = false;
+        _statusMessage = $"Suspension email sent and {GetPrimaryMemberLabel(_suspensionDue.MemberId)} was suspended.";
+        CloseSuspensionDialog();
+        await LoadMemberLookupAsync();
+        await LoadSelectedPaymentPeriodDuesAsync();
+    }
+
+    private void CloseSuspensionDialog() {
+        if (_sendingSuspension)
+            return;
+
+        _isSuspensionDialogOpen = false;
+        _loadingSuspensionPreview = false;
+        _sendingSuspension = false;
+        _suspensionDialogError = null;
+        _suspensionDue = null;
+        _suspensionPreview = null;
+    }
+
     private int PendingCount => _dues.Count(x => x.Status == MembershipDueStatus.Pending);
     private int PaidCount => _dues.Count(x => x.Status == MembershipDueStatus.Paid);
     private int CancelledCount => _dues.Count(x => x.Status == MembershipDueStatus.Cancelled);
@@ -266,6 +324,10 @@ public partial class MemberManagementDuesPage : ComponentBase {
     private int TotalCount => _dues.Count;
     private IEnumerable<MembershipDueDto> FilteredAndSortedDues => BuildFilteredAndSortedDues();
     private string ReminderDialogTitle => _reminderDialogTitle;
+    private string SuspensionDialogTitle => _suspensionDue is null
+        ? "Send suspension email"
+        : $"Send suspension for {GetPrimaryMemberLabel(_suspensionDue.MemberId)}";
+    private MarkupString SuspensionHtmlPreview => new(_suspensionPreview?.HtmlBody ?? string.Empty);
     private int ReminderDispatchSuccessCount => _dispatchRecipientStates.Count(x => x.State == ReminderDispatchState.Succeeded);
     private int ReminderDispatchFailureCount => _dispatchRecipientStates.Count(x => x.State == ReminderDispatchState.Failed);
 

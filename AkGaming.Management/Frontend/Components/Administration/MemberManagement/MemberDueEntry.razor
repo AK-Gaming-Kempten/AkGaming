@@ -18,8 +18,6 @@
             <span class="due-entry-reminder @GetReminderStatusClass(Due.LastReminderSendStatus)">Reminder: @GetReminderStatusLabel(Due.LastReminderSendStatus)</span>
             <span>Last reminder sent: @GetLastReminderSentText(Due)</span>
         </div>
-        
-    @*Sandwitch Menu in Payment Period Dues*@
         <div class="due-entry-actions">
             <button type="button"
                     class="btn btn-sm btn-secondary due-entry-menu-trigger"
@@ -40,8 +38,16 @@
 
                     <button type="button"
                             class="due-entry-action-menu-item"
-                            @onclick="RequestReminderSendAsync">
+                            @onclick="RequestReminderSendAsync"
+                            disabled="@(!CanPreviewReminder || IsSaving)">
                         Send reminder
+                    </button>
+
+                    <button type="button"
+                            class="due-entry-action-menu-item due-entry-action-menu-item-danger"
+                            @onclick="RequestSuspensionSendAsync"
+                            disabled="@(!CanPreviewReminder || IsSaving)">
+                        Send suspension
                     </button>
 
                     @if (CanPreviewReminder) {
@@ -51,11 +57,17 @@
                                 disabled="@(_loadingReminderPreview || IsSaving)">
                             @(_showReminderPreview ? "Hide reminder preview" : "Preview reminder email")
                         </button>
+
+                        <button type="button"
+                                class="due-entry-action-menu-item due-entry-action-menu-item-danger"
+                                @onclick="ToggleSuspensionPreviewAsync"
+                                disabled="@(_loadingSuspensionPreview || IsSaving)">
+                            @(_showSuspensionPreview ? "Hide suspension preview" : "Preview suspension email")
+                        </button>
                     }
                 </div>
             }
         </div>
-    @*Sandwitch Menu Ende*@    
     </header>
     @if (EditMode) {
         <div class="ui-divider-top-dashed due-entry-editor">
@@ -143,6 +155,41 @@
                     <div class="due-email-preview-section">
                         <label>HTML preview</label>
                         <div class="due-email-preview-render">@ReminderHtmlPreview</div>
+                    </div>
+                </div>
+            }
+        </section>
+    }
+
+    @if (_showSuspensionPreview) {
+        <section class="ui-divider-top-dashed due-email-preview">
+            @if (_loadingSuspensionPreview) {
+                <p>Loading suspension preview...</p>
+            }
+            else if (!string.IsNullOrWhiteSpace(_suspensionPreviewError)) {
+                <p class="text-danger">@_suspensionPreviewError</p>
+            }
+            else if (_suspensionPreview is not null) {
+                <div class="due-email-preview-meta">
+                    <div>
+                        <label>Recipient</label>
+                        <div class="due-email-preview-value">@_suspensionPreview.RecipientDisplayName (@_suspensionPreview.RecipientEmail)</div>
+                    </div>
+                    <div>
+                        <label>Subject</label>
+                        <div class="due-email-preview-value">@_suspensionPreview.Subject</div>
+                    </div>
+                </div>
+
+                <div class="due-email-preview-sections">
+                    <div class="due-email-preview-section">
+                        <label>Fallback text</label>
+                        <textarea class="due-email-preview-text" readonly>@_suspensionPreview.TextBody</textarea>
+                    </div>
+
+                    <div class="due-email-preview-section">
+                        <label>HTML preview</label>
+                        <div class="due-email-preview-render">@SuspensionHtmlPreview</div>
                     </div>
                 </div>
             }

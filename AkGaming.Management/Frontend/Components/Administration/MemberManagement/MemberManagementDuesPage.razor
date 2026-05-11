@@ -7,9 +7,9 @@
 <PageTitle>Membership Dues</PageTitle>
 
 <div class="dues-management-page-shell">
-    <div class="ui-stack-md dues-management-page @(_isReminderDialogOpen ? "dues-management-page-dialog-open" : string.Empty)"
-         inert="@(_isReminderDialogOpen ? string.Empty : null)"
-         aria-hidden="@(_isReminderDialogOpen ? "true" : null)">
+    <div class="ui-stack-md dues-management-page @(_isReminderDialogOpen || _isSuspensionDialogOpen ? "dues-management-page-dialog-open" : string.Empty)"
+         inert="@(_isReminderDialogOpen || _isSuspensionDialogOpen ? string.Empty : null)"
+         aria-hidden="@(_isReminderDialogOpen || _isSuspensionDialogOpen ? "true" : null)">
         <div class="ui-grid-2 dues-top-grid">
             <section class="panel dues-card dues-controls-card">
                 <h4 class="ui-title">Controls</h4>
@@ -165,7 +165,8 @@
                                             SecondaryMemberLabel="@GetSecondaryMemberLabel(due.MemberId)"
                                             IsSaving="@_savingDueIds.Contains(due.Id)"
                                             OnSave="SaveDueAsync"
-                                            OnRequestReminderSend="OpenSingleReminderDialogAsync" />
+                                            OnRequestReminderSend="OpenSingleReminderDialogAsync"
+                                            OnRequestSuspensionSend="OpenSuspensionDialogAsync" />
                         }
                     </div>
                 }
@@ -265,6 +266,79 @@
                                 @onclick="CloseReminderDialog"
                                 disabled="@_sendingReminderDispatch">
                             @(_sendingReminderDispatchCompleted || _dispatchRecipientStates.Count == 0 ? "Close" : "Cancel")
+                        </button>
+                    </footer>
+                }
+            </section>
+        </div>
+    }
+
+    @if (_isSuspensionDialogOpen) {
+        <div class="dues-reminder-dialog-backdrop"></div>
+        <div class="dues-reminder-dialog-shell" role="dialog" aria-modal="true" aria-labelledby="dues-suspension-dialog-title">
+            <section class="panel dues-reminder-dialog">
+                <header class="dues-reminder-dialog-header">
+                    <div>
+                        <p class="dues-reminder-dialog-eyebrow">Suspension Mail</p>
+                        <h3 id="dues-suspension-dialog-title">@SuspensionDialogTitle</h3>
+                    </div>
+                    <button type="button"
+                            class="btn btn-sm btn-outline-secondary"
+                            @onclick="CloseSuspensionDialog"
+                            disabled="@_sendingSuspension">
+                        Close
+                    </button>
+                </header>
+
+                @if (_loadingSuspensionPreview) {
+                    <p>Loading suspension preview...</p>
+                }
+                else if (!string.IsNullOrWhiteSpace(_suspensionDialogError)) {
+                    <p class="text-danger">@_suspensionDialogError</p>
+                }
+                else if (_suspensionPreview is not null) {
+                    <div class="dues-reminder-dialog-summary">
+                        <span class="dues-chip dues-chip-open">Recipient: @_suspensionPreview.RecipientDisplayName</span>
+                        <span class="dues-chip dues-chip-cancelled">Status will change to Suspended</span>
+                    </div>
+
+                    <div class="due-email-preview">
+                        <div class="due-email-preview-meta">
+                            <div>
+                                <label>Recipient</label>
+                                <div class="due-email-preview-value">@_suspensionPreview.RecipientDisplayName (@_suspensionPreview.RecipientEmail)</div>
+                            </div>
+                            <div>
+                                <label>Subject</label>
+                                <div class="due-email-preview-value">@_suspensionPreview.Subject</div>
+                            </div>
+                        </div>
+
+                        <div class="due-email-preview-sections">
+                            <div class="due-email-preview-section">
+                                <label>Fallback text</label>
+                                <textarea class="due-email-preview-text" readonly>@_suspensionPreview.TextBody</textarea>
+                            </div>
+
+                            <div class="due-email-preview-section">
+                                <label>HTML preview</label>
+                                <div class="due-email-preview-render">@SuspensionHtmlPreview</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <footer class="dues-reminder-dialog-actions">
+                        <button type="button"
+                                class="btn btn-danger"
+                                @onclick="SendSuspensionAsync"
+                                disabled="@(_sendingSuspension || _loadingSuspensionPreview)">
+                            Send suspension and suspend member
+                        </button>
+                        <button type="button"
+                                class="btn btn-secondary"
+                                @onclick="CloseSuspensionDialog"
+                                disabled="@_sendingSuspension">
+                            Cancel
                         </button>
                     </footer>
                 }

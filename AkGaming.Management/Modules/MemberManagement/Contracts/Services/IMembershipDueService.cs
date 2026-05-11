@@ -45,6 +45,11 @@ public interface IMembershipDueService {
     Task<Result<MembershipDueEmailPreviewDto>> GetReminderEmailPreviewAsync(int dueId);
 
     /// <summary>
+    /// Builds a preview for the membership suspension email caused by an outstanding due.
+    /// </summary>
+    Task<Result<MembershipDueEmailPreviewDto>> GetSuspensionEmailPreviewAsync(int dueId);
+
+    /// <summary>
     /// Builds a dispatch preview for all reminder emails in a payment period.
     /// </summary>
     Task<Result<MembershipDueReminderDispatchPreviewDto>> GetReminderDispatchPreviewForPaymentPeriodAsync(int paymentPeriodId);
@@ -58,4 +63,9 @@ public interface IMembershipDueService {
     /// Sends one reminder email for the given due.
     /// </summary>
     Task<Result> SendReminderEmailAsync(int dueId);
+
+    /// <summary>
+    /// Sends one suspension email for the given due and suspends the member after successful send.
+    /// </summary>
+    Task<Result> SendSuspensionEmailAsync(int dueId);
 }

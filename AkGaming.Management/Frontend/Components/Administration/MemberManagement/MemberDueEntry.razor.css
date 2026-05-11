@@ -179,6 +179,15 @@
     background: color-mix(in srgb, var(--color-highlight-secondary) 18%, transparent);
 }
 
+.due-entry-action-menu-item-danger {
+    color: var(--color-button-danger-bg);
+}
+
+.due-entry-action-menu-item-danger:hover,
+.due-entry-action-menu-item-danger:focus-visible {
+    background: color-mix(in srgb, var(--color-button-danger-bg) 12%, transparent);
+}
+
 .due-entry-action-menu-item:disabled {
     opacity: 0.55;
     cursor: not-allowed;
