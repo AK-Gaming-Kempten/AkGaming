@@ -22,10 +22,233 @@ export function normalizeSpan(value: number | undefined, fallback: number) {
 }
 
 export function buildConfigFromPreset(preset: PresetId): DashboardConfig {
+  if (preset === 'vorstand') {
+    const siteCategory: Record<string, string> = {
+      website: 'Public',
+      twitch: 'Public',
+      discord: 'Public',
+      youtube: 'Public',
+      instagram: 'Public',
+      linkedin: 'Public',
+      facebook: 'Public',
+      itch: 'Public',
+      tournaments: 'Public',
+      management: 'Management',
+      drive: 'Management',
+      kanban: 'Management',
+      identity: 'Management',
+      bitwarden: 'Security',
+      vaultwarden: 'Security',
+    }
+
+    const siteOrder = [
+      'website',
+      'twitch',
+      'discord',
+      'youtube',
+      'instagram',
+      'linkedin',
+      'facebook',
+      'itch',
+      'tournaments',
+      'management',
+      'drive',
+      'kanban',
+      'identity',
+      'bitwarden',
+      'vaultwarden',
+    ]
+
+    const configuredIds = new Set(siteOrder)
+    const unusedSiteIds = SHORTCUTS.filter((shortcut) => !configuredIds.has(shortcut.id)).map((shortcut) => shortcut.id)
+
+    return {
+      categories: ['Public', 'Management', 'Security'],
+      siteCategory,
+      siteOrder,
+      unusedSiteIds,
+      categoryLayout: {
+        Public: { colSpan: 2, rowSpan: 1 },
+        Management: { colSpan: 1, rowSpan: 1 },
+        Security: { colSpan: 1, rowSpan: 1 },
+      },
+    }
+  }
+
+  if (preset === 'dev') {
+    const siteCategory: Record<string, string> = {
+      'identity-test': 'Test Systems',
+      'website-test': 'Test Systems',
+      'management-test': 'Test Systems',
+      'tournaments-test': 'Test Systems',
+      identity: 'Live Systems',
+      website: 'Live Systems',
+      management: 'Live Systems',
+      tournaments: 'Live Systems',
+      kanban: 'Management',
+      github: 'Infrastructure',
+      hetzner: 'Infrastructure',
+      coolify: 'Infrastructure',
+      vaultwarden: 'Security',
+    }
+
+    const siteOrder = [
+      'identity-test',
+      'website-test',
+      'management-test',
+      'tournaments-test',
+      'identity',
+      'website',
+      'management',
+      'tournaments',
+      'kanban',
+      'github',
+      'hetzner',
+      'coolify',
+      'vaultwarden',
+    ]
+
+    const configuredIds = new Set(siteOrder)
+    const unusedSiteIds = SHORTCUTS.filter((shortcut) => !configuredIds.has(shortcut.id)).map((shortcut) => shortcut.id)
+
+    return {
+      categories: ['Test Systems', 'Management', 'Infrastructure', 'Security', 'Live Systems'],
+      siteCategory,
+      siteOrder,
+      unusedSiteIds,
+      categoryLayout: {
+        'Test Systems': { colSpan: 2, rowSpan: 1 },
+        Management: { colSpan: 1, rowSpan: 1 },
+        Infrastructure: { colSpan: 1, rowSpan: 1 },
+        Security: { colSpan: 1, rowSpan: 1 },
+        'Live Systems': { colSpan: 2, rowSpan: 1 },
+      },
+    }
+  }
+
+  if (preset === 'eventleitung') {
+    const siteCategory: Record<string, string> = {
+      tournaments: 'Tools',
+      management: 'Tools',
+      kanban: 'Management',
+      drive: 'Management',
+      vaultwarden: 'Management',
+      website: 'Socials',
+      discord: 'Socials',
+      twitch: 'Socials',
+      instagram: 'Socials',
+      youtube: 'Socials',
+      itch: 'Socials',
+      facebook: 'Socials',
+      linkedin: 'Socials',
+    }
+
+    const siteOrder = [
+      'tournaments',
+      'management',
+      'kanban',
+      'drive',
+      'vaultwarden',
+      'website',
+      'discord',
+      'twitch',
+      'instagram',
+      'youtube',
+      'itch',
+      'facebook',
+      'linkedin',
+    ]
+
+    const configuredIds = new Set(siteOrder)
+    const unusedSiteIds = SHORTCUTS.filter((shortcut) => !configuredIds.has(shortcut.id)).map((shortcut) => shortcut.id)
+
+    return {
+      categories: ['Tools', 'Management', 'Socials'],
+      siteCategory,
+      siteOrder,
+      unusedSiteIds,
+      categoryLayout: {
+        Tools: { colSpan: 1, rowSpan: 1 },
+        Management: { colSpan: 1, rowSpan: 1 },
+        Socials: { colSpan: 2, rowSpan: 1 },
+      },
+    }
+  }
+
+  if (preset === 'all') {
+    const siteCategory: Record<string, string> = {
+      website: 'Public',
+      discord: 'Public',
+      instagram: 'Public',
+      youtube: 'Public',
+      linkedin: 'Public',
+      facebook: 'Public',
+      itch: 'Public',
+      twitch: 'Public',
+      kanban: 'Management',
+      management: 'Management',
+      drive: 'Management',
+      tournaments: 'Management',
+      'identity-test': 'Test',
+      'management-test': 'Test',
+      'website-test': 'Test',
+      'tournaments-test': 'Test',
+      hetzner: 'Infrastructure',
+      coolify: 'Infrastructure',
+      github: 'Infrastructure',
+      identity: 'Security',
+      bitwarden: 'Security',
+      vaultwarden: 'Security',
+    }
+
+    const siteOrder = [
+      'website',
+      'discord',
+      'instagram',
+      'youtube',
+      'linkedin',
+      'facebook',
+      'itch',
+      'twitch',
+      'kanban',
+      'management',
+      'drive',
+      'tournaments',
+      'identity-test',
+      'management-test',
+      'website-test',
+      'tournaments-test',
+      'hetzner',
+      'coolify',
+      'github',
+      'identity',
+      'bitwarden',
+      'vaultwarden',
+    ]
+
+    const configuredIds = new Set(siteOrder)
+    const unusedSiteIds = SHORTCUTS.filter((shortcut) => !configuredIds.has(shortcut.id)).map((shortcut) => shortcut.id)
+
+    return {
+      categories: ['Public', 'Management', 'Test', 'Infrastructure', 'Security'],
+      siteCategory,
+      siteOrder,
+      unusedSiteIds,
+      categoryLayout: {
+        Public: { colSpan: 2, rowSpan: 1 },
+        Management: { colSpan: 1, rowSpan: 1 },
+        Test: { colSpan: 1, rowSpan: 1 },
+        Infrastructure: { colSpan: 1, rowSpan: 1 },
+        Security: { colSpan: 1, rowSpan: 1 },
+      },
+    }
+  }
+
   if (preset === 'custom') {
     return {
       categories: [],
       siteCategory: {},
+      siteOrder: [],
       unusedSiteIds: SHORTCUTS.map((shortcut) => shortcut.id),
       categoryLayout: {},
     }
@@ -50,6 +273,7 @@ export function buildConfigFromPreset(preset: PresetId): DashboardConfig {
   return {
     categories: [...categories],
     siteCategory,
+    siteOrder: includedShortcuts.map((shortcut) => shortcut.id),
     unusedSiteIds: SHORTCUTS.filter((shortcut) => !includedIds.has(shortcut.id)).map((shortcut) => shortcut.id),
     categoryLayout: {},
   }
@@ -75,6 +299,16 @@ export function normalizeConfig(config: DashboardConfig): DashboardConfig {
   }
 
   const configuredIds = new Set(Object.keys(siteCategory))
+  const siteOrder = (config.siteOrder ?? [])
+    .filter((siteId) => configuredIds.has(siteId))
+    .filter((siteId, index, ids) => ids.indexOf(siteId) === index)
+
+  for (const siteId of Object.keys(siteCategory)) {
+    if (!siteOrder.includes(siteId)) {
+      siteOrder.push(siteId)
+    }
+  }
+
   const unusedSiteIds = config.unusedSiteIds.filter((siteId) => knownIds.has(siteId) && !configuredIds.has(siteId))
   const unusedSet = new Set(unusedSiteIds)
 
@@ -96,6 +330,7 @@ export function normalizeConfig(config: DashboardConfig): DashboardConfig {
   return {
     categories,
     siteCategory,
+    siteOrder,
     unusedSiteIds,
     categoryLayout,
   }

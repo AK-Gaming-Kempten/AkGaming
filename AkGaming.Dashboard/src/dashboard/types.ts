@@ -6,6 +6,7 @@ export interface CategoryLayout {
 export interface DashboardConfig {
   categories: string[]
   siteCategory: Record<string, string>
+  siteOrder?: string[]
   unusedSiteIds: string[]
   hiddenCategories?: string[]
   categoryLayout?: Record<string, CategoryLayout>
