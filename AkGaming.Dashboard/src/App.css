@@ -356,11 +356,15 @@ input:focus {
   position: absolute;
   right: 0.45rem;
   bottom: 0.38rem;
-  padding: 0.16rem 0.46rem;
+  width: 1.45rem;
+  height: 1.45rem;
+  padding: 0;
   border-color: rgba(255, 255, 255, 0.28);
   background: rgba(0, 0, 0, 0.18);
   color: var(--color-text-special);
   font-size: 0.72rem;
+  display: inline-grid;
+  place-items: center;
 }
 
 .category-add-entry {
@@ -422,6 +426,19 @@ input:focus {
 .dialog-header h2 {
   margin: 0;
   font-size: 1.08rem;
+}
+
+.dialog-icon-btn {
+  width: 1.9rem;
+  height: 1.9rem;
+  padding: 0;
+  border-radius: 6px;
+  display: inline-grid;
+  place-items: center;
+}
+
+.dialog-icon-btn .bi {
+  line-height: 1;
 }
 
 .dialog-copy {

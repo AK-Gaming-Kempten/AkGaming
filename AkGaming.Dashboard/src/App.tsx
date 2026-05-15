@@ -427,8 +427,8 @@ function App() {
               <>
                 <header className="dialog-header">
                   <h2>Overwrite with preset</h2>
-                  <button type="button" onClick={closeDialog}>
-                    Close
+                  <button type="button" className="dialog-icon-btn" title="Close dialog" aria-label="Close dialog" onClick={closeDialog}>
+                    <span className="bi bi-x-lg" aria-hidden="true"></span>
                   </button>
                 </header>
                 <p className="dialog-copy">Choosing a preset replaces the current dashboard configuration.</p>
@@ -444,8 +444,8 @@ function App() {
               <>
                 <header className="dialog-header">
                   <h2>Add category</h2>
-                  <button type="button" onClick={closeDialog}>
-                    Close
+                  <button type="button" className="dialog-icon-btn" title="Close dialog" aria-label="Close dialog" onClick={closeDialog}>
+                    <span className="bi bi-x-lg" aria-hidden="true"></span>
                   </button>
                 </header>
                 <div className="dialog-form">
@@ -462,8 +462,8 @@ function App() {
                       }
                     }}
                   />
-                  <button type="button" onClick={addCategory}>
-                    Add
+                  <button type="button" className="dialog-icon-btn" title="Add category" aria-label="Add category" onClick={addCategory}>
+                    <span className="bi bi-plus-lg" aria-hidden="true"></span>
                   </button>
                 </div>
               </>
@@ -473,8 +473,8 @@ function App() {
               <>
                 <header className="dialog-header">
                   <h2>Add entry</h2>
-                  <button type="button" onClick={closeDialog}>
-                    Close
+                  <button type="button" className="dialog-icon-btn" title="Close dialog" aria-label="Close dialog" onClick={closeDialog}>
+                    <span className="bi bi-x-lg" aria-hidden="true"></span>
                   </button>
                 </header>
                 <div className="unused-entry-grid">

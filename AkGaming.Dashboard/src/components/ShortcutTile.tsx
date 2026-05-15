@@ -86,8 +86,8 @@ export function ShortcutTile({
             <span className="shortcut-title">{shortcut.title}</span>
           </a>
           {isEditMode && onRemove && (
-            <button type="button" className="shortcut-remove" onClick={() => onRemove(shortcut.id)}>
-              Remove
+            <button type="button" className="shortcut-remove" title="Remove entry" aria-label="Remove entry" onClick={() => onRemove(shortcut.id)}>
+              <span className="bi bi-x-lg" aria-hidden="true"></span>
             </button>
           )}
         </>
