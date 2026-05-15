@@ -21,7 +21,14 @@ export const CATEGORY_ORDER = [
 
 export const SHORTCUTS: SiteShortcut[] = [
   { id: 'website', title: 'Website', color: '#131', url: 'https://akgaming.de', category: 'Public', presets: ['vorstand', 'eventleitung', 'all'] },
+  { id: 'discord', title: 'Discord', color: '#5865f2', url: 'https://discord.gg/5J5uJKJAhT', category: 'Public', presets: ['vorstand', 'dev', 'eventleitung', 'all'] },
+  { id: 'instagram', title: 'Instagram', color: '#d62976', url: 'https://www.instagram.com/akgamingkempten/', category: 'Public', presets: ['vorstand', 'dev', 'eventleitung', 'all'] },
+  { id: 'youtube', title: 'YouTube', color: '#ff0000', url: 'https://youtube.com/@akgamingkempten', category: 'Public', presets: ['vorstand', 'dev', 'eventleitung', 'all'] },
+  { id: 'linkedin', title: 'LinkedIn', color: '#0a66c2', url: 'https://www.linkedin.com/company/akgaming', category: 'Public', presets: ['vorstand', 'dev', 'eventleitung', 'all'] },
+  { id: 'facebook', title: 'Facebook', color: '#1877f2', url: 'https://www.facebook.com/AKGamingKempten', category: 'Public', presets: ['vorstand', 'dev', 'eventleitung', 'all'] },
+  { id: 'tournaments', title: 'Tournaments', color: '#0b6', url: 'https://tournaments.akgaming.de', category: 'Public', presets: ['vorstand', 'eventleitung', 'all'] },
   { id: 'itch', title: 'Itch.io', color: '#311', url: 'https://ak-gaming-ev.itch.io/', category: 'Public', presets: ['eventleitung', 'all'] },
+  { id: 'tournaments-test', title: 'Tournaments (Test)', color: '#074', url: 'https://tournaments.test.akgaming.de', category: 'Development', presets: ['dev', 'all'] },
   { id: 'website-test', title: 'Website (Test)', color: '#040', url: 'https://test.akgaming.de', category: 'Development', presets: ['dev', 'all'] },
   { id: 'identity', title: 'Identity', color: '#204', url: 'https://identity.akgaming.de', category: 'Management', presets: ['vorstand', 'dev', 'all'] },
   { id: 'management-test', title: 'Management (Test)', color: '#420', url: 'https://management.test.akgaming.de', category: 'Development', presets: ['dev', 'all'] },
