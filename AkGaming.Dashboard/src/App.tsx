@@ -2,6 +2,7 @@ import { useEffect, useEffectEvent, useMemo, useState, type CSSProperties } from
 import { CATEGORY_ORDER, PRESET_LABELS, PRESET_ORDER, SHORTCUTS, isVisibleInPreset } from './data/sites'
 import { useLocalStorageState } from './hooks/useLocalStorageState'
 import type { PresetId, ShortcutStatus, SiteShortcut, StatusState } from './types'
+import akGamingLogo from '../../AkGaming.Core/Theme/wwwroot/images/icons/AKG_Logos/Default.png'
 
 const STORAGE_PREFIX = 'akg-dashboard'
 const CONFIG_STORAGE_KEY = `${STORAGE_PREFIX}:dashboard-config`
@@ -19,15 +20,24 @@ interface CategoryLayout {
   rowSpan: number
 }
 
-const DEFAULT_CATEGORIES = (() => {
-  const categories = new Set<string>(CATEGORY_ORDER)
-  for (const shortcut of SHORTCUTS) {
-    categories.add(shortcut.category)
-  }
-  return [...categories]
-})()
+const PRESET_STYLE: Record<PresetId, { color: string; icon: string }> = {
+  vorstand: { color: '#f1c40f', icon: 'bi-award-fill' },
+  dev: { color: '#7e3ff2', icon: 'bi-code-slash' },
+  eventleitung: { color: '#e91e63', icon: 'bi-calendar-event-fill' },
+  all: { color: '#2ecc71', icon: 'bi-collection-fill' },
+  custom: { color: '#8f9aa3', icon: 'bi-sliders' },
+}
 
 function buildConfigFromPreset(preset: PresetId): DashboardConfig {
+  if (preset === 'custom') {
+    return {
+      categories: [],
+      siteCategory: {},
+      unusedSiteIds: SHORTCUTS.map((shortcut) => shortcut.id),
+      categoryLayout: {},
+    }
+  }
+
   const includedShortcuts = SHORTCUTS.filter((shortcut) => isVisibleInPreset(shortcut, preset))
   const includedIds = new Set(includedShortcuts.map((shortcut) => shortcut.id))
   const categories = new Set<string>()
@@ -76,7 +86,7 @@ function getShortcutById(siteId: string) {
 
 function normalizeConfig(config: DashboardConfig): DashboardConfig {
   const knownIds = new Set(SHORTCUTS.map((shortcut) => shortcut.id))
-  const categories = config.categories.length > 0 ? [...config.categories] : [...DEFAULT_CATEGORIES]
+  const categories = [...config.categories]
   const categorySet = new Set(categories)
   const siteCategory: Record<string, string> = {}
   const categoryLayout: Record<string, CategoryLayout> = {}
@@ -126,6 +136,25 @@ function normalizeSpan(value: number | undefined, fallback: number) {
   }
 
   return Math.min(3, Math.max(1, Math.round(value)))
+}
+
+function renderPresetCard(preset: PresetId, onLoadPreset: (preset: PresetId) => void) {
+  const presetStyle = PRESET_STYLE[preset]
+
+  return (
+    <button
+      key={preset}
+      type="button"
+      className="preset-card"
+      style={{ '--preset-color': presetStyle.color } as CSSProperties}
+      onClick={() => onLoadPreset(preset)}
+    >
+      <span className="preset-card-icon">
+        <span className={`bi ${presetStyle.icon}`} aria-hidden="true"></span>
+      </span>
+      <span className="preset-card-label">{PRESET_LABELS[preset]}</span>
+    </button>
+  )
 }
 
 async function fetchWithTimeout(url: string, timeoutMs: number) {
@@ -413,11 +442,7 @@ function App() {
           <h1 id="setup-title">Choose a starter preset</h1>
           <p>Select the collection to start from. You can customize it afterwards or load another preset later.</p>
           <div className="setup-preset-grid">
-            {PRESET_ORDER.map((preset) => (
-              <button key={preset} type="button" onClick={() => loadPreset(preset)}>
-                {PRESET_LABELS[preset]}
-              </button>
-            ))}
+            {PRESET_ORDER.map((preset) => renderPresetCard(preset, loadPreset))}
           </div>
         </section>
       </main>
@@ -427,9 +452,12 @@ function App() {
   return (
     <main className="dashboard">
       <header className="dashboard-header">
-        <div>
-          <h1>AK Gaming Dashboard</h1>
-          <p>Shortcut board for internal services and public channels.</p>
+        <div className="dashboard-title">
+          <img src={akGamingLogo} alt="" className="dashboard-logo" />
+          <div>
+            <h1>AK Gaming Dashboard</h1>
+            <p>Shortcut board for internal services and public channels.</p>
+          </div>
         </div>
         <div className="dashboard-header-controls">
           <div className="dashboard-actions">
@@ -446,7 +474,13 @@ function App() {
               <span className={isEditMode ? 'bi bi-pencil-fill' : 'bi bi-pencil'} aria-hidden="true"></span>
             </button>
             {isEditMode && (
-              <button type="button" className="header-icon-btn" title="Load preset" aria-label="Load preset" onClick={() => setActiveDialog('preset')}>
+              <button
+                type="button"
+                className="header-icon-btn"
+                title="Overwrite with preset"
+                aria-label="Overwrite with preset"
+                onClick={() => setActiveDialog('preset')}
+              >
                 <span className="bi bi-layout-three-columns" aria-hidden="true"></span>
               </button>
             )}
@@ -683,17 +717,14 @@ function App() {
             {activeDialog === 'preset' && (
               <>
                 <header className="dialog-header">
-                  <h2>Load preset</h2>
+                  <h2>Overwrite with preset</h2>
                   <button type="button" onClick={closeDialog}>
                     Close
                   </button>
                 </header>
+                <p className="dialog-copy">Choosing a preset replaces the current dashboard configuration.</p>
                 <div className="setup-preset-grid">
-                  {PRESET_ORDER.map((preset) => (
-                    <button key={preset} type="button" onClick={() => loadPreset(preset)}>
-                      {PRESET_LABELS[preset]}
-                    </button>
-                  ))}
+                  {PRESET_ORDER.map((preset) => renderPresetCard(preset, loadPreset))}
                 </div>
               </>
             )}

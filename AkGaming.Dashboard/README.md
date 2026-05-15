@@ -8,7 +8,7 @@ One-page internal shortcut dashboard for AK Gaming services and channels.
 - First-run preset selection when no local dashboard config exists
 - One customizable local dashboard configuration
 - Edit mode gates configuration actions
-- Presets can be loaded from a dialog at any time to reset the local configuration
+- Presets can be loaded from a dialog at any time, overwriting the single local configuration
 - Categories can be created from a ghost category tile and deleted back into unused entries
 - Category containers can be reordered and resized across columns or rows
 - Entries can be dragged between categories, removed to unused entries, and added back from each category
