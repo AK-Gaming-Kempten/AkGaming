@@ -1,202 +1,20 @@
 import { useEffect, useEffectEvent, useMemo, useState, type CSSProperties } from 'react'
-import { CATEGORY_ORDER, PRESET_LABELS, PRESET_ORDER, SHORTCUTS, isVisibleInPreset } from './data/sites'
+import { PRESET_ORDER, SHORTCUTS } from './data/sites'
 import { useLocalStorageState } from './hooks/useLocalStorageState'
 import type { PresetId, ShortcutStatus, SiteShortcut, StatusState } from './types'
 import akGamingLogo from '../../AkGaming.Core/Theme/wwwroot/images/icons/AKG_Logos/Default.png'
-
-const STORAGE_PREFIX = 'akg-dashboard'
-const CONFIG_STORAGE_KEY = `${STORAGE_PREFIX}:dashboard-config`
-
-interface DashboardConfig {
-  categories: string[]
-  siteCategory: Record<string, string>
-  unusedSiteIds: string[]
-  hiddenCategories?: string[]
-  categoryLayout?: Record<string, CategoryLayout>
-}
-
-interface CategoryLayout {
-  colSpan: number
-  rowSpan: number
-}
-
-const PRESET_STYLE: Record<PresetId, { color: string; icon: string }> = {
-  vorstand: { color: '#f1c40f', icon: 'bi-award-fill' },
-  dev: { color: '#7e3ff2', icon: 'bi-code-slash' },
-  eventleitung: { color: '#e91e63', icon: 'bi-calendar-event-fill' },
-  all: { color: '#2ecc71', icon: 'bi-collection-fill' },
-  custom: { color: '#8f9aa3', icon: 'bi-sliders' },
-}
-
-function buildConfigFromPreset(preset: PresetId): DashboardConfig {
-  if (preset === 'custom') {
-    return {
-      categories: [],
-      siteCategory: {},
-      unusedSiteIds: SHORTCUTS.map((shortcut) => shortcut.id),
-      categoryLayout: {},
-    }
-  }
-
-  const includedShortcuts = SHORTCUTS.filter((shortcut) => isVisibleInPreset(shortcut, preset))
-  const includedIds = new Set(includedShortcuts.map((shortcut) => shortcut.id))
-  const categories = new Set<string>()
-  const siteCategory: Record<string, string> = {}
-
-  for (const category of CATEGORY_ORDER) {
-    if (includedShortcuts.some((shortcut) => shortcut.category === category)) {
-      categories.add(category)
-    }
-  }
-
-  for (const shortcut of includedShortcuts) {
-    categories.add(shortcut.category)
-    siteCategory[shortcut.id] = shortcut.category
-  }
-
-  return {
-    categories: [...categories],
-    siteCategory,
-    unusedSiteIds: SHORTCUTS.filter((shortcut) => !includedIds.has(shortcut.id)).map((shortcut) => shortcut.id),
-    categoryLayout: {},
-  }
-}
-
-function buildLogoUrl(url: string) {
-  try {
-    const hostname = new URL(url).hostname.toLowerCase()
-    return `https://icons.duckduckgo.com/ip3/${hostname}.ico`
-  } catch {
-    return ''
-  }
-}
-
-function shortcutInitials(title: string) {
-  return title
-    .split(/\s+/)
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((part) => part[0]?.toUpperCase() ?? '')
-    .join('')
-}
-
-function getShortcutById(siteId: string) {
-  return SHORTCUTS.find((shortcut) => shortcut.id === siteId) ?? null
-}
-
-function normalizeConfig(config: DashboardConfig): DashboardConfig {
-  const knownIds = new Set(SHORTCUTS.map((shortcut) => shortcut.id))
-  const categories = [...config.categories]
-  const categorySet = new Set(categories)
-  const siteCategory: Record<string, string> = {}
-  const categoryLayout: Record<string, CategoryLayout> = {}
-
-  for (const [siteId, category] of Object.entries(config.siteCategory)) {
-    if (!knownIds.has(siteId)) {
-      continue
-    }
-
-    siteCategory[siteId] = category
-    if (!categorySet.has(category)) {
-      categories.push(category)
-      categorySet.add(category)
-    }
-  }
-
-  const configuredIds = new Set(Object.keys(siteCategory))
-  const unusedSiteIds = config.unusedSiteIds.filter((siteId) => knownIds.has(siteId) && !configuredIds.has(siteId))
-  const unusedSet = new Set(unusedSiteIds)
-
-  for (const shortcut of SHORTCUTS) {
-    if (!configuredIds.has(shortcut.id) && !unusedSet.has(shortcut.id)) {
-      unusedSiteIds.push(shortcut.id)
-      unusedSet.add(shortcut.id)
-    }
-  }
-
-  for (const category of categories) {
-    const layout = config.categoryLayout?.[category]
-    categoryLayout[category] = {
-      colSpan: normalizeSpan(layout?.colSpan, 1),
-      rowSpan: normalizeSpan(layout?.rowSpan, 1),
-    }
-  }
-
-  return {
-    categories,
-    siteCategory,
-    unusedSiteIds,
-    categoryLayout,
-  }
-}
-
-function normalizeSpan(value: number | undefined, fallback: number) {
-  if (typeof value !== 'number' || !Number.isFinite(value)) {
-    return fallback
-  }
-
-  return Math.min(3, Math.max(1, Math.round(value)))
-}
-
-function renderPresetCard(preset: PresetId, onLoadPreset: (preset: PresetId) => void) {
-  const presetStyle = PRESET_STYLE[preset]
-
-  return (
-    <button
-      key={preset}
-      type="button"
-      className="preset-card"
-      style={{ '--preset-color': presetStyle.color } as CSSProperties}
-      onClick={() => onLoadPreset(preset)}
-    >
-      <span className="preset-card-icon">
-        <span className={`bi ${presetStyle.icon}`} aria-hidden="true"></span>
-      </span>
-      <span className="preset-card-label">{PRESET_LABELS[preset]}</span>
-    </button>
-  )
-}
-
-async function fetchWithTimeout(url: string, timeoutMs: number) {
-  const controller = new AbortController()
-  const timeoutId = window.setTimeout(() => {
-    controller.abort()
-  }, timeoutMs)
-
-  try {
-    await fetch(url, {
-      method: 'GET',
-      mode: 'no-cors',
-      cache: 'no-store',
-      signal: controller.signal,
-    })
-    return true
-  } catch {
-    return false
-  } finally {
-    window.clearTimeout(timeoutId)
-  }
-}
-
-async function probeShortcut(url: string): Promise<StatusState> {
-  const isReachable = await fetchWithTimeout(url, 2500)
-  if (isReachable) {
-    return 'online'
-  }
-
-  try {
-    const hostname = new URL(url).hostname.toLowerCase()
-    const faviconReachable = await fetchWithTimeout(`https://icons.duckduckgo.com/ip3/${hostname}.ico`, 2000)
-    return faviconReachable ? 'online' : 'offline'
-  } catch {
-    return 'offline'
-  }
-}
+import { CategoryControlGrid } from './components/CategoryControlGrid'
+import { PresetCard } from './components/PresetCard'
+import { ShortcutTile } from './components/ShortcutTile'
+import { probeShortcut } from './dashboard/health'
+import { CONFIG_STORAGE_KEY, buildConfigFromPreset, normalizeConfig, normalizeSpan } from './dashboard/config'
+import { getShortcutById } from './dashboard/shortcuts'
+import type { ActiveDialog, CategoryLayout, DashboardConfig } from './dashboard/types'
 
 function App() {
   const [config, setConfig] = useLocalStorageState<DashboardConfig | null>(CONFIG_STORAGE_KEY, null)
   const [newCategoryName, setNewCategoryName] = useState('')
-  const [activeDialog, setActiveDialog] = useState<'preset' | 'category' | 'entry' | null>(null)
+  const [activeDialog, setActiveDialog] = useState<ActiveDialog>(null)
   const [entryTargetCategory, setEntryTargetCategory] = useState('')
   const [isEditMode, setIsEditMode] = useState(false)
   const [draggingSiteId, setDraggingSiteId] = useState<string | null>(null)
@@ -442,7 +260,9 @@ function App() {
           <h1 id="setup-title">Choose a starter preset</h1>
           <p>Select the collection to start from. You can customize it afterwards or load another preset later.</p>
           <div className="setup-preset-grid">
-            {PRESET_ORDER.map((preset) => renderPresetCard(preset, loadPreset))}
+            {PRESET_ORDER.map((preset) => (
+              <PresetCard key={preset} preset={preset} onClick={loadPreset} />
+            ))}
           </div>
         </section>
       </main>
@@ -537,161 +357,50 @@ function App() {
                 <div className="category-column-actions">
                   <span className="category-count">{shortcuts.length}</span>
                   {isEditMode && (
-                    <div className="category-control-grid" aria-label={`${category} layout controls`}>
-                      <button
-                        type="button"
-                        className="category-tool-btn"
-                        title="Move earlier"
-                        aria-label="Move earlier"
-                        disabled={categoryIndex <= 0}
-                        onClick={() => moveCategory(category, -1)}
-                      >
-                        <span className="bi bi-caret-left-fill" aria-hidden="true"></span>
-                      </button>
-                      <button
-                        type="button"
-                        className="category-tool-btn"
-                        title="Shorter"
-                        aria-label="Shorter"
-                        disabled={categoryLayout.rowSpan <= 1}
-                        onClick={() => resizeCategory(category, 'rowSpan', -1)}
-                      >
-                        <span className="bi bi-dash-lg" aria-hidden="true"></span>
-                      </button>
-                      <button
-                        type="button"
-                        className="category-tool-btn"
-                        title="Move later"
-                        aria-label="Move later"
-                        disabled={categoryIndex >= dashboardConfig.categories.length - 1}
-                        onClick={() => moveCategory(category, 1)}
-                      >
-                        <span className="bi bi-caret-right-fill" aria-hidden="true"></span>
-                      </button>
-                      <button
-                        type="button"
-                        className="category-tool-btn"
-                        title="Narrower"
-                        aria-label="Narrower"
-                        disabled={categoryLayout.colSpan <= 1}
-                        onClick={() => resizeCategory(category, 'colSpan', -1)}
-                      >
-                        <span className="bi bi-dash-lg" aria-hidden="true"></span>
-                      </button>
-                      <button
-                        type="button"
-                        className="category-tool-btn"
-                        title="Delete category"
-                        aria-label="Delete category"
-                        onClick={() => deleteCategory(category)}
-                      >
-                        <span className="bi bi-x-lg" aria-hidden="true"></span>
-                      </button>
-                      <button
-                        type="button"
-                        className="category-tool-btn"
-                        title="Wider"
-                        aria-label="Wider"
-                        disabled={categoryLayout.colSpan >= 3}
-                        onClick={() => resizeCategory(category, 'colSpan', 1)}
-                      >
-                        <span className="bi bi-plus-lg" aria-hidden="true"></span>
-                      </button>
-                      <button
-                        type="button"
-                        className="category-tool-btn"
-                        title="Move first"
-                        aria-label="Move first"
-                        disabled={categoryIndex <= 0}
-                        onClick={() => moveCategoryToIndex(category, 0)}
-                      >
-                        <span className="bi bi-caret-up-fill" aria-hidden="true"></span>
-                      </button>
-                      <button
-                        type="button"
-                        className="category-tool-btn"
-                        title="Taller"
-                        aria-label="Taller"
-                        disabled={categoryLayout.rowSpan >= 3}
-                        onClick={() => resizeCategory(category, 'rowSpan', 1)}
-                      >
-                        <span className="bi bi-plus-lg" aria-hidden="true"></span>
-                      </button>
-                      <button
-                        type="button"
-                        className="category-tool-btn"
-                        title="Move last"
-                        aria-label="Move last"
-                        disabled={categoryIndex >= dashboardConfig.categories.length - 1}
-                        onClick={() => moveCategoryToIndex(category, dashboardConfig.categories.length - 1)}
-                      >
-                        <span className="bi bi-caret-down-fill" aria-hidden="true"></span>
-                      </button>
-                    </div>
+                    <CategoryControlGrid
+                      category={category}
+                      categoryIndex={categoryIndex}
+                      totalCategories={dashboardConfig.categories.length}
+                      categoryLayout={categoryLayout}
+                      onMove={(direction) => moveCategory(category, direction)}
+                      onMoveToIndex={(index) => moveCategoryToIndex(category, index)}
+                      onResize={(dimension, delta) => resizeCategory(category, dimension, delta)}
+                      onDelete={() => deleteCategory(category)}
+                    />
                   )}
                 </div>
               </header>
               <div className="shortcut-list">
                 {shortcuts.map((shortcut) => {
                   const status = statuses[shortcut.id]?.state ?? 'checking'
-                  const colorStyle = { '--blob-color': shortcut.color } as CSSProperties
                   const hasFailedLogo = failedLogos[shortcut.id] === true
 
                   return (
-                    <div
+                    <ShortcutTile
                       key={shortcut.id}
-                      className="shortcut-item"
-                      style={colorStyle}
-                      draggable={isEditMode}
-                      onDragStart={(event) => {
+                      shortcut={shortcut}
+                      status={status}
+                      failedLogo={hasFailedLogo}
+                      isEditMode={isEditMode}
+                      draggable
+                      setFailedLogo={(siteId) =>
+                        setFailedLogos((currentFailedLogos) => ({
+                          ...currentFailedLogos,
+                          [siteId]: true,
+                        }))
+                      }
+                      onDragStart={(event, siteId) => {
                         if (!isEditMode) {
                           return
                         }
 
-                        event.dataTransfer.setData('text/plain', shortcut.id)
+                        event.dataTransfer.setData('text/plain', siteId)
                         event.dataTransfer.effectAllowed = 'move'
-                        setDraggingSiteId(shortcut.id)
+                        setDraggingSiteId(siteId)
                       }}
-                      onDragEnd={() => {
-                        setDraggingSiteId(null)
-                      }}
-                    >
-                      <a href={shortcut.url} target="_blank" rel="noopener noreferrer" className="shortcut-link">
-                        <span
-                          className={
-                            status === 'online'
-                              ? 'status-dot online'
-                              : status === 'offline'
-                                ? 'status-dot offline'
-                                : status === 'checking'
-                                  ? 'status-dot checking'
-                                  : 'status-dot unknown'
-                          }
-                        />
-                        {hasFailedLogo ? (
-                          <span className="logo-fallback">{shortcutInitials(shortcut.title)}</span>
-                        ) : (
-                          <img
-                            src={buildLogoUrl(shortcut.url)}
-                            alt=""
-                            className="logo"
-                            loading="lazy"
-                            onError={() => {
-                              setFailedLogos((currentFailedLogos) => ({
-                                ...currentFailedLogos,
-                                [shortcut.id]: true,
-                              }))
-                            }}
-                          />
-                        )}
-                        <span className="shortcut-title">{shortcut.title}</span>
-                      </a>
-                      {isEditMode && (
-                        <button type="button" className="shortcut-remove" onClick={() => removeSiteFromBoard(shortcut.id)}>
-                          Remove
-                        </button>
-                      )}
-                    </div>
+                      onDragEnd={() => setDraggingSiteId(null)}
+                      onRemove={removeSiteFromBoard}
+                    />
                   )
                 })}
                 {shortcuts.length === 0 && <div className="empty-category">No shortcuts</div>}
@@ -724,7 +433,9 @@ function App() {
                 </header>
                 <p className="dialog-copy">Choosing a preset replaces the current dashboard configuration.</p>
                 <div className="setup-preset-grid">
-                  {PRESET_ORDER.map((preset) => renderPresetCard(preset, loadPreset))}
+                  {PRESET_ORDER.map((preset) => (
+                    <PresetCard key={preset} preset={preset} onClick={loadPreset} />
+                  ))}
                 </div>
               </>
             )}
@@ -768,40 +479,26 @@ function App() {
                 </header>
                 <div className="unused-entry-grid">
                   {unusedShortcuts.map((shortcut) => {
-                    const colorStyle = { '--blob-color': shortcut.color } as CSSProperties
                     const hasFailedLogo = failedLogos[shortcut.id] === true
 
                     return (
-                      <button
+                      <ShortcutTile
                         key={shortcut.id}
-                        type="button"
-                        className="shortcut-item unused-entry-option"
-                        style={colorStyle}
-                        onClick={() => {
-                          moveSiteToCategory(shortcut.id, entryTargetCategory)
+                        shortcut={shortcut}
+                        failedLogo={hasFailedLogo}
+                        isEditMode={false}
+                        asOption
+                        setFailedLogo={(siteId) =>
+                          setFailedLogos((currentFailedLogos) => ({
+                            ...currentFailedLogos,
+                            [siteId]: true,
+                          }))
+                        }
+                        onSelect={(siteId) => {
+                          moveSiteToCategory(siteId, entryTargetCategory)
                           closeDialog()
                         }}
-                      >
-                        <span className="shortcut-link">
-                          {hasFailedLogo ? (
-                            <span className="logo-fallback">{shortcutInitials(shortcut.title)}</span>
-                          ) : (
-                            <img
-                              src={buildLogoUrl(shortcut.url)}
-                              alt=""
-                              className="logo"
-                              loading="lazy"
-                              onError={() => {
-                                setFailedLogos((currentFailedLogos) => ({
-                                  ...currentFailedLogos,
-                                  [shortcut.id]: true,
-                                }))
-                              }}
-                            />
-                          )}
-                          <span className="shortcut-title">{shortcut.title}</span>
-                        </span>
-                      </button>
+                      />
                     )
                   })}
                   {unusedShortcuts.length === 0 && <div className="empty-category">No unused entries</div>}

@@ -331,6 +331,10 @@ input:focus {
   display: flex;
   align-items: center;
   gap: 0.52rem;
+  width: 100%;
+  border: 0;
+  background: transparent;
+  text-align: left;
   text-decoration: none;
   color: var(--color-text-special);
 }
@@ -444,10 +448,6 @@ input:focus {
   padding: 0;
   text-align: left;
   border-radius: 8px;
-}
-
-.unused-entry-option .shortcut-link {
-  pointer-events: none;
 }
 
 .status-dot {
