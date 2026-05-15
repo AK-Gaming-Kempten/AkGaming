@@ -134,11 +134,17 @@ public sealed class MemberManagementApiClient : ApiClientBase {
     public Task<Result<MembershipDueEmailPreviewDto>> GetReminderEmailPreviewAsync(int dueId, CancellationToken ct = default) =>
         GetAsync<MembershipDueEmailPreviewDto>($"membership-dues/{dueId}/reminder-email", ct);
 
+    public Task<Result<MembershipDueEmailPreviewDto>> GetSuspensionEmailPreviewAsync(int dueId, CancellationToken ct = default) =>
+        GetAsync<MembershipDueEmailPreviewDto>($"membership-dues/{dueId}/suspension-email", ct);
+
     public Task<Result<MembershipDueReminderDispatchPreviewDto>> GetReminderDispatchPreviewForDueAsync(int dueId, CancellationToken ct = default) =>
         GetAsync<MembershipDueReminderDispatchPreviewDto>($"membership-dues/{dueId}/reminder-dispatch", ct);
 
     public Task<Result> SendReminderEmailAsync(int dueId, CancellationToken ct = default) =>
         PostJsonAsync($"membership-dues/{dueId}/send-reminder", new { }, ct);
+
+    public Task<Result> SendSuspensionEmailAsync(int dueId, CancellationToken ct = default) =>
+        PostJsonAsync($"membership-dues/{dueId}/send-suspension", new { }, ct);
 
     public Task<Result> UpdateDueAsync(int dueId, MembershipDueDto due, CancellationToken ct = default) =>
         PutJsonAsync($"membership-dues/{dueId}", due, ct);

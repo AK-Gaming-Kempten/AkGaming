@@ -84,6 +84,14 @@ public static class MembershipDueEndpoints {
             return MapResult(result);
         }).RequireAuthorization("AdminOnly");
 
+        group.MapGet("/{dueId:int}/suspension-email", async (
+            [FromRoute] int dueId,
+            [FromServices] IMembershipDueService service
+        ) => {
+            var result = await service.GetSuspensionEmailPreviewAsync(dueId);
+            return MapResult(result);
+        }).RequireAuthorization("AdminOnly");
+
         group.MapGet("/{dueId:int}/reminder-dispatch", async (
             [FromRoute] int dueId,
             [FromServices] IMembershipDueService service
@@ -97,6 +105,23 @@ public static class MembershipDueEndpoints {
             [FromServices] IMembershipDueService service
         ) => {
             var result = await service.SendReminderEmailAsync(dueId);
+            if (result.IsSuccess)
+                return Results.Ok();
+
+            if (IsNotFoundError(result.Error))
+                return Results.NotFound(result.Error);
+
+            if (IsServerError(result.Error))
+                return Results.Problem(detail: result.Error, statusCode: StatusCodes.Status500InternalServerError);
+
+            return Results.BadRequest(result.Error);
+        }).RequireAuthorization("AdminOnly");
+
+        group.MapPost("/{dueId:int}/send-suspension", async (
+            [FromRoute] int dueId,
+            [FromServices] IMembershipDueService service
+        ) => {
+            var result = await service.SendSuspensionEmailAsync(dueId);
             if (result.IsSuccess)
                 return Results.Ok();
 
@@ -163,7 +188,8 @@ public static class MembershipDueEndpoints {
             return false;
 
         return error.Contains("database error", StringComparison.OrdinalIgnoreCase)
-            || error.Contains("failed to send reminder email", StringComparison.OrdinalIgnoreCase);
+            || error.Contains("failed to send reminder email", StringComparison.OrdinalIgnoreCase)
+            || error.Contains("failed to send suspension email", StringComparison.OrdinalIgnoreCase);
     }
 
     private static IResult MapResult<T>(AkGaming.Core.Common.Generics.Result<T> result) {

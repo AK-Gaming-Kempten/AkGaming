@@ -14,15 +14,20 @@ public partial class MemberDueEntry : ComponentBase {
     [Parameter] public bool IsSaving { get; set; }
     [Parameter] public EventCallback<MembershipDueDto> OnSave { get; set; }
     [Parameter] public EventCallback<MembershipDueDto> OnRequestReminderSend { get; set; }
+    [Parameter] public EventCallback<MembershipDueDto> OnRequestSuspensionSend { get; set; }
 
     private readonly MembershipDueStatus[] _statuses = Enum.GetValues<MembershipDueStatus>();
     private MembershipDueDto _editingDue = new();
     private bool EditMode { get; set; }
     private string? _previewCacheKey;
     private MembershipDueEmailPreviewDto? _reminderPreview;
+    private MembershipDueEmailPreviewDto? _suspensionPreview;
     private bool _showReminderPreview;
+    private bool _showSuspensionPreview;
     private bool _loadingReminderPreview;
+    private bool _loadingSuspensionPreview;
     private string? _reminderPreviewError;
+    private string? _suspensionPreviewError;
     private bool _isActionMenuOpen { get; set; }
 
     private void ToggleActionMenu() {
@@ -37,9 +42,13 @@ public partial class MemberDueEntry : ComponentBase {
         if (_previewCacheKey != previewCacheKey) {
             _previewCacheKey = previewCacheKey;
             _reminderPreview = null;
+            _suspensionPreview = null;
             _showReminderPreview = false;
+            _showSuspensionPreview = false;
             _loadingReminderPreview = false;
+            _loadingSuspensionPreview = false;
             _reminderPreviewError = null;
+            _suspensionPreviewError = null;
         }
 
         if (!EditMode) {
@@ -66,14 +75,24 @@ public partial class MemberDueEntry : ComponentBase {
     }
 
     private async Task RequestReminderSendAsync() {
+        CloseActionMenu();
         await OnRequestReminderSend.InvokeAsync(Due);
+    }
+
+    private async Task RequestSuspensionSendAsync() {
+        CloseActionMenu();
+        await OnRequestSuspensionSend.InvokeAsync(Due);
     }
 
     private bool CanPreviewReminder => Due.Status == MembershipDueStatus.Pending && Due.IsOverdue();
 
     private MarkupString ReminderHtmlPreview => new(_reminderPreview?.HtmlBody ?? string.Empty);
 
+    private MarkupString SuspensionHtmlPreview => new(_suspensionPreview?.HtmlBody ?? string.Empty);
+
     private async Task ToggleReminderPreviewAsync() {
+        CloseActionMenu();
+
         if (_showReminderPreview) {
             _showReminderPreview = false;
             return;
@@ -93,9 +112,34 @@ public partial class MemberDueEntry : ComponentBase {
             return;
         }
 
-        CloseActionMenu();
         _reminderPreview = result.Value;
         _loadingReminderPreview = false;
+    }
+
+    private async Task ToggleSuspensionPreviewAsync() {
+        CloseActionMenu();
+
+        if (_showSuspensionPreview) {
+            _showSuspensionPreview = false;
+            return;
+        }
+
+        _showSuspensionPreview = true;
+        if (_suspensionPreview is not null || _loadingSuspensionPreview)
+            return;
+
+        _loadingSuspensionPreview = true;
+        _suspensionPreviewError = null;
+
+        var result = await MemberApi.GetSuspensionEmailPreviewAsync(Due.Id);
+        if (!result.IsSuccess) {
+            _suspensionPreviewError = result.Error ?? "Failed to load suspension preview.";
+            _loadingSuspensionPreview = false;
+            return;
+        }
+
+        _suspensionPreview = result.Value;
+        _loadingSuspensionPreview = false;
     }
 
     private static MembershipDueDto CloneDue(MembershipDueDto due) => new() {

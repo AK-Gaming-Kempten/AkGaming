@@ -109,7 +109,7 @@ internal static class MembershipDueReminderEmailComposer {
         text.AppendLine($"4. AUS DEM {ClubConstants.Organization.LegalName.ToUpperInvariant()} AUSTRETEN");
         text.AppendLine($"Auch wenn wir dich nur ungern als Mitglied verlieren, ist eine formlose Austrittserklärung per Mail an {ClubConstants.EmailAddresses.Board} für alle Beteiligten einfacher als ein Suspendierungsverfahren.");
         text.AppendLine();
-        text.AppendLine("Sollten wir in den nächsten Tagen weder die Zahlung deines Beitrags verbuchen noch eine Kontaktaufnahme von dir erhalten, müssen wir nach §6.3 a) unserer Satzung deine Suspendierung beschließen, gefolgt von einer Abstimmung über deinen Ausschluss aus dem Verein in der nächsten Mitgliederversammlung.");
+        text.AppendLine("Sollten wir in den nächsten Tagen weder die Zahlung deines Beitrags verbuchen noch eine Kontaktaufnahme von dir erhalten, müssen wir nach §6.9 unserer Satzung deine Suspendierung beschließen, gefolgt von einer Abstimmung über deinen Ausschluss aus dem Verein in der nächsten Mitgliederversammlung.");
         text.AppendLine();
         text.AppendLine("Liebe Grüße");
         text.AppendLine($"Vorstand {ClubConstants.Organization.LegalName}");
@@ -199,7 +199,7 @@ internal static class MembershipDueReminderEmailComposer {
 
         html.Append("<div style=\"margin-top:18px;padding:16px 18px;border-radius:14px;background:#fff7ed;border:1px solid #fed7aa;\">");
         html.Append("<p style=\"margin:0;font-weight:700;color:#9a3412;\">Wichtiger Hinweis</p>");
-        html.Append("<p style=\"margin:8px 0 0;color:#7c2d12;\">Sollten wir in den nächsten Tagen weder die Zahlung deines Beitrags verbuchen noch eine Kontaktaufnahme von dir erhalten, müssen wir nach §6.3 a) unserer Satzung deine Suspendierung beschließen, gefolgt von einer Abstimmung über deinen Ausschluss aus dem Verein in der nächsten Mitgliederversammlung.</p>");
+        html.Append("<p style=\"margin:8px 0 0;color:#7c2d12;\">Sollten wir in den nächsten Tagen weder die Zahlung deines Beitrags verbuchen noch eine Kontaktaufnahme von dir erhalten, müssen wir nach §6.9 unserer Satzung deine Suspendierung beschließen, gefolgt von einer Abstimmung über deinen Ausschluss aus dem Verein in der nächsten Mitgliederversammlung.</p>");
         html.Append("</div>");
 
         html.Append($"<p style=\"margin:20px 0 0;\">Liebe Grüße<br/><strong>Vorstand {H(ClubConstants.Organization.LegalName)}</strong></p>");

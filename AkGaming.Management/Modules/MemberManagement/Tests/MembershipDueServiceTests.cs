@@ -396,6 +396,63 @@ public class MembershipDueServiceTests {
     }
 
     [Test]
+    [Description("Builds a suspension mail preview with the Satzung context and outstanding due details.")]
+    public async Task GetSuspensionEmailPreviewAsync_ReturnsSatzungBasedSuspensionEmail() {
+        // Arrange
+        var dueRepository = new Mock<IMembershipDueRepository>();
+        var paymentPeriodRepository = new Mock<IMembershipPaymentPeriodRepository>();
+        var memberRepository = new Mock<IMemberRepository>();
+        var service = new MembershipDueService(dueRepository.Object, paymentPeriodRepository.Object, memberRepository.Object);
+
+        var overdueDate = DateOnly.FromDateTime(DateTime.UtcNow.Date.AddDays(-5));
+        var member = new Member {
+            Id = Guid.NewGuid(),
+            FirstName = "Max",
+            LastName = "Suspend",
+            Email = "max@example.com",
+            Status = DomainEnums.MembershipStatus.Member
+        };
+        var paymentPeriod = new MembershipPaymentPeriod {
+            Id = 19,
+            Name = "SS 2026",
+            DueDate = overdueDate,
+            DefaultDueAmount = 15m,
+            ReducedDueAmount = 5m,
+            CreatedAt = DateTimeOffset.UtcNow
+        };
+        var due = new MembershipDue {
+            Id = 43,
+            PaymentPeriodId = paymentPeriod.Id,
+            MemberId = member.Id,
+            Status = DomainEnums.MembershipDueStatus.Pending,
+            DueAmount = 15m,
+            PaidAmount = 5m,
+            DueDate = overdueDate
+        };
+
+        dueRepository.Setup(x => x.GetByIdAsync(due.Id)).ReturnsAsync(Result<MembershipDue>.Success(due));
+        memberRepository.Setup(x => x.GetByMemberIdAsync(member.Id)).ReturnsAsync(Result<Member>.Success(member));
+        paymentPeriodRepository.Setup(x => x.GetByIdAsync(paymentPeriod.Id)).ReturnsAsync(Result<MembershipPaymentPeriod>.Success(paymentPeriod));
+
+        // Act
+        var result = await service.GetSuspensionEmailPreviewAsync(due.Id);
+
+        // Assert
+        using (Assert.EnterMultipleScope()) {
+            Assert.That(result.IsSuccess, Is.True);
+            Assert.That(result.Value, Is.Not.Null);
+            Assert.That(result.Value!.RecipientEmail, Is.EqualTo("max@example.com"));
+            Assert.That(result.Value!.Subject, Does.Contain("Suspendierung"));
+            Assert.That(result.Value!.TextBody, Does.Contain("§4.4"));
+            Assert.That(result.Value!.TextBody, Does.Contain("§6.9"));
+            Assert.That(result.Value!.TextBody, Does.Contain("Aktuell offen: 10 €"));
+            Assert.That(result.Value!.TextBody, Does.Contain("Mitgliederversammlung"));
+            Assert.That(result.Value!.HtmlBody, Does.Contain("Mitgliedschaft suspendiert"));
+            Assert.That(result.Value!.HtmlBody, Does.Contain(ClubConstants.Urls.ArticlesOfAssociation));
+        }
+    }
+
+    [Test]
     public async Task GetReminderDispatchPreviewForPaymentPeriodAsync_ReturnsRecipientsAndSkippedMembers() {
         var dueRepository = new Mock<IMembershipDueRepository>();
         var paymentPeriodRepository = new Mock<IMembershipPaymentPeriodRepository>();
@@ -501,6 +558,124 @@ public class MembershipDueServiceTests {
             It.Is<string?>(html => html != null && html.Contains("Mitgliedsbeitrag offen")),
             It.IsAny<CancellationToken>()), Times.Once);
         dueRepository.Verify(x => x.SaveChangesAsync(), Times.Once);
+    }
+
+    [Test]
+    [Description("Sends the suspension mail and changes the member status to suspended only after the mail send succeeds.")]
+    public async Task SendSuspensionEmailAsync_SendsMailAndSuspendsMember() {
+        // Arrange
+        var dueRepository = new Mock<IMembershipDueRepository>();
+        var paymentPeriodRepository = new Mock<IMembershipPaymentPeriodRepository>();
+        var memberRepository = new Mock<IMemberRepository>();
+        var emailSender = new Mock<IEmailSender>();
+        var service = new MembershipDueService(dueRepository.Object, paymentPeriodRepository.Object, memberRepository.Object, emailSender.Object);
+
+        var overdueDate = DateOnly.FromDateTime(DateTime.UtcNow.Date.AddDays(-2));
+        var member = new Member {
+            Id = Guid.NewGuid(),
+            FirstName = "Sam",
+            LastName = "Suspend",
+            Email = "sam@example.com",
+            Status = DomainEnums.MembershipStatus.Member
+        };
+        var paymentPeriod = new MembershipPaymentPeriod {
+            Id = 94,
+            Name = "SS 2026",
+            DueDate = overdueDate,
+            DefaultDueAmount = 15m,
+            ReducedDueAmount = 5m,
+            CreatedAt = DateTimeOffset.UtcNow
+        };
+        var due = new MembershipDue {
+            Id = 12,
+            PaymentPeriodId = paymentPeriod.Id,
+            MemberId = member.Id,
+            Status = DomainEnums.MembershipDueStatus.Pending,
+            DueAmount = 15m,
+            DueDate = overdueDate
+        };
+
+        dueRepository.Setup(x => x.GetByIdAsync(due.Id)).ReturnsAsync(Result<MembershipDue>.Success(due));
+        memberRepository.Setup(x => x.GetByMemberIdAsync(member.Id)).ReturnsAsync(Result<Member>.Success(member));
+        memberRepository.Setup(x => x.Update(member)).Returns(Result.Success());
+        memberRepository.Setup(x => x.SaveChangesAsync()).ReturnsAsync(Result.Success());
+        paymentPeriodRepository.Setup(x => x.GetByIdAsync(paymentPeriod.Id)).ReturnsAsync(Result<MembershipPaymentPeriod>.Success(paymentPeriod));
+        emailSender.Setup(x => x.SendAsync(member.Email!, It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string?>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        // Act
+        var result = await service.SendSuspensionEmailAsync(due.Id);
+
+        // Assert
+        using (Assert.EnterMultipleScope()) {
+            Assert.That(result.IsSuccess, Is.True);
+            Assert.That(member.Status, Is.EqualTo(DomainEnums.MembershipStatus.Suspended));
+            Assert.That(member.StatusChanges, Has.Count.EqualTo(1));
+            Assert.That(member.StatusChanges.Single().NewStatus, Is.EqualTo(DomainEnums.MembershipStatus.Suspended));
+        }
+        emailSender.Verify(x => x.SendAsync(
+            member.Email!,
+            It.Is<string>(subject => subject.Contains("Suspendierung")),
+            It.Is<string>(text => text.Contains("§6.9")),
+            It.Is<string?>(html => html != null && html.Contains("Mitgliedschaft suspendiert")),
+            It.IsAny<CancellationToken>()), Times.Once);
+        memberRepository.Verify(x => x.Update(member), Times.Once);
+        memberRepository.Verify(x => x.SaveChangesAsync(), Times.Once);
+    }
+
+    [Test]
+    [Description("Does not suspend the member when the suspension mail send fails.")]
+    public async Task SendSuspensionEmailAsync_DoesNotSuspendWhenMailFails() {
+        // Arrange
+        var dueRepository = new Mock<IMembershipDueRepository>();
+        var paymentPeriodRepository = new Mock<IMembershipPaymentPeriodRepository>();
+        var memberRepository = new Mock<IMemberRepository>();
+        var emailSender = new Mock<IEmailSender>();
+        var service = new MembershipDueService(dueRepository.Object, paymentPeriodRepository.Object, memberRepository.Object, emailSender.Object);
+
+        var overdueDate = DateOnly.FromDateTime(DateTime.UtcNow.Date.AddDays(-2));
+        var member = new Member {
+            Id = Guid.NewGuid(),
+            FirstName = "Fail",
+            LastName = "Suspend",
+            Email = "fail@example.com",
+            Status = DomainEnums.MembershipStatus.Member
+        };
+        var paymentPeriod = new MembershipPaymentPeriod {
+            Id = 95,
+            Name = "SS 2026",
+            DueDate = overdueDate,
+            DefaultDueAmount = 15m,
+            ReducedDueAmount = 5m,
+            CreatedAt = DateTimeOffset.UtcNow
+        };
+        var due = new MembershipDue {
+            Id = 13,
+            PaymentPeriodId = paymentPeriod.Id,
+            MemberId = member.Id,
+            Status = DomainEnums.MembershipDueStatus.Pending,
+            DueAmount = 15m,
+            DueDate = overdueDate
+        };
+
+        dueRepository.Setup(x => x.GetByIdAsync(due.Id)).ReturnsAsync(Result<MembershipDue>.Success(due));
+        memberRepository.Setup(x => x.GetByMemberIdAsync(member.Id)).ReturnsAsync(Result<Member>.Success(member));
+        paymentPeriodRepository.Setup(x => x.GetByIdAsync(paymentPeriod.Id)).ReturnsAsync(Result<MembershipPaymentPeriod>.Success(paymentPeriod));
+        emailSender.Setup(x => x.SendAsync(member.Email!, It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string?>(), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new InvalidOperationException("SMTP offline"));
+
+        // Act
+        var result = await service.SendSuspensionEmailAsync(due.Id);
+
+        // Assert
+        using (Assert.EnterMultipleScope()) {
+            Assert.That(result.IsSuccess, Is.False);
+            Assert.That(result.Error, Is.EqualTo("Failed to send suspension email: SMTP offline"));
+            Assert.That(member.Status, Is.EqualTo(DomainEnums.MembershipStatus.Member));
+            Assert.That(member.StatusChanges, Is.Empty);
+        }
+        memberRepository.Verify(x => x.Update(It.IsAny<Member>()), Times.Never);
+        memberRepository.Verify(x => x.SaveChangesAsync(), Times.Never);
     }
 
     [Test]

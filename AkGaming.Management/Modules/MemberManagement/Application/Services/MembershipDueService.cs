@@ -170,6 +170,21 @@ public class MembershipDueService(
     }
 
     /// <inheritdoc />
+    public async Task<Result<MembershipDueEmailPreviewDto>> GetSuspensionEmailPreviewAsync(int dueId) {
+        var reminderContextResult = await LoadReminderContextAsync(dueId);
+        if (!reminderContextResult.IsSuccess)
+            return Result<MembershipDueEmailPreviewDto>.Failure(reminderContextResult.Error ?? "Suspension context could not be loaded.");
+        var reminderContext = reminderContextResult.Value!;
+
+        var eligibility = EvaluateSuspensionEligibility(reminderContext.Member, reminderContext.PaymentPeriod, reminderContext.Due);
+        if (!eligibility.IsSendable)
+            return Result<MembershipDueEmailPreviewDto>.Failure(eligibility.Reason ?? "Suspension email is not available.");
+
+        var preview = MembershipDueSuspensionEmailComposer.Compose(reminderContext.Member, reminderContext.PaymentPeriod, reminderContext.Due);
+        return Result<MembershipDueEmailPreviewDto>.Success(preview);
+    }
+
+    /// <inheritdoc />
     public async Task<Result<MembershipDueReminderDispatchPreviewDto>> GetReminderDispatchPreviewForPaymentPeriodAsync(int paymentPeriodId) {
         var paymentPeriodResult = await paymentPeriodRepository.GetByIdAsync(paymentPeriodId);
         if (!paymentPeriodResult.IsSuccess)
@@ -313,6 +328,49 @@ public class MembershipDueService(
             return Result.Failure($"Failed to send reminder email: {exception.Message}");
         }
     }
+
+    /// <inheritdoc />
+    public async Task<Result> SendSuspensionEmailAsync(int dueId) {
+        if (emailSender is null)
+            return Result.Failure("Email sender is not configured.");
+
+        var reminderContextResult = await LoadReminderContextAsync(dueId);
+        if (!reminderContextResult.IsSuccess)
+            return Result.Failure(reminderContextResult.Error ?? "Suspension context could not be loaded.");
+        var reminderContext = reminderContextResult.Value!;
+
+        var eligibility = EvaluateSuspensionEligibility(reminderContext.Member, reminderContext.PaymentPeriod, reminderContext.Due);
+        if (!eligibility.IsSendable)
+            return Result.Failure(eligibility.Reason ?? "Suspension email cannot be sent.");
+
+        var preview = MembershipDueSuspensionEmailComposer.Compose(reminderContext.Member, reminderContext.PaymentPeriod, reminderContext.Due);
+
+        try {
+            await emailSender.SendAsync(
+                preview.RecipientEmail,
+                preview.Subject,
+                preview.TextBody,
+                preview.HtmlBody,
+                CancellationToken.None);
+        }
+        catch (Exception exception) {
+            return Result.Failure($"Failed to send suspension email: {exception.Message}");
+        }
+
+        var statusChangeResult = reminderContext.Member.ChangeStatus(DomainEnums.MembershipStatus.Suspended);
+        if (!statusChangeResult.IsSuccess)
+            return Result.Failure(statusChangeResult.Error ?? "Suspension email was sent, but the member status could not be changed.");
+
+        var updateMemberResult = memberRepository.Update(reminderContext.Member);
+        if (!updateMemberResult.IsSuccess)
+            return Result.Failure($"Suspension email was sent, but the member could not be updated. {updateMemberResult.Error ?? "Member update failed."}");
+
+        var saveMemberResult = await memberRepository.SaveChangesAsync();
+        if (!saveMemberResult.IsSuccess)
+            return Result.Failure($"Suspension email was sent, but the member status could not be saved. {saveMemberResult.Error ?? "Changes could not be saved."}");
+
+        return Result.Success();
+    }
     
     /// <inheritdoc />
     public async Task<Result> UpdateDueAsync(int dueId, MembershipDueDto due, Guid? performedByUserId = null) {
@@ -402,6 +460,20 @@ public class MembershipDueService(
             return ReminderEligibility.Skip("Member has no email address.");
 
         return ReminderEligibility.Sendable();
+    }
+
+    private static ReminderEligibility EvaluateSuspensionEligibility(Member member, MembershipPaymentPeriod paymentPeriod, MembershipDue due) {
+        var dueEligibility = EvaluateReminderEligibility(member, paymentPeriod, due);
+        if (!dueEligibility.IsSendable)
+            return dueEligibility;
+
+        return member.Status switch {
+            DomainEnums.MembershipStatus.Suspended => ReminderEligibility.Skip("Member is already suspended."),
+            DomainEnums.MembershipStatus.Expelled => ReminderEligibility.Skip("Member has already been expelled."),
+            DomainEnums.MembershipStatus.Withdrawn => ReminderEligibility.Skip("Member has already withdrawn."),
+            DomainEnums.MembershipStatus.Member or DomainEnums.MembershipStatus.HonoraryMember or DomainEnums.MembershipStatus.SupportingMember => ReminderEligibility.Sendable(),
+            _ => ReminderEligibility.Skip($"Member cannot be suspended from status {member.Status}.")
+        };
     }
 
     private static string BuildMemberDisplayName(Member member) {
