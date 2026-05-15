@@ -30,6 +30,37 @@ body {
   padding: 1.1rem 0.95rem 2rem;
 }
 
+.setup-dashboard {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+}
+
+.setup-dialog {
+  width: min(560px, 100%);
+  border: 1px solid color-mix(in srgb, var(--color-text-secondary), transparent 56%);
+  border-radius: 8px;
+  padding: 1.25rem;
+  background: color-mix(in srgb, var(--color-background-primary), transparent 6%);
+  box-shadow: 0 12px 30px color-mix(in srgb, var(--color-background-quartiary), transparent 76%);
+}
+
+.setup-dialog h1 {
+  margin: 0;
+  font-size: 1.35rem;
+}
+
+.setup-dialog p {
+  margin: 0.45rem 0 1rem;
+  color: var(--color-text-secondary);
+}
+
+.setup-preset-grid {
+  display: grid;
+  gap: 0.55rem;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+}
+
 .dashboard-header {
   display: flex;
   justify-content: space-between;
@@ -49,25 +80,45 @@ body {
   color: var(--color-text-secondary);
 }
 
-.health-controls {
+.dashboard-header-controls {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+
+.dashboard-actions {
   display: inline-flex;
   align-items: center;
-  gap: 0.55rem;
+  gap: 0.32rem;
+  flex-wrap: wrap;
   padding: 0.35rem 0.45rem;
   border: 1px solid color-mix(in srgb, var(--color-text-secondary), transparent 58%);
   border-radius: 8px;
   background: color-mix(in srgb, var(--color-background-primary), transparent 12%);
 }
 
-.health-controls span {
-  font-size: 0.87rem;
-  color: var(--color-text-secondary);
-}
-
-.health-mode.active {
+.edit-toggle.active {
   background: color-mix(in srgb, var(--color-highlight-secondary), black 15%);
   border-color: color-mix(in srgb, var(--color-highlight-secondary), black 15%);
   color: var(--color-text-special);
+}
+
+.header-icon-btn {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 6px;
+  padding: 0;
+  display: inline-grid;
+  place-items: center;
+  font-size: 0.96rem;
+  line-height: 1;
+}
+
+.header-icon-btn .bi {
+  display: block;
+  line-height: 1;
 }
 
 button {
@@ -90,39 +141,10 @@ button:hover {
   transform: translateY(-1px);
 }
 
-.presets {
-  margin-top: 0.95rem;
-  padding: 0.55rem;
-  border: 1px solid color-mix(in srgb, var(--color-text-secondary), transparent 62%);
-  border-radius: 8px;
-  background: color-mix(in srgb, var(--color-background-primary), transparent 8%);
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.52rem;
-}
-
-.preset.active {
-  background: color-mix(in srgb, var(--color-highlight-secondary), black 15%);
-  border-color: color-mix(in srgb, var(--color-highlight-secondary), black 15%);
-  color: var(--color-text-special);
-}
-
-.preset.reset {
-  margin-left: auto;
-}
-
-.custom-controls {
-  margin-top: 0.95rem;
-  display: grid;
-  gap: 0.55rem;
-  grid-template-columns: minmax(240px, 420px) auto;
-  align-items: center;
-}
-
-.custom-controls input {
+input {
   width: 100%;
   border: 1px solid color-mix(in srgb, var(--color-text-secondary), transparent 52%);
-  border-radius: 999px;
+  border-radius: 8px;
   padding: 0.46rem 0.78rem;
   font: inherit;
   font-size: 0.9rem;
@@ -130,39 +152,7 @@ button:hover {
   background: color-mix(in srgb, var(--color-background-primary), var(--color-background-secondary) 8%);
 }
 
-.custom-controls input:focus {
-  outline: none;
-  border-color: color-mix(in srgb, var(--color-highlight-secondary), black 24%);
-}
-
-.hidden-controls {
-  margin-top: 0.95rem;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.45rem 0.55rem;
-  border: 1px solid color-mix(in srgb, var(--color-text-secondary), transparent 62%);
-  border-radius: 8px;
-  background: color-mix(in srgb, var(--color-background-primary), transparent 10%);
-}
-
-.hidden-controls label {
-  font-size: 0.86rem;
-  color: var(--color-text-secondary);
-}
-
-.hidden-controls select {
-  min-width: 180px;
-  border: 1px solid color-mix(in srgb, var(--color-text-secondary), transparent 52%);
-  border-radius: 8px;
-  padding: 0.35rem 0.45rem;
-  font: inherit;
-  font-size: 0.86rem;
-  color: var(--color-text-primary);
-  background: color-mix(in srgb, var(--color-background-primary), var(--color-background-secondary) 10%);
-}
-
-.hidden-controls select:focus {
+input:focus {
   outline: none;
   border-color: color-mix(in srgb, var(--color-highlight-secondary), black 24%);
 }
@@ -171,15 +161,26 @@ button:hover {
   margin-top: 0.95rem;
   display: grid;
   gap: 0.85rem;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  grid-auto-flow: dense;
   align-items: start;
 }
 
 .category-column {
+  --entry-slot-height: 58px;
+  --entry-gap: 0.5rem;
+  --entry-list-padding-y: 1rem;
+  --category-header-height: 3.2rem;
+  --category-footer-height: 0rem;
+  grid-column: span var(--category-col-span, 1);
+  grid-row: span var(--category-row-span, 1);
   border: 1px solid color-mix(in srgb, var(--color-text-secondary), transparent 62%);
   border-radius: 8px;
   background: color-mix(in srgb, var(--color-background-primary), transparent 10%);
-  min-height: 16rem;
+  min-height: calc(
+    var(--category-header-height) + var(--entry-list-padding-y) + var(--category-footer-height) +
+      (var(--entry-visible-rows, 3) * var(--entry-slot-height)) + (var(--entry-visible-gaps, 2) * var(--entry-gap))
+  );
   display: flex;
   flex-direction: column;
 }
@@ -191,7 +192,7 @@ button:hover {
 .category-column-header {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
   gap: 0.5rem;
   padding: 0.62rem 0.68rem;
   border-bottom: 1px solid color-mix(in srgb, var(--color-text-secondary), transparent 72%);
@@ -202,7 +203,7 @@ button:hover {
   font-size: 0.98rem;
 }
 
-.category-column-header span {
+.category-count {
   border-radius: 999px;
   padding: 0.1rem 0.46rem;
   font-size: 0.78rem;
@@ -212,33 +213,56 @@ button:hover {
 
 .category-column-actions {
   display: inline-flex;
-  align-items: center;
+  align-items: flex-start;
+  justify-content: flex-end;
+  flex-wrap: wrap;
   gap: 0.4rem;
 }
 
-.category-hide-btn {
-  border-radius: 999px;
-  padding: 0.2rem 0.58rem;
-  font-size: 0.76rem;
+.category-control-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1.75rem);
+  grid-template-rows: repeat(3, 1.75rem);
+  gap: 0.22rem;
+}
+
+.category-tool-btn {
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 6px;
+  padding: 0;
+  display: inline-grid;
+  place-items: center;
+  font-size: 0.95rem;
+  line-height: 1;
+  border-color: transparent;
+  background: transparent;
+  box-shadow: none;
+}
+
+.category-tool-btn .bi {
+  display: block;
+  line-height: 1;
+}
+
+.category-tool-btn:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--color-background-secondary), transparent 34%);
+  box-shadow: none;
 }
 
 .shortcut-list {
   display: grid;
+  grid-template-columns: repeat(var(--entry-columns, 1), minmax(0, 1fr));
   gap: 0.5rem;
-  padding: 0.62rem;
+  padding: 0.5rem;
+  flex: 1;
+  align-content: start;
 }
 
 .shortcut-item {
   --blob-color: #2f4153;
   position: relative;
-  min-height: 66px;
   border-radius: 8px;
-  padding: 0.52rem 0.72rem 0.52rem 0.58rem;
-  display: flex;
-  align-items: center;
-  gap: 0.52rem;
-  text-decoration: none;
-  color: var(--color-text-special);
   user-select: none;
   background:
     radial-gradient(circle at 23% 24%, rgba(255, 255, 255, 0.32), rgba(255, 255, 255, 0)),
@@ -246,6 +270,16 @@ button:hover {
   border: 1px solid rgba(255, 255, 255, 0.24);
   box-shadow: 0 4px 12px rgba(9, 12, 16, 0.25);
   transition: box-shadow 130ms ease, transform 110ms ease;
+}
+
+.shortcut-link {
+  min-height: var(--entry-slot-height);
+  padding: 0.42rem 0.66rem 0.42rem 0.52rem;
+  display: flex;
+  align-items: center;
+  gap: 0.52rem;
+  text-decoration: none;
+  color: var(--color-text-special);
 }
 
 .shortcut-item:hover {
@@ -259,6 +293,102 @@ button:hover {
 
 .shortcut-item[draggable='true']:active {
   cursor: grabbing;
+}
+
+.shortcut-remove {
+  position: absolute;
+  right: 0.45rem;
+  bottom: 0.38rem;
+  padding: 0.16rem 0.46rem;
+  border-color: rgba(255, 255, 255, 0.28);
+  background: rgba(0, 0, 0, 0.18);
+  color: var(--color-text-special);
+  font-size: 0.72rem;
+}
+
+.category-add-entry {
+  margin: 0 0.5rem 0.5rem;
+  min-height: 2.1rem;
+  border-style: dashed;
+  border-radius: 8px;
+  font-size: 1.15rem;
+  color: var(--color-text-secondary);
+  background: color-mix(in srgb, var(--color-background-primary), transparent 48%);
+}
+
+.ghost-category {
+  min-height: calc(
+    3.2rem + var(--entry-list-padding-y, 1rem) + 2.72rem + (3 * var(--entry-slot-height, 58px)) + (2 * var(--entry-gap, 0.5rem))
+  );
+  justify-content: center;
+  align-items: center;
+  border-style: dashed;
+  color: var(--color-text-secondary);
+  background: color-mix(in srgb, var(--color-background-primary), transparent 48%);
+}
+
+.ghost-category span {
+  font-size: 2rem;
+  line-height: 1;
+}
+
+.dialog-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+  background: rgba(0, 0, 0, 0.22);
+  backdrop-filter: blur(8px);
+}
+
+.action-dialog {
+  width: min(720px, 100%);
+  max-height: min(760px, calc(100vh - 2rem));
+  overflow: auto;
+  border: 1px solid color-mix(in srgb, var(--color-text-secondary), transparent 52%);
+  border-radius: 8px;
+  padding: 1rem;
+  background: color-mix(in srgb, var(--color-background-primary), transparent 4%);
+  box-shadow: 0 18px 42px rgba(0, 0, 0, 0.28);
+}
+
+.dialog-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.85rem;
+}
+
+.dialog-header h2 {
+  margin: 0;
+  font-size: 1.08rem;
+}
+
+.dialog-form {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0.55rem;
+}
+
+.unused-entry-grid {
+  display: grid;
+  gap: 0.6rem;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+}
+
+.unused-entry-option {
+  display: block;
+  width: 100%;
+  padding: 0;
+  text-align: left;
+  border-radius: 8px;
+}
+
+.unused-entry-option .shortcut-link {
+  pointer-events: none;
 }
 
 .status-dot {
@@ -289,16 +419,13 @@ button:hover {
 
 .logo,
 .logo-fallback {
-  width: 34px;
-  height: 34px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.24);
-  border: 1px solid rgba(255, 255, 255, 0.34);
+  width: 30px;
+  height: 30px;
   flex-shrink: 0;
 }
 
 .logo {
-  object-fit: cover;
+  object-fit: contain;
 }
 
 .logo-fallback {
@@ -307,6 +434,7 @@ button:hover {
   align-items: center;
   font-size: 0.86rem;
   font-weight: 700;
+  color: var(--color-text-special);
 }
 
 .shortcut-title {
@@ -327,26 +455,31 @@ button:hover {
   color: var(--color-text-secondary);
 }
 
+@media (max-width: 1200px) {
+  .board-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
 @media (max-width: 880px) {
   .dashboard {
     padding: 0.95rem 0.7rem 1.4rem;
   }
 
-  .preset.reset {
-    margin-left: 0;
-  }
-
-  .custom-controls {
+  .board-grid {
     grid-template-columns: 1fr;
   }
 
-  .hidden-controls {
-    display: grid;
-    grid-template-columns: 1fr;
-    width: 100%;
+  .category-column {
+    grid-column: span 1;
+    grid-row: span 1;
   }
 
-  .hidden-controls select {
-    min-width: 0;
+  .shortcut-list {
+    grid-template-columns: 1fr;
+  }
+
+  .dialog-form {
+    grid-template-columns: 1fr;
   }
 }
