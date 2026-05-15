@@ -14,6 +14,7 @@ interface ShortcutTileProps {
   onDragEnd?: () => void
   asOption?: boolean
   onSelect?: (id: string) => void
+  isDragging?: boolean
 }
 
 export function ShortcutTile({
@@ -28,12 +29,13 @@ export function ShortcutTile({
   onDragEnd,
   asOption = false,
   onSelect,
+  isDragging = false,
 }: ShortcutTileProps) {
   const colorStyle = { '--blob-color': shortcut.color } as CSSProperties
 
   return (
     <div
-      className={`shortcut-item${asOption ? ' unused-entry-option' : ''}`}
+      className={`shortcut-item${asOption ? ' unused-entry-option' : ''}${isDragging ? ' dragging' : ''}`}
       style={colorStyle}
       draggable={draggable && isEditMode}
       onDragStart={(event) => onDragStart?.(event, shortcut.id)}

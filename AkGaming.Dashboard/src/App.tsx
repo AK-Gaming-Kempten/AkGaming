@@ -18,6 +18,7 @@ function App() {
   const [entryTargetCategory, setEntryTargetCategory] = useState('')
   const [isEditMode, setIsEditMode] = useState(false)
   const [draggingSiteId, setDraggingSiteId] = useState<string | null>(null)
+  const [dragOverCategory, setDragOverCategory] = useState<string | null>(null)
   const [failedLogos, setFailedLogos] = useState<Record<string, boolean>>({})
   const [statuses, setStatuses] = useState<Record<string, ShortcutStatus>>(() => {
     const initialStatuses: Record<string, ShortcutStatus> = {}
@@ -39,6 +40,7 @@ function App() {
   const unusedShortcuts = (dashboardConfig?.unusedSiteIds ?? [])
     .map((siteId) => getShortcutById(siteId))
     .filter((shortcut): shortcut is SiteShortcut => shortcut !== null)
+  const draggingShortcut = draggingSiteId ? getShortcutById(draggingSiteId) : null
 
   const shortcutsByCategory = useMemo(() => {
     const grouped: Record<string, SiteShortcut[]> = {}
@@ -63,6 +65,7 @@ function App() {
     setActiveDialog(null)
     setEntryTargetCategory('')
     setDraggingSiteId(null)
+    setDragOverCategory(null)
   }, [isEditMode])
 
   const runHealthChecks = useEffectEvent(async () => {
@@ -337,6 +340,7 @@ function App() {
                 }
 
                 event.preventDefault()
+                setDragOverCategory(category)
               }}
               onDrop={(event) => {
                 if (!isEditMode) {
@@ -350,6 +354,18 @@ function App() {
                   moveSiteToCategory(siteId, category)
                 }
                 setDraggingSiteId(null)
+                setDragOverCategory(null)
+              }}
+              onDragLeave={(event) => {
+                if (!isEditMode) {
+                  return
+                }
+
+                const nextTarget = event.relatedTarget
+                if (nextTarget instanceof Node && event.currentTarget.contains(nextTarget)) {
+                  return
+                }
+                setDragOverCategory((currentCategory) => (currentCategory === category ? null : currentCategory))
               }}
             >
               <header className="category-column-header">
@@ -382,6 +398,7 @@ function App() {
                       status={status}
                       failedLogo={hasFailedLogo}
                       isEditMode={isEditMode}
+                      isDragging={draggingSiteId === shortcut.id}
                       draggable
                       setFailedLogo={(siteId) =>
                         setFailedLogos((currentFailedLogos) => ({
@@ -398,11 +415,21 @@ function App() {
                         event.dataTransfer.effectAllowed = 'move'
                         setDraggingSiteId(siteId)
                       }}
-                      onDragEnd={() => setDraggingSiteId(null)}
+                      onDragEnd={() => {
+                        setDraggingSiteId(null)
+                        setDragOverCategory(null)
+                      }}
                       onRemove={removeSiteFromBoard}
                     />
                   )
                 })}
+                {isEditMode && draggingSiteId !== null && dragOverCategory === category && (
+                  <div
+                    className="shortcut-drag-placeholder"
+                    style={{ '--blob-color': draggingShortcut?.color ?? '#2f4153' } as CSSProperties}
+                    aria-hidden="true"
+                  />
+                )}
                 {shortcuts.length === 0 && <div className="empty-category">No shortcuts</div>}
               </div>
               {isEditMode && (

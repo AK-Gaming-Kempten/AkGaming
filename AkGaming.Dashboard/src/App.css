@@ -352,6 +352,22 @@ input:focus {
   cursor: grabbing;
 }
 
+.shortcut-item.dragging {
+  opacity: 0.75;
+  transform: scale(0.98);
+}
+
+.shortcut-drag-placeholder {
+  --blob-color: #2f4153;
+  min-height: var(--entry-slot-height);
+  border-radius: 8px;
+  border: 1px dashed color-mix(in srgb, var(--blob-color), white 48%);
+  background:
+    radial-gradient(circle at 23% 24%, rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0)),
+    linear-gradient(140deg, color-mix(in srgb, var(--blob-color), white 8%), color-mix(in srgb, var(--blob-color), black 22%));
+  opacity: 0.48;
+}
+
 .shortcut-remove {
   position: absolute;
   right: 0.45rem;
