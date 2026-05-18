@@ -146,6 +146,21 @@
 .due-entry-menu-trigger {
     min-width: 2rem;
     padding-inline: 0.45rem;
+
+    border: 1px solid color-mix(in srgb, var(--color-highlight-secondary) 35%, transparent);
+    background: color-mix(in srgb, var(--color-background-secondary) 88%, var(--color-highlight-secondary) 12%);
+    color: var(--color-text-primary);
+
+    border-radius: 7px;
+    font-weight: 700;
+    line-height: 1;
+}
+
+.due-entry-menu-trigger:hover,
+.due-entry-menu-trigger:focus-visible {
+    background: color-mix(in srgb, var(--color-highlight-secondary) 22%, var(--color-background-secondary));
+    border-color: color-mix(in srgb, var(--color-highlight-secondary) 55%, transparent);
+    color: var(--color-text-primary);
 }
 
 .due-entry-action-menu {
