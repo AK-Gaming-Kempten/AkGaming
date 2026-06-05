@@ -11,4 +11,6 @@ public sealed class AuthHardeningOptions : IAuthHardeningSettings
     public bool RequireVerifiedEmailForLogin { get; set; }
     public int EmailVerificationTokenHours { get; set; } = 24;
     public bool ExposeEmailVerificationToken { get; set; }
+    public int PasswordResetTokenHours { get; set; } = 1;
+    public bool ExposePasswordResetToken { get; set; }
 }

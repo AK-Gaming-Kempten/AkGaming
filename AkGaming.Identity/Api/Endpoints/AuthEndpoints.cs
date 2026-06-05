@@ -193,6 +193,32 @@ internal static class AuthEndpoints
             }
         });
 
+        auth.MapPost("/password/request-reset", async (PasswordResetRequest request, IAuthService authService, HttpContext httpContext, CancellationToken cancellationToken) =>
+        {
+            try
+            {
+                var response = await authService.RequestPasswordResetAsync(request, EndpointUtilities.GetIp(httpContext), cancellationToken);
+                return Results.Ok(response);
+            }
+            catch (AuthException exception)
+            {
+                return Results.Problem(statusCode: exception.StatusCode, detail: exception.Message);
+            }
+        });
+
+        auth.MapPost("/password/reset", async (ResetPasswordRequest request, IAuthService authService, HttpContext httpContext, CancellationToken cancellationToken) =>
+        {
+            try
+            {
+                await authService.ResetPasswordAsync(request, EndpointUtilities.GetIp(httpContext), cancellationToken);
+                return Results.NoContent();
+            }
+            catch (AuthException exception)
+            {
+                return Results.Problem(statusCode: exception.StatusCode, detail: exception.Message);
+            }
+        });
+
         auth.MapGet("/email/verify-link", async (string token, IAuthService authService, HttpContext httpContext, CancellationToken cancellationToken) =>
         {
             try

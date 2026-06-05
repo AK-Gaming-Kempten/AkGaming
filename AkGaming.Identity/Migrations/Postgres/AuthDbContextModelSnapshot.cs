@@ -134,6 +134,42 @@ namespace AkGaming.Identity.Infrastructure.Persistence.Migrations
                     b.ToTable("ExternalLogins");
                 });
 
+            modelBuilder.Entity("AkGaming.Identity.Domain.Entities.PasswordResetToken", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime?>("ConsumedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedByIp")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("ExpiresAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("TokenHash")
+                        .IsRequired()
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TokenHash")
+                        .IsUnique();
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("PasswordResetTokens");
+                });
+
             modelBuilder.Entity("AkGaming.Identity.Domain.Entities.RefreshToken", b =>
                 {
                     b.Property<Guid>("Id")
@@ -500,6 +536,17 @@ namespace AkGaming.Identity.Infrastructure.Persistence.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("AkGaming.Identity.Domain.Entities.PasswordResetToken", b =>
+                {
+                    b.HasOne("AkGaming.Identity.Domain.Entities.User", "User")
+                        .WithMany("PasswordResetTokens")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("AkGaming.Identity.Domain.Entities.RefreshToken", b =>
                 {
                     b.HasOne("AkGaming.Identity.Domain.Entities.User", "User")
@@ -566,6 +613,8 @@ namespace AkGaming.Identity.Infrastructure.Persistence.Migrations
                     b.Navigation("EmailVerificationTokens");
 
                     b.Navigation("ExternalLogins");
+
+                    b.Navigation("PasswordResetTokens");
 
                     b.Navigation("RefreshTokens");
 

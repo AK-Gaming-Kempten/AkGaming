@@ -43,6 +43,7 @@ public sealed class TestApiFactory : WebApplicationFactory<Program>
                 ["AllowedHosts"] = "*",
                 ["AuthHardening:RequireVerifiedEmailForLogin"] = "true",
                 ["AuthHardening:ExposeEmailVerificationToken"] = "true",
+                ["AuthHardening:ExposePasswordResetToken"] = "true",
                 ["Bridge:AllowedRedirectUris:0"] = "https://management.akgaming.de",
                 ["OpenIddict:Issuer"] = "https://localhost",
                 ["OpenIddict:Applications:0:ClientId"] = "test-public-client",

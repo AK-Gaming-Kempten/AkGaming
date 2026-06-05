@@ -10,6 +10,9 @@ public sealed record AuthResponse(string AccessToken, DateTime AccessTokenExpire
 public sealed record EmailVerificationRequest(string Email);
 public sealed record VerifyEmailRequest(string Token);
 public sealed record EmailVerificationResponse(string Message, string? VerificationToken = null);
+public sealed record PasswordResetRequest(string Email);
+public sealed record ResetPasswordRequest(string Token, string Password);
+public sealed record PasswordResetResponse(string Message, string? ResetToken = null);
 
 public sealed record DiscordStartResponse(string AuthorizationUrl);
 public sealed record DiscordCallbackResponse(

@@ -1,5 +1,6 @@
 using System.Net;
 using System.Net.Http.Json;
+using System.ComponentModel;
 
 namespace AkGaming.Identity.Api.IntegrationTests;
 
@@ -15,6 +16,66 @@ public sealed class AuthEndpointsTests : IClassFixture<TestApiFactory>
         {
             BaseAddress = new Uri("https://localhost")
         });
+    }
+
+    [Fact]
+    [Description("Verifies that the password reset endpoints issue a token, accept it once, and update the user's password.")]
+    public async Task PasswordReset_Works_EndToEnd()
+    {
+        // Arrange
+        var email = $"reset-{Guid.NewGuid():N}@example.com";
+        var originalPassword = "Password123";
+        var newPassword = "NewPassword123";
+
+        var registerResponse = await _client.PostAsJsonAsync("/auth/register", new
+        {
+            Email = email,
+            Password = originalPassword,
+            PrivacyPolicyAccepted = true,
+            Username = "Reset User"
+        });
+        var registerBody = await registerResponse.Content.ReadAsStringAsync();
+        Assert.True(registerResponse.StatusCode == HttpStatusCode.Forbidden, $"Expected 403, got {(int)registerResponse.StatusCode}: {registerBody}");
+
+        // Act
+        var requestResetResponse = await _client.PostAsJsonAsync("/auth/password/request-reset", new
+        {
+            Email = email
+        });
+        var requestResetBody = await requestResetResponse.Content.ReadAsStringAsync();
+        Assert.True(requestResetResponse.StatusCode == HttpStatusCode.OK, $"Expected 200, got {(int)requestResetResponse.StatusCode}: {requestResetBody}");
+
+        var resetPayload = await requestResetResponse.Content.ReadFromJsonAsync<PasswordResetPayload>();
+        Assert.NotNull(resetPayload);
+        Assert.False(string.IsNullOrWhiteSpace(resetPayload.ResetToken));
+
+        var resetResponse = await _client.PostAsJsonAsync("/auth/password/reset", new
+        {
+            Token = resetPayload.ResetToken,
+            Password = newPassword
+        });
+
+        var originalLoginResponse = await _client.PostAsJsonAsync("/auth/login", new
+        {
+            Email = email,
+            Password = originalPassword
+        });
+
+        var newLoginResponse = await _client.PostAsJsonAsync("/auth/login", new
+        {
+            Email = email,
+            Password = newPassword
+        });
+
+        // Assert
+        var resetBody = await resetResponse.Content.ReadAsStringAsync();
+        Assert.True(resetResponse.StatusCode == HttpStatusCode.NoContent, $"Expected 204, got {(int)resetResponse.StatusCode}: {resetBody}");
+
+        var originalLoginBody = await originalLoginResponse.Content.ReadAsStringAsync();
+        Assert.True(originalLoginResponse.StatusCode == HttpStatusCode.Unauthorized, $"Expected 401, got {(int)originalLoginResponse.StatusCode}: {originalLoginBody}");
+
+        var newLoginBody = await newLoginResponse.Content.ReadAsStringAsync();
+        Assert.True(newLoginResponse.StatusCode == HttpStatusCode.Forbidden, $"Expected 403, got {(int)newLoginResponse.StatusCode}: {newLoginBody}");
     }
 
     [Fact]
@@ -162,4 +223,5 @@ public sealed class AuthEndpointsTests : IClassFixture<TestApiFactory>
 
     private sealed record AuthPayload(string AccessToken, DateTime AccessTokenExpiresAtUtc, string RefreshToken);
     private sealed record EmailVerificationPayload(string Message, string? VerificationToken);
+    private sealed record PasswordResetPayload(string Message, string? ResetToken);
 }

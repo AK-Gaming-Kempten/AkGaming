@@ -10,6 +10,7 @@ internal sealed class InMemoryIdentityRepository : IIdentityRepository
     public List<ExternalLogin> ExternalLogins { get; } = [];
     public List<RefreshToken> RefreshTokens { get; } = [];
     public List<EmailVerificationToken> EmailVerificationTokens { get; } = [];
+    public List<PasswordResetToken> PasswordResetTokens { get; } = [];
     public List<AuditLog> AuditLogs { get; } = [];
 
     public Task<User?> GetUserByEmailAsync(string email, CancellationToken cancellationToken)
@@ -141,6 +142,11 @@ internal sealed class InMemoryIdentityRepository : IIdentityRepository
         return Task.FromResult(EmailVerificationTokens.SingleOrDefault(x => x.TokenHash == tokenHash));
     }
 
+    public Task<PasswordResetToken?> GetPasswordResetTokenByHashAsync(string tokenHash, CancellationToken cancellationToken)
+    {
+        return Task.FromResult(PasswordResetTokens.SingleOrDefault(x => x.TokenHash == tokenHash));
+    }
+
     public Task<List<RefreshToken>> GetActiveRefreshTokensByUserIdAsync(Guid userId, CancellationToken cancellationToken)
     {
         var tokens = RefreshTokens.Where(x => x.UserId == userId && x.RevokedAtUtc == null && x.ExpiresAtUtc > DateTime.UtcNow).ToList();
@@ -150,6 +156,12 @@ internal sealed class InMemoryIdentityRepository : IIdentityRepository
     public Task<List<EmailVerificationToken>> GetActiveEmailVerificationTokensByUserIdAsync(Guid userId, CancellationToken cancellationToken)
     {
         var tokens = EmailVerificationTokens.Where(x => x.UserId == userId && x.ConsumedAtUtc == null && x.ExpiresAtUtc > DateTime.UtcNow).ToList();
+        return Task.FromResult(tokens);
+    }
+
+    public Task<List<PasswordResetToken>> GetActivePasswordResetTokensByUserIdAsync(Guid userId, CancellationToken cancellationToken)
+    {
+        var tokens = PasswordResetTokens.Where(x => x.UserId == userId && x.ConsumedAtUtc == null && x.ExpiresAtUtc > DateTime.UtcNow).ToList();
         return Task.FromResult(tokens);
     }
 
@@ -184,6 +196,14 @@ internal sealed class InMemoryIdentityRepository : IIdentityRepository
         var user = Users.Single(x => x.Id == emailVerificationToken.UserId);
         emailVerificationToken.User = user;
         EmailVerificationTokens.Add(emailVerificationToken);
+        return Task.CompletedTask;
+    }
+
+    public Task AddPasswordResetTokenAsync(PasswordResetToken passwordResetToken, CancellationToken cancellationToken)
+    {
+        var user = Users.Single(x => x.Id == passwordResetToken.UserId);
+        passwordResetToken.User = user;
+        PasswordResetTokens.Add(passwordResetToken);
         return Task.CompletedTask;
     }
 

@@ -165,6 +165,18 @@ public sealed class IdentityRepository : IIdentityRepository
             .SingleOrDefaultAsync(x => x.TokenHash == tokenHash, cancellationToken);
     }
 
+    public Task<PasswordResetToken?> GetPasswordResetTokenByHashAsync(string tokenHash, CancellationToken cancellationToken)
+    {
+        return _dbContext.PasswordResetTokens
+            .Include(x => x.User)
+            .ThenInclude(x => x.UserRoles)
+            .ThenInclude(x => x.Role)
+            .Include(x => x.User)
+            .ThenInclude(x => x.ExternalLogins)
+            .AsSplitQuery()
+            .SingleOrDefaultAsync(x => x.TokenHash == tokenHash, cancellationToken);
+    }
+
     public Task<RefreshToken?> GetRefreshTokenByHashAsync(string tokenHash, CancellationToken cancellationToken)
     {
         return _dbContext.RefreshTokens
@@ -187,6 +199,13 @@ public sealed class IdentityRepository : IIdentityRepository
     public Task<List<EmailVerificationToken>> GetActiveEmailVerificationTokensByUserIdAsync(Guid userId, CancellationToken cancellationToken)
     {
         return _dbContext.EmailVerificationTokens
+            .Where(x => x.UserId == userId && x.ConsumedAtUtc == null && x.ExpiresAtUtc > DateTime.UtcNow)
+            .ToListAsync(cancellationToken);
+    }
+
+    public Task<List<PasswordResetToken>> GetActivePasswordResetTokensByUserIdAsync(Guid userId, CancellationToken cancellationToken)
+    {
+        return _dbContext.PasswordResetTokens
             .Where(x => x.UserId == userId && x.ConsumedAtUtc == null && x.ExpiresAtUtc > DateTime.UtcNow)
             .ToListAsync(cancellationToken);
     }
@@ -214,6 +233,11 @@ public sealed class IdentityRepository : IIdentityRepository
     public async Task AddEmailVerificationTokenAsync(EmailVerificationToken emailVerificationToken, CancellationToken cancellationToken)
     {
         await _dbContext.EmailVerificationTokens.AddAsync(emailVerificationToken, cancellationToken);
+    }
+
+    public async Task AddPasswordResetTokenAsync(PasswordResetToken passwordResetToken, CancellationToken cancellationToken)
+    {
+        await _dbContext.PasswordResetTokens.AddAsync(passwordResetToken, cancellationToken);
     }
 
     public async Task AddAuditLogAsync(AuditLog auditLog, CancellationToken cancellationToken)

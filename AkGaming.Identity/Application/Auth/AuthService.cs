@@ -646,6 +646,101 @@ public sealed class AuthService : IAuthService
         return CreateCurrentUserResponse(verificationToken.User);
     }
 
+    public async Task<PasswordResetResponse> RequestPasswordResetAsync(PasswordResetRequest request, string? ipAddress, CancellationToken cancellationToken)
+    {
+        var email = NormalizeEmail(request.Email);
+        var user = await _repository.GetUserByEmailAsync(email, cancellationToken);
+
+        if (user is null)
+        {
+            await WriteAuditAsync("password_reset.request", null, email, ipAddress, true, "user_not_found", cancellationToken);
+            await _repository.SaveChangesAsync(cancellationToken);
+            return new PasswordResetResponse("If the account exists, a password reset message has been issued.");
+        }
+
+        var activeTokens = await _repository.GetActivePasswordResetTokensByUserIdAsync(user.Id, cancellationToken);
+        foreach (var activeToken in activeTokens)
+        {
+            activeToken.ConsumedAtUtc = DateTime.UtcNow;
+        }
+
+        var rawToken = _refreshTokenService.GenerateToken();
+        var tokenHash = _refreshTokenService.HashToken(rawToken);
+        var identityBaseUrl = GetConfiguredPublicBaseUrl();
+        var resetLink = BuildPasswordResetLink(identityBaseUrl, rawToken);
+
+        await _repository.AddPasswordResetTokenAsync(new PasswordResetToken
+        {
+            UserId = user.Id,
+            TokenHash = tokenHash,
+            ExpiresAtUtc = DateTime.UtcNow.AddHours(_hardeningSettings.PasswordResetTokenHours),
+            CreatedByIp = ipAddress
+        }, cancellationToken);
+
+        var emailMessage = PasswordResetEmailComposer.Compose(
+            user.Email,
+            resetLink,
+            identityBaseUrl,
+            rawToken,
+            _hardeningSettings.PasswordResetTokenHours);
+
+        try
+        {
+            await _emailSender.SendAsync(user.Email, emailMessage.Subject, emailMessage.TextBody, emailMessage.HtmlBody, cancellationToken);
+        }
+        catch (Exception exception)
+        {
+            _logger.LogError(exception, "Failed to send password reset email to {Email}.", user.Email);
+            await WriteAuditAsync("password_reset.email_send_failed", user.Id, user.Email, ipAddress, false, $"smtp_send_failed:{exception.GetType().Name}", cancellationToken);
+            await _repository.SaveChangesAsync(cancellationToken);
+            throw new AuthException(500, "Password reset email could not be sent.");
+        }
+
+        await WriteAuditAsync("password_reset.issued", user.Id, user.Email, ipAddress, true, null, cancellationToken);
+        await _repository.SaveChangesAsync(cancellationToken);
+
+        var exposedToken = _hardeningSettings.ExposePasswordResetToken ? rawToken : null;
+        return new PasswordResetResponse("Password reset token created.", exposedToken);
+    }
+
+    public async Task ResetPasswordAsync(ResetPasswordRequest request, string? ipAddress, CancellationToken cancellationToken)
+    {
+        if (string.IsNullOrWhiteSpace(request.Token))
+        {
+            throw new AuthException(BadRequestStatusCode, "Password reset token is required.");
+        }
+
+        ValidatePassword(request.Password);
+
+        var tokenHash = _refreshTokenService.HashToken(request.Token);
+        var passwordResetToken = await _repository.GetPasswordResetTokenByHashAsync(tokenHash, cancellationToken);
+
+        if (passwordResetToken is null)
+        {
+            await WriteAuditAsync("password_reset.failed", null, null, ipAddress, false, "token_not_found", cancellationToken);
+            await _repository.SaveChangesAsync(cancellationToken);
+            throw new AuthException(BadRequestStatusCode, "Password reset token is invalid.");
+        }
+
+        if (passwordResetToken.ConsumedAtUtc.HasValue || passwordResetToken.ExpiresAtUtc <= DateTime.UtcNow)
+        {
+            await WriteAuditAsync("password_reset.failed", passwordResetToken.UserId, passwordResetToken.User.Email, ipAddress, false, "token_invalid_or_expired", cancellationToken);
+            await _repository.SaveChangesAsync(cancellationToken);
+            throw new AuthException(BadRequestStatusCode, "Password reset token is invalid or expired.");
+        }
+
+        var user = passwordResetToken.User;
+        passwordResetToken.ConsumedAtUtc = DateTime.UtcNow;
+        user.PasswordHash = _passwordHasher.HashPassword(user, request.Password);
+        user.AccessFailedCount = 0;
+        user.LockoutEndUtc = null;
+
+        await InvalidateActivePasswordResetTokensAsync(user.Id, cancellationToken);
+        await RevokeAllActiveRefreshTokensAsync(user.Id, ipAddress, "Password reset.", cancellationToken);
+        await WriteAuditAsync("password_reset.success", user.Id, user.Email, ipAddress, true, null, cancellationToken);
+        await _repository.SaveChangesAsync(cancellationToken);
+    }
+
     public async Task<CurrentUserResponse> UpdatePendingVerificationEmailAsync(Guid userId, string email, string? ipAddress, CancellationToken cancellationToken)
     {
         var user = await _repository.GetUserByIdAsync(userId, cancellationToken);
@@ -997,6 +1092,13 @@ public sealed class AuthService : IAuthService
             token.ConsumedAtUtc = DateTime.UtcNow;
     }
 
+    private async Task InvalidateActivePasswordResetTokensAsync(Guid userId, CancellationToken cancellationToken)
+    {
+        var activeTokens = await _repository.GetActivePasswordResetTokensByUserIdAsync(userId, cancellationToken);
+        foreach (var token in activeTokens)
+            token.ConsumedAtUtc = DateTime.UtcNow;
+    }
+
     private async Task RevokeAllActiveRefreshTokensAsync(Guid userId, string? ipAddress, string reason, CancellationToken cancellationToken)
     {
         var activeTokens = await _repository.GetActiveRefreshTokensByUserIdAsync(userId, cancellationToken);
@@ -1142,5 +1244,10 @@ public sealed class AuthService : IAuthService
     private static string BuildEmailVerificationLink(string baseUrl, string rawToken)
     {
         return $"{baseUrl}/auth/email/verify-link?token={Uri.EscapeDataString(rawToken)}";
+    }
+
+    private static string BuildPasswordResetLink(string baseUrl, string rawToken)
+    {
+        return $"{baseUrl}/account/password-reset?token={Uri.EscapeDataString(rawToken)}";
     }
 }

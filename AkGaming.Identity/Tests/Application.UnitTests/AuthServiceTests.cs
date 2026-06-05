@@ -4,12 +4,148 @@ using AkGaming.Identity.Application.Common;
 using AkGaming.Identity.Application.UnitTests.Fakes;
 using AkGaming.Identity.Contracts.Auth;
 using AkGaming.Identity.Domain.Constants;
+using System.ComponentModel;
 using Microsoft.Extensions.Logging.Abstractions;
 
 namespace AkGaming.Identity.Application.UnitTests;
 
 public sealed class AuthServiceTests
 {
+    [Fact]
+    [Description("Verifies that requesting a password reset issues a token and sends a reset email without changing the password.")]
+    public async Task RequestPasswordResetAsync_IssuesToken_AndSendsEmail()
+    {
+        // Arrange
+        var repository = new InMemoryIdentityRepository();
+        var emailSender = new EmailSenderStub();
+        var hasher = new PasswordHasherStub();
+        var user = new AkGaming.Identity.Domain.Entities.User
+        {
+            Email = "reset@test.local",
+            PasswordHash = hasher.HashPassword(new AkGaming.Identity.Domain.Entities.User(), "Password123")
+        };
+        repository.Users.Add(user);
+        var service = BuildService(repository, hasher, emailSender: emailSender);
+
+        // Act
+        var issued = await service.RequestPasswordResetAsync(
+            new PasswordResetRequest("reset@test.local"),
+            "127.0.0.1",
+            CancellationToken.None);
+
+        // Assert
+        Assert.NotNull(issued.ResetToken);
+        Assert.Single(repository.PasswordResetTokens);
+        var sentEmail = Assert.Single(emailSender.SentEmails);
+        var expectedResetLink = $"https://identity.akgaming.de/account/password-reset?token={Uri.EscapeDataString(issued.ResetToken!)}";
+        Assert.Equal("reset@test.local", sentEmail.ToEmail);
+        Assert.Equal("Reset your AK Gaming Identity password", sentEmail.Subject);
+        Assert.Contains(expectedResetLink, sentEmail.TextBody);
+        Assert.Contains(issued.ResetToken!, sentEmail.TextBody);
+        Assert.Contains("Reset Password", sentEmail.HtmlBody);
+    }
+
+    [Fact]
+    [Description("Verifies that a valid password reset token updates the password, consumes the token, clears lockout state, and revokes active refresh tokens.")]
+    public async Task ResetPasswordAsync_WithValidToken_UpdatesPassword_AndClearsLockout()
+    {
+        // Arrange
+        var repository = new InMemoryIdentityRepository();
+        var refresh = new RefreshTokenServiceStub();
+        var hasher = new PasswordHasherStub();
+        var user = new AkGaming.Identity.Domain.Entities.User
+        {
+            Email = "locked@test.local",
+            PasswordHash = hasher.HashPassword(new AkGaming.Identity.Domain.Entities.User(), "Password123"),
+            AccessFailedCount = 5,
+            LockoutEndUtc = DateTime.UtcNow.AddMinutes(10)
+        };
+        repository.Users.Add(user);
+        repository.RefreshTokens.Add(new AkGaming.Identity.Domain.Entities.RefreshToken
+        {
+            UserId = user.Id,
+            User = user,
+            TokenHash = refresh.HashToken("active-refresh"),
+            ExpiresAtUtc = DateTime.UtcNow.AddDays(1)
+        });
+        var service = BuildService(repository, hasher, refreshTokenService: refresh);
+        var issued = await service.RequestPasswordResetAsync(
+            new PasswordResetRequest("locked@test.local"),
+            "127.0.0.1",
+            CancellationToken.None);
+
+        // Act
+        await service.ResetPasswordAsync(
+            new ResetPasswordRequest(issued.ResetToken!, "NewPassword123"),
+            "127.0.0.1",
+            CancellationToken.None);
+
+        // Assert
+        Assert.True(hasher.VerifyPassword(user, "NewPassword123", user.PasswordHash!));
+        Assert.Equal(0, user.AccessFailedCount);
+        Assert.Null(user.LockoutEndUtc);
+        Assert.NotNull(repository.PasswordResetTokens.Single().ConsumedAtUtc);
+        Assert.NotNull(repository.RefreshTokens.Single().RevokedAtUtc);
+        Assert.Equal("Password reset.", repository.RefreshTokens.Single().RevocationReason);
+    }
+
+    [Fact]
+    [Description("Verifies that password reset requests for unknown users return the generic success response and do not send email.")]
+    public async Task RequestPasswordResetAsync_ForUnknownEmail_DoesNotSendEmail()
+    {
+        // Arrange
+        var repository = new InMemoryIdentityRepository();
+        var emailSender = new EmailSenderStub();
+        var service = BuildService(repository, emailSender: emailSender);
+
+        // Act
+        var result = await service.RequestPasswordResetAsync(
+            new PasswordResetRequest("missing@test.local"),
+            "127.0.0.1",
+            CancellationToken.None);
+
+        // Assert
+        Assert.Null(result.ResetToken);
+        Assert.Empty(repository.PasswordResetTokens);
+        Assert.Empty(emailSender.SentEmails);
+    }
+
+    [Fact]
+    [Description("Verifies that an expired password reset token is rejected and leaves the password unchanged.")]
+    public async Task ResetPasswordAsync_WithExpiredToken_ThrowsBadRequest()
+    {
+        // Arrange
+        var repository = new InMemoryIdentityRepository();
+        var refresh = new RefreshTokenServiceStub();
+        var hasher = new PasswordHasherStub();
+        var user = new AkGaming.Identity.Domain.Entities.User
+        {
+            Email = "expired@test.local",
+            PasswordHash = hasher.HashPassword(new AkGaming.Identity.Domain.Entities.User(), "Password123")
+        };
+        repository.Users.Add(user);
+        repository.PasswordResetTokens.Add(new AkGaming.Identity.Domain.Entities.PasswordResetToken
+        {
+            UserId = user.Id,
+            User = user,
+            TokenHash = refresh.HashToken("expired-token"),
+            ExpiresAtUtc = DateTime.UtcNow.AddMinutes(-1)
+        });
+        var service = BuildService(repository, hasher, refreshTokenService: refresh);
+
+        // Act
+        var exception = await Assert.ThrowsAsync<AuthException>(() =>
+            service.ResetPasswordAsync(
+                new ResetPasswordRequest("expired-token", "NewPassword123"),
+                "127.0.0.1",
+                CancellationToken.None));
+
+        // Assert
+        Assert.Equal(400, exception.StatusCode);
+        Assert.True(hasher.VerifyPassword(user, "Password123", user.PasswordHash!));
+        Assert.Null(repository.PasswordResetTokens.Single().ConsumedAtUtc);
+    }
+
     [Fact]
     public async Task RegisterAsync_CreatesUserWithDefaultRole_AndReturnsTokens()
     {

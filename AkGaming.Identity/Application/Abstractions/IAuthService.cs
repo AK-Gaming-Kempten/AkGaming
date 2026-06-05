@@ -23,6 +23,8 @@ public interface IAuthService
     Task<EmailVerificationResponse> RequestEmailVerificationAsync(EmailVerificationRequest request, string? ipAddress, CancellationToken cancellationToken);
     Task<EmailVerificationResponse> RequestEmailVerificationForUserAsync(Guid userId, string? ipAddress, CancellationToken cancellationToken);
     Task<CurrentUserResponse> VerifyEmailAsync(VerifyEmailRequest request, string? ipAddress, CancellationToken cancellationToken);
+    Task<PasswordResetResponse> RequestPasswordResetAsync(PasswordResetRequest request, string? ipAddress, CancellationToken cancellationToken);
+    Task ResetPasswordAsync(ResetPasswordRequest request, string? ipAddress, CancellationToken cancellationToken);
     Task<CurrentUserResponse> UpdatePendingVerificationEmailAsync(Guid userId, string email, string? ipAddress, CancellationToken cancellationToken);
     Task<CurrentUserResponse> UpdateUsernameAsync(Guid userId, string username, string? ipAddress, CancellationToken cancellationToken);
     Task<DiscordStartResponse> GetDiscordStartUrlAsync(string? redirectUri, string? state, CancellationToken cancellationToken);

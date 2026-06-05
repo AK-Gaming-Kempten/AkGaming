@@ -7,4 +7,6 @@ public interface IAuthHardeningSettings
     bool RequireVerifiedEmailForLogin { get; }
     int EmailVerificationTokenHours { get; }
     bool ExposeEmailVerificationToken { get; }
+    int PasswordResetTokenHours { get; }
+    bool ExposePasswordResetToken { get; }
 }
