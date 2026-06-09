@@ -1,0 +1,50 @@
+.invoice-presets-page {
+    max-width: 1100px;
+}
+
+.invoice-presets-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.invoice-presets-layout {
+    display: grid;
+    grid-template-columns: minmax(220px, 320px) minmax(0, 1fr);
+    gap: 1rem;
+    align-items: start;
+}
+
+.invoice-preset-list {
+    display: grid;
+    gap: 0.5rem;
+}
+
+.invoice-preset-entry {
+    display: grid;
+    gap: 0.2rem;
+    width: 100%;
+    padding: 0.7rem;
+    text-align: left;
+    color: var(--color-text-primary);
+    background: var(--color-background-secondary);
+    border: 1px solid var(--color-text-secondary);
+    border-radius: 4px;
+}
+
+.invoice-preset-entry span {
+    color: var(--color-text-secondary);
+}
+
+.invoice-preset-entry-active,
+.invoice-preset-entry:hover {
+    border-color: var(--color-highlight-primary);
+}
+
+@media (max-width: 720px) {
+    .invoice-presets-layout {
+        grid-template-columns: 1fr;
+    }
+}

@@ -1,0 +1,24 @@
+@using AkGaming.Management.Modules.InvoiceManagement.Contracts.DTO
+
+<section class="panel payment-terms-preset-form ui-stack-md">
+    <h4 class="ui-title">@Title</h4>
+    <div class="ui-field">
+        <label>Preset label</label>
+        <InputText @bind-Value="Model.Label" />
+    </div>
+    <div class="ui-field">
+        <label>Payment terms</label>
+        <InputTextArea @bind-Value="Model.Terms" />
+    </div>
+    <div class="ui-actions">
+        <button type="button" class="btn btn-primary" @onclick="SaveAsync" disabled="@IsBusy">Save preset</button>
+        @if (ShowDelete)
+        {
+            <button type="button" class="btn btn-danger" @onclick="DeleteAsync" disabled="@IsBusy">Delete preset</button>
+        }
+        @if (OnCancel.HasDelegate)
+        {
+            <button type="button" class="btn btn-outline-secondary" @onclick="CancelAsync" disabled="@IsBusy">Cancel</button>
+        }
+    </div>
+</section>

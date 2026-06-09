@@ -72,6 +72,47 @@ public abstract class ApiClientBase {
         }
     }
 
+    protected async Task<Result> DeleteAsync(string url, CancellationToken ct = default) {
+        try {
+            using var resp = await Http.DeleteAsync(url, ct);
+            return await ToResult(resp, ct);
+        } catch (HttpRequestException ex) {
+            return Result.Failure(BuildConnectionError(ex));
+        } catch (TaskCanceledException) when (!ct.IsCancellationRequested) {
+            return Result.Failure(BuildTimeoutError());
+        }
+    }
+
+    protected async Task<Result<string>> PostForStringAsync<TIn>(string url, TIn body, CancellationToken ct = default) {
+        try {
+            using var resp = await Http.PostAsJsonAsync(url, body, Json, ct);
+            if (!resp.IsSuccessStatusCode)
+                return Result<string>.Failure(await ReadError(resp, ct));
+
+            var content = await resp.Content.ReadAsStringAsync(ct);
+            return Result<string>.Success(content);
+        } catch (HttpRequestException ex) {
+            return Result<string>.Failure(BuildConnectionError(ex));
+        } catch (TaskCanceledException) when (!ct.IsCancellationRequested) {
+            return Result<string>.Failure(BuildTimeoutError());
+        }
+    }
+
+    protected async Task<Result<byte[]>> PostForBytesAsync<TIn>(string url, TIn body, CancellationToken ct = default) {
+        try {
+            using var resp = await Http.PostAsJsonAsync(url, body, Json, ct);
+            if (!resp.IsSuccessStatusCode)
+                return Result<byte[]>.Failure(await ReadError(resp, ct));
+
+            var content = await resp.Content.ReadAsByteArrayAsync(ct);
+            return Result<byte[]>.Success(content);
+        } catch (HttpRequestException ex) {
+            return Result<byte[]>.Failure(BuildConnectionError(ex));
+        } catch (TaskCanceledException) when (!ct.IsCancellationRequested) {
+            return Result<byte[]>.Failure(BuildTimeoutError());
+        }
+    }
+
     protected async Task<Result> PutJsonAsync<TIn>(string url, TIn body, CancellationToken ct = default) {
         try {
             using var resp = await Http.PutAsJsonAsync(url, body, Json, ct);

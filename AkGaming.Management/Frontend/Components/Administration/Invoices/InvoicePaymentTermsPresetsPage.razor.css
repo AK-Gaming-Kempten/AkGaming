@@ -1,0 +1,50 @@
+.invoice-payment-presets-page {
+    max-width: 1100px;
+}
+
+.invoice-payment-presets-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.invoice-payment-presets-layout {
+    display: grid;
+    grid-template-columns: minmax(240px, 340px) minmax(0, 1fr);
+    gap: 1rem;
+    align-items: start;
+}
+
+.invoice-payment-preset-list {
+    display: grid;
+    gap: 0.5rem;
+}
+
+.invoice-payment-preset-entry {
+    display: grid;
+    gap: 0.25rem;
+    width: 100%;
+    padding: 0.7rem;
+    text-align: left;
+    color: var(--color-text-primary);
+    background: var(--color-background-secondary);
+    border: 1px solid var(--color-text-secondary);
+    border-radius: 4px;
+}
+
+.invoice-payment-preset-entry span {
+    color: var(--color-text-secondary);
+}
+
+.invoice-payment-preset-entry-active,
+.invoice-payment-preset-entry:hover {
+    border-color: var(--color-highlight-primary);
+}
+
+@media (max-width: 720px) {
+    .invoice-payment-presets-layout {
+        grid-template-columns: 1fr;
+    }
+}

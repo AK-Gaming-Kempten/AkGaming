@@ -1,0 +1,68 @@
+.invoice-page {
+    max-width: 1500px;
+}
+
+.invoice-page-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.invoice-page-layout {
+    display: grid;
+    grid-template-columns: 260px minmax(0, 1fr);
+    gap: 1rem;
+    align-items: start;
+}
+
+.invoice-selector {
+    position: sticky;
+    top: 1rem;
+}
+
+.invoice-selector-list {
+    display: grid;
+    gap: 0.5rem;
+}
+
+.invoice-selector-entry {
+    display: grid;
+    gap: 0.2rem;
+    width: 100%;
+    padding: 0.75rem;
+    text-align: left;
+    color: var(--color-text-primary);
+    background: var(--color-background-secondary);
+    border: 1px solid var(--color-text-secondary);
+    border-radius: 4px;
+}
+
+.invoice-selector-entry:hover,
+.invoice-selector-entry-active {
+    border-color: var(--color-highlight-primary);
+    background: color-mix(in srgb, var(--color-highlight-primary) 10%, var(--color-background-primary));
+}
+
+.invoice-selector-entry span,
+.invoice-selector-entry small {
+    color: var(--color-text-secondary);
+}
+
+.invoice-empty-state {
+    min-height: 240px;
+    display: grid;
+    place-content: center;
+    text-align: center;
+}
+
+@media (max-width: 900px) {
+    .invoice-page-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .invoice-selector {
+        position: static;
+    }
+}

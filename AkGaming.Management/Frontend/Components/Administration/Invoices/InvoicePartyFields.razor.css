@@ -1,0 +1,30 @@
+.invoice-party-fields {
+    display: grid;
+    gap: 0.75rem;
+}
+
+.invoice-party-heading {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+
+.invoice-party-heading h4 {
+    margin: 0;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+}
+
+.invoice-party-heading h4 .bi {
+    display: inline-grid;
+    width: 1.85rem;
+    height: 1.85rem;
+    place-items: center;
+    border-radius: 0.45rem;
+    color: var(--color-highlight-primary);
+    background: color-mix(in srgb, var(--color-highlight-primary) 12%, transparent);
+    font-size: 0.95rem;
+}

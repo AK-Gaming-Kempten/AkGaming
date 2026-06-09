@@ -1,0 +1,6 @@
+<div class="preset-panel ui-stack-md">
+    <section class="panel preset-toolbar"><div><h3 class="ui-title">Line item presets</h3><span class="ui-text-muted">Reusable individual invoice positions.</span></div><button type="button" class="btn btn-primary" @onclick="ToggleCreate" disabled="@_isBusy">@(_showCreate ? "Cancel creation" : "Create preset")</button></section>
+    @if (!string.IsNullOrWhiteSpace(_error)) { <p class="text-danger">@_error</p> } @if (!string.IsNullOrWhiteSpace(_status)) { <p class="text-success">@_status</p> }
+    @if (_showCreate) { @Form("New preset") }
+    <div class="preset-layout"><section class="panel"><h4 class="ui-title">Presets</h4>@if (_presets is null) { <p>Loading presets...</p> } else if (_presets.Count == 0) { <p>No line item presets have been created.</p> } else { <div class="preset-list">@foreach (var preset in _presets) { <button type="button" class="preset-entry @(preset.Id == _editing.Id ? "active" : "")" @onclick="() => Select(preset)"><strong>@preset.Label</strong><span>@preset.LineItem.Description</span></button> }</div> }</section>@if (!_showCreate && _editing.Id != Guid.Empty) { @Form("Edit preset") }</div>
+</div>

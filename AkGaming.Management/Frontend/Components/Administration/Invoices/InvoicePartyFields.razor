@@ -1,0 +1,43 @@
+@using AkGaming.Management.Modules.InvoiceManagement.Contracts.DTO
+
+<section class="invoice-party-fields">
+    <div class="invoice-party-heading">
+        <h4>
+            <span class="bi @(Title == "Seller" ? "bi-building" : "bi-person")" aria-hidden="true"></span>
+            <span>@Title</span>
+        </h4>
+        @if (Presets.Count > 0)
+        {
+            <select class="ui-select-sm" value="" @onchange="ApplyPresetAsync">
+                <option value="">Apply preset...</option>
+                @foreach (var preset in Presets)
+                {
+                    <option value="@preset.Id">@preset.Label</option>
+                }
+            </select>
+        }
+    </div>
+
+    <div class="ui-grid-auto-180">
+        <div class="ui-field">
+            <label>Name</label>
+            <InputText @bind-Value="Value.Name" />
+        </div>
+        <div class="ui-field">
+            <label>Street</label>
+            <InputText @bind-Value="Value.Street" />
+        </div>
+        <div class="ui-field">
+            <label>Postal code</label>
+            <InputText @bind-Value="Value.PostalCode" />
+        </div>
+        <div class="ui-field">
+            <label>City</label>
+            <InputText @bind-Value="Value.City" />
+        </div>
+        <div class="ui-field">
+            <label>Country</label>
+            <InputText @bind-Value="Value.Country" />
+        </div>
+    </div>
+</section>

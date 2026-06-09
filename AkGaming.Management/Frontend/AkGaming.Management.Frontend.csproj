@@ -16,6 +16,7 @@
       <ProjectReference Include="$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\..\AkGaming.Core\Components\AkGaming.Core.Components.csproj'))" />
       <ProjectReference Include="$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\..\AkGaming.Identity\Contracts\AkGaming.Identity.Contracts.csproj'))" />
       <ProjectReference Include="$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\Modules\MemberManagement\Contracts\AkGaming.Management.Modules.MemberManagement.Contracts.csproj'))" />
+      <ProjectReference Include="$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\Modules\InvoiceManagement\Contracts\AkGaming.Management.Modules.InvoiceManagement.Contracts.csproj'))" />
       <ProjectReference Include="$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\Frontend.Components\AkGaming.Management.Frontend.Components.csproj'))" />
     </ItemGroup>
 

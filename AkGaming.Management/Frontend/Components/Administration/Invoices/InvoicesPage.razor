@@ -1,0 +1,81 @@
+@page "/invoices"
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize(Roles = "Admin")]
+
+<PageTitle>Invoices</PageTitle>
+
+<div class="invoice-page ui-stack-md">
+    <section class="panel invoice-page-toolbar">
+        <div>
+            <h3 class="ui-title">Invoices</h3>
+            <span class="ui-text-muted">Create, edit, preview, and regenerate stored invoices.</span>
+        </div>
+        <div class="ui-actions">
+            <button type="button" class="btn btn-secondary" @onclick="ReloadAsync" disabled="@_isBusy">Refresh</button>
+            <button type="button" class="btn btn-primary" @onclick="StartCreate" disabled="@_isBusy">Create invoice</button>
+        </div>
+    </section>
+
+    @if (!string.IsNullOrWhiteSpace(_error))
+    {
+        <p class="text-danger">@_error</p>
+    }
+    @if (!string.IsNullOrWhiteSpace(_status))
+    {
+        <p class="text-success">@_status</p>
+    }
+
+    <div class="invoice-page-layout">
+        <aside class="panel invoice-selector">
+            <h4 class="ui-title">Stored invoices</h4>
+            @if (_invoices is null)
+            {
+                <p>Loading invoices...</p>
+            }
+            else if (_invoices.Count == 0)
+            {
+                <p>No invoices have been saved.</p>
+            }
+            else
+            {
+                <div class="invoice-selector-list">
+                    @foreach (var invoice in _invoices)
+                    {
+                        <button type="button"
+                                class="invoice-selector-entry @(invoice.Id == _selectedInvoice?.Id ? "invoice-selector-entry-active" : string.Empty)"
+                                @onclick="() => SelectInvoiceAsync(invoice.Id)"
+                                disabled="@_isBusy">
+                            <strong>@invoice.InvoiceNumber</strong>
+                            <span>@invoice.BuyerName</span>
+                            <small>@invoice.InvoiceDate.ToString("dd.MM.yyyy") - @invoice.TotalAmount.ToString("N2") EUR</small>
+                        </button>
+                    }
+                </div>
+            }
+        </aside>
+
+        <main>
+            @if (_selectedInvoice is not null)
+            {
+                <InvoiceEditor @key="_selectedInvoice.Id"
+                               Model="_selectedInvoice"
+                               Presets="_presets"
+                               PaymentTermsPresets="_paymentTermsPresets"
+                               BankAccountPresets="_bankAccountPresets"
+                               LineItemPresets="_lineItemPresets"
+                               LineItemCollectionPresets="_lineItemCollectionPresets"
+                               IsBusy="_isBusy"
+                               OnSave="SaveAsync"
+                               OnDelete="DeleteAsync"
+                               OnCancel="CloseEditor" />
+            }
+            else
+            {
+                <section class="panel invoice-empty-state">
+                    <h4>Select an invoice</h4>
+                    <p>Choose an existing invoice or create a new one.</p>
+                </section>
+            }
+        </main>
+    </div>
+</div>

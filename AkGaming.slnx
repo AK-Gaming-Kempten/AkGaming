@@ -40,9 +40,6 @@
     <Project Path="AkGaming.Identity/Tests/Application.UnitTests/AkGaming.Identity.Application.UnitTests.csproj" />
   </Folder>
   <Folder Name="/AkGaming.InvoiceGenerator/" />
-  <Folder Name="/AkGaming.InvoiceGenerator/Api/">
-    <Project Path="AkGaming.InvoiceGenerator/Api/AkGaming.InvoiceGenerator.Api.csproj" />
-  </Folder>
   <Folder Name="/AkGaming.InvoiceGenerator/Cli/">
     <Project Path="AkGaming.InvoiceGenerator/Cli/AkGaming.InvoiceGenerator.Cli.csproj" />
   </Folder>
@@ -57,6 +54,16 @@
     <Project Path="AkGaming.Management/Frontend/AkGaming.Management.Frontend.csproj" />
   </Folder>
   <Folder Name="/AkGaming.Management/Modules/" />
+  <Folder Name="/AkGaming.Management/Modules/InvoiceManagement/">
+    <Project Path="AkGaming.Management/Modules/InvoiceManagement/Api/AkGaming.Management.Modules.InvoiceManagement.Api.csproj" />
+    <Project Path="AkGaming.Management/Modules/InvoiceManagement/Application/AkGaming.Management.Modules.InvoiceManagement.Application.csproj" />
+    <Project Path="AkGaming.Management/Modules/InvoiceManagement/Contracts/AkGaming.Management.Modules.InvoiceManagement.Contracts.csproj" />
+    <Project Path="AkGaming.Management/Modules/InvoiceManagement/Domain/AkGaming.Management.Modules.InvoiceManagement.Domain.csproj" />
+    <Project Path="AkGaming.Management/Modules/InvoiceManagement/Infrastructure/AkGaming.Management.Modules.InvoiceManagement.Infrastructure.csproj" />
+    <Project Path="AkGaming.Management/Modules/InvoiceManagement/Migrations/Postgres/AkGaming.Management.Modules.InvoiceManagement.Migrations.Postgres.csproj" />
+    <Project Path="AkGaming.Management/Modules/InvoiceManagement/Migrations/Sqlite/AkGaming.Management.Modules.InvoiceManagement.Migrations.Sqlite.csproj" />
+    <Project Path="AkGaming.Management/Modules/InvoiceManagement/Tests/AkGaming.Management.Modules.InvoiceManagement.Tests.csproj" />
+  </Folder>
   <Folder Name="/AkGaming.Management/Modules/MemberManagement/" />
   <Folder Name="/AkGaming.Management/Modules/MemberManagement/Api/">
     <Project Path="AkGaming.Management/Modules/MemberManagement/Api/AkGaming.Management.Modules.MemberManagement.Api.csproj" />

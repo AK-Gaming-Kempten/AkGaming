@@ -130,6 +130,9 @@ public static class ServiceCollectionExtensions {
         services.AddScoped<MemberManagementApiClient>(sp =>
             new MemberManagementApiClient(sp.GetRequiredKeyedService<HttpClient>("ManagementApi")));
 
+        services.AddScoped<InvoiceManagementApiClient>(sp =>
+            new InvoiceManagementApiClient(sp.GetRequiredKeyedService<HttpClient>("ManagementApi")));
+
         services.AddScoped<IdentityApiClient>(sp =>
             new IdentityApiClient(
                 sp.GetRequiredKeyedService<HttpClient>("IdentityApi"),

@@ -1,0 +1,84 @@
+@page "/invoices/parties"
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize(Roles = "Admin")]
+
+<PageTitle>Invoice Party Presets</PageTitle>
+
+<div class="invoice-presets-page ui-stack-md">
+    <section class="panel invoice-presets-toolbar">
+        <div>
+            <h3 class="ui-title">Invoice party presets</h3>
+            <span class="ui-text-muted">Reusable seller and buyer addresses for invoice editing.</span>
+        </div>
+        <button type="button" class="btn btn-primary" @onclick="ToggleCreate" disabled="@_isBusy">
+            @(_showCreate ? "Cancel creation" : "Create preset")
+        </button>
+    </section>
+
+    @if (!string.IsNullOrWhiteSpace(_error))
+    {
+        <p class="text-danger">@_error</p>
+    }
+    @if (!string.IsNullOrWhiteSpace(_status))
+    {
+        <p class="text-success">@_status</p>
+    }
+
+    @if (_showCreate)
+    {
+        <section class="panel ui-stack-md">
+            <h4 class="ui-title">New preset</h4>
+            <div class="ui-field">
+                <label>Preset label</label>
+                <InputText @bind-Value="_editingPreset.Label" />
+            </div>
+            <InvoicePartyFields Title="Address" Value="_editingPreset.Party" />
+            <div class="ui-actions">
+                <button type="button" class="btn btn-primary" @onclick="SaveAsync" disabled="@_isBusy">Save preset</button>
+                <button type="button" class="btn btn-outline-secondary" @onclick="ToggleCreate" disabled="@_isBusy">Cancel</button>
+            </div>
+        </section>
+    }
+
+    <div class="invoice-presets-layout">
+        <section class="panel">
+            <h4 class="ui-title">Presets</h4>
+            @if (_presets is null)
+            {
+                <p>Loading presets...</p>
+            }
+            else if (_presets.Count == 0)
+            {
+                <p>No party presets have been created.</p>
+            }
+            else
+            {
+                <div class="invoice-preset-list">
+                    @foreach (var preset in _presets)
+                    {
+                        <button type="button" class="invoice-preset-entry @(preset.Id == _editingPreset.Id ? "invoice-preset-entry-active" : string.Empty)" @onclick="() => SelectPreset(preset)">
+                            <strong>@preset.Label</strong>
+                            <span>@preset.Party.Name</span>
+                        </button>
+                    }
+                </div>
+            }
+        </section>
+
+        @if (!_showCreate && _editingPreset.Id != Guid.Empty)
+        {
+            <section class="panel ui-stack-md">
+                <h4 class="ui-title">Edit preset</h4>
+                <div class="ui-field">
+                    <label>Preset label</label>
+                    <InputText @bind-Value="_editingPreset.Label" />
+                </div>
+                <InvoicePartyFields Title="Address" Value="_editingPreset.Party" />
+                <div class="ui-actions">
+                    <button type="button" class="btn btn-primary" @onclick="SaveAsync" disabled="@_isBusy">Save changes</button>
+                    <button type="button" class="btn btn-danger" @onclick="DeleteAsync" disabled="@_isBusy">Delete preset</button>
+                </div>
+            </section>
+        }
+    </div>
+</div>

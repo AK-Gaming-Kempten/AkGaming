@@ -1,5 +1,6 @@
 using System.Data;
 using AkGaming.Management.Modules.MemberManagement.Infrastructure.Persistence;
+using AkGaming.Management.Modules.InvoiceManagement.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 
@@ -22,6 +23,8 @@ public static class WebApplicationExtensions {
         var db = scope.ServiceProvider.GetRequiredService<MemberManagementDbContext>();
         ResetLegacySqliteDatabaseIfNeeded(app.Environment, db);
         db.Database.Migrate();
+        var invoiceDb = scope.ServiceProvider.GetRequiredService<InvoiceManagementDbContext>();
+        invoiceDb.Database.Migrate();
         return app;
     }
 

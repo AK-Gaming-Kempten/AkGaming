@@ -1,0 +1,109 @@
+.invoice-editor-toolbar,
+.invoice-section-heading {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.invoice-field-heading {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+
+.invoice-editor-toolbar h3,
+.invoice-section-heading .ui-title {
+    margin: 0;
+}
+
+.invoice-title,
+.invoice-section-title {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+}
+
+.invoice-title-icon,
+.invoice-section-title > .bi {
+    color: var(--color-highlight-primary);
+}
+
+.invoice-title-icon {
+    font-size: 1.1em;
+}
+
+.invoice-section-title > .bi {
+    display: inline-grid;
+    width: 1.85rem;
+    height: 1.85rem;
+    place-items: center;
+    border-radius: 0.45rem;
+    background: color-mix(in srgb, var(--color-highlight-primary) 12%, transparent);
+    font-size: 0.95rem;
+}
+
+.invoice-section-title-secondary {
+    font-size: 1rem;
+}
+
+.invoice-section-title-secondary > .bi {
+    width: 1.6rem;
+    height: 1.6rem;
+}
+
+.invoice-eyebrow {
+    margin: 0 0 0.25rem;
+    color: var(--color-text-secondary);
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+}
+
+.invoice-line-list {
+    display: grid;
+    gap: 0.75rem;
+}
+
+.invoice-line {
+    display: grid;
+    grid-template-columns: minmax(220px, 1fr) 130px 100px 120px auto;
+    gap: 0.75rem;
+    align-items: end;
+}
+
+.invoice-line-total {
+    padding-bottom: 0.45rem;
+    text-align: right;
+    white-space: nowrap;
+}
+
+.invoice-total {
+    justify-self: end;
+}
+
+.invoice-preview-shell {
+    display: grid;
+    gap: 1rem;
+}
+
+.invoice-preview {
+    width: 100%;
+    min-height: 800px;
+    border: 1px solid var(--color-text-secondary);
+    background: white;
+}
+
+@media (max-width: 900px) {
+    .invoice-line {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .invoice-line-description {
+        grid-column: 1 / -1;
+    }
+}

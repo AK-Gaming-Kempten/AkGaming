@@ -1,4 +1,5 @@
 using AkGaming.Management.Modules.MemberManagement.Api;
+using AkGaming.Management.Modules.InvoiceManagement.Api;
 using AkGaming.Management.WebApi.Startup;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -12,7 +13,8 @@ builder.Services
     .AddAppSwagger()
     .AddOpenIddictAuthentication(builder.Configuration, builder.Environment)
     .AddAppAuthorization()
-    .AddMemberManagementModule(builder.Configuration);
+    .AddMemberManagementModule(builder.Configuration)
+    .AddInvoiceManagementModule(builder.Configuration);
 
 var app = builder.Build();
 
@@ -22,6 +24,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapMemberManagementEndpoints();
+app.MapControllers();
 app.MapDebugEndpoints();
 app.UseDatabaseMigrations();
 

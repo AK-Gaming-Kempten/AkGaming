@@ -1,0 +1,10 @@
+<div class="ui-stack-md">
+    <div class="ui-field"><label>Preset label</label><InputText @bind-Value="Model.Label" /></div>
+    <div class="ui-grid-auto-180">
+        <div class="ui-field"><label>IBAN</label><InputText @bind-Value="Model.BankDetails.Iban" /></div>
+        <div class="ui-field"><label>BIC</label><InputText @bind-Value="Model.BankDetails.Bic" /></div>
+        <div class="ui-field"><label>BLZ</label><InputText @bind-Value="Model.BankDetails.Blz" /></div>
+        <div class="ui-field"><label>Account holder</label><InputText @bind-Value="Model.BankDetails.AccountHolder" /></div>
+    </div>
+    <div class="ui-actions"><button type="button" class="btn btn-primary" @onclick="SaveAsync" disabled="@IsBusy">Save preset</button>@if (ShowDelete) { <button type="button" class="btn btn-danger" @onclick="DeleteAsync" disabled="@IsBusy">Delete preset</button> }</div>
+</div>

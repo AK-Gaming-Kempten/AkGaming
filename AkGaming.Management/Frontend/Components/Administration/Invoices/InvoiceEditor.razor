@@ -1,0 +1,186 @@
+@using AkGaming.Management.Modules.InvoiceManagement.Contracts.DTO
+
+<EditForm Model="Model" OnSubmit="SaveAsync" class="invoice-editor ui-stack-md">
+    <section class="panel ui-stack-md">
+        <div class="invoice-editor-toolbar">
+            <div>
+                <p class="invoice-eyebrow">@((Model.Id == Guid.Empty) ? "New invoice" : "Invoice")</p>
+                <h3 class="invoice-title">
+                    <span class="bi bi-receipt invoice-title-icon" aria-hidden="true"></span>
+                    <span>@(string.IsNullOrWhiteSpace(Model.InvoiceNumber) ? "Untitled invoice" : Model.InvoiceNumber)</span>
+                </h3>
+            </div>
+            <div class="ui-actions">
+                <button type="submit" class="btn btn-primary" disabled="@IsBusy"><span class="bi bi-floppy me-1" aria-hidden="true"></span> Save</button>
+                <button type="button" class="btn btn-secondary" @onclick="PreviewAsync" disabled="@IsBusy"><span class="bi bi-eye me-1" aria-hidden="true"></span> Preview HTML</button>
+                <button type="button" class="btn btn-secondary" @onclick="DownloadHtmlAsync" disabled="@IsBusy"><span class="bi bi-filetype-html me-1" aria-hidden="true"></span> Download HTML</button>
+                <button type="button" class="btn btn-secondary" @onclick="DownloadPdfAsync" disabled="@IsBusy"><span class="bi bi-file-earmark-pdf me-1" aria-hidden="true"></span> Download PDF</button>
+                @if (Model.Id != Guid.Empty)
+                {
+                    <button type="button" class="btn btn-danger" @onclick="DeleteAsync" disabled="@IsBusy">Delete</button>
+                }
+                <button type="button" class="btn btn-outline-secondary" @onclick="CancelAsync" disabled="@IsBusy">Close</button>
+            </div>
+        </div>
+
+        @if (!string.IsNullOrWhiteSpace(_error))
+        {
+            <p class="text-danger">@_error</p>
+        }
+
+        <div class="ui-grid-auto-180">
+            <div class="ui-field">
+                <label>Invoice number</label>
+                <InputText @bind-Value="Model.InvoiceNumber" />
+            </div>
+            <div class="ui-field">
+                <label>Invoice date</label>
+                <InputDate @bind-Value="Model.InvoiceDate" />
+            </div>
+            <div class="ui-field">
+                <label>Service date</label>
+                <InputDate TValue="DateOnly?" @bind-Value="Model.ServiceDate" />
+            </div>
+        </div>
+    </section>
+
+    <section class="panel ui-grid-2">
+        <InvoicePartyFields Title="Seller" Value="Model.Seller" Presets="Presets" />
+        <InvoicePartyFields Title="Buyer" Value="Model.Buyer" Presets="Presets" />
+    </section>
+
+    <section class="panel ui-stack-md">
+        <h4 class="ui-title invoice-section-title">
+            <span class="bi bi-card-text" aria-hidden="true"></span>
+            <span>Invoice text</span>
+        </h4>
+        <div class="ui-field">
+            <label>Introduction</label>
+            <InputTextArea @bind-Value="Model.IntroText" />
+        </div>
+        <div class="ui-field">
+            <label>Body</label>
+            <InputTextArea @bind-Value="Model.BodyText" />
+        </div>
+    </section>
+
+    <section class="panel ui-stack-md">
+        <div class="invoice-section-heading">
+            <h4 class="ui-title invoice-section-title">
+                <span class="bi bi-list-check" aria-hidden="true"></span>
+                <span>Line items</span>
+            </h4>
+            <div class="ui-actions">
+                @if (LineItemPresets.Count > 0)
+                {
+                    <select class="ui-select-sm" value="" @onchange="AddLineItemPreset">
+                        <option value="">Add item preset...</option>
+                        @foreach (var preset in LineItemPresets)
+                        {
+                            <option value="@preset.Id">@preset.Label</option>
+                        }
+                    </select>
+                }
+                @if (LineItemCollectionPresets.Count > 0)
+                {
+                    <select class="ui-select-sm" value="" @onchange="ApplyLineItemCollectionPreset">
+                        <option value="">Replace with collection...</option>
+                        @foreach (var preset in LineItemCollectionPresets)
+                        {
+                            <option value="@preset.Id">@preset.Label</option>
+                        }
+                    </select>
+                }
+                <button type="button" class="btn btn-sm btn-secondary" @onclick="AddLineItem">Add line item</button>
+            </div>
+        </div>
+
+        <div class="invoice-line-list">
+            @for (var index = 0; index < Model.LineItems.Count; index++)
+            {
+                var item = Model.LineItems[index];
+                <div class="invoice-line" @key="item">
+                    <div class="ui-field invoice-line-description">
+                        <label>Description</label>
+                        <InputText @bind-Value="item.Description" />
+                    </div>
+                    <div class="ui-field">
+                        <label>Unit price</label>
+                        <InputNumber @bind-Value="item.UnitPrice" />
+                    </div>
+                    <div class="ui-field">
+                        <label>Quantity</label>
+                        <InputNumber @bind-Value="item.Quantity" />
+                    </div>
+                    <div class="invoice-line-total">@item.TotalPrice.ToString("N2") EUR</div>
+                    <button type="button" class="btn btn-sm btn-danger" @onclick="() => RemoveLineItem(item)" disabled="@(Model.LineItems.Count == 1)">Remove</button>
+                </div>
+            }
+        </div>
+        <strong class="invoice-total">Total: @TotalAmount.ToString("N2") EUR</strong>
+    </section>
+
+    <section class="panel ui-stack-md">
+        <h4 class="ui-title invoice-section-title">
+            <span class="bi bi-credit-card" aria-hidden="true"></span>
+            <span>Payment and closing</span>
+        </h4>
+        <div class="ui-field">
+            <div class="invoice-field-heading">
+                <label>Payment terms</label>
+                @if (PaymentTermsPresets.Count > 0)
+                {
+                    <select class="ui-select-sm" value="" @onchange="ApplyPaymentTermsPreset">
+                        <option value="">Apply preset...</option>
+                        @foreach (var preset in PaymentTermsPresets)
+                        {
+                            <option value="@preset.Id">@preset.Label</option>
+                        }
+                    </select>
+                }
+            </div>
+            <InputTextArea @bind-Value="Model.PaymentTerms" />
+        </div>
+        <div class="invoice-field-heading">
+            <h4 class="ui-title invoice-section-title invoice-section-title-secondary">
+                <span class="bi bi-bank" aria-hidden="true"></span>
+                <span>Bank account</span>
+            </h4>
+            @if (BankAccountPresets.Count > 0)
+            {
+                <select class="ui-select-sm" value="" @onchange="ApplyBankAccountPreset">
+                    <option value="">Apply bank preset...</option>
+                    @foreach (var preset in BankAccountPresets)
+                    {
+                        <option value="@preset.Id">@preset.Label</option>
+                    }
+                </select>
+            }
+        </div>
+        <div class="ui-grid-auto-180">
+            <div class="ui-field"><label>IBAN</label><InputText @bind-Value="Model.BankDetails.Iban" /></div>
+            <div class="ui-field"><label>BIC</label><InputText @bind-Value="Model.BankDetails.Bic" /></div>
+            <div class="ui-field"><label>BLZ</label><InputText @bind-Value="Model.BankDetails.Blz" /></div>
+            <div class="ui-field"><label>Account holder</label><InputText @bind-Value="Model.BankDetails.AccountHolder" /></div>
+        </div>
+        <div class="ui-field"><label>Closing text</label><InputTextArea @bind-Value="Model.ClosingText" /></div>
+        <div class="ui-grid-2">
+            <div class="ui-field"><label>Greeting</label><InputText @bind-Value="Model.Greeting" /></div>
+            <div class="ui-field"><label>Signature name</label><InputText @bind-Value="Model.SignatureName" /></div>
+        </div>
+    </section>
+
+    @if (!string.IsNullOrWhiteSpace(_previewHtml))
+    {
+        <section class="panel invoice-preview-shell">
+            <div class="invoice-section-heading">
+                <h4 class="ui-title invoice-section-title">
+                    <span class="bi bi-eye" aria-hidden="true"></span>
+                    <span>HTML preview</span>
+                </h4>
+                <button type="button" class="btn btn-sm btn-outline-secondary" @onclick="ClosePreview">Close preview</button>
+            </div>
+            <iframe class="invoice-preview" title="Invoice preview" srcdoc="@_previewHtml"></iframe>
+        </section>
+    }
+</EditForm>

@@ -4,7 +4,7 @@ Standalone invoice generator/renderer for AK Gaming with:
 
 - Shared rendering core (`Core`)
 - Local CLI workflow (`Cli`)
-- HTTP API for later management-tool integration (`Api`)
+- Persistence and HTTP workflows hosted by the management tool (`AkGaming.Management/Modules/InvoiceManagement`)
 
 The HTML renderer follows the layout of the sponsoring invoice and applies AK Gaming core theme colors (`dark-green`, `green`, `light-green-grey` palette).
 
@@ -28,19 +28,18 @@ Render HTML invoice (optional):
 dotnet run --project AkGaming.InvoiceGenerator/Cli -- --input AkGaming.InvoiceGenerator/sample-invoice.json --output AkGaming.InvoiceGenerator/out/invoice.html
 ```
 
-## API usage
+## Management API
 
-Run API:
+The authenticated invoice API is part of `AkGaming.Management.WebApi`. Its admin-only routes are:
 
-```bash
-dotnet run --project AkGaming.InvoiceGenerator/Api
-```
+- `GET/POST /invoices` lists and creates persisted invoices
+- `GET/PUT/DELETE /invoices/{id}` reads, edits, and deletes invoices
+- `POST /invoices/render-html` previews an invoice draft as HTML
+- `POST /invoices/render-pdf` renders an invoice draft as PDF
+- `GET/POST/PUT/DELETE /invoice-party-presets` manages reusable invoice parties
+- `GET/POST/PUT/DELETE /invoice-payment-terms-presets` manages reusable payment terms
+- `GET/POST/PUT/DELETE /invoice-bank-account-presets` manages reusable bank accounts
+- `GET/POST/PUT/DELETE /invoice-line-item-presets` manages reusable line items
+- `GET/POST/PUT/DELETE /invoice-line-item-collection-presets` manages reusable line item collections
 
-Endpoints:
-
-- `GET /api/invoices/sample` returns a sample payload
-- `POST /api/invoices/render-html` returns invoice HTML response
-- `POST /api/invoices/render-file` returns downloadable HTML file
-- `POST /api/invoices/render-pdf` returns downloadable PDF file (native render)
-
-Swagger is available in development mode.
+The management frontend exposes all preset workflows on the tabbed `/invoices/presets` page.

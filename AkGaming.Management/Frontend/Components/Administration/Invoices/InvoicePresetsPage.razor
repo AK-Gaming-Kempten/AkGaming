@@ -1,0 +1,25 @@
+@page "/invoices/presets"
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize(Roles = "Admin")]
+
+<PageTitle>Invoice Presets</PageTitle>
+
+<div class="invoice-presets-workspace">
+    <section class="panel preset-page-heading"><h3 class="ui-title">Invoice presets</h3><span class="ui-text-muted">Manage reusable invoice data in one place.</span></section>
+    <div class="tabs">
+        @foreach (var tab in Enum.GetValues<PresetTab>())
+        {
+            <button type="button" class="tab @(_activeTab == tab ? "active" : string.Empty)" @onclick="() => _activeTab = tab">@GetTabLabel(tab)</button>
+        }
+    </div>
+    <div class="preset-tab-content">
+        @switch (_activeTab)
+        {
+            case PresetTab.Parties: <InvoicePartyPresetsPage /> break;
+            case PresetTab.PaymentTerms: <InvoicePaymentTermsPresetsPage /> break;
+            case PresetTab.BankAccounts: <InvoiceBankAccountPresetsPanel /> break;
+            case PresetTab.LineItems: <InvoiceLineItemPresetsPanel /> break;
+            case PresetTab.LineItemCollections: <InvoiceLineItemCollectionPresetsPanel /> break;
+        }
+    </div>
+</div>
