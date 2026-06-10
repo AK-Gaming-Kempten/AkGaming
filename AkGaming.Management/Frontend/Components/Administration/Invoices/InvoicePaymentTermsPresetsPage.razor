@@ -10,9 +10,7 @@
             <h3 class="ui-title">Payment terms presets</h3>
             <span class="ui-text-muted">Reusable payment instructions for invoice editing.</span>
         </div>
-        <button type="button" class="btn btn-primary" @onclick="ToggleCreate" disabled="@_isBusy">
-            @(_showCreate ? "Cancel creation" : "Create preset")
-        </button>
+        <ActionButton Kind="@(_showCreate ? ActionButtonKind.Cancel : ActionButtonKind.Create)" Variant="@(_showCreate ? ActionButtonVariant.Outline : ActionButtonVariant.Primary)" OnClick="ToggleCreate" Disabled="_isBusy" Label="@(_showCreate ? "Cancel creation" : "Create payment terms preset")" />
     </section>
 
     @if (!string.IsNullOrWhiteSpace(_error))
@@ -55,10 +53,7 @@
 
         <section class="preset-detail-pane two-column-layout-right">
             <div class="mobile-detail-nav">
-                <button type="button" class="btn btn-outline-secondary btn-sm" @onclick="ShowListMobile">
-                    <span class="bi bi-arrow-left" aria-hidden="true"></span>
-                    Back to payment terms
-                </button>
+                <ActionButton Kind="ActionButtonKind.Back" Variant="ActionButtonVariant.Outline" Size="ActionButtonSize.Small" OnClick="ShowListMobile" Label="Back to payment terms" />
             </div>
             @if (_showCreate || _editingPreset.Id != Guid.Empty)
             {

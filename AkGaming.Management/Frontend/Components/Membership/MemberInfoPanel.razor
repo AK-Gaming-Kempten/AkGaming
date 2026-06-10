@@ -30,11 +30,11 @@
                 <h5 class="ui-title">Personal Info</h5>
                 <div class="ui-actions member-personal-edit-actions">
                     @if (!EditMode) {
-                        <button type="button" class="btn btn-secondary" @onclick="EnableEditing">Edit profile</button>
+                        <ActionButton Kind="ActionButtonKind.Edit" OnClick="EnableEditing" Label="Edit profile" />
                     }
                     else {
-                        <button type="button" class="btn btn-primary" @onclick="SaveChangesAsync">Save changes</button>
-                        <button type="button" class="btn btn-secondary" @onclick="CancelChanges">Cancel</button>
+                        <ActionButton Kind="ActionButtonKind.Save" Variant="ActionButtonVariant.Primary" OnClick="SaveChangesAsync" Label="Save profile changes" />
+                        <ActionButton Kind="ActionButtonKind.Cancel" OnClick="CancelChanges" Label="Cancel profile editing" />
                     }
                 </div>
             </div>

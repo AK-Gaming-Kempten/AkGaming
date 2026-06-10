@@ -63,22 +63,9 @@
                     </div>
 
                     <div class="ui-actions dues-control-actions">
-                        <button class="btn btn-sm btn-secondary"
-                                @onclick="() => LoadPaymentPeriodsAsync(true)"
-                                disabled="@(_loadingPaymentPeriods || _loadingDues)">
-                            Refresh
-                        </button>
-                        <button type="button"
-                                class="btn btn-sm btn-primary"
-                                @onclick="OpenBulkReminderDialogAsync"
-                                disabled="@(_selectedPaymentPeriodId is null || _loadingPaymentPeriods || _loadingDues)">
-                            Send all reminders
-                        </button>
-                        <button type="button"
-                                class="btn btn-sm btn-outline-secondary"
-                                @onclick="ToggleCreatePeriodForm">
-                            @(_showCreatePeriodForm ? "Hide create period" : "Create period")
-                        </button>
+                        <ActionButton Kind="ActionButtonKind.Refresh" Size="ActionButtonSize.Small" OnClick="() => LoadPaymentPeriodsAsync(true)" Disabled="@(_loadingPaymentPeriods || _loadingDues)" Label="Refresh dues" />
+                        <ActionButton Kind="ActionButtonKind.Send" Variant="ActionButtonVariant.Primary" Size="ActionButtonSize.Small" OnClick="OpenBulkReminderDialogAsync" Disabled="@(_selectedPaymentPeriodId is null || _loadingPaymentPeriods || _loadingDues)" Label="Send all reminders" />
+                        <ActionButton Kind="@(_showCreatePeriodForm ? ActionButtonKind.Cancel : ActionButtonKind.Create)" Variant="ActionButtonVariant.Outline" Size="ActionButtonSize.Small" OnClick="ToggleCreatePeriodForm" Label="@(_showCreatePeriodForm ? "Hide create period" : "Create period")" />
                     </div>
                 </div>
 
@@ -102,7 +89,7 @@
                                 <InputNumber @bind-Value="_createRequest.ReducedDueAmount" />
                             </div>
                         </div>
-                        <button type="submit" class="btn btn-sm btn-primary" disabled="@_creatingPeriod">Create period and dues</button>
+                        <ActionButton Kind="ActionButtonKind.Create" Variant="ActionButtonVariant.Primary" Size="ActionButtonSize.Small" ButtonType="submit" Disabled="_creatingPeriod" Label="Create period and dues" />
                     </EditForm>
                 }
             </section>
@@ -133,12 +120,7 @@
             <div class="dues-list-header">
                 <h4 class="ui-title">Payment Period Dues</h4>
                 @if (_selectedPaymentPeriodId is not null) {
-                    <button type="button"
-                            class="btn btn-sm btn-primary"
-                            @onclick="OpenBulkReminderDialogAsync"
-                            disabled="@(_loadingPaymentPeriods || _loadingDues)">
-                        Send all reminders
-                    </button>
+                    <ActionButton Kind="ActionButtonKind.Send" Variant="ActionButtonVariant.Primary" Size="ActionButtonSize.Small" OnClick="OpenBulkReminderDialogAsync" Disabled="@(_loadingPaymentPeriods || _loadingDues)" Label="Send all reminders" />
                 }
             </div>
             @if (!string.IsNullOrWhiteSpace(_statusMessage)) {
@@ -183,12 +165,7 @@
                         <p class="dues-reminder-dialog-eyebrow">Reminder Dispatch</p>
                         <h3 id="dues-reminder-dialog-title">@ReminderDialogTitle</h3>
                     </div>
-                    <button type="button"
-                            class="btn btn-sm btn-outline-secondary"
-                            @onclick="CloseReminderDialog"
-                            disabled="@_sendingReminderDispatch">
-                        Close
-                    </button>
+                    <ActionButton Kind="ActionButtonKind.Close" Variant="ActionButtonVariant.Outline" Size="ActionButtonSize.Small" OnClick="CloseReminderDialog" Disabled="_sendingReminderDispatch" Label="Close reminder dialog" />
                 </header>
 
                 @if (_loadingReminderDispatchPreview) {
@@ -254,19 +231,9 @@
 
                     <footer class="dues-reminder-dialog-actions">
                         @if (!_sendingReminderDispatchCompleted && _dispatchRecipientStates.Count > 0) {
-                            <button type="button"
-                                    class="btn btn-primary"
-                                    @onclick="SendReminderDispatchAsync"
-                                    disabled="@(_sendingReminderDispatch || _loadingReminderDispatchPreview)">
-                                Send @_dispatchRecipientStates.Count reminder(s)
-                            </button>
+                            <ActionButton Kind="ActionButtonKind.Send" Variant="ActionButtonVariant.Primary" OnClick="SendReminderDispatchAsync" Disabled="@(_sendingReminderDispatch || _loadingReminderDispatchPreview)" Label="Send reminders" />
                         }
-                        <button type="button"
-                                class="btn btn-secondary"
-                                @onclick="CloseReminderDialog"
-                                disabled="@_sendingReminderDispatch">
-                            @(_sendingReminderDispatchCompleted || _dispatchRecipientStates.Count == 0 ? "Close" : "Cancel")
-                        </button>
+                        <ActionButton Kind="@(_sendingReminderDispatchCompleted || _dispatchRecipientStates.Count == 0 ? ActionButtonKind.Close : ActionButtonKind.Cancel)" OnClick="CloseReminderDialog" Disabled="_sendingReminderDispatch" Label="@(_sendingReminderDispatchCompleted || _dispatchRecipientStates.Count == 0 ? "Close" : "Cancel")" />
                     </footer>
                 }
             </section>
@@ -282,12 +249,7 @@
                         <p class="dues-reminder-dialog-eyebrow">Suspension Mail</p>
                         <h3 id="dues-suspension-dialog-title">@SuspensionDialogTitle</h3>
                     </div>
-                    <button type="button"
-                            class="btn btn-sm btn-outline-secondary"
-                            @onclick="CloseSuspensionDialog"
-                            disabled="@_sendingSuspension">
-                        Close
-                    </button>
+                    <ActionButton Kind="ActionButtonKind.Close" Variant="ActionButtonVariant.Outline" Size="ActionButtonSize.Small" OnClick="CloseSuspensionDialog" Disabled="_sendingSuspension" Label="Close suspension dialog" />
                 </header>
 
                 @if (_loadingSuspensionPreview) {
@@ -328,18 +290,8 @@
                     </div>
 
                     <footer class="dues-reminder-dialog-actions">
-                        <button type="button"
-                                class="btn btn-danger"
-                                @onclick="SendSuspensionAsync"
-                                disabled="@(_sendingSuspension || _loadingSuspensionPreview)">
-                            Send suspension and suspend member
-                        </button>
-                        <button type="button"
-                                class="btn btn-secondary"
-                                @onclick="CloseSuspensionDialog"
-                                disabled="@_sendingSuspension">
-                            Cancel
-                        </button>
+                        <ActionButton Kind="ActionButtonKind.Send" Variant="ActionButtonVariant.Danger" OnClick="SendSuspensionAsync" Disabled="@(_sendingSuspension || _loadingSuspensionPreview)" Label="Send suspension and suspend member" />
+                        <ActionButton Kind="ActionButtonKind.Cancel" OnClick="CloseSuspensionDialog" Disabled="_sendingSuspension" />
                     </footer>
                 }
             </section>

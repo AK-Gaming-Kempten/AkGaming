@@ -1,11 +1,11 @@
 <section class="panel ui-stack-md">
-    <div class="invoice-section-heading"><h4 class="ui-title">@Title</h4><button type="button" class="btn btn-sm btn-secondary" @onclick="AddItem">Add item</button></div>
+    <div class="invoice-section-heading"><h4 class="ui-title">@Title</h4><ActionButton Kind="ActionButtonKind.Add" Size="ActionButtonSize.Small" OnClick="AddItem" Label="Add item" /></div>
     <div class="ui-field"><label>Collection label</label><InputText @bind-Value="Model.Label" /></div>
     <div class="collection-item-list">
         @foreach (var item in Model.LineItems)
         {
-            <div class="collection-item" @key="item"><div class="ui-field collection-description"><label>Description</label><InputText @bind-Value="item.Description" /></div><div class="ui-field"><label>Unit price</label><InputNumber @bind-Value="item.UnitPrice" /></div><div class="ui-field"><label>Quantity</label><InputNumber @bind-Value="item.Quantity" /></div><button type="button" class="btn btn-sm btn-danger" @onclick="() => RemoveItem(item)" disabled="@(Model.LineItems.Count == 1)">Remove</button></div>
+            <div class="collection-item" @key="item"><div class="ui-field collection-description"><label>Description</label><InputText @bind-Value="item.Description" /></div><div class="ui-field"><label>Unit price</label><InputNumber @bind-Value="item.UnitPrice" /></div><div class="ui-field"><label>Quantity</label><InputNumber @bind-Value="item.Quantity" /></div><ActionButton Kind="ActionButtonKind.Remove" Variant="ActionButtonVariant.Danger" Size="ActionButtonSize.Small" OnClick="() => RemoveItem(item)" Disabled="@(Model.LineItems.Count == 1)" Label="Remove item" /></div>
         }
     </div>
-    <div class="ui-actions"><button type="button" class="btn btn-primary" @onclick="SaveAsync" disabled="@IsBusy">Save collection</button>@if (ShowDelete) { <button type="button" class="btn btn-danger" @onclick="DeleteAsync" disabled="@IsBusy">Delete collection</button> }</div>
+    <div class="ui-actions"><ActionButton Kind="ActionButtonKind.Save" Variant="ActionButtonVariant.Primary" OnClick="SaveAsync" Disabled="IsBusy" Label="Save collection" />@if (ShowDelete) { <ActionButton Kind="ActionButtonKind.Delete" Variant="ActionButtonVariant.Danger" OnClick="DeleteAsync" Disabled="IsBusy" Label="Delete collection" /> }</div>
 </section>

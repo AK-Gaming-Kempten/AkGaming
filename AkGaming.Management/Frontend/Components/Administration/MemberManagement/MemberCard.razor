@@ -11,12 +11,12 @@
                 <div class="form-actions">
                     @if (!EditMode)
                     {
-                        <button class="btn btn-primary" @onclick="EnableEditing">Edit</button>
+                        <ActionButton Kind="ActionButtonKind.Edit" Variant="ActionButtonVariant.Primary" OnClick="EnableEditing" Label="Edit member" />
                     }
                     else
                     {
-                        <button class="btn btn-primary" @onclick="SaveChanges">Save</button>
-                        <button class="btn btn-danger" @onclick="CancelChanges">Cancel</button>
+                        <ActionButton Kind="ActionButtonKind.Save" Variant="ActionButtonVariant.Primary" OnClick="SaveChanges" Label="Save member" />
+                        <ActionButton Kind="ActionButtonKind.Cancel" Variant="ActionButtonVariant.Danger" OnClick="CancelChanges" Label="Cancel editing" />
                     }
                 </div>
             }
@@ -85,4 +85,3 @@
         </div>
     }
 </div>
-

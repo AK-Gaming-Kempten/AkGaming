@@ -8,14 +8,14 @@
     <div class="roles-list-pane">
         <div class="pane-header">
             <h4>Roles</h4>
-            <button class="btn btn-secondary" @onclick="ReloadAsync">Refresh</button>
+            <ActionButton Kind="ActionButtonKind.Refresh" OnClick="ReloadAsync" Label="Refresh roles" />
         </div>
 
         <div class="create-role card">
             <label for="new-role-name">Create role</label>
             <div class="inline-controls">
                 <InputText id="new-role-name" @bind-Value="_newRoleName" placeholder="Role name" />
-                <button class="btn btn-primary" @onclick="CreateRoleAsync" disabled="@_isBusy">Create</button>
+                <ActionButton Kind="ActionButtonKind.Create" Variant="ActionButtonVariant.Primary" OnClick="CreateRoleAsync" Disabled="_isBusy" Label="Create role" />
             </div>
         </div>
 
@@ -45,10 +45,7 @@
 
     <div class="role-editor-pane card">
         <div class="mobile-detail-nav">
-            <button type="button" class="btn btn-outline-secondary btn-sm" @onclick="ShowListMobile">
-                <span class="bi bi-arrow-left"></span>
-                Back to roles
-            </button>
+            <ActionButton Kind="ActionButtonKind.Back" Variant="ActionButtonVariant.Outline" Size="ActionButtonSize.Small" OnClick="ShowListMobile" Label="Back to roles" />
         </div>
         <h4>Role Details</h4>
 
@@ -69,8 +66,8 @@
             </div>
 
             <div class="editor-actions">
-                <button class="btn btn-primary" @onclick="RenameRoleAsync" disabled="@_isBusy">Save name</button>
-                <button class="btn btn-danger" @onclick="DeleteRoleAsync" disabled="@_isBusy">Delete role</button>
+                <ActionButton Kind="ActionButtonKind.Save" Variant="ActionButtonVariant.Primary" OnClick="RenameRoleAsync" Disabled="_isBusy" Label="Save role name" />
+                <ActionButton Kind="ActionButtonKind.Delete" Variant="ActionButtonVariant.Danger" OnClick="DeleteRoleAsync" Disabled="_isBusy" Label="Delete role" />
             </div>
         }
 

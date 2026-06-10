@@ -11,15 +11,15 @@
                 </h3>
             </div>
             <div class="ui-actions">
-                <button type="submit" class="btn btn-primary" disabled="@IsBusy"><span class="bi bi-floppy me-1" aria-hidden="true"></span> Save</button>
-                <button type="button" class="btn btn-secondary" @onclick="PreviewAsync" disabled="@IsBusy"><span class="bi bi-eye me-1" aria-hidden="true"></span> Preview HTML</button>
-                <button type="button" class="btn btn-secondary" @onclick="DownloadHtmlAsync" disabled="@IsBusy"><span class="bi bi-filetype-html me-1" aria-hidden="true"></span> Download HTML</button>
-                <button type="button" class="btn btn-secondary" @onclick="DownloadPdfAsync" disabled="@IsBusy"><span class="bi bi-file-earmark-pdf me-1" aria-hidden="true"></span> Download PDF</button>
+                <ActionButton Kind="ActionButtonKind.Save" Variant="ActionButtonVariant.Primary" ButtonType="submit" Disabled="IsBusy" Label="Save invoice" />
+                <ActionButton Kind="ActionButtonKind.Preview" OnClick="PreviewAsync" Disabled="IsBusy" Label="Preview HTML" />
+                <ActionButton Kind="ActionButtonKind.DownloadHtml" OnClick="DownloadHtmlAsync" Disabled="IsBusy" />
+                <ActionButton Kind="ActionButtonKind.DownloadPdf" OnClick="DownloadPdfAsync" Disabled="IsBusy" />
                 @if (Model.Id != Guid.Empty)
                 {
-                    <button type="button" class="btn btn-danger" @onclick="DeleteAsync" disabled="@IsBusy">Delete</button>
+                    <ActionButton Kind="ActionButtonKind.Delete" Variant="ActionButtonVariant.Danger" OnClick="DeleteAsync" Disabled="IsBusy" Label="Delete invoice" />
                 }
-                <button type="button" class="btn btn-outline-secondary" @onclick="CancelAsync" disabled="@IsBusy">Close</button>
+                <ActionButton Kind="ActionButtonKind.Close" Variant="ActionButtonVariant.Outline" OnClick="CancelAsync" Disabled="IsBusy" Label="Close invoice" />
             </div>
         </div>
 
@@ -91,7 +91,7 @@
                         }
                     </select>
                 }
-                <button type="button" class="btn btn-sm btn-secondary" @onclick="AddLineItem">Add line item</button>
+                <ActionButton Kind="ActionButtonKind.Add" Size="ActionButtonSize.Small" OnClick="AddLineItem" Label="Add line item" />
             </div>
         </div>
 
@@ -113,7 +113,7 @@
                         <InputNumber @bind-Value="item.Quantity" />
                     </div>
                     <div class="invoice-line-total">@item.TotalPrice.ToString("N2") EUR</div>
-                    <button type="button" class="btn btn-sm btn-danger" @onclick="() => RemoveLineItem(item)" disabled="@(Model.LineItems.Count == 1)">Remove</button>
+                    <ActionButton Kind="ActionButtonKind.Remove" Variant="ActionButtonVariant.Danger" Size="ActionButtonSize.Small" OnClick="() => RemoveLineItem(item)" Disabled="@(Model.LineItems.Count == 1)" Label="Remove line item" />
                 </div>
             }
         </div>
@@ -178,7 +178,7 @@
                     <span class="bi bi-eye" aria-hidden="true"></span>
                     <span>HTML preview</span>
                 </h4>
-                <button type="button" class="btn btn-sm btn-outline-secondary" @onclick="ClosePreview">Close preview</button>
+                <ActionButton Kind="ActionButtonKind.Close" Variant="ActionButtonVariant.Outline" Size="ActionButtonSize.Small" OnClick="ClosePreview" Label="Close preview" />
             </div>
             <iframe class="invoice-preview" title="Invoice preview" srcdoc="@_previewHtml"></iframe>
         </section>

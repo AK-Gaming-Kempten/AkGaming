@@ -1,7 +1,7 @@
 <div class="pager">
-    <button class="btn btn-secondary" @onclick="OnPreviousClicked" disabled="@(_isPrevDisabled)">Previous</button>
+    <ActionButton Kind="ActionButtonKind.Previous" OnClick="OnPreviousClicked" Disabled="_isPrevDisabled" Label="Previous page" />
     <span>Page @Page of @TotalPages (Total @TotalCount)</span>
-    <button class="btn btn-secondary" @onclick="OnNextClicked" disabled="@(_isNextDisabled)">Next</button>
+    <ActionButton Kind="ActionButtonKind.Next" OnClick="OnNextClicked" Disabled="_isNextDisabled" Label="Next page" />
 </div>
 
 @code {

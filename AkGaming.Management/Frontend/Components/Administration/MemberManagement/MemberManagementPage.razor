@@ -8,8 +8,8 @@
     <div class="two-column-layout-left">
         <div class="list-buttons">
             <h4>Existing Members</h4>
-            <button class="btn btn-secondary" @onclick="OpenFilters" disabled="@true">Filters</button>
-            <button class="btn btn-primary" @onclick="CreateMember">Create Member</button>
+            <ActionButton Kind="ActionButtonKind.Filter" OnClick="OpenFilters" Disabled="true" Label="Filter members" />
+            <ActionButton Kind="ActionButtonKind.Create" Variant="ActionButtonVariant.Primary" OnClick="CreateMember" Label="Create member" />
         </div>
         <div class="list-main">
             @if (_members == null)
@@ -35,10 +35,7 @@
     </div>
     <div class="two-column-layout-right">
         <div class="mobile-detail-nav">
-            <button type="button" class="btn btn-outline-secondary btn-sm" @onclick="ShowListMobile">
-                <span class="bi bi-arrow-left"></span>
-                Back to members
-            </button>
+            <ActionButton Kind="ActionButtonKind.Back" Variant="ActionButtonVariant.Outline" Size="ActionButtonSize.Small" OnClick="ShowListMobile" Label="Back to members" />
         </div>
         <CascadingValue Value="MemberApi" Name="MemberManagementApi" IsFixed="true">
             <MemberCard Member="_selectedMember" IsEditable="true" IsStatusEditable="true" OnMemberUpdated="Reload" />

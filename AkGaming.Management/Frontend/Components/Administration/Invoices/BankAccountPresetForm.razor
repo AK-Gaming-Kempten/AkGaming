@@ -6,5 +6,5 @@
         <div class="ui-field"><label>BLZ</label><InputText @bind-Value="Model.BankDetails.Blz" /></div>
         <div class="ui-field"><label>Account holder</label><InputText @bind-Value="Model.BankDetails.AccountHolder" /></div>
     </div>
-    <div class="ui-actions"><button type="button" class="btn btn-primary" @onclick="SaveAsync" disabled="@IsBusy">Save preset</button>@if (ShowDelete) { <button type="button" class="btn btn-danger" @onclick="DeleteAsync" disabled="@IsBusy">Delete preset</button> }</div>
+    <div class="ui-actions"><ActionButton Kind="ActionButtonKind.Save" Variant="ActionButtonVariant.Primary" OnClick="SaveAsync" Disabled="IsBusy" Label="Save bank account preset" />@if (ShowDelete) { <ActionButton Kind="ActionButtonKind.Delete" Variant="ActionButtonVariant.Danger" OnClick="DeleteAsync" Disabled="IsBusy" Label="Delete bank account preset" /> }</div>
 </div>

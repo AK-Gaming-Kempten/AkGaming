@@ -9,12 +9,8 @@
         <div class="identity-admin-toolbar">
             <h4 class="ui-title">OIDC Scopes</h4>
             <div class="ui-actions">
-                <button class="btn btn-sm btn-secondary" @onclick="ReloadAsync" disabled="@_isBusy">Refresh</button>
-                <button type="button"
-                        class="btn btn-sm btn-outline-secondary"
-                        @onclick="ToggleCreateForm">
-                    @(_showCreateForm ? "Hide create scope" : "Create scope")
-                </button>
+                <ActionButton Kind="ActionButtonKind.Refresh" Size="ActionButtonSize.Small" OnClick="ReloadAsync" Disabled="_isBusy" Label="Refresh scopes" />
+                <ActionButton Kind="@(_showCreateForm ? ActionButtonKind.Cancel : ActionButtonKind.Create)" Variant="ActionButtonVariant.Outline" Size="ActionButtonSize.Small" OnClick="ToggleCreateForm" Label="@(_showCreateForm ? "Hide create scope" : "Create scope")" />
             </div>
         </div>
 
@@ -44,8 +40,8 @@
                 </div>
 
                 <div class="ui-actions">
-                    <button class="btn btn-sm btn-primary" @onclick="CreateScopeAsync" disabled="@_isBusy">Create scope</button>
-                    <button type="button" class="btn btn-sm btn-outline-secondary" @onclick="ToggleCreateForm" disabled="@_isBusy">Cancel</button>
+                    <ActionButton Kind="ActionButtonKind.Create" Variant="ActionButtonVariant.Primary" Size="ActionButtonSize.Small" OnClick="CreateScopeAsync" Disabled="_isBusy" Label="Create scope" />
+                    <ActionButton Kind="ActionButtonKind.Cancel" Variant="ActionButtonVariant.Outline" Size="ActionButtonSize.Small" OnClick="ToggleCreateForm" Disabled="_isBusy" />
                 </div>
             </div>
         }

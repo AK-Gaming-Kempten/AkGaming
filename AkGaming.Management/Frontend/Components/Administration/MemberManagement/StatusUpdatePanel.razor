@@ -32,11 +32,7 @@
                                 </InputSelect>
                             </div>
                             <div class="form-col" style="align-self:end;">
-                                <button type="button" class="btn btn-primary"
-                                        @onclick="UpdateStatusAsync"
-                                        disabled="@(_updateStatus == MembershipStatus.None)">
-                                    Update Status
-                                </button>
+                                <ActionButton Kind="ActionButtonKind.Update" Variant="ActionButtonVariant.Primary" OnClick="UpdateStatusAsync" Disabled="@(_updateStatus == MembershipStatus.None)" Label="Update status" />
                             </div>
                         </div>
                     } else if (_activeTab == StatusTab.InsertEvent) {
@@ -66,11 +62,7 @@
                             </div>
 
                             <div class="form-col" style="align-self:end;">
-                                <button type="button" class="btn btn-primary"
-                                        @onclick="InsertStatusChangeEventAsync"
-                                        disabled="@(_insertModel.NewStatus == MembershipStatus.None || _insertModel.Timestamp == DateTime.MinValue)">
-                                    Insert Status Event
-                                </button>
+                                <ActionButton Kind="ActionButtonKind.Add" Variant="ActionButtonVariant.Primary" OnClick="InsertStatusChangeEventAsync" Disabled="@(_insertModel.NewStatus == MembershipStatus.None || _insertModel.Timestamp == DateTime.MinValue)" Label="Insert status event" />
                             </div>
                         </div>
                     }

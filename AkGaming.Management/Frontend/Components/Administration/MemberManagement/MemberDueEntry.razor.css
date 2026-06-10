@@ -143,7 +143,7 @@
     justify-content: flex-end;
 }
 
-.due-entry-menu-trigger {
+::deep .due-entry-menu-trigger {
     min-width: 2rem;
     padding-inline: 0.45rem;
 
@@ -156,8 +156,8 @@
     line-height: 1;
 }
 
-.due-entry-menu-trigger:hover,
-.due-entry-menu-trigger:focus-visible {
+::deep .due-entry-menu-trigger:hover,
+::deep .due-entry-menu-trigger:focus-visible {
     background: color-mix(in srgb, var(--color-highlight-secondary) 22%, var(--color-background-secondary));
     border-color: color-mix(in srgb, var(--color-highlight-secondary) 55%, transparent);
     color: var(--color-text-primary);

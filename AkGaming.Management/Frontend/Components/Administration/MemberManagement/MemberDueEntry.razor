@@ -19,13 +19,7 @@
             <span>Last reminder sent: @GetLastReminderSentText(Due)</span>
         </div>
         <div class="due-entry-actions">
-            <button type="button"
-                    class="btn btn-sm btn-secondary due-entry-menu-trigger"
-                    title="Actions"
-                    @onclick="ToggleActionMenu"
-                    @onblur="CloseActionMenu">
-                ⋯
-            </button>
+            <ActionButton Kind="ActionButtonKind.More" Size="ActionButtonSize.Small" CssClass="due-entry-menu-trigger" OnClick="ToggleActionMenu" OnBlur="CloseActionMenu" Label="Due actions" />
 
             @if (_isActionMenuOpen) {
                 <div class="due-entry-action-menu"
@@ -110,18 +104,8 @@
             </div>
 
             <div class="ui-actions due-entry-actions">
-                <button type="button"
-                        class="btn btn-sm btn-primary"
-                        @onclick="SaveDueAsync"
-                        disabled="@IsSaving">
-                    Save
-                </button>
-                <button type="button"
-                        class="btn btn-sm btn-outline-secondary"
-                        @onclick="CancelEditing"
-                        disabled="@IsSaving">
-                    Cancel
-                </button>
+                <ActionButton Kind="ActionButtonKind.Save" Variant="ActionButtonVariant.Primary" Size="ActionButtonSize.Small" OnClick="SaveDueAsync" Disabled="IsSaving" Label="Save due" />
+                <ActionButton Kind="ActionButtonKind.Cancel" Variant="ActionButtonVariant.Outline" Size="ActionButtonSize.Small" OnClick="CancelEditing" Disabled="IsSaving" Label="Cancel due editing" />
             </div>
         </div>
     }

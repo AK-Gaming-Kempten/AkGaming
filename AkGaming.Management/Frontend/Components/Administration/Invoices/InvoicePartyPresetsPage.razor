@@ -10,9 +10,7 @@
             <h3 class="ui-title">Invoice party presets</h3>
             <span class="ui-text-muted">Reusable seller and buyer addresses for invoice editing.</span>
         </div>
-        <button type="button" class="btn btn-primary" @onclick="ToggleCreate" disabled="@_isBusy">
-            @(_showCreate ? "Cancel creation" : "Create preset")
-        </button>
+        <ActionButton Kind="@(_showCreate ? ActionButtonKind.Cancel : ActionButtonKind.Create)" Variant="@(_showCreate ? ActionButtonVariant.Outline : ActionButtonVariant.Primary)" OnClick="ToggleCreate" Disabled="_isBusy" Label="@(_showCreate ? "Cancel creation" : "Create party preset")" />
     </section>
 
     @if (!string.IsNullOrWhiteSpace(_error))
@@ -53,10 +51,7 @@
 
         <section class="preset-detail-pane two-column-layout-right">
             <div class="mobile-detail-nav">
-                <button type="button" class="btn btn-outline-secondary btn-sm" @onclick="ShowListMobile">
-                    <span class="bi bi-arrow-left" aria-hidden="true"></span>
-                    Back to party presets
-                </button>
+                <ActionButton Kind="ActionButtonKind.Back" Variant="ActionButtonVariant.Outline" Size="ActionButtonSize.Small" OnClick="ShowListMobile" Label="Back to party presets" />
             </div>
             @if (_showCreate || _editingPreset.Id != Guid.Empty)
             {
@@ -68,10 +63,10 @@
                 </div>
                 <InvoicePartyFields Title="Address" Value="_editingPreset.Party" />
                 <div class="ui-actions">
-                    <button type="button" class="btn btn-primary" @onclick="SaveAsync" disabled="@_isBusy">Save changes</button>
+                    <ActionButton Kind="ActionButtonKind.Save" Variant="ActionButtonVariant.Primary" OnClick="SaveAsync" Disabled="_isBusy" Label="Save party preset" />
                     @if (!_showCreate)
                     {
-                        <button type="button" class="btn btn-danger" @onclick="DeleteAsync" disabled="@_isBusy">Delete preset</button>
+                        <ActionButton Kind="ActionButtonKind.Delete" Variant="ActionButtonVariant.Danger" OnClick="DeleteAsync" Disabled="_isBusy" Label="Delete party preset" />
                     }
                 </div>
                 </div>

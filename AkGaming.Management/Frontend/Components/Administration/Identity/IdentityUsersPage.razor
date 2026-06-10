@@ -11,8 +11,8 @@
         <div class="toolbar">
             <InputText @bind-Value="_search" placeholder="Search by email" />
             <InputNumber @bind-Value="_pageSize" min="1" max="200" />
-            <button class="btn btn-secondary" @onclick="SearchAsync" disabled="@_isBusy">Search</button>
-            <button class="btn btn-secondary" @onclick="ReloadUsersAsync" disabled="@_isBusy">Refresh</button>
+            <ActionButton Kind="ActionButtonKind.Search" OnClick="SearchAsync" Disabled="_isBusy" Label="Search users" />
+            <ActionButton Kind="ActionButtonKind.Refresh" OnClick="ReloadUsersAsync" Disabled="_isBusy" Label="Refresh users" />
         </div>
 
         @if (_usersResponse is null)
@@ -38,19 +38,16 @@
             </div>
 
             <div class="pager">
-                <button class="btn btn-secondary" @onclick="PrevPageAsync" disabled="@(_isBusy || _page <= 1)">Previous</button>
+                <ActionButton Kind="ActionButtonKind.Previous" OnClick="PrevPageAsync" Disabled="@(_isBusy || _page <= 1)" Label="Previous users page" />
                 <span>Page @_page of @_totalPages (Total @_usersResponse.TotalCount)</span>
-                <button class="btn btn-secondary" @onclick="NextPageAsync" disabled="@(_isBusy || _page >= _totalPages)">Next</button>
+                <ActionButton Kind="ActionButtonKind.Next" OnClick="NextPageAsync" Disabled="@(_isBusy || _page >= _totalPages)" Label="Next users page" />
             </div>
         }
     </div>
 
     <div class="user-detail-pane card">
         <div class="mobile-detail-nav">
-            <button type="button" class="btn btn-outline-secondary btn-sm" @onclick="ShowListMobile">
-                <span class="bi bi-arrow-left"></span>
-                Back to users
-            </button>
+            <ActionButton Kind="ActionButtonKind.Back" Variant="ActionButtonVariant.Outline" Size="ActionButtonSize.Small" OnClick="ShowListMobile" Label="Back to users" />
         </div>
         <h4>User Details & Roles</h4>
 
@@ -125,7 +122,7 @@
             }
 
             <div class="actions">
-                <button class="btn btn-primary" @onclick="SaveRolesAsync" disabled="@(_isBusy || !_selectedUserId.HasValue)">Save roles</button>
+                <ActionButton Kind="ActionButtonKind.Save" Variant="ActionButtonVariant.Primary" OnClick="SaveRolesAsync" Disabled="@(_isBusy || !_selectedUserId.HasValue)" Label="Save roles" />
             </div>
 
             <div>

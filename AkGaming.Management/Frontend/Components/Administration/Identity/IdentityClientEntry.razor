@@ -26,12 +26,7 @@
             }
         </div>
 
-        <button type="button"
-                class="btn btn-sm btn-secondary"
-                @onclick="ToggleEditMode"
-                disabled="@IsBusy">
-            @(EditMode ? "Close" : "Edit")
-        </button>
+        <ActionButton Kind="@(EditMode ? ActionButtonKind.Close : ActionButtonKind.Edit)" Size="ActionButtonSize.Small" OnClick="ToggleEditMode" Disabled="IsBusy" Label="@(EditMode ? "Close client editor" : "Edit client")" />
     </header>
 
     @if (EditMode)
@@ -104,24 +99,9 @@
             </div>
 
             <div class="ui-actions">
-                <button type="button"
-                        class="btn btn-sm btn-primary"
-                        @onclick="SaveAsync"
-                        disabled="@(IsBusy || Client.IsProtected)">
-                    Save client
-                </button>
-                <button type="button"
-                        class="btn btn-sm btn-danger"
-                        @onclick="DeleteAsync"
-                        disabled="@(IsBusy || Client.IsProtected)">
-                    Delete client
-                </button>
-                <button type="button"
-                        class="btn btn-sm btn-outline-secondary"
-                        @onclick="CancelEditing"
-                        disabled="@IsBusy">
-                    Cancel
-                </button>
+                <ActionButton Kind="ActionButtonKind.Save" Variant="ActionButtonVariant.Primary" Size="ActionButtonSize.Small" OnClick="SaveAsync" Disabled="@(IsBusy || Client.IsProtected)" Label="Save client" />
+                <ActionButton Kind="ActionButtonKind.Delete" Variant="ActionButtonVariant.Danger" Size="ActionButtonSize.Small" OnClick="DeleteAsync" Disabled="@(IsBusy || Client.IsProtected)" Label="Delete client" />
+                <ActionButton Kind="ActionButtonKind.Cancel" Variant="ActionButtonVariant.Outline" Size="ActionButtonSize.Small" OnClick="CancelEditing" Disabled="IsBusy" />
             </div>
         </div>
     }

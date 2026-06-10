@@ -46,8 +46,8 @@
                     </div>
                 </div>
                 <div class="form-actions">
-                    <button class="btn btn-primary" @onclick="Link" disabled="@(_selectedMember == null)">Link</button>
-                    <button class="btn btn-danger" @onclick="Reject">Reject Request</button>
+                    <ActionButton Kind="ActionButtonKind.Link" Variant="ActionButtonVariant.Primary" OnClick="Link" Disabled="@(_selectedMember == null)" Label="Link member" />
+                    <ActionButton Kind="ActionButtonKind.Reject" Variant="ActionButtonVariant.Danger" OnClick="Reject" Label="Reject request" />
                 </div>  
             }
         </div>
