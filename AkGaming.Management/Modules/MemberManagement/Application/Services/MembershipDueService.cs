@@ -1,5 +1,9 @@
+using System.Globalization;
 using AkGaming.Core.Common.Generics;
 using AkGaming.Core.Common.Email;
+using AkGaming.Core.Constants;
+using AkGaming.InvoiceGenerator.Core.Models;
+using AkGaming.InvoiceGenerator.Core.Rendering;
 using AkGaming.Management.Modules.MemberManagement.Application.Interfaces;
 using AkGaming.Management.Modules.MemberManagement.Application.Mapping;
 using AkGaming.Management.Modules.MemberManagement.Contracts.DTO;
@@ -14,7 +18,8 @@ public class MembershipDueService(
     IMembershipDueRepository dueRepository,
     IMembershipPaymentPeriodRepository paymentPeriodRepository,
     IMemberRepository memberRepository,
-    IEmailSender? emailSender = null)
+    IEmailSender? emailSender = null,
+    INoticePdfRenderer? noticePdfRenderer = null)
     : IMembershipDueService
 {
     /// <inheritdoc />
@@ -182,6 +187,183 @@ public class MembershipDueService(
 
         var preview = MembershipDueSuspensionEmailComposer.Compose(reminderContext.Member, reminderContext.PaymentPeriod, reminderContext.Due);
         return Result<MembershipDueEmailPreviewDto>.Success(preview);
+    }
+
+    /// <inheritdoc />
+    public async Task<Result<byte[]>> RenderReminderPdfAsync(int dueId) {
+        var contextResult = await LoadReminderContextAsync(dueId);
+        if (!contextResult.IsSuccess)
+            return Result<byte[]>.Failure(contextResult.Error ?? "Reminder context could not be loaded.");
+        var context = contextResult.Value!;
+
+        var eligibility = EvaluateReminderEligibility(context.Member, context.PaymentPeriod, context.Due);
+        if (!eligibility.IsSendable)
+            return Result<byte[]>.Failure(eligibility.Reason ?? "Reminder PDF is not available.");
+
+        return RenderNoticePdf(BuildReminderNotice(context));
+    }
+
+    /// <inheritdoc />
+    public async Task<Result<byte[]>> RenderSuspensionPdfAsync(int dueId) {
+        var contextResult = await LoadReminderContextAsync(dueId);
+        if (!contextResult.IsSuccess)
+            return Result<byte[]>.Failure(contextResult.Error ?? "Suspension context could not be loaded.");
+        var context = contextResult.Value!;
+
+        var eligibility = EvaluateSuspensionEligibility(context.Member, context.PaymentPeriod, context.Due);
+        if (!eligibility.IsSendable)
+            return Result<byte[]>.Failure(eligibility.Reason ?? "Suspension PDF is not available.");
+
+        return RenderNoticePdf(BuildSuspensionNotice(context));
+    }
+
+    private Result<byte[]> RenderNoticePdf(NoticeDocument notice) {
+        if (noticePdfRenderer is null)
+            return Result<byte[]>.Failure("PDF renderer is not configured.");
+
+        var pdf = noticePdfRenderer.Render(notice);
+        return Result<byte[]>.Success(pdf);
+    }
+
+    private static NoticeDocument BuildReminderNotice(ReminderContext context) {
+        var (totalAmount, paidAmount, remainingAmount) = GetDueAmounts(context.Due);
+        var isRegularDue = context.Due.DueAmount == context.PaymentPeriod.DefaultDueAmount;
+        var explanation = isRegularDue
+            ? $"Seit dem Beschluss unserer neuen Beitragsordnung zum 21.02.2026 sind von jedem Mitglied {totalAmount} je Semester als Mitgliedsbeitrag zu entrichten."
+            : $"Für diesen Zahlungszeitraum ist für dich aktuell ein Mitgliedsbeitrag von {totalAmount} hinterlegt.";
+        var paymentStatus = context.Due.PaidAmount > 0m
+            ? $"Aktuell sind bereits {paidAmount} verbucht; offen sind noch {remainingAmount}."
+            : $"Aktuell ist der volle Betrag von {remainingAmount} offen.";
+
+        return CreateNoticeBase(context, "Mitgliedsbeitrag", "Mitgliedsbeitrag offen", "#286c3f", "#0f221e", "#61756d", "#f7fbf8", "#d6e8da", "#28433a", "#49645b") with {
+            HeroText = $"Leider konnten wir für den aktuellen Zahlungszeitraum ({context.PaymentPeriod.Name} - Zahlung bis spätestens {FormatDate(context.Due.DueDate)}) noch keinen vollständigen Eingang deines Mitgliedsbeitrags verbuchen.",
+            SummaryRows = BuildSummaryRows(context, totalAmount, paidAmount, remainingAmount),
+            IntroParagraphs = [
+                explanation,
+                "Um unseren Vereinszweck zu unterstützen und aus Fairness allen anderen Mitgliedern gegenüber möchten wir auch dich bitten, dieser Pflicht nachzukommen.",
+                paymentStatus
+            ],
+            Sections = [
+                new NoticeSection {
+                    Title = "Mitgliedsbeitrag bezahlen",
+                    Paragraphs = [
+                        $"Überweise schnellstmöglich den offenen Betrag von {remainingAmount} an das unten genannte Konto.",
+                        $"{ClubConstants.Organization.LegalName}\nIBAN: {ClubConstants.BankAccount.Iban}\nBIC: {ClubConstants.BankAccount.Bic}\nVerwendungszweck: (Nachname), (Vorname), Mitgliedsbeitrag WS/SS/WS+SS (Jahr)"
+                    ]
+                },
+                new NoticeSection {
+                    Title = "Fördermitglied werden",
+                    Paragraphs = [$"Stelle einen formlosen Antrag per Mail an {ClubConstants.EmailAddresses.Board}, um Fördermitglied zu werden, und überweise den verringerten Beitrag für Fördermitglieder (frei wählbar zwischen 5 € und 15 €) an das oben genannte Konto."]
+                },
+                new NoticeSection {
+                    Title = "Beitragsermäßigung bzw. -befreiung beantragen",
+                    Paragraphs = [$"Wenn du dich aktuell in einer finanziell schwierigen Lage befindest, kannst du unter {ClubConstants.EmailAddresses.Board} eine Beitragsermäßigung oder -befreiung beantragen."]
+                },
+                new NoticeSection {
+                    Title = $"Aus dem {ClubConstants.Organization.LegalName} austreten",
+                    Paragraphs = [$"Eine formlose Austrittserklärung per Mail an {ClubConstants.EmailAddresses.Board} ist für alle Beteiligten einfacher als ein Suspendierungsverfahren."]
+                }
+            ],
+            HighlightTitle = "Wichtiger Hinweis",
+            HighlightText = "Sollten wir in den nächsten Tagen weder die Zahlung deines Beitrags verbuchen noch eine Kontaktaufnahme von dir erhalten, müssen wir nach §6.9 unserer Satzung deine Suspendierung beschließen, gefolgt von einer Abstimmung über deinen Ausschluss aus dem Verein in der nächsten Mitgliederversammlung."
+        };
+    }
+
+    private static NoticeDocument BuildSuspensionNotice(ReminderContext context) {
+        var (totalAmount, paidAmount, remainingAmount) = GetDueAmounts(context.Due);
+        return CreateNoticeBase(context, "Suspendierung", "Mitgliedschaft suspendiert", "#9a3412", "#2c1613", "#7c5d54", "#fbf8f5", "#eadfd6", "#54322c", "#77483e") with {
+            HeroText = "Der Vorstand hat beschlossen, deine Mitgliedschaft vorübergehend zu suspendieren.",
+            SummaryRows = BuildSummaryRows(context, totalAmount, paidAmount, remainingAmount),
+            IntroParagraphs = [
+                "Grund ist, dass dein Mitgliedsbeitrag für den genannten Zahlungszeitraum trotz Fälligkeit weiterhin nicht vollständig eingegangen ist.",
+                "Nach §4.4 unserer Satzung sind vollständige Mitglieder verpflichtet, den in der Beitragsordnung festgelegten Beitrag zu zahlen. Nach §6.9 kann der Vorstand eine vorübergehende Suspendierung beschließen.",
+                "Während der Suspendierung bist du nach §6.9 b) von deinen Rechten und Pflichten nach §4 entbunden. Deine Rechte im Zusammenhang mit Mitgliederversammlungen bleiben nach §6.9 e) bestehen."
+            ],
+            Sections = [
+                new NoticeSection {
+                    Title = "Suspendierung beenden",
+                    Paragraphs = [$"Überweise den offenen Betrag von {remainingAmount} an das Vereinskonto oder melde dich mit Zahlungsdatum und Verwendungszweck bei {ClubConstants.EmailAddresses.Board}, falls du bereits gezahlt hast. Wenn du den Beitrag aktuell nicht zahlen kannst, kontaktiere den Vorstand zur Prüfung einer Beitragsermäßigung oder -befreiung."]
+                },
+                new NoticeSection {
+                    Title = "Vereinskonto",
+                    Paragraphs = [$"{ClubConstants.Organization.LegalName}\nIBAN: {ClubConstants.BankAccount.Iban}\nBIC: {ClubConstants.BankAccount.Bic}\nVerwendungszweck: (Nachname), (Vorname), Mitgliedsbeitrag WS/SS/WS+SS (Jahr)"]
+                }
+            ],
+            HighlightTitle = "Nächste Schritte",
+            HighlightText = "Die nächste Mitgliederversammlung stimmt nach §6.9 a) in Verbindung mit §6.5 über einen möglichen Ausschluss ab. Lehnt die Mitgliederversammlung den Ausschluss ab, ist die Suspendierung aufgehoben. Der Vorstand kann die Suspendierung nach §6.9 f) außerdem selbst aufheben, sobald der Grund entfallen ist."
+        };
+    }
+
+    private static NoticeDocument CreateNoticeBase(
+        ReminderContext context,
+        string documentType,
+        string title,
+        string accentColor,
+        string darkColor,
+        string mutedColor,
+        string lightColor,
+        string borderColor,
+        string summaryBackgroundColor,
+        string summaryBorderColor)
+    {
+        var firstName = context.Member.FirstName?.Trim();
+        return new NoticeDocument {
+            DocumentType = documentType,
+            Title = title,
+            RecipientName = BuildMemberDisplayName(context.Member),
+            RecipientEmail = context.Member.Email?.Trim() ?? string.Empty,
+            RecipientAddressLines = BuildRecipientAddressLines(context.Member),
+            Greeting = string.IsNullOrWhiteSpace(firstName) ? "Hallo!" : $"Hi {firstName}!",
+            Closing = $"Liebe Grüße\nVorstand {ClubConstants.Organization.LegalName}",
+            Links = [
+                new NoticeLink("Mitgliedsbeitrag", ClubConstants.Urls.MembershipFees),
+                new NoticeLink("Vereinssatzung", ClubConstants.Urls.ArticlesOfAssociation),
+                new NoticeLink("Beitragsordnung", ClubConstants.Urls.MembershipFeeRegulations)
+            ],
+            AccentColor = accentColor,
+            DarkColor = darkColor,
+            MutedColor = mutedColor,
+            LightColor = lightColor,
+            BorderColor = borderColor,
+            SummaryBackgroundColor = summaryBackgroundColor,
+            SummaryBorderColor = summaryBorderColor
+        };
+    }
+
+    private static IReadOnlyList<string> BuildRecipientAddressLines(Member member) {
+        if (member.Address is null)
+            return [];
+
+        var cityLine = string.Join(" ", new[] { member.Address.ZipCode?.Trim(), member.Address.City?.Trim() }
+            .Where(value => !string.IsNullOrWhiteSpace(value)));
+        return new[] { member.Address.Street?.Trim(), cityLine, member.Address.Country?.Trim() }
+            .Where(value => !string.IsNullOrWhiteSpace(value))
+            .Cast<string>()
+            .ToList();
+    }
+
+    private static IReadOnlyList<NoticeSummaryRow> BuildSummaryRows(ReminderContext context, string totalAmount, string paidAmount, string remainingAmount) {
+        var rows = new List<NoticeSummaryRow> {
+            new("Zahlungszeitraum", context.PaymentPeriod.Name),
+            new("Fällig bis", FormatDate(context.Due.DueDate)),
+            new("Gesamtbeitrag", totalAmount)
+        };
+        if (context.Due.PaidAmount > 0m)
+            rows.Add(new NoticeSummaryRow("Bereits verbucht", paidAmount));
+        rows.Add(new NoticeSummaryRow("Aktuell offen", remainingAmount));
+        return rows;
+    }
+
+    private static (string Total, string Paid, string Remaining) GetDueAmounts(MembershipDue due) {
+        var paidAmount = due.PaidAmount ?? 0m;
+        return (FormatCurrency(due.DueAmount), FormatCurrency(paidAmount), FormatCurrency(Math.Max(due.DueAmount - paidAmount, 0m)));
+    }
+
+    private static string FormatDate(DateOnly value) => value.ToString("dd.MM.yyyy", CultureInfo.GetCultureInfo("de-DE"));
+
+    private static string FormatCurrency(decimal value) {
+        var format = decimal.Truncate(value) == value ? "0" : "0.00";
+        return $"{value.ToString(format, CultureInfo.GetCultureInfo("de-DE"))} €";
     }
 
     /// <inheritdoc />

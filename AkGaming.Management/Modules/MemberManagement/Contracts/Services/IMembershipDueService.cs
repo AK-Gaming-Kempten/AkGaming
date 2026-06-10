@@ -50,6 +50,16 @@ public interface IMembershipDueService {
     Task<Result<MembershipDueEmailPreviewDto>> GetSuspensionEmailPreviewAsync(int dueId);
 
     /// <summary>
+    /// Renders the outstanding membership due reminder as a PDF document.
+    /// </summary>
+    Task<Result<byte[]>> RenderReminderPdfAsync(int dueId);
+
+    /// <summary>
+    /// Renders the membership suspension notice as a PDF document.
+    /// </summary>
+    Task<Result<byte[]>> RenderSuspensionPdfAsync(int dueId);
+
+    /// <summary>
     /// Builds a dispatch preview for all reminder emails in a payment period.
     /// </summary>
     Task<Result<MembershipDueReminderDispatchPreviewDto>> GetReminderDispatchPreviewForPaymentPeriodAsync(int paymentPeriodId);

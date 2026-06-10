@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using AkGaming.Core.Common.Generics;
 using AkGaming.Management.Modules.MemberManagement.Contracts.DTO;
 using AkGaming.Management.Modules.MemberManagement.Contracts.Services;
 using Microsoft.AspNetCore.Builder;
@@ -92,6 +93,22 @@ public static class MembershipDueEndpoints {
             return MapResult(result);
         }).RequireAuthorization("AdminOnly");
 
+        group.MapGet("/{dueId:int}/reminder-pdf", async (
+            [FromRoute] int dueId,
+            [FromServices] IMembershipDueService service
+        ) => {
+            var result = await service.RenderReminderPdfAsync(dueId);
+            return MapPdfResult(result, $"membership-due-reminder-{dueId}.pdf");
+        }).RequireAuthorization("AdminOnly");
+
+        group.MapGet("/{dueId:int}/suspension-pdf", async (
+            [FromRoute] int dueId,
+            [FromServices] IMembershipDueService service
+        ) => {
+            var result = await service.RenderSuspensionPdfAsync(dueId);
+            return MapPdfResult(result, $"membership-suspension-{dueId}.pdf");
+        }).RequireAuthorization("AdminOnly");
+
         group.MapGet("/{dueId:int}/reminder-dispatch", async (
             [FromRoute] int dueId,
             [FromServices] IMembershipDueService service
@@ -168,6 +185,19 @@ public static class MembershipDueEndpoints {
         }).RequireAuthorization("AdminOnly");
 
         return endpoints;
+    }
+
+    private static IResult MapPdfResult(Result<byte[]> result, string fileName) {
+        if (result.IsSuccess)
+            return Results.File(result.Value!, "application/pdf", fileName);
+
+        if (IsNotFoundError(result.Error))
+            return Results.NotFound(result.Error);
+
+        if (IsServerError(result.Error))
+            return Results.Problem(detail: result.Error, statusCode: StatusCodes.Status500InternalServerError);
+
+        return Results.BadRequest(result.Error);
     }
 
     private static Guid? GetCurrentUserIdOrNull(ClaimsPrincipal user) {

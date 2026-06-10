@@ -113,6 +113,20 @@ public abstract class ApiClientBase {
         }
     }
 
+    protected async Task<Result<byte[]>> GetBytesAsync(string url, CancellationToken ct = default) {
+        try {
+            using var resp = await Http.GetAsync(url, ct);
+            if (!resp.IsSuccessStatusCode)
+                return Result<byte[]>.Failure(await ReadError(resp, ct));
+
+            return Result<byte[]>.Success(await resp.Content.ReadAsByteArrayAsync(ct));
+        } catch (HttpRequestException ex) {
+            return Result<byte[]>.Failure(BuildConnectionError(ex));
+        } catch (TaskCanceledException) when (!ct.IsCancellationRequested) {
+            return Result<byte[]>.Failure(BuildTimeoutError());
+        }
+    }
+
     protected async Task<Result> PutJsonAsync<TIn>(string url, TIn body, CancellationToken ct = default) {
         try {
             using var resp = await Http.PutAsJsonAsync(url, body, Json, ct);

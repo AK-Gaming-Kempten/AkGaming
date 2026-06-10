@@ -3,11 +3,13 @@ using AkGaming.Management.Frontend.ApiClients;
 using AkGaming.Management.Modules.MemberManagement.Contracts.DTO;
 using AkGaming.Management.Modules.MemberManagement.Contracts.Enums;
 using Microsoft.AspNetCore.Components;
+using Microsoft.JSInterop;
 
 namespace AkGaming.Management.Frontend.Components.Administration.MemberManagement;
 
 public partial class MemberManagementDuesPage : ComponentBase {
     [Inject] private MemberManagementApiClient MemberApi { get; set; } = default!;
+    [Inject] private IJSRuntime Js { get; set; } = default!;
 
     private MembershipPaymentPeriodCreateDto _createRequest = new() {
         Name = $"{DateTime.UtcNow:yyyy-MM}",
@@ -35,6 +37,8 @@ public partial class MemberManagementDuesPage : ComponentBase {
     private bool _loadingSuspensionPreview;
     private bool _sendingReminderDispatch;
     private bool _sendingSuspension;
+    private readonly HashSet<int> _downloadingReminderPdfIds = [];
+    private bool _downloadingSuspensionPdf;
     private bool _sendingReminderDispatchCompleted;
     private string? _errorMessage;
     private string? _statusMessage;
@@ -315,6 +319,40 @@ public partial class MemberManagementDuesPage : ComponentBase {
         _suspensionDialogError = null;
         _suspensionDue = null;
         _suspensionPreview = null;
+    }
+
+    private async Task DownloadReminderPdfAsync(ReminderDispatchRecipientState recipient) {
+        _downloadingReminderPdfIds.Add(recipient.DueId);
+        recipient.ResultMessage = null;
+        var result = await MemberApi.GetReminderPdfAsync(recipient.DueId);
+        _downloadingReminderPdfIds.Remove(recipient.DueId);
+        if (!result.IsSuccess) {
+            recipient.ResultMessage = result.Error ?? "Failed to generate reminder PDF.";
+            return;
+        }
+
+        await DownloadPdfAsync(result.Value!, $"membership-due-reminder-{recipient.DueId}.pdf");
+    }
+
+    private async Task DownloadSuspensionPdfAsync() {
+        if (_suspensionDue is null)
+            return;
+
+        _downloadingSuspensionPdf = true;
+        _suspensionDialogError = null;
+        var result = await MemberApi.GetSuspensionPdfAsync(_suspensionDue.Id);
+        _downloadingSuspensionPdf = false;
+        if (!result.IsSuccess) {
+            _suspensionDialogError = result.Error ?? "Failed to generate suspension PDF.";
+            return;
+        }
+
+        await DownloadPdfAsync(result.Value!, $"membership-suspension-{_suspensionDue.Id}.pdf");
+    }
+
+    private async Task DownloadPdfAsync(byte[] pdf, string fileName) {
+        var base64 = Convert.ToBase64String(pdf);
+        await Js.InvokeVoidAsync("akGaming.downloadFile", fileName, "application/pdf", base64);
     }
 
     private int PendingCount => _dues.Count(x => x.Status == MembershipDueStatus.Pending);

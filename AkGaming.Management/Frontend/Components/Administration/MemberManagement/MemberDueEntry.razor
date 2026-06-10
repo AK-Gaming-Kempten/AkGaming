@@ -119,6 +119,9 @@
                 <p class="text-danger">@_reminderPreviewError</p>
             }
             else if (_reminderPreview is not null) {
+                <div class="ui-actions">
+                    <ActionButton Kind="ActionButtonKind.DownloadPdf" Variant="ActionButtonVariant.Primary" Size="ActionButtonSize.Small" OnClick="DownloadReminderPdfAsync" Disabled="_downloadingReminderPdf" Label="Download reminder PDF" />
+                </div>
                 <div class="due-email-preview-meta">
                     <div>
                         <label>Recipient</label>
@@ -154,6 +157,9 @@
                 <p class="text-danger">@_suspensionPreviewError</p>
             }
             else if (_suspensionPreview is not null) {
+                <div class="ui-actions">
+                    <ActionButton Kind="ActionButtonKind.DownloadPdf" Variant="ActionButtonVariant.Primary" Size="ActionButtonSize.Small" OnClick="DownloadSuspensionPdfAsync" Disabled="_downloadingSuspensionPdf" Label="Download suspension PDF" />
+                </div>
                 <div class="due-email-preview-meta">
                     <div>
                         <label>Recipient</label>

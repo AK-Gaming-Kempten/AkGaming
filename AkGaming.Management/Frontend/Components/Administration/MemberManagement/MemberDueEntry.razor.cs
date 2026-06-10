@@ -2,11 +2,13 @@ using AkGaming.Management.Frontend.ApiClients;
 using AkGaming.Management.Modules.MemberManagement.Contracts.DTO;
 using AkGaming.Management.Modules.MemberManagement.Contracts.Enums;
 using Microsoft.AspNetCore.Components;
+using Microsoft.JSInterop;
 
 namespace AkGaming.Management.Frontend.Components.Administration.MemberManagement;
 
 public partial class MemberDueEntry : ComponentBase {
     [Inject] private MemberManagementApiClient MemberApi { get; set; } = default!;
+    [Inject] private IJSRuntime Js { get; set; } = default!;
 
     [Parameter] public required MembershipDueDto Due { get; set; }
     [Parameter] public string PrimaryMemberLabel { get; set; } = string.Empty;
@@ -26,6 +28,8 @@ public partial class MemberDueEntry : ComponentBase {
     private bool _showSuspensionPreview;
     private bool _loadingReminderPreview;
     private bool _loadingSuspensionPreview;
+    private bool _downloadingReminderPdf;
+    private bool _downloadingSuspensionPdf;
     private string? _reminderPreviewError;
     private string? _suspensionPreviewError;
     private bool _isActionMenuOpen { get; set; }
@@ -140,6 +144,37 @@ public partial class MemberDueEntry : ComponentBase {
 
         _suspensionPreview = result.Value;
         _loadingSuspensionPreview = false;
+    }
+
+    private async Task DownloadReminderPdfAsync() {
+        _downloadingReminderPdf = true;
+        _reminderPreviewError = null;
+        var result = await MemberApi.GetReminderPdfAsync(Due.Id);
+        _downloadingReminderPdf = false;
+        if (!result.IsSuccess) {
+            _reminderPreviewError = result.Error ?? "Failed to generate reminder PDF.";
+            return;
+        }
+
+        await DownloadPdfAsync(result.Value!, $"membership-due-reminder-{Due.Id}.pdf");
+    }
+
+    private async Task DownloadSuspensionPdfAsync() {
+        _downloadingSuspensionPdf = true;
+        _suspensionPreviewError = null;
+        var result = await MemberApi.GetSuspensionPdfAsync(Due.Id);
+        _downloadingSuspensionPdf = false;
+        if (!result.IsSuccess) {
+            _suspensionPreviewError = result.Error ?? "Failed to generate suspension PDF.";
+            return;
+        }
+
+        await DownloadPdfAsync(result.Value!, $"membership-suspension-{Due.Id}.pdf");
+    }
+
+    private async Task DownloadPdfAsync(byte[] pdf, string fileName) {
+        var base64 = Convert.ToBase64String(pdf);
+        await Js.InvokeVoidAsync("akGaming.downloadFile", fileName, "application/pdf", base64);
     }
 
     private static MembershipDueDto CloneDue(MembershipDueDto due) => new() {

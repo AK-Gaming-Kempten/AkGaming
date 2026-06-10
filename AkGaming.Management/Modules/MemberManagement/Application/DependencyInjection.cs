@@ -2,6 +2,7 @@ using Microsoft.Extensions.DependencyInjection;
 using System.Reflection;
 using AkGaming.Management.Modules.MemberManagement.Application.Services;
 using AkGaming.Management.Modules.MemberManagement.Contracts.Services;
+using AkGaming.InvoiceGenerator.Core.Rendering;
 
 namespace AkGaming.Management.Modules.MemberManagement.Application;
 
@@ -17,6 +18,7 @@ public static class DependencyInjection {
         services.AddScoped<IMemberDeletionService, MemberDeletionService>();
         services.AddScoped<IMembershipApplicationService, MembershipApplicationService>();
         services.AddScoped<IMembershipDueService, MembershipDueService>();
+        services.AddSingleton<INoticePdfRenderer, NoticePdfRenderer>();
 
         // Optionally register validators or behaviors
         // services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());

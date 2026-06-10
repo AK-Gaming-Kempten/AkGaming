@@ -203,6 +203,11 @@
                                                 }
                                             </div>
                                             <span class="@GetReminderStateClass(recipient.State)">@GetReminderStateLabel(recipient.State)</span>
+                                            <ActionButton Kind="ActionButtonKind.DownloadPdf"
+                                                          Size="ActionButtonSize.Small"
+                                                          OnClick="() => DownloadReminderPdfAsync(recipient)"
+                                                          Disabled="@(_downloadingReminderPdfIds.Contains(recipient.DueId) || _sendingReminderDispatch)"
+                                                          Label="@($"Download reminder PDF for {recipient.MemberDisplayName}")" />
                                         </article>
                                     }
                                 </div>
@@ -290,6 +295,7 @@
                     </div>
 
                     <footer class="dues-reminder-dialog-actions">
+                        <ActionButton Kind="ActionButtonKind.DownloadPdf" Variant="ActionButtonVariant.Primary" OnClick="DownloadSuspensionPdfAsync" Disabled="@(_downloadingSuspensionPdf || _loadingSuspensionPreview)" Label="Download suspension PDF" />
                         <ActionButton Kind="ActionButtonKind.Send" Variant="ActionButtonVariant.Danger" OnClick="SendSuspensionAsync" Disabled="@(_sendingSuspension || _loadingSuspensionPreview)" Label="Send suspension and suspend member" />
                         <ActionButton Kind="ActionButtonKind.Cancel" OnClick="CloseSuspensionDialog" Disabled="_sendingSuspension" />
                     </footer>

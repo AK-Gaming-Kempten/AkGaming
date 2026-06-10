@@ -1,11 +1,14 @@
 using AkGaming.Core.Common.Generics;
 using AkGaming.Core.Common.Email;
 using AkGaming.Core.Constants;
+using AkGaming.InvoiceGenerator.Core.Models;
+using AkGaming.InvoiceGenerator.Core.Rendering;
 using AkGaming.Management.Modules.MemberManagement.Application.Interfaces;
 using AkGaming.Management.Modules.MemberManagement.Application.Services;
 using AkGaming.Management.Modules.MemberManagement.Contracts.DTO;
 using AkGaming.Management.Modules.MemberManagement.Domain.Constants;
 using AkGaming.Management.Modules.MemberManagement.Domain.Entities;
+using AkGaming.Management.Modules.MemberManagement.Domain.ValueObjects;
 using Moq;
 using ContractEnums = AkGaming.Management.Modules.MemberManagement.Contracts.Enums;
 using DomainEnums = AkGaming.Management.Modules.MemberManagement.Domain.Enums;
@@ -393,6 +396,134 @@ public class MembershipDueServiceTests {
 
         Assert.That(result.IsSuccess, Is.False);
         Assert.That(result.Error, Is.EqualTo("Due is already paid."));
+    }
+
+    [Test]
+    [Description("Renders an eligible membership due reminder as a personalized PDF notice.")]
+    public async Task RenderReminderPdfAsync_ReturnsRendererBytes() {
+        // Arrange
+        var dueRepository = new Mock<IMembershipDueRepository>();
+        var paymentPeriodRepository = new Mock<IMembershipPaymentPeriodRepository>();
+        var memberRepository = new Mock<IMemberRepository>();
+        var pdfRenderer = new Mock<INoticePdfRenderer>();
+        var expectedPdf = new byte[] { 1, 2, 3, 4 };
+        NoticeDocument? renderedNotice = null;
+        pdfRenderer
+            .Setup(renderer => renderer.Render(It.IsAny<NoticeDocument>()))
+            .Callback<NoticeDocument>(notice => renderedNotice = notice)
+            .Returns(expectedPdf);
+        var service = new MembershipDueService(
+            dueRepository.Object,
+            paymentPeriodRepository.Object,
+            memberRepository.Object,
+            noticePdfRenderer: pdfRenderer.Object);
+
+        var overdueDate = DateOnly.FromDateTime(DateTime.UtcNow.Date.AddDays(-5));
+        var member = new Member {
+            Id = Guid.NewGuid(),
+            FirstName = "Max",
+            LastName = "Reminder",
+            Email = "max@example.com",
+            Address = new Address {
+                Street = "Musterstraße 1",
+                ZipCode = "87435",
+                City = "Kempten"
+            },
+            Status = DomainEnums.MembershipStatus.Member
+        };
+        var paymentPeriod = new MembershipPaymentPeriod {
+            Id = 22,
+            Name = "SS 2026",
+            DueDate = overdueDate,
+            DefaultDueAmount = 15m,
+            ReducedDueAmount = 5m,
+            CreatedAt = DateTimeOffset.UtcNow
+        };
+        var due = new MembershipDue {
+            Id = 88,
+            PaymentPeriodId = paymentPeriod.Id,
+            MemberId = member.Id,
+            Status = DomainEnums.MembershipDueStatus.Pending,
+            DueAmount = 15m,
+            DueDate = overdueDate
+        };
+        dueRepository.Setup(repository => repository.GetByIdAsync(due.Id)).ReturnsAsync(Result<MembershipDue>.Success(due));
+        memberRepository.Setup(repository => repository.GetByMemberIdAsync(member.Id)).ReturnsAsync(Result<Member>.Success(member));
+        paymentPeriodRepository.Setup(repository => repository.GetByIdAsync(paymentPeriod.Id)).ReturnsAsync(Result<MembershipPaymentPeriod>.Success(paymentPeriod));
+
+        // Act
+        var result = await service.RenderReminderPdfAsync(due.Id);
+
+        // Assert
+        using (Assert.EnterMultipleScope()) {
+            Assert.That(result.IsSuccess, Is.True);
+            Assert.That(result.Value, Is.EqualTo(expectedPdf));
+            Assert.That(renderedNotice, Is.Not.Null);
+            Assert.That(renderedNotice!.Title, Is.EqualTo("Mitgliedsbeitrag offen"));
+            Assert.That(renderedNotice.RecipientName, Is.EqualTo("Max Reminder"));
+            Assert.That(renderedNotice.RecipientAddressLines, Does.Contain("Musterstraße 1"));
+            Assert.That(renderedNotice.Sections.SelectMany(section => section.Paragraphs), Has.Some.Contains(ClubConstants.BankAccount.Iban));
+            Assert.That(due.LastReminderSentAt, Is.Null);
+            Assert.That(due.LastReminderSendStatus, Is.EqualTo(DomainEnums.MembershipDueReminderSendStatus.None));
+        }
+    }
+
+    [Test]
+    [Description("Renders an eligible suspension notice as a PDF without changing membership status.")]
+    public async Task RenderSuspensionPdfAsync_ReturnsRendererBytesWithoutSuspendingMember() {
+        // Arrange
+        var dueRepository = new Mock<IMembershipDueRepository>();
+        var paymentPeriodRepository = new Mock<IMembershipPaymentPeriodRepository>();
+        var memberRepository = new Mock<IMemberRepository>();
+        var pdfRenderer = new Mock<INoticePdfRenderer>();
+        var expectedPdf = new byte[] { 5, 6, 7 };
+        pdfRenderer.Setup(renderer => renderer.Render(It.IsAny<NoticeDocument>())).Returns(expectedPdf);
+        var service = new MembershipDueService(
+            dueRepository.Object,
+            paymentPeriodRepository.Object,
+            memberRepository.Object,
+            noticePdfRenderer: pdfRenderer.Object);
+
+        var overdueDate = DateOnly.FromDateTime(DateTime.UtcNow.Date.AddDays(-5));
+        var member = new Member {
+            Id = Guid.NewGuid(),
+            FirstName = "Max",
+            LastName = "Suspend",
+            Email = "max@example.com",
+            Status = DomainEnums.MembershipStatus.Member
+        };
+        var paymentPeriod = new MembershipPaymentPeriod {
+            Id = 23,
+            Name = "SS 2026",
+            DueDate = overdueDate,
+            DefaultDueAmount = 15m,
+            ReducedDueAmount = 5m,
+            CreatedAt = DateTimeOffset.UtcNow
+        };
+        var due = new MembershipDue {
+            Id = 89,
+            PaymentPeriodId = paymentPeriod.Id,
+            MemberId = member.Id,
+            Status = DomainEnums.MembershipDueStatus.Pending,
+            DueAmount = 15m,
+            DueDate = overdueDate
+        };
+        dueRepository.Setup(repository => repository.GetByIdAsync(due.Id)).ReturnsAsync(Result<MembershipDue>.Success(due));
+        memberRepository.Setup(repository => repository.GetByMemberIdAsync(member.Id)).ReturnsAsync(Result<Member>.Success(member));
+        paymentPeriodRepository.Setup(repository => repository.GetByIdAsync(paymentPeriod.Id)).ReturnsAsync(Result<MembershipPaymentPeriod>.Success(paymentPeriod));
+
+        // Act
+        var result = await service.RenderSuspensionPdfAsync(due.Id);
+
+        // Assert
+        using (Assert.EnterMultipleScope()) {
+            Assert.That(result.IsSuccess, Is.True);
+            Assert.That(result.Value, Is.EqualTo(expectedPdf));
+            Assert.That(member.Status, Is.EqualTo(DomainEnums.MembershipStatus.Member));
+        }
+        pdfRenderer.Verify(renderer => renderer.Render(It.Is<NoticeDocument>(notice =>
+            notice.Title == "Mitgliedschaft suspendiert" &&
+            notice.IntroParagraphs.Any(paragraph => paragraph.Contains("§6.9", StringComparison.Ordinal)))), Times.Once);
     }
 
     [Test]

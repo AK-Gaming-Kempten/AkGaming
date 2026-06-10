@@ -137,6 +137,12 @@ public sealed class MemberManagementApiClient : ApiClientBase {
     public Task<Result<MembershipDueEmailPreviewDto>> GetSuspensionEmailPreviewAsync(int dueId, CancellationToken ct = default) =>
         GetAsync<MembershipDueEmailPreviewDto>($"membership-dues/{dueId}/suspension-email", ct);
 
+    public Task<Result<byte[]>> GetReminderPdfAsync(int dueId, CancellationToken ct = default) =>
+        GetBytesAsync($"membership-dues/{dueId}/reminder-pdf", ct);
+
+    public Task<Result<byte[]>> GetSuspensionPdfAsync(int dueId, CancellationToken ct = default) =>
+        GetBytesAsync($"membership-dues/{dueId}/suspension-pdf", ct);
+
     public Task<Result<MembershipDueReminderDispatchPreviewDto>> GetReminderDispatchPreviewForDueAsync(int dueId, CancellationToken ct = default) =>
         GetAsync<MembershipDueReminderDispatchPreviewDto>($"membership-dues/{dueId}/reminder-dispatch", ct);
 
