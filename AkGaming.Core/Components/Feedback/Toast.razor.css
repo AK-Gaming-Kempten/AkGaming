@@ -1,0 +1,101 @@
+.core-toast {
+    position: fixed;
+    right: 1.25rem;
+    bottom: 1.25rem;
+    z-index: 1500;
+    overflow: hidden;
+    width: min(calc(100vw - 2rem), 32rem);
+    border: 1px solid color-mix(in oklab, var(--toast-accent) 55%, var(--color-highlight-primary));
+    border-radius: 22px;
+    background: var(--color-background-primary);
+    color: var(--color-text-primary);
+    box-shadow: 0 26px 56px color-mix(in oklab, black 32%, transparent);
+}
+
+.core-toast-error { --toast-accent: var(--color-red-light); }
+.core-toast-warning { --toast-accent: #d89b2b; }
+.core-toast-info { --toast-accent: var(--color-highlight-secondary); }
+.core-toast-success { --toast-accent: #2f9c62; }
+
+.core-toast-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1rem 1.1rem 0.9rem;
+    background: linear-gradient(145deg, #0f221e, #163328);
+    color: var(--color-text-special);
+}
+
+.core-toast-brand {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+    min-width: 0;
+}
+
+.core-toast-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.7rem;
+    height: 2.7rem;
+    flex-shrink: 0;
+    border-radius: 999px;
+    background: color-mix(in oklab, var(--toast-accent) 28%, white 10%);
+    color: white;
+    font-size: 1.15rem;
+}
+
+.core-toast-eyebrow {
+    margin: 0 0 0.15rem;
+    color: color-mix(in oklab, white 72%, var(--color-highlight-primary));
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+}
+
+.core-toast-title {
+    margin: 0;
+    color: var(--color-text-special);
+    font-size: 1.1rem;
+    line-height: 1.2;
+}
+
+.core-toast-close {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.1rem;
+    height: 2.1rem;
+    flex-shrink: 0;
+    padding: 0;
+    border: 1px solid color-mix(in oklab, white 22%, transparent);
+    border-radius: 999px;
+    background: color-mix(in oklab, white 12%, transparent);
+    color: var(--color-text-special);
+    cursor: pointer;
+}
+
+.core-toast-close:hover {
+    background: color-mix(in oklab, white 20%, transparent);
+}
+
+.core-toast-body {
+    padding: 1rem 1.1rem 1.1rem;
+}
+
+.core-toast-body p {
+    margin: 0;
+    overflow-wrap: anywhere;
+    line-height: 1.5;
+}
+
+@media (max-width: 900px) {
+    .core-toast {
+        right: 1rem;
+        bottom: 1rem;
+        width: calc(100vw - 2rem);
+    }
+}

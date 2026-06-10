@@ -1,0 +1,25 @@
+@namespace AkGaming.Core.Components.Feedback
+
+@if (Visible && !string.IsNullOrWhiteSpace(Message))
+{
+    <aside class="core-toast core-toast-@Variant.ToString().ToLowerInvariant()"
+           role="alert"
+           aria-live="assertive"
+           aria-atomic="true">
+        <div class="core-toast-header">
+            <div class="core-toast-brand">
+                <span class="core-toast-icon bi @IconClass" aria-hidden="true"></span>
+                <div>
+                    <p class="core-toast-eyebrow">@AppName</p>
+                    <h2 class="core-toast-title">@Title</h2>
+                </div>
+            </div>
+            <button type="button" class="core-toast-close" aria-label="Dismiss notification" @onclick="DismissAsync">
+                <span class="bi bi-x-lg" aria-hidden="true"></span>
+            </button>
+        </div>
+        <div class="core-toast-body">
+            <p>@Message</p>
+        </div>
+    </aside>
+}

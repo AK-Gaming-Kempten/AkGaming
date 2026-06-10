@@ -21,15 +21,14 @@ public partial class InvoiceEditor : ComponentBase
     [Parameter] public bool IsBusy { get; set; }
     [Parameter] public EventCallback<InvoiceDetailsDto> OnSave { get; set; }
     [Parameter] public EventCallback<Guid> OnDelete { get; set; }
+    [Parameter] public EventCallback<string?> OnError { get; set; }
     [Parameter] public EventCallback OnCancel { get; set; }
 
-    private string? _error;
     private string? _previewHtml;
     private decimal TotalAmount => Model.LineItems.Sum(item => item.TotalPrice);
 
     private Task SaveAsync(EditContext _)
     {
-        _error = null;
         return OnSave.InvokeAsync(Model);
     }
 
@@ -105,11 +104,11 @@ public partial class InvoiceEditor : ComponentBase
 
     private async Task PreviewAsync()
     {
-        _error = null;
+        await OnError.InvokeAsync(null);
         var result = await InvoiceApi.RenderHtmlAsync(Model);
         if (!result.IsSuccess)
         {
-            _error = result.Error;
+            await OnError.InvokeAsync(result.Error ?? "The invoice preview could not be generated.");
             return;
         }
 
@@ -118,11 +117,11 @@ public partial class InvoiceEditor : ComponentBase
 
     private async Task DownloadPdfAsync()
     {
-        _error = null;
+        await OnError.InvokeAsync(null);
         var result = await InvoiceApi.RenderPdfAsync(Model);
         if (!result.IsSuccess)
         {
-            _error = result.Error;
+            await OnError.InvokeAsync(result.Error ?? "The invoice PDF could not be generated.");
             return;
         }
 
@@ -133,11 +132,11 @@ public partial class InvoiceEditor : ComponentBase
 
     private async Task DownloadHtmlAsync()
     {
-        _error = null;
+        await OnError.InvokeAsync(null);
         var result = await InvoiceApi.RenderHtmlAsync(Model);
         if (!result.IsSuccess)
         {
-            _error = result.Error;
+            await OnError.InvokeAsync(result.Error ?? "The invoice HTML could not be generated.");
             return;
         }
 

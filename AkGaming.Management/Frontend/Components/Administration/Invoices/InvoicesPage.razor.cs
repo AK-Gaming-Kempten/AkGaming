@@ -171,4 +171,14 @@ public partial class InvoicesPage : ComponentBase
         _selectedInvoice = null;
         _isMobileDetailOpen = false;
     }
+
+    private void ShowError(string? message)
+    {
+        _error = message;
+    }
+
+    private void DismissError()
+    {
+        _error = null;
+    }
 }

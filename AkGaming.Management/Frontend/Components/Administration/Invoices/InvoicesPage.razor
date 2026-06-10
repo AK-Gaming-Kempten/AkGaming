@@ -4,6 +4,13 @@
 
 <PageTitle>Invoices</PageTitle>
 
+<Toast Visible="@(!string.IsNullOrWhiteSpace(_error))"
+       AppName="AK Gaming Management"
+       Title="Invoice error"
+       Message="@_error"
+       Variant="ToastVariant.Error"
+       OnDismiss="DismissError" />
+
 <div class="invoice-page ui-stack-md">
     <section class="panel invoice-page-toolbar">
         <div>
@@ -12,10 +19,6 @@
         </div>
     </section>
 
-    @if (!string.IsNullOrWhiteSpace(_error))
-    {
-        <p class="text-danger">@_error</p>
-    }
     @if (!string.IsNullOrWhiteSpace(_status))
     {
         <p class="text-success">@_status</p>
@@ -72,6 +75,7 @@
                                IsBusy="_isBusy"
                                OnSave="SaveAsync"
                                OnDelete="DeleteAsync"
+                               OnError="ShowError"
                                OnCancel="CloseEditor" />
             }
             else
