@@ -1,5 +1,5 @@
 .invoice-payment-presets-page {
-    max-width: 1100px;
+    width: 100%;
 }
 
 .invoice-payment-presets-toolbar {
@@ -12,10 +12,14 @@
 
 .invoice-payment-presets-layout {
     display: grid;
+    width: 100%;
     grid-template-columns: minmax(240px, 340px) minmax(0, 1fr);
     gap: 1rem;
     align-items: start;
+    min-height: clamp(30rem, 72dvh, 56rem);
 }
+
+.preset-list-pane { display: flex; flex-direction: column; max-height: clamp(30rem, 72dvh, 56rem); }
 
 .invoice-payment-preset-list {
     display: grid;
@@ -43,8 +47,15 @@
     border-color: var(--color-highlight-primary);
 }
 
-@media (max-width: 720px) {
+@media (max-width: 900px) {
     .invoice-payment-presets-layout {
-        grid-template-columns: 1fr;
+        display: block;
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .preset-list-pane,
+    .preset-detail-pane {
+        width: 100%;
+        max-height: none;
     }
 }

@@ -17,6 +17,7 @@ public partial class InvoicesPage : ComponentBase
     private IReadOnlyList<InvoiceLineItemCollectionPresetDto> _lineItemCollectionPresets = [];
     private InvoiceDetailsDto? _selectedInvoice;
     private bool _isBusy;
+    private bool _isMobileDetailOpen;
     private string? _error;
     private string? _status;
 
@@ -91,6 +92,7 @@ public partial class InvoicesPage : ComponentBase
         }
 
         _selectedInvoice = result.Value;
+        _isMobileDetailOpen = true;
     }
 
     private void StartCreate()
@@ -103,6 +105,7 @@ public partial class InvoicesPage : ComponentBase
             SignatureName = ClubConstants.Organization.LegalName,
             LineItems = [new InvoiceLineItemDto { Quantity = 1m }]
         };
+        _isMobileDetailOpen = true;
     }
 
     private async Task SaveAsync(InvoiceDetailsDto invoice)
@@ -142,6 +145,7 @@ public partial class InvoicesPage : ComponentBase
         }
 
         _selectedInvoice = null;
+        _isMobileDetailOpen = false;
         _status = "Invoice deleted.";
         await LoadInvoiceListAsync();
     }
@@ -159,5 +163,12 @@ public partial class InvoicesPage : ComponentBase
     {
         _selectedInvoice = null;
         _error = null;
+        _isMobileDetailOpen = false;
+    }
+
+    private void ShowListMobile()
+    {
+        _selectedInvoice = null;
+        _isMobileDetailOpen = false;
     }
 }

@@ -10,10 +10,6 @@
             <h3 class="ui-title">Invoices</h3>
             <span class="ui-text-muted">Create, edit, preview, and regenerate stored invoices.</span>
         </div>
-        <div class="ui-actions">
-            <button type="button" class="btn btn-secondary" @onclick="ReloadAsync" disabled="@_isBusy">Refresh</button>
-            <button type="button" class="btn btn-primary" @onclick="StartCreate" disabled="@_isBusy">Create invoice</button>
-        </div>
     </section>
 
     @if (!string.IsNullOrWhiteSpace(_error))
@@ -25,9 +21,13 @@
         <p class="text-success">@_status</p>
     }
 
-    <div class="invoice-page-layout">
-        <aside class="panel invoice-selector">
-            <h4 class="ui-title">Stored invoices</h4>
+    <div class="invoice-page-layout two-column-layout mobile-master-detail @(_isMobileDetailOpen ? "mobile-detail-open" : string.Empty)">
+        <aside class="panel invoice-selector two-column-layout-left">
+            <div class="list-buttons">
+                <h4 class="ui-title">Stored invoices</h4>
+                <button type="button" class="btn btn-secondary" @onclick="ReloadAsync" disabled="@_isBusy">Refresh</button>
+                <button type="button" class="btn btn-primary" @onclick="StartCreate" disabled="@_isBusy">Create invoice</button>
+            </div>
             @if (_invoices is null)
             {
                 <p>Loading invoices...</p>
@@ -38,23 +38,31 @@
             }
             else
             {
-                <div class="invoice-selector-list">
-                    @foreach (var invoice in _invoices)
-                    {
-                        <button type="button"
-                                class="invoice-selector-entry @(invoice.Id == _selectedInvoice?.Id ? "invoice-selector-entry-active" : string.Empty)"
-                                @onclick="() => SelectInvoiceAsync(invoice.Id)"
-                                disabled="@_isBusy">
-                            <strong>@invoice.InvoiceNumber</strong>
-                            <span>@invoice.BuyerName</span>
-                            <small>@invoice.InvoiceDate.ToString("dd.MM.yyyy") - @invoice.TotalAmount.ToString("N2") EUR</small>
-                        </button>
-                    }
+                <div class="list-scroll-container">
+                    <div class="invoice-selector-list preview-card-list">
+                        @foreach (var invoice in _invoices)
+                        {
+                            <button type="button"
+                                    class="invoice-selector-entry @(invoice.Id == _selectedInvoice?.Id ? "invoice-selector-entry-active" : string.Empty)"
+                                    @onclick="() => SelectInvoiceAsync(invoice.Id)"
+                                    disabled="@_isBusy">
+                                <strong>@invoice.InvoiceNumber</strong>
+                                <span>@invoice.BuyerName</span>
+                                <small>@invoice.InvoiceDate.ToString("dd.MM.yyyy") - @invoice.TotalAmount.ToString("N2") EUR</small>
+                            </button>
+                        }
+                    </div>
                 </div>
             }
         </aside>
 
-        <main>
+        <main class="invoice-detail two-column-layout-right">
+            <div class="mobile-detail-nav">
+                <button type="button" class="btn btn-outline-secondary btn-sm" @onclick="ShowListMobile">
+                    <span class="bi bi-arrow-left" aria-hidden="true"></span>
+                    Back to invoices
+                </button>
+            </div>
             @if (_selectedInvoice is not null)
             {
                 <InvoiceEditor @key="_selectedInvoice.Id"

@@ -1,4 +1,4 @@
-.invoice-presets-workspace { --tabs-border: var(--color-text-secondary); --tabs-text-color: var(--color-text-primary); --tabs-hover-bg: color-mix(in oklab, var(--color-background-secondary) 75%, var(--color-background-primary) 25%); --tabs-accent: var(--color-highlight-secondary); display: grid; gap: 1rem; max-width: 1200px; }
+.invoice-presets-workspace { --tabs-border: var(--color-text-secondary); --tabs-text-color: var(--color-text-primary); --tabs-hover-bg: color-mix(in oklab, var(--color-background-secondary) 75%, var(--color-background-primary) 25%); --tabs-accent: var(--color-highlight-secondary); display: grid; gap: 1rem; width: 100%; }
 .preset-page-heading { display: grid; gap: .25rem; }
 .tabs { display: flex; gap: .5rem; border-bottom: 1px solid var(--tabs-border); overflow-x: auto; }
 .tab { border: none; background: transparent; padding: .6rem .8rem; font: inherit; color: var(--tabs-text-color); cursor: pointer; border-bottom: 2px solid transparent; white-space: nowrap; }

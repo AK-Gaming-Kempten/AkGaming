@@ -12,6 +12,7 @@ public partial class InvoicePartyPresetsPage : ComponentBase
     private InvoicePartyPresetDto _editingPreset = new();
     private bool _showCreate;
     private bool _isBusy;
+    private bool _isMobileDetailOpen;
     private string? _error;
     private string? _status;
 
@@ -39,6 +40,7 @@ public partial class InvoicePartyPresetsPage : ComponentBase
     {
         _showCreate = !_showCreate;
         _editingPreset = new InvoicePartyPresetDto();
+        _isMobileDetailOpen = _showCreate;
         _error = null;
         _status = null;
     }
@@ -47,6 +49,7 @@ public partial class InvoicePartyPresetsPage : ComponentBase
     {
         _showCreate = false;
         _editingPreset = Clone(preset);
+        _isMobileDetailOpen = true;
         _error = null;
         _status = null;
     }
@@ -88,6 +91,7 @@ public partial class InvoicePartyPresetsPage : ComponentBase
         }
 
         _editingPreset = new InvoicePartyPresetDto();
+        _isMobileDetailOpen = false;
         _status = "Preset deleted.";
         await LoadAsync();
     }
@@ -109,5 +113,12 @@ public partial class InvoicePartyPresetsPage : ComponentBase
             CreatedAt = preset.CreatedAt,
             UpdatedAt = preset.UpdatedAt
         };
+    }
+
+    private void ShowListMobile()
+    {
+        _showCreate = false;
+        _editingPreset = new InvoicePartyPresetDto();
+        _isMobileDetailOpen = false;
     }
 }

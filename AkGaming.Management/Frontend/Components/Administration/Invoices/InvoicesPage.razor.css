@@ -11,15 +11,13 @@
 }
 
 .invoice-page-layout {
-    display: grid;
     grid-template-columns: 260px minmax(0, 1fr);
-    gap: 1rem;
     align-items: start;
+    min-height: clamp(34rem, 82dvh, 64rem);
 }
 
 .invoice-selector {
-    position: sticky;
-    top: 1rem;
+    max-height: clamp(34rem, 82dvh, 64rem);
 }
 
 .invoice-selector-list {
@@ -58,11 +56,7 @@
 }
 
 @media (max-width: 900px) {
-    .invoice-page-layout {
-        grid-template-columns: 1fr;
-    }
-
     .invoice-selector {
-        position: static;
+        max-height: none;
     }
 }

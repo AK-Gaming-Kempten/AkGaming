@@ -24,24 +24,8 @@
         <p class="text-success">@_status</p>
     }
 
-    @if (_showCreate)
-    {
-        <section class="panel ui-stack-md">
-            <h4 class="ui-title">New preset</h4>
-            <div class="ui-field">
-                <label>Preset label</label>
-                <InputText @bind-Value="_editingPreset.Label" />
-            </div>
-            <InvoicePartyFields Title="Address" Value="_editingPreset.Party" />
-            <div class="ui-actions">
-                <button type="button" class="btn btn-primary" @onclick="SaveAsync" disabled="@_isBusy">Save preset</button>
-                <button type="button" class="btn btn-outline-secondary" @onclick="ToggleCreate" disabled="@_isBusy">Cancel</button>
-            </div>
-        </section>
-    }
-
-    <div class="invoice-presets-layout">
-        <section class="panel">
+    <div class="invoice-presets-layout two-column-layout mobile-master-detail @(_isMobileDetailOpen ? "mobile-detail-open" : string.Empty)">
+        <section class="panel preset-list-pane two-column-layout-left">
             <h4 class="ui-title">Presets</h4>
             @if (_presets is null)
             {
@@ -53,7 +37,8 @@
             }
             else
             {
-                <div class="invoice-preset-list">
+                <div class="list-scroll-container">
+                    <div class="invoice-preset-list preview-card-list">
                     @foreach (var preset in _presets)
                     {
                         <button type="button" class="invoice-preset-entry @(preset.Id == _editingPreset.Id ? "invoice-preset-entry-active" : string.Empty)" @onclick="() => SelectPreset(preset)">
@@ -61,14 +46,22 @@
                             <span>@preset.Party.Name</span>
                         </button>
                     }
+                    </div>
                 </div>
             }
         </section>
 
-        @if (!_showCreate && _editingPreset.Id != Guid.Empty)
-        {
-            <section class="panel ui-stack-md">
-                <h4 class="ui-title">Edit preset</h4>
+        <section class="preset-detail-pane two-column-layout-right">
+            <div class="mobile-detail-nav">
+                <button type="button" class="btn btn-outline-secondary btn-sm" @onclick="ShowListMobile">
+                    <span class="bi bi-arrow-left" aria-hidden="true"></span>
+                    Back to party presets
+                </button>
+            </div>
+            @if (_showCreate || _editingPreset.Id != Guid.Empty)
+            {
+                <div class="panel ui-stack-md">
+                <h4 class="ui-title">@(_showCreate ? "New preset" : "Edit preset")</h4>
                 <div class="ui-field">
                     <label>Preset label</label>
                     <InputText @bind-Value="_editingPreset.Label" />
@@ -76,9 +69,13 @@
                 <InvoicePartyFields Title="Address" Value="_editingPreset.Party" />
                 <div class="ui-actions">
                     <button type="button" class="btn btn-primary" @onclick="SaveAsync" disabled="@_isBusy">Save changes</button>
-                    <button type="button" class="btn btn-danger" @onclick="DeleteAsync" disabled="@_isBusy">Delete preset</button>
+                    @if (!_showCreate)
+                    {
+                        <button type="button" class="btn btn-danger" @onclick="DeleteAsync" disabled="@_isBusy">Delete preset</button>
+                    }
                 </div>
-            </section>
-        }
+                </div>
+            }
+        </section>
     </div>
 </div>

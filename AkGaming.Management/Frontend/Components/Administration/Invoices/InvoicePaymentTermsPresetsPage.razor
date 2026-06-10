@@ -24,17 +24,8 @@
         <p class="text-success">@_status</p>
     }
 
-    @if (_showCreate)
-    {
-        <PaymentTermsPresetForm Title="New preset"
-                                Model="_editingPreset"
-                                IsBusy="_isBusy"
-                                OnSave="SaveAsync"
-                                OnCancel="ToggleCreate" />
-    }
-
-    <div class="invoice-payment-presets-layout">
-        <section class="panel">
+    <div class="invoice-payment-presets-layout two-column-layout mobile-master-detail @(_isMobileDetailOpen ? "mobile-detail-open" : string.Empty)">
+        <section class="panel preset-list-pane two-column-layout-left">
             <h4 class="ui-title">Presets</h4>
             @if (_presets is null)
             {
@@ -46,7 +37,8 @@
             }
             else
             {
-                <div class="invoice-payment-preset-list">
+                <div class="list-scroll-container">
+                    <div class="invoice-payment-preset-list preview-card-list">
                     @foreach (var preset in _presets)
                     {
                         <button type="button"
@@ -56,18 +48,28 @@
                             <span>@GetPreview(preset.Terms)</span>
                         </button>
                     }
+                    </div>
                 </div>
             }
         </section>
 
-        @if (!_showCreate && _editingPreset.Id != Guid.Empty)
-        {
-            <PaymentTermsPresetForm Title="Edit preset"
+        <section class="preset-detail-pane two-column-layout-right">
+            <div class="mobile-detail-nav">
+                <button type="button" class="btn btn-outline-secondary btn-sm" @onclick="ShowListMobile">
+                    <span class="bi bi-arrow-left" aria-hidden="true"></span>
+                    Back to payment terms
+                </button>
+            </div>
+            @if (_showCreate || _editingPreset.Id != Guid.Empty)
+            {
+            <PaymentTermsPresetForm Title="@(_showCreate ? "New preset" : "Edit preset")"
                                     Model="_editingPreset"
                                     IsBusy="_isBusy"
-                                    ShowDelete="true"
+                                    ShowDelete="@(!_showCreate)"
                                     OnSave="SaveAsync"
-                                    OnDelete="DeleteAsync" />
-        }
+                                    OnDelete="DeleteAsync"
+                                    OnCancel="ShowListMobile" />
+            }
+        </section>
     </div>
 </div>

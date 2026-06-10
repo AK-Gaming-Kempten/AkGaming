@@ -12,6 +12,7 @@ public partial class InvoicePaymentTermsPresetsPage : ComponentBase
     private InvoicePaymentTermsPresetDto _editingPreset = new();
     private bool _showCreate;
     private bool _isBusy;
+    private bool _isMobileDetailOpen;
     private string? _error;
     private string? _status;
 
@@ -39,6 +40,7 @@ public partial class InvoicePaymentTermsPresetsPage : ComponentBase
     {
         _showCreate = !_showCreate;
         _editingPreset = new InvoicePaymentTermsPresetDto();
+        _isMobileDetailOpen = _showCreate;
         _error = null;
         _status = null;
     }
@@ -47,6 +49,7 @@ public partial class InvoicePaymentTermsPresetsPage : ComponentBase
     {
         _showCreate = false;
         _editingPreset = Clone(preset);
+        _isMobileDetailOpen = true;
         _error = null;
         _status = null;
     }
@@ -88,6 +91,7 @@ public partial class InvoicePaymentTermsPresetsPage : ComponentBase
         }
 
         _editingPreset = new InvoicePaymentTermsPresetDto();
+        _isMobileDetailOpen = false;
         _status = "Preset deleted.";
         await LoadAsync();
     }
@@ -109,5 +113,12 @@ public partial class InvoicePaymentTermsPresetsPage : ComponentBase
         const int maxLength = 90;
         var normalized = terms.ReplaceLineEndings(" ").Trim();
         return normalized.Length <= maxLength ? normalized : $"{normalized[..maxLength]}...";
+    }
+
+    private void ShowListMobile()
+    {
+        _showCreate = false;
+        _editingPreset = new InvoicePaymentTermsPresetDto();
+        _isMobileDetailOpen = false;
     }
 }

@@ -5,13 +5,15 @@
     </section>
     @if (!string.IsNullOrWhiteSpace(_error)) { <p class="text-danger">@_error</p> }
     @if (!string.IsNullOrWhiteSpace(_status)) { <p class="text-success">@_status</p> }
-    @if (_showCreate) { @Form("New preset") }
-    <div class="preset-layout">
-        <section class="panel"><h4 class="ui-title">Presets</h4>
+    <div class="preset-layout two-column-layout mobile-master-detail @(_isMobileDetailOpen ? "mobile-detail-open" : string.Empty)">
+        <section class="panel preset-list-pane two-column-layout-left"><h4 class="ui-title">Presets</h4>
             @if (_presets is null) { <p>Loading presets...</p> }
             else if (_presets.Count == 0) { <p>No bank account presets have been created.</p> }
-            else { <div class="preset-list">@foreach (var preset in _presets) { <button type="button" class="preset-entry @(preset.Id == _editing.Id ? "active" : "")" @onclick="() => Select(preset)"><strong>@preset.Label</strong><span>@(preset.BankDetails.AccountHolder ?? preset.BankDetails.Iban)</span></button> }</div> }
+            else { <div class="list-scroll-container"><div class="preset-list preview-card-list">@foreach (var preset in _presets) { <button type="button" class="preset-entry @(preset.Id == _editing.Id ? "active" : "")" @onclick="() => Select(preset)"><strong>@preset.Label</strong><span>@(preset.BankDetails.AccountHolder ?? preset.BankDetails.Iban)</span></button> }</div></div> }
         </section>
-        @if (!_showCreate && _editing.Id != Guid.Empty) { @Form("Edit preset") }
+        <section class="preset-detail-pane two-column-layout-right">
+            <div class="mobile-detail-nav"><button type="button" class="btn btn-outline-secondary btn-sm" @onclick="ShowListMobile"><span class="bi bi-arrow-left" aria-hidden="true"></span> Back to bank accounts</button></div>
+            @if (_showCreate || _editing.Id != Guid.Empty) { @Form(_showCreate ? "New preset" : "Edit preset") }
+        </section>
     </div>
 </div>
