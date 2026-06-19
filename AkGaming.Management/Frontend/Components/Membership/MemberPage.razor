@@ -1,21 +1,17 @@
 @page "/membership/user/{UserId}"
-<PageTitle>My Membership</PageTitle>
+<PageTitle>My Profile</PageTitle>
 @using Microsoft.AspNetCore.Authorization
+@using AkGaming.Management.Modules.MemberManagement.Contracts.Enums
 @attribute [Authorize]
-
-<PageTitle>My Membership</PageTitle>
 
 <CascadingValue Value="MemberApi" Name="MemberManagementApi" IsFixed="true">
     @if (_loading) {
         <p>Loading...</p>
     }
+    else if (!string.IsNullOrWhiteSpace(_loadError)) {
+        <p class="text-danger">@_loadError</p>
+    }
     else if (_member != null) {
-        @if (_applicationRequest != null) {
-            <div class="card pending-application-card">
-                <h3>Membership Application Pending</h3>
-                <p>Thanks for your application! We will review it as soon as possible.</p>
-            </div>
-        }
         <div class="membership-tabs">
             <button type="button"
                     class="tab @(_activeTab == MemberTab.Profile ? "active" : "")"
@@ -23,20 +19,39 @@
                 Profile
             </button>
             <button type="button"
+                    class="tab @(_activeTab == MemberTab.Payments ? "active" : "")"
+                    @onclick="() => _activeTab = MemberTab.Payments">
+                Payments
+            </button>
+            <button type="button"
                     class="tab @(_activeTab == MemberTab.Dues ? "active" : "")"
                     @onclick="() => _activeTab = MemberTab.Dues">
-                Fees
+                Membership
             </button>
         </div>
 
         @if (_activeTab == MemberTab.Profile) {
-            <MemberInfoPanel Member="_member" OnMemberUpdated="HandleMemberUpdated" />
+            <MemberInfoPanel Member="_member"
+                             UserId="_userGuid"
+                             CanCreateMembershipRequest="CanCreateMembershipRequest"
+                             OnMemberUpdated="HandleMemberUpdated"
+                             OnRequestSubmitted="HandleRequestSubmittedAsync" />
+        }
+        else if (_activeTab == MemberTab.Payments) {
+            <PaymentInformationPanel />
         }
         else if (_activeTab == MemberTab.Dues) {
-            <MemberDuesPanel />
+            <section class="ui-stack-md">
+                <NoMemberPanel UserId="_userGuid"
+                               Member="_member"
+                               ApplicationRequests="_applicationRequests"
+                               LinkingRequests="_linkingRequests"
+                               ShowStatuses="true"
+                               CanCreateRequests="CanCreateMembershipRequest"
+                               OnRequestSubmitted="HandleRequestSubmittedAsync" />
+                <h3>Fees</h3>
+                <MemberDuesPanel />
+            </section>
         }
-    }
-    else {
-        <NoMemberPanel UserId="_userGuid" PendingApplication="_applicationRequest" PendingLinkingRequest="_linkingRequest" />
     }
 </CascadingValue>

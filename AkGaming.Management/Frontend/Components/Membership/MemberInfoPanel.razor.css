@@ -212,6 +212,43 @@
 
 .member-actions-card .btn {
     justify-content: flex-start;
+    width: 100%;
+    text-align: left;
+}
+
+.member-request-dialog-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 1040;
+    background: rgba(0, 0, 0, 0.65);
+}
+
+.member-request-dialog-shell {
+    position: fixed;
+    inset: 0;
+    z-index: 1050;
+    display: grid;
+    place-items: center;
+    padding: 1rem;
+    overflow-y: auto;
+}
+
+.member-request-dialog {
+    width: min(900px, 100%);
+    max-height: calc(100vh - 2rem);
+    overflow-y: auto;
+}
+
+.member-request-dialog-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    padding-bottom: 0.75rem;
+    background: inherit;
 }
 
 .action-icon {

@@ -9,6 +9,7 @@ using AkGaming.Management.Modules.MemberManagement.Contracts.Services;
 using AkGaming.Management.Modules.MemberManagement.Domain.Entities;
 using Microsoft.Extensions.Logging;
 using System.Text.Json;
+using AkGaming.Management.Modules.MemberManagement.Domain.Enums;
 
 namespace AkGaming.Management.Modules.MemberManagement.Application.Services;
 
@@ -43,11 +44,44 @@ public class MemberLinkingService : IMemberLinkingService {
         if (!memberResult.IsSuccess)
             return memberResult;
         var member = memberResult.Value!;
+
+        var existingProfileResult = await _memberRepository.GetByUserIdAsync(userId);
+        if (existingProfileResult?.IsSuccess == true && existingProfileResult.Value!.Id != memberId) {
+            var existingProfile = existingProfileResult.Value;
+            if (existingProfile.Status != MembershipStatus.None) {
+                return Result.Failure("User is already linked to a membership record.");
+            }
+
+            MergeProfileData(existingProfile, member);
+            var deleteResult = _memberRepository.TryDelete(existingProfile.Id);
+            if (!deleteResult.IsSuccess) {
+                return deleteResult;
+            }
+        }
         
         member.UserId = userId;
         var result = await _memberRepository.SaveChangesAsync();
         
         return result;
+    }
+
+    private static void MergeProfileData(Member profile, Member member) {
+        member.FirstName = PreferProfileValue(profile.FirstName, member.FirstName);
+        member.LastName = PreferProfileValue(profile.LastName, member.LastName);
+        member.Email = PreferProfileValue(profile.Email, member.Email);
+        member.PhoneNumber = PreferProfileValue(profile.PhoneNumber, member.PhoneNumber);
+        member.DiscordUsername = PreferProfileValue(profile.DiscordUsername, member.DiscordUsername);
+        member.BirthDate = profile.BirthDate ?? member.BirthDate;
+        member.Address = profile.Address ?? member.Address;
+        foreach (var paymentInformation in profile.PaymentInformation) {
+            paymentInformation.MemberId = member.Id;
+            paymentInformation.Member = member;
+            member.PaymentInformation.Add(paymentInformation);
+        }
+    }
+
+    private static string? PreferProfileValue(string? profileValue, string? memberValue) {
+        return string.IsNullOrWhiteSpace(profileValue) ? memberValue : profileValue;
     }
     
     /// <inheritdoc/>

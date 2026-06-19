@@ -48,10 +48,10 @@ public class MembershipApplicationService : IMembershipApplicationService {
         if (!request.PrivacyPolicyAccepted)
             return Result.Failure("Privacy policy must be accepted.");
 
-        // Check if user is already a member or has a pending application / linking request
+        // Status-None profiles and rejected applications can be promoted back to applicant.
         var memberResult = await _memberQueryService.GetMemberByUserGuidAsync(request.IssuingUserId);
-        if (memberResult.IsSuccess)
-            return Result.Failure("User is already a member");
+        if (memberResult.IsSuccess && !CanApplyForMembership(memberResult.Value!.Status))
+            return Result.Failure("User already has a membership record");
         
         var pendingRequestResult = await _membershipApplicationRequestRepository.GetAllRequestFromUserAsync(request.IssuingUserId);
         if (pendingRequestResult.IsSuccess && pendingRequestResult.Value!.Where(x => !x.IsResolved).ToList().Count > 0)
@@ -66,17 +66,20 @@ public class MembershipApplicationService : IMembershipApplicationService {
         if (!requestResult.IsSuccess)
             return Result.Failure(requestResult.Error ?? "Membership application request could not be created");
         
-        // Create Member
-        var memberCreationResult = await _creationService.CreateMemberAsync(request.MemberCreationInfo);
-        if (!memberCreationResult.IsSuccess)
-            return Result.Failure(memberCreationResult.Error ?? "Member could not be created");
+        Guid memberId;
+        if (memberResult.IsSuccess) {
+            memberId = memberResult.Value!.Id;
+        }
+        else {
+            var memberCreationResult = await _creationService.CreateMemberAsync(request.MemberCreationInfo);
+            if (!memberCreationResult.IsSuccess)
+                return Result.Failure(memberCreationResult.Error ?? "Member could not be created");
 
-        var memberId = memberCreationResult.Value;
-
-        // Link User
-        var linkResult = await _linkingService.LinkMemberToUserAsync(memberId, request.IssuingUserId);
-        if (!linkResult.IsSuccess)
-            return Result.Failure(linkResult.Error ?? "Member could not be linked to user");
+            memberId = memberCreationResult.Value;
+            var linkResult = await _linkingService.LinkMemberToUserAsync(memberId, request.IssuingUserId);
+            if (!linkResult.IsSuccess)
+                return Result.Failure(linkResult.Error ?? "Member could not be linked to user");
+        }
 
         // Update Status
         var statusResult = await _membershipUpdateService.UpdateMembershipStatusAsync(
@@ -88,6 +91,9 @@ public class MembershipApplicationService : IMembershipApplicationService {
 
         return Result.Success();
     }
+
+    private static bool CanApplyForMembership(ContractEnums.MembershipStatus status) =>
+        status is ContractEnums.MembershipStatus.None or ContractEnums.MembershipStatus.ApplicationRejected;
     
     public async Task<Result<ICollection<MembershipApplicationRequestDto>>> GetAllRequestAsync() {
         var result = await _membershipApplicationRequestRepository.GetAllAsync();

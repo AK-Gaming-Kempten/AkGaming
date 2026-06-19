@@ -72,7 +72,9 @@ public class MembershipApplicationServiceTests {
 
         memberLinkingService.Setup(x => x.GetMemberLinkingRequestsFromUserAsync(userGuid)).Returns(Task.FromResult(hasPendingLinkingRequest ? Result<ICollection<MemberLinkingRequestDto>>.Success(new List<MemberLinkingRequestDto> { new MemberLinkingRequestDto() }) : Result<ICollection<MemberLinkingRequestDto>>.Failure("No pending linking requests")));
         membershipApplicationRequestRepository.Setup(x => x.GetAllRequestFromUserAsync(userGuid)).Returns(Task.FromResult(hasPendingApplicationRequest ? Result<List<MembershipApplicationRequest>>.Success(new List<MembershipApplicationRequest>{ new MembershipApplicationRequest() }) : Result<List<MembershipApplicationRequest>>.Failure("No pending application requests")));
-        memberQueryService.Setup(x => x.GetMemberByUserGuidAsync(userGuid)).Returns(Task.FromResult(memberExists ? Result<MemberDto>.Success(new MemberDto()) : Result<MemberDto>.Failure("Member not found")));
+        memberQueryService.Setup(x => x.GetMemberByUserGuidAsync(userGuid)).Returns(Task.FromResult(memberExists
+            ? Result<MemberDto>.Success(new MemberDto { Status = ContractEnums.MembershipStatus.Member })
+            : Result<MemberDto>.Failure("Member not found")));
         memberCreationService.Setup(x => x.CreateMemberAsync(membershipApplicationRequestDto.MemberCreationInfo)).Returns(Task.FromResult(Result<Guid>.Success(member.Id)));
         memberLinkingService.Setup(x => x.LinkMemberToUserAsync(member.Id, userGuid)).Returns(Task.FromResult(Result.Success()));
         membershipUpdateService.Setup(x => x.UpdateMembershipStatusAsync(member.Id, ContractEnums.MembershipStatus.Applicant)).Returns(Task.FromResult(Result.Success()));
@@ -87,6 +89,84 @@ public class MembershipApplicationServiceTests {
         memberCreationService.Verify(x => x.CreateMemberAsync(membershipApplicationRequestDto.MemberCreationInfo), shouldThrow ? Times.Never : Times.Once);
         memberLinkingService.Verify(x => x.LinkMemberToUserAsync(member.Id, userGuid), shouldThrow ? Times.Never : Times.Once);
         membershipUpdateService.Verify(x => x.UpdateMembershipStatusAsync(member.Id, ContractEnums.MembershipStatus.Applicant), shouldThrow ? Times.Never : Times.Once);
+    }
+
+    [Test]
+    [Description("Promotes an existing status-None user profile instead of creating a second member record.")]
+    public async Task ApplyForMembershipAsync_PromotesExistingProfile() {
+        // Arrange
+        var creationService = new Mock<IMemberCreationService>();
+        var linkingService = new Mock<IMemberLinkingService>();
+        var membershipUpdateService = new Mock<IMembershipUpdateService>();
+        var memberQueryService = new Mock<IMemberQueryService>();
+        var requestRepository = new Mock<IMembershipApplicationRequestRepository>();
+        var auditLogWriter = new Mock<IMemberAuditLogWriter>();
+        var emailSender = new Mock<IEmailSender>();
+        var logger = new Mock<ILogger<MembershipApplicationService>>();
+        var service = new MembershipApplicationService(creationService.Object, linkingService.Object, membershipUpdateService.Object, memberQueryService.Object, requestRepository.Object, auditLogWriter.Object, emailSender.Object, logger.Object);
+        var userId = Guid.NewGuid();
+        var profileId = Guid.NewGuid();
+        var request = new MembershipApplicationRequestDto {
+            IssuingUserId = userId,
+            PrivacyPolicyAccepted = true,
+            MemberCreationInfo = new MemberCreationDto()
+        };
+        memberQueryService.Setup(x => x.GetMemberByUserGuidAsync(userId))
+            .ReturnsAsync(Result<MemberDto>.Success(new MemberDto { Id = profileId, Status = ContractEnums.MembershipStatus.None }));
+        requestRepository.Setup(x => x.GetAllRequestFromUserAsync(userId)).ReturnsAsync(Result<List<MembershipApplicationRequest>>.Failure("none"));
+        linkingService.Setup(x => x.GetMemberLinkingRequestsFromUserAsync(userId)).ReturnsAsync(Result<ICollection<MemberLinkingRequestDto>>.Failure("none"));
+        requestRepository.Setup(x => x.Add(It.IsAny<MembershipApplicationRequest>())).Returns(Result.Success());
+        auditLogWriter.Setup(x => x.Add(It.IsAny<MemberAuditLog>())).Returns(Result.Success());
+        requestRepository.Setup(x => x.SaveChangesAsync()).ReturnsAsync(Result.Success());
+        membershipUpdateService.Setup(x => x.UpdateMembershipStatusAsync(profileId, ContractEnums.MembershipStatus.Applicant)).ReturnsAsync(Result.Success());
+
+        // Act
+        var result = await service.ApplyForMembershipAsync(request);
+
+        // Assert
+        Assert.That(result.IsSuccess, Is.True);
+        creationService.Verify(x => x.CreateMemberAsync(It.IsAny<MemberCreationDto>()), Times.Never);
+        linkingService.Verify(x => x.LinkMemberToUserAsync(It.IsAny<Guid>(), It.IsAny<Guid>()), Times.Never);
+        membershipUpdateService.Verify(x => x.UpdateMembershipStatusAsync(profileId, ContractEnums.MembershipStatus.Applicant), Times.Once);
+    }
+
+    [Test]
+    [Description("Allows a user with a rejected application status to apply again using the existing profile.")]
+    public async Task ApplyForMembershipAsync_AllowsRejectedApplicantToReapply() {
+        // Arrange
+        var creationService = new Mock<IMemberCreationService>();
+        var linkingService = new Mock<IMemberLinkingService>();
+        var membershipUpdateService = new Mock<IMembershipUpdateService>();
+        var memberQueryService = new Mock<IMemberQueryService>();
+        var requestRepository = new Mock<IMembershipApplicationRequestRepository>();
+        var auditLogWriter = new Mock<IMemberAuditLogWriter>();
+        var emailSender = new Mock<IEmailSender>();
+        var logger = new Mock<ILogger<MembershipApplicationService>>();
+        var service = new MembershipApplicationService(creationService.Object, linkingService.Object, membershipUpdateService.Object, memberQueryService.Object, requestRepository.Object, auditLogWriter.Object, emailSender.Object, logger.Object);
+        var userId = Guid.NewGuid();
+        var memberId = Guid.NewGuid();
+        var request = new MembershipApplicationRequestDto {
+            IssuingUserId = userId,
+            PrivacyPolicyAccepted = true,
+            MemberCreationInfo = new MemberCreationDto()
+        };
+        memberQueryService.Setup(x => x.GetMemberByUserGuidAsync(userId))
+            .ReturnsAsync(Result<MemberDto>.Success(new MemberDto { Id = memberId, Status = ContractEnums.MembershipStatus.ApplicationRejected }));
+        requestRepository.Setup(x => x.GetAllRequestFromUserAsync(userId)).ReturnsAsync(Result<List<MembershipApplicationRequest>>.Failure("none"));
+        linkingService.Setup(x => x.GetMemberLinkingRequestsFromUserAsync(userId)).ReturnsAsync(Result<ICollection<MemberLinkingRequestDto>>.Failure("none"));
+        requestRepository.Setup(x => x.Add(It.IsAny<MembershipApplicationRequest>())).Returns(Result.Success());
+        auditLogWriter.Setup(x => x.Add(It.IsAny<MemberAuditLog>())).Returns(Result.Success());
+        requestRepository.Setup(x => x.SaveChangesAsync()).ReturnsAsync(Result.Success());
+        membershipUpdateService.Setup(x => x.UpdateMembershipStatusAsync(memberId, ContractEnums.MembershipStatus.Applicant)).ReturnsAsync(Result.Success());
+
+        // Act
+        var result = await service.ApplyForMembershipAsync(request);
+
+        // Assert
+        Assert.That(result.IsSuccess, Is.True);
+        creationService.Verify(x => x.CreateMemberAsync(It.IsAny<MemberCreationDto>()), Times.Never);
+        linkingService.Verify(x => x.LinkMemberToUserAsync(It.IsAny<Guid>(), It.IsAny<Guid>()), Times.Never);
+        membershipUpdateService.Verify(x => x.UpdateMembershipStatusAsync(memberId, ContractEnums.MembershipStatus.Applicant), Times.Once);
     }
 
     [Test]

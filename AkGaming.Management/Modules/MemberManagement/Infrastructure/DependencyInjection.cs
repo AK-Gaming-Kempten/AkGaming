@@ -46,6 +46,7 @@ public static class DependencyInjection {
         services.AddScoped<IMemberAuditLogWriter, EfMemberAuditLogWriter>();
         services.AddScoped<IMembershipPaymentPeriodRepository, EfMembershipPaymentPeriodRepository>();
         services.AddScoped<IMembershipDueRepository, EfMembershipDueRepository>();
+        services.AddScoped<IPaymentInformationRepository, EfPaymentInformationRepository>();
         services.Configure<SmtpOptions>(configuration.GetSection(SmtpOptions.SectionName));
         services.AddSingleton<IEmailSender, SmtpEmailSender>();
 

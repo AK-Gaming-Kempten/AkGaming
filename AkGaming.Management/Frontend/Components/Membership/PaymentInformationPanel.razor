@@ -1,0 +1,87 @@
+@using AkGaming.Management.Modules.MemberManagement.Contracts.Enums
+
+<section class="ui-stack-md">
+    <div>
+        <h3>Payments</h3>
+        <p class="ui-text-muted">Manage payment methods used when the club sends money to you. These methods are not used to collect payments.</p>
+    </div>
+
+    @if (!string.IsNullOrWhiteSpace(_error)) {
+        <p class="text-danger">@_error</p>
+    }
+
+    @if (_loading) {
+        <p>Loading...</p>
+    }
+    else {
+        @foreach (var item in _items) {
+            <article class="panel ui-stack-md">
+                <div class="ui-actions">
+                    <strong>@(item.Type == PaymentInformationType.PayPal ? "PayPal" : "Bank account")</strong>
+                    @if (!IsEditing(item)) {
+                        <ActionButton Kind="ActionButtonKind.Edit" OnClick="() => StartEditing(item)" Label="Edit payment information" />
+                    }
+                </div>
+                @if (IsEditing(item)) {
+                    @if (_editingItem!.Type == PaymentInformationType.PayPal) {
+                        <div class="ui-field"><label>PayPal email</label><InputText @bind-Value="_editingItem.PayPalEmail" /></div>
+                    }
+                    else {
+                        <div class="ui-grid-auto-180">
+                            <div class="ui-field"><label>Account holder</label><InputText @bind-Value="_editingItem.AccountHolder" /></div>
+                            <div class="ui-field"><label>IBAN</label><InputText @bind-Value="_editingItem.Iban" /></div>
+                            <div class="ui-field"><label>BIC</label><InputText @bind-Value="_editingItem.Bic" /></div>
+                        </div>
+                    }
+                    <div class="ui-actions">
+                        <ActionButton Kind="ActionButtonKind.Save" Variant="ActionButtonVariant.Primary" OnClick="SaveEditingAsync" Label="Save payment information" />
+                        <ActionButton Kind="ActionButtonKind.Delete" Variant="ActionButtonVariant.Danger" OnClick="() => DeleteAsync(item.Id)" Label="Delete payment information" />
+                        <ActionButton Kind="ActionButtonKind.Cancel" OnClick="CancelEditing" Label="Cancel editing" />
+                    </div>
+                }
+                else {
+                    @if (item.Type == PaymentInformationType.PayPal) {
+                        <dl class="payment-information-read-grid"><div><dt>PayPal email</dt><dd>@ValueOrDash(item.PayPalEmail)</dd></div></dl>
+                    }
+                    else {
+                        <dl class="payment-information-read-grid">
+                            <div><dt>Account holder</dt><dd>@ValueOrDash(item.AccountHolder)</dd></div>
+                            <div><dt>IBAN</dt><dd>@ValueOrDash(item.Iban)</dd></div>
+                            <div><dt>BIC</dt><dd>@ValueOrDash(item.Bic)</dd></div>
+                        </dl>
+                    }
+                }
+            </article>
+        }
+
+        @if (_showCreate) {
+            <article class="panel ui-stack-md">
+                <h4>Add payment information</h4>
+                <div class="ui-field">
+                    <label>Type</label>
+                    <InputSelect @bind-Value="_newItem.Type">
+                        <option value="@PaymentInformationType.PayPal">PayPal</option>
+                        <option value="@PaymentInformationType.BankAccount">Bank account</option>
+                    </InputSelect>
+                </div>
+                @if (_newItem.Type == PaymentInformationType.PayPal) {
+                    <div class="ui-field"><label>PayPal email</label><InputText @bind-Value="_newItem.PayPalEmail" /></div>
+                }
+                else {
+                    <div class="ui-grid-auto-180">
+                        <div class="ui-field"><label>Account holder</label><InputText @bind-Value="_newItem.AccountHolder" /></div>
+                        <div class="ui-field"><label>IBAN</label><InputText @bind-Value="_newItem.Iban" /></div>
+                        <div class="ui-field"><label>BIC</label><InputText @bind-Value="_newItem.Bic" /></div>
+                    </div>
+                }
+                <div class="ui-actions">
+                    <ActionButton Kind="ActionButtonKind.Save" Variant="ActionButtonVariant.Primary" OnClick="CreateAsync" Label="Create payment information" />
+                    <ActionButton Kind="ActionButtonKind.Cancel" OnClick="CancelCreate" Label="Cancel" />
+                </div>
+            </article>
+        }
+        else {
+            <ActionButton Kind="ActionButtonKind.Add" Variant="ActionButtonVariant.Primary" OnClick="ShowCreate" Label="Add payment information" />
+        }
+    }
+</section>

@@ -16,6 +16,7 @@ public class EfMemberRepository : IMemberRepository {
         try {
             var member = await _dbContext.Members
                 .Include(m => m.StatusChanges)
+                .Include(m => m.PaymentInformation)
                 .FirstOrDefaultAsync(m => m.Id == id);
 
             if (member is null)
@@ -32,6 +33,7 @@ public class EfMemberRepository : IMemberRepository {
         try {
             var member = await _dbContext.Members
                 .Include(m => m.StatusChanges)
+                .Include(m => m.PaymentInformation)
                 .FirstOrDefaultAsync(m => m.UserId == id);
 
             if (member is null)

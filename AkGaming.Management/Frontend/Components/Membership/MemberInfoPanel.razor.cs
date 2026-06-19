@@ -8,8 +8,17 @@ using Microsoft.AspNetCore.Components;
 namespace AkGaming.Management.Frontend.Components.Membership;
 
 public partial class MemberInfoPanel : ComponentBase {
+    private enum RequestFormMode {
+        None,
+        Apply,
+        Link
+    }
+
     [Parameter] public MemberDto Member { get; set; } = default!;
+    [Parameter] public Guid UserId { get; set; }
+    [Parameter] public bool CanCreateMembershipRequest { get; set; }
     [Parameter] public EventCallback<MemberDto> OnMemberUpdated { get; set; }
+    [Parameter] public EventCallback<MemberDto> OnRequestSubmitted { get; set; }
 
     [CascadingParameter(Name = "MemberManagementApi")]
     public MemberManagementApiClient Api { get; set; } = default!;
@@ -18,6 +27,7 @@ public partial class MemberInfoPanel : ComponentBase {
     private bool EditMode { get; set; }
     private string? _statusMessage;
     private string? _errorMessage;
+    private RequestFormMode _requestFormMode;
 
     protected override void OnParametersSet() {
         _localMember = Clone(Member);
@@ -122,6 +132,22 @@ public partial class MemberInfoPanel : ComponentBase {
     private string WebsiteUrl => ClubConstants.Urls.Website;
     private string SatzungUrl => ClubConstants.Urls.ArticlesOfAssociation;
     private string DiscordUrl => ClubConstants.Urls.DiscordInvite;
+
+    private string RequestDialogTitle => _requestFormMode == RequestFormMode.Apply
+        ? "Apply for membership"
+        : "Request member linking";
+
+    private void ShowMembershipApplication() => _requestFormMode = RequestFormMode.Apply;
+    private void ShowMemberLinking() => _requestFormMode = RequestFormMode.Link;
+    private void CloseRequestDialog() => _requestFormMode = RequestFormMode.None;
+
+    private async Task HandleRequestSubmittedAsync(MemberDto member) {
+        Member = Clone(member);
+        _localMember = Clone(member);
+        CloseRequestDialog();
+        await OnMemberUpdated.InvokeAsync(Member);
+        await OnRequestSubmitted.InvokeAsync(Member);
+    }
 
     private static MemberDto Clone(MemberDto source) =>
         JsonSerializer.Deserialize<MemberDto>(JsonSerializer.Serialize(source)) ?? new MemberDto();

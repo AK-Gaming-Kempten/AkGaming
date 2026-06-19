@@ -14,6 +14,7 @@ public static class MemberManagementApiModule {
         endpoints.MapMembershipUpdateEndpoints();
         endpoints.MapMembershipApplicationEndpoints();
         endpoints.MapMembershipDueEndpoints();
+        endpoints.MapPaymentInformationEndpoints();
         return endpoints;
     }
 }

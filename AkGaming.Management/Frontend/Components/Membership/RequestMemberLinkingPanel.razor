@@ -1,33 +1,37 @@
 @using AkGaming.Management.Modules.MemberManagement.Contracts.Enums
 @using AkGaming.Core.Constants
 <div class="member-form">
-    <EditForm Model="@_request" OnValidSubmit="@RequestMemberLinkingAsync">
+    <EditForm Model="@_profile" OnValidSubmit="@RequestMemberLinkingAsync">
         <DataAnnotationsValidator />
         <h3> Request member linking </h3>
         <hr class="spacer" />
         <div class="form-grid">
             <div class="form-col">
                 <label>First Name</label>
-                <InputText @bind-Value="_request.FirstName" required />
-                <ValidationMessage For="@(() => _request.FirstName)" />
+                <InputText @bind-Value="_profile.FirstName" required />
             </div>
 
             <div class="form-col">
                 <label>Last Name</label>
-                <InputText @bind-Value="_request.LastName" required />
-                <ValidationMessage For="@(() => _request.LastName)" />
+                <InputText @bind-Value="_profile.LastName" required />
             </div>
 
             <div class="form-col">
                 <label>Email</label>
-                <InputText @bind-Value="_request.Email" required />
-                <ValidationMessage For="@(() => _request.Email)" />
+                <InputText @bind-Value="_profile.Email" required />
             </div>
 
             <div class="form-col">
                 <label>Discord Username</label>
-                <InputText @bind-Value="_request.DiscordUserName" required />
-                <ValidationMessage For="@(() => _request.DiscordUserName)" />
+                <InputText @bind-Value="_profile.DiscordUserName" required />
+            </div>
+            <div class="form-col">
+                <label>Phone</label>
+                <InputText @bind-Value="_profile.Phone" />
+            </div>
+            <div class="form-col">
+                <label>Birth Date</label>
+                <InputDate @bind-Value="_profile.BirthDate" />
             </div>
 
             <div class="form-col">
@@ -39,6 +43,13 @@
                 </InputSelect>
                 <ValidationMessage For="@(() => _request.Reason)" />
             </div>
+        </div>
+        <h5>Address</h5>
+        <div class="form-grid">
+            <div class="form-col"><label>Street / House Number</label><InputText @bind-Value="_profile.Address.Street" /></div>
+            <div class="form-col"><label>Zip Code</label><InputText @bind-Value="_profile.Address.ZipCode" /></div>
+            <div class="form-col"><label>City</label><InputText @bind-Value="_profile.Address.City" /></div>
+            <div class="form-col"><label>Country</label><InputText @bind-Value="_profile.Address.Country" /></div>
         </div>
         <div class="form-grid">
             <div class="form-col">
@@ -54,6 +65,8 @@
 
         <hr class="spacer" />
         <button type="submit" class="btn btn-primary ">Apply</button>
-        <p>@_requestError</p>
+        @if (!string.IsNullOrWhiteSpace(_requestError)) {
+            <p class="text-danger">@_requestError</p>
+        }
     </EditForm>
 </div>

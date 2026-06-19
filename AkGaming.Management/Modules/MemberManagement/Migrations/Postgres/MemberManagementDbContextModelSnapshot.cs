@@ -54,7 +54,7 @@ namespace AkGaming.Management.Modules.MemberManagement.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Members", (string)null);
+                    b.ToTable("Members");
                 });
 
             modelBuilder.Entity("AkGaming.Management.Modules.MemberManagement.Domain.Entities.MemberAuditLog", b =>
@@ -90,7 +90,7 @@ namespace AkGaming.Management.Modules.MemberManagement.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("MemberAuditLogs", (string)null);
+                    b.ToTable("MemberAuditLogs");
                 });
 
             modelBuilder.Entity("AkGaming.Management.Modules.MemberManagement.Domain.Entities.MemberLinkingRequest", b =>
@@ -129,7 +129,7 @@ namespace AkGaming.Management.Modules.MemberManagement.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("MemberLinkingRequests", (string)null);
+                    b.ToTable("MemberLinkingRequests");
                 });
 
             modelBuilder.Entity("AkGaming.Management.Modules.MemberManagement.Domain.Entities.MembershipApplicationRequest", b =>
@@ -171,7 +171,7 @@ namespace AkGaming.Management.Modules.MemberManagement.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("MembershipApplicationRequests", (string)null);
+                    b.ToTable("MembershipApplicationRequests");
                 });
 
             modelBuilder.Entity("AkGaming.Management.Modules.MemberManagement.Domain.Entities.MembershipDue", b =>
@@ -189,11 +189,11 @@ namespace AkGaming.Management.Modules.MemberManagement.Infrastructure.Migrations
                     b.Property<DateOnly>("DueDate")
                         .HasColumnType("date");
 
-                    b.Property<DateTimeOffset?>("LastReminderSentAt")
-                        .HasColumnType("timestamp with time zone");
-
                     b.Property<int>("LastReminderSendStatus")
                         .HasColumnType("integer");
+
+                    b.Property<DateTimeOffset?>("LastReminderSentAt")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<Guid>("MemberId")
                         .HasColumnType("uuid");
@@ -220,7 +220,7 @@ namespace AkGaming.Management.Modules.MemberManagement.Infrastructure.Migrations
                     b.HasIndex("PaymentPeriodId", "MemberId")
                         .IsUnique();
 
-                    b.ToTable("MembershipDues", (string)null);
+                    b.ToTable("MembershipDues");
                 });
 
             modelBuilder.Entity("AkGaming.Management.Modules.MemberManagement.Domain.Entities.MembershipPaymentPeriod", b =>
@@ -254,7 +254,7 @@ namespace AkGaming.Management.Modules.MemberManagement.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("MembershipPaymentPeriods", (string)null);
+                    b.ToTable("MembershipPaymentPeriods");
                 });
 
             modelBuilder.Entity("AkGaming.Management.Modules.MemberManagement.Domain.Entities.MembershipStatusChangeEvent", b =>
@@ -279,7 +279,38 @@ namespace AkGaming.Management.Modules.MemberManagement.Infrastructure.Migrations
 
                     b.HasIndex("MemberId");
 
-                    b.ToTable("MembershipStatusChangeEvents", (string)null);
+                    b.ToTable("MembershipStatusChangeEvents");
+                });
+
+            modelBuilder.Entity("AkGaming.Management.Modules.MemberManagement.Domain.Entities.PaymentInformation", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("AccountHolder")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Bic")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Iban")
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("MemberId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("PayPalEmail")
+                        .HasColumnType("text");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("MemberId");
+
+                    b.ToTable("PaymentInformation");
                 });
 
             modelBuilder.Entity("AkGaming.Management.Modules.MemberManagement.Domain.Entities.Member", b =>
@@ -303,7 +334,7 @@ namespace AkGaming.Management.Modules.MemberManagement.Infrastructure.Migrations
 
                             b1.HasKey("MemberId");
 
-                            b1.ToTable("Members", (string)null);
+                            b1.ToTable("Members");
 
                             b1.WithOwner()
                                 .HasForeignKey("MemberId");
@@ -333,7 +364,7 @@ namespace AkGaming.Management.Modules.MemberManagement.Infrastructure.Migrations
 
                             b1.HasKey("MembershipApplicationRequestId");
 
-                            b1.ToTable("MembershipApplicationRequests", (string)null);
+                            b1.ToTable("MembershipApplicationRequests");
 
                             b1.WithOwner()
                                 .HasForeignKey("MembershipApplicationRequestId");
@@ -364,8 +395,21 @@ namespace AkGaming.Management.Modules.MemberManagement.Infrastructure.Migrations
                     b.Navigation("Member");
                 });
 
+            modelBuilder.Entity("AkGaming.Management.Modules.MemberManagement.Domain.Entities.PaymentInformation", b =>
+                {
+                    b.HasOne("AkGaming.Management.Modules.MemberManagement.Domain.Entities.Member", "Member")
+                        .WithMany("PaymentInformation")
+                        .HasForeignKey("MemberId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Member");
+                });
+
             modelBuilder.Entity("AkGaming.Management.Modules.MemberManagement.Domain.Entities.Member", b =>
                 {
+                    b.Navigation("PaymentInformation");
+
                     b.Navigation("StatusChanges");
                 });
 

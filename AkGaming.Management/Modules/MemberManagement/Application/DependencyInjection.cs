@@ -18,6 +18,7 @@ public static class DependencyInjection {
         services.AddScoped<IMemberDeletionService, MemberDeletionService>();
         services.AddScoped<IMembershipApplicationService, MembershipApplicationService>();
         services.AddScoped<IMembershipDueService, MembershipDueService>();
+        services.AddScoped<IPaymentInformationService, PaymentInformationService>();
         services.AddSingleton<INoticePdfRenderer, NoticePdfRenderer>();
 
         // Optionally register validators or behaviors

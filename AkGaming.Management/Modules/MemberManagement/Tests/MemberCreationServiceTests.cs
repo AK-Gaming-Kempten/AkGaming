@@ -8,6 +8,72 @@ using AkGaming.Management.Modules.MemberManagement.Contracts.DTO;
 namespace AkGaming.Management.Modules.MemberManagement.Tests;
 
 public class MemberCreationServiceTests {
+    [Test]
+    [Description("Creates an empty status-None profile linked to the authenticated user.")]
+    public async Task CreateUserProfileAsync_CreatesLinkedProfile() {
+        // Arrange
+        var memberRepository = new Mock<IMemberRepository>();
+        var service = new MemberCreationService(memberRepository.Object);
+        var userId = Guid.NewGuid();
+        Member? createdProfile = null;
+        memberRepository.Setup(x => x.GetByUserIdAsync(userId))
+            .ReturnsAsync(Result<Member>.Failure("Member not found."));
+        memberRepository.Setup(x => x.Add(It.IsAny<Member>()))
+            .Callback<Member>(member => createdProfile = member)
+            .Returns(Result.Success());
+        memberRepository.Setup(x => x.SaveChangesAsync()).ReturnsAsync(Result.Success());
+
+        // Act
+        var result = await service.CreateUserProfileAsync(userId);
+
+        // Assert
+        Assert.That(result.IsSuccess, Is.True);
+        Assert.That(createdProfile, Is.Not.Null);
+        Assert.Multiple(() => {
+            Assert.That(createdProfile!.UserId, Is.EqualTo(userId));
+            Assert.That(createdProfile.Status, Is.EqualTo(Domain.Enums.MembershipStatus.None));
+            Assert.That(createdProfile.Address, Is.Not.Null);
+        });
+    }
+
+    [Test]
+    [Description("Returns the existing profile instead of creating a duplicate for the same user.")]
+    public async Task CreateUserProfileAsync_ReturnsExistingProfile() {
+        // Arrange
+        var memberRepository = new Mock<IMemberRepository>();
+        var service = new MemberCreationService(memberRepository.Object);
+        var userId = Guid.NewGuid();
+        var existingProfile = new Member { Id = Guid.NewGuid(), UserId = userId };
+        memberRepository.Setup(x => x.GetByUserIdAsync(userId))
+            .ReturnsAsync(Result<Member>.Success(existingProfile));
+
+        // Act
+        var result = await service.CreateUserProfileAsync(userId);
+
+        // Assert
+        Assert.That(result.IsSuccess, Is.True);
+        Assert.That(result.Value, Is.EqualTo(existingProfile.Id));
+        memberRepository.Verify(x => x.Add(It.IsAny<Member>()), Times.Never);
+    }
+
+    [Test]
+    [Description("Does not create a profile when the existing-profile lookup fails for a database reason.")]
+    public async Task CreateUserProfileAsync_DoesNotCreateAfterLookupFailure() {
+        // Arrange
+        var memberRepository = new Mock<IMemberRepository>();
+        var service = new MemberCreationService(memberRepository.Object);
+        var userId = Guid.NewGuid();
+        memberRepository.Setup(x => x.GetByUserIdAsync(userId))
+            .ReturnsAsync(Result<Member>.Failure("Database error: unavailable"));
+
+        // Act
+        var result = await service.CreateUserProfileAsync(userId);
+
+        // Assert
+        Assert.That(result.IsSuccess, Is.False);
+        memberRepository.Verify(x => x.Add(It.IsAny<Member>()), Times.Never);
+    }
+
     
     [Test]
     public async Task CreateMemberAsync_CreatesMember() {

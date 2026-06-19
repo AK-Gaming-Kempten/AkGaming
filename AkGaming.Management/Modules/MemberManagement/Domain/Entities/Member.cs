@@ -17,6 +17,7 @@ public class Member {
     public Address? Address { get; set; }
     public MembershipStatus Status { get; set; }
     public ICollection<MembershipStatusChangeEvent> StatusChanges { get; set; } = new List<MembershipStatusChangeEvent>();
+    public ICollection<PaymentInformation> PaymentInformation { get; set; } = new List<PaymentInformation>();
 
     public Result ChangeStatus(MembershipStatus newStatus) {
         if (newStatus == Status)

@@ -1,44 +1,38 @@
 @using AkGaming.Core.Constants
 <div class="member-form">
-    <EditForm Model="@_application" OnValidSubmit="@ApplyForMembershipAsync">
+    <EditForm Model="@_profile" OnValidSubmit="@ApplyForMembershipAsync">
         <DataAnnotationsValidator />
         <h3> Apply for membership </h3>
         <hr class="spacer" />
         <div class="form-grid">
             <div class="form-col">
                 <label>First Name</label>
-                <InputText @bind-Value="_application.MemberCreationInfo.FirstName" required />
-                <ValidationMessage For="@(() => _application.MemberCreationInfo.FirstName)" />
+                <InputText @bind-Value="_profile.FirstName" required />
             </div>
 
             <div class="form-col">
                 <label>Last Name</label>
-                <InputText @bind-Value="_application.MemberCreationInfo.LastName" required />
-                <ValidationMessage For="@(() => _application.MemberCreationInfo.LastName)" />
+                <InputText @bind-Value="_profile.LastName" required />
             </div>
 
             <div class="form-col">
                 <label>Email</label>
-                <InputText @bind-Value="_application.MemberCreationInfo.Email" required />
-                <ValidationMessage For="@(() => _application.MemberCreationInfo.Email)" />
+                <InputText @bind-Value="_profile.Email" required />
             </div>
 
             <div class="form-col">
                 <label>Phone</label>
-                <InputText @bind-Value="_application.MemberCreationInfo.Phone" required />
-                <ValidationMessage For="@(() => _application.MemberCreationInfo.Phone)" />
+                <InputText @bind-Value="_profile.Phone" required />
             </div>
 
             <div class="form-col">
                 <label>Discord Username</label>
-                <InputText @bind-Value="_application.MemberCreationInfo.DiscordUserName" required />
-                <ValidationMessage For="@(() => _application.MemberCreationInfo.DiscordUserName)" />
+                <InputText @bind-Value="_profile.DiscordUserName" required />
             </div>
 
             <div class="form-col">
                 <label>Birth Date</label>
-                <InputDate @bind-Value="_application.MemberCreationInfo.BirthDate" required />
-                <ValidationMessage For="@(() => _application.MemberCreationInfo.BirthDate)" />
+                <InputDate @bind-Value="_profile.BirthDate" required />
             </div>
         </div>
 
@@ -47,26 +41,22 @@
         <div class="form-grid">
             <div class="form-col">
                 <label>Street / House Number</label>
-                <InputText @bind-Value="_application.MemberCreationInfo.Address!.Street" required />
-                <ValidationMessage For="@(() => _application.MemberCreationInfo.Address.Street)" />
+                <InputText @bind-Value="_profile.Address.Street" required />
             </div>
 
             <div class="form-col">
                 <label>Zip Code</label>
-                <InputText @bind-Value="_application.MemberCreationInfo.Address!.ZipCode" required />
-                <ValidationMessage For="@(() => _application.MemberCreationInfo.Address.ZipCode)" />
+                <InputText @bind-Value="_profile.Address.ZipCode" required />
             </div>
 
             <div class="form-col">
                 <label>City</label>
-                <InputText @bind-Value="_application.MemberCreationInfo.Address!.City" required />
-                <ValidationMessage For="@(() => _application.MemberCreationInfo.Address.City)" />
+                <InputText @bind-Value="_profile.Address.City" required />
             </div>
 
             <div class="form-col">
                 <label>Country</label>
-                <InputText @bind-Value="_application.MemberCreationInfo.Address!.Country" required />
-                <ValidationMessage For="@(() => _application.MemberCreationInfo.Address.Country)" />
+                <InputText @bind-Value="_profile.Address.Country" required />
             </div>
         </div>
         <div class="form-grid">
@@ -90,5 +80,8 @@
         
         <hr class="spacer" />
         <button type="submit" class="btn btn-primary ">Apply</button>
+        @if (!string.IsNullOrWhiteSpace(_createError)) {
+            <p class="text-danger">@_createError</p>
+        }
     </EditForm>
 </div>

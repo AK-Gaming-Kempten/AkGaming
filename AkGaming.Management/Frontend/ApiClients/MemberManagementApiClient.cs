@@ -33,6 +33,9 @@ public sealed class MemberManagementApiClient : ApiClientBase {
     public Task<Result<Guid>> CreateMemberAsync(MemberCreationDto dto, CancellationToken ct = default) =>
         PostJsonAsync<MemberCreationDto, Guid>("members", dto, ct);
 
+    public Task<Result<Guid>> CreateMyProfileAsync(CancellationToken ct = default) =>
+        PostJsonAsync<object, Guid>("members/profile", new { }, ct);
+
     public Task<Result> UpdateMemberAsync(MemberDto dto, CancellationToken ct = default) =>
         PutJsonAsync("members/" + dto.Id, dto, ct);
 
@@ -154,4 +157,17 @@ public sealed class MemberManagementApiClient : ApiClientBase {
 
     public Task<Result> UpdateDueAsync(int dueId, MembershipDueDto due, CancellationToken ct = default) =>
         PutJsonAsync($"membership-dues/{dueId}", due, ct);
+
+    // ---- Payment information for payouts ----------------------------------
+    public Task<Result<ICollection<PaymentInformationDto>>> GetPaymentInformationAsync(CancellationToken ct = default) =>
+        GetAsync<ICollection<PaymentInformationDto>>("payment-information", ct);
+
+    public Task<Result<PaymentInformationDto>> CreatePaymentInformationAsync(PaymentInformationDto request, CancellationToken ct = default) =>
+        PostJsonAsync<PaymentInformationDto, PaymentInformationDto>("payment-information", request, ct);
+
+    public Task<Result> UpdatePaymentInformationAsync(PaymentInformationDto request, CancellationToken ct = default) =>
+        PutJsonAsync($"payment-information/{request.Id}", request, ct);
+
+    public Task<Result> DeletePaymentInformationAsync(Guid id, CancellationToken ct = default) =>
+        DeleteAsync($"payment-information/{id}", ct);
 }

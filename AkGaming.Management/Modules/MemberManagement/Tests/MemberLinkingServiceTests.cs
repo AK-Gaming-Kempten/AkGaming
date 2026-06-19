@@ -13,6 +13,44 @@ namespace AkGaming.Management.Modules.MemberManagement.Tests;
 
 public class MemberLinkingServiceTests {
     [Test]
+    [Description("Merges a user's placeholder profile into the selected legacy membership record when linking.")]
+    public async Task LinkMemberToUserAsync_MergesPlaceholderProfile() {
+        // Arrange
+        var memberRepository = new Mock<IMemberRepository>();
+        var requestRepository = new Mock<IMemberLinkingRequestRepository>();
+        var auditLogWriter = new Mock<IMemberAuditLogWriter>();
+        var emailSender = new Mock<IEmailSender>();
+        var logger = new Mock<ILogger<MemberLinkingService>>();
+        var service = new MemberLinkingService(memberRepository.Object, requestRepository.Object, auditLogWriter.Object, emailSender.Object, logger.Object);
+        var userId = Guid.NewGuid();
+        var target = new Member { Id = Guid.NewGuid(), FirstName = "Legacy" };
+        var profile = new Member {
+            Id = Guid.NewGuid(),
+            UserId = userId,
+            FirstName = "Current"
+        };
+        var paymentInformation = new PaymentInformation { MemberId = profile.Id };
+        profile.PaymentInformation.Add(paymentInformation);
+        memberRepository.Setup(x => x.GetByMemberIdAsync(target.Id)).ReturnsAsync(Result<Member>.Success(target));
+        memberRepository.Setup(x => x.GetByUserIdAsync(userId)).ReturnsAsync(Result<Member>.Success(profile));
+        memberRepository.Setup(x => x.TryDelete(profile.Id)).Returns(Result.Success());
+        memberRepository.Setup(x => x.SaveChangesAsync()).ReturnsAsync(Result.Success());
+
+        // Act
+        var result = await service.LinkMemberToUserAsync(target.Id, userId);
+
+        // Assert
+        Assert.That(result.IsSuccess, Is.True);
+        Assert.Multiple(() => {
+            Assert.That(target.UserId, Is.EqualTo(userId));
+            Assert.That(target.FirstName, Is.EqualTo("Current"));
+            Assert.That(paymentInformation.MemberId, Is.EqualTo(target.Id));
+            Assert.That(target.PaymentInformation, Does.Contain(paymentInformation));
+        });
+        memberRepository.Verify(x => x.TryDelete(profile.Id), Times.Once);
+    }
+
+    [Test]
     public async Task MemberLinkingService_LinksMemberToUser() {
         // Arrange
         var memberRepository = new Mock<IMemberRepository>();

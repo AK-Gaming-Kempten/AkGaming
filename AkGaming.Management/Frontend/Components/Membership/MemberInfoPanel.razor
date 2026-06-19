@@ -52,6 +52,7 @@
                         </dl>
                     </section>
 
+
                     <section class="member-read-section">
                         <div class="member-read-section-divider" aria-hidden="true">
                             <span class="member-read-section-icon bi bi-envelope"></span>
@@ -151,6 +152,22 @@
         <article class="panel member-actions-card">
             <h5 class="ui-title">Actions</h5>
             <div class="ui-list member-action-links">
+                @if (CanCreateMembershipRequest) {
+                    <button type="button" class="btn btn-secondary member-action-btn" @onclick="ShowMembershipApplication">
+                        <span class="action-icon bi bi-person-plus" aria-hidden="true"></span>
+                        <span class="member-action-content">
+                            <span class="member-action-title">Apply for Membership</span>
+                            <span class="member-action-description">Send a membership application to the club.</span>
+                        </span>
+                    </button>
+                    <button type="button" class="btn btn-secondary member-action-btn" @onclick="ShowMemberLinking">
+                        <span class="action-icon bi bi-person-check" aria-hidden="true"></span>
+                        <span class="member-action-content">
+                            <span class="member-action-title">Request Member Linking</span>
+                            <span class="member-action-description">Link your account to an existing member record.</span>
+                        </span>
+                    </button>
+                }
                 <a class="btn btn-secondary member-action-btn" href="@WebsiteUrl" target="_blank" rel="noopener noreferrer">
                     <span class="action-icon bi bi-globe2" aria-hidden="true"></span>
                     <span class="member-action-content">
@@ -175,4 +192,22 @@
             </div>
         </article>
     </div>
+
+    @if (_requestFormMode != RequestFormMode.None) {
+        <div class="member-request-dialog-backdrop" @onclick="CloseRequestDialog"></div>
+        <div class="member-request-dialog-shell" role="dialog" aria-modal="true" aria-labelledby="member-request-dialog-title">
+            <section class="panel member-request-dialog">
+                <header class="member-request-dialog-header">
+                    <h3 id="member-request-dialog-title">@RequestDialogTitle</h3>
+                    <ActionButton Kind="ActionButtonKind.Close" Variant="ActionButtonVariant.Outline" Size="ActionButtonSize.Small" OnClick="CloseRequestDialog" Label="Close dialog" />
+                </header>
+                @if (_requestFormMode == RequestFormMode.Apply) {
+                    <ApplyForMembershipPanel UserGuid="UserId" Member="Member" OnSubmitted="HandleRequestSubmittedAsync" />
+                }
+                else {
+                    <RequestMemberLinkingPanel UserGuid="UserId" Member="Member" OnSubmitted="HandleRequestSubmittedAsync" />
+                }
+            </section>
+        </div>
+    }
 </section>

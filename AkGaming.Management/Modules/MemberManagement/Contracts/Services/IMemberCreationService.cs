@@ -10,4 +10,6 @@ public interface IMemberCreationService {
     /// </summary>
     /// <param name="memberCreationData">The data for the new <see cref="Member"/></param>
     Task<Result<Guid>> CreateMemberAsync(MemberCreationDto memberCreationData);
+
+    Task<Result<Guid>> CreateUserProfileAsync(Guid userId);
 }
