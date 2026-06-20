@@ -1,0 +1,86 @@
+.cms-page {
+    min-height: 100vh;
+    margin: 0;
+    padding: 3rem 1.5rem;
+    background:
+        radial-gradient(100% 120% at 0 0, color-mix(in srgb, var(--color-green) 32%, transparent), transparent 60%),
+        var(--color-background-quartiary);
+    color: var(--color-text-primary);
+}
+
+.cms-panel {
+    width: min(100%, 42rem);
+    margin: 0 auto;
+    padding: 2rem;
+    border: 1px solid color-mix(in srgb, var(--color-highlight-primary) 30%, transparent);
+    border-radius: 1rem;
+    background: color-mix(in srgb, var(--color-background-primary) 94%, transparent);
+    box-shadow: 0 1.5rem 4rem color-mix(in srgb, black 25%, transparent);
+}
+
+.cms-panel-wide {
+    width: min(100%, 70rem);
+}
+
+.cms-eyebrow {
+    margin: 0 0 0.5rem;
+    color: var(--color-highlight-primary);
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.cms-panel h1,
+.cms-panel h2 {
+    margin-top: 0;
+}
+
+.cms-panel button {
+    padding: 0.7rem 1rem;
+    border: 0;
+    border-radius: 0.5rem;
+    background: var(--color-button-primary-bg);
+    color: var(--color-button-primary-text);
+    cursor: pointer;
+    font: inherit;
+    font-weight: 700;
+}
+
+.cms-panel .cms-secondary-button {
+    background: var(--color-button-secondary-bg);
+    color: var(--color-button-secondary-text);
+}
+
+.cms-header {
+    display: flex;
+    gap: 1rem;
+    align-items: start;
+    justify-content: space-between;
+}
+
+.cms-card-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1rem;
+    margin-top: 2rem;
+}
+
+.cms-card-grid article {
+    padding: 1rem;
+    border-radius: 0.75rem;
+    background: var(--color-background-secondary);
+}
+
+@media (max-width: 700px) {
+    .cms-page {
+        padding: 1rem;
+    }
+
+    .cms-header {
+        flex-direction: column;
+    }
+
+    .cms-card-grid {
+        grid-template-columns: 1fr;
+    }
+}

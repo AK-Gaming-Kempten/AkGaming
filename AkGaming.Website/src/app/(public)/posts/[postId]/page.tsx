@@ -1,4 +1,4 @@
-import PostPage from "../../../views/PostPage";
+import PostPage from "../../../../views/PostPage";
 
 type PostRouteProps = {
     params: Promise<{ postId: string }>;

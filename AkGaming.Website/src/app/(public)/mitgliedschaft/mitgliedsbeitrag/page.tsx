@@ -1,4 +1,4 @@
-import Mitgliedsbeitrag from "../../../views/Mitgliedsbeitrag";
+import Mitgliedsbeitrag from "../../../../views/Mitgliedsbeitrag";
 
 export default function MembershipFeePage() {
     return <Mitgliedsbeitrag />;

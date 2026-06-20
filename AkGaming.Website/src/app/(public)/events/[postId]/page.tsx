@@ -1,4 +1,4 @@
-import EventPage from "../../../views/EventPage";
+import EventPage from "../../../../views/EventPage";
 
 type EventRouteProps = {
     params: Promise<{ postId: string }>;

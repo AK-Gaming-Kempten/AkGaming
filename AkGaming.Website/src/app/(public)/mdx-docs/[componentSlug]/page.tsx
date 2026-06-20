@@ -1,4 +1,4 @@
-import MdxDocDetail from "../../../views/MdxDocDetail";
+import MdxDocDetail from "../../../../views/MdxDocDetail";
 
 type MdxDocsDetailRouteProps = {
     params: Promise<{ componentSlug: string }>;
