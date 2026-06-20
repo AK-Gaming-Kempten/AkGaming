@@ -10,8 +10,8 @@ export default async function CmsPage() {
     if (session === null)
         return <SignInPanel />;
 
-    if (!session.roles.includes("Admin"))
-        return <AccessDeniedPanel email={session.user?.email} />;
+    if (!session.roles.some(role => role.localeCompare("Admin", undefined, { sensitivity: "accent" }) === 0))
+        return <AccessDeniedPanel email={session.user?.email} roles={session.roles} />;
 
     return <CmsOverview email={session.user?.email} />;
 }
@@ -51,7 +51,7 @@ function SignInPanel() {
     );
 }
 
-function AccessDeniedPanel({ email }: { email?: string | null }) {
+function AccessDeniedPanel({ email, roles }: { email?: string | null; roles: string[] }) {
     async function signOutFromCms() {
         "use server";
         await signOut({ redirectTo: "/cms" });
@@ -63,6 +63,7 @@ function AccessDeniedPanel({ email }: { email?: string | null }) {
                 <p className="cms-eyebrow">Access denied</p>
                 <h1>CMS access is restricted</h1>
                 <p>{email ?? "This account"} does not have the AK Gaming Admin role.</p>
+                <p>Roles received from Identity: {roles.length === 0 ? "none" : roles.join(", ")}.</p>
                 <form action={signOutFromCms}>
                     <button type="submit" className="cms-secondary-button">Sign out</button>
                 </form>

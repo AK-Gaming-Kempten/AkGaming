@@ -11,6 +11,7 @@ const akGamingProvider: OAuthConfig<Profile> = {
     issuer: process.env.AUTH_AKG_ISSUER,
     clientId: process.env.AUTH_AKG_CLIENT_ID,
     clientSecret: process.env.AUTH_AKG_CLIENT_SECRET,
+    idToken: false,
     authorization: {
         params: {
             scope: "openid profile email roles",
@@ -32,9 +33,12 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     providers: [akGamingProvider],
     trustHost: true,
     callbacks: {
-        jwt({ token, profile }) {
-            if (profile !== undefined)
-                token.roles = getRoles(profile);
+        jwt({ token, profile, account }) {
+            if (profile !== undefined || account?.id_token !== undefined) {
+                const profileRoles = profile === undefined ? [] : getRoles(profile);
+                const idTokenRoles = getRolesFromIdToken(account?.id_token);
+                token.roles = profileRoles.length > 0 ? profileRoles : idTokenRoles;
+            }
 
             return token;
         },
@@ -55,14 +59,39 @@ export function isCmsAuthenticationConfigured(): boolean {
 }
 
 function getRoles(source: Record<string, unknown>): string[] {
-    const role = source.role;
-    if (typeof role === "string")
-        return [role];
+    const roleValue = source.role
+                      ?? source.roles
+                      ?? source["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"]
+                      ?? source["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role"];
 
-    if (Array.isArray(role))
-        return role.filter((value): value is string => typeof value === "string");
+    if (typeof roleValue === "string")
+        return [roleValue];
+
+    if (Array.isArray(roleValue))
+        return roleValue.filter((value): value is string => typeof value === "string");
 
     return [];
+}
+
+function getRolesFromIdToken(idToken: string | undefined): string[] {
+    if (idToken === undefined)
+        return [];
+
+    const payload = idToken.split(".")[1];
+    if (payload === undefined)
+        return [];
+
+    try {
+        const value = JSON.parse(Buffer.from(payload, "base64url").toString("utf8"));
+        return isRecord(value) ? getRoles(value) : [];
+    }
+    catch {
+        return [];
+    }
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+    return typeof value === "object" && value !== null;
 }
 
 function isBlank(value: string | undefined): boolean {
