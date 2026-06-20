@@ -1,6 +1,8 @@
+"use client";
+
 import { useState } from "react";
-import { NavLink } from "react-router-dom";
 import { FaBars, FaTimes } from "react-icons/fa";
+import ActiveLink from "./navigation/ActiveLink";
 import "./Navbar.css";
 
 export default function Navbar() {
@@ -25,11 +27,11 @@ export default function Navbar() {
                 </button>
 
                 <ul className={`nav-links ${menuOpen ? "active" : ""}`}>
-                    <li><NavLink to="/" end onClick={closeMenu}>Home</NavLink></li>
-                    <li><NavLink to="/events" onClick={closeMenu}>Events</NavLink></li>
-                    <li><NavLink to="/esports" onClick={closeMenu}>Esports</NavLink></li>
-                    <li><NavLink to="/mitgliedschaft" onClick={closeMenu}>Mitgliedschaft</NavLink></li>
-                    <li><NavLink to="/impressum" onClick={closeMenu}>Impressum</NavLink></li>
+                    <li><ActiveLink href="/" exact onClick={closeMenu}>Home</ActiveLink></li>
+                    <li><ActiveLink href="/events" onClick={closeMenu}>Events</ActiveLink></li>
+                    <li><ActiveLink href="/esports" onClick={closeMenu}>Esports</ActiveLink></li>
+                    <li><ActiveLink href="/mitgliedschaft" onClick={closeMenu}>Mitgliedschaft</ActiveLink></li>
+                    <li><ActiveLink href="/impressum" onClick={closeMenu}>Impressum</ActiveLink></li>
                 </ul>
             </div>
         </nav>

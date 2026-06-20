@@ -14,7 +14,6 @@ import {
     FaThList,
     FaVideo,
 } from "react-icons/fa";
-import sponsorLogo from "../../../public/assets/soloplan_mit_text.png";
 import SmartLink from "./SmartLink";
 import ButtonLink from "./ButtonLink";
 import ButtonRow from "./ButtonRow";
@@ -382,7 +381,7 @@ export const mdxComponentDocs: MdxComponentDoc[] = [
         preview: (
             <LinkedImage
                 href="https://www.soloplan.de"
-                src={sponsorLogo}
+                        src="/assets/soloplan_mit_text.png"
                 alt="Soloplan Logo"
                 caption="Unser Hauptsponsor"
             />

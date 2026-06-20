@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import Link from "next/link";
 import MdxDocsNav from "../components/content/MdxDocsNav";
 import { mdxDocGroups } from "../components/content/mdxCatalog";
 import "./MdxDocs.css";
@@ -26,7 +26,7 @@ export default function MdxDocs() {
                         </div>
                         <div className="mdx-docs-index-grid">
                             {docs.map((doc) => (
-                                <Link key={doc.slug} to={`/mdx-docs/${doc.slug}`} className="mdx-docs-index-card">
+                                <Link key={doc.slug} href={`/mdx-docs/${doc.slug}`} className="mdx-docs-index-card">
                                     <div className="mdx-docs-index-head">
                                         <doc.icon className="mdx-docs-index-icon" aria-hidden="true" />
                                         <p className="mdx-docs-index-name">{doc.name}</p>

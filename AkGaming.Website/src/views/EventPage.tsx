@@ -1,4 +1,5 @@
-import { useParams } from "react-router-dom";
+"use client";
+
 import { useEffect, useState } from "react";
 import { loadPosts } from "../data/loadPosts";
 import { Event } from "../data/types";
@@ -6,8 +7,11 @@ import { formatDateRange } from "../utils/formatDateRange";
 import MdxContent from "../components/content/MdxContent";
 import "./PostPage.css";
 
-export default function EventPage() {
-    const { postId } = useParams();
+type EventPageProps = {
+    postId: string;
+};
+
+export default function EventPage({ postId }: EventPageProps) {
     const [event, setEvent] = useState<Event | null>(null);
 
     useEffect(() => {

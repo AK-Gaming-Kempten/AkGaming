@@ -1,5 +1,5 @@
-import { NavLink } from "react-router-dom";
 import { mdxDocGroups } from "./mdxCatalog";
+import ActiveLink from "../navigation/ActiveLink";
 import "./MdxDocsNav.css";
 
 export default function MdxDocsNav() {
@@ -7,9 +7,9 @@ export default function MdxDocsNav() {
         <aside className="mdx-docs-nav" aria-label="MDX Komponenten Navigation">
             <div className="mdx-docs-nav-header">
                 <p className="mdx-docs-nav-eyebrow">Content System</p>
-                <NavLink to="/mdx-docs" end className="mdx-docs-nav-home">
+                <ActiveLink href="/mdx-docs" exact className="mdx-docs-nav-home">
                     MDX Komponenten
-                </NavLink>
+                </ActiveLink>
             </div>
             {mdxDocGroups.map(([category, docs]) => (
                 <div key={category} className="mdx-docs-nav-group">
@@ -17,15 +17,10 @@ export default function MdxDocsNav() {
                     <ul className="mdx-docs-nav-list">
                         {docs.map((doc) => (
                             <li key={doc.slug}>
-                                <NavLink
-                                    to={`/mdx-docs/${doc.slug}`}
-                                    className={({ isActive }) =>
-                                        `mdx-docs-nav-link ${isActive ? "active" : ""}`
-                                    }
-                                >
+                                <ActiveLink href={`/mdx-docs/${doc.slug}`} className="mdx-docs-nav-link">
                                     <doc.icon className="mdx-docs-nav-link-icon" aria-hidden="true" />
                                     {doc.name}
-                                </NavLink>
+                                </ActiveLink>
                             </li>
                         ))}
                     </ul>

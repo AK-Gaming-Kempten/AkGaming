@@ -1,14 +1,17 @@
-import { Navigate, useParams } from "react-router-dom";
+import { redirect } from "next/navigation";
 import MdxDocsNav from "../components/content/MdxDocsNav";
 import { getMdxComponentDoc } from "../components/content/mdxCatalog";
 import "./MdxDocs.css";
 
-export default function MdxDocDetail() {
-    const { componentSlug } = useParams();
+type MdxDocDetailProps = {
+    componentSlug: string;
+};
+
+export default function MdxDocDetail({ componentSlug }: MdxDocDetailProps) {
     const doc = getMdxComponentDoc(componentSlug);
 
     if (doc === undefined) {
-        return <Navigate to="/mdx-docs" replace />;
+        redirect("/mdx-docs");
     }
 
     return (

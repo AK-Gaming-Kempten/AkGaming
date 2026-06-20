@@ -1,3 +1,5 @@
+"use client";
+
 import EventCard from "../components/events/EventCard";
 import "./Events.css";
 import EventInfoTabs from "../components/events/EventInfoTabs";

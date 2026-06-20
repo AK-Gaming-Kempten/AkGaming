@@ -1,3 +1,5 @@
+"use client";
+
 import "./MiniCalendar.css";
 import { useEffect, useState } from "react";
 import {loadPosts} from "../../data/loadPosts";

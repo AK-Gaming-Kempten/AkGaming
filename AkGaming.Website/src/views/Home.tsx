@@ -1,3 +1,5 @@
+"use client";
+
 import "./Home.css";
 
 import HighlightCard from "../components/home/HighlightCard";
@@ -8,8 +10,7 @@ import MiniCalendar from "../components/home/MiniCalendar";
 import { useEffect, useMemo, useRef, useState, type TransitionEvent } from "react";
 import { loadHighlights } from "../data/loadHighlights";
 import type { Highlight } from "../data/types";
-import { Link } from "react-router-dom";
-import heroLogo from "../../public/assets/akgaming_logo.png";
+import Link from "next/link";
 
 export default function Home() {
     const [highlights, setHighlights] = useState<Highlight[]>([]);
@@ -119,12 +120,12 @@ export default function Home() {
                             Fairness, Teamgeist und Spaß im Mittelpunkt stehen.
                         </p>
                         <div className="home-hero-actions">
-                            <Link to="/events" className="home-btn home-btn-primary">Events entdecken</Link>
-                            <Link to="/esports" className="home-btn home-btn-secondary">E-Sports Teams</Link>
+                            <Link href="/events" className="home-btn home-btn-primary">Events entdecken</Link>
+                            <Link href="/esports" className="home-btn home-btn-secondary">E-Sports Teams</Link>
                         </div>
                     </div>
                     <div className="home-hero-logo-wrap">
-                        <img src={heroLogo} alt="AK Gaming Logo" className="home-hero-logo" />
+                        <img src="/assets/akgaming_logo.png" alt="AK Gaming Logo" className="home-hero-logo" />
                     </div>
                 </div>
             </section>
@@ -178,7 +179,7 @@ export default function Home() {
             <section className="home-section">
                 <div className="home-section-title-row">
                     <h2>Vereinsleben</h2>
-                    <Link to="/events" className="home-link-action">Alle Events</Link>
+                    <Link href="/events" className="home-link-action">Alle Events</Link>
                 </div>
                 {rotatingHighlights.length === 0 ? (
                     <p className="home-empty">Derzeit sind keine Highlights verfügbar.</p>

@@ -1,4 +1,5 @@
 import { Event, Post, type PostContentComponent } from "./types";
+import { postModules } from "./postModules";
 
 type FrontMatter = {
     type?: "post" | "event";
@@ -11,24 +12,14 @@ type FrontMatter = {
     locationUrl?: string;
 };
 
-type PostModule = {
-    default: PostContentComponent;
-    frontmatter?: FrontMatter;
-};
-
 export async function loadPosts(): Promise<(Post | Event)[]> {
-    const contentModules = import.meta.glob<PostModule>("./posts/*.{md,mdx}", {
-        eager: true,
-    });
-
     const items: (Post | Event)[] = [];
 
-    for (const key in contentModules) {
-        const module = contentModules[key];
-        const fmData = module.frontmatter;
+    for (const module of postModules) {
+        const fmData = (module as { frontmatter?: FrontMatter }).frontmatter;
 
         if (fmData === undefined) {
-            throw new Error(`Missing front matter in post module: ${key}`);
+            throw new Error("Missing front matter in post module.");
         }
 
         switch (fmData.type) {
@@ -38,7 +29,7 @@ export async function loadPosts(): Promise<(Post | Event)[]> {
                         id: fmData.id,
                         title: fmData.title,
                         shortDescription: fmData.shortDescription,
-                        Content: module.default,
+                        Content: (module as { default: PostContentComponent }).default,
                         startDate: fmData.startDate!,
                         endDate: fmData.endDate,
                         location: fmData.location!,
@@ -53,7 +44,7 @@ export async function loadPosts(): Promise<(Post | Event)[]> {
                         id: fmData.id,
                         title: fmData.title,
                         shortDescription: fmData.shortDescription,
-                        Content: module.default,
+                        Content: (module as { default: PostContentComponent }).default,
                     })
                 );
             }

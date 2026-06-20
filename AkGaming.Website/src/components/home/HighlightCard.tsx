@@ -1,5 +1,5 @@
 import "./HighlightCard.css";
-import { Link } from "react-router-dom";
+import Link from "next/link";
 
 interface HighlightCardProps {
     title: string;
@@ -44,6 +44,5 @@ export default function HighlightCard({
         </div>
     );
 
-    return postId ? ( <Link to={`/posts/${postId}`}>{content}</Link> ): content;
+    return postId ? ( <Link href={`/posts/${postId}`}>{content}</Link> ): content;
 }
-

@@ -10,10 +10,18 @@ COPY AkGaming.Core ../AkGaming.Core
 
 RUN npm run build
 
-# Serve with Caddy (static)
-FROM caddy:2-alpine
+# Run the server-rendered website
+FROM node:22-alpine AS runtime
+WORKDIR /app
 
-COPY --from=build /app/AkGaming.Website/dist /usr/share/caddy
-COPY AkGaming.Website/Caddyfile /etc/caddy/Caddyfile
+ENV NODE_ENV=production
+ENV PORT=3000
+ENV HOSTNAME=0.0.0.0
 
-EXPOSE 80
+COPY --from=build /app/AkGaming.Website/.next/standalone ./
+COPY --from=build /app/AkGaming.Website/.next/static ./.next/static
+COPY --from=build /app/AkGaming.Website/public ./public
+
+EXPOSE 3000
+
+CMD ["node", "server.js"]

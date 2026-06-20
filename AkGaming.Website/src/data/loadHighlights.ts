@@ -1,17 +1,12 @@
-import YAML from "yaml";
 import type { Highlight } from "./types";
 import { loadPosts } from "./loadPosts";
 
 export async function loadHighlights(): Promise<Highlight[]> {
-    // Load raw YAML file
-    const module = import.meta.glob<string>("./highlights.yaml", {
-        eager: true,
-        query: "?raw",
-        import: "default",
-    });
+    const response = await fetch("/api/content/highlights");
+    if (!response.ok)
+        throw new Error("Unable to load homepage highlights.");
 
-    const raw = Object.values(module)[0];
-    const highlights = YAML.parse(raw as string) as Highlight[];
+    const highlights = await response.json() as Highlight[];
 
     // Load posts so we can enrich missing data
     const posts = await loadPosts();

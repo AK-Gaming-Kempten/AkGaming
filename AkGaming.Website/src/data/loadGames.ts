@@ -1,13 +1,9 @@
-import YAML from "yaml";
 import type { EsportsGame } from "./types";
 
-export function loadGames(): EsportsGame[] {
-    const module = import.meta.glob<string>("./games.yaml", {
-        eager: true,
-        query: "?raw",
-        import: "default",
-    });
+export async function loadGames(): Promise<EsportsGame[]> {
+    const response = await fetch("/api/content/games");
+    if (!response.ok)
+        throw new Error("Unable to load esports games.");
 
-    const raw = Object.values(module)[0];
-    return YAML.parse(raw as string) as EsportsGame[];
+    return response.json() as Promise<EsportsGame[]>;
 }

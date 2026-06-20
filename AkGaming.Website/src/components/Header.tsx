@@ -1,4 +1,5 @@
-import logo from "../../public/assets/akgaming_logo.png";
+"use client";
+
 import "./Header.css";
 import { useTheme } from "../utils/UseTheme";
 import { LuSunMedium, LuMoonStar, LuMonitor } from "react-icons/lu";
@@ -24,7 +25,7 @@ export default function Header() {
             </button>
 
             <div className="header-content">
-                <img src={logo} alt="AK Gaming e.V. Logo" className="header-logo" />
+                <img src="/assets/akgaming_logo.png" alt="AK Gaming e.V. Logo" className="header-logo" />
                 <h1 className="header-title">AK Gaming e.V.</h1>
             </div>
         </header>

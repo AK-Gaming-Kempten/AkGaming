@@ -1,5 +1,5 @@
 import "./EventCard.css";
-import { Link } from "react-router-dom";
+import Link from "next/link";
 import { formatDateRange } from "../../utils/formatDateRange";
 import type { Event } from "../../data/types";
 import type { FC } from "react";
@@ -20,7 +20,7 @@ const EventCard: FC<EventCardProps> = ({ event }) => {
     );
 
     return (
-        <Link to={`/events/${event.id}`} className="event-card">
+        <Link href={`/events/${event.id}`} className="event-card">
             <div className="event-card-header">
                 <h3 className="event-name">{event.title}</h3>
                 <p className="event-date">{formattedDate}</p>

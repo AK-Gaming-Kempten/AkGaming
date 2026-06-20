@@ -1,3 +1,5 @@
+"use client";
+
 import { useEffect, useState } from "react";
 import PhotoAlbum, { type Photo, } from "react-photo-album";
 import { loadImages } from "../../data/loadImages";
@@ -29,15 +31,16 @@ export default function EventInfoTabs({ sections }: EventInfoTabsProps) {
         }
 
         // ✅ loadImages only needs the folder name, e.g. "lan2024"
-        loadImages(activeSection.album, { includeDimensions: true }).then((imgs) => {
-            // Map LoadedImage[] → Photo[] for react-photo-album
-            const formatted: Photo[] = imgs.map((img) => ({
-                src: img.src,
-                width: img.width ?? 800,
-                height: img.height ?? 600,
-            }));
-            setPhotos(formatted);
-        });
+        loadImages(activeSection.album, { includeDimensions: true })
+            .then((images) => {
+                const formatted: Photo[] = images.map((image) => ({
+                    src: image.src,
+                    width: image.width ?? 800,
+                    height: image.height ?? 600,
+                }));
+                setPhotos(formatted);
+            })
+            .catch(() => setPhotos([]));
     }, [activeSection]);
 
     return (
@@ -72,4 +75,3 @@ export default function EventInfoTabs({ sections }: EventInfoTabsProps) {
         </div>
     );
 }
-

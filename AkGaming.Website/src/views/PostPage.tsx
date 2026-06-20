@@ -1,12 +1,18 @@
-import { useParams, Navigate } from "react-router-dom";
+"use client";
+
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { loadPosts } from "../data/loadPosts";
 import { Post, Event } from "../data/types";
 import MdxContent from "../components/content/MdxContent";
 import "./PostPage.css";
 
-export default function PostPage() {
-    const { postId } = useParams();
+type PostPageProps = {
+    postId: string;
+};
+
+export default function PostPage({ postId }: PostPageProps) {
+    const router = useRouter();
     const [post, setPost] = useState<Post | null>(null);
     const [loading, setLoading] = useState(true);
 
@@ -18,12 +24,17 @@ export default function PostPage() {
         });
     }, [postId]);
 
+    useEffect(() => {
+        if (post instanceof Event)
+            router.replace(`/events/${post.id}`);
+    }, [post, router]);
+
     if (loading) return <p>Loading...</p>;
     if (!post) return <p>Post not found.</p>;
 
     // ✅ Check if it's an Event (using instanceof)
     if (post instanceof Event) {
-        return <Navigate to={`/events/${post.id}`} replace />;
+        return null;
     }
 
     // ✅ Otherwise, render as a normal Post

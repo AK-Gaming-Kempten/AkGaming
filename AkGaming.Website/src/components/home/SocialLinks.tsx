@@ -32,13 +32,13 @@ export default function SocialLinks() {
             color: "#0077B6",
             icon: FaLinkedin,
             url: "https://www.linkedin.com/company/akgaming",
-            label: "YouTube",
+            label: "LinkedIn",
         },
         {
             color: "#1877F2",
             icon: FaFacebook,
             url: "https://www.facebook.com/AKGamingKempten",
-            label: "YouTube",
+            label: "Facebook",
         },
     ];
 

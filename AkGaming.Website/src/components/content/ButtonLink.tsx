@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { Link } from "react-router-dom";
+import Link from "next/link";
 import { isInternalHref } from "./SmartLink";
 
 type ButtonLinkProps = {
@@ -13,7 +13,7 @@ export default function ButtonLink({ href, variant = "primary", children }: Butt
 
     if (isInternalHref(href)) {
         return (
-            <Link to={href} className={className}>
+            <Link href={href} className={className}>
                 {children}
             </Link>
         );

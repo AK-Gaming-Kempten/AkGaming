@@ -1,3 +1,5 @@
+"use client";
+
 import { useEffect, useState } from "react";
 import "./Esports.css";
 
@@ -5,7 +7,6 @@ import { loadGames } from "../data/loadGames";
 import { loadTeams } from "../data/loadTeams";
 import type { EsportsGame, EsportsTeam } from "../data/types";
 import EsportsGameSection from "../components/esports/EsportsGameSection";
-import EvbIcon from "../../public/assets/EVB_LogoBlue.png";
 
 export default function Esports() {
     const [games, setGames] = useState<EsportsGame[]>([]);
@@ -63,7 +64,7 @@ export default function Esports() {
                         nachhaltigen Aufbau professioneller E-Sports-Strukturen in der Region.
                     </p>
                     <a href="https://esport.bayern/" target="_blank" rel="noopener noreferrer">
-                        <img src={EvbIcon} alt="EVB Logo" className="evb-logo" />
+                        <img src="/assets/EVB_LogoBlue.png" alt="EVB Logo" className="evb-logo" />
                     </a>
                 </article>
             </section>
