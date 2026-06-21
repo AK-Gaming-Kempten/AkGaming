@@ -9,7 +9,7 @@ type TextProps = {
 };
 
 export default function Text({
-    as: Tag = "p",
+    as: Tag = "span",
     size = "md",
     color = "primary",
     weight = "regular",

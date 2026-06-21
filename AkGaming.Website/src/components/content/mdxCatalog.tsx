@@ -32,6 +32,7 @@ import Embed from "./Embed";
 import LinkedImage from "./LinkedImage";
 import Table from "./Table";
 import Text from "./Text";
+import MdxParagraph from "./MdxParagraph";
 
 export type MdxComponentDoc = {
     name: string;
@@ -52,6 +53,7 @@ export type MdxComponentDoc = {
 };
 
 export const mdxComponents = {
+    p: MdxParagraph,
     a: SmartLink,
     ButtonLink,
     ButtonRow,
@@ -431,13 +433,13 @@ export const mdxComponentDocs: MdxComponentDoc[] = [
         slug: "text",
         category: "Text and Actions",
         icon: FaPenFancy,
-        syntax: "<Text as=\"p\" size=\"md\" color=\"secondary\" weight=\"regular\">...</Text>",
+        syntax: "<Text as=\"span\" size=\"md\" color=\"secondary\" weight=\"regular\">...</Text>",
         description: "Generic text styling component for palette-based color, font size steps, and weight control.",
         props: [
             {
                 name: "as",
                 type: "ElementType",
-                defaultValue: "\"p\"",
+                defaultValue: "\"span\"",
                 description: "HTML element to render, for example p, span, strong or div.",
             },
             {

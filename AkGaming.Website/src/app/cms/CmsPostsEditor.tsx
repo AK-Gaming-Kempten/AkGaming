@@ -8,9 +8,13 @@ import {
     LuMoonStar,
     LuPanelLeftClose,
     LuPanelLeftOpen,
+    LuPlus,
+    LuSave,
     LuSunMedium,
+    LuUpload,
 } from "react-icons/lu";
 import { useTheme } from "../../utils/UseTheme";
+import MdxEditor from "./MdxEditor";
 
 type Section = "posts" | "files" | "highlights";
 type EditorTab = "metadata" | "mdx";
@@ -47,7 +51,7 @@ export default function CmsPostsEditor({ email, signOutAction }: CmsPostsEditorP
     const { theme, setTheme } = useTheme();
     const [section, setSection] = useState<Section>("posts");
     const [tab, setTab] = useState<EditorTab>("metadata");
-    const [isPostSelectorExpanded, setIsPostSelectorExpanded] = useState(false);
+    const [isPostSelectorExpanded, setIsPostSelectorExpanded] = useState(true);
     const [posts, setPosts] = useState<CmsPost[]>([]);
     const [selected, setSelected] = useState<CmsPost>(emptyPost());
     const [message, setMessage] = useState("");
@@ -63,7 +67,6 @@ export default function CmsPostsEditor({ email, signOutAction }: CmsPostsEditorP
 
         const loadedPosts = await response.json() as CmsPost[];
         setPosts(loadedPosts);
-        setSelected(current => current.id || loadedPosts.length === 0 ? current : loadedPosts[0]);
     }
 
     async function save() {
@@ -157,9 +160,8 @@ export default function CmsPostsEditor({ email, signOutAction }: CmsPostsEditorP
                                 <h2>Posts and events</h2>
                             </div>
                             <div className="cms-workspace-actions">
-                                <button onClick={() => { setSelected(emptyPost()); setTab("metadata"); }}>New post</button>
-                                <button onClick={() => void save()}>Save draft</button>
-                                {selected.id && <button className="cms-secondary-button" onClick={() => void publish()}>Publish</button>}
+                                <button className="cms-icon-action" onClick={() => void save()} title="Save draft" aria-label="Save draft"><LuSave /></button>
+                                {selected.id && <button className="cms-icon-action cms-secondary-button" onClick={() => void publish()} title="Publish" aria-label="Publish"><LuUpload /></button>}
                             </div>
                         </header>
 
@@ -167,13 +169,16 @@ export default function CmsPostsEditor({ email, signOutAction }: CmsPostsEditorP
                             <aside className="cms-post-selector">
                                 <header className="cms-post-selector-header">
                                     <span>Posts</span>
-                                    <button type="button" onClick={() => setIsPostSelectorExpanded(expanded => !expanded)} aria-label={isPostSelectorExpanded ? "Collapse post selector" : "Expand post selector"} title={isPostSelectorExpanded ? "Collapse post selector" : "Expand post selector"}>
-                                        {isPostSelectorExpanded ? <LuPanelLeftClose /> : <LuPanelLeftOpen />}
-                                    </button>
+                                    <div className="cms-post-selector-actions">
+                                        <button className="cms-new-post-in-selector" type="button" onClick={() => { setSelected(emptyPost()); setTab("metadata"); setIsPostSelectorExpanded(false); }} aria-label="New post" title="New post"><LuPlus /></button>
+                                        <button type="button" onClick={() => setIsPostSelectorExpanded(expanded => !expanded)} aria-label={isPostSelectorExpanded ? "Collapse post selector" : "Expand post selector"} title={isPostSelectorExpanded ? "Collapse post selector" : "Expand post selector"}>
+                                            {isPostSelectorExpanded ? <LuPanelLeftClose /> : <LuPanelLeftOpen />}
+                                        </button>
+                                    </div>
                                 </header>
                                 <div className="cms-post-list">
                                     {posts.map(post => (
-                                        <button key={post.id} className={post.id === selected.id ? "active" : ""} onClick={() => { setSelected(post); setTab("metadata"); setIsPostSelectorExpanded(false); }}>
+                                        <button key={post.id} className={post.id === selected.id ? "active" : ""} onClick={() => { setSelected(post); setIsPostSelectorExpanded(false); }}>
                                             <span className="cms-post-details">
                                                 <span className="cms-post-title-row">
                                                     <span className="cms-post-title">{post.title}</span>
@@ -207,7 +212,7 @@ export default function CmsPostsEditor({ email, signOutAction }: CmsPostsEditorP
                                     </div>
                                 ) : (
                                     <div className="cms-mdx-split">
-                                        <textarea aria-label="MDX source" value={selected.body} onChange={event => update("body", event.target.value)} placeholder="Write MDX content…" />
+                                        <MdxEditor value={selected.body} onChange={value => update("body", value)} />
                                         <div className="cms-preview">
                                             <div className="cms-preview-header"><span>Preview</span><span>Save draft to refresh</span></div>
                                             {selected.id ? <iframe key={previewKey} title="Post preview" src={`/cms/preview/${encodeURIComponent(selected.id)}`} /> : <p>Save the new draft to enable its preview.</p>}

@@ -22,6 +22,7 @@
 }
 
 .mdx-content p,
+.mdx-content .mdx-paragraph,
 .mdx-content ul,
 .mdx-content ol,
 .mdx-content blockquote,
@@ -36,6 +37,10 @@
 
 .mdx-content li + li {
     margin-top: 0.35rem;
+}
+
+.mdx-paragraph {
+    display: block;
 }
 
 .mdx-content img {
@@ -134,6 +139,7 @@
 }
 
 .mdx-text {
+    display: block;
     margin: 0;
 }
 
