@@ -3,6 +3,7 @@ import type { Dirent } from "node:fs";
 import path from "node:path";
 import { NextRequest, NextResponse } from "next/server";
 import YAML from "yaml";
+import { listPublishedPosts } from "../../../../content/postStore";
 
 const dataDirectory = path.join(process.cwd(), "src", "data");
 const mediaDirectory = path.join(process.cwd(), "public", "media");
@@ -22,6 +23,8 @@ export async function GET(request: NextRequest, context: ContentRouteContext) {
             return NextResponse.json(await readYamlDirectory(path.join(dataDirectory, "teams")));
         case "highlights":
             return NextResponse.json(await readYamlFile(path.join(dataDirectory, "highlights.yaml")));
+        case "posts":
+            return NextResponse.json(await listPublishedPosts());
         case "images":
             return NextResponse.json(await readImages(request));
         default:

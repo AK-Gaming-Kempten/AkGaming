@@ -1,8 +1,7 @@
-import { Event, Post, type PostContentComponent } from "./types";
-import { postModules } from "./postModules";
+import { Event, Post } from "./types";
 
-type FrontMatter = {
-    type?: "post" | "event";
+type ContentPost = {
+    type: "post" | "event";
     id: string;
     title: string;
     shortDescription: string;
@@ -13,42 +12,31 @@ type FrontMatter = {
 };
 
 export async function loadPosts(): Promise<(Post | Event)[]> {
-    const items: (Post | Event)[] = [];
+    const response = await fetch("/api/content/posts");
+    if (!response.ok)
+        throw new Error("Unable to load website posts.");
 
-    for (const module of postModules) {
-        const fmData = (module as { frontmatter?: FrontMatter }).frontmatter;
-
-        if (fmData === undefined) {
-            throw new Error("Missing front matter in post module.");
-        }
-
-        switch (fmData.type) {
+    const contentPosts = await response.json() as ContentPost[];
+    return contentPosts.map(post => {
+        switch (post.type) {
             case "event": {
-                items.push(
-                    new Event({
-                        id: fmData.id,
-                        title: fmData.title,
-                        shortDescription: fmData.shortDescription,
-                        Content: (module as { default: PostContentComponent }).default,
-                        startDate: fmData.startDate!,
-                        endDate: fmData.endDate,
-                        location: fmData.location!,
-                        locationUrl: fmData.locationUrl,
-                    })
-                );
-                break;
+                return new Event({
+                    id: post.id,
+                    title: post.title,
+                    shortDescription: post.shortDescription,
+                    startDate: post.startDate ?? "",
+                    endDate: post.endDate,
+                    location: post.location ?? "",
+                    locationUrl: post.locationUrl,
+                });
             }
             default: {
-                items.push(
-                    new Post({
-                        id: fmData.id,
-                        title: fmData.title,
-                        shortDescription: fmData.shortDescription,
-                        Content: (module as { default: PostContentComponent }).default,
-                    })
-                );
+                return new Post({
+                    id: post.id,
+                    title: post.title,
+                    shortDescription: post.shortDescription,
+                });
             }
         }
-    }
-    return items;
+    });
 }

@@ -1,22 +1,12 @@
-import type { ComponentType } from "react";
-
-export type PostContentProps = {
-    components?: Record<string, unknown>;
-};
-
-export type PostContentComponent = ComponentType<PostContentProps>;
-
 export class Post {
     id: string;
     title: string;
     shortDescription: string;
-    Content: PostContentComponent;
 
-    constructor(params: { id: string; title: string; shortDescription: string; Content: PostContentComponent }) {
+    constructor(params: { id: string; title: string; shortDescription: string }) {
         this.id = params.id;
         this.title = params.title;
         this.shortDescription = params.shortDescription;
-        this.Content = params.Content;
     }
 }
 
@@ -30,7 +20,6 @@ export class Event extends Post {
         id: string;
         title: string;
         shortDescription: string;
-        Content: PostContentComponent;
         startDate: string;
         endDate?: string;
         location: string;

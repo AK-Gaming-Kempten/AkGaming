@@ -1,5 +1,6 @@
 import { auth, isCmsAuthenticationConfigured, signIn, signOut } from "../../../auth";
 import "./cms.css";
+import CmsPostsEditor from "./CmsPostsEditor";
 
 export default async function CmsPage() {
     if (!isCmsAuthenticationConfigured())
@@ -79,33 +80,8 @@ function CmsOverview({ email }: { email?: string | null }) {
     }
 
     return (
-        <main className="cms-page">
-            <section className="cms-panel cms-panel-wide">
-                <div className="cms-header">
-                    <div>
-                        <p className="cms-eyebrow">AK Gaming CMS</p>
-                        <h1>Content administration</h1>
-                        <p>Signed in as {email ?? "Administrator"}.</p>
-                    </div>
-                    <form action={signOutFromCms}>
-                        <button type="submit" className="cms-secondary-button">Sign out</button>
-                    </form>
-                </div>
-                <div className="cms-card-grid">
-                    <article>
-                        <h2>Posts and events</h2>
-                        <p>Draft, preview, and publish MDX content.</p>
-                    </article>
-                    <article>
-                        <h2>Media library</h2>
-                        <p>Upload and organize images used by content.</p>
-                    </article>
-                    <article>
-                        <h2>Website data</h2>
-                        <p>Manage highlights, esports data, navigation, and future page content.</p>
-                    </article>
-                </div>
-            </section>
+        <main className="cms-page cms-fullscreen">
+            <CmsPostsEditor email={email} signOutAction={signOutFromCms} />
         </main>
     );
 }

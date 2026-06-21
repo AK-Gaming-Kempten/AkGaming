@@ -25,16 +25,20 @@ export function useTheme() {
         }
     }, []);
 
+    const selectTheme = (newTheme: Theme) => {
+        setTheme(newTheme);
+        applyTheme(newTheme);
+        localStorage.setItem("theme", newTheme);
+    };
+
     const toggleTheme = () => {
         let newTheme: Theme;
         if (theme === "light") newTheme = "dark";
         else if (theme === "dark") newTheme = "system";
         else newTheme = "light"; // system → light
 
-        setTheme(newTheme);
-        applyTheme(newTheme);
-        localStorage.setItem("theme", newTheme);
+        selectTheme(newTheme);
     };
 
-    return { theme, toggleTheme };
+    return { theme, setTheme: selectTheme, toggleTheme };
 }

@@ -45,6 +45,28 @@
     border: 1px solid color-mix(in srgb, var(--color-highlight-secondary) 30%, transparent);
 }
 
+.mdx-content .team-lineup {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    align-items: center;
+}
+
+.mdx-content img.team-lineup-logo {
+    width: 88px;
+    height: 88px;
+    flex: 0 0 88px;
+    object-fit: contain;
+}
+
+.team-lineup-copy {
+    flex: 1 1 220px;
+}
+
+.team-lineup-spacer {
+    height: 0.75rem;
+}
+
 .mdx-linked-image {
     display: inline-flex;
     flex-direction: column;

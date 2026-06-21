@@ -6,6 +6,8 @@ import {
     FaExternalLinkAlt,
     FaImage,
     FaInfoCircle,
+    FaBan,
+    FaCheckCircle,
     FaParagraph,
     FaPenFancy,
     FaTable,
@@ -13,7 +15,10 @@ import {
     FaThLarge,
     FaThList,
     FaVideo,
+    FaDiscord,
+    FaTwitch,
 } from "react-icons/fa";
+import { SiItchdotio } from "react-icons/si";
 import SmartLink from "./SmartLink";
 import ButtonLink from "./ButtonLink";
 import ButtonRow from "./ButtonRow";
@@ -60,6 +65,11 @@ export const mdxComponents = {
     LinkedImage,
     Table,
     Text,
+    FaBan,
+    FaCheckCircle,
+    FaDiscord,
+    FaTwitch,
+    SiItchdotio,
 };
 
 export const mdxComponentDocs: MdxComponentDoc[] = [

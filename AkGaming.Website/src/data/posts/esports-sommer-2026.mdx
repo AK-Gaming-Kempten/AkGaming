@@ -5,8 +5,6 @@ title: E-Sports im Sommer 2026
 shortDescription: Unsere Teams, ihre Ligen und die wichtigsten Änderungen zur Saison Sommer 2026 im Überblick.
 ---
 
-import { FaDiscord, FaTwitch } from "react-icons/fa";
-
 <Lead>
     Im Sommer 2026 gehen wir mit fünf Teams an den Start. Hier findet ihr den Überblick über unsere
     aktiven Lineups, ihre Divisions und die Regelspieltage der Saison.
@@ -34,29 +32,29 @@ import { FaDiscord, FaTwitch } from "react-icons/fa";
 
 <Stack>
     <Card title="HSK Dragon" eyebrow="League of Legends">
-        <div style={{ display: "flex", gap: "1rem", alignItems: "center", flexWrap: "wrap" }}>
+        <div className="team-lineup">
             <img
                 src="/assets/teams/HSK_Dragon_Logo.png"
                 alt="HSK Dragon Logo"
-                style={{ width: 88, height: 88, objectFit: "contain", flexShrink: 0 }}
+                className="team-lineup-logo"
             />
-            <div style={{ flex: "1 1 320px" }}>
+            <div className="team-lineup-copy">
                 Spielt in der Uniliga, Division 2/4.
                 <br />
                 Roster: juju304 | GT Maevix | Captain Bubz | Whatever | Madi1 | Touya | Marhalm | GT Shaqui | Montagne
             </div>
         </div>
     </Card>
-    <div style={{ height: "0.75rem" }} />
+        <div className="team-lineup-spacer" />
     <Columns>
         <Card title="HSK Centauri" eyebrow="Overwatch 2">
-            <div style={{ display: "flex", gap: "1rem", alignItems: "center", flexWrap: "wrap" }}>
+            <div className="team-lineup">
                 <img
                     src="/assets/teams/HSK_Centauri_Logo.png"
                     alt="HSK Centauri Logo"
-                    style={{ width: 88, height: 88, objectFit: "contain", flexShrink: 0 }}
+                    className="team-lineup-logo"
                 />
-                <div style={{ flex: "1 1 220px" }}>
+                <div className="team-lineup-copy">
                     Spielt in der Uniliga, Division 2/4.
                     <br />
                     Roster: Luca17 | Heitzi | R4SNiklas | HornNr1 | DerKelte
@@ -64,13 +62,13 @@ import { FaDiscord, FaTwitch } from "react-icons/fa";
             </div>
         </Card>
         <Card title="HSK Satyrus" eyebrow="Overwatch 2">
-            <div style={{ display: "flex", gap: "1rem", alignItems: "center", flexWrap: "wrap" }}>
+            <div className="team-lineup">
                 <img
                     src="/assets/teams/HSK_Satyrus_Logo.png"
                     alt="HSK Satyrus Logo"
-                    style={{ width: 88, height: 88, objectFit: "contain", flexShrink: 0 }}
+                    className="team-lineup-logo"
                 />
-                <div style={{ flex: "1 1 220px" }}>
+                <div className="team-lineup-copy">
                     Spielt in der Uniliga, Division 4/4.
                     <br />
                     Roster: UUU | SensenEngel | OpAnderson | eze | Montage | RobsiZockt
@@ -78,30 +76,30 @@ import { FaDiscord, FaTwitch } from "react-icons/fa";
             </div>
         </Card>
     </Columns>
-    <div style={{ height: "0.75rem" }} />
+    <div className="team-lineup-spacer" />
     <Card title="HSK Pegasus" eyebrow="Rocket League">
-        <div style={{ display: "flex", gap: "1rem", alignItems: "center", flexWrap: "wrap" }}>
+        <div className="team-lineup">
             <img
                 src="/assets/teams/HSK_Pegasus_Logo.png"
                 alt="HSK Pegasus Logo"
-                style={{ width: 88, height: 88, objectFit: "contain", flexShrink: 0 }}
+                className="team-lineup-logo"
             />
-            <div style={{ flex: "1 1 320px" }}>
+            <div className="team-lineup-copy">
                 Spielt in der Uniliga, Division 2/4.
                 <br />
                 Roster: Asterion | Falcoon | DerSchäbigeAyut
             </div>
         </div>
     </Card>
-    <div style={{ height: "0.75rem" }} />
+    <div className="team-lineup-spacer" />
     <Card title="AKG Zamrichten" eyebrow="DACH CS">
-        <div style={{ display: "flex", gap: "1rem", alignItems: "center", flexWrap: "wrap" }}>
+        <div className="team-lineup">
             <img
                 src="/assets/teams/AKG_Zamrichten_Logo.png"
                 alt="AKG Zamrichten Logo"
-                style={{ width: 88, height: 88, objectFit: "contain", flexShrink: 0 }}
+                className="team-lineup-logo"
             />
-            <div style={{ flex: "1 1 320px" }}>
+            <div className="team-lineup-copy">
                 Spielt in DACH CS, Division 6/10.
                 <br />
                 Roster: papyrus | DoctorMe | itsBenni | Potato | mindstorm00 | Neri | Daniel Jung

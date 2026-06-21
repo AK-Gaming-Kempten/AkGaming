@@ -5,10 +5,10 @@ type TableRow = Array<TableCell>;
 
 type TableProps = {
     headers?: TableCell[];
-    rows: TableRow[];
+    rows?: TableRow[];
 };
 
-export default function Table({ headers, rows }: TableProps) {
+export default function Table({ headers, rows = [] }: TableProps) {
     return (
         <div className="mdx-table-wrap">
             <table className="mdx-table">

@@ -5,5 +5,5 @@ type LeadProps = {
 };
 
 export default function Lead({ children }: LeadProps) {
-    return <p className="mdx-lead">{children}</p>;
+    return <div className="mdx-lead">{children}</div>;
 }
