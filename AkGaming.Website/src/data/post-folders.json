@@ -1,0 +1,27 @@
+{
+  "folders": [
+    {
+      "id": "2025",
+      "name": "2025"
+    },
+    {
+      "id": "2026",
+      "name": "2026"
+    }
+  ],
+  "assignments": {
+    "brettspielabend-2026-01-16": "2026",
+    "game-jam-6": "2026",
+    "game-jam-5": "2025",
+    "lol-tournament-7": "2026",
+    "lol-tournament-6": "2025",
+    "gamenight-8": "2026",
+    "gamenight-6": "2025",
+    "brettspielabend-2026-03-23": "2026",
+    "brettspielabend-2025-12-05": "2025",
+    "brettspielabend-2026-05-08": "2026",
+    "brettspielabend-2026-06-26": "2026",
+    "about": "2025",
+    "gamenight-7": "2026"
+  }
+}

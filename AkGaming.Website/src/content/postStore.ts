@@ -15,6 +15,17 @@ export type PostFrontMatter = {
     endDate?: string;
     location?: string;
     locationUrl?: string;
+    folderId?: string;
+};
+
+export type PostFolder = {
+    id: string;
+    name: string;
+};
+
+type PostFoldersDocument = {
+    folders: PostFolder[];
+    assignments: Record<string, string | null>;
 };
 
 export type ContentPost = PostFrontMatter & {
@@ -27,7 +38,8 @@ export type ContentPost = PostFrontMatter & {
 const validPostId = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 
 export async function listPublishedPosts(): Promise<ContentPost[]> {
-    return listPosts(getPublishedPostsDirectory(), false);
+    const posts = await listPosts(getPublishedPostsDirectory(), false);
+    return applyFolderAssignments(posts);
 }
 
 export async function listCmsPosts(): Promise<ContentPost[]> {
@@ -43,26 +55,105 @@ export async function listCmsPosts(): Promise<ContentPost[]> {
             merged.push(draft);
     }
 
-    return merged.sort((left, right) => left.title.localeCompare(right.title));
+    return (await applyFolderAssignments(merged)).sort((left, right) => left.title.localeCompare(right.title));
 }
 
 export async function getPublishedPost(id: string): Promise<ContentPost | null> {
-    return findPost(getPublishedPostsDirectory(), id, false);
+    return withFolderAssignment(await findPost(getPublishedPostsDirectory(), id, false));
 }
 
 export async function getEditablePost(id: string): Promise<ContentPost | null> {
     const draft = await findPost(getDraftPostsDirectory(), id, true);
-    return draft ?? findPost(getPublishedPostsDirectory(), id, false);
+    return withFolderAssignment(draft ?? await findPost(getPublishedPostsDirectory(), id, false));
+}
+
+export async function listPostFolders(): Promise<PostFolder[]> {
+    const document = await readPostFoldersDocument();
+    return document.folders.sort((left, right) => left.name.localeCompare(right.name));
+}
+
+export async function createPostFolder(name: string): Promise<PostFolder> {
+    const normalizedName = name.trim();
+    if (!normalizedName)
+        throw new Error("A folder name is required.");
+
+    const document = await readPostFoldersDocument();
+    const folders = document.folders;
+    const baseId = toFolderId(normalizedName);
+    if (!baseId)
+        throw new Error("Folder names must contain letters or numbers.");
+
+    let id = baseId;
+    let suffix = 2;
+    while (folders.some(folder => folder.id === id)) {
+        id = `${baseId}-${suffix}`;
+        suffix += 1;
+    }
+
+    const folder = { id, name: normalizedName };
+    await writePostFolders({ folders: [...folders, folder], assignments: document.assignments });
+    return folder;
+}
+
+export async function renamePostFolder(id: string, name: string): Promise<PostFolder> {
+    validateFolderId(id);
+    const normalizedName = name.trim();
+    if (!normalizedName)
+        throw new Error("A folder name is required.");
+
+    const document = await readPostFoldersDocument();
+    const folders = document.folders;
+    const index = folders.findIndex(folder => folder.id === id);
+    if (index === -1)
+        throw new Error(`Folder '${id}' does not exist.`);
+
+    const folder = { id, name: normalizedName };
+    folders[index] = folder;
+    await writePostFolders({ folders, assignments: document.assignments });
+    return folder;
+}
+
+export async function deletePostFolder(id: string): Promise<void> {
+    validateFolderId(id);
+    const document = await readPostFoldersDocument();
+    if (!document.folders.some(folder => folder.id === id))
+        throw new Error(`Folder '${id}' does not exist.`);
+
+    const assignments = Object.fromEntries(Object.entries(document.assignments).map(([postId, folderId]) => [postId, folderId === id ? null : folderId]));
+    await writePostFolders({ folders: document.folders.filter(folder => folder.id !== id), assignments });
+}
+
+export async function movePostToFolder(postId: string, folderId: string | null): Promise<ContentPost> {
+    validatePostId(postId);
+    const post = await getEditablePost(postId);
+    if (post === null)
+        throw new Error(`Post '${postId}' does not exist.`);
+
+    const document = await readPostFoldersDocument();
+    if (folderId !== null) {
+        validateFolderId(folderId);
+        if (!document.folders.some(folder => folder.id === folderId))
+            throw new Error(`Folder '${folderId}' does not exist.`);
+    }
+
+    const assignments = { ...document.assignments };
+    assignments[postId] = folderId;
+
+    await writePostFolders({ folders: document.folders, assignments });
+    return { ...post, folderId: folderId ?? undefined };
 }
 
 export async function saveDraft(post: Omit<ContentPost, "isDraft" | "updatedAt">): Promise<ContentPost> {
     validatePost(post);
 
+    if (post.folderId !== undefined)
+        await assignPostFolder(post.id, post.folderId);
+
     const directory = getDraftPostsDirectory();
     await fs.mkdir(directory, { recursive: true });
     const filePath = path.join(directory, `${post.id}.mdx`);
     await writeFileAtomically(filePath, serializePost(post));
-    return (await findPost(directory, post.id, true))!;
+    return (await withFolderAssignment(await findPost(directory, post.id, true)))!;
 }
 
 export async function publishDraft(id: string): Promise<ContentPost> {
@@ -78,7 +169,7 @@ export async function publishDraft(id: string): Promise<ContentPost> {
     const filePath = path.join(directory, `${id}.mdx`);
     await writeFileAtomically(filePath, serializePost(draft));
     await removePostFiles(getDraftPostsDirectory(), id);
-    return (await findPost(directory, id, false))!;
+    return (await withFolderAssignment(await findPost(directory, id, false)))!;
 }
 
 function getContentRoot(): string {
@@ -197,11 +288,90 @@ function validatePost(post: Omit<ContentPost, "isDraft" | "updatedAt">): void {
         throw new Error("Post type must be either 'post' or 'event'.");
     if (post.type === "event" && (!post.startDate || !post.location))
         throw new Error("Events require a start date and location.");
+    if (post.folderId !== undefined)
+        validateFolderId(post.folderId);
 }
 
 function validatePostId(id: string): void {
     if (!validPostId.test(id))
         throw new Error("Post IDs must use lowercase letters, numbers, and hyphens only.");
+}
+
+function getPostFoldersFilePath(): string {
+    return path.join(getContentRoot(), "post-folders.json");
+}
+
+async function readPostFoldersDocument(): Promise<PostFoldersDocument> {
+    try {
+        const source = await fs.readFile(getPostFoldersFilePath(), "utf8");
+        const parsed = JSON.parse(source) as unknown;
+        if (Array.isArray(parsed))
+            return { folders: parsed as PostFolder[], assignments: {} };
+
+        if (typeof parsed === "object" && parsed !== null && "folders" in parsed) {
+            const document = parsed as Partial<PostFoldersDocument>;
+            return {
+                folders: Array.isArray(document.folders) ? document.folders : [],
+                assignments: document.assignments ?? {},
+            };
+        }
+
+        return { folders: [], assignments: {} };
+    }
+    catch (error) {
+        if (isMissingPath(error))
+            return { folders: [], assignments: {} };
+
+        throw error;
+    }
+}
+
+async function writePostFolders(document: PostFoldersDocument): Promise<void> {
+    await fs.mkdir(getContentRoot(), { recursive: true });
+    await writeFileAtomically(getPostFoldersFilePath(), `${JSON.stringify(document, null, 2)}\n`);
+}
+
+async function applyFolderAssignments(posts: ContentPost[]): Promise<ContentPost[]> {
+    const document = await readPostFoldersDocument();
+    return posts.map(post => ({
+        ...post,
+        folderId: Object.hasOwn(document.assignments, post.id)
+            ? document.assignments[post.id] ?? undefined
+            : post.folderId,
+    }));
+}
+
+async function withFolderAssignment(post: ContentPost | null): Promise<ContentPost | null> {
+    if (post === null)
+        return null;
+
+    const [assignedPost] = await applyFolderAssignments([post]);
+    return assignedPost;
+}
+
+async function assignPostFolder(postId: string, folderId: string): Promise<void> {
+    const document = await readPostFoldersDocument();
+    if (!document.folders.some(folder => folder.id === folderId))
+        throw new Error(`Folder '${folderId}' does not exist.`);
+
+    await writePostFolders({
+        folders: document.folders,
+        assignments: { ...document.assignments, [postId]: folderId },
+    });
+}
+
+function toFolderId(name: string): string {
+    return name
+        .toLocaleLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-+|-+$/g, "");
+}
+
+function validateFolderId(id: string): void {
+    if (!validPostId.test(id))
+        throw new Error("Folder IDs must use lowercase letters, numbers, and hyphens only.");
 }
 
 function isPostFile(fileName: string): boolean {

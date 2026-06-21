@@ -3,15 +3,21 @@
 import { useEffect, useState } from "react";
 import {
     LuCalendarDays,
+    LuChevronDown,
+    LuChevronRight,
     LuFileText,
+    LuFolder,
+    LuFolderPlus,
     LuMonitor,
     LuMoonStar,
     LuPanelLeftClose,
     LuPanelLeftOpen,
+    LuPencil,
     LuPlus,
     LuSave,
     LuSunMedium,
     LuUpload,
+    LuTrash2,
 } from "react-icons/lu";
 import { useTheme } from "../../utils/UseTheme";
 import MdxEditor from "./MdxEditor";
@@ -30,7 +36,13 @@ type CmsPost = {
     endDate?: string;
     location?: string;
     locationUrl?: string;
+    folderId?: string;
     isDraft: boolean;
+};
+
+type CmsFolder = {
+    id: string;
+    name: string;
 };
 
 type CmsPostsEditorProps = {
@@ -53,7 +65,11 @@ export default function CmsPostsEditor({ email, signOutAction }: CmsPostsEditorP
     const [tab, setTab] = useState<EditorTab>("metadata");
     const [isPostSelectorExpanded, setIsPostSelectorExpanded] = useState(true);
     const [posts, setPosts] = useState<CmsPost[]>([]);
+    const [folders, setFolders] = useState<CmsFolder[]>([]);
     const [selected, setSelected] = useState<CmsPost>(emptyPost());
+    const [draggingPostId, setDraggingPostId] = useState<string | null>(null);
+    const [dropTargetFolderId, setDropTargetFolderId] = useState<string | null>(null);
+    const [collapsedFolderIds, setCollapsedFolderIds] = useState<string[]>([]);
     const [message, setMessage] = useState("");
     const [previewKey, setPreviewKey] = useState(0);
 
@@ -62,11 +78,15 @@ export default function CmsPostsEditor({ email, signOutAction }: CmsPostsEditorP
     }, []);
 
     async function reload() {
-        const response = await fetch("/api/cms/posts");
-        if (!response.ok) return;
+        const [postsResponse, foldersResponse] = await Promise.all([
+            fetch("/api/cms/posts"),
+            fetch("/api/cms/post-folders"),
+        ]);
 
-        const loadedPosts = await response.json() as CmsPost[];
-        setPosts(loadedPosts);
+        if (postsResponse.ok)
+            setPosts(await postsResponse.json() as CmsPost[]);
+        if (foldersResponse.ok)
+            setFolders(await foldersResponse.json() as CmsFolder[]);
     }
 
     async function save() {
@@ -104,6 +124,131 @@ export default function CmsPostsEditor({ email, signOutAction }: CmsPostsEditorP
 
     function update(field: keyof CmsPost, value: string) {
         setSelected(current => ({ ...current, [field]: value }));
+    }
+
+    async function createFolder() {
+        const name = window.prompt("Folder name:");
+        if (name === null || !name.trim()) return;
+
+        const response = await fetch("/api/cms/post-folders", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ name }),
+        });
+        if (!response.ok) {
+            const result = await response.json() as { message?: string };
+            setMessage(result.message ?? "Folder creation failed.");
+            return;
+        }
+
+        await reload();
+    }
+
+    async function renameFolder(folder: CmsFolder) {
+        const name = window.prompt("Folder name:", folder.name);
+        if (name === null || !name.trim() || name === folder.name) return;
+
+        const response = await fetch(`/api/cms/post-folders/${encodeURIComponent(folder.id)}`, {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ name }),
+        });
+        if (!response.ok) {
+            const result = await response.json() as { message?: string };
+            setMessage(result.message ?? "Folder rename failed.");
+            return;
+        }
+
+        await reload();
+    }
+
+    async function deleteFolder(folder: CmsFolder) {
+        if (!window.confirm(`Delete '${folder.name}'? Posts in this folder will become unsorted.`)) return;
+
+        const response = await fetch(`/api/cms/post-folders/${encodeURIComponent(folder.id)}`, { method: "DELETE" });
+        if (!response.ok) {
+            const result = await response.json() as { message?: string };
+            setMessage(result.message ?? "Folder deletion failed.");
+            return;
+        }
+
+        await reload();
+    }
+
+    async function movePost(postId: string, folderId: string | null) {
+        const post = posts.find(candidate => candidate.id === postId);
+        if (post === undefined || (post.folderId ?? null) === folderId) return;
+
+        const response = await fetch(`/api/cms/posts/${encodeURIComponent(postId)}/folder`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ folderId }),
+        });
+        const result = await response.json() as CmsPost | { message?: string };
+        if (!response.ok) {
+            setMessage("message" in result ? result.message ?? "Could not move post." : "Could not move post.");
+            return;
+        }
+
+        const movedPost = result as CmsPost;
+        setPosts(current => current.map(candidate => candidate.id === postId ? movedPost : candidate));
+        setSelected(current => current.id === postId ? movedPost : current);
+        setMessage(`Moved '${movedPost.title}'.`);
+    }
+
+    function startDraggingPost(event: React.DragEvent<HTMLButtonElement>, postId: string) {
+        event.dataTransfer.effectAllowed = "move";
+        event.dataTransfer.setData("text/plain", postId);
+        setDraggingPostId(postId);
+    }
+
+    async function dropPost(event: React.DragEvent<HTMLElement>, folderId: string | null) {
+        event.preventDefault();
+        const postId = event.dataTransfer.getData("text/plain") || draggingPostId;
+        setDraggingPostId(null);
+        setDropTargetFolderId(null);
+        if (postId) await movePost(postId, folderId);
+    }
+
+    function postsInFolder(folderId: string | null): CmsPost[] {
+        const folderIds = new Set(folders.map(folder => folder.id));
+        return posts.filter(post => folderId === null
+            ? post.folderId === undefined || !folderIds.has(post.folderId)
+            : post.folderId === folderId);
+    }
+
+    function isFolderExpanded(folderId: string | null): boolean {
+        return !collapsedFolderIds.includes(folderId ?? "root");
+    }
+
+    function toggleFolder(folderId: string | null) {
+        const id = folderId ?? "root";
+        setCollapsedFolderIds(current => current.includes(id)
+            ? current.filter(candidate => candidate !== id)
+            : [...current, id]);
+    }
+
+    function renderPost(post: CmsPost) {
+        return (
+            <button
+                key={post.id}
+                draggable
+                className={post.id === selected.id ? "active" : ""}
+                onDragStart={event => startDraggingPost(event, post.id)}
+                onDragEnd={() => { setDraggingPostId(null); setDropTargetFolderId(null); }}
+                onClick={() => { setSelected(post); setIsPostSelectorExpanded(false); }}
+            >
+                <span className="cms-post-details">
+                    <span className="cms-post-title-row">
+                        <span className="cms-post-title">{post.title}</span>
+                        {post.type === "event"
+                            ? <LuCalendarDays className="cms-post-type-icon" aria-label="Event" title="Event" />
+                            : <LuFileText className="cms-post-type-icon" aria-label="Post" title="Post" />}
+                    </span>
+                    {post.isDraft && <small>Draft</small>}
+                </span>
+            </button>
+        );
     }
 
     function dismissSelectorFromEditor(event: React.MouseEvent<HTMLDivElement>) {
@@ -177,18 +322,31 @@ export default function CmsPostsEditor({ email, signOutAction }: CmsPostsEditorP
                                     </div>
                                 </header>
                                 <div className="cms-post-list">
-                                    {posts.map(post => (
-                                        <button key={post.id} className={post.id === selected.id ? "active" : ""} onClick={() => { setSelected(post); setIsPostSelectorExpanded(false); }}>
-                                            <span className="cms-post-details">
-                                                <span className="cms-post-title-row">
-                                                    <span className="cms-post-title">{post.title}</span>
-                                                    {post.type === "event"
-                                                        ? <LuCalendarDays className="cms-post-type-icon" aria-label="Event" title="Event" />
-                                                        : <LuFileText className="cms-post-type-icon" aria-label="Post" title="Post" />}
+                                    <div className="cms-folder-toolbar">
+                                        <span>Folders</span>
+                                        <button type="button" onClick={() => void createFolder()} title="New folder" aria-label="New folder"><LuFolderPlus /></button>
+                                    </div>
+                                    <section className={`cms-folder${dropTargetFolderId === null && draggingPostId !== null ? " drop-target" : ""}`} onDragOver={event => { event.preventDefault(); setDropTargetFolderId(null); }} onDrop={event => void dropPost(event, null)}>
+                                        <header className="cms-folder-header">
+                                            <button className="cms-folder-toggle" type="button" onClick={() => toggleFolder(null)} aria-expanded={isFolderExpanded(null)}>
+                                                {isFolderExpanded(null) ? <LuChevronDown /> : <LuChevronRight />}<LuFolder /><span>Unsorted</span>
+                                            </button>
+                                        </header>
+                                        {isFolderExpanded(null) && postsInFolder(null).map(post => renderPost(post))}
+                                    </section>
+                                    {folders.map(folder => (
+                                        <section key={folder.id} className={`cms-folder${dropTargetFolderId === folder.id ? " drop-target" : ""}`} onDragOver={event => { event.preventDefault(); setDropTargetFolderId(folder.id); }} onDragLeave={() => setDropTargetFolderId(current => current === folder.id ? null : current)} onDrop={event => void dropPost(event, folder.id)}>
+                                            <header className="cms-folder-header">
+                                                <button className="cms-folder-toggle" type="button" onClick={() => toggleFolder(folder.id)} aria-expanded={isFolderExpanded(folder.id)}>
+                                                    {isFolderExpanded(folder.id) ? <LuChevronDown /> : <LuChevronRight />}<LuFolder /><span className="cms-folder-name">{folder.name}</span>
+                                                </button>
+                                                <span className="cms-folder-actions">
+                                                    <button type="button" onClick={() => void renameFolder(folder)} title="Rename folder" aria-label={`Rename ${folder.name}`}><LuPencil /></button>
+                                                    <button type="button" onClick={() => void deleteFolder(folder)} title="Delete folder" aria-label={`Delete ${folder.name}`}><LuTrash2 /></button>
                                                 </span>
-                                                {post.isDraft && <small>Draft</small>}
-                                            </span>
-                                        </button>
+                                            </header>
+                                            {isFolderExpanded(folder.id) && postsInFolder(folder.id).map(post => renderPost(post))}
+                                        </section>
                                     ))}
                                 </div>
                             </aside>

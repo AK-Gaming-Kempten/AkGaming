@@ -116,6 +116,20 @@
 .cms-post-selector-header button:hover { background: var(--color-background-secondary); color: var(--color-text-primary); }
 .cms-post-list { flex: 1; min-height: 0; padding-right: .5rem; overflow-y: auto; }
 .cms-post-list button { display: flex; align-items: center; gap: .65rem; min-width: 0; background: transparent; color: var(--color-text-special); }
+.cms-folder-toolbar { display: flex; align-items: center; justify-content: space-between; padding: .25rem .25rem .5rem; color: var(--color-text-special-secondary); font-size: .8rem; font-weight: 700; text-transform: uppercase; }
+.cms-folder-toolbar button, .cms-folder-actions button { display: inline-flex; align-items: center; justify-content: center; width: 1.9rem; height: 1.9rem; padding: 0; border: 0; border-radius: .3rem; background: transparent; color: var(--color-text-special-secondary); }
+.cms-folder-toolbar button:hover, .cms-folder-actions button:hover { background: color-mix(in srgb, var(--color-highlight-secondary) 36%, transparent); color: var(--color-text-special); }
+.cms-folder { display: flex; flex-direction: column; gap: .2rem; padding: .4rem; border-radius: .45rem; transition: background .15s ease, box-shadow .15s ease; }
+.cms-folder.drop-target { background: color-mix(in srgb, var(--color-highlight-primary) 18%, transparent); box-shadow: inset 0 0 0 1px var(--color-highlight-primary); }
+.cms-folder-header { display: flex; align-items: center; justify-content: space-between; width: auto; min-height: 1.9rem; padding: 0 .25rem; color: var(--color-text-special-secondary); font-size: .85rem; font-weight: 700; }
+.cms-folder-toggle { display: flex; align-items: center; min-width: 0; gap: .35rem; padding: .2rem; border: 0; border-radius: .3rem; background: transparent; color: var(--color-text-special-secondary); font: inherit; font-weight: inherit; text-align: left; }
+.cms-folder-toggle:hover { background: color-mix(in srgb, var(--color-highlight-secondary) 24%, transparent); color: var(--color-text-special); }
+.cms-folder-toggle > svg:first-child { flex: 0 0 auto; }
+.cms-folder-name { display: flex; align-items: center; gap: .45rem; min-width: 0; }
+.cms-folder-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cms-folder-actions { display: flex; flex: 0 0 auto; gap: .1rem; }
+.cms-folder > button { width: 100%; cursor: grab; }
+.cms-folder > button:active { cursor: grabbing; }
 .cms-post-details { display: grid; min-width: 0; gap: .25rem; }
 .cms-post-title-row { display: flex; align-items: center; gap: .45rem; min-width: 0; }
 .cms-post-title { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
