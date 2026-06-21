@@ -20,6 +20,7 @@ import {
     LuTrash2,
 } from "react-icons/lu";
 import { useTheme } from "../../utils/UseTheme";
+import CmsMediaLibrary from "./CmsMediaLibrary";
 import MdxEditor from "./MdxEditor";
 
 type Section = "posts" | "files" | "highlights";
@@ -292,9 +293,9 @@ export default function CmsPostsEditor({ email, signOutAction }: CmsPostsEditorP
             </aside>
 
             <section className={`cms-workspace-main${isPostSelectorExpanded ? " selector-expanded" : ""}`}>
-                {section !== "posts" ? (
+                {section === "files" ? <CmsMediaLibrary /> : section === "highlights" ? (
                     <div className="cms-section-placeholder">
-                        <h2>{section === "files" ? "File management" : "Homepage highlights"}</h2>
+                        <h2>Homepage highlights</h2>
                         <p>This section is the next CMS increment.</p>
                     </div>
                 ) : (
