@@ -1,17 +1,15 @@
 game: rl
 name: HSK Pegasus
-logo: /assets/teams/HSK_Pegasus_Logo.png
-league:
-  name: Uniliga
-  logo: /assets/leagues/uniliga.png
-  division: Div 2/4
+logo: /media/teams/HSK_Pegasus_Logo.png
+leagueId: uniliga
+division: Div 2/4
 players:
   - name: Asterion
     role:
-    picture: /assets/teams/HSK_Pegasus_Logo.png
+    picture: /media/teams/HSK_Pegasus_Logo.png
   - name: Falcoon
     role:
-    picture: /assets/teams/HSK_Pegasus_Logo.png
+    picture: /media/teams/HSK_Pegasus_Logo.png
   - name: Der Schäbige Ayut
     role:
-    picture: /assets/teams/HSK_Pegasus_Logo.png
+    picture: /media/teams/HSK_Pegasus_Logo.png

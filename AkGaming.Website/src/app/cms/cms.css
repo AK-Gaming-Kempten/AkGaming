@@ -162,6 +162,39 @@
 .cms-highlight-preview-placeholder { display: grid; place-items: center; color: var(--color-text-secondary); }
 .cms-highlight-preview h3 { margin: 0 0 .5rem; }
 .cms-highlight-preview p { margin: 0; color: var(--color-text-secondary); }
+.cms-teams-manager { display: flex; flex: 1; flex-direction: column; min-height: 0; overflow: hidden; }
+.cms-teams-header { margin-left: 0; padding-left: 0; }
+.cms-teams-actions { display: flex; flex-wrap: wrap; gap: .5rem; }
+.cms-teams-actions button, .cms-roster-editor header button { display: inline-flex; align-items: center; gap: .4rem; }
+.cms-teams-workspace { display: grid; grid-template-columns: 16rem minmax(0, 1fr); flex: 1 1 0; min-height: 0; margin-top: 1rem; border-top: 1px solid var(--color-input-primary-border); }
+.cms-teams-list { display: flex; flex-direction: column; gap: .35rem; padding: .75rem; overflow-y: auto; border-right: 1px solid var(--color-input-primary-border); }
+.cms-teams-list button { display: flex; align-items: center; gap: .65rem; width: 100%; padding: .55rem; border: 0; border-radius: .35rem; background: transparent; color: var(--color-text-primary); font: inherit; text-align: left; cursor: pointer; }
+.cms-teams-list button:hover { background: var(--color-background-secondary); }
+.cms-teams-list button.active { background: var(--color-button-primary-bg); color: var(--color-button-primary-text); }
+.cms-teams-list img { width: 2.4rem; height: 2.4rem; border-radius: .3rem; object-fit: contain; background: var(--color-background-primary); }
+.cms-teams-list span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cms-teams-list small { display: block; opacity: .75; }
+.cms-team-editor { min-width: 0; padding: 0 1rem 1rem; overflow-y: auto; }
+.cms-team-empty { display: flex; align-items: center; gap: .5rem; padding: 1rem 0; color: var(--color-text-secondary); }
+.cms-team-preview { display: flex; align-items: center; gap: 1rem; padding: 1rem; border: 1px solid var(--color-input-primary-border); border-radius: .5rem; background: var(--color-background-secondary); }
+.cms-team-preview img { width: 6rem; height: 6rem; border-radius: .5rem; object-fit: contain; background: var(--color-background-primary); }
+.cms-team-preview h3, .cms-team-preview p { margin: 0; }
+.cms-team-preview p { margin-top: .35rem; color: var(--color-text-secondary); }
+.cms-roster-editor { margin-top: 1rem; }
+.cms-roster-editor header { display: flex; align-items: center; justify-content: space-between; width: auto; }
+.cms-roster-editor h3 { margin: 0; }
+.cms-player-row { display: grid; grid-template-columns: minmax(8rem, 1fr) minmax(7rem, 1fr) minmax(12rem, 2fr) auto; gap: .5rem; align-items: center; margin-top: .5rem; }
+.cms-player-row input { box-sizing: border-box; width: 100%; padding: .65rem; border: 1px solid var(--color-input-primary-border); border-radius: .4rem; background: var(--color-input-primary-bg); color: var(--color-input-primary-text); font: inherit; }
+.cms-player-row button { display: inline-flex; align-items: center; justify-content: center; width: 2.3rem; height: 2.3rem; padding: 0; border: 0; border-radius: .35rem; background: transparent; color: var(--color-text-secondary); cursor: pointer; }
+.cms-player-row button:hover { background: var(--color-background-secondary); color: var(--color-highlight-primary); }
+.cms-esports-manager { display: flex; flex: 1; flex-direction: column; min-height: 0; overflow: hidden; }
+.cms-esports-header { margin-left: 0; padding-left: 0; }
+.cms-esports-tabs { display: flex; gap: .35rem; margin-top: 1rem; border-bottom: 1px solid var(--color-input-primary-border); }
+.cms-esports-tabs button { padding: .6rem .85rem; border: 0; border-radius: .35rem .35rem 0 0; background: transparent; color: var(--color-text-secondary); cursor: pointer; font: inherit; font-weight: 700; }
+.cms-esports-tabs button.active { background: var(--color-background-secondary); color: var(--color-text-primary); }
+.cms-esports-catalog { display: flex; flex: 1; flex-direction: column; min-height: 0; }
+.cms-esports-catalog-header { margin-left: 0; padding: 1rem 0 0; }
+.cms-esports-catalog-header h3 { margin: 0; }
 .cms-post-workspace { display: block; flex: 1; min-height: 0; margin-top: 1.25rem; }
 .cms-post-selector { position: absolute; z-index: 2; inset: 0 auto 0 0; display: flex; flex-direction: column; width: 3.5rem; min-width: 0; padding-left: .5rem; overflow: hidden; background: var(--color-background-special); color: var(--color-text-special); }
 .cms-post-workspace.selector-expanded .cms-post-selector { width: min(20rem, calc(100% - 1rem)); padding: 1rem 1rem 1rem .75rem; background: var(--color-background-special); box-shadow: .75rem 0 2rem color-mix(in srgb, black 28%, transparent); }

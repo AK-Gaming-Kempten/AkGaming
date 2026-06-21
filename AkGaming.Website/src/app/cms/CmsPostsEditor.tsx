@@ -23,8 +23,9 @@ import { useTheme } from "../../utils/UseTheme";
 import CmsMediaLibrary from "./CmsMediaLibrary";
 import CmsHighlightsManager from "./CmsHighlightsManager";
 import MdxEditor from "./MdxEditor";
+import CmsEsportsManager from "./CmsEsportsManager";
 
-type Section = "posts" | "files" | "highlights";
+type Section = "posts" | "files" | "highlights" | "teams";
 type EditorTab = "metadata" | "mdx";
 type ContentKind = "post" | "event";
 
@@ -267,7 +268,7 @@ export default function CmsPostsEditor({ email, signOutAction }: CmsPostsEditorP
                 <div>
                     <p className="cms-sidebar-brand">AKG CMS</p>
                     <nav>
-                        {([ ["posts", "Posts & events"], ["files", "File management"], ["highlights", "Homepage highlights"] ] as [Section, string][]).map(([value, label]) => (
+                        {([ ["posts", "Posts & events"], ["files", "File management"], ["highlights", "Homepage highlights"], ["teams", "Esports"] ] as [Section, string][]).map(([value, label]) => (
                             <button key={value} className={section === value ? "active" : ""} onClick={() => setSection(value)}>
                                 {label}
                             </button>
@@ -294,7 +295,7 @@ export default function CmsPostsEditor({ email, signOutAction }: CmsPostsEditorP
             </aside>
 
             <section className={`cms-workspace-main${isPostSelectorExpanded ? " selector-expanded" : ""}`}>
-                {section === "files" ? <CmsMediaLibrary /> : section === "highlights" ? <CmsHighlightsManager posts={posts} /> : (
+                {section === "files" ? <CmsMediaLibrary /> : section === "highlights" ? <CmsHighlightsManager posts={posts} /> : section === "teams" ? <CmsEsportsManager /> : (
                     <>
                         <header className="cms-workspace-header">
                             <div>

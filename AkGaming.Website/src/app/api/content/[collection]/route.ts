@@ -2,11 +2,11 @@ import { promises as fs } from "node:fs";
 import type { Dirent } from "node:fs";
 import path from "node:path";
 import { NextRequest, NextResponse } from "next/server";
-import YAML from "yaml";
+import { listManagedGames } from "../../../../content/esportsCatalogStore";
 import { listHighlights } from "../../../../content/highlightStore";
 import { listPublishedPosts } from "../../../../content/postStore";
+import { listPublicTeams } from "../../../../content/teamStore";
 
-const dataDirectory = path.join(process.cwd(), "src", "data");
 const mediaDirectory = path.join(process.cwd(), "public", "media");
 const supportedImageExtensions = new Set([".jpg", ".jpeg", ".png", ".webp", ".avif", ".gif"]);
 
@@ -19,9 +19,9 @@ export async function GET(request: NextRequest, context: ContentRouteContext) {
 
     switch (collection) {
         case "games":
-            return NextResponse.json(await readYamlFile(path.join(dataDirectory, "games.yaml")));
+            return NextResponse.json(await listManagedGames());
         case "teams":
-            return NextResponse.json(await readYamlDirectory(path.join(dataDirectory, "teams")));
+            return NextResponse.json(await listPublicTeams());
         case "highlights":
             return NextResponse.json(await listHighlights());
         case "posts":
@@ -31,20 +31,6 @@ export async function GET(request: NextRequest, context: ContentRouteContext) {
         default:
             return NextResponse.json({ message: "Unknown content collection." }, { status: 404 });
     }
-}
-
-async function readYamlFile(filePath: string): Promise<unknown> {
-    const source = await fs.readFile(filePath, "utf8");
-    return YAML.parse(source);
-}
-
-async function readYamlDirectory(directoryPath: string): Promise<unknown[]> {
-    const entries = await fs.readdir(directoryPath, { withFileTypes: true });
-    const yamlFiles = entries
-        .filter(entry => entry.isFile() && [".yaml", ".yml"].includes(path.extname(entry.name).toLowerCase()))
-        .map(entry => path.join(directoryPath, entry.name));
-
-    return Promise.all(yamlFiles.map(readYamlFile));
 }
 
 async function readImages(request: NextRequest): Promise<string[]> {
