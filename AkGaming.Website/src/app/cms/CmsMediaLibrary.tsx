@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState, type ChangeEvent } from "react";
-import { LuChevronRight, LuCopy, LuFolder, LuFolderPlus, LuImage, LuTrash2, LuUpload, LuX } from "react-icons/lu";
+import { LuChevronRight, LuCopy, LuFolder, LuFolderPlus, LuImage, LuPencil, LuTrash2, LuUpload, LuX } from "react-icons/lu";
 import { useCmsToast } from "./CmsToastProvider";
 
 type MediaFile = {
@@ -156,6 +156,25 @@ export default function CmsMediaLibrary() {
         showToast(`Copied ${file.url}`, "info");
     }
 
+    async function renameFile(file: MediaFile) {
+        const name = window.prompt("New file name:", file.name);
+        if (name === null || name.trim() === file.name) return;
+
+        const response = await fetch("/api/cms/media", {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ path: file.path, name }),
+        });
+        if (!response.ok) {
+            const result = await response.json() as { message?: string };
+            showToast(result.message ?? "Could not rename image.", "error");
+            return;
+        }
+
+        showToast("Image renamed.");
+        await loadDirectory(directory.folder);
+    }
+
     function startDraggingFile(event: React.DragEvent<HTMLElement>, file: MediaFile) {
         event.dataTransfer.effectAllowed = "move";
         event.dataTransfer.setData("text/plain", file.path);
@@ -223,6 +242,7 @@ export default function CmsMediaLibrary() {
                             </div>
                             <div className="cms-media-file-actions">
                                 <button type="button" onClick={() => void copyUrl(file)} title="Copy image URL" aria-label={`Copy URL for ${file.name}`}><LuCopy /></button>
+                                <button type="button" onClick={() => void renameFile(file)} title="Rename image" aria-label={`Rename ${file.name}`}><LuPencil /></button>
                                 <button type="button" onClick={() => void deleteFile(file)} title="Delete image" aria-label={`Delete ${file.name}`}><LuTrash2 /></button>
                             </div>
                         </article>

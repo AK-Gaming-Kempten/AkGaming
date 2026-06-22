@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { isCmsAdministrator } from "../../../../content/cmsAuthorization";
-import { createMediaFolder, deleteMediaFile, deleteMediaFolder, listMediaDirectory, moveMediaFile, uploadMediaFile } from "../../../../content/mediaStore";
+import { createMediaFolder, deleteMediaFile, deleteMediaFolder, listMediaDirectory, moveMediaFile, renameMediaFile, uploadMediaFile } from "../../../../content/mediaStore";
 
 export const runtime = "nodejs";
 
@@ -68,6 +68,22 @@ export async function PUT(request: NextRequest) {
             return NextResponse.json({ message: "An image path and target folder are required." }, { status: 400 });
 
         return NextResponse.json(await moveMediaFile(path, folder));
+    }
+    catch (error) {
+        return NextResponse.json({ message: getMessage(error) }, { status: 400 });
+    }
+}
+
+export async function PATCH(request: NextRequest) {
+    if (!await isCmsAdministrator())
+        return NextResponse.json({ message: "Forbidden." }, { status: 403 });
+
+    try {
+        const { path, name } = await request.json() as { path?: string; name?: string };
+        if (typeof path !== "string" || typeof name !== "string")
+            return NextResponse.json({ message: "An image path and new file name are required." }, { status: 400 });
+
+        return NextResponse.json(await renameMediaFile(path, name));
     }
     catch (error) {
         return NextResponse.json({ message: getMessage(error) }, { status: 400 });

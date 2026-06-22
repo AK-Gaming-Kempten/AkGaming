@@ -146,6 +146,26 @@ export async function moveMediaFile(filePath: string, folder: string): Promise<C
     return { name, path: targetPath, url: `/media/${targetPath}`, size: statistics.size };
 }
 
+export async function renameMediaFile(filePath: string, name: string): Promise<CmsMediaFile> {
+    const normalizedFilePath = normalizeRelativePath(filePath);
+    const extension = path.extname(normalizedFilePath);
+    if (!supportedExtensions.has(extension.toLowerCase()))
+        throw new Error("Only image files in the media library can be renamed.");
+
+    const sourcePath = resolveMediaPath(normalizedFilePath);
+    const sourceFolder = path.posix.dirname(normalizedFilePath) === "." ? "" : path.posix.dirname(normalizedFilePath);
+    const targetDirectory = resolveMediaPath(sourceFolder);
+    const targetName = await getAvailableFileName(targetDirectory, normalizeRenameFileName(name, extension), sourcePath);
+    const targetPath = joinMediaPath(sourceFolder, targetName);
+    const resolvedTargetPath = resolveMediaPath(targetPath);
+
+    if (resolvedTargetPath !== sourcePath)
+        await fs.rename(sourcePath, resolvedTargetPath);
+
+    const statistics = await fs.stat(resolvedTargetPath);
+    return { name: targetName, path: targetPath, url: `/media/${targetPath}`, size: statistics.size };
+}
+
 function getMediaRoot(): string {
     return path.join(process.cwd(), "public", "media");
 }
@@ -188,13 +208,32 @@ function sanitizeFileName(name: string): string {
     return `${baseName}${extension}`;
 }
 
-async function getAvailableFileName(directory: string, initialName: string): Promise<string> {
+function normalizeRenameFileName(value: string, extension: string): string {
+    const requestedName = value.trim();
+    if (!requestedName || requestedName.includes("/") || requestedName.includes("\\"))
+        throw new Error("A file name is required.");
+
+    const requestedExtension = path.extname(requestedName);
+    if (requestedExtension && requestedExtension.toLowerCase() !== extension.toLowerCase())
+        throw new Error("Changing an image's file type while renaming is not supported.");
+
+    const baseName = path.basename(requestedName, requestedExtension)
+        .replace(/[^a-zA-Z0-9._-]/g, "-")
+        .replace(/-+/g, "-")
+        .replace(/^-+|-+$/g, "");
+    if (!baseName)
+        throw new Error("A valid file name is required.");
+
+    return `${baseName}${extension}`;
+}
+
+async function getAvailableFileName(directory: string, initialName: string, existingFilePath?: string): Promise<string> {
     const extension = path.extname(initialName);
     const baseName = path.basename(initialName, extension);
     let name = initialName;
     let suffix = 2;
 
-    while (await exists(path.join(directory, name))) {
+    while (path.join(directory, name) !== existingFilePath && await exists(path.join(directory, name))) {
         name = `${baseName}-${suffix}${extension}`;
         suffix += 1;
     }
