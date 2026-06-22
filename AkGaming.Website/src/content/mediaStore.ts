@@ -5,6 +5,15 @@ import path from "node:path";
 
 const supportedExtensions = new Set([".jpg", ".jpeg", ".png", ".webp", ".avif", ".gif"]);
 const maximumUploadSize = 15 * 1024 * 1024;
+const mediaContentTypes: Record<string, string> = {
+    ".avif": "image/avif",
+    ".gif": "image/gif",
+    ".jpeg": "image/jpeg",
+    ".jpg": "image/jpeg",
+    ".png": "image/png",
+    ".svg": "image/svg+xml",
+    ".webp": "image/webp",
+};
 
 export type CmsMediaFile = {
     name: string;
@@ -75,6 +84,19 @@ export async function uploadMediaFile(folder: string, file: File): Promise<CmsMe
     await fs.writeFile(resolveMediaPath(relativePath), Buffer.from(await file.arrayBuffer()));
 
     return { name, path: relativePath, url: `/media/${relativePath}`, size: file.size };
+}
+
+export async function readMediaFile(filePath: string): Promise<{ content: ArrayBuffer; contentType: string }> {
+    const normalizedPath = normalizeRelativePath(filePath);
+    const extension = path.extname(normalizedPath).toLowerCase();
+    const contentType = mediaContentTypes[extension];
+    if (contentType === undefined)
+        throw new Error("Unsupported media file type.");
+
+    const source = await fs.readFile(resolveMediaPath(normalizedPath));
+    const content = new Uint8Array(source.byteLength);
+    content.set(source);
+    return { content: content.buffer, contentType };
 }
 
 export async function deleteMediaFile(filePath: string): Promise<void> {
