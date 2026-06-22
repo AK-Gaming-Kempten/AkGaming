@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, type ChangeEvent } from "react";
+import { useEffect, useRef, useState, type ChangeEvent } from "react";
 import { LuChevronRight, LuCopy, LuFolder, LuFolderPlus, LuImage, LuTrash2, LuUpload, LuX } from "react-icons/lu";
 
 type MediaFile = {
@@ -30,6 +30,8 @@ export default function CmsMediaLibrary() {
     const [draggingFilePath, setDraggingFilePath] = useState<string | null>(null);
     const [dropTargetFolder, setDropTargetFolder] = useState<string | null>(null);
     const [previewFile, setPreviewFile] = useState<MediaFile | null>(null);
+    const [isFileDropActive, setIsFileDropActive] = useState(false);
+    const fileDragDepth = useRef(0);
 
     useEffect(() => {
         void loadDirectory("");
@@ -53,6 +55,10 @@ export default function CmsMediaLibrary() {
     async function uploadFiles(event: ChangeEvent<HTMLInputElement>) {
         const files = Array.from(event.target.files ?? []);
         event.target.value = "";
+        await uploadImages(files);
+    }
+
+    async function uploadImages(files: File[]) {
         if (files.length === 0) return;
 
         for (const file of files) {
@@ -71,6 +77,34 @@ export default function CmsMediaLibrary() {
 
         setMessage(`${files.length} image${files.length === 1 ? "" : "s"} uploaded.`);
         await loadDirectory(directory.folder);
+    }
+
+    function handleFileDragEnter(event: React.DragEvent<HTMLDivElement>) {
+        if (!containsFiles(event)) return;
+        event.preventDefault();
+        fileDragDepth.current += 1;
+        setIsFileDropActive(true);
+    }
+
+    function handleFileDragOver(event: React.DragEvent<HTMLDivElement>) {
+        if (!containsFiles(event)) return;
+        event.preventDefault();
+        event.dataTransfer.dropEffect = "copy";
+    }
+
+    function handleFileDragLeave(event: React.DragEvent<HTMLDivElement>) {
+        if (!containsFiles(event)) return;
+        fileDragDepth.current = Math.max(0, fileDragDepth.current - 1);
+        if (fileDragDepth.current === 0)
+            setIsFileDropActive(false);
+    }
+
+    function handleFileDrop(event: React.DragEvent<HTMLDivElement>) {
+        if (!containsFiles(event)) return;
+        event.preventDefault();
+        fileDragDepth.current = 0;
+        setIsFileDropActive(false);
+        void uploadImages(Array.from(event.dataTransfer.files));
     }
 
     async function createFolder() {
@@ -154,7 +188,7 @@ export default function CmsMediaLibrary() {
     const parentFolder = breadcrumbParts.slice(0, -1).join("/");
 
     return (
-        <div className="cms-media-library">
+        <div className="cms-media-library" onDragEnter={handleFileDragEnter} onDragOver={handleFileDragOver} onDragLeave={handleFileDragLeave} onDrop={handleFileDrop}>
             <header className="cms-workspace-header cms-media-header">
                 <div>
                     <p className="cms-eyebrow">Media</p>
@@ -201,8 +235,13 @@ export default function CmsMediaLibrary() {
                 <img src={previewFile.url} alt={previewFile.name} onClick={event => event.stopPropagation()} />
                 <p>{previewFile.name}</p>
             </div>}
+            {isFileDropActive && <div className="cms-media-file-drop-overlay" aria-hidden="true"><LuUpload /><strong>Drop images to upload</strong><span>They will be added to {directory.folder ? `/${directory.folder}` : "the Media folder"}.</span></div>}
         </div>
     );
+}
+
+function containsFiles(event: React.DragEvent<HTMLElement>): boolean {
+    return Array.from(event.dataTransfer.types).includes("Files");
 }
 
 function formatFileSize(bytes: number): string {
