@@ -802,6 +802,39 @@ public sealed class AuthServiceTests
         Assert.Equal("DiscordTester", details.Discord!.ProviderUsername);
     }
 
+    [Fact]
+    [Description("Verifies that assigning permissions to a custom role replaces its effective permission set.")]
+    public async Task SetRolePermissionsAsync_ReplacesCustomRolePermissions()
+    {
+        // Arrange
+        var repository = new InMemoryIdentityRepository();
+        var role = new AkGaming.Identity.Domain.Entities.Role { Name = "Tournament Referee" };
+        var reviewPermission = new AkGaming.Identity.Domain.Entities.Permission
+        {
+            Key = "tournaments.registrations.manage",
+            Application = "tournaments",
+            Area = "registrations",
+            Operation = "manage",
+            Description = "Manage registrations."
+        };
+        repository.Roles.Add(role);
+        repository.Permissions.Add(reviewPermission);
+        var service = BuildService(repository);
+
+        // Act
+        var updated = await service.SetRolePermissionsAsync(
+            Guid.NewGuid(),
+            role.Id,
+            new AdminSetRolePermissionsRequest([reviewPermission.Key]),
+            "127.0.0.1",
+            CancellationToken.None);
+
+        // Assert
+        Assert.Equal([reviewPermission.Key], updated.Permissions);
+        var assignment = Assert.Single(role.RolePermissions);
+        Assert.Equal(reviewPermission.Id, assignment.PermissionId);
+    }
+
     private static AuthService BuildService(
         InMemoryIdentityRepository repository,
         PasswordHasherStub? passwordHasher = null,

@@ -58,19 +58,24 @@ public static class ServiceCollectionExtensions {
     public static IServiceCollection AddAppAuthorization(this IServiceCollection services) {
         services.AddAuthorization(options => {
             options.DefaultPolicy = BuildManagementApiPolicy().Build();
-            options.AddPolicy("UserOnly", p => BuildManagementApiPolicy(p).RequireAssertion(ctx => HasAnyRole(ctx.User, "User", "Admin")));
-            options.AddPolicy("MemberOnly", p => BuildManagementApiPolicy(p).RequireAssertion(ctx => HasAnyRole(ctx.User, "Member", "Admin")));
-            options.AddPolicy("AdminOnly", p => BuildManagementApiPolicy(p).RequireAssertion(ctx => HasRole(ctx.User, "Admin")));
-            options.AddPolicy("AdminOrSelfRouteUserId", p => BuildManagementApiPolicy(p).RequireAssertion(ctx => {
-                if (HasRole(ctx.User, "Admin")) return true;
-                if (ctx.Resource is not HttpContext http) return false;
-
-                var routeVal = http.Request.RouteValues.TryGetValue("userId", out var v) ? v?.ToString() : null;
-                if (!Guid.TryParse(routeVal, out var routeUserId)) return false;
-
-                var claim = ctx.User.FindFirstValue(ClaimTypes.NameIdentifier) ?? ctx.User.FindFirstValue("sub");
-                return Guid.TryParse(claim, out var currentUserId) && currentUserId == routeUserId;
-            }));
+            AddPermissionPolicy(options, "management.members.read");
+            AddPermissionPolicy(options, "management.members.manage");
+            AddPermissionPolicy(options, "management.members.details.manage");
+            AddPermissionPolicy(options, "management.members.status.manage");
+            AddPermissionPolicy(options, "management.memberships.read");
+            AddPermissionPolicy(options, "management.memberships.manage");
+            AddPermissionPolicy(options, "management.dues.read");
+            AddPermissionPolicy(options, "management.dues.manage");
+            AddPermissionPolicy(options, "management.dues.dispatch");
+            AddPermissionPolicy(options, "management.requests.read");
+            AddPermissionPolicy(options, "management.requests.manage");
+            AddPermissionPolicy(options, "management.invoices.manage");
+            options.AddPolicy("MembersReadOrSelfRouteUserId", p => BuildManagementApiPolicy(p).RequireAssertion(ctx =>
+                HasPermission(ctx.User, "management.members.read") || IsSelfRouteUser(ctx)));
+            options.AddPolicy("MembershipsReadOrSelfRouteUserId", p => BuildManagementApiPolicy(p).RequireAssertion(ctx =>
+                HasPermission(ctx.User, "management.memberships.read") || IsSelfRouteUser(ctx)));
+            options.AddPolicy("RequestsReadOrSelfRouteUserId", p => BuildManagementApiPolicy(p).RequireAssertion(ctx =>
+                HasPermission(ctx.User, "management.requests.read") || IsSelfRouteUser(ctx)));
         });
         return services;
     }
@@ -93,15 +98,22 @@ public static class ServiceCollectionExtensions {
         return builder;
     }
 
-    private static bool HasAnyRole(ClaimsPrincipal principal, params string[] roles) {
-        return roles.Any(role => HasRole(principal, role));
+    private static void AddPermissionPolicy(AuthorizationOptions options, string permission) {
+        options.AddPolicy(permission, p => BuildManagementApiPolicy(p).RequireClaim("permission", permission));
     }
 
-    private static bool HasRole(ClaimsPrincipal principal, string role) {
-        return principal.IsInRole(role)
-               || principal.Claims.Any(claim =>
-                   (claim.Type == "role" || claim.Type == ClaimTypes.Role)
-                   && string.Equals(claim.Value, role, StringComparison.Ordinal));
+    private static bool HasPermission(ClaimsPrincipal principal, string permission) {
+        return principal.HasClaim("permission", permission);
+    }
+
+    private static bool IsSelfRouteUser(AuthorizationHandlerContext context) {
+        if (context.Resource is not HttpContext http) return false;
+
+        var routeVal = http.Request.RouteValues.TryGetValue("userId", out var value) ? value?.ToString() : null;
+        if (!Guid.TryParse(routeVal, out var routeUserId)) return false;
+
+        var claim = context.User.FindFirstValue(ClaimTypes.NameIdentifier) ?? context.User.FindFirstValue("sub");
+        return Guid.TryParse(claim, out var currentUserId) && currentUserId == routeUserId;
     }
 
     private static bool HasScope(ClaimsPrincipal principal, string scope) {

@@ -1,11 +1,11 @@
 import { NextResponse } from "next/server";
-import { isCmsAdministrator } from "../../../../../content/cmsAuthorization";
+import { CmsPermissions, hasCmsPermission } from "../../../../../content/cmsAuthorization";
 import { deleteManagedTeam } from "../../../../../content/teamStore";
 
 type TeamRouteContext = { params: Promise<{ teamId: string }> };
 
 export async function DELETE(_request: Request, context: TeamRouteContext) {
-    if (!await isCmsAdministrator())
+    if (!await hasCmsPermission(CmsPermissions.esportsManage))
         return NextResponse.json({ message: "Forbidden." }, { status: 403 });
 
     try {

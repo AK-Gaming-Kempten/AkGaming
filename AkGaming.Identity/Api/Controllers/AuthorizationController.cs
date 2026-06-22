@@ -266,7 +266,8 @@ public sealed class AuthorizationController : Controller
             username = user.Username,
             email = user.Email,
             email_verified = user.IsEmailVerified,
-            role = user.Roles
+            role = user.Roles,
+            permission = user.Permissions
         });
     }
 

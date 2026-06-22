@@ -15,7 +15,7 @@ public static class MemberCreationEndpoints {
         group.MapPost("/", async (MemberCreationDto memberCreationDto, IMemberCreationService service) => {
             var result = await service.CreateMemberAsync(memberCreationDto);
             return result.IsSuccess ? Results.Created($"/members/{result.Value}",result.Value) : Results.BadRequest(result.Error);
-        }).RequireAuthorization("AdminOnly");
+        }).RequireAuthorization("management.members.details.manage");
 
         group.MapPost("/profile", async (ClaimsPrincipal user, IMemberCreationService service) => {
             var claim = user.FindFirstValue(ClaimTypes.NameIdentifier) ?? user.FindFirstValue("sub");

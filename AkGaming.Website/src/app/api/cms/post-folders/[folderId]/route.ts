@@ -1,11 +1,11 @@
 import { NextResponse } from "next/server";
-import { isCmsAdministrator } from "../../../../../content/cmsAuthorization";
+import { CmsPermissions, hasCmsPermission } from "../../../../../content/cmsAuthorization";
 import { deletePostFolder, renamePostFolder } from "../../../../../content/postStore";
 
 type FolderRouteContext = { params: Promise<{ folderId: string }> };
 
 export async function PATCH(request: Request, context: FolderRouteContext) {
-    if (!await isCmsAdministrator())
+    if (!await hasCmsPermission(CmsPermissions.postsManage))
         return NextResponse.json({ message: "Forbidden." }, { status: 403 });
 
     try {
@@ -19,7 +19,7 @@ export async function PATCH(request: Request, context: FolderRouteContext) {
 }
 
 export async function DELETE(_request: Request, context: FolderRouteContext) {
-    if (!await isCmsAdministrator())
+    if (!await hasCmsPermission(CmsPermissions.postsManage))
         return NextResponse.json({ message: "Forbidden." }, { status: 403 });
 
     try {

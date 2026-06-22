@@ -1,6 +1,6 @@
 @page "/tournaments/{TournamentSlug}/administration/match-desk"
 @namespace AkGaming.Tournaments.Frontend.Components.Tournaments.Administration
-@attribute [Authorize(Roles = "Admin")]
+@attribute [Authorize(Policy = "tournaments.registrations.manage")]
 @inherits TournamentPageBase
 
 <PageTitle>@($"{Tournament?.Name ?? "Tournament"} Match Desk")</PageTitle>

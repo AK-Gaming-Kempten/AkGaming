@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Components.Server.Circuits;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using Microsoft.IdentityModel.Tokens;
@@ -87,9 +88,31 @@ public static class ServiceCollectionExtensions {
                 };
             });
 
-        services.AddAuthorization();
+        services.AddAuthorization(options => {
+            AddPermissionPolicy(options, "identity.users.read");
+            AddPermissionPolicy(options, "identity.users.manage");
+            AddPermissionPolicy(options, "identity.roles.read");
+            AddPermissionPolicy(options, "identity.roles.manage");
+            AddPermissionPolicy(options, "identity.audit.read");
+            AddPermissionPolicy(options, "identity.oidc.manage");
+            AddPermissionPolicy(options, "management.members.read");
+            AddPermissionPolicy(options, "management.members.manage");
+            AddPermissionPolicy(options, "management.members.details.manage");
+            AddPermissionPolicy(options, "management.members.status.manage");
+            AddPermissionPolicy(options, "management.memberships.manage");
+            AddPermissionPolicy(options, "management.dues.read");
+            AddPermissionPolicy(options, "management.dues.manage");
+            AddPermissionPolicy(options, "management.dues.dispatch");
+            AddPermissionPolicy(options, "management.requests.read");
+            AddPermissionPolicy(options, "management.requests.manage");
+            AddPermissionPolicy(options, "management.invoices.manage");
+        });
 
         return services;
+    }
+
+    private static void AddPermissionPolicy(AuthorizationOptions options, string permission) {
+        options.AddPolicy(permission, policy => policy.RequireClaim("permission", permission));
     }
 
     public static IServiceCollection ConfigureForwardedHeaders(this IServiceCollection services) {

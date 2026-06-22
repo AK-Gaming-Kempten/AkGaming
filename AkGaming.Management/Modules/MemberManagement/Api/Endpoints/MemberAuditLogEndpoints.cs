@@ -19,7 +19,7 @@ public static class MemberAuditLogEndpoints {
         ) => {
             var result = await service.GetAuditLogsAsync(page, pageSize, search);
             return result.IsSuccess ? Results.Ok(result.Value) : Results.BadRequest(result.Error);
-        }).RequireAuthorization("AdminOnly");
+        }).RequireAuthorization("management.members.read");
 
         return endpoints;
     }

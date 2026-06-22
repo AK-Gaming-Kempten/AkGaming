@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Components;
 namespace AkGaming.Management.Frontend.Components.Administration.MemberManagement.Requests;
 
 public partial class LinkingRequestManagementPanel : ComponentBase {
+    [Parameter] public bool CanManage { get; set; }
     
     [Inject] 
     private MemberManagementApiClient MemberApi { get; set; } = default!;

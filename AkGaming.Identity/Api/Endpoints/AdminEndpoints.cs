@@ -11,12 +11,7 @@ internal static class AdminEndpoints
 {
     internal static IEndpointRouteBuilder MapAdminEndpoints(this IEndpointRouteBuilder app)
     {
-        var admin = app.MapGroup("/admin").RequireAuthorization(policy =>
-        {
-            policy.AuthenticationSchemes.Add(OpenIddictValidationAspNetCoreDefaults.AuthenticationScheme);
-            policy.RequireRole(RoleNames.Admin);
-            policy.RequireAssertion(context => HasScope(context.User, "management_api"));
-        });
+        var admin = app.MapGroup("/admin").RequireAuthorization("ManagementApiAccess");
         admin.RequireRateLimiting("auth");
 
         admin.MapGet("/users", async (int page, int pageSize, string? search, IAuthService authService, CancellationToken cancellationToken) =>
@@ -30,7 +25,7 @@ internal static class AdminEndpoints
             {
                 return Results.Problem(statusCode: exception.StatusCode, detail: exception.Message);
             }
-        });
+        }).RequireAuthorization(PermissionNames.IdentityUsersRead);
 
         admin.MapGet("/audit-logs", async (int page, int pageSize, string? search, IAuthService authService, CancellationToken cancellationToken) =>
         {
@@ -43,7 +38,7 @@ internal static class AdminEndpoints
             {
                 return Results.Problem(statusCode: exception.StatusCode, detail: exception.Message);
             }
-        });
+        }).RequireAuthorization(PermissionNames.IdentityAuditRead);
 
         admin.MapGet("/users/{userId:guid}", async (Guid userId, IAuthService authService, CancellationToken cancellationToken) =>
         {
@@ -56,7 +51,7 @@ internal static class AdminEndpoints
             {
                 return Results.Problem(statusCode: exception.StatusCode, detail: exception.Message);
             }
-        });
+        }).RequireAuthorization(PermissionNames.IdentityUsersRead);
 
         admin.MapGet("/users/{userId:guid}/roles", async (Guid userId, IAuthService authService, CancellationToken cancellationToken) =>
         {
@@ -69,7 +64,7 @@ internal static class AdminEndpoints
             {
                 return Results.Problem(statusCode: exception.StatusCode, detail: exception.Message);
             }
-        });
+        }).RequireAuthorization(PermissionNames.IdentityUsersRead);
 
         admin.MapPut("/users/{userId:guid}/roles", async (Guid userId, AdminSetUserRolesRequest request, ClaimsPrincipal user, IAuthService authService, HttpContext httpContext, CancellationToken cancellationToken) =>
         {
@@ -87,13 +82,19 @@ internal static class AdminEndpoints
             {
                 return Results.Problem(statusCode: exception.StatusCode, detail: exception.Message);
             }
-        });
+        }).RequireAuthorization(PermissionNames.IdentityUsersManage);
 
         admin.MapGet("/roles", async (IAuthService authService, CancellationToken cancellationToken) =>
         {
             var response = await authService.GetRolesAsync(cancellationToken);
             return Results.Ok(response);
-        });
+        }).RequireAuthorization(PermissionNames.IdentityRolesRead);
+
+        admin.MapGet("/permissions", async (IAuthService authService, CancellationToken cancellationToken) =>
+        {
+            var response = await authService.GetPermissionsAsync(cancellationToken);
+            return Results.Ok(response);
+        }).RequireAuthorization(PermissionNames.IdentityRolesRead);
 
         admin.MapPost("/roles", async (AdminCreateRoleRequest request, ClaimsPrincipal user, IAuthService authService, HttpContext httpContext, CancellationToken cancellationToken) =>
         {
@@ -111,7 +112,7 @@ internal static class AdminEndpoints
             {
                 return Results.Problem(statusCode: exception.StatusCode, detail: exception.Message);
             }
-        });
+        }).RequireAuthorization(PermissionNames.IdentityRolesManage);
 
         admin.MapPut("/roles/{roleId:guid}", async (Guid roleId, AdminRenameRoleRequest request, ClaimsPrincipal user, IAuthService authService, HttpContext httpContext, CancellationToken cancellationToken) =>
         {
@@ -129,7 +130,7 @@ internal static class AdminEndpoints
             {
                 return Results.Problem(statusCode: exception.StatusCode, detail: exception.Message);
             }
-        });
+        }).RequireAuthorization(PermissionNames.IdentityRolesManage);
 
         admin.MapDelete("/roles/{roleId:guid}", async (Guid roleId, ClaimsPrincipal user, IAuthService authService, HttpContext httpContext, CancellationToken cancellationToken) =>
         {
@@ -147,13 +148,31 @@ internal static class AdminEndpoints
             {
                 return Results.Problem(statusCode: exception.StatusCode, detail: exception.Message);
             }
-        });
+        }).RequireAuthorization(PermissionNames.IdentityRolesManage);
+
+        admin.MapPut("/roles/{roleId:guid}/permissions", async (Guid roleId, AdminSetRolePermissionsRequest request, ClaimsPrincipal user, IAuthService authService, HttpContext httpContext, CancellationToken cancellationToken) =>
+        {
+            if (!EndpointUtilities.TryGetUserId(user, out var actorUserId))
+            {
+                return Results.Unauthorized();
+            }
+
+            try
+            {
+                var response = await authService.SetRolePermissionsAsync(actorUserId, roleId, request, EndpointUtilities.GetIp(httpContext), cancellationToken);
+                return Results.Ok(response);
+            }
+            catch (AuthException exception)
+            {
+                return Results.Problem(statusCode: exception.StatusCode, detail: exception.Message);
+            }
+        }).RequireAuthorization(PermissionNames.IdentityRolesManage);
 
         admin.MapGet("/oidc/clients", async (IOidcAdminService oidcAdminService, CancellationToken cancellationToken) =>
         {
             var response = await oidcAdminService.GetClientsAsync(cancellationToken);
             return Results.Ok(response);
-        });
+        }).RequireAuthorization(PermissionNames.IdentityOidcManage);
 
         admin.MapGet("/oidc/clients/{clientId}", async (string clientId, IOidcAdminService oidcAdminService, CancellationToken cancellationToken) =>
         {
@@ -166,7 +185,7 @@ internal static class AdminEndpoints
             {
                 return Results.Problem(statusCode: exception.StatusCode, detail: exception.Message);
             }
-        });
+        }).RequireAuthorization(PermissionNames.IdentityOidcManage);
 
         admin.MapPost("/oidc/clients", async (AdminCreateOidcClientRequest request, ClaimsPrincipal user, IOidcAdminService oidcAdminService, HttpContext httpContext, CancellationToken cancellationToken) =>
         {
@@ -182,7 +201,7 @@ internal static class AdminEndpoints
             {
                 return Results.Problem(statusCode: exception.StatusCode, detail: exception.Message);
             }
-        });
+        }).RequireAuthorization(PermissionNames.IdentityOidcManage);
 
         admin.MapPut("/oidc/clients/{clientId}", async (string clientId, AdminUpdateOidcClientRequest request, ClaimsPrincipal user, IOidcAdminService oidcAdminService, HttpContext httpContext, CancellationToken cancellationToken) =>
         {
@@ -198,7 +217,7 @@ internal static class AdminEndpoints
             {
                 return Results.Problem(statusCode: exception.StatusCode, detail: exception.Message);
             }
-        });
+        }).RequireAuthorization(PermissionNames.IdentityOidcManage);
 
         admin.MapDelete("/oidc/clients/{clientId}", async (string clientId, ClaimsPrincipal user, IOidcAdminService oidcAdminService, HttpContext httpContext, CancellationToken cancellationToken) =>
         {
@@ -214,13 +233,13 @@ internal static class AdminEndpoints
             {
                 return Results.Problem(statusCode: exception.StatusCode, detail: exception.Message);
             }
-        });
+        }).RequireAuthorization(PermissionNames.IdentityOidcManage);
 
         admin.MapGet("/oidc/scopes", async (IOidcAdminService oidcAdminService, CancellationToken cancellationToken) =>
         {
             var response = await oidcAdminService.GetScopesAsync(cancellationToken);
             return Results.Ok(response);
-        });
+        }).RequireAuthorization(PermissionNames.IdentityOidcManage);
 
         admin.MapGet("/oidc/scopes/{scopeName}", async (string scopeName, IOidcAdminService oidcAdminService, CancellationToken cancellationToken) =>
         {
@@ -233,7 +252,7 @@ internal static class AdminEndpoints
             {
                 return Results.Problem(statusCode: exception.StatusCode, detail: exception.Message);
             }
-        });
+        }).RequireAuthorization(PermissionNames.IdentityOidcManage);
 
         admin.MapPost("/oidc/scopes", async (AdminCreateOidcScopeRequest request, ClaimsPrincipal user, IOidcAdminService oidcAdminService, HttpContext httpContext, CancellationToken cancellationToken) =>
         {
@@ -249,7 +268,7 @@ internal static class AdminEndpoints
             {
                 return Results.Problem(statusCode: exception.StatusCode, detail: exception.Message);
             }
-        });
+        }).RequireAuthorization(PermissionNames.IdentityOidcManage);
 
         admin.MapPut("/oidc/scopes/{scopeName}", async (string scopeName, AdminUpdateOidcScopeRequest request, ClaimsPrincipal user, IOidcAdminService oidcAdminService, HttpContext httpContext, CancellationToken cancellationToken) =>
         {
@@ -265,7 +284,7 @@ internal static class AdminEndpoints
             {
                 return Results.Problem(statusCode: exception.StatusCode, detail: exception.Message);
             }
-        });
+        }).RequireAuthorization(PermissionNames.IdentityOidcManage);
 
         admin.MapDelete("/oidc/scopes/{scopeName}", async (string scopeName, ClaimsPrincipal user, IOidcAdminService oidcAdminService, HttpContext httpContext, CancellationToken cancellationToken) =>
         {
@@ -281,16 +300,9 @@ internal static class AdminEndpoints
             {
                 return Results.Problem(statusCode: exception.StatusCode, detail: exception.Message);
             }
-        });
+        }).RequireAuthorization(PermissionNames.IdentityOidcManage);
 
         return app;
     }
 
-    private static bool HasScope(ClaimsPrincipal principal, string scope)
-    {
-        return principal.Claims
-            .Where(claim => claim.Type == "scope")
-            .SelectMany(claim => claim.Value.Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
-            .Any(value => string.Equals(value, scope, StringComparison.Ordinal));
-    }
 }

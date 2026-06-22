@@ -3,6 +3,7 @@ using AkGaming.Management.Frontend.ApiClients;
 using AkGaming.Management.Modules.MemberManagement.Contracts.DTO;
 using AkGaming.Management.Modules.MemberManagement.Contracts.Enums;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.JSInterop;
 
 namespace AkGaming.Management.Frontend.Components.Administration.MemberManagement;
@@ -10,6 +11,7 @@ namespace AkGaming.Management.Frontend.Components.Administration.MemberManagemen
 public partial class MemberManagementDuesPage : ComponentBase {
     [Inject] private MemberManagementApiClient MemberApi { get; set; } = default!;
     [Inject] private IJSRuntime Js { get; set; } = default!;
+    [Inject] private AuthenticationStateProvider AuthenticationStateProvider { get; set; } = default!;
 
     private MembershipPaymentPeriodCreateDto _createRequest = new() {
         Name = $"{DateTime.UtcNow:yyyy-MM}",
@@ -48,8 +50,14 @@ public partial class MemberManagementDuesPage : ComponentBase {
     private MembershipDueDto? _suspensionDue;
     private MembershipDueEmailPreviewDto? _suspensionPreview;
     private MembershipDueReminderDispatchPreviewDto? _reminderDispatchPreview;
+    private bool _canManageDues;
+    private bool _canDispatchDues;
 
     protected override async Task OnInitializedAsync() {
+        var authenticationState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authenticationState.User;
+        _canManageDues = user.HasClaim("permission", "management.dues.manage");
+        _canDispatchDues = user.HasClaim("permission", "management.dues.dispatch");
         await LoadMemberLookupAsync();
         await LoadPaymentPeriodsAsync();
     }

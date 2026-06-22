@@ -3,7 +3,7 @@
 @using System.Text.Json
 @using System.Text.Json.Serialization
 @using Microsoft.AspNetCore.Authorization
-@attribute [Authorize(Roles = "Admin")]
+@attribute [Authorize(Policy = "identity.roles.manage")]
 
 <h3>Debug</h3>
 

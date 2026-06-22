@@ -1,6 +1,6 @@
 @page "/identity/clients"
 @using Microsoft.AspNetCore.Authorization
-@attribute [Authorize(Roles = "Admin")]
+@attribute [Authorize(Policy = "identity.oidc.manage")]
 
 <PageTitle>Identity Clients</PageTitle>
 

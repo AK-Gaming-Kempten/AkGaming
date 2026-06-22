@@ -17,6 +17,7 @@ public interface IIdentityRepository
     Task<List<Role>> GetRolesByNamesAsync(IReadOnlyCollection<string> roleNames, CancellationToken cancellationToken);
     Task<int> CountUsersInRoleAsync(string roleName, CancellationToken cancellationToken);
     Task<int> CountUsersWithRoleIdAsync(Guid roleId, CancellationToken cancellationToken);
+    Task<List<Permission>> GetAllPermissionsAsync(CancellationToken cancellationToken);
     Task<ExternalLogin?> GetExternalLoginAsync(string provider, string providerUserId, CancellationToken cancellationToken);
     Task<EmailVerificationToken?> GetEmailVerificationTokenByHashAsync(string tokenHash, CancellationToken cancellationToken);
     Task<List<EmailVerificationToken>> GetActiveEmailVerificationTokensByUserIdAsync(Guid userId, CancellationToken cancellationToken);
@@ -27,6 +28,7 @@ public interface IIdentityRepository
 
     Task AddUserAsync(User user, CancellationToken cancellationToken);
     Task AddRoleAsync(Role role, CancellationToken cancellationToken);
+    Task AddPermissionAsync(Permission permission, CancellationToken cancellationToken);
     void RemoveRole(Role role);
     Task AddExternalLoginAsync(ExternalLogin externalLogin, CancellationToken cancellationToken);
     Task AddEmailVerificationTokenAsync(EmailVerificationToken emailVerificationToken, CancellationToken cancellationToken);

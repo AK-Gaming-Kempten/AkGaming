@@ -5,17 +5,18 @@
 
     color-scheme: light dark;
     color: rgba(255, 255, 255, 0.87);
-    background-color: #242424;
+    background-color: #151515;
 
     font-synthesis: none;
     text-rendering: optimizeLegibility;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
 
-    /* === FUNDAMENTAL COLOR SCHEME === */
     --color-light-gray: #dddddd;
     --color-gray: #b2bfb9;
-    --color-dark-grey: #161917;
+    --color-dark-grey: #151515;
+    --color-light-surface: #f8f8f8;
+    --color-dark-surface: #181818;
     --color-light-green-grey: #d9f6e5;
     --color-dark-green: #123021;
     --color-green: #286c3f;
@@ -35,8 +36,8 @@
     --color-text-special-secondary: var(--color-gray);
     --color-highlight-primary: var(--color-light-green);
     --color-highlight-secondary: var(--color-green);
-    --color-background-primary: var(--color-white);
-    --color-background-secondary: var(--color-light-green-grey);
+    --color-background-primary: var(--color-light-surface);
+    --color-background-secondary: var(--color-white);
     --color-background-tertiary: var(--color-dark-green);
     --color-background-quartiary: var(--color-dark-grey);
     --color-background-special: var(--color-dark-green);
@@ -63,8 +64,8 @@
 
     /* === FORM COLORS === */
     --color-input-primary-bg: var(--color-background-secondary);
-    --color-input-primary-text: var(--color-text-secondary);
-    --color-input-primary-border: var(--color-background-tertiary);
+    --color-input-primary-text: var(--color-text-primary);
+    --color-input-primary-border: var(--color-text-secondary);
     --color-input-primary-focus-border: var(--color-highlight-primary);
 
     --color-input-secondary-bg: var(--color-background-primary);
@@ -100,7 +101,7 @@
         --color-highlight-primary: var(--color-light-green);
         --color-highlight-secondary: var(--color-green);
         --color-background-primary: var(--color-dark-grey);
-        --color-background-secondary: var(--color-dark-green);
+        --color-background-secondary: var(--color-dark-surface);
         --color-background-tertiary: var(--color-light-gray);
         --color-background-quartiary: var(--color-light-green-grey);
         --color-background-special: var(--color-dark-green);
@@ -115,8 +116,8 @@
     --color-text-special: var(--color-white);
     --color-highlight-primary: var(--color-light-green);
     --color-highlight-secondary: var(--color-green);
-    --color-background-primary: var(--color-white);
-    --color-background-secondary: var(--color-light-green-grey);
+    --color-background-primary: var(--color-light-surface);
+    --color-background-secondary: var(--color-white);
     --color-background-tertiary: var(--color-dark-green);
     --color-background-quartiary: var(--color-dark-grey);
     --color-background-special: var(--color-dark-green);
@@ -131,7 +132,7 @@
     --color-highlight-primary: var(--color-light-green);
     --color-highlight-secondary: var(--color-green);
     --color-background-primary: var(--color-dark-grey);
-    --color-background-secondary: var(--color-dark-green);
+    --color-background-secondary: var(--color-dark-surface);
     --color-background-tertiary: var(--color-light-gray);
     --color-background-quartiary: var(--color-light-green-grey);
     --color-background-special: var(--color-dark-green);

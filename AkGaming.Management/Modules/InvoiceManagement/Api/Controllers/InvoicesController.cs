@@ -7,7 +7,7 @@ namespace AkGaming.Management.Modules.InvoiceManagement.Api.Controllers;
 
 [ApiController]
 [Route("invoices")]
-[Authorize(Policy = "AdminOnly")]
+[Authorize(Policy = "management.invoices.manage")]
 public sealed class InvoicesController(IInvoiceManagementService service) : ControllerBase
 {
     [HttpGet]

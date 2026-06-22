@@ -1,11 +1,11 @@
 import { NextResponse } from "next/server";
-import { isCmsAdministrator } from "../../../../../../content/cmsAuthorization";
+import { CmsPermissions, hasCmsPermission } from "../../../../../../content/cmsAuthorization";
 import { publishDraft } from "../../../../../../content/postStore";
 
 type PublishRouteContext = { params: Promise<{ postId: string }> };
 
 export async function POST(_request: Request, context: PublishRouteContext) {
-    if (!await isCmsAdministrator())
+    if (!await hasCmsPermission(CmsPermissions.postsPublish))
         return NextResponse.json({ message: "Forbidden." }, { status: 403 });
 
     try {

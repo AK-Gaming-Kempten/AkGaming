@@ -1,6 +1,6 @@
 @page "/identity/users"
 @using Microsoft.AspNetCore.Authorization
-@attribute [Authorize(Roles = "Admin")]
+@attribute [Authorize(Policy = "identity.users.read")]
 
 <PageTitle>Identity Users</PageTitle>
 
@@ -101,29 +101,32 @@
                 </div>
             }
 
-            <h5>Assign Roles</h5>
-            @if (_availableRoles.Count == 0)
+            @if (_canManageUsers)
             {
-                <p>No roles available. Create roles first on the Roles page.</p>
-            }
-            else
-            {
-                <div class="roles-grid">
-                    @foreach (var role in _availableRoles)
-                    {
-                        <label class="role-checkbox">
-                            <input type="checkbox"
-                                   checked="@_selectedRoles.Contains(role.Name)"
-                                   @onchange="(args) => ToggleRole(role.Name, args.Value is bool b && b)" />
-                            <span>@role.Name</span>
-                        </label>
-                    }
+                <h5>Assign Roles</h5>
+                @if (_availableRoles.Count == 0)
+                {
+                    <p>No roles available. Create roles first on the Roles page.</p>
+                }
+                else
+                {
+                    <div class="roles-grid">
+                        @foreach (var role in _availableRoles)
+                        {
+                            <label class="role-checkbox">
+                                <input type="checkbox"
+                                       checked="@_selectedRoles.Contains(role.Name)"
+                                       @onchange="(args) => ToggleRole(role.Name, args.Value is bool b && b)" />
+                                <span>@role.Name</span>
+                            </label>
+                        }
+                    </div>
+                }
+
+                <div class="actions">
+                    <ActionButton Kind="ActionButtonKind.Save" Variant="ActionButtonVariant.Primary" OnClick="SaveRolesAsync" Disabled="@(_isBusy || !_selectedUserId.HasValue)" Label="Save roles" />
                 </div>
             }
-
-            <div class="actions">
-                <ActionButton Kind="ActionButtonKind.Save" Variant="ActionButtonVariant.Primary" OnClick="SaveRolesAsync" Disabled="@(_isBusy || !_selectedUserId.HasValue)" Label="Save roles" />
-            </div>
 
             <div>
                 <label>Current roles</label>

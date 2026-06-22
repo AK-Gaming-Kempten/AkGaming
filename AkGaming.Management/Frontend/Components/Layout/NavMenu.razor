@@ -19,7 +19,7 @@
                 <span>Profile</span>
             </NavLink>
 
-            @if (isAuthenticated && isAdmin) {
+            @if (isAuthenticated && canAccessMemberManagement) {
                 <div class="nav-section">
                     <button type="button" class="nav-section-toggle" @onclick="ToggleMemberManagementExpanded">
                         <span class="nav-icon bi-shield-lock-fill"></span>
@@ -29,35 +29,49 @@
 
                     @if (isMemberManagementExpanded)
                     {
+                        @if (canReadMembers)
+                        {
                         <NavLink href="member-management/members" class="nav-item level-2" @onclick="NotifyNavigation">
                             <span class="nav-icon bi-people-fill"></span>
                             <span>Members</span>
                         </NavLink>
+                        }
 
+                        @if (canReadMembers)
+                        {
                         <NavLink href="member-management/trial" class="nav-item level-2" @onclick="NotifyNavigation">
                             <span class="nav-icon bi-hourglass-split"></span>
                             <span>Trial</span>
                         </NavLink>
+                        }
                         
+                        @if (canAccessRequests)
+                        {
                         <NavLink href="member-management/requests" class="nav-item level-2" @onclick="NotifyNavigation">
                             <span class="nav-icon bi-envelope-fill"></span>
                             <span>Requests</span>
                         </NavLink>
+                        }
 
+                        @if (canAccessDues)
+                        {
                         <NavLink href="member-management/dues" class="nav-item level-2" @onclick="NotifyNavigation">
                             <span class="nav-icon bi-cash-stack"></span>
                             <span>Dues</span>
                         </NavLink>
-
+                        }
+                        @if (canReadMembers)
+                        {
                         <NavLink href="member-management/audit-log" class="nav-item level-2" @onclick="NotifyNavigation">
                             <span class="nav-icon bi-journal-text"></span>
                             <span>Audit Log</span>
                         </NavLink>
+                        }
                     }
                 </div>
             }
 
-            @if (isAuthenticated && isAdmin)
+            @if (isAuthenticated && canManageInvoices)
             {
                 <div class="nav-section">
                     <button type="button" class="nav-section-toggle" @onclick="ToggleInvoicesExpanded">
@@ -81,7 +95,7 @@
                 </div>
             }
             
-            @if (isAuthenticated && isAdmin)
+            @if (isAuthenticated && canAccessIdentity)
             {
                 <div class="nav-section">
                     <button type="button" class="nav-section-toggle" @onclick="ToggleIdentityExpanded">
@@ -92,6 +106,8 @@
 
                     @if (isIdentityExpanded)
                     {
+                        @if (canManageOidc)
+                        {
                         <NavLink href="identity/clients" class="nav-item level-2" @onclick="NotifyNavigation">
                             <span class="nav-icon bi-window-stack"></span>
                             <span>Clients</span>
@@ -101,33 +117,37 @@
                             <span class="nav-icon bi-diagram-3"></span>
                             <span>Scopes</span>
                         </NavLink>
+                        }
 
+                        @if (canReadRoles)
+                        {
                         <NavLink href="identity/roles" class="nav-item level-2" @onclick="NotifyNavigation">
                             <span class="nav-icon bi-person-badge-fill"></span>
                             <span>Roles</span>
                         </NavLink>
+                        }
 
+                        @if (canReadUsers)
+                        {
                         <NavLink href="identity/users" class="nav-item level-2" @onclick="NotifyNavigation">
                             <span class="nav-icon bi-person-gear"></span>
                             <span>Users</span>
                         </NavLink>
+                        }
                         
+                        @if (canReadIdentityAudit)
+                        {
                         <NavLink href="identity/audit-log" class="nav-item level-2" @onclick="NotifyNavigation">
                             <span class="nav-icon bi-journal-text"></span>
                             <span>Audit Log</span>
                         </NavLink>
+                        }
                     }
                 </div>
             }
 
-            @if (isAuthenticated && isAdmin && isDebug) {
+            @if (isAuthenticated && canAccessIdentity && isDebug) {
                 <div class="nav-section">
-                    <button type="button" class="nav-section-toggle" @onclick="ToggleDebugExpanded">
-                        <span class="nav-icon bi-bug-fill"></span>
-                        Debug
-                        <span class="nav-chevron bi @(isDebugExpanded ? "bi-chevron-up" : "bi-chevron-down")"></span>
-                    </button>
-
                     @if (isDebugExpanded)
                     {
                         <NavLink href="debug" class="nav-item level-2" @onclick="NotifyNavigation">
@@ -149,7 +169,23 @@
     [Parameter] public EventCallback OnNavigate { get; set; }
 
     private bool isAuthenticated;
-    private bool isAdmin;
+    private bool canReadMembers;
+    private bool canManageMemberDetails;
+    private bool canManageMemberStatus;
+    private bool canReadDues;
+    private bool canManageDues;
+    private bool canDispatchDues;
+    private bool canReadRequests;
+    private bool canManageRequests;
+    private bool canManageInvoices;
+    private bool canReadUsers;
+    private bool canReadRoles;
+    private bool canReadIdentityAudit;
+    private bool canManageOidc;
+    private bool canAccessMemberManagement;
+    private bool canAccessDues;
+    private bool canAccessRequests;
+    private bool canAccessIdentity;
     private bool isDebug;
     private bool isMemberManagementExpanded = true;
     private bool isIdentityExpanded;
@@ -161,10 +197,26 @@
         var user = authState.User;
 
         isAuthenticated = user.Identity?.IsAuthenticated ?? false;
-        isAdmin = isAuthenticated && user.IsInRole("Admin");
+        canReadMembers = isAuthenticated && user.HasClaim("permission", "management.members.read");
+        canManageMemberDetails = isAuthenticated && user.HasClaim("permission", "management.members.details.manage");
+        canManageMemberStatus = isAuthenticated && user.HasClaim("permission", "management.members.status.manage");
+        canReadDues = isAuthenticated && user.HasClaim("permission", "management.dues.read");
+        canManageDues = isAuthenticated && user.HasClaim("permission", "management.dues.manage");
+        canDispatchDues = isAuthenticated && user.HasClaim("permission", "management.dues.dispatch");
+        canReadRequests = isAuthenticated && user.HasClaim("permission", "management.requests.read");
+        canManageRequests = isAuthenticated && user.HasClaim("permission", "management.requests.manage");
+        canAccessDues = canReadDues;
+        canAccessRequests = canReadRequests;
+        canAccessMemberManagement = canReadMembers || canManageMemberDetails || canManageMemberStatus || canAccessDues || canAccessRequests;
+        canManageInvoices = isAuthenticated && user.HasClaim("permission", "management.invoices.manage");
+        canReadUsers = isAuthenticated && user.HasClaim("permission", "identity.users.read");
+        canReadRoles = isAuthenticated && user.HasClaim("permission", "identity.roles.read");
+        canReadIdentityAudit = isAuthenticated && user.HasClaim("permission", "identity.audit.read");
+        canManageOidc = isAuthenticated && user.HasClaim("permission", "identity.oidc.manage");
+        canAccessIdentity = canReadUsers || canReadRoles || canReadIdentityAudit || canManageOidc;
         isDebug = isAuthenticated && user.IsInRole("Debug");
 
-        isIdentityExpanded = isAdmin;
+        isIdentityExpanded = canAccessIdentity;
         isDebugExpanded = isDebug;
     }
 

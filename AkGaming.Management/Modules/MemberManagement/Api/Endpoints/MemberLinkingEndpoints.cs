@@ -18,39 +18,39 @@ public static class MemberLinkingEndpoints {
         group.MapPost("/{memberId:guid}/linkToUser", async ([FromRoute] Guid memberId, [FromBody] Guid userId, [FromServices] IMemberLinkingService service) => {
             var result = await service.LinkMemberToUserAsync(memberId, userId);
             return result.IsSuccess ? Results.Ok() : Results.BadRequest(result.Error);
-        }).RequireAuthorization("AdminOnly");
+        }).RequireAuthorization("management.members.details.manage");
 
         group.MapPost("/{memberId:guid}/unlinkFromUser", async ([FromRoute] Guid memberId, [FromBody] Guid userId, [FromServices] IMemberLinkingService service) => {
             var result = await service.UnlinkMemberFromUserAsync(memberId, userId);
             return result.IsSuccess ? Results.Ok() : Results.BadRequest(result.Error);
-        }).RequireAuthorization("AdminOnly");
+        }).RequireAuthorization("management.members.details.manage");
 
         group.MapPost("/memberLinkingRequests/{requestId:guid}/markResolved", async ([FromRoute] Guid requestId, ClaimsPrincipal user, [FromServices] IMemberLinkingService service) => {
             var result = await service.MarkMemberLinkingRequestResolvedAsync(requestId, GetCurrentUserIdOrNull(user));
             return result.IsSuccess ? Results.Created() : Results.BadRequest(result.Error);
-        }).RequireAuthorization("AdminOnly");
+        }).RequireAuthorization("management.requests.manage");
 
         group.MapPost("/memberLinkingRequests/{requestId:guid}/accept", async ([FromRoute] Guid requestId, ClaimsPrincipal user, [FromServices] IMemberLinkingService service) => {
             var result = await service.AcceptMemberLinkingRequestAsync(requestId, GetCurrentUserIdOrNull(user));
             return result.IsSuccess ? Results.Created() : Results.BadRequest(result.Error);
-        }).RequireAuthorization("AdminOnly");
+        }).RequireAuthorization("management.requests.manage");
 
         group.MapPost("/memberLinkingRequests/{requestId:guid}/reject", async ([FromRoute] Guid requestId, ClaimsPrincipal user, [FromServices] IMemberLinkingService service) => {
             var result = await service.RejectMemberLinkingRequestAsync(requestId, GetCurrentUserIdOrNull(user));
             return result.IsSuccess ? Results.Created() : Results.BadRequest(result.Error);
-        }).RequireAuthorization("AdminOnly");
+        }).RequireAuthorization("management.requests.manage");
 
         // ----- User-scoped + admin endpoints -----
         
         group.MapGet("/memberLinkingRequests", async ([FromServices] IMemberLinkingService service) => {
             var result = await service.GetAllMemberLinkingRequestsAsync();
             return result.IsSuccess ? Results.Ok(result.Value) : Results.BadRequest(result.Error);
-        }).RequireAuthorization("AdminOnly");
+        }).RequireAuthorization("management.requests.read");
         
         group.MapGet("/{userId:guid}/memberLinkingRequests", async ([FromRoute] Guid userId, [FromServices] IMemberLinkingService service) => {
             var result = await service.GetMemberLinkingRequestsFromUserAsync(userId);
             return result.IsSuccess ? Results.Ok(result.Value) : Results.BadRequest(result.Error);
-        }).RequireAuthorization("AdminOrSelfRouteUserId");
+        }).RequireAuthorization("RequestsReadOrSelfRouteUserId");
 
 
         group.MapPost("/memberLinkingRequests", async (
@@ -58,8 +58,7 @@ public static class MemberLinkingEndpoints {
             ClaimsPrincipal user,
             [FromServices] IMemberLinkingService service
         ) => {
-            // Allow admins outright
-            if (!user.IsInRole("Admin")) {
+            if (!user.HasClaim("permission", "management.requests.manage")) {
                 var claim = user.FindFirstValue(ClaimTypes.NameIdentifier) ?? user.FindFirstValue("sub");
                 if (!Guid.TryParse(claim, out var currentUserId)) return Results.Forbid();
                 if (request.IssuingUserId != currentUserId) return Results.Forbid();

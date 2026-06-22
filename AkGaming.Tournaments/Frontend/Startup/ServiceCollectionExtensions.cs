@@ -4,6 +4,7 @@ using AkGaming.Tournaments.Frontend.Api;
 using AkGaming.Tournaments.Frontend.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Components.Server.Circuits;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.HttpOverrides;
@@ -109,9 +110,19 @@ public static class ServiceCollectionExtensions
                 };
             });
 
-        services.AddAuthorization();
+        services.AddAuthorization(options =>
+        {
+            AddPermissionPolicy(options, "tournaments.games.manage");
+            AddPermissionPolicy(options, "tournaments.tournaments.manage");
+            AddPermissionPolicy(options, "tournaments.registrations.manage");
+        });
 
         return services;
+    }
+
+    private static void AddPermissionPolicy(AuthorizationOptions options, string permission)
+    {
+        options.AddPolicy(permission, policy => policy.RequireClaim("permission", permission));
     }
 
     public static IServiceCollection ConfigureForwardedHeaders(this IServiceCollection services)

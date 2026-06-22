@@ -79,7 +79,7 @@
             </div>
             
             <StatusUpdatePanel
-                Editable="@(EditMode && IsStatusEditable)"
+                Editable="IsStatusEditable"
                 Member="@_localMember"
                 OnStatusUpdated="StatusUpdated" />
         </div>

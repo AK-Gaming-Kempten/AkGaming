@@ -2,7 +2,7 @@
 @using Microsoft.AspNetCore.Authorization
 @using AkGaming.Management.Modules.MemberManagement.Contracts.DTO
 @using AkGaming.Management.Modules.MemberManagement.Contracts.Enums
-@attribute [Authorize(Roles = "Admin")]
+@attribute [Authorize(Policy = "management.dues.read")]
 
 <PageTitle>Membership Dues</PageTitle>
 
@@ -64,12 +64,16 @@
 
                     <div class="ui-actions dues-control-actions">
                         <ActionButton Kind="ActionButtonKind.Refresh" Size="ActionButtonSize.Small" OnClick="() => LoadPaymentPeriodsAsync(true)" Disabled="@(_loadingPaymentPeriods || _loadingDues)" Label="Refresh dues" />
-                        <ActionButton Kind="ActionButtonKind.Send" Variant="ActionButtonVariant.Primary" Size="ActionButtonSize.Small" OnClick="OpenBulkReminderDialogAsync" Disabled="@(_selectedPaymentPeriodId is null || _loadingPaymentPeriods || _loadingDues)" Label="Send all reminders" />
-                        <ActionButton Kind="@(_showCreatePeriodForm ? ActionButtonKind.Cancel : ActionButtonKind.Create)" Variant="ActionButtonVariant.Outline" Size="ActionButtonSize.Small" OnClick="ToggleCreatePeriodForm" Label="@(_showCreatePeriodForm ? "Hide create period" : "Create period")" />
+                        @if (_canDispatchDues) {
+                            <ActionButton Kind="ActionButtonKind.Send" Variant="ActionButtonVariant.Primary" Size="ActionButtonSize.Small" OnClick="OpenBulkReminderDialogAsync" Disabled="@(_selectedPaymentPeriodId is null || _loadingPaymentPeriods || _loadingDues)" Label="Send all reminders" />
+                        }
+                        @if (_canManageDues) {
+                            <ActionButton Kind="@(_showCreatePeriodForm ? ActionButtonKind.Cancel : ActionButtonKind.Create)" Variant="ActionButtonVariant.Outline" Size="ActionButtonSize.Small" OnClick="ToggleCreatePeriodForm" Label="@(_showCreatePeriodForm ? "Hide create period" : "Create period")" />
+                        }
                     </div>
                 </div>
 
-                @if (_showCreatePeriodForm) {
+                @if (_canManageDues && _showCreatePeriodForm) {
                     <EditForm Model="_createRequest" OnValidSubmit="CreatePaymentPeriodAsync">
                         <div class="ui-grid-auto-180 dues-create-grid">
                             <div>
@@ -119,7 +123,7 @@
         <section class="panel dues-card dues-list-card">
             <div class="dues-list-header">
                 <h4 class="ui-title">Payment Period Dues</h4>
-                @if (_selectedPaymentPeriodId is not null) {
+                @if (_canDispatchDues && _selectedPaymentPeriodId is not null) {
                     <ActionButton Kind="ActionButtonKind.Send" Variant="ActionButtonVariant.Primary" Size="ActionButtonSize.Small" OnClick="OpenBulkReminderDialogAsync" Disabled="@(_loadingPaymentPeriods || _loadingDues)" Label="Send all reminders" />
                 }
             </div>
@@ -146,6 +150,8 @@
                                             PrimaryMemberLabel="@GetPrimaryMemberLabel(due.MemberId)"
                                             SecondaryMemberLabel="@GetSecondaryMemberLabel(due.MemberId)"
                                             IsSaving="@_savingDueIds.Contains(due.Id)"
+                                            CanManage="_canManageDues"
+                                            CanDispatch="_canDispatchDues"
                                             OnSave="SaveDueAsync"
                                             OnRequestReminderSend="OpenSingleReminderDialogAsync"
                                             OnRequestSuspensionSend="OpenSuspensionDialogAsync" />
@@ -203,11 +209,13 @@
                                                 }
                                             </div>
                                             <span class="@GetReminderStateClass(recipient.State)">@GetReminderStateLabel(recipient.State)</span>
-                                            <ActionButton Kind="ActionButtonKind.DownloadPdf"
-                                                          Size="ActionButtonSize.Small"
-                                                          OnClick="() => DownloadReminderPdfAsync(recipient)"
-                                                          Disabled="@(_downloadingReminderPdfIds.Contains(recipient.DueId) || _sendingReminderDispatch)"
-                                                          Label="@($"Download reminder PDF for {recipient.MemberDisplayName}")" />
+                                            @if (_canDispatchDues) {
+                                                <ActionButton Kind="ActionButtonKind.DownloadPdf"
+                                                              Size="ActionButtonSize.Small"
+                                                              OnClick="() => DownloadReminderPdfAsync(recipient)"
+                                                              Disabled="@(_downloadingReminderPdfIds.Contains(recipient.DueId) || _sendingReminderDispatch)"
+                                                              Label="@($"Download reminder PDF for {recipient.MemberDisplayName}")" />
+                                            }
                                         </article>
                                     }
                                 </div>
@@ -235,7 +243,7 @@
                     </div>
 
                     <footer class="dues-reminder-dialog-actions">
-                        @if (!_sendingReminderDispatchCompleted && _dispatchRecipientStates.Count > 0) {
+                        @if (_canDispatchDues && !_sendingReminderDispatchCompleted && _dispatchRecipientStates.Count > 0) {
                             <ActionButton Kind="ActionButtonKind.Send" Variant="ActionButtonVariant.Primary" OnClick="SendReminderDispatchAsync" Disabled="@(_sendingReminderDispatch || _loadingReminderDispatchPreview)" Label="Send reminders" />
                         }
                         <ActionButton Kind="@(_sendingReminderDispatchCompleted || _dispatchRecipientStates.Count == 0 ? ActionButtonKind.Close : ActionButtonKind.Cancel)" OnClick="CloseReminderDialog" Disabled="_sendingReminderDispatch" Label="@(_sendingReminderDispatchCompleted || _dispatchRecipientStates.Count == 0 ? "Close" : "Cancel")" />
@@ -295,8 +303,10 @@
                     </div>
 
                     <footer class="dues-reminder-dialog-actions">
-                        <ActionButton Kind="ActionButtonKind.DownloadPdf" Variant="ActionButtonVariant.Primary" OnClick="DownloadSuspensionPdfAsync" Disabled="@(_downloadingSuspensionPdf || _loadingSuspensionPreview)" Label="Download suspension PDF" />
-                        <ActionButton Kind="ActionButtonKind.Send" Variant="ActionButtonVariant.Danger" OnClick="SendSuspensionAsync" Disabled="@(_sendingSuspension || _loadingSuspensionPreview)" Label="Send suspension and suspend member" />
+                        @if (_canDispatchDues) {
+                            <ActionButton Kind="ActionButtonKind.DownloadPdf" Variant="ActionButtonVariant.Primary" OnClick="DownloadSuspensionPdfAsync" Disabled="@(_downloadingSuspensionPdf || _loadingSuspensionPreview)" Label="Download suspension PDF" />
+                            <ActionButton Kind="ActionButtonKind.Send" Variant="ActionButtonVariant.Danger" OnClick="SendSuspensionAsync" Disabled="@(_sendingSuspension || _loadingSuspensionPreview)" Label="Send suspension and suspend member" />
+                        }
                         <ActionButton Kind="ActionButtonKind.Cancel" OnClick="CloseSuspensionDialog" Disabled="_sendingSuspension" />
                     </footer>
                 }

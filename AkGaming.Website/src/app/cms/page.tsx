@@ -1,6 +1,7 @@
 import { auth, isCmsAuthenticationConfigured, signIn, signOut } from "../../../auth";
 import "./cms.css";
 import CmsPostsEditor from "./CmsPostsEditor";
+import { canAccessCms } from "../../content/cmsAuthorization";
 
 export default async function CmsPage() {
     if (!isCmsAuthenticationConfigured())
@@ -11,10 +12,10 @@ export default async function CmsPage() {
     if (session === null)
         return <SignInPanel />;
 
-    if (!session.roles.some(role => role.localeCompare("Admin", undefined, { sensitivity: "accent" }) === 0))
-        return <AccessDeniedPanel email={session.user?.email} roles={session.roles} />;
+    if (!canAccessCms(session.permissions))
+        return <AccessDeniedPanel email={session.user?.email} />;
 
-    return <CmsOverview email={session.user?.email} />;
+    return <CmsOverview email={session.user?.email} permissions={session.permissions} />;
 }
 
 function ConfigurationRequiredPanel() {
@@ -52,7 +53,7 @@ function SignInPanel() {
     );
 }
 
-function AccessDeniedPanel({ email, roles }: { email?: string | null; roles: string[] }) {
+function AccessDeniedPanel({ email }: { email?: string | null }) {
     async function signOutFromCms() {
         "use server";
         await signOut({ redirectTo: "/cms" });
@@ -63,8 +64,7 @@ function AccessDeniedPanel({ email, roles }: { email?: string | null; roles: str
             <section className="cms-panel">
                 <p className="cms-eyebrow">Access denied</p>
                 <h1>CMS access is restricted</h1>
-                <p>{email ?? "This account"} does not have the AK Gaming Admin role.</p>
-                <p>Roles received from Identity: {roles.length === 0 ? "none" : roles.join(", ")}.</p>
+                <p>{email ?? "This account"} does not have a website CMS permission.</p>
                 <form action={signOutFromCms}>
                     <button type="submit" className="cms-secondary-button">Sign out</button>
                 </form>
@@ -73,7 +73,7 @@ function AccessDeniedPanel({ email, roles }: { email?: string | null; roles: str
     );
 }
 
-function CmsOverview({ email }: { email?: string | null }) {
+function CmsOverview({ email, permissions }: { email?: string | null; permissions: string[] }) {
     async function signOutFromCms() {
         "use server";
         await signOut({ redirectTo: "/cms" });
@@ -81,7 +81,7 @@ function CmsOverview({ email }: { email?: string | null }) {
 
     return (
         <main className="cms-page cms-fullscreen">
-            <CmsPostsEditor email={email} signOutAction={signOutFromCms} />
+            <CmsPostsEditor email={email} permissions={permissions} signOutAction={signOutFromCms} />
         </main>
     );
 }

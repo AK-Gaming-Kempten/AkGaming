@@ -24,7 +24,7 @@ public static class MemberUpdateEndpoints {
             }
 
             var currentUserId = GetCurrentUserIdOrNull(user);
-            if (!user.IsInRole("Admin")) {
+            if (!user.HasClaim("permission", "management.members.details.manage")) {
                 if (!currentUserId.HasValue) {
                     return Results.Forbid();
                 }

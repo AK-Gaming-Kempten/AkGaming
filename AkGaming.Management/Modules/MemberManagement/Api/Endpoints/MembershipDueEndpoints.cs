@@ -21,14 +21,14 @@ public static class MembershipDueEndpoints {
         ) => {
             var result = await service.CreatePaymentPeriodAsync(request, GetCurrentUserIdOrNull(user));
             return MapResult(result);
-        }).RequireAuthorization("AdminOnly");
+        }).RequireAuthorization("management.dues.manage");
 
         group.MapGet("/payment-periods", async (
             [FromServices] IMembershipDueService service
         ) => {
             var result = await service.GetPaymentPeriodsAsync();
             return MapResult(result);
-        }).RequireAuthorization("AdminOnly");
+        }).RequireAuthorization("management.dues.read");
 
         group.MapGet("/payment-periods/current", async (
             [FromServices] IMembershipDueService service
@@ -41,7 +41,7 @@ public static class MembershipDueEndpoints {
                 return Results.NotFound(result.Error);
 
             return Results.BadRequest(result.Error);
-        }).RequireAuthorization("AdminOnly");
+        }).RequireAuthorization("management.dues.read");
 
         group.MapGet("/payment-periods/{paymentPeriodId:int}", async (
             [FromRoute] int paymentPeriodId,
@@ -49,7 +49,7 @@ public static class MembershipDueEndpoints {
         ) => {
             var result = await service.GetPaymentPeriodDuesAsync(paymentPeriodId);
             return MapResult(result);
-        }).RequireAuthorization("AdminOnly");
+        }).RequireAuthorization("management.dues.read");
 
         group.MapGet("/payment-periods/{paymentPeriodId:int}/reminder-dispatch", async (
             [FromRoute] int paymentPeriodId,
@@ -57,7 +57,7 @@ public static class MembershipDueEndpoints {
         ) => {
             var result = await service.GetReminderDispatchPreviewForPaymentPeriodAsync(paymentPeriodId);
             return MapResult(result);
-        }).RequireAuthorization("AdminOnly");
+        }).RequireAuthorization("management.dues.dispatch");
 
         group.MapPost("/payment-periods/{paymentPeriodId:int}/members", async (
             [FromRoute] int paymentPeriodId,
@@ -67,7 +67,7 @@ public static class MembershipDueEndpoints {
         ) => {
             var result = await service.AddMembersToPaymentPeriodAsync(paymentPeriodId, memberIds, GetCurrentUserIdOrNull(user));
             return MapResult(result);
-        }).RequireAuthorization("AdminOnly");
+        }).RequireAuthorization("management.dues.manage");
 
         group.MapGet("/members/{memberId:guid}", async (
             [FromRoute] Guid memberId,
@@ -75,7 +75,7 @@ public static class MembershipDueEndpoints {
         ) => {
             var result = await service.GetDuesForMemberAsync(memberId);
             return MapResult(result);
-        }).RequireAuthorization("AdminOnly");
+        }).RequireAuthorization("management.dues.read");
 
         group.MapGet("/{dueId:int}/reminder-email", async (
             [FromRoute] int dueId,
@@ -83,7 +83,7 @@ public static class MembershipDueEndpoints {
         ) => {
             var result = await service.GetReminderEmailPreviewAsync(dueId);
             return MapResult(result);
-        }).RequireAuthorization("AdminOnly");
+        }).RequireAuthorization("management.dues.dispatch");
 
         group.MapGet("/{dueId:int}/suspension-email", async (
             [FromRoute] int dueId,
@@ -91,7 +91,7 @@ public static class MembershipDueEndpoints {
         ) => {
             var result = await service.GetSuspensionEmailPreviewAsync(dueId);
             return MapResult(result);
-        }).RequireAuthorization("AdminOnly");
+        }).RequireAuthorization("management.dues.dispatch");
 
         group.MapGet("/{dueId:int}/reminder-pdf", async (
             [FromRoute] int dueId,
@@ -99,7 +99,7 @@ public static class MembershipDueEndpoints {
         ) => {
             var result = await service.RenderReminderPdfAsync(dueId);
             return MapPdfResult(result, $"membership-due-reminder-{dueId}.pdf");
-        }).RequireAuthorization("AdminOnly");
+        }).RequireAuthorization("management.dues.dispatch");
 
         group.MapGet("/{dueId:int}/suspension-pdf", async (
             [FromRoute] int dueId,
@@ -107,7 +107,7 @@ public static class MembershipDueEndpoints {
         ) => {
             var result = await service.RenderSuspensionPdfAsync(dueId);
             return MapPdfResult(result, $"membership-suspension-{dueId}.pdf");
-        }).RequireAuthorization("AdminOnly");
+        }).RequireAuthorization("management.dues.dispatch");
 
         group.MapGet("/{dueId:int}/reminder-dispatch", async (
             [FromRoute] int dueId,
@@ -115,7 +115,7 @@ public static class MembershipDueEndpoints {
         ) => {
             var result = await service.GetReminderDispatchPreviewForDueAsync(dueId);
             return MapResult(result);
-        }).RequireAuthorization("AdminOnly");
+        }).RequireAuthorization("management.dues.dispatch");
 
         group.MapPost("/{dueId:int}/send-reminder", async (
             [FromRoute] int dueId,
@@ -132,7 +132,7 @@ public static class MembershipDueEndpoints {
                 return Results.Problem(detail: result.Error, statusCode: StatusCodes.Status500InternalServerError);
 
             return Results.BadRequest(result.Error);
-        }).RequireAuthorization("AdminOnly");
+        }).RequireAuthorization("management.dues.dispatch");
 
         group.MapPost("/{dueId:int}/send-suspension", async (
             [FromRoute] int dueId,
@@ -149,7 +149,7 @@ public static class MembershipDueEndpoints {
                 return Results.Problem(detail: result.Error, statusCode: StatusCodes.Status500InternalServerError);
 
             return Results.BadRequest(result.Error);
-        }).RequireAuthorization("AdminOnly");
+        }).RequireAuthorization("management.dues.dispatch");
 
         group.MapGet("/me", async (
             ClaimsPrincipal user,
@@ -182,7 +182,7 @@ public static class MembershipDueEndpoints {
                 return Results.NotFound(result.Error);
 
             return Results.BadRequest(result.Error);
-        }).RequireAuthorization("AdminOnly");
+        }).RequireAuthorization("management.dues.manage");
 
         return endpoints;
     }

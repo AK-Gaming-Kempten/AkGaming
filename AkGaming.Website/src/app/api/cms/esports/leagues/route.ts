@@ -1,14 +1,14 @@
 import { NextResponse } from "next/server";
-import { isCmsAdministrator } from "../../../../../content/cmsAuthorization";
+import { CmsPermissions, hasCmsPermission } from "../../../../../content/cmsAuthorization";
 import { listManagedLeagues, saveManagedLeagues, type ManagedEsportsLeague } from "../../../../../content/esportsCatalogStore";
 
 export async function GET() {
-    if (!await isCmsAdministrator()) return NextResponse.json({ message: "Forbidden." }, { status: 403 });
+    if (!await hasCmsPermission(CmsPermissions.esportsManage)) return NextResponse.json({ message: "Forbidden." }, { status: 403 });
     return NextResponse.json(await listManagedLeagues());
 }
 
 export async function PUT(request: Request) {
-    if (!await isCmsAdministrator()) return NextResponse.json({ message: "Forbidden." }, { status: 403 });
+    if (!await hasCmsPermission(CmsPermissions.esportsManage)) return NextResponse.json({ message: "Forbidden." }, { status: 403 });
     try {
         return NextResponse.json(await saveManagedLeagues(await request.json() as ManagedEsportsLeague[]));
     }

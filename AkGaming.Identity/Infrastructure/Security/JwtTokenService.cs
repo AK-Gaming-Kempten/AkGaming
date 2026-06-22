@@ -3,6 +3,7 @@ using System.Security.Claims;
 using System.Text;
 using AkGaming.Identity.Application.Abstractions;
 using AkGaming.Identity.Domain.Entities;
+using AkGaming.Identity.Domain.Constants;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 
@@ -51,6 +52,11 @@ public sealed class JwtTokenService : IJwtTokenService
         }
 
         claims.AddRange(user.UserRoles.Select(userRole => new Claim(ClaimTypes.Role, userRole.Role.Name)));
+        claims.AddRange(user.UserRoles
+            .SelectMany(userRole => userRole.Role.RolePermissions)
+            .Select(rolePermission => rolePermission.Permission.Key)
+            .Distinct(StringComparer.Ordinal)
+            .Select(permission => new Claim(PermissionNames.ClaimType, permission)));
 
         var token = new JwtSecurityToken(
             _options.Issuer,

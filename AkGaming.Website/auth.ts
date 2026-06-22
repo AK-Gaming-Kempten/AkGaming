@@ -3,6 +3,7 @@ import { customFetch } from "next-auth";
 import type { OAuthConfig } from "@auth/core/providers/oauth";
 import type { Profile } from "@auth/core/types";
 import { request as httpsRequest } from "node:https";
+import { decodeCmsCapabilities, encodeCmsCapabilities } from "./src/content/cmsPermissions";
 
 const akGamingProvider: OAuthConfig<Profile> = {
     id: "akgaming",
@@ -35,15 +36,19 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     callbacks: {
         jwt({ token, profile, account }) {
             if (profile !== undefined || account?.id_token !== undefined) {
-                const profileRoles = profile === undefined ? [] : getRoles(profile);
-                const idTokenRoles = getRolesFromIdToken(account?.id_token);
-                token.roles = profileRoles.length > 0 ? profileRoles : idTokenRoles;
+                const profilePermissions = profile === undefined ? [] : getPermissions(profile);
+                const idTokenPermissions = getPermissionsFromIdToken(account?.id_token);
+                const permissions = profilePermissions.length > 0 ? profilePermissions : idTokenPermissions;
+                token.cmsCapabilities = encodeCmsCapabilities(permissions);
             }
+
+            delete token.roles;
+            delete token.permissions;
 
             return token;
         },
         session({ session, token }) {
-            session.roles = getRoles(token);
+            session.permissions = decodeCmsCapabilities(typeof token.cmsCapabilities === "string" ? token.cmsCapabilities : undefined);
             return session;
         },
     },
@@ -58,22 +63,23 @@ export function isCmsAuthenticationConfigured(): boolean {
     ].every(value => !isBlank(value));
 }
 
-function getRoles(source: Record<string, unknown>): string[] {
-    const roleValue = source.role
-                      ?? source.roles
-                      ?? source["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"]
-                      ?? source["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role"];
+function getPermissions(source: Record<string, unknown>): string[] {
+    const permissionValue = source.permission ?? source.permissions;
 
-    if (typeof roleValue === "string")
-        return [roleValue];
+    if (typeof permissionValue === "string")
+        return [permissionValue];
 
-    if (Array.isArray(roleValue))
-        return roleValue.filter((value): value is string => typeof value === "string");
+    if (Array.isArray(permissionValue))
+        return permissionValue.filter((value): value is string => typeof value === "string");
 
     return [];
 }
 
-function getRolesFromIdToken(idToken: string | undefined): string[] {
+function getPermissionsFromIdToken(idToken: string | undefined): string[] {
+    return getClaimsFromIdToken(idToken, getPermissions);
+}
+
+function getClaimsFromIdToken(idToken: string | undefined, getClaims: (source: Record<string, unknown>) => string[]): string[] {
     if (idToken === undefined)
         return [];
 
@@ -83,7 +89,7 @@ function getRolesFromIdToken(idToken: string | undefined): string[] {
 
     try {
         const value = JSON.parse(Buffer.from(payload, "base64url").toString("utf8"));
-        return isRecord(value) ? getRoles(value) : [];
+        return isRecord(value) ? getClaims(value) : [];
     }
     catch {
         return [];

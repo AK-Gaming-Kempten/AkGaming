@@ -1,6 +1,6 @@
 @page "/identity/audit-log"
 @using Microsoft.AspNetCore.Authorization
-@attribute [Authorize(Roles = "Admin")]
+@attribute [Authorize(Policy = "identity.audit.read")]
 
 <PageTitle>Identity Audit Log</PageTitle>
 

@@ -1,16 +1,16 @@
 import { NextResponse } from "next/server";
-import { isCmsAdministrator } from "../../../../content/cmsAuthorization";
+import { CmsPermissions, hasCmsPermission } from "../../../../content/cmsAuthorization";
 import { createPostFolder, listPostFolders } from "../../../../content/postStore";
 
 export async function GET() {
-    if (!await isCmsAdministrator())
+    if (!await hasCmsPermission(CmsPermissions.postsManage))
         return NextResponse.json({ message: "Forbidden." }, { status: 403 });
 
     return NextResponse.json(await listPostFolders());
 }
 
 export async function POST(request: Request) {
-    if (!await isCmsAdministrator())
+    if (!await hasCmsPermission(CmsPermissions.postsManage))
         return NextResponse.json({ message: "Forbidden." }, { status: 403 });
 
     try {

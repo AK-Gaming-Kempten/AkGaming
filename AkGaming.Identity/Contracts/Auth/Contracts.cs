@@ -32,7 +32,8 @@ public sealed record CurrentUserResponse(
     string Username,
     bool IsEmailVerified,
     string[] Roles,
-    DiscordLinkInfo? Discord);
+    DiscordLinkInfo? Discord,
+    string[]? Permissions = null);
 
 public sealed record DiscordLinkInfo(
     string ProviderUserId,
@@ -46,10 +47,12 @@ public sealed record RedirectFinalizeRequest(
     string RefreshToken,
     DateTime AccessTokenExpiresAtUtc);
 
-public sealed record RoleResponse(Guid Id, string Name);
+public sealed record PermissionResponse(string Key, string Application, string Area, string Operation, string Description);
+public sealed record RoleResponse(Guid Id, string Name, string[] Permissions);
 public sealed record AdminCreateRoleRequest(string Name);
 public sealed record AdminRenameRoleRequest(string Name);
 public sealed record AdminSetUserRolesRequest(string[] Roles);
+public sealed record AdminSetRolePermissionsRequest(string[] Permissions);
 public sealed record UserRolesResponse(Guid UserId, string[] Roles);
 
 public sealed record OidcClientResponse(

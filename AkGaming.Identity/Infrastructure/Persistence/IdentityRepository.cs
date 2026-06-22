@@ -18,6 +18,8 @@ public sealed class IdentityRepository : IIdentityRepository
         return _dbContext.Users
             .Include(x => x.UserRoles)
             .ThenInclude(x => x.Role)
+            .ThenInclude(x => x.RolePermissions)
+            .ThenInclude(x => x.Permission)
             .Include(x => x.ExternalLogins)
             .AsSplitQuery()
             .SingleOrDefaultAsync(x => x.Email == email, cancellationToken);
@@ -28,6 +30,8 @@ public sealed class IdentityRepository : IIdentityRepository
         return _dbContext.Users
             .Include(x => x.UserRoles)
             .ThenInclude(x => x.Role)
+            .ThenInclude(x => x.RolePermissions)
+            .ThenInclude(x => x.Permission)
             .Include(x => x.ExternalLogins)
             .AsSplitQuery()
             .SingleOrDefaultAsync(x => x.Id == userId, cancellationToken);
@@ -38,6 +42,8 @@ public sealed class IdentityRepository : IIdentityRepository
         return _dbContext.Users
             .Include(x => x.UserRoles)
             .ThenInclude(x => x.Role)
+            .ThenInclude(x => x.RolePermissions)
+            .ThenInclude(x => x.Permission)
             .Include(x => x.ExternalLogins)
             .AsSplitQuery()
             .SingleOrDefaultAsync(x => x.Id == userId, cancellationToken);
@@ -48,6 +54,8 @@ public sealed class IdentityRepository : IIdentityRepository
         var query = _dbContext.Users
             .Include(x => x.UserRoles)
             .ThenInclude(x => x.Role)
+            .ThenInclude(x => x.RolePermissions)
+            .ThenInclude(x => x.Permission)
             .AsSplitQuery()
             .AsQueryable();
 
@@ -113,24 +121,43 @@ public sealed class IdentityRepository : IIdentityRepository
     public Task<List<Role>> GetAllRolesAsync(CancellationToken cancellationToken)
     {
         return _dbContext.Roles
+            .Include(x => x.RolePermissions)
+            .ThenInclude(x => x.Permission)
             .OrderBy(x => x.Name)
             .ToListAsync(cancellationToken);
     }
 
     public Task<Role?> GetRoleByIdAsync(Guid roleId, CancellationToken cancellationToken)
     {
-        return _dbContext.Roles.SingleOrDefaultAsync(x => x.Id == roleId, cancellationToken);
+        return _dbContext.Roles
+            .Include(x => x.RolePermissions)
+            .ThenInclude(x => x.Permission)
+            .SingleOrDefaultAsync(x => x.Id == roleId, cancellationToken);
     }
 
     public Task<Role?> GetRoleByNameAsync(string roleName, CancellationToken cancellationToken)
     {
-        return _dbContext.Roles.SingleOrDefaultAsync(x => x.Name == roleName, cancellationToken);
+        return _dbContext.Roles
+            .Include(x => x.RolePermissions)
+            .ThenInclude(x => x.Permission)
+            .SingleOrDefaultAsync(x => x.Name == roleName, cancellationToken);
     }
 
     public Task<List<Role>> GetRolesByNamesAsync(IReadOnlyCollection<string> roleNames, CancellationToken cancellationToken)
     {
         return _dbContext.Roles
+            .Include(x => x.RolePermissions)
+            .ThenInclude(x => x.Permission)
             .Where(x => roleNames.Contains(x.Name))
+            .ToListAsync(cancellationToken);
+    }
+
+    public Task<List<Permission>> GetAllPermissionsAsync(CancellationToken cancellationToken)
+    {
+        return _dbContext.Permissions
+            .OrderBy(x => x.Application)
+            .ThenBy(x => x.Area)
+            .ThenBy(x => x.Operation)
             .ToListAsync(cancellationToken);
     }
 
@@ -171,6 +198,8 @@ public sealed class IdentityRepository : IIdentityRepository
             .Include(x => x.User)
             .ThenInclude(x => x.UserRoles)
             .ThenInclude(x => x.Role)
+            .ThenInclude(x => x.RolePermissions)
+            .ThenInclude(x => x.Permission)
             .Include(x => x.User)
             .ThenInclude(x => x.ExternalLogins)
             .AsSplitQuery()
@@ -183,6 +212,8 @@ public sealed class IdentityRepository : IIdentityRepository
             .Include(x => x.User)
             .ThenInclude(x => x.UserRoles)
             .ThenInclude(x => x.Role)
+            .ThenInclude(x => x.RolePermissions)
+            .ThenInclude(x => x.Permission)
             .Include(x => x.User)
             .ThenInclude(x => x.ExternalLogins)
             .AsSplitQuery()
@@ -218,6 +249,11 @@ public sealed class IdentityRepository : IIdentityRepository
     public async Task AddRoleAsync(Role role, CancellationToken cancellationToken)
     {
         await _dbContext.Roles.AddAsync(role, cancellationToken);
+    }
+
+    public async Task AddPermissionAsync(Permission permission, CancellationToken cancellationToken)
+    {
+        await _dbContext.Permissions.AddAsync(permission, cancellationToken);
     }
 
     public void RemoveRole(Role role)

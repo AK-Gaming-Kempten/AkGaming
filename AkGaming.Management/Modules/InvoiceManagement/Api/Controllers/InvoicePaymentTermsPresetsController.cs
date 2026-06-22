@@ -7,7 +7,7 @@ namespace AkGaming.Management.Modules.InvoiceManagement.Api.Controllers;
 
 [ApiController]
 [Route("invoice-payment-terms-presets")]
-[Authorize(Policy = "AdminOnly")]
+[Authorize(Policy = "management.invoices.manage")]
 public sealed class InvoicePaymentTermsPresetsController(IInvoiceManagementService service) : ControllerBase
 {
     [HttpGet]

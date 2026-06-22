@@ -1,7 +1,7 @@
 @page "/member-management/members"
 <PageTitle>Member Management</PageTitle>
 @using Microsoft.AspNetCore.Authorization
-@attribute [Authorize(Roles = "Admin")]
+@attribute [Authorize(Policy = "management.members.read")]
 @inject HttpClient Api
 
 <div class="two-column-layout mobile-master-detail @(_isMobileDetailOpen ? "mobile-detail-open" : string.Empty)">
@@ -9,7 +9,10 @@
         <div class="list-buttons">
             <h4>Existing Members</h4>
             <ActionButton Kind="ActionButtonKind.Filter" OnClick="OpenFilters" Disabled="true" Label="Filter members" />
-            <ActionButton Kind="ActionButtonKind.Create" Variant="ActionButtonVariant.Primary" OnClick="CreateMember" Label="Create member" />
+            @if (_canManageMemberDetails)
+            {
+                <ActionButton Kind="ActionButtonKind.Create" Variant="ActionButtonVariant.Primary" OnClick="CreateMember" Label="Create member" />
+            }
         </div>
         <div class="list-main">
             @if (_members == null)
@@ -38,7 +41,7 @@
             <ActionButton Kind="ActionButtonKind.Back" Variant="ActionButtonVariant.Outline" Size="ActionButtonSize.Small" OnClick="ShowListMobile" Label="Back to members" />
         </div>
         <CascadingValue Value="MemberApi" Name="MemberManagementApi" IsFixed="true">
-            <MemberCard Member="_selectedMember" IsEditable="true" IsStatusEditable="true" OnMemberUpdated="Reload" />
+            <MemberCard Member="_selectedMember" IsEditable="_canManageMemberDetails" IsStatusEditable="_canManageMemberStatus" OnMemberUpdated="Reload" />
             @if (_createError != null)
             {
                 <p class="text-danger">@_createError</p>

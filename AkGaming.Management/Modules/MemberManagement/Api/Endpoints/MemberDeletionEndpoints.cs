@@ -9,7 +9,7 @@ public static class MemberDeletionEndpoints {
     public static IEndpointRouteBuilder MapMemberDeletionEndpoints(this IEndpointRouteBuilder endpoints) {
         var group = endpoints.MapGroup("/members")
             .WithTags("Members - Commands")
-            .RequireAuthorization("AdminOnly");
+            .RequireAuthorization("management.members.details.manage");
 
         group.MapDelete("/{memberId}", async (Guid memberId, IMemberDeletionService service) => {
             var result = await service.DeleteMemberAsync(memberId);

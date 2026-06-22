@@ -276,7 +276,8 @@ public sealed class AuthService : IAuthService
             user.UserRoles.Select(x => x.Role.Name).ToArray(),
             discordLink is null
                 ? null
-                : new DiscordLinkInfo(discordLink.ProviderUserId, discordLink.ProviderUsername, discordLink.LinkedAtUtc));
+                : new DiscordLinkInfo(discordLink.ProviderUserId, discordLink.ProviderUsername, discordLink.LinkedAtUtc),
+            GetEffectivePermissionKeys(user));
     }
 
     public async Task<AdminUsersResponse> GetUsersAsync(int page, int pageSize, string? search, CancellationToken cancellationToken)
@@ -456,7 +457,74 @@ public sealed class AuthService : IAuthService
     public async Task<IReadOnlyList<RoleResponse>> GetRolesAsync(CancellationToken cancellationToken)
     {
         var roles = await _repository.GetAllRolesAsync(cancellationToken);
-        return roles.Select(x => new RoleResponse(x.Id, x.Name)).ToArray();
+        return roles.Select(CreateRoleResponse).ToArray();
+    }
+
+    public async Task<IReadOnlyList<PermissionResponse>> GetPermissionsAsync(CancellationToken cancellationToken)
+    {
+        var permissions = await _repository.GetAllPermissionsAsync(cancellationToken);
+        return permissions
+            .Select(x => new PermissionResponse(x.Key, x.Application, x.Area, x.Operation, x.Description))
+            .ToArray();
+    }
+
+    public async Task<RoleResponse> SetRolePermissionsAsync(Guid actorUserId, Guid roleId, AdminSetRolePermissionsRequest request, string? ipAddress, CancellationToken cancellationToken)
+    {
+        var role = await _repository.GetRoleByIdAsync(roleId, cancellationToken);
+        if (role is null)
+        {
+            throw new AuthException(NotFoundStatusCode, "Role was not found.");
+        }
+
+        if (IsSystemRole(role.Name))
+        {
+            throw new AuthException(ConflictStatusCode, "System role permissions are managed by the application.");
+        }
+
+        var requestedKeys = (request.Permissions ?? [])
+            .Select(x => x?.Trim())
+            .Where(x => !string.IsNullOrWhiteSpace(x))
+            .Select(x => x!)
+            .Distinct(StringComparer.Ordinal)
+            .ToHashSet(StringComparer.Ordinal);
+        var permissions = await _repository.GetAllPermissionsAsync(cancellationToken);
+        var permissionsByKey = permissions.ToDictionary(x => x.Key, StringComparer.Ordinal);
+        var unknownKeys = requestedKeys.Where(x => !permissionsByKey.ContainsKey(x)).OrderBy(x => x).ToArray();
+        if (unknownKeys.Length > 0)
+        {
+            throw new AuthException(BadRequestStatusCode, $"Unknown permission(s): {string.Join(", ", unknownKeys)}");
+        }
+
+        var assignmentsToRemove = role.RolePermissions
+            .Where(x => !requestedKeys.Contains(x.Permission.Key))
+            .ToList();
+        foreach (var assignment in assignmentsToRemove)
+        {
+            role.RolePermissions.Remove(assignment);
+        }
+
+        var assignedPermissionIds = role.RolePermissions.Select(x => x.PermissionId).ToHashSet();
+        foreach (var permission in permissions.Where(x => requestedKeys.Contains(x.Key) && !assignedPermissionIds.Contains(x.Id)))
+        {
+            role.RolePermissions.Add(new RolePermission
+            {
+                RoleId = role.Id,
+                Role = role,
+                PermissionId = permission.Id,
+                Permission = permission
+            });
+        }
+
+        await WriteAuditAsync(
+            "admin.roles.permissions_updated",
+            actorUserId,
+            null,
+            ipAddress,
+            true,
+            $"role_id:{role.Id};permissions:{string.Join(",", requestedKeys.OrderBy(x => x))}",
+            cancellationToken);
+        await _repository.SaveChangesAsync(cancellationToken);
+        return CreateRoleResponse(role);
     }
 
     public async Task<RoleResponse> CreateRoleAsync(Guid actorUserId, AdminCreateRoleRequest request, string? ipAddress, CancellationToken cancellationToken)
@@ -473,7 +541,7 @@ public sealed class AuthService : IAuthService
 
         await WriteAuditAsync("admin.roles.created", actorUserId, null, ipAddress, true, $"role:{role.Name};role_id:{role.Id}", cancellationToken);
         await _repository.SaveChangesAsync(cancellationToken);
-        return new RoleResponse(role.Id, role.Name);
+        return CreateRoleResponse(role);
     }
 
     public async Task<RoleResponse> RenameRoleAsync(Guid actorUserId, Guid roleId, AdminRenameRoleRequest request, string? ipAddress, CancellationToken cancellationToken)
@@ -499,7 +567,7 @@ public sealed class AuthService : IAuthService
         role.Name = normalizedName;
         await WriteAuditAsync("admin.roles.renamed", actorUserId, null, ipAddress, true, $"role_id:{role.Id};new_name:{role.Name}", cancellationToken);
         await _repository.SaveChangesAsync(cancellationToken);
-        return new RoleResponse(role.Id, role.Name);
+        return CreateRoleResponse(role);
     }
 
     public async Task DeleteRoleAsync(Guid actorUserId, Guid roleId, string? ipAddress, CancellationToken cancellationToken)
@@ -1228,6 +1296,35 @@ public sealed class AuthService : IAuthService
     {
         return roleName.Equals(RoleNames.Admin, StringComparison.OrdinalIgnoreCase)
                || roleName.Equals(RoleNames.User, StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static RoleResponse CreateRoleResponse(Role role)
+    {
+        var permissions = role.Name.Equals(RoleNames.Admin, StringComparison.OrdinalIgnoreCase)
+            ? PermissionCatalog.All.Select(x => x.Key)
+            : role.RolePermissions.Select(x => x.Permission.Key);
+
+        return new RoleResponse(
+            role.Id,
+            role.Name,
+            permissions
+                .OrderBy(x => x, StringComparer.Ordinal)
+                .ToArray());
+    }
+
+    private static string[] GetEffectivePermissionKeys(User user)
+    {
+        var permissions = user.UserRoles
+            .SelectMany(x => x.Role.RolePermissions)
+            .Select(x => x.Permission.Key)
+            .ToHashSet(StringComparer.Ordinal);
+
+        if (user.UserRoles.Any(x => x.Role.Name.Equals(RoleNames.Admin, StringComparison.OrdinalIgnoreCase)))
+        {
+            permissions.UnionWith(PermissionCatalog.All.Select(x => x.Key));
+        }
+
+        return permissions.OrderBy(x => x, StringComparer.Ordinal).ToArray();
     }
 
     private string GetConfiguredPublicBaseUrl()

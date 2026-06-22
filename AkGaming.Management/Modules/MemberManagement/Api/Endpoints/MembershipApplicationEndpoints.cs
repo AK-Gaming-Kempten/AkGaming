@@ -18,7 +18,7 @@ public static class MembershipApplicationEndpoints {
             ClaimsPrincipal user,
             [FromServices] IMembershipApplicationService service
         ) => {
-            if (!user.IsInRole("Admin")) {
+            if (!user.HasClaim("permission", "management.requests.manage")) {
                 var claim = user.FindFirstValue(ClaimTypes.NameIdentifier) ?? user.FindFirstValue("sub");
                 if (!Guid.TryParse(claim, out var currentUserId)) return Results.Forbid();
                 if (request.IssuingUserId != currentUserId) return Results.Forbid();
@@ -36,22 +36,22 @@ public static class MembershipApplicationEndpoints {
         ) => {
             var result = await service.GetAllRequestFromUserAsync(userId);
             return result.IsSuccess ? Results.Ok(result.Value) : Results.BadRequest(result.Error);
-        }).RequireAuthorization("AdminOrSelfRouteUserId");
+        }).RequireAuthorization("RequestsReadOrSelfRouteUserId");
         
         group.MapGet("/membershipApplicationRequests", async ([FromServices] IMembershipApplicationService service) => {
             var result = await service.GetAllRequestAsync();
             return result.IsSuccess ? Results.Ok(result.Value) : Results.BadRequest(result.Error);
-        }).RequireAuthorization("AdminOnly");
+        }).RequireAuthorization("management.requests.read");
         
         group.MapPost("/membershipApplicationRequests/{requestId:guid}/accept", async ([FromRoute] Guid requestId, ClaimsPrincipal user, [FromServices] IMembershipApplicationService service) => {
             var result = await service.AcceptMembershipApplicationAsync(requestId, GetCurrentUserIdOrNull(user));
             return result.IsSuccess ? Results.Created($"/members/{requestId}/membershipApplicationRequests", null) : Results.BadRequest(result.Error);
-        }).RequireAuthorization("AdminOnly");
+        }).RequireAuthorization("management.requests.manage");
 
         group.MapPost("/membershipApplicationRequests/{requestId:guid}/reject", async ([FromRoute] Guid requestId, ClaimsPrincipal user, [FromServices] IMembershipApplicationService service) => {
             var result = await service.RejectMembershipApplicationAsync(requestId, GetCurrentUserIdOrNull(user));
             return result.IsSuccess ? Results.Created($"/members/{requestId}/membershipApplicationRequests", null) : Results.BadRequest(result.Error);
-        }).RequireAuthorization("AdminOnly");
+        }).RequireAuthorization("management.requests.manage");
 
         return endpoints;
     }

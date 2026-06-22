@@ -1,6 +1,6 @@
 @page "/administration/tournaments"
 @namespace AkGaming.Tournaments.Frontend.Components.Administration
-@attribute [Authorize(Roles = "Admin")]
+@attribute [Authorize(Policy = "tournaments.tournaments.manage")]
 
 <PageTitle>Tournament Administration</PageTitle>
 

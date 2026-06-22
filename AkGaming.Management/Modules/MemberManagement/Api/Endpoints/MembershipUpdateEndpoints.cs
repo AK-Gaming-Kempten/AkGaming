@@ -22,7 +22,7 @@ public static class MembershipUpdateEndpoints {
         ) => {
             var result = await service.UpdateMembershipStatusAsync(memberId, status);
             return result.IsSuccess ? Results.Created() : Results.BadRequest(result.Error);
-        }).RequireAuthorization("AdminOnly");
+        }).RequireAuthorization("management.members.status.manage");
 
         group.MapPut("/{memberId:guid}/insertStatusChangeEvent", async (
             [FromRoute] Guid memberId,
@@ -31,7 +31,7 @@ public static class MembershipUpdateEndpoints {
         ) => {
             var result = await service.InsertMembershipStatusChangeEventAsync(memberId, changeEvent);
             return result.IsSuccess ? Results.Created() : Results.BadRequest(result.Error);
-        }).RequireAuthorization("AdminOnly");
+        }).RequireAuthorization("management.members.status.manage");
 
         // ----- Admin OR member owner -----
         group.MapGet("/{memberId:guid}/endOfTrial", async (
@@ -40,8 +40,7 @@ public static class MembershipUpdateEndpoints {
             [FromServices] IMembershipUpdateService service,
             [FromServices] IMemberQueryService memberQueryService
         ) => {
-            // Admins always allowed
-            if (!user.IsInRole("Admin")) {
+            if (!user.HasClaim("permission", "management.members.read")) {
                 // find the userId owning this member
                 var claim = user.FindFirstValue(ClaimTypes.NameIdentifier) ?? user.FindFirstValue("sub");
                 if (!Guid.TryParse(claim, out var currentUserId)) return Results.Forbid();
@@ -63,7 +62,7 @@ public static class MembershipUpdateEndpoints {
             [FromServices] IMembershipUpdateService service,
             [FromServices] IMemberQueryService memberQueryService
         ) => {
-            if (!user.IsInRole("Admin")) {
+            if (!user.HasClaim("permission", "management.members.read")) {
                 var claim = user.FindFirstValue(ClaimTypes.NameIdentifier) ?? user.FindFirstValue("sub");
                 if (!Guid.TryParse(claim, out var currentUserId)) return Results.Forbid();
 

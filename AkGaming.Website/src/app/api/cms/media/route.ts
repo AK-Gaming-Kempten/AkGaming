@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
-import { isCmsAdministrator } from "../../../../content/cmsAuthorization";
+import { CmsPermissions, hasCmsPermission } from "../../../../content/cmsAuthorization";
 import { createMediaFolder, deleteMediaFile, deleteMediaFolder, listMediaDirectory, moveMediaFile, renameMediaFile, uploadMediaFile } from "../../../../content/mediaStore";
 
 export const runtime = "nodejs";
 
 export async function GET(request: NextRequest) {
-    if (!await isCmsAdministrator())
+    if (!await hasCmsPermission(CmsPermissions.mediaManage))
         return NextResponse.json({ message: "Forbidden." }, { status: 403 });
 
     try {
@@ -17,7 +17,7 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
-    if (!await isCmsAdministrator())
+    if (!await hasCmsPermission(CmsPermissions.mediaManage))
         return NextResponse.json({ message: "Forbidden." }, { status: 403 });
 
     try {
@@ -42,7 +42,7 @@ export async function POST(request: NextRequest) {
 }
 
 export async function DELETE(request: NextRequest) {
-    if (!await isCmsAdministrator())
+    if (!await hasCmsPermission(CmsPermissions.mediaManage))
         return NextResponse.json({ message: "Forbidden." }, { status: 403 });
 
     try {
@@ -59,7 +59,7 @@ export async function DELETE(request: NextRequest) {
 }
 
 export async function PUT(request: NextRequest) {
-    if (!await isCmsAdministrator())
+    if (!await hasCmsPermission(CmsPermissions.mediaManage))
         return NextResponse.json({ message: "Forbidden." }, { status: 403 });
 
     try {
@@ -75,7 +75,7 @@ export async function PUT(request: NextRequest) {
 }
 
 export async function PATCH(request: NextRequest) {
-    if (!await isCmsAdministrator())
+    if (!await hasCmsPermission(CmsPermissions.mediaManage))
         return NextResponse.json({ message: "Forbidden." }, { status: 403 });
 
     try {

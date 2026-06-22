@@ -18,18 +18,22 @@
             <span class="due-entry-reminder @GetReminderStatusClass(Due.LastReminderSendStatus)">Reminder: @GetReminderStatusLabel(Due.LastReminderSendStatus)</span>
             <span>Last reminder sent: @GetLastReminderSentText(Due)</span>
         </div>
+        @if (CanManage || CanDispatch) {
         <div class="due-entry-actions">
             <ActionButton Kind="ActionButtonKind.More" Size="ActionButtonSize.Small" CssClass="due-entry-menu-trigger" OnClick="ToggleActionMenu" OnBlur="CloseActionMenu" Label="Due actions" />
 
             @if (_isActionMenuOpen) {
                 <div class="due-entry-action-menu"
                      @onmousedown:preventDefault="true">
+                    @if (CanManage) {
                     <button type="button"
                             class="due-entry-action-menu-item"
                             @onclick="ToggleEditMode">
                         @(EditMode ? "Close edit" : "Edit")
                     </button>
+                    }
 
+                    @if (CanDispatch) {
                     <button type="button"
                             class="due-entry-action-menu-item"
                             @onclick="RequestReminderSendAsync"
@@ -59,11 +63,13 @@
                             @(_showSuspensionPreview ? "Hide suspension preview" : "Preview suspension email")
                         </button>
                     }
+                    }
                 </div>
             }
         </div>
+        }
     </header>
-    @if (EditMode) {
+    @if (CanManage && EditMode) {
         <div class="ui-divider-top-dashed due-entry-editor">
             <div class="ui-grid-auto-180 due-entry-grid">
                 <div>
@@ -110,7 +116,7 @@
         </div>
     }
 
-    @if (_showReminderPreview) {
+    @if (CanDispatch && _showReminderPreview) {
         <section class="ui-divider-top-dashed due-email-preview">
             @if (_loadingReminderPreview) {
                 <p>Loading reminder preview...</p>
@@ -148,7 +154,7 @@
         </section>
     }
 
-    @if (_showSuspensionPreview) {
+    @if (CanDispatch && _showSuspensionPreview) {
         <section class="ui-divider-top-dashed due-email-preview">
             @if (_loadingSuspensionPreview) {
                 <p>Loading suspension preview...</p>

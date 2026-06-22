@@ -7,7 +7,7 @@ namespace AkGaming.Management.Modules.InvoiceManagement.Api.Controllers;
 
 [ApiController]
 [Route("invoice-line-item-collection-presets")]
-[Authorize(Policy = "AdminOnly")]
+[Authorize(Policy = "management.invoices.manage")]
 public sealed class InvoiceLineItemCollectionPresetsController(IInvoiceManagementService service) : ControllerBase
 {
     [HttpGet]

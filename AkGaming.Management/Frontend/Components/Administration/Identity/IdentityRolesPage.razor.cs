@@ -1,6 +1,7 @@
 using AkGaming.Management.Frontend.ApiClients;
 using AkGaming.Identity.Contracts.Auth;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Authorization;
 
 namespace AkGaming.Management.Frontend.Components.Administration.Identity;
 
@@ -8,7 +9,11 @@ public partial class IdentityRolesPage : ComponentBase {
     [Inject]
     private IdentityApiClient IdentityApi { get; set; } = default!;
 
+    [Inject]
+    private AuthenticationStateProvider AuthenticationStateProvider { get; set; } = default!;
+
     private List<RoleResponse>? _roles;
+    private List<PermissionResponse>? _permissions;
     private Guid? _selectedRoleId;
     private RoleResponse? _selectedRole;
 
@@ -19,9 +24,14 @@ public partial class IdentityRolesPage : ComponentBase {
     private string? _error;
     private string? _success;
     private bool _isBusy;
+    private bool _canManageRoles;
+    private readonly HashSet<string> _selectedPermissionKeys = new(StringComparer.Ordinal);
+    private bool IsSelectedRoleSystemRole => _selectedRole?.Name is "Admin" or "User";
 
     protected override async Task OnInitializedAsync() {
-        await LoadRolesAsync();
+        var authenticationState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        _canManageRoles = authenticationState.User.HasClaim("permission", "identity.roles.manage");
+        await Task.WhenAll(LoadRolesAsync(), LoadPermissionsAsync());
     }
 
     private async Task ReloadAsync() {
@@ -47,18 +57,32 @@ public partial class IdentityRolesPage : ComponentBase {
                 _selectedRoleId = null;
                 _selectedRole = null;
                 _renameRoleName = string.Empty;
+                _selectedPermissionKeys.Clear();
             }
             else {
                 _selectedRole = existing;
                 _renameRoleName = existing.Name;
+                SetSelectedPermissions(existing);
             }
         }
+    }
+
+    private async Task LoadPermissionsAsync() {
+        var result = await IdentityApi.GetPermissionsAsync();
+        if (!result.IsSuccess) {
+            _permissions = new List<PermissionResponse>();
+            _error = result.Error;
+            return;
+        }
+
+        _permissions = result.Value?.OrderBy(permission => permission.Key, StringComparer.Ordinal).ToList() ?? new List<PermissionResponse>();
     }
 
     private void SelectRole(RoleResponse role) {
         _selectedRoleId = role.Id;
         _selectedRole = role;
         _renameRoleName = role.Name;
+        SetSelectedPermissions(role);
         _isMobileDetailOpen = true;
         _error = null;
         _success = null;
@@ -124,6 +148,42 @@ public partial class IdentityRolesPage : ComponentBase {
         SelectRole(result.Value);
     }
 
+    private void SetPermissionSelection(string permissionKey, object? value) {
+        if (value is not bool isSelected || IsSelectedRoleSystemRole || !_canManageRoles) {
+            return;
+        }
+
+        if (isSelected) {
+            _selectedPermissionKeys.Add(permissionKey);
+        }
+        else {
+            _selectedPermissionKeys.Remove(permissionKey);
+        }
+    }
+
+    private async Task SavePermissionsAsync() {
+        if (_selectedRole is null || IsSelectedRoleSystemRole || !_canManageRoles) {
+            return;
+        }
+
+        _isBusy = true;
+        _error = null;
+        _success = null;
+        var result = await IdentityApi.SetRolePermissionsAsync(
+            _selectedRole.Id,
+            new AdminSetRolePermissionsRequest(_selectedPermissionKeys.OrderBy(key => key, StringComparer.Ordinal).ToArray()));
+        _isBusy = false;
+
+        if (!result.IsSuccess || result.Value is null) {
+            _error = result.Error;
+            return;
+        }
+
+        _success = "Updated role permissions.";
+        await LoadRolesAsync();
+        SelectRole(result.Value);
+    }
+
     private async Task DeleteRoleAsync() {
         if (_selectedRole is null) {
             _error = "Select a role first.";
@@ -149,6 +209,7 @@ public partial class IdentityRolesPage : ComponentBase {
         _selectedRole = null;
         _selectedRoleId = null;
         _renameRoleName = string.Empty;
+        _selectedPermissionKeys.Clear();
         _success = $"Deleted role '{roleName}'.";
 
         await LoadRolesAsync();
@@ -162,5 +223,26 @@ public partial class IdentityRolesPage : ComponentBase {
         _renameRoleName = string.Empty;
         _error = null;
         _success = null;
+    }
+
+    private void SetSelectedPermissions(RoleResponse role) {
+        _selectedPermissionKeys.Clear();
+        foreach (var permission in role.Permissions) {
+            _selectedPermissionKeys.Add(permission);
+        }
+    }
+
+    private IEnumerable<IGrouping<string, PermissionResponse>> GetPermissionApplications() {
+        return (_permissions ?? [])
+            .GroupBy(permission => permission.Application)
+            .OrderBy(group => group.Key, StringComparer.Ordinal);
+    }
+
+    private static string ToDisplayText(string value) {
+        return string.Join(
+            ' ',
+            value
+                .Split(['-', '_'], StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+                .Select(part => char.ToUpperInvariant(part[0]) + part[1..]));
     }
 }

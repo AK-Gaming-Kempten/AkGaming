@@ -1,6 +1,6 @@
 @page "/identity/roles"
 @using Microsoft.AspNetCore.Authorization
-@attribute [Authorize(Roles = "Admin")]
+@attribute [Authorize(Policy = "identity.roles.read")]
 
 <PageTitle>Identity Roles</PageTitle>
 
@@ -11,6 +11,8 @@
             <ActionButton Kind="ActionButtonKind.Refresh" OnClick="ReloadAsync" Label="Refresh roles" />
         </div>
 
+        @if (_canManageRoles)
+        {
         <div class="create-role card">
             <label for="new-role-name">Create role</label>
             <div class="inline-controls">
@@ -18,6 +20,7 @@
                 <ActionButton Kind="ActionButtonKind.Create" Variant="ActionButtonVariant.Primary" OnClick="CreateRoleAsync" Disabled="_isBusy" Label="Create role" />
             </div>
         </div>
+        }
 
         <div class="roles-list card">
             @if (_roles is null)
@@ -65,9 +68,60 @@
                 <InputText id="rename-role-name" @bind-Value="_renameRoleName" />
             </div>
 
+            @if (_canManageRoles)
+            {
             <div class="editor-actions">
                 <ActionButton Kind="ActionButtonKind.Save" Variant="ActionButtonVariant.Primary" OnClick="RenameRoleAsync" Disabled="_isBusy" Label="Save role name" />
                 <ActionButton Kind="ActionButtonKind.Delete" Variant="ActionButtonVariant.Danger" OnClick="DeleteRoleAsync" Disabled="_isBusy" Label="Delete role" />
+            </div>
+            }
+
+            <div class="form-col permission-editor">
+                <label>Permissions</label>
+                @if (_permissions is null)
+                {
+                    <p>Loading permissions...</p>
+                }
+                else
+                {
+                    <div class="permission-groups">
+                        @foreach (var application in GetPermissionApplications())
+                        {
+                            <section class="permission-application">
+                                <h5>@ToDisplayText(application.Key)</h5>
+                                @foreach (var area in application.GroupBy(permission => permission.Area).OrderBy(group => group.Key, StringComparer.Ordinal))
+                                {
+                                    <div class="permission-area">
+                                        <h6>@ToDisplayText(area.Key)</h6>
+                                        <div class="permission-options">
+                                            @foreach (var permission in area.OrderBy(permission => permission.Operation, StringComparer.Ordinal))
+                                            {
+                                                <label class="permission-option @(IsSelectedRoleSystemRole ? "disabled" : string.Empty)"
+                                                       title="@permission.Description">
+                                                    <input type="checkbox"
+                                                           checked="@_selectedPermissionKeys.Contains(permission.Key)"
+                                                           disabled="@(IsSelectedRoleSystemRole || !_canManageRoles)"
+                                                           aria-label="@($"{permission.Key}: {permission.Description}")"
+                                                           @onchange="args => SetPermissionSelection(permission.Key, args.Value)" />
+                                                    <span class="permission-checkmark" aria-hidden="true"></span>
+                                                    <span>@ToDisplayText(permission.Operation)</span>
+                                                </label>
+                                            }
+                                        </div>
+                                    </div>
+                                }
+                            </section>
+                        }
+                    </div>
+                    @if (_canManageRoles)
+                    {
+                        <ActionButton Kind="ActionButtonKind.Save" Variant="ActionButtonVariant.Primary" OnClick="SavePermissionsAsync" Disabled="@(_isBusy || IsSelectedRoleSystemRole)" Label="Save permissions" />
+                    }
+                    @if (IsSelectedRoleSystemRole)
+                    {
+                        <small>System role permissions are managed by the application.</small>
+                    }
+                }
             </div>
         }
 

@@ -1,4 +1,6 @@
 @page "/member-management/requests"
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize(Policy = "management.requests.read")]
 
 <PageTitle>Requests</PageTitle>
 
@@ -20,11 +22,11 @@
         <div class="status-forms">
             @if (_activeTab == RequestTab.ApplicationRequests)
             {
-                <ApplicationRequestManagementPanel/>
+                <ApplicationRequestManagementPanel CanManage="_canManageRequests" />
             }
             else if (_activeTab == RequestTab.LinkingRequests)
             {
-                <LinkingRequestManagementPanel/>
+                <LinkingRequestManagementPanel CanManage="_canManageRequests" />
             }
         </div>
     </div>

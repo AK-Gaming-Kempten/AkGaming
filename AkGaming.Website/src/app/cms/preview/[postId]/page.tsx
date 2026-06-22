@@ -1,12 +1,12 @@
 import { notFound } from "next/navigation";
-import { isCmsAdministrator } from "../../../../content/cmsAuthorization";
+import { CmsPermissions, hasCmsPermission } from "../../../../content/cmsAuthorization";
 import { getEditablePost } from "../../../../content/postStore";
 import RuntimeMdxContent from "../../../../components/content/RuntimeMdxContent";
 
 type PreviewPageProps = { params: Promise<{ postId: string }> };
 
 export default async function PreviewPage({ params }: PreviewPageProps) {
-    if (!await isCmsAdministrator())
+    if (!await hasCmsPermission(CmsPermissions.postsManage))
         return notFound();
 
     const { postId } = await params;

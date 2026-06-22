@@ -1,6 +1,6 @@
 @page "/member-management/trial"
 @using Microsoft.AspNetCore.Authorization
-@attribute [Authorize(Roles = "Admin")]
+@attribute [Authorize(Policy = "management.members.read")]
 
 <PageTitle>Trial Members</PageTitle>
 
@@ -74,7 +74,7 @@
             <ActionButton Kind="ActionButtonKind.Back" Variant="ActionButtonVariant.Outline" Size="ActionButtonSize.Small" OnClick="ShowListMobile" Label="Back to trial members" />
         </div>
         <CascadingValue Value="MemberApi" Name="MemberManagementApi" IsFixed="true">
-            <MemberCard Member="_selectedMember" IsEditable="true" IsStatusEditable="true" OnMemberUpdated="ReloadAfterUpdate" />
+            <MemberCard Member="_selectedMember" IsEditable="_canManageMemberDetails" IsStatusEditable="_canManageMemberStatus" OnMemberUpdated="ReloadAfterUpdate" />
         </CascadingValue>
     </div>
 </div>

@@ -7,7 +7,7 @@ namespace AkGaming.Management.Modules.InvoiceManagement.Api.Controllers;
 
 [ApiController]
 [Route("invoice-party-presets")]
-[Authorize(Policy = "AdminOnly")]
+[Authorize(Policy = "management.invoices.manage")]
 public sealed class InvoicePartyPresetsController(IInvoiceManagementService service) : ControllerBase
 {
     [HttpGet]

@@ -6,7 +6,9 @@ using AkGaming.Identity.Infrastructure;
 using AkGaming.Identity.Infrastructure.OpenIddict;
 using AkGaming.Identity.Infrastructure.Persistence;
 using AkGaming.Identity.Infrastructure.Security;
+using AkGaming.Identity.Domain.Constants;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
@@ -124,6 +126,21 @@ builder.Services.AddAuthorization(options =>
         policy.AddAuthenticationSchemes(OpenIddictValidationAspNetCoreDefaults.AuthenticationScheme);
         policy.RequireAuthenticatedUser();
     });
+    options.AddPolicy("ManagementApiAccess", policy =>
+    {
+        policy.AddAuthenticationSchemes(OpenIddictValidationAspNetCoreDefaults.AuthenticationScheme);
+        policy.RequireAuthenticatedUser();
+        policy.RequireAssertion(context => context.User.Claims
+            .Where(claim => claim.Type == "scope")
+            .SelectMany(claim => claim.Value.Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+            .Any(scope => string.Equals(scope, "management_api", StringComparison.Ordinal)));
+    });
+    AddPermissionPolicy(options, PermissionNames.IdentityUsersRead);
+    AddPermissionPolicy(options, PermissionNames.IdentityUsersManage);
+    AddPermissionPolicy(options, PermissionNames.IdentityRolesRead);
+    AddPermissionPolicy(options, PermissionNames.IdentityRolesManage);
+    AddPermissionPolicy(options, PermissionNames.IdentityAuditRead);
+    AddPermissionPolicy(options, PermissionNames.IdentityOidcManage);
 });
 
 var app = builder.Build();
@@ -132,6 +149,8 @@ using (var scope = app.Services.CreateScope())
 {
     var dbContext = scope.ServiceProvider.GetRequiredService<AuthDbContext>();
     await dbContext.Database.MigrateAsync();
+    var authorizationSeeder = scope.ServiceProvider.GetRequiredService<AuthorizationSeeder>();
+    await authorizationSeeder.SeedAsync(CancellationToken.None);
     var openIddictSeeder = scope.ServiceProvider.GetRequiredService<OpenIddictSeeder>();
     await openIddictSeeder.SeedAsync(CancellationToken.None);
 }
@@ -165,6 +184,16 @@ app.MapAuthEndpoints();
 app.MapAdminEndpoints();
 
 app.Run();
+
+static void AddPermissionPolicy(AuthorizationOptions options, string permission)
+{
+    options.AddPolicy(permission, policy =>
+    {
+        policy.AddAuthenticationSchemes(OpenIddictValidationAspNetCoreDefaults.AuthenticationScheme);
+        policy.RequireAuthenticatedUser();
+        policy.RequireClaim(PermissionNames.ClaimType, permission);
+    });
+}
 
 static X509Certificate2 LoadCertificate(OpenIddictCertificateOptions options, string contentRootPath, string purpose)
 {

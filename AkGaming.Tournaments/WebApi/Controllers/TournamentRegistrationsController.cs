@@ -85,7 +85,7 @@ public sealed class TournamentRegistrationsController(ITournamentRegistrationSer
     }
 
     [HttpPost("api/registrations/{registrationId:guid}/review", Name = "ReviewTournamentRegistration")]
-    [Authorize(Policy = "AdminOnly")]
+    [Authorize(Policy = "tournaments.registrations.manage")]
     [EndpointSummary("Approve or reject a pending tournament registration.")]
     [ProducesResponseType<TournamentRegistrationDto>(StatusCodes.Status200OK)]
     public async Task<ActionResult<TournamentRegistrationDto>> ReviewTournamentRegistration(
@@ -103,7 +103,7 @@ public sealed class TournamentRegistrationsController(ITournamentRegistrationSer
     }
 
     [HttpDelete("api/registrations/{registrationId:guid}", Name = "DeleteTournamentRegistration")]
-    [Authorize(Policy = "AdminOnly")]
+    [Authorize(Policy = "tournaments.registrations.manage")]
     [EndpointSummary("Delete a tournament registration.")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<IActionResult> DeleteTournamentRegistration(
@@ -134,7 +134,7 @@ public sealed class TournamentRegistrationsController(ITournamentRegistrationSer
     }
 
     [HttpPost("api/registrations/{registrationId:guid}/rosters/{rosterId:guid}/review", Name = "ReviewRosterChange")]
-    [Authorize(Policy = "AdminOnly")]
+    [Authorize(Policy = "tournaments.registrations.manage")]
     [EndpointSummary("Approve or reject a pending roster change.")]
     [ProducesResponseType<TournamentRegistrationDto>(StatusCodes.Status200OK)]
     public async Task<ActionResult<TournamentRegistrationDto>> ReviewRosterChange(

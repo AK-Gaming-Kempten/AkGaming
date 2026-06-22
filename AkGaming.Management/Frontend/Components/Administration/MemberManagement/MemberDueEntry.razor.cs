@@ -14,6 +14,8 @@ public partial class MemberDueEntry : ComponentBase {
     [Parameter] public string PrimaryMemberLabel { get; set; } = string.Empty;
     [Parameter] public string? SecondaryMemberLabel { get; set; }
     [Parameter] public bool IsSaving { get; set; }
+    [Parameter] public bool CanManage { get; set; }
+    [Parameter] public bool CanDispatch { get; set; }
     [Parameter] public EventCallback<MembershipDueDto> OnSave { get; set; }
     [Parameter] public EventCallback<MembershipDueDto> OnRequestReminderSend { get; set; }
     [Parameter] public EventCallback<MembershipDueDto> OnRequestSuspensionSend { get; set; }

@@ -17,29 +17,29 @@ public static class MemberQueryEndpoints {
         group.MapGet("/", async (IMemberQueryService service) => {
             var result = await service.GetAllMembersAsync();
             return result.IsSuccess ? Results.Ok(result.Value) : Results.NotFound(result.Error);
-        }).RequireAuthorization("AdminOnly");
+        }).RequireAuthorization("management.members.read");
 
         group.MapGet("/{memberId:guid}", async (Guid memberId, IMemberQueryService service) => {
             var result = await service.GetMemberByGuidAsync(memberId);
             return result.IsSuccess ? Results.Ok(result.Value) : Results.NotFound(result.Error);
-        }).RequireAuthorization("AdminOnly");
+        }).RequireAuthorization("management.members.read");
 
         group.MapGet("/byStatus/{status}", async (ContractEnums.MembershipStatus status, IMemberQueryService service) => {
             var result = await service.GetMembersWithStatusAsync(new[] { status });
             return result.IsSuccess ? Results.Ok(result.Value) : Results.NotFound(result.Error);
-        }).RequireAuthorization("AdminOnly");
+        }).RequireAuthorization("management.members.read");
 
         group.MapGet("/byStatus", async (ContractEnums.MembershipStatus[] statuses, IMemberQueryService service) => {
             var result = await service.GetMembersWithStatusAsync(statuses);
             return result.IsSuccess ? Results.Ok(result.Value) : Results.NotFound(result.Error);
-        }).RequireAuthorization("AdminOnly");
+        }).RequireAuthorization("management.members.read");
 
         // ----- Admin or self (scoped to a single user) -----
         
         group.MapGet("/user/{userId:guid}", async (Guid userId, IMemberQueryService service) => {
             var result = await service.GetMemberByUserGuidAsync(userId);
             return result.IsSuccess ? Results.Ok(result.Value) : Results.NotFound(result.Error);
-        }).RequireAuthorization("AdminOrSelfRouteUserId");
+        }).RequireAuthorization("MembersReadOrSelfRouteUserId");
         
         group.MapGet("/me", async (ClaimsPrincipal user, IMemberQueryService service) => {
             var claim = user.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? user.FindFirst("sub")?.Value;

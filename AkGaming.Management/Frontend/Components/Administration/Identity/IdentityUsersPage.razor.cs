@@ -1,12 +1,16 @@
 using AkGaming.Management.Frontend.ApiClients;
 using AkGaming.Identity.Contracts.Auth;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Authorization;
 
 namespace AkGaming.Management.Frontend.Components.Administration.Identity;
 
 public partial class IdentityUsersPage : ComponentBase {
     [Inject]
     private IdentityApiClient IdentityApi { get; set; } = default!;
+
+    [Inject]
+    private AuthenticationStateProvider AuthenticationStateProvider { get; set; } = default!;
 
     private readonly List<RoleResponse> _availableRoles = new();
     private readonly HashSet<string> _selectedRoles = new(StringComparer.OrdinalIgnoreCase);
@@ -25,9 +29,14 @@ public partial class IdentityUsersPage : ComponentBase {
     private string? _success;
     private bool _isBusy;
     private bool _isMobileDetailOpen;
+    private bool _canManageUsers;
 
     protected override async Task OnInitializedAsync() {
-        await LoadRolesCatalogAsync();
+        var authenticationState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        _canManageUsers = authenticationState.User.HasClaim("permission", "identity.users.manage");
+        if (_canManageUsers) {
+            await LoadRolesCatalogAsync();
+        }
         await LoadUsersAsync();
     }
 
@@ -141,7 +150,7 @@ public partial class IdentityUsersPage : ComponentBase {
             _selectedRoles.Add(role);
 
             if (_availableRoles.All(r => !string.Equals(r.Name, role, StringComparison.OrdinalIgnoreCase))) {
-                _availableRoles.Add(new RoleResponse(Guid.Empty, role));
+                _availableRoles.Add(new RoleResponse(Guid.Empty, role, []));
             }
         }
 

@@ -7,6 +7,7 @@ internal sealed class InMemoryIdentityRepository : IIdentityRepository
 {
     public List<User> Users { get; } = [];
     public List<Role> Roles { get; } = [];
+    public List<Permission> Permissions { get; } = [];
     public List<ExternalLogin> ExternalLogins { get; } = [];
     public List<RefreshToken> RefreshTokens { get; } = [];
     public List<EmailVerificationToken> EmailVerificationTokens { get; } = [];
@@ -127,6 +128,11 @@ internal sealed class InMemoryIdentityRepository : IIdentityRepository
         return Task.FromResult(count);
     }
 
+    public Task<List<Permission>> GetAllPermissionsAsync(CancellationToken cancellationToken)
+    {
+        return Task.FromResult(Permissions.OrderBy(x => x.Key).ToList());
+    }
+
     public Task<ExternalLogin?> GetExternalLoginAsync(string provider, string providerUserId, CancellationToken cancellationToken)
     {
         return Task.FromResult(ExternalLogins.SingleOrDefault(x => x.Provider == provider && x.ProviderUserId == providerUserId));
@@ -174,6 +180,12 @@ internal sealed class InMemoryIdentityRepository : IIdentityRepository
     public Task AddRoleAsync(Role role, CancellationToken cancellationToken)
     {
         Roles.Add(role);
+        return Task.CompletedTask;
+    }
+
+    public Task AddPermissionAsync(Permission permission, CancellationToken cancellationToken)
+    {
+        Permissions.Add(permission);
         return Task.CompletedTask;
     }
 

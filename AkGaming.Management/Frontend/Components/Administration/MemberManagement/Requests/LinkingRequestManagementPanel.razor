@@ -29,7 +29,7 @@
             <ActionButton Kind="ActionButtonKind.Back" Variant="ActionButtonVariant.Outline" Size="ActionButtonSize.Small" OnClick="ShowListMobile" Label="Back to requests" />
         </div>
         <CascadingValue Value="MemberApi" Name="MemberManagementApi" IsFixed="true">
-            <LinkingRequestCard IsEditable="true" Request="_selectedRequest" OnRequestUpdated="Reload" />
+            <LinkingRequestCard IsEditable="CanManage" Request="_selectedRequest" OnRequestUpdated="Reload" />
         </CascadingValue>  
     </div>
 </div>

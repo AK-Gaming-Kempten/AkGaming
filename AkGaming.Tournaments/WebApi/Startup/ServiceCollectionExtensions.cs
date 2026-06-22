@@ -85,24 +85,17 @@ public static class ServiceCollectionExtensions
         services.AddAuthorization(options =>
         {
             options.DefaultPolicy = BuildTournamentApiPolicy().Build();
-            options.AddPolicy("AdminOnly", policy =>
-                BuildTournamentApiPolicy(policy).RequireAssertion(context => HasRole(context.User, "Admin")));
-            options.AddPolicy("AdminOrSelfRouteUserId", policy =>
+            AddPermissionPolicy(options, "tournaments.games.manage");
+            AddPermissionPolicy(options, "tournaments.tournaments.manage");
+            AddPermissionPolicy(options, "tournaments.registrations.manage");
+            AddPermissionPolicy(options, "tournaments.teams.manage");
+            AddPermissionPolicy(options, "tournaments.player-profiles.manage");
+            options.AddPolicy("TeamsManageOrSelfRouteUserId", policy =>
                 BuildTournamentApiPolicy(policy).RequireAssertion(context =>
-                {
-                    if (HasRole(context.User, "Admin"))
-                        return true;
-
-                    if (context.Resource is not HttpContext http)
-                        return false;
-
-                    var routeUserId = http.Request.RouteValues.TryGetValue("userId", out var value) ? value?.ToString() : null;
-                    var currentUserId = context.User.FindFirstValue(ClaimTypes.NameIdentifier) ?? context.User.FindFirstValue("sub");
-
-                    return !string.IsNullOrWhiteSpace(routeUserId)
-                           && !string.IsNullOrWhiteSpace(currentUserId)
-                           && string.Equals(routeUserId, currentUserId, StringComparison.OrdinalIgnoreCase);
-                }));
+                    HasPermission(context.User, "tournaments.teams.manage") || IsSelfRouteUser(context)));
+            options.AddPolicy("PlayerProfilesManageOrSelfRouteUserId", policy =>
+                BuildTournamentApiPolicy(policy).RequireAssertion(context =>
+                    HasPermission(context.User, "tournaments.player-profiles.manage") || IsSelfRouteUser(context)));
         });
 
         return services;
@@ -117,12 +110,27 @@ public static class ServiceCollectionExtensions
         return builder;
     }
 
-    private static bool HasRole(ClaimsPrincipal principal, string role)
+    private static void AddPermissionPolicy(AuthorizationOptions options, string permission)
     {
-        return principal.IsInRole(role)
-               || principal.Claims.Any(claim =>
-                   (claim.Type == "role" || claim.Type == ClaimTypes.Role)
-                   && string.Equals(claim.Value, role, StringComparison.Ordinal));
+        options.AddPolicy(permission, policy => BuildTournamentApiPolicy(policy).RequireClaim("permission", permission));
+    }
+
+    private static bool HasPermission(ClaimsPrincipal principal, string permission)
+    {
+        return principal.HasClaim("permission", permission);
+    }
+
+    private static bool IsSelfRouteUser(AuthorizationHandlerContext context)
+    {
+        if (context.Resource is not HttpContext http)
+            return false;
+
+        var routeUserId = http.Request.RouteValues.TryGetValue("userId", out var value) ? value?.ToString() : null;
+        var currentUserId = context.User.FindFirstValue(ClaimTypes.NameIdentifier) ?? context.User.FindFirstValue("sub");
+
+        return !string.IsNullOrWhiteSpace(routeUserId)
+               && !string.IsNullOrWhiteSpace(currentUserId)
+               && string.Equals(routeUserId, currentUserId, StringComparison.OrdinalIgnoreCase);
     }
 
     private static bool HasScope(ClaimsPrincipal principal, string scope)

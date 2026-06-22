@@ -20,7 +20,7 @@ public sealed class GamesController(IGameCatalogService service) : ControllerBas
     }
 
     [HttpPost(Name = "CreateGame")]
-    [Authorize(Policy = "AdminOnly")]
+    [Authorize(Policy = "tournaments.games.manage")]
     [EndpointSummary("Create a supported game.")]
     [ProducesResponseType<GameDto>(StatusCodes.Status200OK)]
     public async Task<ActionResult<GameDto>> CreateGame(
@@ -32,7 +32,7 @@ public sealed class GamesController(IGameCatalogService service) : ControllerBas
     }
 
     [HttpPut("{gameId}/logo", Name = "UpdateGameLogo")]
-    [Authorize(Policy = "AdminOnly")]
+    [Authorize(Policy = "tournaments.games.manage")]
     [EndpointSummary("Set or clear a supported game's logo asset.")]
     [ProducesResponseType<GameDto>(StatusCodes.Status200OK)]
     public async Task<ActionResult<GameDto>> UpdateGameLogo(
@@ -45,7 +45,7 @@ public sealed class GamesController(IGameCatalogService service) : ControllerBas
     }
 
     [HttpDelete("{gameId}", Name = "DeleteGame")]
-    [Authorize(Policy = "AdminOnly")]
+    [Authorize(Policy = "tournaments.games.manage")]
     [EndpointSummary("Delete a supported game.")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<IActionResult> DeleteGame(string gameId, CancellationToken cancellationToken)

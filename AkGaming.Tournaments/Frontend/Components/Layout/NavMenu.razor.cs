@@ -35,7 +35,11 @@ public partial class NavMenu : ComponentBase, IDisposable
         var user = authState.User;
 
         isAuthenticated = user.Identity?.IsAuthenticated ?? false;
-        isAdmin = isAuthenticated && user.IsInRole("Admin");
+        isAdmin = isAuthenticated && user.Claims.Any(claim =>
+            claim.Type == "permission" &&
+            (claim.Value == "tournaments.games.manage"
+             || claim.Value == "tournaments.tournaments.manage"
+             || claim.Value == "tournaments.registrations.manage"));
 
         try
         {

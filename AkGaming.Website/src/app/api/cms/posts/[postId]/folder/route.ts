@@ -1,11 +1,11 @@
 import { NextResponse } from "next/server";
-import { isCmsAdministrator } from "../../../../../../content/cmsAuthorization";
+import { CmsPermissions, hasCmsPermission } from "../../../../../../content/cmsAuthorization";
 import { movePostToFolder } from "../../../../../../content/postStore";
 
 type MovePostFolderRouteContext = { params: Promise<{ postId: string }> };
 
 export async function PUT(request: Request, context: MovePostFolderRouteContext) {
-    if (!await isCmsAdministrator())
+    if (!await hasCmsPermission(CmsPermissions.postsManage))
         return NextResponse.json({ message: "Forbidden." }, { status: 403 });
 
     try {

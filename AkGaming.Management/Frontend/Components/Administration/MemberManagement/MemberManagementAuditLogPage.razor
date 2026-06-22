@@ -1,6 +1,6 @@
 @page "/member-management/audit-log"
 @using Microsoft.AspNetCore.Authorization
-@attribute [Authorize(Roles = "Admin")]
+@attribute [Authorize(Policy = "management.members.read")]
 
 <PageTitle>Member Management Audit Log</PageTitle>
 

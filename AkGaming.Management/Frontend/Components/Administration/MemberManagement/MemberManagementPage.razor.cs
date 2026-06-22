@@ -1,6 +1,7 @@
 using AkGaming.Management.Frontend.ApiClients;
 using AkGaming.Management.Modules.MemberManagement.Contracts.DTO;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Authorization;
 
 namespace AkGaming.Management.Frontend.Components.Administration.MemberManagement;
 
@@ -15,8 +16,17 @@ public partial class MemberManagementPage : ComponentBase {
 
     private MemberDto? _selectedMember = null;
     private bool _isMobileDetailOpen;
+    private bool _canManageMemberDetails;
+    private bool _canManageMemberStatus;
+
+    [Inject]
+    private AuthenticationStateProvider AuthenticationStateProvider { get; set; } = default!;
 
     protected override async Task OnInitializedAsync() {
+        var authenticationState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authenticationState.User;
+        _canManageMemberDetails = user.HasClaim("permission", "management.members.details.manage");
+        _canManageMemberStatus = user.HasClaim("permission", "management.members.status.manage");
         await LoadMembersAsync();
     }
 
@@ -72,4 +82,4 @@ public partial class MemberManagementPage : ComponentBase {
         _isMobileDetailOpen = false;
         _selectedMember = null;
     }
-} 
+}

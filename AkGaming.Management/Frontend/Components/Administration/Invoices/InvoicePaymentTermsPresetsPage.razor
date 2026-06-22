@@ -1,6 +1,6 @@
 @page "/invoices/payment-terms"
 @using Microsoft.AspNetCore.Authorization
-@attribute [Authorize(Roles = "Admin")]
+@attribute [Authorize(Policy = "management.invoices.manage")]
 
 <PageTitle>Invoice Payment Terms Presets</PageTitle>
 

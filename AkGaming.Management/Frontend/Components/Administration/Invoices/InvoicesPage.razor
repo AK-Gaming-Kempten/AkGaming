@@ -1,6 +1,6 @@
 @page "/invoices"
 @using Microsoft.AspNetCore.Authorization
-@attribute [Authorize(Roles = "Admin")]
+@attribute [Authorize(Policy = "management.invoices.manage")]
 
 <PageTitle>Invoices</PageTitle>
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
     LuCalendarDays,
     LuChevronDown,
@@ -25,6 +25,7 @@ import CmsHighlightsManager from "./CmsHighlightsManager";
 import MdxEditor from "./MdxEditor";
 import CmsEsportsManager from "./CmsEsportsManager";
 import { CmsToastProvider, useCmsToast } from "./CmsToastProvider";
+import { CmsPermissions } from "../../content/cmsPermissions";
 
 type Section = "posts" | "files" | "highlights" | "teams";
 type EditorTab = "metadata" | "mdx";
@@ -51,6 +52,7 @@ type CmsFolder = {
 
 type CmsPostsEditorProps = {
     email?: string | null;
+    permissions: string[];
     signOutAction: () => Promise<void>;
 };
 
@@ -63,14 +65,25 @@ const emptyPost = (): CmsPost => ({
     isDraft: true,
 });
 
-export default function CmsPostsEditor({ email, signOutAction }: CmsPostsEditorProps) {
-    return <CmsToastProvider><CmsPostsEditorContent email={email} signOutAction={signOutAction} /></CmsToastProvider>;
+export default function CmsPostsEditor({ email, permissions, signOutAction }: CmsPostsEditorProps) {
+    return <CmsToastProvider><CmsPostsEditorContent email={email} permissions={permissions} signOutAction={signOutAction} /></CmsToastProvider>;
 }
 
-function CmsPostsEditorContent({ email, signOutAction }: CmsPostsEditorProps) {
+function CmsPostsEditorContent({ email, permissions, signOutAction }: CmsPostsEditorProps) {
     const { theme, setTheme } = useTheme();
     const { showToast } = useCmsToast();
-    const [section, setSection] = useState<Section>("posts");
+    const canManagePosts = permissions.includes(CmsPermissions.postsManage);
+    const canPublishPosts = permissions.includes(CmsPermissions.postsPublish);
+    const canManageMedia = permissions.includes(CmsPermissions.mediaManage);
+    const canManageHighlights = permissions.includes(CmsPermissions.highlightsManage);
+    const canManageEsports = permissions.includes(CmsPermissions.esportsManage);
+    const availableSections = ([
+        canManagePosts ? ["posts", "Posts & events"] : null,
+        canManageMedia ? ["files", "File management"] : null,
+        canManageHighlights ? ["highlights", "Homepage highlights"] : null,
+        canManageEsports ? ["teams", "Esports"] : null,
+    ].filter((item): item is [Section, string] => item !== null));
+    const [section, setSection] = useState<Section>(availableSections[0]?.[0] ?? "posts");
     const [tab, setTab] = useState<EditorTab>("metadata");
     const [isPostSelectorExpanded, setIsPostSelectorExpanded] = useState(true);
     const [posts, setPosts] = useState<CmsPost[]>([]);
@@ -81,21 +94,20 @@ function CmsPostsEditorContent({ email, signOutAction }: CmsPostsEditorProps) {
     const [collapsedFolderIds, setCollapsedFolderIds] = useState<string[]>([]);
     const [previewKey, setPreviewKey] = useState(0);
 
-    useEffect(() => {
-        void reload();
-    }, []);
-
-    async function reload() {
-        const [postsResponse, foldersResponse] = await Promise.all([
-            fetch("/api/cms/posts"),
-            fetch("/api/cms/post-folders"),
-        ]);
+    const reload = useCallback(async () => {
+        const postsResponse = await fetch("/api/cms/posts");
+        const foldersResponse = canManagePosts ? await fetch("/api/cms/post-folders") : null;
 
         if (postsResponse.ok)
             setPosts(await postsResponse.json() as CmsPost[]);
-        if (foldersResponse.ok)
+        if (foldersResponse?.ok)
             setFolders(await foldersResponse.json() as CmsFolder[]);
-    }
+    }, [canManagePosts]);
+
+    useEffect(() => {
+        if (canManagePosts || canManageHighlights)
+            void reload();
+    }, [canManageHighlights, canManagePosts, reload]);
 
     async function save() {
         const response = await fetch("/api/cms/posts", {
@@ -273,7 +285,7 @@ function CmsPostsEditorContent({ email, signOutAction }: CmsPostsEditorProps) {
                 <div>
                     <p className="cms-sidebar-brand">AKG CMS</p>
                     <nav>
-                        {([ ["posts", "Posts & events"], ["files", "File management"], ["highlights", "Homepage highlights"], ["teams", "Esports"] ] as [Section, string][]).map(([value, label]) => (
+                        {availableSections.map(([value, label]) => (
                             <button key={value} className={section === value ? "active" : ""} onClick={() => setSection(value)}>
                                 {label}
                             </button>
@@ -300,7 +312,7 @@ function CmsPostsEditorContent({ email, signOutAction }: CmsPostsEditorProps) {
             </aside>
 
             <section className={`cms-workspace-main${isPostSelectorExpanded ? " selector-expanded" : ""}`}>
-                {section === "files" ? <CmsMediaLibrary /> : section === "highlights" ? <CmsHighlightsManager posts={posts} /> : section === "teams" ? <CmsEsportsManager /> : (
+                {section === "files" && canManageMedia ? <CmsMediaLibrary /> : section === "highlights" && canManageHighlights ? <CmsHighlightsManager posts={posts} /> : section === "teams" && canManageEsports ? <CmsEsportsManager /> : canManagePosts ? (
                     <>
                         <header className="cms-workspace-header">
                             <div>
@@ -309,7 +321,7 @@ function CmsPostsEditorContent({ email, signOutAction }: CmsPostsEditorProps) {
                             </div>
                             <div className="cms-workspace-actions">
                                 <button className="cms-icon-action" onClick={() => void save()} title="Save draft" aria-label="Save draft"><LuSave /></button>
-                                {selected.id && <button className="cms-icon-action cms-secondary-button" onClick={() => void publish()} title="Publish" aria-label="Publish"><LuUpload /></button>}
+                                {selected.id && canPublishPosts && <button className="cms-icon-action cms-secondary-button" onClick={() => void publish()} title="Publish" aria-label="Publish"><LuUpload /></button>}
                             </div>
                         </header>
 
@@ -382,7 +394,7 @@ function CmsPostsEditorContent({ email, signOutAction }: CmsPostsEditorProps) {
                             </div>
                         </div>
                     </>
-                )}
+                ) : null}
             </section>
         </div>
     );

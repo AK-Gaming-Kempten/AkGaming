@@ -1,5 +1,6 @@
 using System.Security.Claims;
 using AkGaming.Identity.Contracts.Auth;
+using AkGaming.Identity.Domain.Constants;
 using OpenIddict.Abstractions;
 using OpenIddict.Server.AspNetCore;
 
@@ -28,6 +29,11 @@ internal static class OidcPrincipalFactory
         foreach (var role in user.Roles)
         {
             identity.AddClaim(new Claim(OpenIddictConstants.Claims.Role, role));
+        }
+
+        foreach (var permission in user.Permissions ?? [])
+        {
+            identity.AddClaim(new Claim(PermissionNames.ClaimType, permission));
         }
 
         var principal = new ClaimsPrincipal(identity);
@@ -76,6 +82,13 @@ internal static class OidcPrincipalFactory
                 break;
 
             case OpenIddictConstants.Claims.Role:
+                if (scopes.Contains(OpenIddictConstants.Scopes.Roles))
+                {
+                    yield return OpenIddictConstants.Destinations.IdentityToken;
+                }
+                break;
+
+            case PermissionNames.ClaimType:
                 if (scopes.Contains(OpenIddictConstants.Scopes.Roles))
                 {
                     yield return OpenIddictConstants.Destinations.IdentityToken;

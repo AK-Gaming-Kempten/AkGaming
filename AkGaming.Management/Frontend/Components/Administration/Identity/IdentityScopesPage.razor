@@ -1,6 +1,6 @@
 @page "/identity/scopes"
 @using Microsoft.AspNetCore.Authorization
-@attribute [Authorize(Roles = "Admin")]
+@attribute [Authorize(Policy = "identity.oidc.manage")]
 
 <PageTitle>Identity Scopes</PageTitle>
 

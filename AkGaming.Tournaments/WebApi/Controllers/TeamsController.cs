@@ -35,7 +35,7 @@ public sealed class TeamsController(ITeamManagementService service) : Controller
     }
 
     [HttpGet("/api/users/{userId}/teams", Name = "GetUserTeams")]
-    [Authorize(Policy = "AdminOrSelfRouteUserId")]
+    [Authorize(Policy = "TeamsManageOrSelfRouteUserId")]
     [EndpointSummary("List teams that the user is a member of.")]
     [ProducesResponseType<IReadOnlyList<TeamDto>>(StatusCodes.Status200OK)]
     public async Task<ActionResult<IReadOnlyList<TeamDto>>> GetUserTeams(
