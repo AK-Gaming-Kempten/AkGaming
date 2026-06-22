@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { LuArrowDown, LuArrowUp, LuImagePlus, LuPlus, LuSave, LuTrash2 } from "react-icons/lu";
+import { useCmsToast } from "./CmsToastProvider";
 
 type CmsPost = {
     id: string;
@@ -26,28 +27,27 @@ const emptyHighlight = (): Highlight => ({ postId: "", mediaSrc: "", mediaType: 
 export default function CmsHighlightsManager({ posts }: CmsHighlightsManagerProps) {
     const [highlights, setHighlights] = useState<Highlight[]>([]);
     const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
-    const [message, setMessage] = useState("");
+    const { showToast } = useCmsToast();
 
-    useEffect(() => {
-        void loadHighlights();
-    }, []);
-
-    async function loadHighlights() {
+    const loadHighlights = useCallback(async () => {
         const response = await fetch("/api/cms/highlights");
         const result = await response.json() as Highlight[] | { message?: string };
         if (!response.ok) {
-            setMessage("message" in result ? result.message ?? "Could not load highlights." : "Could not load highlights.");
+            showToast("message" in result ? result.message ?? "Could not load highlights." : "Could not load highlights.", "error");
             return;
         }
 
         const loaded = result as Highlight[];
         setHighlights(loaded);
         setSelectedIndex(current => current ?? (loaded.length > 0 ? 0 : null));
-    }
+    }, [showToast]);
+
+    useEffect(() => {
+        void loadHighlights();
+    }, [loadHighlights]);
 
     function selectHighlight(index: number) {
         setSelectedIndex(index);
-        setMessage("");
     }
 
     function addHighlight() {
@@ -91,12 +91,12 @@ export default function CmsHighlightsManager({ posts }: CmsHighlightsManagerProp
         });
         const result = await response.json() as Highlight[] | { message?: string };
         if (!response.ok) {
-            setMessage("message" in result ? result.message ?? "Could not save highlights." : "Could not save highlights.");
+            showToast("message" in result ? result.message ?? "Could not save highlights." : "Could not save highlights.", "error");
             return;
         }
 
         setHighlights(result as Highlight[]);
-        setMessage("Highlights saved.");
+        showToast("Highlights saved.");
     }
 
     const selected = selectedIndex === null ? null : highlights[selectedIndex];
@@ -115,7 +115,6 @@ export default function CmsHighlightsManager({ posts }: CmsHighlightsManagerProp
                 </div>
             </header>
 
-            {message && <p className="cms-editor-message">{message}</p>}
             <div className="cms-highlights-workspace">
                 <aside className="cms-highlights-list">
                     {highlights.length === 0 ? <p>No highlights yet.</p> : highlights.map((highlight, index) => (

@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { LuImagePlus, LuPlus, LuSave } from "react-icons/lu";
 import CmsTeamsManager from "./CmsTeamsManager";
+import { useCmsToast } from "./CmsToastProvider";
 
 type Tab = "games" | "leagues" | "teams";
 type Game = { id: string; displayName: string; logo: string };
@@ -55,7 +56,7 @@ function CmsEsportsCatalogManager({ kind, onChanged }: CmsEsportsCatalogManagerP
     const isGame = kind === "games";
     const [items, setItems] = useState<CatalogItem[]>([]);
     const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
-    const [message, setMessage] = useState("");
+    const { showToast } = useCmsToast();
 
     const loadItems = useCallback(async () => {
         const values = await loadCatalog<Game | League>(kind);
@@ -91,11 +92,11 @@ function CmsEsportsCatalogManager({ kind, onChanged }: CmsEsportsCatalogManagerP
         });
         const result = await response.json() as unknown[] | { message?: string };
         if (!response.ok) {
-            setMessage("message" in result ? result.message ?? "Could not save catalog." : "Could not save catalog.");
+            showToast("message" in result ? result.message ?? "Could not save catalog." : "Could not save catalog.", "error");
             return;
         }
 
-        setMessage(`${isGame ? "Games" : "Leagues"} saved.`);
+        showToast(`${isGame ? "Games" : "Leagues"} saved.`);
         await loadItems();
         onChanged();
     }
@@ -110,7 +111,6 @@ function CmsEsportsCatalogManager({ kind, onChanged }: CmsEsportsCatalogManagerP
                 <h3>{title}</h3>
                 <div className="cms-teams-actions"><button type="button" onClick={addItem}><LuPlus /> New {singular}</button><button type="button" onClick={() => void saveItems()}><LuSave /> Save {title.toLowerCase()}</button></div>
             </header>
-            {message && <p className="cms-editor-message">{message}</p>}
             <div className="cms-teams-workspace">
                 <aside className="cms-teams-list">
                     {items.map((item, index) => <button key={`${item.id}-${index}`} type="button" className={selectedIndex === index ? "active" : ""} onClick={() => setSelectedIndex(index)}>{item.logo && <img src={item.logo} alt="" />}<span>{item.label || `Untitled ${singular}`}<small>{item.id || "Set ID"}</small></span></button>)}

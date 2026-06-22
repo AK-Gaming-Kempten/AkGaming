@@ -236,7 +236,21 @@
 .cms-editor-tabs { display: flex; gap: .5rem; border-bottom: 1px solid var(--color-input-primary-border); }
 .cms-editor-tabs button { border-radius: .4rem .4rem 0 0; background: transparent; color: var(--color-text-secondary); }
 .cms-editor-tabs button.active { background: var(--color-background-secondary); }
-.cms-editor-message { color: var(--color-highlight-secondary); }
+.cms-toast-stack { position: fixed; z-index: 200; right: 1.25rem; bottom: 1.25rem; display: grid; gap: .75rem; width: min(calc(100vw - 2rem), 32rem); pointer-events: none; }
+.cms-toast { --cms-toast-accent: #2f9c62; overflow: hidden; border: 1px solid color-mix(in oklab, var(--cms-toast-accent) 55%, var(--color-highlight-primary)); border-radius: 1.35rem; background: var(--color-background-primary); color: var(--color-text-primary); box-shadow: 0 1.6rem 3.5rem color-mix(in oklab, black 32%, transparent); pointer-events: auto; animation: cms-toast-in .18s ease-out; }
+.cms-toast-error { --cms-toast-accent: var(--color-red-light); }
+.cms-toast-info { --cms-toast-accent: var(--color-highlight-secondary); }
+.cms-toast-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; width: auto; padding: 1rem 1.1rem .9rem; background: linear-gradient(145deg, #0f221e, #163328); color: var(--color-text-special); }
+.cms-toast-brand { display: flex; align-items: center; gap: .85rem; min-width: 0; }
+.cms-toast-icon { display: inline-flex; align-items: center; justify-content: center; flex: 0 0 auto; width: 2.7rem; height: 2.7rem; border-radius: 999px; background: color-mix(in oklab, var(--cms-toast-accent) 28%, white 10%); color: white; }
+.cms-toast-icon svg { width: 1.2rem; height: 1.2rem; }
+.cms-toast-brand p { margin: 0 0 .15rem; color: color-mix(in oklab, white 72%, var(--color-highlight-primary)); font-size: .72rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; }
+.cms-toast-brand h2 { margin: 0; color: var(--color-text-special); font-size: 1.1rem; line-height: 1.2; }
+.cms-toast-header > button { display: inline-flex; align-items: center; justify-content: center; flex: 0 0 auto; width: 2.1rem; height: 2.1rem; padding: 0; border: 1px solid color-mix(in oklab, white 22%, transparent); border-radius: 999px; background: color-mix(in oklab, white 12%, transparent); color: var(--color-text-special); cursor: pointer; }
+.cms-toast-header > button:hover { background: color-mix(in oklab, white 20%, transparent); }
+.cms-toast-body { margin: 0; padding: 1rem 1.1rem 1.1rem; overflow-wrap: anywhere; line-height: 1.5; }
+@keyframes cms-toast-in { from { opacity: 0; transform: translateY(1rem); } to { opacity: 1; transform: translateY(0); } }
+@media (max-width: 900px) { .cms-toast-stack { right: 1rem; bottom: 1rem; width: calc(100vw - 2rem); } }
 .cms-form-grid { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 1rem; padding: 1rem 0; }
 .cms-form-grid label { display: grid; gap: .35rem; font-weight: 700; }
 .cms-form-grid .wide { grid-column: 1 / -1; }

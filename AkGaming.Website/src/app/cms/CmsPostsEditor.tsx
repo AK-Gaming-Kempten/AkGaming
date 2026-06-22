@@ -24,6 +24,7 @@ import CmsMediaLibrary from "./CmsMediaLibrary";
 import CmsHighlightsManager from "./CmsHighlightsManager";
 import MdxEditor from "./MdxEditor";
 import CmsEsportsManager from "./CmsEsportsManager";
+import { CmsToastProvider, useCmsToast } from "./CmsToastProvider";
 
 type Section = "posts" | "files" | "highlights" | "teams";
 type EditorTab = "metadata" | "mdx";
@@ -63,7 +64,12 @@ const emptyPost = (): CmsPost => ({
 });
 
 export default function CmsPostsEditor({ email, signOutAction }: CmsPostsEditorProps) {
+    return <CmsToastProvider><CmsPostsEditorContent email={email} signOutAction={signOutAction} /></CmsToastProvider>;
+}
+
+function CmsPostsEditorContent({ email, signOutAction }: CmsPostsEditorProps) {
     const { theme, setTheme } = useTheme();
+    const { showToast } = useCmsToast();
     const [section, setSection] = useState<Section>("posts");
     const [tab, setTab] = useState<EditorTab>("metadata");
     const [isPostSelectorExpanded, setIsPostSelectorExpanded] = useState(true);
@@ -73,7 +79,6 @@ export default function CmsPostsEditor({ email, signOutAction }: CmsPostsEditorP
     const [draggingPostId, setDraggingPostId] = useState<string | null>(null);
     const [dropTargetFolderId, setDropTargetFolderId] = useState<string | null>(null);
     const [collapsedFolderIds, setCollapsedFolderIds] = useState<string[]>([]);
-    const [message, setMessage] = useState("");
     const [previewKey, setPreviewKey] = useState(0);
 
     useEffect(() => {
@@ -101,12 +106,12 @@ export default function CmsPostsEditor({ email, signOutAction }: CmsPostsEditorP
         const result = await response.json() as CmsPost | { message: string };
 
         if (!response.ok) {
-            setMessage("message" in result ? result.message : "Save failed.");
+            showToast("message" in result ? result.message : "Save failed.", "error");
             return;
         }
 
         setSelected(result as CmsPost);
-        setMessage("Draft saved. Preview refreshed.");
+        showToast("Draft saved. Preview refreshed.");
         setPreviewKey(key => key + 1);
         await reload();
     }
@@ -116,12 +121,12 @@ export default function CmsPostsEditor({ email, signOutAction }: CmsPostsEditorP
         const result = await response.json() as CmsPost | { message: string };
 
         if (!response.ok) {
-            setMessage("message" in result ? result.message : "Publish failed.");
+            showToast("message" in result ? result.message : "Publish failed.", "error");
             return;
         }
 
         setSelected(result as CmsPost);
-        setMessage("Published.");
+        showToast("Published.");
         await reload();
     }
 
@@ -140,7 +145,7 @@ export default function CmsPostsEditor({ email, signOutAction }: CmsPostsEditorP
         });
         if (!response.ok) {
             const result = await response.json() as { message?: string };
-            setMessage(result.message ?? "Folder creation failed.");
+            showToast(result.message ?? "Folder creation failed.", "error");
             return;
         }
 
@@ -158,7 +163,7 @@ export default function CmsPostsEditor({ email, signOutAction }: CmsPostsEditorP
         });
         if (!response.ok) {
             const result = await response.json() as { message?: string };
-            setMessage(result.message ?? "Folder rename failed.");
+            showToast(result.message ?? "Folder rename failed.", "error");
             return;
         }
 
@@ -171,7 +176,7 @@ export default function CmsPostsEditor({ email, signOutAction }: CmsPostsEditorP
         const response = await fetch(`/api/cms/post-folders/${encodeURIComponent(folder.id)}`, { method: "DELETE" });
         if (!response.ok) {
             const result = await response.json() as { message?: string };
-            setMessage(result.message ?? "Folder deletion failed.");
+            showToast(result.message ?? "Folder deletion failed.", "error");
             return;
         }
 
@@ -189,14 +194,14 @@ export default function CmsPostsEditor({ email, signOutAction }: CmsPostsEditorP
         });
         const result = await response.json() as CmsPost | { message?: string };
         if (!response.ok) {
-            setMessage("message" in result ? result.message ?? "Could not move post." : "Could not move post.");
+            showToast("message" in result ? result.message ?? "Could not move post." : "Could not move post.", "error");
             return;
         }
 
         const movedPost = result as CmsPost;
         setPosts(current => current.map(candidate => candidate.id === postId ? movedPost : candidate));
         setSelected(current => current.id === postId ? movedPost : current);
-        setMessage(`Moved '${movedPost.title}'.`);
+        showToast(`Moved '${movedPost.title}'.`, "info");
     }
 
     function startDraggingPost(event: React.DragEvent<HTMLButtonElement>, postId: string) {
@@ -354,7 +359,6 @@ export default function CmsPostsEditor({ email, signOutAction }: CmsPostsEditorP
                                     <button className={tab === "metadata" ? "active" : ""} onClick={() => setTab("metadata")}>Metadata</button>
                                     <button className={tab === "mdx" ? "active" : ""} onClick={() => setTab("mdx")}>MDX</button>
                                 </div>
-                                {message && <p className="cms-editor-message">{message}</p>}
                                 {tab === "metadata" ? (
                                     <div className="cms-form-grid">
                                         <label>Type<select value={selected.type} onChange={event => update("type", event.target.value)}><option value="post">Post</option><option value="event">Event</option></select></label>

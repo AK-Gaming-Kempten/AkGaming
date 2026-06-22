@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { LuImagePlus, LuPlus, LuSave, LuTrash2, LuUserPlus, LuX } from "react-icons/lu";
+import { useCmsToast } from "./CmsToastProvider";
 
 type Player = {
     name: string;
@@ -41,20 +42,20 @@ export default function CmsTeamsManager({ games, leagues }: CmsTeamsManagerProps
     const [teams, setTeams] = useState<Team[]>([]);
     const [selected, setSelected] = useState<Team | null>(null);
     const [previousId, setPreviousId] = useState<string | undefined>();
-    const [message, setMessage] = useState("");
+    const { showToast } = useCmsToast();
 
     const loadTeams = useCallback(async (): Promise<Team[] | null> => {
         const response = await fetch("/api/cms/teams");
         const result = await response.json() as Team[] | { message?: string };
         if (!response.ok) {
-            setMessage("message" in result ? result.message ?? "Could not load teams." : "Could not load teams.");
+            showToast("message" in result ? result.message ?? "Could not load teams." : "Could not load teams.", "error");
             return null;
         }
 
         const loadedTeams = result as Team[];
         setTeams(loadedTeams);
         return loadedTeams;
-    }, []);
+    }, [showToast]);
 
     useEffect(() => {
         void loadTeams().then(loadedTeams => {
@@ -68,7 +69,6 @@ export default function CmsTeamsManager({ games, leagues }: CmsTeamsManagerProps
     function selectTeam(team: Team) {
         setSelected(team);
         setPreviousId(team.id);
-        setMessage("");
     }
 
     function updateTeam(update: (team: Team) => Team) {
@@ -78,7 +78,6 @@ export default function CmsTeamsManager({ games, leagues }: CmsTeamsManagerProps
     function createTeam() {
         setSelected(emptyTeam());
         setPreviousId(undefined);
-        setMessage("");
     }
 
     function addPlayer() {
@@ -106,14 +105,14 @@ export default function CmsTeamsManager({ games, leagues }: CmsTeamsManagerProps
         });
         const result = await response.json() as Team | { message?: string };
         if (!response.ok) {
-            setMessage("message" in result ? result.message ?? "Could not save team." : "Could not save team.");
+            showToast("message" in result ? result.message ?? "Could not save team." : "Could not save team.", "error");
             return;
         }
 
         const savedTeam = result as Team;
         setSelected(savedTeam);
         setPreviousId(savedTeam.id);
-        setMessage("Team saved.");
+        showToast("Team saved.");
         await loadTeams();
     }
 
@@ -124,7 +123,7 @@ export default function CmsTeamsManager({ games, leagues }: CmsTeamsManagerProps
         const response = await fetch(`/api/cms/teams/${encodeURIComponent(previousId)}`, { method: "DELETE" });
         if (!response.ok) {
             const result = await response.json() as { message?: string };
-            setMessage(result.message ?? "Could not delete team.");
+            showToast(result.message ?? "Could not delete team.", "error");
             return;
         }
 
@@ -149,7 +148,6 @@ export default function CmsTeamsManager({ games, leagues }: CmsTeamsManagerProps
                 </div>
             </header>
 
-            {message && <p className="cms-editor-message">{message}</p>}
             <div className="cms-teams-workspace">
                 <aside className="cms-teams-list">
                     {teams.map(team => <button key={team.id} type="button" className={selected?.id === team.id ? "active" : ""} onClick={() => selectTeam(team)}><img src={team.logo} alt="" /><span>{team.name}<small>{team.game}</small></span></button>)}

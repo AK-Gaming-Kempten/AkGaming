@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useRef, useState, type ChangeEvent } from "react";
+import { useCallback, useEffect, useRef, useState, type ChangeEvent } from "react";
 import { LuChevronRight, LuCopy, LuFolder, LuFolderPlus, LuImage, LuTrash2, LuUpload, LuX } from "react-icons/lu";
+import { useCmsToast } from "./CmsToastProvider";
 
 type MediaFile = {
     name: string;
@@ -26,31 +27,30 @@ const emptyDirectory: MediaDirectory = { folder: "", folders: [], files: [] };
 export default function CmsMediaLibrary() {
     const [directory, setDirectory] = useState<MediaDirectory>(emptyDirectory);
     const [isLoading, setIsLoading] = useState(true);
-    const [message, setMessage] = useState("");
+    const { showToast } = useCmsToast();
     const [draggingFilePath, setDraggingFilePath] = useState<string | null>(null);
     const [dropTargetFolder, setDropTargetFolder] = useState<string | null>(null);
     const [previewFile, setPreviewFile] = useState<MediaFile | null>(null);
     const [isFileDropActive, setIsFileDropActive] = useState(false);
     const fileDragDepth = useRef(0);
 
-    useEffect(() => {
-        void loadDirectory("");
-    }, []);
-
-    async function loadDirectory(folder: string) {
+    const loadDirectory = useCallback(async (folder: string) => {
         setIsLoading(true);
         const response = await fetch(`/api/cms/media?folder=${encodeURIComponent(folder)}`);
         const result = await response.json() as MediaDirectory | { message?: string };
         setIsLoading(false);
 
         if (!response.ok) {
-            setMessage("message" in result ? result.message ?? "Could not load media." : "Could not load media.");
+            showToast("message" in result ? result.message ?? "Could not load media." : "Could not load media.", "error");
             return;
         }
 
         setDirectory(result as MediaDirectory);
-        setMessage("");
-    }
+    }, [showToast]);
+
+    useEffect(() => {
+        void loadDirectory("");
+    }, [loadDirectory]);
 
     async function uploadFiles(event: ChangeEvent<HTMLInputElement>) {
         const files = Array.from(event.target.files ?? []);
@@ -70,12 +70,12 @@ export default function CmsMediaLibrary() {
             const response = await fetch("/api/cms/media", { method: "POST", body: formData });
             if (!response.ok) {
                 const result = await response.json() as { message?: string };
-                setMessage(result.message ?? `Could not upload '${file.name}'.`);
+                showToast(result.message ?? `Could not upload '${file.name}'.`, "error");
                 return;
             }
         }
 
-        setMessage(`${files.length} image${files.length === 1 ? "" : "s"} uploaded.`);
+        showToast(`${files.length} image${files.length === 1 ? "" : "s"} uploaded.`);
         await loadDirectory(directory.folder);
     }
 
@@ -118,7 +118,7 @@ export default function CmsMediaLibrary() {
         const response = await fetch("/api/cms/media", { method: "POST", body: formData });
         if (!response.ok) {
             const result = await response.json() as { message?: string };
-            setMessage(result.message ?? "Could not create folder.");
+            showToast(result.message ?? "Could not create folder.", "error");
             return;
         }
 
@@ -131,7 +131,7 @@ export default function CmsMediaLibrary() {
         const response = await fetch(`/api/cms/media?path=${encodeURIComponent(file.path)}`, { method: "DELETE" });
         if (!response.ok) {
             const result = await response.json() as { message?: string };
-            setMessage(result.message ?? "Could not delete image.");
+            showToast(result.message ?? "Could not delete image.", "error");
             return;
         }
 
@@ -144,7 +144,7 @@ export default function CmsMediaLibrary() {
         const response = await fetch(`/api/cms/media?kind=folder&path=${encodeURIComponent(folder.path)}`, { method: "DELETE" });
         if (!response.ok) {
             const result = await response.json() as { message?: string };
-            setMessage(result.message ?? "Could not delete folder.");
+            showToast(result.message ?? "Could not delete folder.", "error");
             return;
         }
 
@@ -153,7 +153,7 @@ export default function CmsMediaLibrary() {
 
     async function copyUrl(file: MediaFile) {
         await navigator.clipboard.writeText(file.url);
-        setMessage(`Copied ${file.url}`);
+        showToast(`Copied ${file.url}`, "info");
     }
 
     function startDraggingFile(event: React.DragEvent<HTMLElement>, file: MediaFile) {
@@ -176,11 +176,11 @@ export default function CmsMediaLibrary() {
         });
         if (!response.ok) {
             const result = await response.json() as { message?: string };
-            setMessage(result.message ?? "Could not move image.");
+            showToast(result.message ?? "Could not move image.", "error");
             return;
         }
 
-        setMessage("Image moved.");
+        showToast("Image moved.", "info");
         await loadDirectory(directory.folder);
     }
 
@@ -208,7 +208,6 @@ export default function CmsMediaLibrary() {
                 })}
             </div>
 
-            {message && <p className="cms-editor-message">{message}</p>}
             <div className="cms-media-browser">
                 <aside className="cms-media-folders">
                     {directory.folder && <button type="button" className={dropTargetFolder === parentFolder ? "drop-target" : ""} onClick={() => void loadDirectory(parentFolder)} onDragOver={event => { event.preventDefault(); setDropTargetFolder(parentFolder); }} onDragLeave={() => setDropTargetFolder(current => current === parentFolder ? null : current)} onDrop={event => void dropFile(event, parentFolder)}><LuFolder /> ..</button>}
