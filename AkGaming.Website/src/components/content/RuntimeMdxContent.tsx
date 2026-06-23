@@ -11,6 +11,11 @@ export default async function RuntimeMdxContent({ source }: RuntimeMdxContentPro
         source,
         components: mdxComponents,
         options: {
+            // CMS MDX relies on data expressions for component props, for example
+            // <Table headers={[...]} rows={[[...]]} />. Keep the library's
+            // dangerous-global guard enabled while allowing those expressions.
+            blockJS: false,
+            blockDangerousJS: true,
             mdxOptions: {
                 development: false,
                 remarkPlugins: [remarkGfm],
