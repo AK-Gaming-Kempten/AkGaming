@@ -2,6 +2,7 @@ using System.Net.Security;
 using System.Security.Claims;
 using AkGaming.Tournaments.Frontend.Api;
 using AkGaming.Tournaments.Frontend.Authentication;
+using AkGaming.Core.Components.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Authorization;
@@ -9,6 +10,7 @@ using Microsoft.AspNetCore.Components.Server.Circuits;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using Microsoft.IdentityModel.Tokens;
 
@@ -40,6 +42,10 @@ public static class ServiceCollectionExtensions
         var allowUntrustedLocalCertificates = env.IsDevelopment() && config.GetValue<bool>("Dev:AllowUntrustedLocalCertificates");
 
         services.Configure<OpenIdConnectClientOptions>(config.GetSection(OpenIdConnectClientOptions.SectionName));
+        services.AddDistributedMemoryCache();
+        services.AddSingleton<ITicketStore>(serviceProvider => new DistributedCacheTicketStore(
+            serviceProvider.GetRequiredService<IDistributedCache>(),
+            "akgaming.tournaments.ticket"));
 
         services.AddAuthentication(options =>
             {
@@ -52,6 +58,7 @@ public static class ServiceCollectionExtensions
                 options.LogoutPath = "/authentication/logout";
                 options.AccessDeniedPath = "/account/access-denied";
                 options.ClaimsIssuer = "AkGaming.Identity";
+                options.Cookie.Name = "akgaming.tournaments";
             })
             .AddOpenIdConnect(OpenIdConnectDefaults.AuthenticationScheme, options =>
             {
@@ -109,6 +116,9 @@ public static class ServiceCollectionExtensions
                     }
                 };
             });
+
+        services.AddOptions<CookieAuthenticationOptions>(CookieAuthenticationDefaults.AuthenticationScheme)
+            .Configure<ITicketStore>((options, ticketStore) => options.SessionStore = ticketStore);
 
         services.AddAuthorization(options =>
         {

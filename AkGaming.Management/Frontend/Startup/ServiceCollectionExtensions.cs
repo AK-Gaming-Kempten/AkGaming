@@ -1,6 +1,7 @@
 using AkGaming.Management.Frontend.ApiClients;
 using AkGaming.Management.Frontend.Authentication;
 using AkGaming.Management.Frontend.Handlers;
+using AkGaming.Core.Components.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.HttpOverrides;
@@ -12,6 +13,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.Net.Security;
 using System.Security.Claims;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Caching.Distributed;
 
 namespace AkGaming.Management.Frontend.Startup;
 
@@ -34,6 +36,10 @@ public static class ServiceCollectionExtensions {
         var oidcOptions = config.GetSection(OpenIdConnectClientOptions.SectionName).Get<OpenIdConnectClientOptions>() ?? new();
         var allowUntrustedLocalCertificates = env.IsDevelopment() && config.GetValue<bool>("Dev:AllowUntrustedLocalCertificates");
         services.Configure<OpenIdConnectClientOptions>(config.GetSection(OpenIdConnectClientOptions.SectionName));
+        services.AddDistributedMemoryCache();
+        services.AddSingleton<ITicketStore>(serviceProvider => new DistributedCacheTicketStore(
+            serviceProvider.GetRequiredService<IDistributedCache>(),
+            "akgaming.management.ticket"));
 
         services.AddAuthentication(options => {
                 options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
@@ -44,6 +50,7 @@ public static class ServiceCollectionExtensions {
                 options.LogoutPath = "/authentication/logout";
                 options.AccessDeniedPath = "/account/accessdenied";
                 options.ClaimsIssuer = "AkGaming.Identity";
+                options.Cookie.Name = "akgaming.management";
             })
             .AddOpenIdConnect(OpenIdConnectDefaults.AuthenticationScheme, options => {
                 options.Authority = oidcOptions.Authority;
@@ -87,6 +94,9 @@ public static class ServiceCollectionExtensions {
                     }
                 };
             });
+
+        services.AddOptions<CookieAuthenticationOptions>(CookieAuthenticationDefaults.AuthenticationScheme)
+            .Configure<ITicketStore>((options, ticketStore) => options.SessionStore = ticketStore);
 
         services.AddAuthorization(options => {
             AddPermissionPolicy(options, "identity.users.read");
