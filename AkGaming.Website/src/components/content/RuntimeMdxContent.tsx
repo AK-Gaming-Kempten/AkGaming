@@ -1,4 +1,5 @@
 import { compileMDX } from "next-mdx-remote/rsc";
+import remarkGfm from "remark-gfm";
 import { mdxComponents } from "./mdxCatalog";
 
 type RuntimeMdxContentProps = {
@@ -12,6 +13,7 @@ export default async function RuntimeMdxContent({ source }: RuntimeMdxContentPro
         options: {
             mdxOptions: {
                 development: false,
+                remarkPlugins: [remarkGfm],
             },
         },
     });

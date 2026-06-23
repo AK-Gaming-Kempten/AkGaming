@@ -31,6 +31,7 @@ import Stack from "./Stack";
 import Embed from "./Embed";
 import LinkedImage from "./LinkedImage";
 import Table from "./Table";
+import MdxMarkdownTable from "./MdxMarkdownTable";
 import Text from "./Text";
 import MdxParagraph from "./MdxParagraph";
 
@@ -66,6 +67,7 @@ export const mdxComponents = {
     Embed,
     LinkedImage,
     Table,
+    table: MdxMarkdownTable,
     Text,
     FaBan,
     FaCheckCircle,
