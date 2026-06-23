@@ -132,7 +132,8 @@
 .cms-workspace .cms-icon-button-danger { background: color-mix(in srgb, var(--color-red-light) 16%, transparent); color: var(--color-red-light); }
 .cms-workspace .cms-icon-button-danger:hover { background: var(--color-red-light); color: var(--color-text-special); }
 .cms-sidebar nav { gap: .25rem; }
-.cms-sidebar nav button { display: flex; align-items: center; box-sizing: border-box; width: 100%; padding: .55rem 1rem; border: 0; border-radius: 4px; background: transparent; color: var(--color-text-special); text-decoration: none; transition: background .2s ease, color .2s ease; }
+.cms-sidebar nav button { display: flex; align-items: center; gap: .65rem; box-sizing: border-box; width: 100%; padding: .55rem 1rem; border: 0; border-radius: 4px; background: transparent; color: var(--color-text-special); text-decoration: none; transition: background .2s ease, color .2s ease; }
+.cms-sidebar nav button svg { flex: 0 0 auto; width: 1.05rem; height: 1.05rem; }
 .cms-sidebar nav button:hover { background: linear-gradient(90deg, var(--color-background-special) 0%, color-mix(in srgb, var(--color-background-secondary) 30%, transparent) 100%); }
 .cms-sidebar nav button.active { background: linear-gradient(90deg, var(--color-background-special) 0%, color-mix(in srgb, var(--color-highlight-secondary) 75%, var(--color-highlight-primary) 25%) 100%); color: var(--color-text-special); }
 .cms-post-list button.active { background: var(--color-button-primary-bg); color: var(--color-button-primary-text); }

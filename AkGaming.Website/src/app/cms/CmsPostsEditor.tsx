@@ -8,6 +8,7 @@ import {
     LuFileText,
     LuFolder,
     LuFolderPlus,
+    LuImages,
     LuMonitor,
     LuMoonStar,
     LuLogOut,
@@ -17,6 +18,8 @@ import {
     LuPlus,
     LuSave,
     LuSunMedium,
+    LuStar,
+    LuTrophy,
     LuUpload,
     LuTrash2,
 } from "react-icons/lu";
@@ -31,6 +34,13 @@ import { CmsPermissions } from "../../content/cmsPermissions";
 type Section = "posts" | "files" | "highlights" | "teams";
 type EditorTab = "metadata" | "mdx";
 type ContentKind = "post" | "event";
+
+const sectionIcons = {
+    posts: LuFileText,
+    files: LuImages,
+    highlights: LuStar,
+    teams: LuTrophy,
+};
 
 type CmsPost = {
     type: ContentKind;
@@ -286,11 +296,12 @@ function CmsPostsEditorContent({ email, permissions, signOutAction }: CmsPostsEd
                 <div>
                     <p className="cms-sidebar-brand">AKG CMS</p>
                     <nav>
-                        {availableSections.map(([value, label]) => (
-                            <button key={value} className={section === value ? "active" : ""} onClick={() => setSection(value)}>
-                                {label}
+                        {availableSections.map(([value, label]) => {
+                            const Icon = sectionIcons[value];
+                            return <button key={value} className={section === value ? "active" : ""} onClick={() => setSection(value)}>
+                                <Icon aria-hidden="true" />{label}
                             </button>
-                        ))}
+                        })}
                     </nav>
                 </div>
 
