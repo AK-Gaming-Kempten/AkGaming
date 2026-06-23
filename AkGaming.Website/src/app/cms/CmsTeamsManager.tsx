@@ -142,9 +142,9 @@ export default function CmsTeamsManager({ games, leagues }: CmsTeamsManagerProps
                     <h2>Teams</h2>
                 </div>
                 <div className="cms-teams-actions">
-                    <button type="button" onClick={createTeam}><LuPlus /> New team</button>
-                    <button type="button" onClick={() => void saveTeam()} disabled={selected === null}><LuSave /> Save team</button>
-                    {previousId && <button type="button" className="cms-secondary-button" onClick={() => void deleteTeam()}><LuTrash2 /> Delete</button>}
+                    <button type="button" className="cms-icon-button" onClick={createTeam} title="New team" aria-label="New team"><LuPlus /></button>
+                    <button type="button" className="cms-icon-button" onClick={() => void saveTeam()} disabled={selected === null} title="Save team" aria-label="Save team"><LuSave /></button>
+                    {previousId && <button type="button" className="cms-icon-button cms-icon-button-danger" onClick={() => void deleteTeam()} title="Delete team" aria-label="Delete team"><LuTrash2 /></button>}
                 </div>
             </header>
 
@@ -169,12 +169,12 @@ export default function CmsTeamsManager({ games, leagues }: CmsTeamsManagerProps
                         </div>
 
                         <section className="cms-roster-editor">
-                            <header><h3>Roster</h3><button type="button" onClick={addPlayer}><LuUserPlus /> Add player</button></header>
+                            <header><h3>Roster</h3><button type="button" className="cms-icon-button" onClick={addPlayer} title="Add player" aria-label="Add player"><LuUserPlus /></button></header>
                             {selected.players.length === 0 ? <p>No players yet.</p> : selected.players.map((player, index) => <div className="cms-player-row" key={index}>
                                 <input value={player.name} onChange={event => updatePlayer(index, "name", event.target.value)} placeholder="Player name" aria-label="Player name" />
                                 <input value={player.role} onChange={event => updatePlayer(index, "role", event.target.value)} placeholder="Role" aria-label="Player role" />
                                 <input value={player.picture} onChange={event => updatePlayer(index, "picture", event.target.value)} placeholder="/media/teams/player.png" aria-label="Player image URL" />
-                                <button type="button" onClick={() => removePlayer(index)} title="Remove player" aria-label={`Remove ${player.name || "player"}`}><LuX /></button>
+                                <button type="button" className="cms-icon-button-danger" onClick={() => removePlayer(index)} title="Remove player" aria-label={`Remove ${player.name || "player"}`}><LuX /></button>
                             </div>)}
                         </section>
                     </>}

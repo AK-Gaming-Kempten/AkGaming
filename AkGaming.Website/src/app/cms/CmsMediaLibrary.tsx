@@ -214,8 +214,8 @@ export default function CmsMediaLibrary() {
                     <h2>File management</h2>
                 </div>
                 <div className="cms-media-actions">
-                    <button type="button" onClick={() => void createFolder()} title="New folder"><LuFolderPlus /> New folder</button>
-                    <label className="cms-media-upload"><LuUpload /> Upload images<input type="file" accept="image/jpeg,image/png,image/webp,image/avif,image/gif" multiple onChange={event => void uploadFiles(event)} /></label>
+                    <button type="button" className="cms-icon-button" onClick={() => void createFolder()} title="New folder" aria-label="New folder"><LuFolderPlus /></button>
+                    <label className="cms-media-upload cms-icon-button" title="Upload images" aria-label="Upload images"><LuUpload /><input type="file" accept="image/jpeg,image/png,image/webp,image/avif,image/gif" multiple onChange={event => void uploadFiles(event)} /></label>
                 </div>
             </header>
 
@@ -230,7 +230,7 @@ export default function CmsMediaLibrary() {
             <div className="cms-media-browser">
                 <aside className="cms-media-folders">
                     {directory.folder && <button type="button" className={dropTargetFolder === parentFolder ? "drop-target" : ""} onClick={() => void loadDirectory(parentFolder)} onDragOver={event => { event.preventDefault(); setDropTargetFolder(parentFolder); }} onDragLeave={() => setDropTargetFolder(current => current === parentFolder ? null : current)} onDrop={event => void dropFile(event, parentFolder)}><LuFolder /> ..</button>}
-                    {directory.folders.map(folder => <div key={folder.path} className="cms-media-folder-row"><button type="button" className={dropTargetFolder === folder.path ? "drop-target" : ""} onClick={() => void loadDirectory(folder.path)} onDragOver={event => { event.preventDefault(); setDropTargetFolder(folder.path); }} onDragLeave={() => setDropTargetFolder(current => current === folder.path ? null : current)} onDrop={event => void dropFile(event, folder.path)}><LuFolder /> {folder.name}</button><button className="cms-media-folder-delete" type="button" onClick={() => void deleteFolder(folder)} title={`Delete ${folder.name}`} aria-label={`Delete ${folder.name}`}><LuTrash2 /></button></div>)}
+                    {directory.folders.map(folder => <div key={folder.path} className="cms-media-folder-row"><button type="button" className={dropTargetFolder === folder.path ? "drop-target" : ""} onClick={() => void loadDirectory(folder.path)} onDragOver={event => { event.preventDefault(); setDropTargetFolder(folder.path); }} onDragLeave={() => setDropTargetFolder(current => current === folder.path ? null : current)} onDrop={event => void dropFile(event, folder.path)}><LuFolder /> {folder.name}</button><button className="cms-media-folder-delete cms-icon-button-danger" type="button" onClick={() => void deleteFolder(folder)} title={`Delete ${folder.name}`} aria-label={`Delete ${folder.name}`}><LuTrash2 /></button></div>)}
                 </aside>
                 <section className="cms-media-files" aria-busy={isLoading}>
                     {isLoading ? <p>Loading media…</p> : directory.files.length === 0 ? <p className="cms-media-empty"><LuImage /> This folder has no images.</p> : directory.files.map(file => (
@@ -243,7 +243,7 @@ export default function CmsMediaLibrary() {
                             <div className="cms-media-file-actions">
                                 <button type="button" onClick={() => void copyUrl(file)} title="Copy image URL" aria-label={`Copy URL for ${file.name}`}><LuCopy /></button>
                                 <button type="button" onClick={() => void renameFile(file)} title="Rename image" aria-label={`Rename ${file.name}`}><LuPencil /></button>
-                                <button type="button" onClick={() => void deleteFile(file)} title="Delete image" aria-label={`Delete ${file.name}`}><LuTrash2 /></button>
+                                <button type="button" className="cms-icon-button-danger" onClick={() => void deleteFile(file)} title="Delete image" aria-label={`Delete ${file.name}`}><LuTrash2 /></button>
                             </div>
                         </article>
                     ))}

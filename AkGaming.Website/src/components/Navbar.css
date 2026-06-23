@@ -43,50 +43,25 @@
     border-bottom: 3px solid var(--color-highlight-primary);
 }
 
-/* ---- Burger button ---- */
-.burger {
-    display: none;
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    left: 1rem;
-    z-index: 2000; /* ensure it stays above everything else */
-    background: none;
-    border: none;
-    color: var(--color-text-special);
-    font-size: 1.8rem;
-    cursor: pointer;
-    padding: 0.25rem;
-    transition: transform 0.2s ease;
-}
-
-.burger:hover {
-    transform: translateY(-50%) scale(1.08);
-}
-
-
 /* ---- Mobile styles ---- */
 @media (max-width: 820px) {
-    .burger {
-        display: flex;
-    }
-
     .nav-links {
         flex-direction: column;
         position: absolute;
         top: 100%;
-        left: 0;
+        left: 50%;
         background:
             linear-gradient(
                 180deg,
                 color-mix(in srgb, var(--color-dark-green) 90%, black 10%),
                 color-mix(in srgb, var(--color-dark-green) 78%, #00150f 22%)
             );
-        width: 100%;
+        width: 100vw;
         padding: 1rem 0;
         gap: 0.5rem;
         align-items: center;
         display: none;
+        transform: translateX(-50%);
     }
 
     .nav-links.active {

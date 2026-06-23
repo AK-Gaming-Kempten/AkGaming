@@ -42,6 +42,34 @@
     transition: color 0.2s ease, transform 0.2s ease;
 }
 
+.cms-entry-link,
+.mobile-menu-toggle {
+    position: absolute;
+    top: 1rem;
+    left: 1rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: var(--color-text-special);
+    font-size: 1.7rem;
+    line-height: 1;
+    cursor: pointer;
+    transition: color .2s ease, transform .2s ease;
+}
+
+.cms-entry-link:hover,
+.mobile-menu-toggle:hover {
+    color: var(--color-highlight-primary);
+    transform: scale(1.1);
+}
+
+.mobile-menu-toggle {
+    display: none;
+}
+
 .theme-toggle:hover {
     color: var(--color-highlight-primary);
     transform: scale(1.1);
@@ -49,6 +77,14 @@
 
 /* === Responsive === */
 @media (max-width: 820px) {
+
+    .cms-entry-link {
+        display: none;
+    }
+
+    .mobile-menu-toggle {
+        display: inline-flex;
+    }
 
     .header-content {
         flex-direction: column;

@@ -10,6 +10,7 @@ import {
     LuFolderPlus,
     LuMonitor,
     LuMoonStar,
+    LuLogOut,
     LuPanelLeftClose,
     LuPanelLeftOpen,
     LuPencil,
@@ -305,13 +306,13 @@ function CmsPostsEditorContent({ email, permissions, signOutAction }: CmsPostsEd
                             <div className="cms-user-name" title={email ?? "Administrator"}>{email ?? "Administrator"}</div>
                         </div>
                         <form action={signOutAction}>
-                            <button className="cms-user-logout" type="submit">Logout</button>
+                            <button className="cms-user-logout cms-icon-button" type="submit" title="Logout" aria-label="Logout"><LuLogOut /></button>
                         </form>
                     </div>
                 </div>
             </aside>
 
-            <section className={`cms-workspace-main${isPostSelectorExpanded ? " selector-expanded" : ""}`}>
+            <section className={`cms-workspace-main${section === "posts" && isPostSelectorExpanded ? " selector-expanded" : ""}`}>
                 {section === "files" && canManageMedia ? <CmsMediaLibrary /> : section === "highlights" && canManageHighlights ? <CmsHighlightsManager posts={posts} /> : section === "teams" && canManageEsports ? <CmsEsportsManager /> : canManagePosts ? (
                     <>
                         <header className="cms-workspace-header">
@@ -357,7 +358,7 @@ function CmsPostsEditorContent({ email, permissions, signOutAction }: CmsPostsEd
                                                 </button>
                                                 <span className="cms-folder-actions">
                                                     <button type="button" onClick={() => void renameFolder(folder)} title="Rename folder" aria-label={`Rename ${folder.name}`}><LuPencil /></button>
-                                                    <button type="button" onClick={() => void deleteFolder(folder)} title="Delete folder" aria-label={`Delete ${folder.name}`}><LuTrash2 /></button>
+                                                    <button type="button" className="cms-icon-button-danger" onClick={() => void deleteFolder(folder)} title="Delete folder" aria-label={`Delete ${folder.name}`}><LuTrash2 /></button>
                                                 </span>
                                             </header>
                                             {isFolderExpanded(folder.id) && postsInFolder(folder.id).map(post => renderPost(post))}

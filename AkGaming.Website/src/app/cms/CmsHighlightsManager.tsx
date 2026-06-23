@@ -110,8 +110,8 @@ export default function CmsHighlightsManager({ posts }: CmsHighlightsManagerProp
                     <h2>Highlights</h2>
                 </div>
                 <div className="cms-highlights-actions">
-                    <button type="button" onClick={addHighlight}><LuPlus /> New highlight</button>
-                    <button type="button" onClick={() => void saveHighlights()}><LuSave /> Save highlights</button>
+                    <button type="button" className="cms-icon-button" onClick={addHighlight} title="New highlight" aria-label="New highlight"><LuPlus /></button>
+                    <button type="button" className="cms-icon-button" onClick={() => void saveHighlights()} title="Save highlights" aria-label="Save highlights"><LuSave /></button>
                 </div>
             </header>
 
@@ -134,9 +134,9 @@ export default function CmsHighlightsManager({ posts }: CmsHighlightsManagerProp
                             <label className="wide">Description override<textarea value={selected.description ?? ""} onChange={event => update("description", event.target.value)} placeholder={selectedPost?.shortDescription ?? "Uses the post description"} /></label>
                         </div>
                         <div className="cms-highlight-order-actions">
-                            <button type="button" onClick={() => moveHighlight(-1)} disabled={selectedIndex === 0} title="Move up"><LuArrowUp /> Move up</button>
-                            <button type="button" onClick={() => moveHighlight(1)} disabled={selectedIndex === highlights.length - 1} title="Move down"><LuArrowDown /> Move down</button>
-                            <button type="button" className="cms-secondary-button" onClick={removeHighlight}><LuTrash2 /> Remove</button>
+                            <button type="button" className="cms-icon-button" onClick={() => moveHighlight(-1)} disabled={selectedIndex === 0} title="Move up" aria-label="Move up"><LuArrowUp /></button>
+                            <button type="button" className="cms-icon-button" onClick={() => moveHighlight(1)} disabled={selectedIndex === highlights.length - 1} title="Move down" aria-label="Move down"><LuArrowDown /></button>
+                            <button type="button" className="cms-icon-button cms-icon-button-danger" onClick={removeHighlight} title="Remove highlight" aria-label="Remove highlight"><LuTrash2 /></button>
                         </div>
                         <article className="cms-highlight-preview">
                             {selected.mediaType === "video" ? <video src={selected.mediaSrc} controls /> : selected.mediaSrc ? <img src={selected.mediaSrc} alt="Highlight preview" /> : <div className="cms-highlight-preview-placeholder"><LuImagePlus /></div>}

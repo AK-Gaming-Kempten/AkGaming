@@ -2,9 +2,15 @@
 
 import "./Header.css";
 import { useTheme } from "../utils/UseTheme";
-import { LuSunMedium, LuMoonStar, LuMonitor } from "react-icons/lu";
+import Link from "next/link";
+import { LuSunMedium, LuMoonStar, LuMonitor, LuPencil, LuMenu, LuX } from "react-icons/lu";
 
-export default function Header() {
+type HeaderProps = {
+    menuOpen: boolean;
+    onToggleMenu: () => void;
+};
+
+export default function Header({ menuOpen, onToggleMenu }: HeaderProps) {
     const { theme, toggleTheme } = useTheme();
 
     const getIcon = () => {
@@ -20,6 +26,10 @@ export default function Header() {
 
     return (
         <header className="header">
+            <Link href="/cms" className="cms-entry-link" title="Open CMS" aria-label="Open CMS"><LuPencil /></Link>
+            <button className="mobile-menu-toggle" type="button" onClick={onToggleMenu} title={menuOpen ? "Close navigation menu" : "Open navigation menu"} aria-label={menuOpen ? "Close navigation menu" : "Open navigation menu"}>
+                {menuOpen ? <LuX /> : <LuMenu />}
+            </button>
             <button className="theme-toggle" onClick={toggleTheme} title={`Theme: ${theme}`}>
                 {getIcon()}
             </button>

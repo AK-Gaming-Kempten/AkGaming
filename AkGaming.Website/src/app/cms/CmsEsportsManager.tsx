@@ -109,7 +109,7 @@ function CmsEsportsCatalogManager({ kind, onChanged }: CmsEsportsCatalogManagerP
         <div className="cms-esports-catalog">
             <header className="cms-workspace-header cms-esports-catalog-header">
                 <h3>{title}</h3>
-                <div className="cms-teams-actions"><button type="button" onClick={addItem}><LuPlus /> New {singular}</button><button type="button" onClick={() => void saveItems()}><LuSave /> Save {title.toLowerCase()}</button></div>
+                <div className="cms-teams-actions"><button type="button" className="cms-icon-button" onClick={addItem} title={`New ${singular}`} aria-label={`New ${singular}`}><LuPlus /></button><button type="button" className="cms-icon-button" onClick={() => void saveItems()} title={`Save ${title.toLowerCase()}`} aria-label={`Save ${title.toLowerCase()}`}><LuSave /></button></div>
             </header>
             <div className="cms-teams-workspace">
                 <aside className="cms-teams-list">

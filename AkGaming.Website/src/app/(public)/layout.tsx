@@ -1,14 +1,10 @@
 import Footer from "../../components/Footer";
-import Header from "../../components/Header";
-import Navbar from "../../components/Navbar";
+import TopChrome from "../../components/TopChrome";
 
 export default function PublicLayout({ children }: Readonly<{ children: React.ReactNode }>) {
     return (
         <div className="site-shell">
-            <div className="top-chrome">
-                <Header />
-                <Navbar />
-            </div>
+            <TopChrome />
             <main>
                 <div className="container">{children}</div>
             </main>
