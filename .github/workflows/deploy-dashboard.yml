@@ -3,7 +3,7 @@ name: Deploy Dashboard
 on:
   push:
     branches: ["develop"]
-    tags: ["dashboard-v*"]
+    tags: ["dashboard/*"]
 
 concurrency:
   group: deploy-dashboard-${{ github.ref_name }}
@@ -60,7 +60,7 @@ jobs:
             --header "Authorization: Bearer ${{ secrets.COOLIFY_TOKEN }}"
 
   deploy-production:
-    if: startsWith(github.ref, 'refs/tags/dashboard-v')
+    if: startsWith(github.ref, 'refs/tags/dashboard/')
     runs-on: ubuntu-latest
     steps:
       - name: Trigger Coolify Production Deploy

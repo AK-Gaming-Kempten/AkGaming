@@ -3,7 +3,7 @@ name: Deploy Identity
 on:
   push:
     branches: ["develop"]
-    tags: ["identity-v*"]
+    tags: ["identity/*"]
 
 concurrency:
   group: deploy-identity-${{ github.ref_name }}
@@ -51,7 +51,7 @@ jobs:
 
   test:
     needs: should-deploy
-    if: ${{ always() && ((github.ref == 'refs/heads/develop' && needs.should-deploy.outputs.deploy == 'true') || startsWith(github.ref, 'refs/tags/identity-v')) }}
+    if: ${{ always() && ((github.ref == 'refs/heads/develop' && needs.should-deploy.outputs.deploy == 'true') || startsWith(github.ref, 'refs/tags/identity/')) }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -170,7 +170,7 @@ jobs:
 
   deploy-production:
     needs: test
-    if: ${{ always() && startsWith(github.ref, 'refs/tags/identity-v') && needs.test.result == 'success' }}
+    if: ${{ always() && startsWith(github.ref, 'refs/tags/identity/') && needs.test.result == 'success' }}
     runs-on: ubuntu-latest
     env:
       IDENTITY_PRODUCTION_DB_CONNECTION_STRING: ${{ secrets.IDENTITY_PRODUCTION_DB_CONNECTION_STRING }}

@@ -3,7 +3,7 @@ name: Deploy Management
 on:
   push:
     branches: ["develop"]
-    tags: ["management-v*"]
+    tags: ["management/*"]
 
 concurrency:
   group: deploy-management-${{ github.ref_name }}
@@ -51,7 +51,7 @@ jobs:
 
   test:
     needs: should-deploy
-    if: ${{ always() && ((github.ref == 'refs/heads/develop' && needs.should-deploy.outputs.deploy == 'true') || startsWith(github.ref, 'refs/tags/management-v')) }}
+    if: ${{ always() && ((github.ref == 'refs/heads/develop' && needs.should-deploy.outputs.deploy == 'true') || startsWith(github.ref, 'refs/tags/management/')) }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -169,7 +169,7 @@ jobs:
 
   deploy-production:
     needs: test
-    if: ${{ always() && startsWith(github.ref, 'refs/tags/management-v') && needs.test.result == 'success' }}
+    if: ${{ always() && startsWith(github.ref, 'refs/tags/management/') && needs.test.result == 'success' }}
     runs-on: ubuntu-latest
     env:
       MANAGEMENT_PRODUCTION_DB_CONNECTION_STRING: ${{ secrets.MANAGEMENT_PRODUCTION_DB_CONNECTION_STRING }}

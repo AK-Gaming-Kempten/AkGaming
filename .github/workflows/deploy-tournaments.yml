@@ -3,7 +3,7 @@ name: Deploy Tournaments
 on:
   push:
     branches: ["develop"]
-    tags: ["tournaments-v*"]
+    tags: ["tournaments/*"]
 
 concurrency:
   group: deploy-tournaments-${{ github.ref_name }}
@@ -51,7 +51,7 @@ jobs:
 
   test:
     needs: should-deploy
-    if: ${{ always() && ((github.ref == 'refs/heads/develop' && needs.should-deploy.outputs.deploy == 'true') || startsWith(github.ref, 'refs/tags/tournaments-v')) }}
+    if: ${{ always() && ((github.ref == 'refs/heads/develop' && needs.should-deploy.outputs.deploy == 'true') || startsWith(github.ref, 'refs/tags/tournaments/')) }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -182,7 +182,7 @@ jobs:
 
   deploy-production:
     needs: test
-    if: ${{ always() && startsWith(github.ref, 'refs/tags/tournaments-v') && needs.test.result == 'success' }}
+    if: ${{ always() && startsWith(github.ref, 'refs/tags/tournaments/') && needs.test.result == 'success' }}
     runs-on: ubuntu-latest
     env:
       TOURNAMENTS_PRODUCTION_DB_CONNECTION_STRING: ${{ secrets.TOURNAMENTS_PRODUCTION_DB_CONNECTION_STRING }}
