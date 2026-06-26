@@ -2,6 +2,7 @@ using System.Text;
 using System.Threading.RateLimiting;
 using AkGaming.Identity.Application;
 using AkGaming.Identity.Api.Endpoints;
+using AkGaming.Identity.Api.OpenIddict;
 using AkGaming.Identity.Infrastructure;
 using AkGaming.Identity.Infrastructure.OpenIddict;
 using AkGaming.Identity.Infrastructure.Persistence;
@@ -9,6 +10,7 @@ using AkGaming.Identity.Infrastructure.Security;
 using AkGaming.Identity.Domain.Constants;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Cors.Infrastructure;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
@@ -42,6 +44,8 @@ builder.Services.AddApplication();
 builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
+builder.Services.AddCors();
+builder.Services.AddScoped<ICorsPolicyProvider, OidcRedirectUriCorsPolicyProvider>();
 builder.Services.Configure<ForwardedHeadersOptions>(options =>
 {
     options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto | ForwardedHeaders.XForwardedHost;
@@ -170,6 +174,8 @@ if (!app.Environment.IsEnvironment("Testing"))
 }
 app.UseDefaultFiles();
 app.UseStaticFiles();
+app.UseRouting();
+app.UseCors(OidcRedirectUriCorsPolicyProvider.PolicyName);
 app.UseStatusCodePagesWithReExecute("/error");
 app.UseRateLimiter();
 app.UseAuthentication();
