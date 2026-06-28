@@ -15,6 +15,8 @@ public sealed class AuthDbContext : DbContext
     public DbSet<UserRole> UserRoles => Set<UserRole>();
     public DbSet<Permission> Permissions => Set<Permission>();
     public DbSet<RolePermission> RolePermissions => Set<RolePermission>();
+    public DbSet<OpenCloudRole> OpenCloudRoles => Set<OpenCloudRole>();
+    public DbSet<RoleOpenCloudRole> RoleOpenCloudRoles => Set<RoleOpenCloudRole>();
     public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
     public DbSet<ExternalLogin> ExternalLogins => Set<ExternalLogin>();
     public DbSet<EmailVerificationToken> EmailVerificationTokens => Set<EmailVerificationToken>();
@@ -65,6 +67,21 @@ public sealed class AuthDbContext : DbContext
             entity.HasKey(x => new { x.RoleId, x.PermissionId });
             entity.HasOne(x => x.Role).WithMany(x => x.RolePermissions).HasForeignKey(x => x.RoleId);
             entity.HasOne(x => x.Permission).WithMany(x => x.RolePermissions).HasForeignKey(x => x.PermissionId);
+        });
+
+        modelBuilder.Entity<OpenCloudRole>(entity =>
+        {
+            entity.HasKey(x => x.Id);
+            entity.Property(x => x.Key).IsRequired().HasMaxLength(160);
+            entity.Property(x => x.Description).IsRequired().HasMaxLength(256);
+            entity.HasIndex(x => x.Key).IsUnique();
+        });
+
+        modelBuilder.Entity<RoleOpenCloudRole>(entity =>
+        {
+            entity.HasKey(x => new { x.RoleId, x.OpenCloudRoleId });
+            entity.HasOne(x => x.Role).WithMany(x => x.RoleOpenCloudRoles).HasForeignKey(x => x.RoleId);
+            entity.HasOne(x => x.OpenCloudRole).WithMany(x => x.RoleOpenCloudRoles).HasForeignKey(x => x.OpenCloudRoleId);
         });
 
         modelBuilder.Entity<RefreshToken>(entity =>

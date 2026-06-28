@@ -96,6 +96,12 @@ internal static class AdminEndpoints
             return Results.Ok(response);
         }).RequireAuthorization(PermissionNames.IdentityRolesRead);
 
+        admin.MapGet("/opencloud-roles", async (IAuthService authService, CancellationToken cancellationToken) =>
+        {
+            var response = await authService.GetOpenCloudRolesAsync(cancellationToken);
+            return Results.Ok(response);
+        }).RequireAuthorization(PermissionNames.IdentityRolesRead);
+
         admin.MapPost("/roles", async (AdminCreateRoleRequest request, ClaimsPrincipal user, IAuthService authService, HttpContext httpContext, CancellationToken cancellationToken) =>
         {
             if (!EndpointUtilities.TryGetUserId(user, out var actorUserId))
@@ -160,6 +166,24 @@ internal static class AdminEndpoints
             try
             {
                 var response = await authService.SetRolePermissionsAsync(actorUserId, roleId, request, EndpointUtilities.GetIp(httpContext), cancellationToken);
+                return Results.Ok(response);
+            }
+            catch (AuthException exception)
+            {
+                return Results.Problem(statusCode: exception.StatusCode, detail: exception.Message);
+            }
+        }).RequireAuthorization(PermissionNames.IdentityRolesManage);
+
+        admin.MapPut("/roles/{roleId:guid}/opencloud-roles", async (Guid roleId, AdminSetRoleOpenCloudRolesRequest request, ClaimsPrincipal user, IAuthService authService, HttpContext httpContext, CancellationToken cancellationToken) =>
+        {
+            if (!EndpointUtilities.TryGetUserId(user, out var actorUserId))
+            {
+                return Results.Unauthorized();
+            }
+
+            try
+            {
+                var response = await authService.SetRoleOpenCloudRolesAsync(actorUserId, roleId, request, EndpointUtilities.GetIp(httpContext), cancellationToken);
                 return Results.Ok(response);
             }
             catch (AuthException exception)

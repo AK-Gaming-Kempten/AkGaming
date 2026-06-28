@@ -33,7 +33,8 @@ public sealed record CurrentUserResponse(
     bool IsEmailVerified,
     string[] Roles,
     DiscordLinkInfo? Discord,
-    string[]? Permissions = null);
+    string[]? Permissions = null,
+    string[]? OpenCloudRoles = null);
 
 public sealed record DiscordLinkInfo(
     string ProviderUserId,
@@ -48,11 +49,13 @@ public sealed record RedirectFinalizeRequest(
     DateTime AccessTokenExpiresAtUtc);
 
 public sealed record PermissionResponse(string Key, string Application, string Area, string Operation, string Description);
-public sealed record RoleResponse(Guid Id, string Name, string[] Permissions);
+public sealed record OpenCloudRoleResponse(string Key, string Description);
+public sealed record RoleResponse(Guid Id, string Name, string[] Permissions, string[] OpenCloudRoles);
 public sealed record AdminCreateRoleRequest(string Name);
 public sealed record AdminRenameRoleRequest(string Name);
 public sealed record AdminSetUserRolesRequest(string[] Roles);
 public sealed record AdminSetRolePermissionsRequest(string[] Permissions);
+public sealed record AdminSetRoleOpenCloudRolesRequest(string[] OpenCloudRoles);
 public sealed record UserRolesResponse(Guid UserId, string[] Roles);
 
 public sealed record OidcClientResponse(

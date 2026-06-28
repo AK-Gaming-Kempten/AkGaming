@@ -57,6 +57,11 @@ public sealed class JwtTokenService : IJwtTokenService
             .Select(rolePermission => rolePermission.Permission.Key)
             .Distinct(StringComparer.Ordinal)
             .Select(permission => new Claim(PermissionNames.ClaimType, permission)));
+        claims.AddRange(user.UserRoles
+            .SelectMany(userRole => userRole.Role.RoleOpenCloudRoles)
+            .Select(roleOpenCloudRole => roleOpenCloudRole.OpenCloudRole.Key)
+            .Distinct(StringComparer.Ordinal)
+            .Select(openCloudRole => new Claim(OpenCloudRoleNames.ClaimType, openCloudRole)));
 
         var token = new JwtSecurityToken(
             _options.Issuer,

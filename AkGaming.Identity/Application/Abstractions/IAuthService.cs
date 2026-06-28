@@ -18,7 +18,9 @@ public interface IAuthService
     Task<UserRolesResponse> SetUserRolesAsync(Guid actorUserId, Guid userId, AdminSetUserRolesRequest request, string? ipAddress, CancellationToken cancellationToken);
     Task<IReadOnlyList<RoleResponse>> GetRolesAsync(CancellationToken cancellationToken);
     Task<IReadOnlyList<PermissionResponse>> GetPermissionsAsync(CancellationToken cancellationToken);
+    Task<IReadOnlyList<OpenCloudRoleResponse>> GetOpenCloudRolesAsync(CancellationToken cancellationToken);
     Task<RoleResponse> SetRolePermissionsAsync(Guid actorUserId, Guid roleId, AdminSetRolePermissionsRequest request, string? ipAddress, CancellationToken cancellationToken);
+    Task<RoleResponse> SetRoleOpenCloudRolesAsync(Guid actorUserId, Guid roleId, AdminSetRoleOpenCloudRolesRequest request, string? ipAddress, CancellationToken cancellationToken);
     Task<RoleResponse> CreateRoleAsync(Guid actorUserId, AdminCreateRoleRequest request, string? ipAddress, CancellationToken cancellationToken);
     Task<RoleResponse> RenameRoleAsync(Guid actorUserId, Guid roleId, AdminRenameRoleRequest request, string? ipAddress, CancellationToken cancellationToken);
     Task DeleteRoleAsync(Guid actorUserId, Guid roleId, string? ipAddress, CancellationToken cancellationToken);

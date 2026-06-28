@@ -37,8 +37,28 @@ public sealed class AuthorizationSeeder
             permissionsByKey.Add(permission.Key, permission);
         }
 
+        var openCloudRolesByKey = await _dbContext.OpenCloudRoles
+            .ToDictionaryAsync(x => x.Key, StringComparer.Ordinal, cancellationToken);
+
+        foreach (var definition in OpenCloudRoleCatalog.All)
+        {
+            if (openCloudRolesByKey.ContainsKey(definition.Key))
+            {
+                continue;
+            }
+
+            var openCloudRole = new OpenCloudRole
+            {
+                Key = definition.Key,
+                Description = definition.Description
+            };
+            _dbContext.OpenCloudRoles.Add(openCloudRole);
+            openCloudRolesByKey.Add(openCloudRole.Key, openCloudRole);
+        }
+
         var adminRole = await _dbContext.Roles
             .Include(x => x.RolePermissions)
+            .Include(x => x.RoleOpenCloudRoles)
             .SingleOrDefaultAsync(x => x.Name == RoleNames.Admin, cancellationToken);
         if (adminRole is not null)
         {
@@ -49,6 +69,16 @@ public sealed class AuthorizationSeeder
                 {
                     Role = adminRole,
                     Permission = permission
+                });
+            }
+
+            var assignedOpenCloudRoleIds = adminRole.RoleOpenCloudRoles.Select(x => x.OpenCloudRoleId).ToHashSet();
+            foreach (var openCloudRole in openCloudRolesByKey.Values.Where(x => !assignedOpenCloudRoleIds.Contains(x.Id)))
+            {
+                adminRole.RoleOpenCloudRoles.Add(new RoleOpenCloudRole
+                {
+                    Role = adminRole,
+                    OpenCloudRole = openCloudRole
                 });
             }
         }

@@ -46,6 +46,9 @@ public sealed class IdentityApiClient : ApiClientBase {
     public Task<Result<ICollection<PermissionResponse>>> GetPermissionsAsync(CancellationToken ct = default) =>
         GetAsync<ICollection<PermissionResponse>>("admin/permissions", ct);
 
+    public Task<Result<ICollection<OpenCloudRoleResponse>>> GetOpenCloudRolesAsync(CancellationToken ct = default) =>
+        GetAsync<ICollection<OpenCloudRoleResponse>>("admin/opencloud-roles", ct);
+
     public Task<Result<RoleResponse>> CreateRoleAsync(AdminCreateRoleRequest request, CancellationToken ct = default) =>
         PostJsonAsync<AdminCreateRoleRequest, RoleResponse>("admin/roles", request, ct);
 
@@ -54,6 +57,9 @@ public sealed class IdentityApiClient : ApiClientBase {
 
     public Task<Result<RoleResponse>> SetRolePermissionsAsync(Guid roleId, AdminSetRolePermissionsRequest request, CancellationToken ct = default) =>
         PutJsonAsync<AdminSetRolePermissionsRequest, RoleResponse>($"admin/roles/{roleId}/permissions", request, ct);
+
+    public Task<Result<RoleResponse>> SetRoleOpenCloudRolesAsync(Guid roleId, AdminSetRoleOpenCloudRolesRequest request, CancellationToken ct = default) =>
+        PutJsonAsync<AdminSetRoleOpenCloudRolesRequest, RoleResponse>($"admin/roles/{roleId}/opencloud-roles", request, ct);
 
     public async Task<Result> DeleteRoleAsync(Guid roleId, CancellationToken ct = default) {
         using var response = await Http.DeleteAsync($"admin/roles/{roleId}", ct);

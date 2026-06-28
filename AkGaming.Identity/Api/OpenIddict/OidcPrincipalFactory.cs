@@ -36,6 +36,11 @@ internal static class OidcPrincipalFactory
             identity.AddClaim(new Claim(PermissionNames.ClaimType, permission));
         }
 
+        foreach (var openCloudRole in user.OpenCloudRoles ?? [])
+        {
+            identity.AddClaim(new Claim(OpenCloudRoleNames.ClaimType, openCloudRole));
+        }
+
         var principal = new ClaimsPrincipal(identity);
         principal.SetScopes(scopeSet);
 
@@ -89,6 +94,13 @@ internal static class OidcPrincipalFactory
                 break;
 
             case PermissionNames.ClaimType:
+                if (scopes.Contains(OpenIddictConstants.Scopes.Roles))
+                {
+                    yield return OpenIddictConstants.Destinations.IdentityToken;
+                }
+                break;
+
+            case OpenCloudRoleNames.ClaimType:
                 if (scopes.Contains(OpenIddictConstants.Scopes.Roles))
                 {
                     yield return OpenIddictConstants.Destinations.IdentityToken;

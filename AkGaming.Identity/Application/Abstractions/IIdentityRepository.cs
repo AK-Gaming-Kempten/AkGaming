@@ -18,6 +18,8 @@ public interface IIdentityRepository
     Task<int> CountUsersInRoleAsync(string roleName, CancellationToken cancellationToken);
     Task<int> CountUsersWithRoleIdAsync(Guid roleId, CancellationToken cancellationToken);
     Task<List<Permission>> GetAllPermissionsAsync(CancellationToken cancellationToken);
+    Task<List<OpenCloudRole>> GetAllOpenCloudRolesAsync(CancellationToken cancellationToken);
+    Task AddOpenCloudRoleAsync(OpenCloudRole openCloudRole, CancellationToken cancellationToken);
     Task<ExternalLogin?> GetExternalLoginAsync(string provider, string providerUserId, CancellationToken cancellationToken);
     Task<EmailVerificationToken?> GetEmailVerificationTokenByHashAsync(string tokenHash, CancellationToken cancellationToken);
     Task<List<EmailVerificationToken>> GetActiveEmailVerificationTokensByUserIdAsync(Guid userId, CancellationToken cancellationToken);

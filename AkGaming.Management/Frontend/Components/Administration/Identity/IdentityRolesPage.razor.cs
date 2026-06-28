@@ -14,6 +14,7 @@ public partial class IdentityRolesPage : ComponentBase {
 
     private List<RoleResponse>? _roles;
     private List<PermissionResponse>? _permissions;
+    private List<OpenCloudRoleResponse>? _openCloudRoles;
     private Guid? _selectedRoleId;
     private RoleResponse? _selectedRole;
 
@@ -26,16 +27,17 @@ public partial class IdentityRolesPage : ComponentBase {
     private bool _isBusy;
     private bool _canManageRoles;
     private readonly HashSet<string> _selectedPermissionKeys = new(StringComparer.Ordinal);
+    private readonly HashSet<string> _selectedOpenCloudRoleKeys = new(StringComparer.Ordinal);
     private bool IsSelectedRoleSystemRole => _selectedRole?.Name is "Admin" or "User";
 
     protected override async Task OnInitializedAsync() {
         var authenticationState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
         _canManageRoles = authenticationState.User.HasClaim("permission", "identity.roles.manage");
-        await Task.WhenAll(LoadRolesAsync(), LoadPermissionsAsync());
+        await Task.WhenAll(LoadRolesAsync(), LoadPermissionsAsync(), LoadOpenCloudRolesAsync());
     }
 
     private async Task ReloadAsync() {
-        await LoadRolesAsync();
+        await Task.WhenAll(LoadRolesAsync(), LoadPermissionsAsync(), LoadOpenCloudRolesAsync());
     }
 
     private async Task LoadRolesAsync() {
@@ -58,11 +60,13 @@ public partial class IdentityRolesPage : ComponentBase {
                 _selectedRole = null;
                 _renameRoleName = string.Empty;
                 _selectedPermissionKeys.Clear();
+                _selectedOpenCloudRoleKeys.Clear();
             }
             else {
                 _selectedRole = existing;
                 _renameRoleName = existing.Name;
                 SetSelectedPermissions(existing);
+                SetSelectedOpenCloudRoles(existing);
             }
         }
     }
@@ -78,11 +82,23 @@ public partial class IdentityRolesPage : ComponentBase {
         _permissions = result.Value?.OrderBy(permission => permission.Key, StringComparer.Ordinal).ToList() ?? new List<PermissionResponse>();
     }
 
+    private async Task LoadOpenCloudRolesAsync() {
+        var result = await IdentityApi.GetOpenCloudRolesAsync();
+        if (!result.IsSuccess) {
+            _openCloudRoles = new List<OpenCloudRoleResponse>();
+            _error = result.Error;
+            return;
+        }
+
+        _openCloudRoles = result.Value?.OrderBy(openCloudRole => openCloudRole.Key, StringComparer.Ordinal).ToList() ?? new List<OpenCloudRoleResponse>();
+    }
+
     private void SelectRole(RoleResponse role) {
         _selectedRoleId = role.Id;
         _selectedRole = role;
         _renameRoleName = role.Name;
         SetSelectedPermissions(role);
+        SetSelectedOpenCloudRoles(role);
         _isMobileDetailOpen = true;
         _error = null;
         _success = null;
@@ -210,10 +226,47 @@ public partial class IdentityRolesPage : ComponentBase {
         _selectedRoleId = null;
         _renameRoleName = string.Empty;
         _selectedPermissionKeys.Clear();
+        _selectedOpenCloudRoleKeys.Clear();
         _success = $"Deleted role '{roleName}'.";
 
         await LoadRolesAsync();
         _isMobileDetailOpen = false;
+    }
+
+    private void SetOpenCloudRoleSelection(string openCloudRoleKey, object? value) {
+        if (value is not bool isSelected || IsSelectedRoleSystemRole || !_canManageRoles) {
+            return;
+        }
+
+        if (isSelected) {
+            _selectedOpenCloudRoleKeys.Add(openCloudRoleKey);
+        }
+        else {
+            _selectedOpenCloudRoleKeys.Remove(openCloudRoleKey);
+        }
+    }
+
+    private async Task SaveOpenCloudRolesAsync() {
+        if (_selectedRole is null || IsSelectedRoleSystemRole || !_canManageRoles) {
+            return;
+        }
+
+        _isBusy = true;
+        _error = null;
+        _success = null;
+        var result = await IdentityApi.SetRoleOpenCloudRolesAsync(
+            _selectedRole.Id,
+            new AdminSetRoleOpenCloudRolesRequest(_selectedOpenCloudRoleKeys.OrderBy(key => key, StringComparer.Ordinal).ToArray()));
+        _isBusy = false;
+
+        if (!result.IsSuccess || result.Value is null) {
+            _error = result.Error;
+            return;
+        }
+
+        _success = "Updated role OpenCloud roles.";
+        await LoadRolesAsync();
+        SelectRole(result.Value);
     }
 
     private void ShowListMobile() {
@@ -221,6 +274,8 @@ public partial class IdentityRolesPage : ComponentBase {
         _selectedRoleId = null;
         _selectedRole = null;
         _renameRoleName = string.Empty;
+        _selectedPermissionKeys.Clear();
+        _selectedOpenCloudRoleKeys.Clear();
         _error = null;
         _success = null;
     }
@@ -229,6 +284,13 @@ public partial class IdentityRolesPage : ComponentBase {
         _selectedPermissionKeys.Clear();
         foreach (var permission in role.Permissions) {
             _selectedPermissionKeys.Add(permission);
+        }
+    }
+
+    private void SetSelectedOpenCloudRoles(RoleResponse role) {
+        _selectedOpenCloudRoleKeys.Clear();
+        foreach (var openCloudRole in role.OpenCloudRoles) {
+            _selectedOpenCloudRoleKeys.Add(openCloudRole);
         }
     }
 

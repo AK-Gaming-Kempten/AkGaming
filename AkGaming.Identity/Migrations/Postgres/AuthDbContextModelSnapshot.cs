@@ -134,6 +134,30 @@ namespace AkGaming.Identity.Infrastructure.Persistence.Migrations
                     b.ToTable("ExternalLogins");
                 });
 
+            modelBuilder.Entity("AkGaming.Identity.Domain.Entities.OpenCloudRole", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<string>("Key")
+                        .IsRequired()
+                        .HasMaxLength(160)
+                        .HasColumnType("character varying(160)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Key")
+                        .IsUnique();
+
+                    b.ToTable("OpenCloudRoles");
+                });
+
             modelBuilder.Entity("AkGaming.Identity.Domain.Entities.PasswordResetToken", b =>
                 {
                     b.Property<Guid>("Id")
@@ -271,6 +295,21 @@ namespace AkGaming.Identity.Infrastructure.Persistence.Migrations
                         .IsUnique();
 
                     b.ToTable("Roles");
+                });
+
+            modelBuilder.Entity("AkGaming.Identity.Domain.Entities.RoleOpenCloudRole", b =>
+                {
+                    b.Property<Guid>("RoleId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("OpenCloudRoleId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("RoleId", "OpenCloudRoleId");
+
+                    b.HasIndex("OpenCloudRoleId");
+
+                    b.ToTable("RoleOpenCloudRoles");
                 });
 
             modelBuilder.Entity("AkGaming.Identity.Domain.Entities.RolePermission", b =>
@@ -612,6 +651,25 @@ namespace AkGaming.Identity.Infrastructure.Persistence.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("AkGaming.Identity.Domain.Entities.RoleOpenCloudRole", b =>
+                {
+                    b.HasOne("AkGaming.Identity.Domain.Entities.OpenCloudRole", "OpenCloudRole")
+                        .WithMany("RoleOpenCloudRoles")
+                        .HasForeignKey("OpenCloudRoleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("AkGaming.Identity.Domain.Entities.Role", "Role")
+                        .WithMany("RoleOpenCloudRoles")
+                        .HasForeignKey("RoleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("OpenCloudRole");
+
+                    b.Navigation("Role");
+                });
+
             modelBuilder.Entity("AkGaming.Identity.Domain.Entities.RolePermission", b =>
                 {
                     b.HasOne("AkGaming.Identity.Domain.Entities.Permission", "Permission")
@@ -674,6 +732,11 @@ namespace AkGaming.Identity.Infrastructure.Persistence.Migrations
                     b.Navigation("Authorization");
                 });
 
+            modelBuilder.Entity("AkGaming.Identity.Domain.Entities.OpenCloudRole", b =>
+                {
+                    b.Navigation("RoleOpenCloudRoles");
+                });
+
             modelBuilder.Entity("AkGaming.Identity.Domain.Entities.Permission", b =>
                 {
                     b.Navigation("RolePermissions");
@@ -681,6 +744,8 @@ namespace AkGaming.Identity.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("AkGaming.Identity.Domain.Entities.Role", b =>
                 {
+                    b.Navigation("RoleOpenCloudRoles");
+
                     b.Navigation("RolePermissions");
 
                     b.Navigation("UserRoles");

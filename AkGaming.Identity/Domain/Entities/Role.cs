@@ -7,4 +7,5 @@ public sealed class Role
 
     public ICollection<UserRole> UserRoles { get; set; } = new List<UserRole>();
     public ICollection<RolePermission> RolePermissions { get; set; } = new List<RolePermission>();
+    public ICollection<RoleOpenCloudRole> RoleOpenCloudRoles { get; set; } = new List<RoleOpenCloudRole>();
 }

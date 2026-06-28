@@ -267,7 +267,8 @@ public sealed class AuthorizationController : Controller
             email = user.Email,
             email_verified = user.IsEmailVerified,
             role = user.Roles,
-            permission = user.Permissions
+            permission = user.Permissions,
+            opencloudRoles = user.OpenCloudRoles
         });
     }
 

@@ -20,6 +20,10 @@ public sealed class IdentityRepository : IIdentityRepository
             .ThenInclude(x => x.Role)
             .ThenInclude(x => x.RolePermissions)
             .ThenInclude(x => x.Permission)
+            .Include(x => x.UserRoles)
+            .ThenInclude(x => x.Role)
+            .ThenInclude(x => x.RoleOpenCloudRoles)
+            .ThenInclude(x => x.OpenCloudRole)
             .Include(x => x.ExternalLogins)
             .AsSplitQuery()
             .SingleOrDefaultAsync(x => x.Email == email, cancellationToken);
@@ -32,6 +36,10 @@ public sealed class IdentityRepository : IIdentityRepository
             .ThenInclude(x => x.Role)
             .ThenInclude(x => x.RolePermissions)
             .ThenInclude(x => x.Permission)
+            .Include(x => x.UserRoles)
+            .ThenInclude(x => x.Role)
+            .ThenInclude(x => x.RoleOpenCloudRoles)
+            .ThenInclude(x => x.OpenCloudRole)
             .Include(x => x.ExternalLogins)
             .AsSplitQuery()
             .SingleOrDefaultAsync(x => x.Id == userId, cancellationToken);
@@ -44,6 +52,10 @@ public sealed class IdentityRepository : IIdentityRepository
             .ThenInclude(x => x.Role)
             .ThenInclude(x => x.RolePermissions)
             .ThenInclude(x => x.Permission)
+            .Include(x => x.UserRoles)
+            .ThenInclude(x => x.Role)
+            .ThenInclude(x => x.RoleOpenCloudRoles)
+            .ThenInclude(x => x.OpenCloudRole)
             .Include(x => x.ExternalLogins)
             .AsSplitQuery()
             .SingleOrDefaultAsync(x => x.Id == userId, cancellationToken);
@@ -56,6 +68,10 @@ public sealed class IdentityRepository : IIdentityRepository
             .ThenInclude(x => x.Role)
             .ThenInclude(x => x.RolePermissions)
             .ThenInclude(x => x.Permission)
+            .Include(x => x.UserRoles)
+            .ThenInclude(x => x.Role)
+            .ThenInclude(x => x.RoleOpenCloudRoles)
+            .ThenInclude(x => x.OpenCloudRole)
             .AsSplitQuery()
             .AsQueryable();
 
@@ -123,6 +139,8 @@ public sealed class IdentityRepository : IIdentityRepository
         return _dbContext.Roles
             .Include(x => x.RolePermissions)
             .ThenInclude(x => x.Permission)
+            .Include(x => x.RoleOpenCloudRoles)
+            .ThenInclude(x => x.OpenCloudRole)
             .OrderBy(x => x.Name)
             .ToListAsync(cancellationToken);
     }
@@ -132,6 +150,8 @@ public sealed class IdentityRepository : IIdentityRepository
         return _dbContext.Roles
             .Include(x => x.RolePermissions)
             .ThenInclude(x => x.Permission)
+            .Include(x => x.RoleOpenCloudRoles)
+            .ThenInclude(x => x.OpenCloudRole)
             .SingleOrDefaultAsync(x => x.Id == roleId, cancellationToken);
     }
 
@@ -140,6 +160,8 @@ public sealed class IdentityRepository : IIdentityRepository
         return _dbContext.Roles
             .Include(x => x.RolePermissions)
             .ThenInclude(x => x.Permission)
+            .Include(x => x.RoleOpenCloudRoles)
+            .ThenInclude(x => x.OpenCloudRole)
             .SingleOrDefaultAsync(x => x.Name == roleName, cancellationToken);
     }
 
@@ -148,6 +170,8 @@ public sealed class IdentityRepository : IIdentityRepository
         return _dbContext.Roles
             .Include(x => x.RolePermissions)
             .ThenInclude(x => x.Permission)
+            .Include(x => x.RoleOpenCloudRoles)
+            .ThenInclude(x => x.OpenCloudRole)
             .Where(x => roleNames.Contains(x.Name))
             .ToListAsync(cancellationToken);
     }
@@ -158,6 +182,13 @@ public sealed class IdentityRepository : IIdentityRepository
             .OrderBy(x => x.Application)
             .ThenBy(x => x.Area)
             .ThenBy(x => x.Operation)
+            .ToListAsync(cancellationToken);
+    }
+
+    public Task<List<OpenCloudRole>> GetAllOpenCloudRolesAsync(CancellationToken cancellationToken)
+    {
+        return _dbContext.OpenCloudRoles
+            .OrderBy(x => x.Key)
             .ToListAsync(cancellationToken);
     }
 
@@ -254,6 +285,11 @@ public sealed class IdentityRepository : IIdentityRepository
     public async Task AddPermissionAsync(Permission permission, CancellationToken cancellationToken)
     {
         await _dbContext.Permissions.AddAsync(permission, cancellationToken);
+    }
+
+    public async Task AddOpenCloudRoleAsync(OpenCloudRole openCloudRole, CancellationToken cancellationToken)
+    {
+        await _dbContext.OpenCloudRoles.AddAsync(openCloudRole, cancellationToken);
     }
 
     public void RemoveRole(Role role)

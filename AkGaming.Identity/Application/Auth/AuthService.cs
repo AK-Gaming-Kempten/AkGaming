@@ -277,7 +277,8 @@ public sealed class AuthService : IAuthService
             discordLink is null
                 ? null
                 : new DiscordLinkInfo(discordLink.ProviderUserId, discordLink.ProviderUsername, discordLink.LinkedAtUtc),
-            GetEffectivePermissionKeys(user));
+            GetEffectivePermissionKeys(user),
+            GetEffectiveOpenCloudRoleKeys(user));
     }
 
     public async Task<AdminUsersResponse> GetUsersAsync(int page, int pageSize, string? search, CancellationToken cancellationToken)
@@ -468,6 +469,14 @@ public sealed class AuthService : IAuthService
             .ToArray();
     }
 
+    public async Task<IReadOnlyList<OpenCloudRoleResponse>> GetOpenCloudRolesAsync(CancellationToken cancellationToken)
+    {
+        var openCloudRoles = await _repository.GetAllOpenCloudRolesAsync(cancellationToken);
+        return openCloudRoles
+            .Select(x => new OpenCloudRoleResponse(x.Key, x.Description))
+            .ToArray();
+    }
+
     public async Task<RoleResponse> SetRolePermissionsAsync(Guid actorUserId, Guid roleId, AdminSetRolePermissionsRequest request, string? ipAddress, CancellationToken cancellationToken)
     {
         var role = await _repository.GetRoleByIdAsync(roleId, cancellationToken);
@@ -522,6 +531,65 @@ public sealed class AuthService : IAuthService
             ipAddress,
             true,
             $"role_id:{role.Id};permissions:{string.Join(",", requestedKeys.OrderBy(x => x))}",
+            cancellationToken);
+        await _repository.SaveChangesAsync(cancellationToken);
+        return CreateRoleResponse(role);
+    }
+
+    public async Task<RoleResponse> SetRoleOpenCloudRolesAsync(Guid actorUserId, Guid roleId, AdminSetRoleOpenCloudRolesRequest request, string? ipAddress, CancellationToken cancellationToken)
+    {
+        var role = await _repository.GetRoleByIdAsync(roleId, cancellationToken);
+        if (role is null)
+        {
+            throw new AuthException(NotFoundStatusCode, "Role was not found.");
+        }
+
+        if (IsSystemRole(role.Name))
+        {
+            throw new AuthException(ConflictStatusCode, "System role OpenCloud roles are managed by the application.");
+        }
+
+        var requestedKeys = (request.OpenCloudRoles ?? [])
+            .Select(x => x?.Trim())
+            .Where(x => !string.IsNullOrWhiteSpace(x))
+            .Select(x => x!)
+            .Distinct(StringComparer.Ordinal)
+            .ToHashSet(StringComparer.Ordinal);
+        var openCloudRoles = await _repository.GetAllOpenCloudRolesAsync(cancellationToken);
+        var openCloudRolesByKey = openCloudRoles.ToDictionary(x => x.Key, StringComparer.Ordinal);
+        var unknownKeys = requestedKeys.Where(x => !openCloudRolesByKey.ContainsKey(x)).OrderBy(x => x).ToArray();
+        if (unknownKeys.Length > 0)
+        {
+            throw new AuthException(BadRequestStatusCode, $"Unknown OpenCloud role(s): {string.Join(", ", unknownKeys)}");
+        }
+
+        var assignmentsToRemove = role.RoleOpenCloudRoles
+            .Where(x => !requestedKeys.Contains(x.OpenCloudRole.Key))
+            .ToList();
+        foreach (var assignment in assignmentsToRemove)
+        {
+            role.RoleOpenCloudRoles.Remove(assignment);
+        }
+
+        var assignedOpenCloudRoleIds = role.RoleOpenCloudRoles.Select(x => x.OpenCloudRoleId).ToHashSet();
+        foreach (var openCloudRole in openCloudRoles.Where(x => requestedKeys.Contains(x.Key) && !assignedOpenCloudRoleIds.Contains(x.Id)))
+        {
+            role.RoleOpenCloudRoles.Add(new RoleOpenCloudRole
+            {
+                RoleId = role.Id,
+                Role = role,
+                OpenCloudRoleId = openCloudRole.Id,
+                OpenCloudRole = openCloudRole
+            });
+        }
+
+        await WriteAuditAsync(
+            "admin.roles.opencloud_roles_updated",
+            actorUserId,
+            null,
+            ipAddress,
+            true,
+            $"role_id:{role.Id};opencloud_roles:{string.Join(",", requestedKeys.OrderBy(x => x))}",
             cancellationToken);
         await _repository.SaveChangesAsync(cancellationToken);
         return CreateRoleResponse(role);
@@ -1304,10 +1372,17 @@ public sealed class AuthService : IAuthService
             ? PermissionCatalog.All.Select(x => x.Key)
             : role.RolePermissions.Select(x => x.Permission.Key);
 
+        var openCloudRoles = role.Name.Equals(RoleNames.Admin, StringComparison.OrdinalIgnoreCase)
+            ? OpenCloudRoleCatalog.All.Select(x => x.Key)
+            : role.RoleOpenCloudRoles.Select(x => x.OpenCloudRole.Key);
+
         return new RoleResponse(
             role.Id,
             role.Name,
             permissions
+                .OrderBy(x => x, StringComparer.Ordinal)
+                .ToArray(),
+            openCloudRoles
                 .OrderBy(x => x, StringComparer.Ordinal)
                 .ToArray());
     }
@@ -1325,6 +1400,21 @@ public sealed class AuthService : IAuthService
         }
 
         return permissions.OrderBy(x => x, StringComparer.Ordinal).ToArray();
+    }
+
+    private static string[] GetEffectiveOpenCloudRoleKeys(User user)
+    {
+        var openCloudRoles = user.UserRoles
+            .SelectMany(x => x.Role.RoleOpenCloudRoles)
+            .Select(x => x.OpenCloudRole.Key)
+            .ToHashSet(StringComparer.Ordinal);
+
+        if (user.UserRoles.Any(x => x.Role.Name.Equals(RoleNames.Admin, StringComparison.OrdinalIgnoreCase)))
+        {
+            openCloudRoles.UnionWith(OpenCloudRoleCatalog.All.Select(x => x.Key));
+        }
+
+        return openCloudRoles.OrderBy(x => x, StringComparer.Ordinal).ToArray();
     }
 
     private string GetConfiguredPublicBaseUrl()

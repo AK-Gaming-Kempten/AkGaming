@@ -150,7 +150,7 @@ public partial class IdentityUsersPage : ComponentBase {
             _selectedRoles.Add(role);
 
             if (_availableRoles.All(r => !string.Equals(r.Name, role, StringComparison.OrdinalIgnoreCase))) {
-                _availableRoles.Add(new RoleResponse(Guid.Empty, role, []));
+                _availableRoles.Add(new RoleResponse(Guid.Empty, role, [], []));
             }
         }
 
