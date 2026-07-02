@@ -101,7 +101,8 @@ internal static class OidcPrincipalFactory
                 break;
 
             case OpenCloudRoleNames.ClaimType:
-                if (scopes.Contains(OpenIddictConstants.Scopes.Roles))
+                if (scopes.Contains(OpenIddictConstants.Scopes.Roles)
+                    || scopes.Contains("opencloudRoles"))
                 {
                     yield return OpenIddictConstants.Destinations.IdentityToken;
                 }

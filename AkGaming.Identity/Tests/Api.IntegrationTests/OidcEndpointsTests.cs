@@ -1,6 +1,7 @@
 using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
+using System.ComponentModel;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
@@ -81,6 +82,96 @@ public sealed class OidcEndpointsTests : IClassFixture<TestApiFactory>
         Assert.True(userInfoJson.RootElement.TryGetProperty("email", out _));
         Assert.Equal(username, userInfoJson.RootElement.GetProperty("preferred_username").GetString());
         Assert.Equal(username, userInfoJson.RootElement.GetProperty("username").GetString());
+    }
+
+    [Theory]
+    [InlineData("OpenCloudAndroid", "oc://android.opencloud.eu")]
+    [InlineData("OpenCloudDesktop", "oc://desktop.opencloud.eu")]
+    [InlineData("OpenCloudIOS", "oc://ios.opencloud.eu")]
+    [Description("Verifies that OpenCloud clients can exchange authorization codes when their token request repeats a scope parameter.")]
+    public async Task AuthorizationCodeFlow_ForOpenCloudClient_WithTokenRequestScope_ReturnsTokens(
+        string clientId,
+        string redirectUri)
+    {
+        // Arrange
+        using var openCloudFactory = new TestApiFactory(new Dictionary<string, string?>
+        {
+            ["OpenIddict:Applications:2:ClientId"] = clientId,
+            ["OpenIddict:Applications:2:DisplayName"] = clientId,
+            ["OpenIddict:Applications:2:ConsentType"] = "implicit",
+            ["OpenIddict:Applications:2:ClientType"] = "public",
+            ["OpenIddict:Applications:2:RequirePkce"] = "true",
+            ["OpenIddict:Applications:2:RedirectUris:0"] = redirectUri,
+            ["OpenIddict:Applications:2:PostLogoutRedirectUris:0"] = redirectUri,
+            ["OpenIddict:Applications:2:Scopes:0"] = "openid",
+            ["OpenIddict:Applications:2:Scopes:1"] = "profile",
+            ["OpenIddict:Applications:2:Scopes:2"] = "email",
+            ["OpenIddict:Applications:2:Scopes:3"] = "roles",
+            ["OpenIddict:Applications:2:Scopes:4"] = "offline_access",
+            ["OpenIddict:Applications:2:Scopes:5"] = "opencloudRoles"
+        });
+        using var client = openCloudFactory.CreateClient(new Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactoryClientOptions
+        {
+            BaseAddress = BaseUri,
+            AllowAutoRedirect = false
+        });
+
+        var pkce = PkceState.Create();
+        var authorizeUrl = BuildAuthorizeUrl(
+            clientId: clientId,
+            redirectUri: redirectUri,
+            scopes: "openid profile email offline_access opencloudRoles",
+            state: $"state-{clientId}",
+            pkce);
+
+        // Act
+        var authorizeResponse = await client.GetAsync(authorizeUrl);
+
+        // Assert
+        Assert.Equal(HttpStatusCode.Redirect, authorizeResponse.StatusCode);
+        Assert.StartsWith("/account/login", authorizeResponse.Headers.Location?.ToString(), StringComparison.Ordinal);
+
+        // Arrange
+        var registerLocation = authorizeResponse.Headers.Location?.ToString() ?? throw new InvalidOperationException("Missing login redirect.");
+        var email = $"opencloud-client-{Guid.NewGuid():N}@example.com";
+        var registerReturnUrl = QueryHelpers.ParseQuery(new Uri(BaseUri, registerLocation).Query)["returnUrl"].ToString();
+        await RegisterInteractiveAsync(client, registerReturnUrl, email);
+        await VerifyEmailAsync(client, email);
+
+        // Act
+        var resumeAuthorizeResponse = await client.GetAsync(registerReturnUrl);
+
+        // Assert
+        Assert.Equal(HttpStatusCode.Redirect, resumeAuthorizeResponse.StatusCode);
+        Assert.StartsWith(redirectUri, resumeAuthorizeResponse.Headers.Location?.ToString(), StringComparison.Ordinal);
+
+        // Arrange
+        var callbackUri = resumeAuthorizeResponse.Headers.Location ?? throw new InvalidOperationException("Missing callback redirect.");
+        var callbackQuery = QueryHelpers.ParseQuery(callbackUri.Query);
+        var code = callbackQuery["code"].ToString();
+        Assert.False(string.IsNullOrWhiteSpace(code));
+        Assert.Equal($"state-{clientId}", callbackQuery["state"].ToString());
+
+        // Act
+        var tokenResponse = await client.PostAsync("/connect/token", new FormUrlEncodedContent(new Dictionary<string, string?>
+        {
+            ["grant_type"] = "authorization_code",
+            ["client_id"] = clientId,
+            ["redirect_uri"] = redirectUri,
+            ["code"] = code,
+            ["code_verifier"] = pkce.Verifier,
+            ["scope"] = "openid offline_access email profile",
+            ["client_secret"] = string.Empty
+        }!));
+
+        var tokenBody = await tokenResponse.Content.ReadAsStringAsync();
+
+        // Assert
+        Assert.True(tokenResponse.IsSuccessStatusCode, $"Expected successful OpenCloud token exchange for {clientId}: {tokenBody}");
+
+        using var tokenJson = JsonDocument.Parse(tokenBody);
+        Assert.False(string.IsNullOrWhiteSpace(tokenJson.RootElement.GetProperty("access_token").GetString()));
+        Assert.True(tokenJson.RootElement.TryGetProperty("refresh_token", out _));
     }
 
     [Fact]

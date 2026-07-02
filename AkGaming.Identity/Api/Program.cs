@@ -175,6 +175,7 @@ if (!app.Environment.IsEnvironment("Testing"))
 app.UseDefaultFiles();
 app.UseStaticFiles();
 app.UseRouting();
+app.UseOpenCloudTokenCompatibility();
 app.UseCors(OidcRedirectUriCorsPolicyProvider.PolicyName);
 app.UseStatusCodePagesWithReExecute("/error");
 app.UseRateLimiter();
