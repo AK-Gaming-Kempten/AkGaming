@@ -344,8 +344,8 @@ public sealed class OidcAdminService : IOidcAdminService
         var normalizedConsentType = NormalizeConsentType(consentType);
         var normalizedDisplayName = string.IsNullOrWhiteSpace(displayName) ? clientId : displayName.Trim();
         var normalizedScopes = await NormalizeScopesAsync(scopes, cancellationToken);
-        var normalizedRedirectUris = NormalizeAbsoluteUris(redirectUris, "redirectUris");
-        var normalizedPostLogoutRedirectUris = NormalizeAbsoluteUris(postLogoutRedirectUris, "postLogoutRedirectUris");
+        var normalizedRedirectUris = NormalizeRedirectUris(redirectUris, "redirectUris", true);
+        var normalizedPostLogoutRedirectUris = NormalizeRedirectUris(postLogoutRedirectUris, "postLogoutRedirectUris", true);
 
         if (!allowAuthorizationCodeFlow)
             throw new AuthException(BadRequestStatusCode, "Authorization code flow is required.");
@@ -436,13 +436,47 @@ public sealed class OidcAdminService : IOidcAdminService
         return normalizedScopes;
     }
 
-    private static List<string> NormalizeAbsoluteUris(IEnumerable<string>? uris, string fieldName)
-    {
+    private static readonly HashSet<string> AllowedOpenCloudNativeRedirectUris = new(StringComparer.OrdinalIgnoreCase) {
+        "oc://android.opencloud.eu",
+        "oc://ios.opencloud.eu"
+    };
+
+    private static List<string> NormalizeAbsoluteHttpUris(IEnumerable<string>? uris, string fieldName) {
         var values = NormalizeIdentifiers(uris, fieldName);
-        foreach (var value in values)
-        {
-            if (!Uri.TryCreate(value, UriKind.Absolute, out var uri) || (uri.Scheme != Uri.UriSchemeHttp && uri.Scheme != Uri.UriSchemeHttps))
+
+        foreach (var value in values) {
+            if (!Uri.TryCreate(value, UriKind.Absolute, out var uri) ||
+                (uri.Scheme != Uri.UriSchemeHttp && uri.Scheme != Uri.UriSchemeHttps)) {
                 throw new AuthException(BadRequestStatusCode, $"All {fieldName} must be absolute HTTP or HTTPS URIs.");
+            }
+        }
+
+        return values;
+    }
+
+    private static List<string> NormalizeRedirectUris(
+        IEnumerable<string>? uris,
+        string fieldName,
+        bool allowNativeAppRedirectUris
+    ) {
+        var values = NormalizeIdentifiers(uris, fieldName);
+
+        foreach (var value in values) {
+            if (!Uri.TryCreate(value, UriKind.Absolute, out var uri)) {
+                throw new AuthException(BadRequestStatusCode, $"All {fieldName} must be absolute URIs.");
+            }
+
+            var isHttpOrHttps = uri.Scheme == Uri.UriSchemeHttp || uri.Scheme == Uri.UriSchemeHttps;
+            var isAllowedNativeRedirect =
+                allowNativeAppRedirectUris &&
+                AllowedOpenCloudNativeRedirectUris.Contains(value);
+
+            if (!isHttpOrHttps && !isAllowedNativeRedirect) {
+                throw new AuthException(
+                    BadRequestStatusCode,
+                    $"All {fieldName} must be absolute HTTP/HTTPS URIs or explicitly allowed native app redirect URIs."
+                );
+            }
         }
 
         return values;
