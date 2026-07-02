@@ -85,13 +85,14 @@ public sealed class OidcEndpointsTests : IClassFixture<TestApiFactory>
     }
 
     [Theory]
-    [InlineData("OpenCloudAndroid", "oc://android.opencloud.eu")]
-    [InlineData("OpenCloudDesktop", "oc://desktop.opencloud.eu")]
-    [InlineData("OpenCloudIOS", "oc://ios.opencloud.eu")]
+    [InlineData("OpenCloudAndroid", "oc://android.opencloud.eu", "oc://android.opencloud.eu")]
+    [InlineData("OpenCloudDesktop", "http://127.0.0.1/", "http://127.0.0.1:46385")]
+    [InlineData("OpenCloudIOS", "oc://ios.opencloud.eu", "oc://ios.opencloud.eu")]
     [Description("Verifies that OpenCloud clients can exchange authorization codes when their token request repeats a scope parameter.")]
     public async Task AuthorizationCodeFlow_ForOpenCloudClient_WithTokenRequestScope_ReturnsTokens(
         string clientId,
-        string redirectUri)
+        string registeredRedirectUri,
+        string requestedRedirectUri)
     {
         // Arrange
         using var openCloudFactory = new TestApiFactory(new Dictionary<string, string?>
@@ -101,8 +102,8 @@ public sealed class OidcEndpointsTests : IClassFixture<TestApiFactory>
             ["OpenIddict:Applications:2:ConsentType"] = "implicit",
             ["OpenIddict:Applications:2:ClientType"] = "public",
             ["OpenIddict:Applications:2:RequirePkce"] = "true",
-            ["OpenIddict:Applications:2:RedirectUris:0"] = redirectUri,
-            ["OpenIddict:Applications:2:PostLogoutRedirectUris:0"] = redirectUri,
+            ["OpenIddict:Applications:2:RedirectUris:0"] = registeredRedirectUri,
+            ["OpenIddict:Applications:2:PostLogoutRedirectUris:0"] = registeredRedirectUri,
             ["OpenIddict:Applications:2:Scopes:0"] = "openid",
             ["OpenIddict:Applications:2:Scopes:1"] = "profile",
             ["OpenIddict:Applications:2:Scopes:2"] = "email",
@@ -119,7 +120,7 @@ public sealed class OidcEndpointsTests : IClassFixture<TestApiFactory>
         var pkce = PkceState.Create();
         var authorizeUrl = BuildAuthorizeUrl(
             clientId: clientId,
-            redirectUri: redirectUri,
+            redirectUri: requestedRedirectUri,
             scopes: "openid profile email offline_access opencloudRoles",
             state: $"state-{clientId}",
             pkce);
@@ -143,7 +144,7 @@ public sealed class OidcEndpointsTests : IClassFixture<TestApiFactory>
 
         // Assert
         Assert.Equal(HttpStatusCode.Redirect, resumeAuthorizeResponse.StatusCode);
-        Assert.StartsWith(redirectUri, resumeAuthorizeResponse.Headers.Location?.ToString(), StringComparison.Ordinal);
+        Assert.StartsWith(requestedRedirectUri, resumeAuthorizeResponse.Headers.Location?.ToString(), StringComparison.Ordinal);
 
         // Arrange
         var callbackUri = resumeAuthorizeResponse.Headers.Location ?? throw new InvalidOperationException("Missing callback redirect.");
@@ -157,7 +158,7 @@ public sealed class OidcEndpointsTests : IClassFixture<TestApiFactory>
         {
             ["grant_type"] = "authorization_code",
             ["client_id"] = clientId,
-            ["redirect_uri"] = redirectUri,
+            ["redirect_uri"] = requestedRedirectUri,
             ["code"] = code,
             ["code_verifier"] = pkce.Verifier,
             ["scope"] = "openid offline_access email profile",

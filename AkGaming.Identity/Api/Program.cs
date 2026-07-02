@@ -15,6 +15,7 @@ using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using OpenIddict.Abstractions;
+using OpenIddict.Server;
 using OpenIddict.Server.AspNetCore;
 using OpenIddict.Validation.AspNetCore;
 using System.Security.Cryptography.X509Certificates;
@@ -95,6 +96,13 @@ builder.Services.AddOpenIddict()
         options.SetAccessTokenLifetime(TimeSpan.FromMinutes(jwtOptions.AccessTokenMinutes));
         options.SetRefreshTokenLifetime(TimeSpan.FromDays(jwtOptions.RefreshTokenDays));
         options.RegisterScopes([.. registeredScopes]);
+        options.RemoveEventHandler(OpenIddictServerHandlers.Authentication.ValidateClientRedirectUri.Descriptor);
+        options.AddEventHandler<OpenIddictServerEvents.ValidateAuthorizationRequestContext>(builder =>
+        {
+            builder
+                .UseScopedHandler<OpenCloudRedirectUriHandler>()
+                .SetOrder(OpenIddictServerHandlers.Authentication.ValidateClientRedirectUri.Descriptor.Order);
+        });
 
         if (builder.Environment.IsDevelopment() || builder.Environment.IsEnvironment("Testing"))
         {

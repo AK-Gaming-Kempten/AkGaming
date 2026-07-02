@@ -438,7 +438,9 @@ public sealed class OidcAdminService : IOidcAdminService
 
     private static readonly HashSet<string> AllowedOpenCloudNativeRedirectUris = new(StringComparer.OrdinalIgnoreCase) {
         "oc://android.opencloud.eu",
-        "oc://ios.opencloud.eu"
+        "oc://ios.opencloud.eu",
+        "http://127.0.0.1/",
+        "http://localhost/"
     };
 
     private static List<string> NormalizeAbsoluteHttpUris(IEnumerable<string>? uris, string fieldName) {
