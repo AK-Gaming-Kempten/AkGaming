@@ -187,9 +187,9 @@
     private bool canAccessRequests;
     private bool canAccessIdentity;
     private bool isDebug;
-    private bool isMemberManagementExpanded = true;
+    private bool isMemberManagementExpanded;
     private bool isIdentityExpanded;
-    private bool isInvoicesExpanded = true;
+    private bool isInvoicesExpanded;
     private bool isDebugExpanded;
 
     protected override async Task OnInitializedAsync() {
@@ -216,8 +216,6 @@
         canAccessIdentity = canReadUsers || canReadRoles || canReadIdentityAudit || canManageOidc;
         isDebug = isAuthenticated && user.IsInRole("Debug");
 
-        isIdentityExpanded = canAccessIdentity;
-        isDebugExpanded = isDebug;
     }
 
     private void ToggleMemberManagementExpanded() => isMemberManagementExpanded = !isMemberManagementExpanded;
