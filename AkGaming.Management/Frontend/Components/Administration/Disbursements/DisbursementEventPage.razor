@@ -1,0 +1,38 @@
+@page "/disbursements/admin/events/{EventId:guid}"
+@using Microsoft.AspNetCore.Authorization
+@using AkGaming.Management.Modules.Disbursements.Contracts.Enums
+@attribute [Authorize(Policy = "management.disbursements.read")]
+
+<PageTitle>Disbursement event</PageTitle>
+<div class="event-page ui-stack-md">
+    <a class="back-link" href="disbursements/admin/events"><span class="bi bi-arrow-left"></span> Events</a>
+    @if (!string.IsNullOrWhiteSpace(_error)) { <p class="error">@_error</p> }
+    @if (_event is null) { <p>Loading...</p> }
+    else
+    {
+        <section class="panel heading"><div><h3>@_event.Name</h3><p>@_event.Description</p><small>@_event.OccurredOn?.ToString("dd.MM.yyyy")</small></div><AuthorizeView Policy="management.disbursements.manage"><button type="button" class="primary-action" @onclick="() => _showCreate = !_showCreate"><span class="bi bi-plus-lg"></span> Add allocation</button></AuthorizeView></section>
+        @if (_showCreate)
+        {
+            <AuthorizeView Policy="management.disbursements.manage"><section class="panel allocation-form"><label>Name <InputText @bind-Value="_newAllocation.Name" /></label><label>Amount (EUR) <InputNumber @bind-Value="_newAllocation.Amount" min="0.01" step="0.01" /></label><label>Description <InputTextArea @bind-Value="_newAllocation.Description" /></label><button type="button" class="primary-action" @onclick="CreateAllocationAsync" disabled="@_busy">Create allocation</button></section></AuthorizeView>
+        }
+        @if (_event.Allocations.Count == 0) { <section class="panel empty">No allocations yet.</section> }
+        @foreach (var allocation in _event.Allocations)
+        {
+            <section class="panel allocation-card ui-stack-md">
+                <header><div><h4>@allocation.Name</h4><p>@allocation.Description</p></div><strong>@allocation.Amount.ToString("N2") EUR</strong></header>
+                <div class="share-row"><input readonly value="@ShareUrl(allocation)" /><button type="button" @onclick="() => CopyAsync(ShareUrl(allocation))"><span class="bi bi-copy"></span> Copy claim link</button><a href="@($"disbursements/claim/{allocation.ShareToken}")" target="_blank">Open</a></div>
+                <div class="allocation-progress"><span style="width:@Progress(allocation)%"></span></div><small>@allocation.AppliedAmount.ToString("N2") EUR applied · @(AvailableAmount(allocation).ToString("N2")) EUR available</small>
+                @if (allocation.Applications.Count == 0) { <p class="ui-text-muted">No applications.</p> }
+                @foreach (var application in allocation.Applications)
+                {
+                    <article class="application-row"><div><strong>@application.ApplicantName</strong><button type="button" class="payment-details-button" @onclick="() => ShowPaymentDetails(application.PaymentMethod)"><span class="bi bi-credit-card"></span> @application.PaymentMethod.DisplayName <span class="bi bi-box-arrow-up-right"></span></button><small>@application.Approvals.Count(a => a.IsApproved) approval(s), @application.Approvals.Count(a => !a.IsApproved) objection(s)</small></div><strong>@application.Amount.ToString("N2") EUR</strong><AuthorizeView Policy="management.disbursements.manage"><Authorized><InputSelect TValue="AllocationApplicationStatus" Value="application.Status" ValueChanged="status => SetStatusAsync(application, status)" ValueExpression="() => application.Status" disabled="@_busy">@foreach (var status in Enum.GetValues<AllocationApplicationStatus>()) { <option value="@status">@status</option> }</InputSelect></Authorized><NotAuthorized><span>@application.Status</span></NotAuthorized></AuthorizeView></article>
+                }
+            </section>
+        }
+    }
+</div>
+
+@if (_selectedPaymentMethod is not null)
+{
+    <PaymentMethodDetailsDialog PaymentMethod="_selectedPaymentMethod" OnClose="HidePaymentDetails" />
+}

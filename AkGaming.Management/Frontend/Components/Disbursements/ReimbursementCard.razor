@@ -1,0 +1,69 @@
+@using AkGaming.Management.Modules.Disbursements.Contracts.DTO
+@using AkGaming.Management.Modules.Disbursements.Contracts.Enums
+
+<article class="reimbursement-card panel">
+    <header>
+        <div>
+            <span class="status-badge status-@Item.Status.ToString().ToLowerInvariant()">@FormatStatus(Item.Status)</span>
+            <h4>@Item.Purpose</h4>
+            <small class="ui-text-muted">@Item.ApplicantName · @Item.CreatedAt.LocalDateTime.ToString("dd.MM.yyyy HH:mm")</small>
+        </div>
+        <strong class="reimbursement-total">@Item.TotalAmount.ToString("N2") EUR</strong>
+    </header>
+    <div class="reimbursement-meta">
+        @if (Administrative)
+        {
+            <button type="button" class="payment-details-button" @onclick="() => _showPaymentDetails = true"><span class="bi bi-credit-card"></span>@Item.PaymentMethod.DisplayName <span class="bi bi-box-arrow-up-right"></span></button>
+        }
+        else
+        {
+            <span><span class="bi bi-credit-card"></span>@Item.PaymentMethod.DisplayName</span>
+        }
+        @if (!string.IsNullOrWhiteSpace(Item.Note)) { <span><span class="bi bi-chat-left-text"></span>@Item.Note</span> }
+    </div>
+    <div class="expense-list">
+        @foreach (var expense in Item.Expenses)
+        {
+            <div class="expense-row">
+                <span>@expense.Description @if (expense.IncurredOn.HasValue) { <small>· @expense.IncurredOn.Value.ToString("dd.MM.yyyy")</small> }</span>
+                <strong>@expense.Amount.ToString("N2") EUR</strong>
+                <div class="receipt-list">
+                    @foreach (var receipt in expense.Receipts)
+                    {
+                        <button type="button" @onclick="() => OnDownload.InvokeAsync(receipt)" disabled="@Disabled"><span class="bi bi-paperclip"></span>@receipt.FileName</button>
+                    }
+                </div>
+            </div>
+        }
+    </div>
+    @if (Administrative)
+    {
+        <AuthorizeView Policy="management.disbursements.manage">
+            <Authorized>
+                <div class="administrative-controls">
+                    <label>Status
+                        <InputSelect @bind-Value="_status" disabled="@Disabled">
+                            @foreach (var status in Enum.GetValues<DisbursementStatus>()) { <option value="@status">@FormatStatus(status)</option> }
+                        </InputSelect>
+                    </label>
+                    <label>Internal note <InputTextArea @bind-Value="_administrativeNote" disabled="@Disabled" /></label>
+                    <button type="button" class="primary-action" @onclick="SaveStatusAsync" disabled="@Disabled"><span class="bi bi-floppy"></span> Save status</button>
+                </div>
+            </Authorized>
+            <NotAuthorized><p class="administrative-message"><strong>Internal note:</strong> @(Item.AdministrativeNote ?? "—")</p></NotAuthorized>
+        </AuthorizeView>
+    }
+    else if (!string.IsNullOrWhiteSpace(Item.AdministrativeNote))
+    {
+        <p class="administrative-message"><strong>Update:</strong> @Item.AdministrativeNote</p>
+    }
+    @if (!Administrative && Item.Status is not DisbursementStatus.Paid and not DisbursementStatus.Rejected and not DisbursementStatus.Cancelled)
+    {
+        <div class="user-actions"><button type="button" class="cancel-action" @onclick="() => OnCancel.InvokeAsync(Item.Id)" disabled="@Disabled"><span class="bi bi-x-circle"></span> Cancel reimbursement</button></div>
+    }
+</article>
+
+@if (_showPaymentDetails)
+{
+    <PaymentMethodDetailsDialog PaymentMethod="Item.PaymentMethod" OnClose="() => _showPaymentDetails = false" />
+}

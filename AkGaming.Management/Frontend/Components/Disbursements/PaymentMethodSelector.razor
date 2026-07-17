@@ -1,0 +1,39 @@
+@using AkGaming.Management.Modules.MemberManagement.Contracts.DTO
+@using AkGaming.Management.Modules.MemberManagement.Contracts.Enums
+
+@if (Methods.Count == 0)
+{
+    <div class="payment-method-empty">
+        <span class="bi bi-exclamation-circle"></span>
+        <div>
+            <strong>No payment method available</strong>
+            <p>Add one on your profile in a separate tab, then refresh this list. Your form entries will stay here.</p>
+            <div class="payment-method-actions">
+                <a class="payment-method-link" href="membership" target="_blank" rel="noopener">Open profile</a>
+                <button type="button" class="payment-method-refresh" @onclick="OnRefresh" disabled="@Disabled"><span class="bi bi-arrow-clockwise"></span> Refresh</button>
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    <div class="payment-method-selector" role="radiogroup" aria-label="Payment method">
+        @foreach (var method in Methods)
+        {
+            <button type="button"
+                    class="payment-method-option @(method.Id == Value ? "selected" : string.Empty)"
+                    role="radio"
+                    aria-checked="@(method.Id == Value)"
+                    disabled="@Disabled"
+                    @onclick="() => SelectAsync(method.Id)">
+                <span class="payment-method-icon bi @(method.Type == PaymentInformationType.PayPal ? "bi-paypal" : "bi-bank")"></span>
+                <span>
+                    <strong>@(method.Type == PaymentInformationType.PayPal ? "PayPal" : "Bank account")</strong>
+                    <small>@Describe(method)</small>
+                </span>
+                <span class="bi bi-check-circle-fill payment-method-check"></span>
+            </button>
+        }
+        <button type="button" class="payment-method-refresh icon-only" title="Refresh payment methods" @onclick="OnRefresh" disabled="@Disabled"><span class="bi bi-arrow-clockwise"></span></button>
+    </div>
+}

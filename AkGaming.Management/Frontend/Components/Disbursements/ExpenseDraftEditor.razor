@@ -1,0 +1,25 @@
+<article class="expense-editor">
+    <div class="expense-editor-heading">
+        <strong>Expense @Number</strong>
+        @if (CanRemove)
+        {
+            <button type="button" class="expense-remove" title="Remove expense" @onclick="OnRemove" disabled="@Disabled"><span class="bi bi-trash"></span></button>
+        }
+    </div>
+    <div class="expense-fields">
+        <label>Description <InputText @bind-Value="Draft.Description" disabled="@Disabled" placeholder="What was purchased?" /></label>
+        <label>Amount (EUR) <InputNumber @bind-Value="Draft.Amount" disabled="@Disabled" min="0.01" step="0.01" /></label>
+        <label>Date <InputDate @bind-Value="Draft.IncurredOn" disabled="@Disabled" /></label>
+    </div>
+    <label>Receipts <InputFile OnChange="FilesSelected" accept="application/pdf,image/jpeg,image/png,image/webp,image/gif" multiple disabled="@Disabled" /></label>
+    <small class="ui-text-muted">PDF or image, up to 10 MB per file.</small>
+    @if (Draft.Receipts.Count > 0)
+    {
+        <div class="receipt-chips">
+            @foreach (var file in Draft.Receipts)
+            {
+                <span><span class="bi bi-paperclip"></span>@file.Name (@FormatSize(file.Size))</span>
+            }
+        </div>
+    }
+</article>

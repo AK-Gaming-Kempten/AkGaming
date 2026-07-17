@@ -24,6 +24,8 @@ public static class PermissionCatalog
         new(PermissionNames.ManagementRequestsRead, "management", "requests", "read", "View membership and member-linking requests."),
         new(PermissionNames.ManagementRequestsManage, "management", "requests", "manage", "Accept, reject, and resolve membership and member-linking requests."),
         new(PermissionNames.ManagementInvoicesManage, "management", "invoices", "manage", "Manage invoices and invoice presets."),
+        new(PermissionNames.ManagementDisbursementsRead, "management", "disbursements", "read", "View reimbursement cases, payout events, allocations, and applications."),
+        new(PermissionNames.ManagementDisbursementsManage, "management", "disbursements", "manage", "Manage reimbursement statuses, payout events, allocations, and application statuses."),
         new(PermissionNames.TournamentsGamesManage, "tournaments", "games", "manage", "Manage tournament games."),
         new(PermissionNames.TournamentsTournamentsManage, "tournaments", "tournaments", "manage", "Manage tournaments."),
         new(PermissionNames.TournamentsRegistrationsManage, "tournaments", "registrations", "manage", "Manage tournament registrations and check-ins."),

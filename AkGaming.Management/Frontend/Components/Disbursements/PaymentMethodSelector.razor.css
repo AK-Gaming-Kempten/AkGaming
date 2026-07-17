@@ -1,0 +1,16 @@
+.payment-method-selector { display: flex; gap: .65rem; flex-wrap: wrap; align-items: stretch; }
+.payment-method-option { display: grid; grid-template-columns: auto minmax(0,1fr) auto; align-items: center; gap: .7rem; min-width: 230px; padding: .7rem .85rem; text-align: left; color: var(--color-text-primary); background: var(--color-background-secondary); border: 1px solid color-mix(in srgb, var(--color-text-secondary) 65%, transparent); border-radius: 6px; transition: border-color .15s, background .15s; }
+.payment-method-option:hover { border-color: var(--color-highlight-primary); }
+.payment-method-option.selected { border-color: color-mix(in srgb, var(--color-highlight-primary) 72%, var(--color-text-secondary)); background: color-mix(in srgb, var(--color-highlight-primary) 7%, var(--color-background-secondary)); }
+.payment-method-option span:nth-child(2) { display: grid; overflow: hidden; }
+.payment-method-option small { overflow: hidden; text-overflow: ellipsis; color: var(--color-text-secondary); }
+.payment-method-icon { font-size: 1.35rem; color: var(--color-highlight-primary); }
+.payment-method-check { color: var(--color-highlight-primary); opacity: 0; }
+.selected .payment-method-check { opacity: 1; }
+.payment-method-empty { display: flex; gap: .8rem; padding: 1rem; border: 1px solid color-mix(in srgb, var(--color-highlight-secondary) 60%, var(--color-text-secondary)); border-radius: 6px; background: color-mix(in srgb, var(--color-highlight-secondary) 6%, var(--color-background-secondary)); }
+.payment-method-empty > .bi { color: var(--color-highlight-secondary); font-size: 1.4rem; }
+.payment-method-empty p { margin: .25rem 0 .65rem; color: var(--color-text-secondary); }
+.payment-method-actions { display: flex; gap: .5rem; }
+.payment-method-link, .payment-method-refresh { padding: .45rem .7rem; color: var(--color-text-primary); background: var(--color-background-primary); border: 1px solid var(--color-text-secondary); border-radius: 4px; text-decoration: none; }
+.payment-method-link { background: var(--color-highlight-primary); color: var(--color-background-primary); border-color: var(--color-highlight-primary); }
+.payment-method-refresh.icon-only { width: 2.75rem; }

@@ -144,6 +144,8 @@ public static class ServiceCollectionExtensions {
             AddPermissionPolicy(options, "management.requests.read");
             AddPermissionPolicy(options, "management.requests.manage");
             AddPermissionPolicy(options, "management.invoices.manage");
+            AddPermissionPolicy(options, "management.disbursements.read");
+            AddPermissionPolicy(options, "management.disbursements.manage");
         });
 
         return services;
@@ -193,6 +195,9 @@ public static class ServiceCollectionExtensions {
 
         services.AddScoped<InvoiceManagementApiClient>(sp =>
             new InvoiceManagementApiClient(sp.GetRequiredKeyedService<HttpClient>("ManagementApi")));
+
+        services.AddScoped<DisbursementsApiClient>(sp =>
+            new DisbursementsApiClient(sp.GetRequiredKeyedService<HttpClient>("ManagementApi")));
 
         services.AddScoped<IdentityApiClient>(sp =>
             new IdentityApiClient(

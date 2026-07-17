@@ -1,0 +1,25 @@
+@page "/disbursements/admin/reimbursements"
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize(Policy = "management.disbursements.read")]
+
+<PageTitle>Reimbursements administration</PageTitle>
+
+<div class="admin-disbursements ui-stack-md">
+    <section class="panel heading">
+        <div><h3 class="ui-title">Reimbursement cases</h3><p class="ui-text-muted">Review submitted expenses, receipts, payout details, and processing status.</p></div>
+        <button type="button" class="secondary-action" @onclick="LoadAsync" disabled="@_busy"><span class="bi bi-arrow-clockwise"></span> Refresh</button>
+    </section>
+    @if (!string.IsNullOrWhiteSpace(_error)) { <p class="error-message">@_error</p> }
+    @if (_items is null) { <p>Loading...</p> }
+    else if (_items.Count == 0) { <section class="panel empty">No reimbursement cases.</section> }
+    else
+    {
+        <div class="filters">
+            <label>Status <InputSelect @bind-Value="_filter"><option value="">All</option>@foreach (var status in Enum.GetValues<AkGaming.Management.Modules.Disbursements.Contracts.Enums.DisbursementStatus>()) { <option value="@status">@status</option> }</InputSelect></label>
+        </div>
+        @foreach (var item in FilteredItems)
+        {
+            <ReimbursementCard @key="item.Id" Item="item" Administrative="true" Disabled="@_busy" OnDownload="DownloadReceiptAsync" OnStatusChanged="request => UpdateStatusAsync(item, request)" />
+        }
+    }
+</div>

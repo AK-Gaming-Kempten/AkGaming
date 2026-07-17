@@ -1,0 +1,10 @@
+.disbursement-page { max-width: 1200px; }
+.page-heading, .list-heading, .form-actions { display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap; }
+.page-heading p { margin: .3rem 0 0; }
+.primary-action, .secondary-action { padding: .55rem .75rem; border-radius: 4px; }
+.primary-action { color: var(--color-background-primary); background: var(--color-highlight-primary); border: 1px solid var(--color-highlight-primary); }
+.secondary-action { color: var(--color-text-primary); background: var(--color-background-secondary); border: 1px solid var(--color-text-secondary); }
+.reimbursement-form > label { display: grid; gap: .3rem; }
+.expense-editors { display: grid; gap: .7rem; }
+.message { padding: .65rem .8rem; border-radius: 4px; }.message.error { color: var(--color-error,#d9534f); border: 1px solid currentColor; }.message.success { border: 1px solid var(--color-highlight-primary); }
+.empty-state { text-align: center; padding: 2rem; color: var(--color-text-secondary); }.empty-state .bi { font-size: 2rem; }

@@ -1,6 +1,7 @@
 using System.Data;
 using AkGaming.Management.Modules.MemberManagement.Infrastructure.Persistence;
 using AkGaming.Management.Modules.InvoiceManagement.Infrastructure.Persistence;
+using AkGaming.Management.Modules.Disbursements.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 
@@ -25,6 +26,8 @@ public static class WebApplicationExtensions {
         db.Database.Migrate();
         var invoiceDb = scope.ServiceProvider.GetRequiredService<InvoiceManagementDbContext>();
         invoiceDb.Database.Migrate();
+        var disbursementsDb = scope.ServiceProvider.GetRequiredService<DisbursementsDbContext>();
+        disbursementsDb.Database.Migrate();
         return app;
     }
 

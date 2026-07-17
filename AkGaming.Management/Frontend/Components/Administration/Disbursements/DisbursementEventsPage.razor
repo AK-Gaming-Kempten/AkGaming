@@ -1,0 +1,26 @@
+@page "/disbursements/admin/events"
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize(Policy = "management.disbursements.read")]
+
+<PageTitle>Disbursement events</PageTitle>
+<div class="events-page ui-stack-md">
+    <section class="panel heading"><div><h3 class="ui-title">Disbursement events</h3><p class="ui-text-muted">Create prize pools and other event-based payouts.</p></div><AuthorizeView Policy="management.disbursements.manage"><button type="button" class="primary-action" @onclick="() => _showCreate = !_showCreate"><span class="bi bi-plus-lg"></span> New event</button></AuthorizeView></section>
+    @if (!string.IsNullOrWhiteSpace(_error)) { <p class="error">@_error</p> }
+    @if (_showCreate)
+    {
+        <AuthorizeView Policy="management.disbursements.manage"><section class="panel create-form"><h4>New event</h4><label>Name <InputText @bind-Value="_newEvent.Name" disabled="@_busy" /></label><label>Date <InputDate @bind-Value="_newEvent.OccurredOn" disabled="@_busy" /></label><label>Description <InputTextArea @bind-Value="_newEvent.Description" disabled="@_busy" /></label><button type="button" class="primary-action" @onclick="CreateAsync" disabled="@_busy"><span class="bi bi-floppy"></span> Create event</button></section></AuthorizeView>
+    }
+    @if (_events is null) { <p>Loading...</p> }
+    else if (_events.Count == 0) { <section class="panel empty">No disbursement events.</section> }
+    else
+    {
+        <div class="event-grid">
+            @foreach (var item in _events)
+            {
+                <a class="panel event-card" href="@($"disbursements/admin/events/{item.Id}")">
+                    <span class="bi bi-trophy"></span><div><h4>@item.Name</h4><p>@item.Description</p><small>@(item.OccurredOn?.ToString("dd.MM.yyyy") ?? "No event date") · @item.Allocations.Count allocation(s) · @item.Allocations.Sum(a => a.Amount).ToString("N2") EUR</small></div><span class="bi bi-chevron-right"></span>
+                </a>
+            }
+        </div>
+    }
+</div>

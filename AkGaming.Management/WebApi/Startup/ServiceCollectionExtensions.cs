@@ -70,6 +70,8 @@ public static class ServiceCollectionExtensions {
             AddPermissionPolicy(options, "management.requests.read");
             AddPermissionPolicy(options, "management.requests.manage");
             AddPermissionPolicy(options, "management.invoices.manage");
+            AddPermissionPolicy(options, "management.disbursements.read");
+            AddPermissionPolicy(options, "management.disbursements.manage");
             options.AddPolicy("MembersReadOrSelfRouteUserId", p => BuildManagementApiPolicy(p).RequireAssertion(ctx =>
                 HasPermission(ctx.User, "management.members.read") || IsSelfRouteUser(ctx)));
             options.AddPolicy("MembershipsReadOrSelfRouteUserId", p => BuildManagementApiPolicy(p).RequireAssertion(ctx =>

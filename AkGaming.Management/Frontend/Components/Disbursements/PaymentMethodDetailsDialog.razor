@@ -1,0 +1,24 @@
+@using AkGaming.Management.Modules.MemberManagement.Contracts.Enums
+
+<div class="dialog-backdrop" role="presentation">
+    <section class="payment-dialog" role="dialog" aria-modal="true" aria-labelledby="payment-dialog-title">
+        <header>
+            <div><small class="ui-text-muted">Payout destination snapshot</small><h4 id="payment-dialog-title">@(PaymentMethod.Type == PaymentInformationType.PayPal ? "PayPal" : "Bank account")</h4></div>
+            <button type="button" title="Close payment details" @onclick="OnClose"><span class="bi bi-x-lg"></span></button>
+        </header>
+        <p class="snapshot-note"><span class="bi bi-lock"></span> These are the exact details selected when the payout request was submitted.</p>
+        <dl>
+            @if (PaymentMethod.Type == PaymentInformationType.PayPal)
+            {
+                <div><dt>PayPal email</dt><dd>@(PaymentMethod.PayPalEmail ?? "—")</dd></div>
+            }
+            else
+            {
+                <div><dt>Account holder</dt><dd>@(PaymentMethod.AccountHolder ?? "—")</dd></div>
+                <div><dt>IBAN</dt><dd class="account-number">@(PaymentMethod.Iban ?? "—")</dd></div>
+                <div><dt>BIC</dt><dd class="account-number">@(PaymentMethod.Bic ?? "—")</dd></div>
+            }
+        </dl>
+        <footer><button type="button" class="close-button" @onclick="OnClose">Close</button></footer>
+    </section>
+</div>

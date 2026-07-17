@@ -23,6 +23,8 @@ public static class PermissionNames
     public const string ManagementRequestsRead = "management.requests.read";
     public const string ManagementRequestsManage = "management.requests.manage";
     public const string ManagementInvoicesManage = "management.invoices.manage";
+    public const string ManagementDisbursementsRead = "management.disbursements.read";
+    public const string ManagementDisbursementsManage = "management.disbursements.manage";
 
     public const string TournamentsGamesManage = "tournaments.games.manage";
     public const string TournamentsTournamentsManage = "tournaments.tournaments.manage";

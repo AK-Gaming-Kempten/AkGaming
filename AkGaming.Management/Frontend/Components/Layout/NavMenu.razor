@@ -20,6 +20,35 @@
                 <span>Profile</span>
             </NavLink>
 
+            @if (isAuthenticated)
+            {
+                <div class="nav-section">
+                    <button type="button" class="nav-section-toggle" @onclick="ToggleDisbursementsExpanded">
+                        <span class="nav-icon bi-wallet2"></span>
+                        Disbursements
+                        <span class="nav-chevron bi @(isDisbursementsExpanded ? "bi-chevron-up" : "bi-chevron-down")"></span>
+                    </button>
+                    @if (isDisbursementsExpanded)
+                    {
+                        <NavLink href="disbursements/reimbursements/my" class="nav-item level-2" @onclick="NotifyNavigation">
+                            <span class="nav-icon bi-receipt-cutoff"></span><span>My reimbursements</span>
+                        </NavLink>
+                        <NavLink href="disbursements/allocations/my" class="nav-item level-2" @onclick="NotifyNavigation">
+                            <span class="nav-icon bi-trophy"></span><span>My allocations</span>
+                        </NavLink>
+                        @if (canReadDisbursements)
+                        {
+                            <NavLink href="disbursements/admin/reimbursements" class="nav-item level-2" @onclick="NotifyNavigation">
+                                <span class="nav-icon bi-clipboard-check"></span><span>Cases</span>
+                            </NavLink>
+                            <NavLink href="disbursements/admin/events" class="nav-item level-2" @onclick="NotifyNavigation">
+                                <span class="nav-icon bi-calendar-event"></span><span>Events</span>
+                            </NavLink>
+                        }
+                    }
+                </div>
+            }
+
             @if (isAuthenticated && canAccessMemberManagement) {
                 <div class="nav-section">
                     <button type="button" class="nav-section-toggle" @onclick="ToggleMemberManagementExpanded">
@@ -179,6 +208,7 @@
     private bool canReadRequests;
     private bool canManageRequests;
     private bool canManageInvoices;
+    private bool canReadDisbursements;
     private bool canReadUsers;
     private bool canReadRoles;
     private bool canReadIdentityAudit;
@@ -191,6 +221,7 @@
     private bool isMemberManagementExpanded;
     private bool isIdentityExpanded;
     private bool isInvoicesExpanded;
+    private bool isDisbursementsExpanded;
     private bool isDebugExpanded;
 
     private string? IdentityUrl
@@ -221,6 +252,7 @@
         canAccessRequests = canReadRequests;
         canAccessMemberManagement = canReadMembers || canManageMemberDetails || canManageMemberStatus || canAccessDues || canAccessRequests;
         canManageInvoices = isAuthenticated && user.HasClaim("permission", "management.invoices.manage");
+        canReadDisbursements = isAuthenticated && user.HasClaim("permission", "management.disbursements.read");
         canReadUsers = isAuthenticated && user.HasClaim("permission", "identity.users.read");
         canReadRoles = isAuthenticated && user.HasClaim("permission", "identity.roles.read");
         canReadIdentityAudit = isAuthenticated && user.HasClaim("permission", "identity.audit.read");
@@ -233,6 +265,7 @@
     private void ToggleMemberManagementExpanded() => isMemberManagementExpanded = !isMemberManagementExpanded;
     private void ToggleIdentityExpanded() => isIdentityExpanded = !isIdentityExpanded;
     private void ToggleInvoicesExpanded() => isInvoicesExpanded = !isInvoicesExpanded;
+    private void ToggleDisbursementsExpanded() => isDisbursementsExpanded = !isDisbursementsExpanded;
     private void ToggleDebugExpanded() => isDebugExpanded = !isDebugExpanded;
 
     private Task NotifyNavigation()

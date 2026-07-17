@@ -1,0 +1,46 @@
+@page "/disbursements/claim/{Token:guid}"
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize]
+
+<PageTitle>Claim allocation</PageTitle>
+<div class="claim-page ui-stack-md">
+    @if (!string.IsNullOrWhiteSpace(_error)) { <p class="message error">@_error</p> }
+    @if (!string.IsNullOrWhiteSpace(_message)) { <p class="message success">@_message</p> }
+    @if (_allocation is null) { <p>Loading allocation...</p> }
+    else
+    {
+        <section class="panel claim-heading">
+            <span class="trophy bi bi-trophy-fill"></span>
+            <div><small>@_allocation.EventName</small><h3>@_allocation.Name</h3><p>@_allocation.Description</p></div>
+            <div class="amount"><strong>@_allocation.Amount.ToString("N2") EUR</strong><small>@Remaining.ToString("N2") EUR available</small></div>
+        </section>
+
+        @if (!HasOwnApplication && Remaining > 0)
+        {
+            <section class="panel application-form ui-stack-md">
+                <h4>Apply for this allocation</h4>
+                <label>Amount (EUR) <InputNumber @bind-Value="_application.Amount" min="0.01" max="@Remaining" step="0.01" disabled="@_busy" /></label>
+                <label>Note <InputTextArea @bind-Value="_application.Note" disabled="@_busy" placeholder="Explain your share, team split, or other context." /></label>
+                <div><strong>Payout method</strong><PaymentMethodSelector Methods="_paymentMethods" @bind-Value="_application.PaymentInformationId" OnRefresh="LoadPaymentMethodsAsync" Disabled="@_busy" /></div>
+                <button type="button" class="primary-action" @onclick="ApplyAsync" disabled="@(_busy || _paymentMethods.Count == 0)"><span class="bi bi-send"></span> Submit application</button>
+            </section>
+        }
+
+        <section class="applications ui-stack-md">
+            <h4>Applications</h4>
+            @if (_allocation.Applications.Count == 0) { <div class="panel empty">No applications have been submitted.</div> }
+            @foreach (var application in _allocation.Applications)
+            {
+                <article class="panel application-card">
+                    <header><div><h4>@application.ApplicantName</h4><small>@application.CreatedAt.LocalDateTime.ToString("dd.MM.yyyy HH:mm") · @application.Status</small></div><strong>@application.Amount.ToString("N2") EUR</strong></header>
+                    @if (!string.IsNullOrWhiteSpace(application.Note)) { <p>@application.Note</p> }
+                    <div class="approval-summary"><span class="approved"><span class="bi bi-check-circle"></span> @application.Approvals.Count(item => item.IsApproved) approvals</span><span class="objected"><span class="bi bi-x-circle"></span> @application.Approvals.Count(item => !item.IsApproved) objections</span></div>
+                    @if (application.ApplicantUserId != _userId)
+                    {
+                        <div class="decision-actions"><span>Do you approve this payout?</span><button type="button" class="approve" @onclick="() => DecideAsync(application.Id, true)" disabled="@_busy"><span class="bi bi-check-lg"></span> Approve</button><button type="button" class="object" @onclick="() => DecideAsync(application.Id, false)" disabled="@_busy"><span class="bi bi-x-lg"></span> Object</button></div>
+                    }
+                </article>
+            }
+        </section>
+    }
+</div>

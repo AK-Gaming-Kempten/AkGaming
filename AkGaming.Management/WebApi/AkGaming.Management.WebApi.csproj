@@ -23,6 +23,9 @@
       <ProjectReference Include="..\Modules\InvoiceManagement\Api\AkGaming.Management.Modules.InvoiceManagement.Api.csproj" />
       <ProjectReference Include="..\Modules\InvoiceManagement\Migrations\Postgres\AkGaming.Management.Modules.InvoiceManagement.Migrations.Postgres.csproj" />
       <ProjectReference Include="..\Modules\InvoiceManagement\Migrations\Sqlite\AkGaming.Management.Modules.InvoiceManagement.Migrations.Sqlite.csproj" />
+      <ProjectReference Include="..\Modules\Disbursements\Api\AkGaming.Management.Modules.Disbursements.Api.csproj" />
+      <ProjectReference Include="..\Modules\Disbursements\Migrations\Postgres\AkGaming.Management.Modules.Disbursements.Migrations.Postgres.csproj" />
+      <ProjectReference Include="..\Modules\Disbursements\Migrations\Sqlite\AkGaming.Management.Modules.Disbursements.Migrations.Sqlite.csproj" />
     </ItemGroup>
 
     <ItemGroup>

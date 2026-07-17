@@ -1,0 +1,44 @@
+@page "/disbursements/reimbursements/my"
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize]
+
+<PageTitle>My reimbursements</PageTitle>
+
+<div class="disbursement-page ui-stack-md">
+    <section class="panel page-heading">
+        <div><h3 class="ui-title">Expense reimbursements</h3><p class="ui-text-muted">Submit expenses paid on behalf of the club and follow their payout status.</p></div>
+        <button type="button" class="primary-action" @onclick="ToggleCreate" disabled="@_busy"><span class="bi @(_showCreate ? "bi-x-lg" : "bi-plus-lg")"></span> @(_showCreate ? "Close form" : "New reimbursement")</button>
+    </section>
+
+    @if (!string.IsNullOrWhiteSpace(_error)) { <p class="message error">@_error</p> }
+    @if (!string.IsNullOrWhiteSpace(_message)) { <p class="message success">@_message</p> }
+
+    @if (_showCreate)
+    {
+        <section class="panel reimbursement-form ui-stack-md">
+            <h4 class="ui-title">New reimbursement</h4>
+            <label>Purpose <InputText @bind-Value="_request.Purpose" disabled="@_busy" placeholder="e.g. Catering for summer tournament" /></label>
+            <label>Additional note <InputTextArea @bind-Value="_request.Note" disabled="@_busy" /></label>
+            <div><strong>Payout method</strong><PaymentMethodSelector Methods="_paymentMethods" @bind-Value="_request.PaymentInformationId" OnRefresh="LoadPaymentMethodsAsync" Disabled="@_busy" /></div>
+            <div class="expense-editors">
+                @for (var index = 0; index < _expenses.Count; index++)
+                {
+                    var draft = _expenses[index];
+                    <ExpenseDraftEditor @key="draft.Key" Draft="draft" Number="@(index + 1)" CanRemove="@(_expenses.Count > 1)" Disabled="@_busy" OnRemove="() => RemoveExpense(draft)" />
+                }
+            </div>
+            <div class="form-actions">
+                <button type="button" class="secondary-action" @onclick="AddExpense" disabled="@_busy"><span class="bi bi-plus"></span> Add expense</button>
+                <strong>Total: @_expenses.Sum(item => item.Amount).ToString("N2") EUR</strong>
+                <button type="button" class="primary-action" @onclick="SubmitAsync" disabled="@(_busy || _paymentMethods.Count == 0)"><span class="bi bi-send"></span> Submit reimbursement</button>
+            </div>
+        </section>
+    }
+
+    <section class="reimbursement-list ui-stack-md">
+        <div class="list-heading"><h4 class="ui-title">Your cases</h4><button type="button" class="secondary-action" @onclick="LoadAsync" disabled="@_busy"><span class="bi bi-arrow-clockwise"></span> Refresh</button></div>
+        @if (_items is null) { <p>Loading...</p> }
+        else if (_items.Count == 0) { <div class="panel empty-state"><span class="bi bi-receipt"></span><p>No reimbursements submitted yet.</p></div> }
+        else { @foreach (var item in _items) { <ReimbursementCard Item="item" Disabled="@_busy" OnDownload="receipt => DownloadReceiptAsync(receipt, false)" OnCancel="CancelAsync" /> } }
+    </section>
+</div>

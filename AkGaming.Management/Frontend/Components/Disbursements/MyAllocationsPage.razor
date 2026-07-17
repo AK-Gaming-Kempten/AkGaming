@@ -1,0 +1,18 @@
+@page "/disbursements/allocations/my"
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize]
+
+<PageTitle>My allocations</PageTitle>
+<div class="my-allocations ui-stack-md">
+    <section class="panel heading"><div><h3>My allocations</h3><p class="ui-text-muted">Prize and event allocations where you applied or gave a decision.</p></div><button type="button" @onclick="LoadAsync" disabled="@_busy"><span class="bi bi-arrow-clockwise"></span> Refresh</button></section>
+    @if (!string.IsNullOrWhiteSpace(_error)) { <p class="error">@_error</p> }
+    @if (_allocations is null) { <p>Loading...</p> }
+    else if (_allocations.Count == 0) { <section class="panel empty">You have not interacted with any allocations yet. Allocation links are shared directly by event organizers.</section> }
+    else
+    {
+        @foreach (var allocation in _allocations)
+        {
+            <a class="panel allocation-link" href="@($"disbursements/claim/{allocation.ShareToken}")"><span class="bi bi-trophy"></span><div><small>@allocation.EventName</small><h4>@allocation.Name</h4><span>@allocation.Applications.Count application(s) · @allocation.Amount.ToString("N2") EUR</span></div><span class="bi bi-chevron-right"></span></a>
+        }
+    }
+</div>
