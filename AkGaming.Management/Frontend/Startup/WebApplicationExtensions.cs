@@ -12,6 +12,7 @@ namespace AkGaming.Management.Frontend.Startup;
 
 public static class WebApplicationExtensions {
     internal const string SilentSignInProperty = "akgaming.management.silent-sign-in";
+    internal const string SilentSignInSkippedCookie = "akgaming.management.silent-sign-in-skipped";
 
     public static void ConfigureCultureAndLocalization(this WebApplication app) {
         var defaultCulture = new CultureInfo("en-GB");
@@ -46,6 +47,11 @@ public static class WebApplicationExtensions {
 
         app.UseAuthentication();
         app.Use(async (context, next) => {
+            if (ConsumeSilentSignInSkip(context)) {
+                await next();
+                return;
+            }
+
             if (ShouldAttemptSilentSignIn(context)) {
                 await context.ChallengeAsync(
                     OpenIdConnectDefaults.AuthenticationScheme,
@@ -144,6 +150,14 @@ public static class WebApplicationExtensions {
         return !path.StartsWithSegments("/authentication")
             && !path.StartsWithSegments("/api")
             && !path.StartsWithSegments("/_blazor");
+    }
+
+    private static bool ConsumeSilentSignInSkip(HttpContext context) {
+        if (!context.Request.Cookies.ContainsKey(SilentSignInSkippedCookie))
+            return false;
+
+        context.Response.Cookies.Delete(SilentSignInSkippedCookie, new CookieOptions { Path = "/" });
+        return true;
     }
 
     private static string NormalizeReturnUrl(HttpContext context, string? returnUrl) {

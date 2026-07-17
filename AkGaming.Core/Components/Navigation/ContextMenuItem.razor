@@ -1,0 +1,24 @@
+@namespace AkGaming.Core.Components.Navigation
+
+@if (!string.IsNullOrWhiteSpace(Href))
+{
+    <a class="context-menu-item @(IsDestructive ? "context-menu-item-destructive" : string.Empty)"
+       href="@Href"
+       target="@(OpenInNewTab ? "_blank" : null)"
+       rel="@(OpenInNewTab ? "noopener noreferrer" : null)"
+       role="menuitem"
+       @onclick="SelectAsync">
+        <span class="bi @IconClass" aria-hidden="true"></span>
+        <span>@Text</span>
+    </a>
+}
+else
+{
+    <button type="button"
+            class="context-menu-item @(IsDestructive ? "context-menu-item-destructive" : string.Empty)"
+            role="menuitem"
+            @onclick="SelectAsync">
+        <span class="bi @IconClass" aria-hidden="true"></span>
+        <span>@Text</span>
+    </button>
+}

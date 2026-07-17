@@ -1,5 +1,6 @@
 ﻿@using Microsoft.AspNetCore.Components.Authorization
 @inject AuthenticationStateProvider AuthenticationStateProvider
+@inject IConfiguration Configuration
 
 <div class="sidebar">
     <div class="sidebar-header">
@@ -161,7 +162,7 @@
     </div>
     <div class="sidebar-footer">
         <ThemeSwitcherBox />
-        <UserBox />
+        <UserBox IdentityUrl="@IdentityUrl" />
     </div>
 </div>
 
@@ -191,6 +192,17 @@
     private bool isIdentityExpanded;
     private bool isInvoicesExpanded;
     private bool isDebugExpanded;
+
+    private string? IdentityUrl
+    {
+        get
+        {
+            var authority = Configuration["OpenIdConnect:Authority"];
+            return Uri.TryCreate(authority, UriKind.Absolute, out var uri)
+                ? $"{uri.GetLeftPart(UriPartial.Authority)}{uri.AbsolutePath.TrimEnd('/')}/account/manage"
+                : null;
+        }
+    }
 
     protected override async Task OnInitializedAsync() {
         var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();

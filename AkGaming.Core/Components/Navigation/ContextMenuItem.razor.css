@@ -1,0 +1,23 @@
+.context-menu-item {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    width: 100%;
+    border: 0;
+    border-radius: 3px;
+    background: transparent;
+    color: var(--color-text-primary);
+    padding: 0.55rem 0.65rem;
+    text-align: left;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.context-menu-item:hover,
+.context-menu-item:focus-visible {
+    background-color: color-mix(in oklab, var(--color-highlight-primary) 18%, transparent);
+}
+
+.context-menu-item-destructive {
+    color: var(--color-error, #dc3545);
+}

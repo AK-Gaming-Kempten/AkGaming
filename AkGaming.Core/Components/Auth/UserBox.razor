@@ -1,4 +1,5 @@
 @namespace AkGaming.Core.Components.Auth
+@using AkGaming.Core.Components.Navigation
 
 <CascadingAuthenticationState>
     <AuthorizeView>
@@ -8,17 +9,19 @@
                     <div class="user-label">Logged in as</div>
                     <div class="user-name" title="@DisplayName">@DisplayName</div>
                 </div>
-                <button class="btn btn-primary" @onclick="Logout">Logout</button>
+                <ContextMenu AriaLabel="Account actions" OpenUpward="true">
+                    @if (!string.IsNullOrWhiteSpace(IdentityUrl))
+                    {
+                        <ContextMenuItem Href="@IdentityUrl" IconClass="bi-person" Text="Identity" OpenInNewTab="true" />
+                    }
+                    <ContextMenuItem IconClass="bi-box-arrow-right" Text="Log out" IsDestructive="true" OnClick="Logout" />
+                </ContextMenu>
             </div>
         </Authorized>
 
         <NotAuthorized>
-            <div class="user-box">
-                <div class="user-info">
-                    <div class="user-label">Not logged in</div>
-                    <div class="user-name">Public browsing only</div>
-                </div>
-                <button class="btn btn-primary" @onclick="Login">Login</button>
+            <div class="user-box user-box-unauthenticated">
+                <button class="btn btn-primary" @onclick="Login">Login / Register</button>
             </div>
         </NotAuthorized>
     </AuthorizeView>

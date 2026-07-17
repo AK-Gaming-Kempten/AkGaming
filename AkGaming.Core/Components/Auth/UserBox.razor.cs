@@ -6,6 +6,7 @@ namespace AkGaming.Core.Components.Auth;
 public partial class UserBox : ComponentBase
 {
     [CascadingParameter] public Task<AuthenticationState> AuthenticationStateTask { get; set; } = default!;
+    [Parameter] public string? IdentityUrl { get; set; }
 
     [Inject] private NavigationManager Nav { get; set; } = default!;
 

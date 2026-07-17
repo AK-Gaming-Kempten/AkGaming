@@ -1,0 +1,25 @@
+@namespace AkGaming.Core.Components.Navigation
+
+<div class="context-menu @(OpenUpward ? "context-menu-upward" : string.Empty) @(IsOpen ? "context-menu-open" : string.Empty)" @onkeydown="HandleKeyDown">
+    <button type="button"
+            class="context-menu-trigger"
+            aria-label="@AriaLabel"
+            aria-expanded="@IsOpen"
+            aria-haspopup="menu"
+            @onclick="Toggle">
+        <span class="bi bi-three-dots-vertical" aria-hidden="true"></span>
+    </button>
+
+    @if (IsOpen)
+    {
+        <button type="button"
+                class="context-menu-dismiss"
+                aria-label="Close @AriaLabel"
+                @onclick="Close"></button>
+        <div class="context-menu-content" role="menu">
+            <CascadingValue Value="this" IsFixed="true">
+                @ChildContent
+            </CascadingValue>
+        </div>
+    }
+</div>

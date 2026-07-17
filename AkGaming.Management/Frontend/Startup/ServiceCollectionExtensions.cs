@@ -106,8 +106,18 @@ public static class ServiceCollectionExtensions {
 
                         context.HandleResponse();
                         var returnUrl = properties.RedirectUri;
-                        var loginUrl = $"/authentication/login?returnUrl={Uri.EscapeDataString(returnUrl ?? "/")}";
-                        context.Response.Redirect(loginUrl);
+                        context.Response.Cookies.Append(
+                            WebApplicationExtensions.SilentSignInSkippedCookie,
+                            bool.TrueString,
+                            new CookieOptions {
+                                HttpOnly = true,
+                                IsEssential = true,
+                                MaxAge = TimeSpan.FromMinutes(1),
+                                Path = "/",
+                                SameSite = SameSiteMode.Lax,
+                                Secure = context.Request.IsHttps
+                            });
+                        context.Response.Redirect(returnUrl ?? "/");
                         return Task.CompletedTask;
                     }
                 };

@@ -1,8 +1,8 @@
 .user-box {
     --user-box-bg: var(--color-background-special);
     --user-box-border: rgba(255, 255, 255, 0.1);
-    --user-text: var(--color-highlight-secondary);
-    --user-name: var(--color-highlight-primary);
+    --user-text: var(--color-highlight-primary);
+    --user-name: var(--color-text-special);
 
     display: flex;
     justify-content: space-between;
@@ -29,7 +29,7 @@
 
 .user-label {
     font-size: 0.8rem;
-    opacity: 0.75;
+    color: var(--user-text);
 }
 
 .user-name {
@@ -45,4 +45,8 @@
 .user-box .btn {
     flex-shrink: 0;
     white-space: nowrap;
+}
+
+.user-box-unauthenticated .btn {
+    flex: 1 1 auto;
 }
