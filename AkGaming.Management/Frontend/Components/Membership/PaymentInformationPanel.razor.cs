@@ -1,6 +1,7 @@
 using System.Text.Json;
 using AkGaming.Management.Frontend.ApiClients;
 using AkGaming.Management.Modules.MemberManagement.Contracts.DTO;
+using AkGaming.Management.Modules.MemberManagement.Contracts.Enums;
 using Microsoft.AspNetCore.Components;
 
 namespace AkGaming.Management.Frontend.Components.Membership;
@@ -32,6 +33,10 @@ public partial class PaymentInformationPanel : ComponentBase {
     }
 
     private void CancelCreate() => _showCreate = false;
+
+    private void SelectPaymentType(PaymentInformationType type) {
+        _newItem.Type = type;
+    }
 
     private async Task CreateAsync() {
         _error = null;

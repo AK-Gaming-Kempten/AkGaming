@@ -15,13 +15,21 @@
     }
     else {
         @foreach (var item in _items) {
-            <article class="panel ui-stack-md">
-                <div class="ui-actions">
-                    <strong>@(item.Type == PaymentInformationType.PayPal ? "PayPal" : "Bank account")</strong>
+            <article class="panel payment-information-card ui-stack-md">
+                <header class="payment-information-card-header">
+                    <div class="payment-method-identity">
+                        @if (item.Type == PaymentInformationType.PayPal) {
+                            <img class="payment-method-logo" src="images/payment-methods/paypal.webp" alt="PayPal" />
+                        }
+                        else {
+                            <span class="payment-method-icon bi bi-bank" aria-hidden="true"></span>
+                        }
+                        <strong>@(item.Type == PaymentInformationType.PayPal ? "PayPal" : "Bank account")</strong>
+                    </div>
                     @if (!IsEditing(item)) {
-                        <ActionButton Kind="ActionButtonKind.Edit" OnClick="() => StartEditing(item)" Label="Edit payment information" />
+                        <ActionButton Kind="ActionButtonKind.Edit" Size="ActionButtonSize.Small" CssClass="payment-information-edit" OnClick="() => StartEditing(item)" Label="Edit payment information" />
                     }
-                </div>
+                </header>
                 @if (IsEditing(item)) {
                     @if (_editingItem!.Type == PaymentInformationType.PayPal) {
                         <div class="ui-field"><label>PayPal email</label><InputText @bind-Value="_editingItem.PayPalEmail" /></div>
@@ -55,14 +63,23 @@
         }
 
         @if (_showCreate) {
-            <article class="panel ui-stack-md">
-                <h4>Add payment information</h4>
+            <article class="panel payment-information-create ui-stack-md">
+                <div>
+                    <h4 class="ui-title">Add payment information</h4>
+                    <p class="ui-text-muted">Choose where the club should send your payouts.</p>
+                </div>
                 <div class="ui-field">
-                    <label>Type</label>
-                    <InputSelect @bind-Value="_newItem.Type">
-                        <option value="@PaymentInformationType.PayPal">PayPal</option>
-                        <option value="@PaymentInformationType.BankAccount">Bank account</option>
-                    </InputSelect>
+                    <label>Payment method</label>
+                    <div class="payment-method-selector" role="group" aria-label="Payment method">
+                        <button type="button" class="payment-method-option @(_newItem.Type == PaymentInformationType.PayPal ? "active" : string.Empty)" aria-pressed="@(_newItem.Type == PaymentInformationType.PayPal)" @onclick="() => SelectPaymentType(PaymentInformationType.PayPal)">
+                            <img class="payment-method-logo" src="images/payment-methods/paypal.webp" alt="" />
+                            <span>PayPal</span>
+                        </button>
+                        <button type="button" class="payment-method-option @(_newItem.Type == PaymentInformationType.BankAccount ? "active" : string.Empty)" aria-pressed="@(_newItem.Type == PaymentInformationType.BankAccount)" @onclick="() => SelectPaymentType(PaymentInformationType.BankAccount)">
+                            <span class="payment-method-icon bi bi-bank" aria-hidden="true"></span>
+                            <span>Bank account</span>
+                        </button>
+                    </div>
                 </div>
                 @if (_newItem.Type == PaymentInformationType.PayPal) {
                     <div class="ui-field"><label>PayPal email</label><InputText @bind-Value="_newItem.PayPalEmail" /></div>
