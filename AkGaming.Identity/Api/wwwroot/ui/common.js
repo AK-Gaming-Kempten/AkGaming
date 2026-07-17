@@ -23,7 +23,13 @@
     document.querySelectorAll("[data-theme-picker]").forEach((el) => {
       if (el instanceof HTMLSelectElement) {
         el.value = value;
+        return;
       }
+
+      el.dataset.selectedTheme = value;
+      el.querySelectorAll("[data-theme-value]").forEach((option) => {
+        option.setAttribute("aria-checked", String(option.dataset.themeValue === value));
+      });
     });
   }
 
@@ -39,6 +45,18 @@
         setStoredTheme(value);
         applyTheme(value);
         syncPickers(value);
+      });
+
+      el.querySelectorAll("[data-theme-value]").forEach((option) => {
+        option.addEventListener("click", () => {
+          const value = option.dataset.themeValue === "light" || option.dataset.themeValue === "dark"
+            ? option.dataset.themeValue
+            : "system";
+
+          setStoredTheme(value);
+          applyTheme(value);
+          syncPickers(value);
+        });
       });
     });
   }

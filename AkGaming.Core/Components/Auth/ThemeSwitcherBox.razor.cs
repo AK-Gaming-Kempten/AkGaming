@@ -17,6 +17,13 @@ public partial class ThemeSwitcherBox : ComponentBase, IAsyncDisposable
     private Theme _currentTheme = Theme.System;
     private DotNetObjectReference<ThemeSwitcherBox>? _selfRef;
 
+    private string ThemeCssClass => _currentTheme switch
+    {
+        Theme.Light => "theme-light",
+        Theme.Dark => "theme-dark",
+        _ => "theme-system"
+    };
+
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (!firstRender)

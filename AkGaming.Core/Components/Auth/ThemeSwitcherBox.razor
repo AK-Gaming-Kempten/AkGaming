@@ -1,21 +1,16 @@
 @namespace AkGaming.Core.Components.Auth
 
 <div class="theme-switcher-box">
-    <button type="button"
-            class="btn @(_currentTheme == Theme.System ? "btn-selected" : null)"
-            @onclick="() => SetTheme(Theme.System)">
-        <i class="bi bi-display"></i>
-    </button>
-
-    <button type="button"
-            class="btn @(_currentTheme == Theme.Light ? "btn-selected" : null)"
-            @onclick="() => SetTheme(Theme.Light)">
-        <i class="bi bi-sun"></i>
-    </button>
-
-    <button type="button"
-            class="btn @(_currentTheme == Theme.Dark ? "btn-selected" : null)"
-            @onclick="() => SetTheme(Theme.Dark)">
-        <i class="bi bi-moon"></i>
-    </button>
+    <div class="theme-switcher-control @ThemeCssClass" role="radiogroup" aria-label="Theme">
+        <span class="theme-switcher-thumb" aria-hidden="true"></span>
+        <button type="button" role="radio" aria-checked="@(_currentTheme == Theme.System)" title="Use system theme" @onclick="() => SetTheme(Theme.System)">
+            <span class="bi bi-display" aria-hidden="true"></span>
+        </button>
+        <button type="button" role="radio" aria-checked="@(_currentTheme == Theme.Light)" title="Use light theme" @onclick="() => SetTheme(Theme.Light)">
+            <span class="bi bi-sun" aria-hidden="true"></span>
+        </button>
+        <button type="button" role="radio" aria-checked="@(_currentTheme == Theme.Dark)" title="Use dark theme" @onclick="() => SetTheme(Theme.Dark)">
+            <span class="bi bi-moon" aria-hidden="true"></span>
+        </button>
+    </div>
 </div>
