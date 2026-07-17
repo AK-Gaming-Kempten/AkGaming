@@ -72,6 +72,7 @@ builder.Services
         options.LogoutPath = "/account/logout";
         options.AccessDeniedPath = "/account/access-denied";
         options.Cookie.Name = "akgaming.identity";
+        options.ExpireTimeSpan = TimeSpan.FromDays(jwtOptions.RefreshTokenDays);
         options.SlidingExpiration = true;
     });
 

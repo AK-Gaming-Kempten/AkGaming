@@ -1,8 +1,10 @@
 using System.Security.Claims;
 using AkGaming.Identity.Contracts.Auth;
+using AkGaming.Identity.Infrastructure.Security;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.Extensions.Options;
 
 namespace AkGaming.Identity.Api.Authentication;
 
@@ -32,7 +34,7 @@ internal static class LocalSessionManager
             new AuthenticationProperties
             {
                 IsPersistent = true,
-                ExpiresUtc = DateTimeOffset.UtcNow.AddHours(8)
+                ExpiresUtc = DateTimeOffset.UtcNow.Add(GetSessionLifetime(context))
             });
     }
 
@@ -92,5 +94,11 @@ internal static class LocalSessionManager
         }
 
         return "/account/manage";
+    }
+
+    private static TimeSpan GetSessionLifetime(HttpContext context)
+    {
+        var jwtOptions = context.RequestServices.GetService<IOptions<JwtOptions>>()?.Value ?? new JwtOptions();
+        return TimeSpan.FromDays(Math.Max(1, jwtOptions.RefreshTokenDays));
     }
 }

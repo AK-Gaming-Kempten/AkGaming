@@ -25,6 +25,7 @@ public static class ServiceCollectionExtensions {
         services.AddRazorPages();
         services.AddServerSideBlazor();
         services.AddHttpContextAccessor();
+        services.AddScoped<AuthenticationTicketTokenUpdater>();
         services.AddScoped<FrontendSessionCoordinator>();
         services.AddScoped<OidcTokenStore>();
         services.TryAddEnumerable(ServiceDescriptor.Scoped<CircuitHandler, OidcTokenCircuitHandler>());
@@ -35,6 +36,7 @@ public static class ServiceCollectionExtensions {
     public static IServiceCollection AddAuthenticationAndAuthorization(this IServiceCollection services, IConfiguration config, IWebHostEnvironment env) {
         var oidcOptions = config.GetSection(OpenIdConnectClientOptions.SectionName).Get<OpenIdConnectClientOptions>() ?? new();
         var allowUntrustedLocalCertificates = env.IsDevelopment() && config.GetValue<bool>("Dev:AllowUntrustedLocalCertificates");
+        var sessionLifetime = TimeSpan.FromDays(Math.Max(1, oidcOptions.SessionDays));
         services.Configure<OpenIdConnectClientOptions>(config.GetSection(OpenIdConnectClientOptions.SectionName));
         services.AddDistributedMemoryCache();
         services.AddSingleton<ITicketStore>(serviceProvider => new DistributedCacheTicketStore(
@@ -51,6 +53,8 @@ public static class ServiceCollectionExtensions {
                 options.AccessDeniedPath = "/account/accessdenied";
                 options.ClaimsIssuer = "AkGaming.Identity";
                 options.Cookie.Name = "akgaming.management";
+                options.ExpireTimeSpan = sessionLifetime;
+                options.SlidingExpiration = true;
             })
             .AddOpenIdConnect(OpenIdConnectDefaults.AuthenticationScheme, options => {
                 options.Authority = oidcOptions.Authority;

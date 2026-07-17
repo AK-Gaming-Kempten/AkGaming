@@ -96,6 +96,7 @@ public static class WebApplicationExtensions
     {
         return new AuthenticationProperties
         {
+            IsPersistent = true,
             RedirectUri = NormalizeReturnUrl(context, returnUrl)
         };
     }

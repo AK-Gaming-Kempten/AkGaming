@@ -1,9 +1,11 @@
 using System.Globalization;
 using System.Net.Http.Headers;
 using System.Text.Json;
+using AkGaming.Core.Components.Authentication;
 using AkGaming.Tournaments.Frontend.Authentication;
 using AkGaming.Tournaments.Frontend.Startup;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.Extensions.Options;
 
@@ -16,15 +18,18 @@ public sealed class TournamentApiAuthorizationHandler : DelegatingHandler
 
     private readonly IHttpClientFactory _httpClientFactory;
     private readonly IOptionsMonitor<OpenIdConnectOptions> _oidcOptionsMonitor;
+    private readonly AuthenticationTicketTokenUpdater _ticketTokenUpdater;
     private readonly ILogger<TournamentApiAuthorizationHandler> _logger;
 
     public TournamentApiAuthorizationHandler(
         IHttpClientFactory httpClientFactory,
         IOptionsMonitor<OpenIdConnectOptions> oidcOptionsMonitor,
+        AuthenticationTicketTokenUpdater ticketTokenUpdater,
         ILogger<TournamentApiAuthorizationHandler> logger)
     {
         _httpClientFactory = httpClientFactory;
         _oidcOptionsMonitor = oidcOptionsMonitor;
+        _ticketTokenUpdater = ticketTokenUpdater;
         _logger = logger;
     }
 
@@ -248,8 +253,15 @@ public sealed class TournamentApiAuthorizationHandler : DelegatingHandler
                 var newExpiry = expiresIn.HasValue
                     ? DateTime.UtcNow.AddSeconds(expiresIn.Value)
                     : DateTime.UtcNow.AddMinutes(10);
+                var newExpiresAt = newExpiry.ToString("o", CultureInfo.InvariantCulture);
 
-                tokenStore.SetTokens(newAccessToken, newRefreshToken, newExpiry.ToString("o", CultureInfo.InvariantCulture));
+                tokenStore.SetTokens(newAccessToken, newRefreshToken, newExpiresAt);
+                await _ticketTokenUpdater.UpdateTokensAsync(
+                    CookieAuthenticationDefaults.AuthenticationScheme,
+                    newAccessToken,
+                    newRefreshToken,
+                    newExpiresAt,
+                    cancellationToken);
 
                 if (force)
                     _logger.LogInformation("Forced tournaments token refresh completed successfully after API 401.");

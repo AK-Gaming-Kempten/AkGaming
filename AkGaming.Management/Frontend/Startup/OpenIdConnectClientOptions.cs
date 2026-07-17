@@ -10,5 +10,6 @@ public sealed class OpenIdConnectClientOptions
     public string CallbackPath { get; set; } = "/signin-oidc";
     public string SignedOutCallbackPath { get; set; } = "/signout-callback-oidc";
     public bool RequireHttpsMetadata { get; set; } = true;
+    public int SessionDays { get; set; } = 7;
     public List<string> Scopes { get; set; } = [];
 }

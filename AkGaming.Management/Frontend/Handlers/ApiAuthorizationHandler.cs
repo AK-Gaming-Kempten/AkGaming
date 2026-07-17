@@ -1,8 +1,10 @@
 using System.Globalization;
 using System.Net.Http.Headers;
 using System.Text.Json;
+using AkGaming.Core.Components.Authentication;
 using AkGaming.Management.Frontend.Authentication;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.Extensions.Options;
 using AkGaming.Management.Frontend.Startup;
@@ -14,14 +16,17 @@ public class ApiAuthorizationHandler : DelegatingHandler {
 
     private readonly IHttpClientFactory _factory;
     private readonly IOptionsMonitor<OpenIdConnectOptions> _oidcOptionsMonitor;
+    private readonly AuthenticationTicketTokenUpdater _ticketTokenUpdater;
     private readonly ILogger<ApiAuthorizationHandler> _log;
 
     public ApiAuthorizationHandler(
         IHttpClientFactory factory,
         IOptionsMonitor<OpenIdConnectOptions> oidcOptionsMonitor,
+        AuthenticationTicketTokenUpdater ticketTokenUpdater,
         ILogger<ApiAuthorizationHandler> log) {
         _factory = factory;
         _oidcOptionsMonitor = oidcOptionsMonitor;
+        _ticketTokenUpdater = ticketTokenUpdater;
         _log = log;
     }
 
@@ -238,8 +243,15 @@ public class ApiAuthorizationHandler : DelegatingHandler {
                 var newExpiry = expiresIn.HasValue
                     ? DateTime.UtcNow.AddSeconds(expiresIn.Value)
                     : DateTime.UtcNow.AddMinutes(10);
+                var newExpiresAt = newExpiry.ToString("o", CultureInfo.InvariantCulture);
 
-                tokenStore.SetTokens(newAccess, newRefresh, newExpiry.ToString("o", CultureInfo.InvariantCulture));
+                tokenStore.SetTokens(newAccess, newRefresh, newExpiresAt);
+                await _ticketTokenUpdater.UpdateTokensAsync(
+                    CookieAuthenticationDefaults.AuthenticationScheme,
+                    newAccess,
+                    newRefresh,
+                    newExpiresAt,
+                    ct);
 
                 if (force)
                     _log.LogInformation("Forced token refresh completed successfully after API 401.");

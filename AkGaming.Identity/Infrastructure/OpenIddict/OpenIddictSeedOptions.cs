@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+
 namespace AkGaming.Identity.Infrastructure.OpenIddict;
 
 public sealed class OpenIddictSeedOptions

@@ -1,4 +1,9 @@
+using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using AkGaming.Identity.Application.Abstractions;
 using AkGaming.Identity.Application.Common;
 using AkGaming.Identity.Contracts.Auth;
@@ -53,8 +58,9 @@ public sealed class OidcAdminService : IOidcAdminService
         var protectedClientIds = seedOptions.Value.Applications
             .Where(application => application.Scopes.Any(scope => string.Equals(scope, ManagementApiScope, StringComparison.OrdinalIgnoreCase)))
             .Select(application => application.ClientId)
-            .Where(clientId => !string.IsNullOrWhiteSpace(clientId));
-        _protectedClientIds = new HashSet<string>(protectedClientIds, StringComparer.OrdinalIgnoreCase);
+            .Where(clientId => !string.IsNullOrWhiteSpace(clientId))
+            .Select(clientId => clientId!);
+        _protectedClientIds = protectedClientIds.ToHashSet(StringComparer.OrdinalIgnoreCase);
 
         _protectedScopeNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { ManagementApiScope };
         foreach (var scope in seedOptions.Value.Scopes.Where(scope => string.Equals(scope.Name, ManagementApiScope, StringComparison.OrdinalIgnoreCase)))
@@ -418,7 +424,7 @@ public sealed class OidcAdminService : IOidcAdminService
     private async Task<IReadOnlyList<string>> NormalizeScopesAsync(IEnumerable<string>? scopes, CancellationToken cancellationToken)
     {
         var normalizedScopes = NormalizeIdentifiers(scopes, "scopes");
-        var knownScopes = new HashSet<string>(StandardScopes, StringComparer.OrdinalIgnoreCase);
+        var knownScopes = StandardScopes.ToHashSet(StringComparer.OrdinalIgnoreCase);
 
         var configuredScopes = await _dbContext.Set<OpenIddictEntityFrameworkCoreScope>()
             .AsNoTracking()
