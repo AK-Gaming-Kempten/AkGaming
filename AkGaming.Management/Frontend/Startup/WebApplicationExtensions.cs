@@ -11,6 +11,8 @@ using Microsoft.AspNetCore.Localization;
 namespace AkGaming.Management.Frontend.Startup;
 
 public static class WebApplicationExtensions {
+    internal const string SilentSignInProperty = "akgaming.management.silent-sign-in";
+
     public static void ConfigureCultureAndLocalization(this WebApplication app) {
         var defaultCulture = new CultureInfo("en-GB");
         var localizationOptions = new RequestLocalizationOptions {
@@ -43,6 +45,16 @@ public static class WebApplicationExtensions {
         app.UseRouting();
 
         app.UseAuthentication();
+        app.Use(async (context, next) => {
+            if (ShouldAttemptSilentSignIn(context)) {
+                await context.ChallengeAsync(
+                    OpenIdConnectDefaults.AuthenticationScheme,
+                    BuildSilentLoginProperties(context));
+                return;
+            }
+
+            await next();
+        });
         app.UseAuthorization();
 
         app.UseAntiforgery();
@@ -109,6 +121,29 @@ public static class WebApplicationExtensions {
             IsPersistent = true,
             RedirectUri = NormalizeReturnUrl(context, returnUrl)
         };
+    }
+
+    private static OpenIdConnectChallengeProperties BuildSilentLoginProperties(HttpContext context) {
+        var returnUrl = context.Request.PathBase + context.Request.Path + context.Request.QueryString;
+        return new OpenIdConnectChallengeProperties {
+            IsPersistent = true,
+            Prompt = "none",
+            RedirectUri = NormalizeReturnUrl(context, returnUrl),
+            Items = { [SilentSignInProperty] = bool.TrueString }
+        };
+    }
+
+    private static bool ShouldAttemptSilentSignIn(HttpContext context) {
+        if (context.User.Identity?.IsAuthenticated == true
+            || !HttpMethods.IsGet(context.Request.Method)
+            || !context.Request.Headers.Accept.Any(value => value?.Contains("text/html", StringComparison.OrdinalIgnoreCase) == true)) {
+            return false;
+        }
+
+        var path = context.Request.Path;
+        return !path.StartsWithSegments("/authentication")
+            && !path.StartsWithSegments("/api")
+            && !path.StartsWithSegments("/_blazor");
     }
 
     private static string NormalizeReturnUrl(HttpContext context, string? returnUrl) {

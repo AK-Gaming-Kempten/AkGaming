@@ -95,6 +95,20 @@ public static class ServiceCollectionExtensions {
                             identity.AddClaim(new Claim(ClaimTypes.Name, displayName));
 
                         return Task.CompletedTask;
+                    },
+                    OnRemoteFailure = context => {
+                        var properties = context.Properties;
+                        if (properties is null
+                            || !properties.Items.TryGetValue(WebApplicationExtensions.SilentSignInProperty, out var isSilent)
+                            || !string.Equals(isSilent, bool.TrueString, StringComparison.Ordinal)) {
+                            return Task.CompletedTask;
+                        }
+
+                        context.HandleResponse();
+                        var returnUrl = properties.RedirectUri;
+                        var loginUrl = $"/authentication/login?returnUrl={Uri.EscapeDataString(returnUrl ?? "/")}";
+                        context.Response.Redirect(loginUrl);
+                        return Task.CompletedTask;
                     }
                 };
             });
