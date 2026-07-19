@@ -4,7 +4,14 @@
 @attribute [Authorize]
 
 <PageTitle>@(_meeting?.Title ?? "General Meeting")</PageTitle>
-@if (_meeting is null) { <p>@(_error ?? "Loading...")</p> }
+@if (_canAccess is null) { <p>Checking meeting access...</p> }
+else if (!_canAccess.Value)
+{
+<UnauthorizedPanel ImageUrl="images/icons/AKG_Logos/Red.png">
+    <p>Access denied. General meetings are available to members only.</p>
+</UnauthorizedPanel>
+}
+else if (_meeting is null) { <p>@(_error ?? "Loading...")</p> }
 else
 {
 <div class="meeting-page ui-stack-md">

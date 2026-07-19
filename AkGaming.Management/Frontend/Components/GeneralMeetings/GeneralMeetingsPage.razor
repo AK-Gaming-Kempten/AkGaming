@@ -3,6 +3,18 @@
 @attribute [Authorize]
 
 <PageTitle>General Meetings</PageTitle>
+@if (_canAccess is null)
+{
+    <p>Checking meeting access...</p>
+}
+else if (!_canAccess.Value)
+{
+    <UnauthorizedPanel ImageUrl="images/icons/AKG_Logos/Red.png">
+        <p>Access denied. General meetings are available to members only.</p>
+    </UnauthorizedPanel>
+}
+else
+{
 <div class="meetings-page ui-stack-md">
     <section class="panel meetings-heading">
         <div><h2>General Meetings</h2><p class="ui-text-muted">Prepare, run and record member meetings.</p></div>
@@ -34,3 +46,4 @@
         </div>
     }
 </div>
+}

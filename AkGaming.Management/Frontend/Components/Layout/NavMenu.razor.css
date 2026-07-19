@@ -60,7 +60,6 @@
 }
 
 .nav-section {
-    margin-top: 1rem;
     display: flex;
     flex-direction: column;
     gap: 0.25rem;
@@ -79,16 +78,20 @@
 .nav-section-toggle {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: 0.75rem;
     width: 100%;
     border: 0;
     background: transparent;
-    color: var(--color-text-special-secondary);
-    font-size: 0.9rem;
-    font-weight: 600;
-    padding: 0.35rem 0.9rem 0.35rem 0.5rem;
+    color: var(--color-nav-item-text);
+    font-size: inherit;
+    font-weight: inherit;
+    padding: 0.55rem 1rem;
+    border-radius: 4px;
     text-align: left;
     cursor: pointer;
+    transition: background 0.2s ease, color 0.2s ease;
+    position: relative;
+    box-sizing: border-box;
 }
 
 .nav-chevron {
@@ -116,6 +119,7 @@
 
 /* ==== HIERARCHY INDENTATION ==== */
 ::deep a.nav-item.level-1 { padding-left: 1rem; }
+.nav-section-toggle.level-1 { padding-left: 1rem; }
 ::deep a.nav-item.level-2 { padding-left: 2rem; }
 ::deep a.nav-item.level-3 { padding-left: 3rem; }
 /* just assign the class level-1/2/3 to NavLinks as needed */
@@ -129,12 +133,33 @@
     );
 }
 
+.nav-section-toggle:hover {
+    background: linear-gradient(
+            90deg,
+            var(--color-nav-bg) 0%,
+            var(--color-nav-item-hover-bg) 100%
+    );
+}
+
 ::deep a.nav-item.active {
     background: linear-gradient(
             90deg,
             var(--color-nav-bg) 0%,
             color-mix(in oklab, var(--color-nav-item-active-bg) 75%, var(--color-highlight-primary) 25%) 100%
     );
+    color: var(--color-nav-item-active-text);
+}
+
+.nav-section-toggle.active {
+    background: linear-gradient(
+            90deg,
+            var(--color-nav-bg) 0%,
+            color-mix(in oklab, var(--color-nav-item-active-bg) 75%, var(--color-highlight-primary) 25%) 100%
+    );
+    color: var(--color-nav-item-active-text);
+}
+
+.nav-section-toggle.active .nav-icon {
     color: var(--color-nav-item-active-text);
 }
 

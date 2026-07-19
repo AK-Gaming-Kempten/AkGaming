@@ -1,5 +1,6 @@
 using AkGaming.Management.Frontend.ApiClients;
 using AkGaming.Management.Frontend.Authentication;
+using AkGaming.Management.Frontend.Authorization;
 using AkGaming.Management.Modules.GeneralMeetings.Contracts;
 using AkGaming.Management.Modules.MemberManagement.Contracts.DTO;
 using Microsoft.AspNetCore.Components;
@@ -14,6 +15,7 @@ public partial class MeetingPage : ComponentBase, IAsyncDisposable
 {
     [Parameter] public Guid MeetingId { get; set; }
     [Inject] private GeneralMeetingsApiClient Api { get; set; } = null!;
+    [Inject] private GeneralMeetingAccessService MeetingAccess { get; set; } = null!;
     [Inject] private MemberManagementApiClient MemberApi { get; set; } = null!;
     [Inject] private AuthenticationStateProvider AuthenticationState { get; set; } = null!;
     [Inject] private OidcTokenStore TokenStore { get; set; } = null!;
@@ -24,6 +26,7 @@ public partial class MeetingPage : ComponentBase, IAsyncDisposable
     private List<MemberDto> _members = [];
     private HubConnection? _hub;
     private bool _canManage;
+    private bool? _canAccess;
     private bool _showAgendaForm;
     private string _agendaHeading = string.Empty;
     private Guid? _editingAgendaItemId;
@@ -46,6 +49,10 @@ public partial class MeetingPage : ComponentBase, IAsyncDisposable
     protected override async Task OnInitializedAsync()
     {
         var user = (await AuthenticationState.GetAuthenticationStateAsync()).User;
+        _canAccess = await MeetingAccess.CanAccessAsync(user);
+        if (!_canAccess.Value)
+            return;
+
         _canManage = user.HasClaim("permission", "management.general-meetings.manage");
         await ReloadAsync();
         if (_canManage) { var result = await MemberApi.GetAllMembersAsync(); _members = result.Value?.ToList() ?? []; }

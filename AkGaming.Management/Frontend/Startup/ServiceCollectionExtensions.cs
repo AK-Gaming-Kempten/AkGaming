@@ -1,5 +1,6 @@
 using AkGaming.Management.Frontend.ApiClients;
 using AkGaming.Management.Frontend.Authentication;
+using AkGaming.Management.Frontend.Authorization;
 using AkGaming.Management.Frontend.Handlers;
 using AkGaming.Core.Components.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -208,6 +209,7 @@ public static class ServiceCollectionExtensions {
             new GeneralMeetingsApiClient(
                 sp.GetRequiredKeyedService<HttpClient>("ManagementApi"),
                 sp.GetRequiredService<IHttpClientFactory>().CreateClient("ManagementApiAnonymous")));
+        services.AddScoped<GeneralMeetingAccessService>();
 
         services.AddScoped<IdentityApiClient>(sp =>
             new IdentityApiClient(
