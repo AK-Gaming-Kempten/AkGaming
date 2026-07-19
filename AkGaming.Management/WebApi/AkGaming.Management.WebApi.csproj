@@ -26,6 +26,9 @@
       <ProjectReference Include="..\Modules\Disbursements\Api\AkGaming.Management.Modules.Disbursements.Api.csproj" />
       <ProjectReference Include="..\Modules\Disbursements\Migrations\Postgres\AkGaming.Management.Modules.Disbursements.Migrations.Postgres.csproj" />
       <ProjectReference Include="..\Modules\Disbursements\Migrations\Sqlite\AkGaming.Management.Modules.Disbursements.Migrations.Sqlite.csproj" />
+      <ProjectReference Include="..\Modules\GeneralMeetings\Api\AkGaming.Management.Modules.GeneralMeetings.Api.csproj" />
+      <ProjectReference Include="..\Modules\GeneralMeetings\Migrations\Postgres\AkGaming.Management.Modules.GeneralMeetings.Migrations.Postgres.csproj" />
+      <ProjectReference Include="..\Modules\GeneralMeetings\Migrations\Sqlite\AkGaming.Management.Modules.GeneralMeetings.Migrations.Sqlite.csproj" />
     </ItemGroup>
 
     <ItemGroup>

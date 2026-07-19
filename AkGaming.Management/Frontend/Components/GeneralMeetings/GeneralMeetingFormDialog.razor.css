@@ -1,0 +1,79 @@
+.meeting-dialog-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 1100;
+    display: grid;
+    place-items: center;
+    padding: 1rem;
+    background: rgb(0 0 0 / 58%);
+}
+
+.meeting-dialog {
+    display: grid;
+    grid-template-rows: auto auto minmax(0, 1fr) auto;
+    width: min(100%, 900px);
+    max-height: calc(100dvh - 2rem);
+    padding: 1.25rem;
+    color: var(--color-text-primary);
+    background: var(--color-background-primary);
+    border: 1px solid var(--color-text-secondary);
+    border-radius: 8px;
+    box-shadow: 0 18px 60px rgb(0 0 0 / 40%);
+}
+
+.meeting-dialog header,
+.meeting-dialog footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+}
+
+.meeting-dialog h3 {
+    margin: .2rem 0 0;
+}
+
+.meeting-dialog header button {
+    padding: .4rem;
+    color: var(--color-text-primary);
+    background: transparent;
+    border: 0;
+}
+
+.dialog-note {
+    margin: 1rem 0 0;
+    padding: .65rem;
+    color: var(--color-text-secondary);
+    background: var(--color-background-secondary);
+    border-left: 3px solid var(--color-highlight-primary);
+}
+
+.dialog-note .bi {
+    margin-right: .35rem;
+}
+
+.meeting-dialog-content {
+    min-height: 0;
+    padding: 1.25rem 0;
+    overflow-y: auto;
+}
+
+.meeting-dialog footer {
+    justify-content: flex-end;
+    padding-top: 1rem;
+    border-top: 1px solid color-mix(in srgb, var(--color-text-secondary) 30%, transparent);
+}
+
+@media (max-width: 600px) {
+    .meeting-dialog-backdrop {
+        padding: 0;
+    }
+
+    .meeting-dialog {
+        width: 100%;
+        height: 100dvh;
+        max-height: none;
+        border: 0;
+        border-radius: 0;
+    }
+}

@@ -22,6 +22,14 @@
 
             @if (isAuthenticated)
             {
+                <NavLink href="general-meetings" class="nav-item level-1" @onclick="NotifyNavigation">
+                    <span class="nav-icon bi-people"></span>
+                    <span>General Meetings</span>
+                </NavLink>
+            }
+
+            @if (isAuthenticated)
+            {
                 <div class="nav-section">
                     <button type="button" class="nav-section-toggle" @onclick="ToggleDisbursementsExpanded">
                         <span class="nav-icon bi-wallet2"></span>
@@ -210,6 +218,7 @@
     private bool canManageInvoices;
     private bool canReadDisbursements;
     private bool canReadUsers;
+    private bool canManageGeneralMeetings;
     private bool canReadRoles;
     private bool canReadIdentityAudit;
     private bool canManageOidc;
@@ -253,6 +262,7 @@
         canAccessMemberManagement = canReadMembers || canManageMemberDetails || canManageMemberStatus || canAccessDues || canAccessRequests;
         canManageInvoices = isAuthenticated && user.HasClaim("permission", "management.invoices.manage");
         canReadDisbursements = isAuthenticated && user.HasClaim("permission", "management.disbursements.read");
+        canManageGeneralMeetings = isAuthenticated && user.HasClaim("permission", "management.general-meetings.manage");
         canReadUsers = isAuthenticated && user.HasClaim("permission", "identity.users.read");
         canReadRoles = isAuthenticated && user.HasClaim("permission", "identity.roles.read");
         canReadIdentityAudit = isAuthenticated && user.HasClaim("permission", "identity.audit.read");

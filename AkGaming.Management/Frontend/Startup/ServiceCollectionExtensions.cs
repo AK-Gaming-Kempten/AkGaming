@@ -146,6 +146,9 @@ public static class ServiceCollectionExtensions {
             AddPermissionPolicy(options, "management.invoices.manage");
             AddPermissionPolicy(options, "management.disbursements.read");
             AddPermissionPolicy(options, "management.disbursements.manage");
+            AddPermissionPolicy(options, "management.general-meetings.manage");
+            AddPermissionPolicy(options, "management.general-meetings.minutes.write");
+            AddPermissionPolicy(options, "management.general-meetings.audit.read");
         });
 
         return services;
@@ -180,6 +183,8 @@ public static class ServiceCollectionExtensions {
             .AddApplicationScopeHandler()
             .AddHttpMessageHandler<ApiAuthorizationHandler>();
         ConfigureDevelopmentCertificateRelaxation(managementApiClient, allowUntrustedLocalCertificates);
+        var anonymousManagementApiClient = services.AddHttpClient("ManagementApiAnonymous", client => client.BaseAddress = apiBaseUrl);
+        ConfigureDevelopmentCertificateRelaxation(anonymousManagementApiClient, allowUntrustedLocalCertificates);
 
         var identityApiClient = services
             .AddHttpClient("IdentityApi", client => client.BaseAddress = identityApiBaseUrl)
@@ -198,6 +203,11 @@ public static class ServiceCollectionExtensions {
 
         services.AddScoped<DisbursementsApiClient>(sp =>
             new DisbursementsApiClient(sp.GetRequiredKeyedService<HttpClient>("ManagementApi")));
+
+        services.AddScoped<GeneralMeetingsApiClient>(sp =>
+            new GeneralMeetingsApiClient(
+                sp.GetRequiredKeyedService<HttpClient>("ManagementApi"),
+                sp.GetRequiredService<IHttpClientFactory>().CreateClient("ManagementApiAnonymous")));
 
         services.AddScoped<IdentityApiClient>(sp =>
             new IdentityApiClient(

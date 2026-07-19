@@ -1,0 +1,36 @@
+@page "/general-meetings"
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize]
+
+<PageTitle>General Meetings</PageTitle>
+<div class="meetings-page ui-stack-md">
+    <section class="panel meetings-heading">
+        <div><h2>General Meetings</h2><p class="ui-text-muted">Prepare, run and record member meetings.</p></div>
+        <AuthorizeView Policy="management.general-meetings.manage"><button class="primary-action" type="button" @onclick="ToggleCreate"><span class="bi bi-plus-lg"></span> Create</button></AuthorizeView>
+    </section>
+    @if (!string.IsNullOrWhiteSpace(_error)) { <p class="error">@_error</p> }
+    @if (_showCreate)
+    {
+        <section class="panel create-meeting ui-stack-sm">
+            <h3>Create meeting</h3>
+            <label>Title <InputText @bind-Value="_title" /></label>
+            <label>Date and time <input type="datetime-local" @bind="_scheduledLocal" /></label>
+            <label>Location <InputText @bind-Value="_location" /></label>
+            <button class="primary-action" type="button" disabled="@_busy" @onclick="CreateAsync">Create meeting</button>
+        </section>
+    }
+    @if (_meetings is null) { <p>Loading...</p> }
+    else if (_meetings.Count == 0) { <section class="panel">No general meetings have been created.</section> }
+    else
+    {
+        <div class="meeting-grid">
+            @foreach (var meeting in _meetings)
+            {
+                <a class="panel meeting-card" href="@($"general-meetings/{meeting.Id}")">
+                    <div><h3>@meeting.Title</h3><p>@meeting.ScheduledAt.ToLocalTime().ToString("dd.MM.yyyy HH:mm") · @(meeting.Location ?? "Location pending")</p></div>
+                    <span class="meeting-status">@meeting.Status</span>
+                </a>
+            }
+        </div>
+    }
+</div>

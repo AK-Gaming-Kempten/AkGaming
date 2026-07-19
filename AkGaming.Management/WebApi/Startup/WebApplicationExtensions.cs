@@ -2,6 +2,7 @@ using System.Data;
 using AkGaming.Management.Modules.MemberManagement.Infrastructure.Persistence;
 using AkGaming.Management.Modules.InvoiceManagement.Infrastructure.Persistence;
 using AkGaming.Management.Modules.Disbursements.Infrastructure.Persistence;
+using AkGaming.Management.Modules.GeneralMeetings.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 
@@ -28,6 +29,8 @@ public static class WebApplicationExtensions {
         invoiceDb.Database.Migrate();
         var disbursementsDb = scope.ServiceProvider.GetRequiredService<DisbursementsDbContext>();
         disbursementsDb.Database.Migrate();
+        var generalMeetingsDb = scope.ServiceProvider.GetRequiredService<GeneralMeetingsDbContext>();
+        generalMeetingsDb.Database.Migrate();
         return app;
     }
 

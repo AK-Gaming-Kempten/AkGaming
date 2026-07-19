@@ -1,0 +1,97 @@
+@using AkGaming.Management.Modules.GeneralMeetings.Contracts
+
+<section class="ballot-panel">
+    <div class="ballot-heading"><div><strong>@Ballot.Question</strong><small>@Ballot.Status · @Ballot.VotesCast / @Ballot.EligibleVoters votes</small></div>
+        @if (CanManage && Ballot.Status == BallotStatusDto.Draft) { <span><button type="button" @onclick="() => OnEdit.InvokeAsync(Ballot)">Edit</button> <button type="button" @onclick="OpenAsync">Open</button></span> }
+        @if (CanManage && Ballot.Status == BallotStatusDto.Open) { <button class="danger-action" type="button" @onclick="CloseAsync">Close</button> }
+    </div>
+    @if (!string.IsNullOrWhiteSpace(_error)) { <p class="error">@_error</p> }
+    @if (Ballot.Status == BallotStatusDto.Open)
+    {
+        <button class="primary-action" type="button" @onclick="OpenVotingDialog">@(_submitted ? "View ballot" : "Vote")</button>
+    }
+    @if (Ballot.Results is not null)
+    {
+        <div class="results" aria-label="Ballot results">
+            @foreach (var result in Ballot.Results)
+            {
+                <div class="result-card @(IsLeadingResult(result) ? "leading" : null)">
+                    <span>@result.Text</span>
+                    <strong>@result.Votes</strong>
+                </div>
+            }
+        </div>
+    }
+</section>
+
+@if (_showVotingDialog)
+{
+    <GeneralMeetingFormDialog Eyebrow="Secret ballot"
+                              Title="@Ballot.Question"
+                              Description="Your voting right is anonymous and can be used only once. Your selection cannot be changed after submission."
+                              OnClose="CloseVotingDialog">
+        <ChildContent>
+            <div class="voting-dialog-content">
+                @if (!string.IsNullOrWhiteSpace(_error))
+                {
+                    <p class="error">@_error</p>
+                }
+                @if (_submitted)
+                {
+                    <p class="vote-accepted"><span class="bi bi-check-circle"></span> Your vote was accepted. The voting right has been consumed.</p>
+                }
+                else if (string.IsNullOrWhiteSpace(_credential))
+                {
+                    <div class="voting-right-intro">
+                        <span class="bi bi-shield-lock"></span>
+                        <div><strong>Request an anonymous voting right</strong><small>Your eligibility is checked before a credential is issued. The stored vote cannot be traced back to you.</small></div>
+                    </div>
+                    <button class="primary-action" type="button" @onclick="IssueOwnAsync">Get my voting right</button>
+                }
+                else
+                {
+                    <fieldset class="ballot-options">
+                        <legend>@(UsesSingleChoice ? "Choose one option" : $"Choose up to {Ballot.MaximumSelections} options")</legend>
+                        @foreach (var option in Ballot.Options)
+                        {
+                            <label class="ballot-option @(_selected.Contains(option.Id) ? "selected" : null)">
+                                @if (UsesSingleChoice)
+                                {
+                                    <input type="radio" name="@($"ballot-{Ballot.Id}")" checked="@_selected.Contains(option.Id)" @onchange="() => SelectSingle(option.Id)" />
+                                }
+                                else
+                                {
+                                    <input type="checkbox" checked="@_selected.Contains(option.Id)" @onchange="eventArgs => Toggle(option.Id, (bool?)eventArgs.Value == true)" />
+                                }
+                                <span>@option.Text</span>
+                            </label>
+                        }
+                    </fieldset>
+                }
+
+                @if (CanManage)
+                {
+                    <details class="offline-voting-right">
+                        <summary>Issue an offline voting right</summary>
+                        <div>
+                            <select @bind="_offlineMember"><option value="">Select eligible attendee</option>@foreach (var attendee in Attendees.Where(x => x.CheckedInAt.HasValue && !x.CheckedOutAt.HasValue)) { <option value="@attendee.MemberId">@attendee.DisplayName</option> }</select>
+                            <button type="button" @onclick="IssueOfflineAsync">Issue</button>
+                        </div>
+                        @if (!string.IsNullOrWhiteSpace(_offlineCredential))
+                        {
+                            <code class="credential">@_offlineCredential</code>
+                            <p><small>Show or copy this once. It is not linked to the member in storage.</small></p>
+                        }
+                    </details>
+                }
+            </div>
+        </ChildContent>
+        <Footer>
+            <button type="button" class="dialog-cancel" @onclick="CloseVotingDialog">Close</button>
+            @if (!_submitted && !string.IsNullOrWhiteSpace(_credential))
+            {
+                <button type="button" class="dialog-primary" disabled="@(_selected.Count == 0)" @onclick="VoteAsync">Submit secret vote</button>
+            }
+        </Footer>
+    </GeneralMeetingFormDialog>
+}

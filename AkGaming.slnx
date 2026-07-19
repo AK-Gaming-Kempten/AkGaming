@@ -74,6 +74,16 @@
     <Project Path="AkGaming.Management/Modules/InvoiceManagement/Migrations/Sqlite/AkGaming.Management.Modules.InvoiceManagement.Migrations.Sqlite.csproj" />
     <Project Path="AkGaming.Management/Modules/InvoiceManagement/Tests/AkGaming.Management.Modules.InvoiceManagement.Tests.csproj" />
   </Folder>
+  <Folder Name="/AkGaming.Management/Modules/GeneralMeetings/">
+    <Project Path="AkGaming.Management/Modules/GeneralMeetings/Api/AkGaming.Management.Modules.GeneralMeetings.Api.csproj" />
+    <Project Path="AkGaming.Management/Modules/GeneralMeetings/Application/AkGaming.Management.Modules.GeneralMeetings.Application.csproj" />
+    <Project Path="AkGaming.Management/Modules/GeneralMeetings/Contracts/AkGaming.Management.Modules.GeneralMeetings.Contracts.csproj" />
+    <Project Path="AkGaming.Management/Modules/GeneralMeetings/Domain/AkGaming.Management.Modules.GeneralMeetings.Domain.csproj" />
+    <Project Path="AkGaming.Management/Modules/GeneralMeetings/Infrastructure/AkGaming.Management.Modules.GeneralMeetings.Infrastructure.csproj" />
+    <Project Path="AkGaming.Management/Modules/GeneralMeetings/Migrations/Postgres/AkGaming.Management.Modules.GeneralMeetings.Migrations.Postgres.csproj" />
+    <Project Path="AkGaming.Management/Modules/GeneralMeetings/Migrations/Sqlite/AkGaming.Management.Modules.GeneralMeetings.Migrations.Sqlite.csproj" />
+    <Project Path="AkGaming.Management/Modules/GeneralMeetings/Tests/AkGaming.Management.Modules.GeneralMeetings.Tests.csproj" />
+  </Folder>
   <Folder Name="/AkGaming.Management/Modules/MemberManagement/" />
   <Folder Name="/AkGaming.Management/Modules/MemberManagement/Api/">
     <Project Path="AkGaming.Management/Modules/MemberManagement/Api/AkGaming.Management.Modules.MemberManagement.Api.csproj" />

@@ -1,0 +1,23 @@
+<div class="meeting-dialog-backdrop" role="presentation" @onclick="OnClose">
+    <section class="meeting-dialog" role="dialog" aria-modal="true" aria-labelledby="general-meeting-dialog-title" @onclick:stopPropagation="true">
+        <header>
+            <div>
+                <small class="ui-text-muted">@Eyebrow</small>
+                <h3 id="general-meeting-dialog-title">@Title</h3>
+            </div>
+            <button type="button" title="Close dialog" aria-label="Close dialog" @onclick="OnClose">
+                <span class="bi bi-x-lg"></span>
+            </button>
+        </header>
+        @if (!string.IsNullOrWhiteSpace(Description))
+        {
+            <p class="dialog-note"><span class="bi bi-info-circle"></span> @Description</p>
+        }
+        <div class="meeting-dialog-content">
+            @ChildContent
+        </div>
+        <footer>
+            @Footer
+        </footer>
+    </section>
+</div>

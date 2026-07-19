@@ -9,6 +9,7 @@
     <ItemGroup>
       <PackageReference Include="BootstrapIcons.AspNetCore" Version="1.13.0" />
       <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="10.0.3" />
+      <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="10.0.3" />
     </ItemGroup>
 
     <ItemGroup>
@@ -18,6 +19,7 @@
       <ProjectReference Include="$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\Modules\MemberManagement\Contracts\AkGaming.Management.Modules.MemberManagement.Contracts.csproj'))" />
       <ProjectReference Include="$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\Modules\InvoiceManagement\Contracts\AkGaming.Management.Modules.InvoiceManagement.Contracts.csproj'))" />
       <ProjectReference Include="$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\Modules\Disbursements\Contracts\AkGaming.Management.Modules.Disbursements.Contracts.csproj'))" />
+      <ProjectReference Include="$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\Modules\GeneralMeetings\Contracts\AkGaming.Management.Modules.GeneralMeetings.Contracts.csproj'))" />
       <ProjectReference Include="$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\Frontend.Components\AkGaming.Management.Frontend.Components.csproj'))" />
     </ItemGroup>
 

@@ -25,6 +25,9 @@ public static class PermissionNames
     public const string ManagementInvoicesManage = "management.invoices.manage";
     public const string ManagementDisbursementsRead = "management.disbursements.read";
     public const string ManagementDisbursementsManage = "management.disbursements.manage";
+    public const string ManagementGeneralMeetingsManage = "management.general-meetings.manage";
+    public const string ManagementGeneralMeetingsMinutesWrite = "management.general-meetings.minutes.write";
+    public const string ManagementGeneralMeetingsAuditRead = "management.general-meetings.audit.read";
 
     public const string TournamentsGamesManage = "tournaments.games.manage";
     public const string TournamentsTournamentsManage = "tournaments.tournaments.manage";

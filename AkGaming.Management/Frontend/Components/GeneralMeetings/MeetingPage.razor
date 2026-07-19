@@ -1,0 +1,102 @@
+@page "/general-meetings/{MeetingId:guid}"
+@using Microsoft.AspNetCore.Authorization
+@using AkGaming.Management.Modules.GeneralMeetings.Contracts
+@attribute [Authorize]
+
+<PageTitle>@(_meeting?.Title ?? "General Meeting")</PageTitle>
+@if (_meeting is null) { <p>@(_error ?? "Loading...")</p> }
+else
+{
+<div class="meeting-page ui-stack-md">
+    <section class="panel meeting-header"><div><a href="general-meetings">← General Meetings</a><h2>@_meeting.Title</h2><p>@_meeting.ScheduledAt.ToLocalTime().ToString("dd.MM.yyyy HH:mm") · @(_meeting.Location ?? "Location pending")</p></div><span class="status">@_meeting.Status</span></section>
+    @if (!string.IsNullOrWhiteSpace(_error)) { <p class="error">@_error</p> }
+    @if (!string.IsNullOrWhiteSpace(_success)) { <p class="success">@_success</p> }
+
+    <section class="panel actions">
+        <button type="button" @onclick="CheckInAsync">Check in</button>
+        <AuthorizeView Policy="management.general-meetings.manage">
+            <button type="button" @onclick="SendInvitationAsync">Send invitations</button>
+            <button type="button" @onclick="SendReminderAsync">Send reminder</button>
+            @foreach (var status in _nextStatuses) { <button type="button" @onclick="() => ChangeStatusAsync(status)">Set @status</button> }
+            @if (_meeting.Status == MeetingStatusDto.Closed) { <button class="danger-action" type="button" @onclick="FinalizeAsync">Finalize protocol</button> }
+        </AuthorizeView>
+    </section>
+
+    <div class="meeting-columns">
+        <section class="panel ui-stack-sm"><h3>Agenda</h3>
+            <AuthorizeView Policy="management.general-meetings.manage"><button type="button" @onclick="StartAgendaDraft">Add agenda item</button></AuthorizeView>
+            @foreach (var item in OrderedAgenda)
+            {
+                <article class="agenda-item @(item.Id == _meeting.CurrentAgendaItemId ? "current" : null)" style="margin-left:@(Depth(item) * 1.25)rem">
+                    <div class="agenda-heading"><div><strong>@item.Heading</strong><small>@item.Status</small></div><AuthorizeView Policy="management.general-meetings.manage"><span><button type="button" @onclick="() => EditAgenda(item)">Edit</button> <button type="button" @onclick="() => MakeCurrentAsync(item.Id)">Make current</button></span></AuthorizeView></div>
+                    @if (!string.IsNullOrWhiteSpace(item.Description)) { <p class="preserve">@item.Description</p> }
+                    <AuthorizeView Policy="management.general-meetings.minutes.write"><LiveMinutesEditor Value="@item.Minutes" OnSave="minutes => SaveMinutesAsync(item.Id, minutes)" /></AuthorizeView>
+                    <AuthorizeView Policy="management.general-meetings.manage"><button type="button" @onclick="() => StartBallotDraft(item.Id)">Add ballot</button></AuthorizeView>
+                    @foreach (var ballot in item.Ballots) { <BallotPanel Ballot="ballot" MeetingId="MeetingId" CanManage="_canManage" Attendees="_meeting.Attendees" OnEdit="StartBallotEdit" OnChanged="ReloadAsync" /> }
+                </article>
+            }
+        </section>
+
+        <section class="panel ui-stack-sm"><h3>Attendees <small>(@_meeting.Attendees.Count(x => x.CheckedInAt.HasValue && !x.CheckedOutAt.HasValue) present)</small></h3>
+            <AuthorizeView Policy="management.general-meetings.manage">
+                <div class="attendee-add"><select @bind="_selectedMemberId"><option value="">Select member</option>@foreach (var member in _members.Where(m => _meeting.Attendees.All(a => a.MemberId != m.Id))) { <option value="@member.Id">@MemberName(member)</option> }</select><button type="button" @onclick="AddAttendeeAsync">Add without check-in</button></div>
+            </AuthorizeView>
+            <ul class="attendee-list">@foreach (var attendee in _meeting.Attendees) { <li><span class="presence @(attendee.IsOnline ? "online" : null)"></span><span><strong>@attendee.DisplayName</strong><small>@attendee.MembershipStatus · @(attendee.CheckedInAt.HasValue && !attendee.CheckedOutAt.HasValue ? "checked in" : "not present")</small></span><AuthorizeView Policy="management.general-meetings.manage"><button type="button" @onclick="() => ToggleAttendanceAsync(attendee)">@(attendee.CheckedInAt.HasValue && !attendee.CheckedOutAt.HasValue ? "Check out" : "Check in")</button></AuthorizeView></li> }</ul>
+        </section>
+    </div>
+    @if (_meeting.Protocol is not null) { <section class="panel"><h3>Final protocol</h3><p><small>Revision @_meeting.Protocol.Revision · SHA-256 @_meeting.Protocol.Sha256</small></p><pre class="protocol">@_meeting.Protocol.Markdown</pre></section> }
+</div>
+
+@if (_showAgendaForm)
+{
+    <GeneralMeetingFormDialog Title="@(_editingAgendaItemId.HasValue ? "Edit agenda item" : "Add agenda item")"
+                              Description="Agenda items may be nested and reordered later. Descriptions support Markdown."
+                              OnClose="CloseAgendaDialog">
+        <ChildContent>
+            <div class="meeting-dialog-form">
+                @if (!string.IsNullOrWhiteSpace(_error))
+                {
+                    <p class="error">@_error</p>
+                }
+                <label>Heading <InputText autofocus placeholder="Agenda item heading" @bind-Value="_agendaHeading" /></label>
+                <label>Description <InputTextArea placeholder="Description (Markdown)" @bind-Value="_agendaDescription" /></label>
+                <label>Parent <select @bind="_agendaParent"><option value="">None</option>@foreach (var item in _meeting.AgendaItems.Where(x => x.Id != _editingAgendaItemId)) { <option value="@item.Id">@item.Heading</option> }</select></label>
+                <label>Order <InputNumber @bind-Value="_agendaOrder" /></label>
+            </div>
+        </ChildContent>
+        <Footer>
+            <button type="button" class="dialog-cancel" @onclick="CloseAgendaDialog">Cancel</button>
+            <button type="button" class="dialog-primary" @onclick="CreateAgendaAsync">@(_editingAgendaItemId.HasValue ? "Save changes" : "Add agenda item")</button>
+        </Footer>
+    </GeneralMeetingFormDialog>
+}
+
+@if (_ballotAgendaItemId.HasValue)
+{
+    <GeneralMeetingFormDialog Eyebrow="Secret ballot"
+                              Title="@(_editingBallotId.HasValue ? "Edit ballot" : "Add ballot")"
+                              Description="Ballots are secret and single-use. The ballot remains editable until it is opened."
+                              OnClose="CloseBallotDialog">
+        <ChildContent>
+            <div class="meeting-dialog-form">
+                @if (!string.IsNullOrWhiteSpace(_error))
+                {
+                    <p class="error">@_error</p>
+                }
+                <label>Question <InputText autofocus placeholder="What should attendees vote on?" @bind-Value="_ballotQuestion" /></label>
+                <label>Type <InputSelect @bind-Value="_ballotType"><option value="YesNoAbstain">Yes / No / Abstain</option><option value="Nomination">Nominations</option></InputSelect></label>
+                @if (_ballotType == BallotTypeDto.Nomination)
+                {
+                    <label>Nominations <InputTextArea placeholder="Enter nominations separated by semicolons" @bind-Value="_ballotOptions" /></label>
+                    <label>Maximum selections <InputNumber @bind-Value="_maximumSelections" /></label>
+                }
+                <label class="meeting-dialog-checkbox"><InputCheckbox @bind-Value="_showLiveResults" /> Show results while the ballot is open</label>
+            </div>
+        </ChildContent>
+        <Footer>
+            <button type="button" class="dialog-cancel" @onclick="CloseBallotDialog">Cancel</button>
+            <button type="button" class="dialog-primary" @onclick="CreateBallotAsync">@(_editingBallotId.HasValue ? "Save changes" : "Add ballot")</button>
+        </Footer>
+    </GeneralMeetingFormDialog>
+}
+}
