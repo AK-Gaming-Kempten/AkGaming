@@ -1,0 +1,28 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <RootNamespace>AkGaming.GamelyBot</RootNamespace>
+    <UserSecretsId>akgaming-gamelybot</UserSecretsId>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../AkGaming.Core/Notifications/AkGaming.Core.Notifications.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Remove="Tests/**/*.cs" />
+    <Content Remove="Tests/**" />
+    <None Remove="Tests/**" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.3">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="10.0.3" />
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.0" />
+    <PackageReference Include="OpenIddict.Validation.AspNetCore" Version="7.4.0" />
+    <PackageReference Include="OpenIddict.Validation.SystemNetHttp" Version="7.4.0" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="10.1.3" />
+  </ItemGroup>
+</Project>

@@ -19,6 +19,7 @@ using OpenIddict.Server;
 using OpenIddict.Server.AspNetCore;
 using OpenIddict.Validation.AspNetCore;
 using System.Security.Cryptography.X509Certificates;
+using System.Security.Claims;
 
 var builder = WebApplication.CreateBuilder(args);
 var jwtOptions = builder.Configuration.GetSection(JwtOptions.SectionName).Get<JwtOptions>() ?? new JwtOptions();
@@ -92,6 +93,7 @@ builder.Services.AddOpenIddict()
 
         options.AllowAuthorizationCodeFlow();
         options.AllowRefreshTokenFlow();
+        options.AllowClientCredentialsFlow();
         options.DisableAccessTokenEncryption();
 
         options.SetAccessTokenLifetime(TimeSpan.FromMinutes(jwtOptions.AccessTokenMinutes));
@@ -147,6 +149,12 @@ builder.Services.AddAuthorization(options =>
             .Where(claim => claim.Type == "scope")
             .SelectMany(claim => claim.Value.Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
             .Any(scope => string.Equals(scope, "management_api", StringComparison.Ordinal)));
+    });
+    options.AddPolicy("IdentityDiscordLinks", policy =>
+    {
+        policy.AddAuthenticationSchemes(OpenIddictValidationAspNetCoreDefaults.AuthenticationScheme);
+        policy.RequireAuthenticatedUser();
+        policy.RequireAssertion(context => HasScope(context.User, "identity_discord_links"));
     });
     AddPermissionPolicy(options, PermissionNames.IdentityUsersRead);
     AddPermissionPolicy(options, PermissionNames.IdentityUsersManage);
@@ -209,6 +217,14 @@ static void AddPermissionPolicy(AuthorizationOptions options, string permission)
         policy.RequireAuthenticatedUser();
         policy.RequireClaim(PermissionNames.ClaimType, permission);
     });
+}
+
+static bool HasScope(ClaimsPrincipal principal, string scope)
+{
+    return principal.Claims
+        .Where(claim => claim.Type == "scope")
+        .SelectMany(claim => claim.Value.Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+        .Any(value => string.Equals(value, scope, StringComparison.Ordinal));
 }
 
 static X509Certificate2 LoadCertificate(OpenIddictCertificateOptions options, string contentRootPath, string purpose)

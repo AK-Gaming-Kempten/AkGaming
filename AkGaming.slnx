@@ -1,5 +1,8 @@
 <Solution>
   <Folder Name="/AkGaming.Core/" />
+  <Folder Name="/AkGaming.Core/Notifications/">
+    <Project Path="AkGaming.Core/Notifications/AkGaming.Core.Notifications.csproj" />
+  </Folder>
   <Folder Name="/AkGaming.Core/Common/">
     <Project Path="AkGaming.Core/Common/AkGaming.Core.Common.csproj" />
   </Folder>
@@ -8,6 +11,10 @@
   </Folder>
   <Folder Name="/AkGaming.Core/Components/">
     <Project Path="AkGaming.Core/Components/AkGaming.Core.Components.csproj" />
+  </Folder>
+  <Folder Name="/AkGaming.GamelyBot/">
+    <Project Path="AkGaming.GamelyBot/AkGaming.GamelyBot.csproj" />
+    <Project Path="AkGaming.GamelyBot/Tests/AkGaming.GamelyBot.Tests.csproj" />
   </Folder>
   <Folder Name="/AkGaming.Identity/" />
   <Folder Name="/AkGaming.Identity/Api/">

@@ -12,6 +12,7 @@ public sealed class DisbursementsDbContext(DbContextOptions<DisbursementsDbConte
     public DbSet<Allocation> Allocations => Set<Allocation>();
     public DbSet<AllocationApplication> AllocationApplications => Set<AllocationApplication>();
     public DbSet<AllocationApproval> AllocationApprovals => Set<AllocationApproval>();
+    public DbSet<NotificationOutboxMessage> NotificationOutbox => Set<NotificationOutboxMessage>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -96,6 +97,15 @@ public sealed class DisbursementsDbContext(DbContextOptions<DisbursementsDbConte
             builder.Property(item => item.ApproverName).HasMaxLength(256);
             builder.HasIndex(item => new { item.ApplicationId, item.ApproverUserId }).IsUnique();
             builder.HasOne(item => item.Application).WithMany(item => item.Approvals).HasForeignKey(item => item.ApplicationId).OnDelete(DeleteBehavior.Cascade);
+        });
+        modelBuilder.Entity<NotificationOutboxMessage>(builder =>
+        {
+            builder.ToTable("DisbursementNotificationOutbox");
+            builder.HasKey(item => item.Id);
+            builder.HasIndex(item => item.EventId).IsUnique();
+            builder.HasIndex(item => new { item.ProcessedAtUtc, item.NextAttemptAtUtc });
+            builder.Property(item => item.Type).HasMaxLength(128);
+            builder.Property(item => item.LastError).HasMaxLength(4000);
         });
     }
 }

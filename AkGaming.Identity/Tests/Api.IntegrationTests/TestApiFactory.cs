@@ -70,7 +70,16 @@ public sealed class TestApiFactory : WebApplicationFactory<Program>
                 ["OpenIddict:Applications:1:Scopes:1"] = "profile",
                 ["OpenIddict:Applications:1:Scopes:2"] = "email",
                 ["OpenIddict:Applications:1:Scopes:3"] = "roles",
-                ["OpenIddict:Applications:1:Scopes:4"] = "offline_access"
+                ["OpenIddict:Applications:1:Scopes:4"] = "offline_access",
+                ["OpenIddict:Applications:10:ClientId"] = "test-service-client",
+                ["OpenIddict:Applications:10:ClientSecret"] = "test-service-secret",
+                ["OpenIddict:Applications:10:DisplayName"] = "Test Service Client",
+                ["OpenIddict:Applications:10:ClientType"] = "confidential",
+                ["OpenIddict:Applications:10:RequirePkce"] = "false",
+                ["OpenIddict:Applications:10:AllowAuthorizationCodeFlow"] = "false",
+                ["OpenIddict:Applications:10:AllowRefreshTokenFlow"] = "false",
+                ["OpenIddict:Applications:10:AllowClientCredentialsFlow"] = "true",
+                ["OpenIddict:Applications:10:Scopes:0"] = "identity_discord_links"
             };
 
             foreach (var (key, value) in _additionalOverrides)

@@ -1,0 +1,98 @@
+# GamelyBot
+
+GamelyBot is the private Discord integration gateway for AK Gaming applications. It accepts semantic notification events, stores them durably, renders Discord messages centrally, and delivers them to the configured club server and linked applicants.
+
+## Current notification flows
+
+- `reimbursement.submitted`: mentions the treasurer role in the administration channel and confirms submission by DM when the applicant linked Discord.
+- `reimbursement.status-changed`: sends the applicant a DM for review, approval, rejection, payment, or cancellation changes.
+
+An unavailable or blocked DM is recorded independently and never rolls back the originating reimbursement operation.
+
+## Local development without Discord
+
+Development defaults to the debug transport and disables service authentication only in the Development environment. No Discord token or running Identity service is required.
+
+```bash
+dotnet run --project AkGaming.GamelyBot/AkGaming.GamelyBot.csproj --urls http://localhost:5088
+```
+
+The included `http` launch profile sets `ASPNETCORE_ENVIRONMENT=Development`. If launch profiles are disabled, set the environment explicitly before starting the service.
+
+Use `AkGaming.GamelyBot.http` to submit a sample notification. Rendered channel messages and DMs are written to structured logs and can be inspected at:
+
+```text
+GET http://localhost:5088/api/debug/deliveries
+```
+
+The Management development configuration dispatches its transactional outbox to this local endpoint. Set `Notifications__Endpoint` to an empty value when deliberately developing Management without the bot.
+
+## Discord application setup
+
+Create separate Discord applications/bot tokens for test and production so both environments can run concurrently while each bot belongs to exactly one server.
+
+For each Discord application:
+
+1. Enable only the Guild Install context.
+2. Set the public install link to `None`.
+3. Install it manually into the corresponding test or club server.
+4. Grant only View Channels, Send Messages, and Embed Links in the administration channel.
+5. Do not enable the Message Content intent; outbound notifications do not need it.
+6. Configure the immutable guild, administration-channel, and treasurer-role IDs.
+
+Startup fails if the bot is installed in another server or if the configured channel/role does not belong to the configured server. Applicant DMs are attempted only after verifying that the linked Discord user belongs to that server. Role mentions use an explicit allowed-role list, so notification payloads cannot introduce arbitrary mentions.
+
+## Configuration
+
+Production and test deployments should use environment variables or secret storage:
+
+```text
+Database__Provider=Postgres
+ConnectionStrings__DefaultConnection=Host=...;Database=...;Username=...;Password=...
+OpenIddictValidation__Issuer=https://identity.example/
+NotificationTransport=discord
+Discord__Token=...
+Discord__GuildId=...
+Discord__AdministrationChannelId=...
+Discord__TreasurerRoleId=...
+IdentityClient__BaseUrl=https://identity.example/
+IdentityClient__TokenEndpoint=https://identity.example/connect/token
+IdentityClient__ClientId=akgaming-gamelybot
+IdentityClient__ClientSecret=...
+IdentityClient__Scope=identity_discord_links
+```
+
+Management needs:
+
+```text
+Notifications__Endpoint=https://gamelybot.example/api/notifications
+Notifications__TokenEndpoint=https://identity.example/connect/token
+Notifications__ClientId=akgaming-management-api
+Notifications__ClientSecret=...
+Notifications__Scope=gamelybot_notifications
+Notifications__ManagementBaseUrl=https://management.example
+```
+
+Identity must seed two confidential clients with client-credentials enabled:
+
+- `akgaming-management-api`, allowed `gamelybot_notifications`
+- `akgaming-gamelybot`, allowed `identity_discord_links`
+
+Configure these entries through `OpenIddict__Applications__<index>__...`; never commit their production secrets. The development registrations and secrets are local-only examples in `appsettings.Development.json`.
+
+## Reliability model
+
+Management writes the reimbursement and its outbox message in the same database transaction. A background dispatcher retries submission until the bot durably accepts the event. The bot deduplicates by event ID, stores separate channel/DM delivery records, and retries transient delivery failures with exponential backoff.
+
+Discord does not offer an idempotency key for message creation, so a process crash after Discord accepts a message but before the local delivery record is committed can rarely produce a duplicate. Normal retries and repeated producer submissions remain idempotent.
+
+Run exactly one bot-service replica per environment. The worker recovers notifications left in `processing` after a restart, but active-active delivery workers are intentionally not part of this first version.
+
+## Deployment migrations
+
+The GamelyBot deployment workflow applies PostgreSQL migrations before triggering Coolify. Configure these repository secrets with raw Npgsql connection strings:
+
+- `GAMELYBOT_TEST_DB_CONNECTION_STRING`
+- `GAMELYBOT_PRODUCTION_DB_CONNECTION_STRING`
+
+The workflow uses the shared `DB_SSH_*` tunnel secrets when present. In that case, the connection strings must target the workflow's local tunnel port, matching the Identity and Management deployment convention.

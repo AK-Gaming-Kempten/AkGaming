@@ -21,6 +21,7 @@ public sealed class OpenIddictApplicationSeed
     public bool RequirePkce { get; set; } = true;
     public bool AllowAuthorizationCodeFlow { get; set; } = true;
     public bool AllowRefreshTokenFlow { get; set; } = true;
+    public bool AllowClientCredentialsFlow { get; set; }
     public List<string> RedirectUris { get; set; } = [];
     public List<string> PostLogoutRedirectUris { get; set; } = [];
     public List<string> Scopes { get; set; } = [];

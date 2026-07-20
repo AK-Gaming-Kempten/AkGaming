@@ -70,6 +70,16 @@ jobs:
           DOTNET_CLI_HOME: /tmp
           DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
         run: dotnet test AkGaming.Management/Modules/MemberManagement/Tests/AkGaming.Management.Modules.MemberManagement.Tests.csproj --configuration Release --no-restore
+      - name: Restore Disbursements Tests
+        env:
+          DOTNET_CLI_HOME: /tmp
+          DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
+        run: dotnet restore AkGaming.Management/Modules/Disbursements/Tests/AkGaming.Management.Modules.Disbursements.Tests.csproj -p:RestoreUseStaticGraphEvaluation=true
+      - name: Run Disbursements Tests
+        env:
+          DOTNET_CLI_HOME: /tmp
+          DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
+        run: dotnet test AkGaming.Management/Modules/Disbursements/Tests/AkGaming.Management.Modules.Disbursements.Tests.csproj --configuration Release --no-restore
 
   deploy-test:
     needs:
@@ -103,6 +113,11 @@ jobs:
           DOTNET_CLI_HOME: /tmp
           DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
         run: dotnet restore AkGaming.Management/Modules/MemberManagement/Migrations/Postgres/AkGaming.Management.Modules.MemberManagement.Migrations.Postgres.csproj
+      - name: Restore Disbursements Migration Project
+        env:
+          DOTNET_CLI_HOME: /tmp
+          DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
+        run: dotnet restore AkGaming.Management/Modules/Disbursements/Migrations/Postgres/AkGaming.Management.Modules.Disbursements.Migrations.Postgres.csproj -p:RestoreUseStaticGraphEvaluation=true
       - name: Configure SSH For Test Database Tunnel
         if: ${{ env.DB_SSH_HOST != '' && env.DB_SSH_USER != '' && env.DB_SSH_PRIVATE_KEY != '' && env.DB_SSH_KNOWN_HOSTS != '' }}
         run: |
@@ -158,6 +173,13 @@ jobs:
           DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
           ConnectionStrings__DefaultConnection: ${{ env.MANAGEMENT_TEST_DB_CONNECTION_STRING }}
         run: dotnet ef database update --project AkGaming.Management/Modules/MemberManagement/Migrations/Postgres/AkGaming.Management.Modules.MemberManagement.Migrations.Postgres.csproj --context MemberManagementDbContext
+      - name: Apply Test Disbursements Migrations
+        if: ${{ env.MANAGEMENT_TEST_DB_CONNECTION_STRING != '' }}
+        env:
+          DOTNET_CLI_HOME: /tmp
+          DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
+          ConnectionStrings__DefaultConnection: ${{ env.MANAGEMENT_TEST_DB_CONNECTION_STRING }}
+        run: dotnet ef database update --project AkGaming.Management/Modules/Disbursements/Migrations/Postgres/AkGaming.Management.Modules.Disbursements.Migrations.Postgres.csproj --context DisbursementsDbContext
       - name: Trigger Coolify Test Deploy for Backend
         run: |
           curl --fail --request GET "${{ secrets.COOLIFY_WEBHOOK_MANAGEMENT_BACKEND_TEST }}" \
@@ -197,6 +219,11 @@ jobs:
           DOTNET_CLI_HOME: /tmp
           DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
         run: dotnet restore AkGaming.Management/Modules/MemberManagement/Migrations/Postgres/AkGaming.Management.Modules.MemberManagement.Migrations.Postgres.csproj
+      - name: Restore Disbursements Migration Project
+        env:
+          DOTNET_CLI_HOME: /tmp
+          DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
+        run: dotnet restore AkGaming.Management/Modules/Disbursements/Migrations/Postgres/AkGaming.Management.Modules.Disbursements.Migrations.Postgres.csproj -p:RestoreUseStaticGraphEvaluation=true
       - name: Configure SSH For Production Database Tunnel
         if: ${{ env.DB_SSH_HOST != '' && env.DB_SSH_USER != '' && env.DB_SSH_PRIVATE_KEY != '' && env.DB_SSH_KNOWN_HOSTS != '' }}
         run: |
@@ -252,6 +279,13 @@ jobs:
           DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
           ConnectionStrings__DefaultConnection: ${{ env.MANAGEMENT_PRODUCTION_DB_CONNECTION_STRING }}
         run: dotnet ef database update --project AkGaming.Management/Modules/MemberManagement/Migrations/Postgres/AkGaming.Management.Modules.MemberManagement.Migrations.Postgres.csproj --context MemberManagementDbContext
+      - name: Apply Production Disbursements Migrations
+        if: ${{ env.MANAGEMENT_PRODUCTION_DB_CONNECTION_STRING != '' }}
+        env:
+          DOTNET_CLI_HOME: /tmp
+          DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
+          ConnectionStrings__DefaultConnection: ${{ env.MANAGEMENT_PRODUCTION_DB_CONNECTION_STRING }}
+        run: dotnet ef database update --project AkGaming.Management/Modules/Disbursements/Migrations/Postgres/AkGaming.Management.Modules.Disbursements.Migrations.Postgres.csproj --context DisbursementsDbContext
       - name: Trigger Coolify Production Deploy for Backend
         run: |
           curl --fail --request GET "${{ secrets.COOLIFY_WEBHOOK_MANAGEMENT_BACKEND }}" \

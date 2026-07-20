@@ -200,6 +200,37 @@ public sealed class AuthorizationController : Controller
         var request = HttpContext.GetOpenIddictServerRequest()
             ?? throw new InvalidOperationException("OpenIddict request cannot be resolved.");
 
+        if (request.IsClientCredentialsGrantType())
+        {
+            if (string.IsNullOrWhiteSpace(request.ClientId))
+            {
+                return Forbid(
+                    BuildOpenIddictError(OpenIddictConstants.Errors.InvalidClient, "The client application could not be resolved."),
+                    OpenIddictServerAspNetCoreDefaults.AuthenticationScheme);
+            }
+
+            var application = await _applicationManager.FindByClientIdAsync(request.ClientId, cancellationToken);
+            if (application is null)
+            {
+                return Forbid(
+                    BuildOpenIddictError(OpenIddictConstants.Errors.InvalidClient, "The client application is not registered."),
+                    OpenIddictServerAspNetCoreDefaults.AuthenticationScheme);
+            }
+
+            var displayName = await _applicationManager.GetDisplayNameAsync(application, cancellationToken) ?? request.ClientId;
+            var identity = new ClaimsIdentity(
+                OpenIddictServerAspNetCoreDefaults.AuthenticationScheme,
+                OpenIddictConstants.Claims.Name,
+                OpenIddictConstants.Claims.Role);
+            identity.SetClaim(OpenIddictConstants.Claims.Subject, request.ClientId);
+            identity.SetClaim(OpenIddictConstants.Claims.Name, displayName);
+            var servicePrincipal = new ClaimsPrincipal(identity);
+            servicePrincipal.SetScopes(request.GetScopes());
+            servicePrincipal.SetPresenters(request.ClientId);
+            servicePrincipal.SetDestinations(_ => [OpenIddictConstants.Destinations.AccessToken]);
+            return SignIn(servicePrincipal, OpenIddictServerAspNetCoreDefaults.AuthenticationScheme);
+        }
+
         if (!request.IsAuthorizationCodeGrantType() && !request.IsRefreshTokenGrantType())
         {
             return Forbid(

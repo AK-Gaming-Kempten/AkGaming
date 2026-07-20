@@ -3,16 +3,54 @@ using AkGaming.Management.Modules.Disbursements.Application.Services;
 using AkGaming.Management.Modules.Disbursements.Contracts.DTO;
 using AkGaming.Management.Modules.Disbursements.Domain.Entities;
 using AkGaming.Management.Modules.Disbursements.Infrastructure.Persistence;
+using AkGaming.Management.Modules.Disbursements.Infrastructure.Notifications;
 using AkGaming.Management.Modules.MemberManagement.Contracts.Services;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Moq;
+using Microsoft.Extensions.Options;
 
 namespace AkGaming.Management.Modules.Disbursements.Tests.Infrastructure;
 
 [TestFixture]
 public sealed class SqlitePersistenceTests
 {
+    [Test]
+    [Description("Persists a reimbursement and its notification outbox event in the same EF Core save operation.")]
+    public async Task NotificationOutbox_WhenReimbursementIsSaved_PersistsEventWithAggregate()
+    {
+        // Arrange
+        await using var connection = new SqliteConnection("Data Source=:memory:");
+        await connection.OpenAsync();
+        var options = new DbContextOptionsBuilder<DisbursementsDbContext>()
+            .UseSqlite(connection, database => database.MigrationsAssembly("AkGaming.Management.Modules.Disbursements.Migrations.Sqlite"))
+            .Options;
+        await using var context = new DisbursementsDbContext(options);
+        await context.Database.MigrateAsync();
+        var reimbursement = new Reimbursement
+        {
+            UserId = Guid.NewGuid(),
+            ApplicantName = "Applicant",
+            Purpose = "Travel",
+            Status = 0,
+            CreatedAt = DateTimeOffset.UtcNow,
+            UpdatedAt = DateTimeOffset.UtcNow,
+            Expenses = [new ExpenseItem { Description = "Train", Amount = 42.50m }]
+        };
+        var outbox = new DisbursementNotificationOutbox(context, Options.Create(new DisbursementNotificationOptions()));
+        context.Reimbursements.Add(reimbursement);
+        outbox.EnqueueSubmitted(reimbursement);
+
+        // Act
+        await context.SaveChangesAsync();
+
+        // Assert
+        Assert.That(await context.Reimbursements.CountAsync(), Is.EqualTo(1));
+        var message = await context.NotificationOutbox.SingleAsync();
+        Assert.That(message.Type, Is.EqualTo("reimbursement.submitted"));
+        Assert.That(message.PayloadJson, Does.Contain(reimbursement.Id.ToString()));
+    }
+
     [Test]
     [Description("Applies the SQLite migration and persists the complete event, allocation, application, and approval graph.")]
     public async Task Database_WhenMigrated_PersistsAllocationGraph()
@@ -105,7 +143,8 @@ public sealed class SqlitePersistenceTests
         var repository = new EfDisbursementRepository(context);
         var storage = new Mock<IReceiptFileStorage>(MockBehavior.Strict);
         var payments = new Mock<IPaymentInformationService>(MockBehavior.Strict);
-        var service = new DisbursementService(repository, storage.Object, payments.Object);
+        var notificationOutbox = new Mock<IDisbursementNotificationOutbox>();
+        var service = new DisbursementService(repository, storage.Object, payments.Object, notificationOutbox.Object);
 
         // Act
         var result = await service.DecideAsync(

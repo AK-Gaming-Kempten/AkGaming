@@ -20,6 +20,39 @@ public sealed class OidcEndpointsTests : IClassFixture<TestApiFactory>
     }
 
     [Fact]
+    [Description("Issues a scoped service token to a confidential client using client credentials.")]
+    public async Task ClientCredentialsFlow_WithRegisteredServiceClient_ReturnsScopedAccessToken()
+    {
+        // Arrange
+        using var client = CreateNoRedirectClient();
+        using var content = new FormUrlEncodedContent(new Dictionary<string, string>
+        {
+            ["grant_type"] = "client_credentials",
+            ["client_id"] = "test-service-client",
+            ["client_secret"] = "test-service-secret",
+            ["scope"] = "identity_discord_links"
+        });
+
+        // Act
+        var response = await client.PostAsync("/connect/token", content);
+
+        // Assert
+        var body = await response.Content.ReadAsStringAsync();
+        Assert.True(response.IsSuccessStatusCode, $"Expected successful client-credentials exchange: {body}");
+        using var json = JsonDocument.Parse(body);
+        var accessToken = json.RootElement.GetProperty("access_token").GetString();
+        Assert.False(string.IsNullOrWhiteSpace(accessToken));
+
+        // Act
+        using var protectedRequest = new HttpRequestMessage(HttpMethod.Get, $"/internal/discord-links/{Guid.NewGuid()}");
+        protectedRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+        var protectedResponse = await client.SendAsync(protectedRequest);
+
+        // Assert
+        Assert.Equal(HttpStatusCode.NotFound, protectedResponse.StatusCode);
+    }
+
+    [Fact]
     public async Task AuthorizationCodeFlow_WithPkce_ReturnsTokens_AndUserInfo()
     {
         using var client = CreateNoRedirectClient();

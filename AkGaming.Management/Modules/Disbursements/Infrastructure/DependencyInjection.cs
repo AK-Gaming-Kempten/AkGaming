@@ -1,6 +1,7 @@
 using AkGaming.Management.Modules.Disbursements.Application.Interfaces;
 using AkGaming.Management.Modules.Disbursements.Infrastructure.Files;
 using AkGaming.Management.Modules.Disbursements.Infrastructure.Persistence;
+using AkGaming.Management.Modules.Disbursements.Infrastructure.Notifications;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Configuration;
@@ -12,6 +13,7 @@ public static class DependencyInjection
 {
     public static IServiceCollection AddDisbursementsInfrastructure(this IServiceCollection services, IConfiguration configuration)
     {
+        services.Configure<DisbursementNotificationOptions>(configuration.GetSection(DisbursementNotificationOptions.SectionName));
         var provider = configuration["Database:Provider"]?.Trim().ToLowerInvariant() ?? "postgres";
         var connectionString = configuration.GetConnectionString("DefaultConnection");
         services.AddDbContext<DisbursementsDbContext>(options =>
@@ -30,6 +32,10 @@ public static class DependencyInjection
         if (string.IsNullOrWhiteSpace(storagePath)) storagePath = Path.Combine(AppContext.BaseDirectory, "data", "disbursement-receipts");
         services.AddSingleton<IReceiptFileStorage>(new LocalReceiptFileStorage(Path.GetFullPath(storagePath)));
         services.AddScoped<IDisbursementRepository, EfDisbursementRepository>();
+        services.AddScoped<IDisbursementNotificationOutbox, DisbursementNotificationOutbox>();
+        services.AddScoped<NotificationAccessTokenProvider>();
+        services.AddHttpClient("DisbursementNotifications");
+        services.AddHostedService<DisbursementOutboxDispatcher>();
         return services;
     }
 }

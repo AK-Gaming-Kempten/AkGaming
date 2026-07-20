@@ -13,7 +13,8 @@ namespace AkGaming.Management.Modules.Disbursements.Application.Services;
 public sealed class DisbursementService(
     IDisbursementRepository repository,
     IReceiptFileStorage fileStorage,
-    IPaymentInformationService paymentInformationService) : IDisbursementService
+    IPaymentInformationService paymentInformationService,
+    IDisbursementNotificationOutbox notificationOutbox) : IDisbursementService
 {
     public const long MaximumReceiptSize = 10 * 1024 * 1024;
     private static readonly HashSet<string> AllowedContentTypes = new(StringComparer.OrdinalIgnoreCase)
@@ -94,6 +95,7 @@ public sealed class DisbursementService(
         }
 
         repository.Add(entity);
+        notificationOutbox.EnqueueSubmitted(entity);
         await repository.SaveChangesAsync(cancellationToken);
         return Result<ReimbursementDto>.Success(ToDto(entity));
     }
@@ -104,9 +106,12 @@ public sealed class DisbursementService(
         if (item is null)
             return Result<ReimbursementDto>.Failure("Reimbursement not found.");
 
+        var previousStatus = (DisbursementStatus)item.Status;
         item.Status = (int)request.Status;
         item.AdministrativeNote = Clean(request.AdministrativeNote);
         item.UpdatedAt = DateTimeOffset.UtcNow;
+        if (previousStatus != request.Status)
+            notificationOutbox.EnqueueStatusChanged(item, previousStatus);
         await repository.SaveChangesAsync(cancellationToken);
         return Result<ReimbursementDto>.Success(ToDto(item));
     }
@@ -121,8 +126,10 @@ public sealed class DisbursementService(
         if (status is DisbursementStatus.Paid or DisbursementStatus.Rejected or DisbursementStatus.Cancelled)
             return Result<ReimbursementDto>.Failure("This reimbursement can no longer be cancelled.");
 
+        var previousStatus = status;
         item.Status = (int)DisbursementStatus.Cancelled;
         item.UpdatedAt = DateTimeOffset.UtcNow;
+        notificationOutbox.EnqueueStatusChanged(item, previousStatus);
         await repository.SaveChangesAsync(cancellationToken);
         return Result<ReimbursementDto>.Success(ToDto(item));
     }

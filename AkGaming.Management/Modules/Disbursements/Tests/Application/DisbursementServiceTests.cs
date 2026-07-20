@@ -18,6 +18,7 @@ public sealed class DisbursementServiceTests
     private Mock<IDisbursementRepository> _repository = null!;
     private Mock<IReceiptFileStorage> _storage = null!;
     private Mock<IPaymentInformationService> _payments = null!;
+    private Mock<IDisbursementNotificationOutbox> _notificationOutbox = null!;
     private DisbursementService _service = null!;
 
     [SetUp]
@@ -26,7 +27,8 @@ public sealed class DisbursementServiceTests
         _repository = new Mock<IDisbursementRepository>(MockBehavior.Strict);
         _storage = new Mock<IReceiptFileStorage>(MockBehavior.Strict);
         _payments = new Mock<IPaymentInformationService>(MockBehavior.Strict);
-        _service = new DisbursementService(_repository.Object, _storage.Object, _payments.Object);
+        _notificationOutbox = new Mock<IDisbursementNotificationOutbox>();
+        _service = new DisbursementService(_repository.Object, _storage.Object, _payments.Object, _notificationOutbox.Object);
     }
 
     [Test]
@@ -71,6 +73,7 @@ public sealed class DisbursementServiceTests
         Assert.That(result.Value!.PaymentMethod.DisplayName, Is.EqualTo("PayPal · pay@example.org"));
         Assert.That(result.Value.PaymentMethod.PayPalEmail, Is.EqualTo("pay@example.org"));
         _repository.Verify(repository => repository.Add(It.Is<Reimbursement>(item => item.UserId == userId && item.Expenses.Count == 1)), Times.Once);
+        _notificationOutbox.Verify(outbox => outbox.EnqueueSubmitted(It.Is<Reimbursement>(item => item.UserId == userId)), Times.Once);
     }
 
     [Test]
@@ -118,6 +121,32 @@ public sealed class DisbursementServiceTests
         Assert.That(result.IsSuccess, Is.True);
         Assert.That(result.Value!.Status, Is.EqualTo(DisbursementStatus.Cancelled));
         Assert.That(reimbursement.Status, Is.EqualTo((int)DisbursementStatus.Cancelled));
+        _repository.Verify(repository => repository.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
+        _notificationOutbox.Verify(outbox => outbox.EnqueueStatusChanged(reimbursement, DisbursementStatus.UnderReview), Times.Once);
+    }
+
+    [Test]
+    [Description("Queues an applicant notification when an administrator changes a reimbursement status.")]
+    public async Task UpdateReimbursementStatus_WhenStatusChanges_QueuesNotification()
+    {
+        // Arrange
+        var reimbursement = new Reimbursement
+        {
+            UserId = Guid.NewGuid(),
+            Purpose = "Travel",
+            Status = (int)DisbursementStatus.Submitted,
+            PaymentMethod = new PaymentMethodSnapshot()
+        };
+        _repository.Setup(repository => repository.GetReimbursementAsync(reimbursement.Id, It.IsAny<CancellationToken>())).ReturnsAsync(reimbursement);
+        _repository.Setup(repository => repository.SaveChangesAsync(It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
+        var request = new UpdateReimbursementStatusRequest { Status = DisbursementStatus.Approved, AdministrativeNote = "Approved" };
+
+        // Act
+        var result = await _service.UpdateReimbursementStatusAsync(reimbursement.Id, request);
+
+        // Assert
+        Assert.That(result.IsSuccess, Is.True);
+        _notificationOutbox.Verify(outbox => outbox.EnqueueStatusChanged(reimbursement, DisbursementStatus.Submitted), Times.Once);
         _repository.Verify(repository => repository.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
     }
 
