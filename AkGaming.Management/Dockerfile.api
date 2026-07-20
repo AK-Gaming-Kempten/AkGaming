@@ -19,6 +19,8 @@ RUN dotnet restore "AkGaming.Management/AkGaming.Management.sln"
 RUN dotnet publish "AkGaming.Management/WebApi/AkGaming.Management.WebApi.csproj" \
     -c Release \
     -o /app/publish \
+    --no-restore \
+    -m:1 \
     /p:UseAppHost=false
 
 FROM base AS final
