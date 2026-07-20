@@ -18,6 +18,8 @@ public partial class IdentityClientEntry : ComponentBase
     private string _redirectUrisText = string.Empty;
     private string _postLogoutRedirectUrisText = string.Empty;
     private string _scopesText = string.Empty;
+    private bool _allowAuthorizationCodeFlow = true;
+    private bool _allowClientCredentialsFlow;
     private bool _requirePkce = true;
     private bool _allowRefreshTokenFlow = true;
 
@@ -50,12 +52,13 @@ public partial class IdentityClientEntry : ComponentBase
             DisplayName: _displayName.Trim(),
             ClientType: _clientType,
             ConsentType: _consentType,
-            RequirePkce: _requirePkce,
-            AllowAuthorizationCodeFlow: true,
-            AllowRefreshTokenFlow: _allowRefreshTokenFlow,
+            RequirePkce: _allowAuthorizationCodeFlow && _requirePkce,
+            AllowAuthorizationCodeFlow: _allowAuthorizationCodeFlow,
+            AllowClientCredentialsFlow: _allowClientCredentialsFlow,
+            AllowRefreshTokenFlow: _allowAuthorizationCodeFlow && _allowRefreshTokenFlow,
             NewClientSecret: string.IsNullOrWhiteSpace(_clientSecret) ? null : _clientSecret.Trim(),
-            RedirectUris: ParseMultiline(_redirectUrisText),
-            PostLogoutRedirectUris: ParseMultiline(_postLogoutRedirectUrisText),
+            RedirectUris: _allowAuthorizationCodeFlow ? ParseMultiline(_redirectUrisText) : [],
+            PostLogoutRedirectUris: _allowAuthorizationCodeFlow ? ParseMultiline(_postLogoutRedirectUrisText) : [],
             Scopes: ParseMultiline(_scopesText));
 
         if (OnSave is null)
@@ -93,6 +96,8 @@ public partial class IdentityClientEntry : ComponentBase
         _redirectUrisText = string.Join(Environment.NewLine, Client.RedirectUris ?? []);
         _postLogoutRedirectUrisText = string.Join(Environment.NewLine, Client.PostLogoutRedirectUris ?? []);
         _scopesText = string.Join(Environment.NewLine, Client.Scopes ?? []);
+        _allowAuthorizationCodeFlow = Client.AllowAuthorizationCodeFlow;
+        _allowClientCredentialsFlow = Client.AllowClientCredentialsFlow;
         _requirePkce = Client.RequirePkce;
         _allowRefreshTokenFlow = Client.AllowRefreshTokenFlow;
     }

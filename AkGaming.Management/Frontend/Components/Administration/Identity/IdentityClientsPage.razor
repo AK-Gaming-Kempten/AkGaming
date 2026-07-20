@@ -17,6 +17,11 @@
         @if (_showCreateForm)
         {
             <div class="ui-divider-top-dashed identity-create-form">
+                <div class="ui-actions">
+                    <ActionButton Kind="ActionButtonKind.Update" Variant="ActionButtonVariant.Outline" Size="ActionButtonSize.Small" OnClick="UseInteractiveClientDefaults" Disabled="_isBusy" Label="Interactive client defaults" />
+                    <ActionButton Kind="ActionButtonKind.Update" Variant="ActionButtonVariant.Outline" Size="ActionButtonSize.Small" OnClick="UseServiceClientDefaults" Disabled="_isBusy" Label="Service client defaults" />
+                </div>
+
                 <div class="ui-grid-auto-180">
                     <div class="ui-field">
                         <label for="new-client-id">Client id</label>
@@ -38,7 +43,7 @@
 
                     <div class="ui-field">
                         <label for="new-consent-type">Consent type</label>
-                        <InputSelect id="new-consent-type" @bind-Value="_newConsentType">
+                        <InputSelect id="new-consent-type" @bind-Value="_newConsentType" disabled="@(!_newAllowAuthorizationCodeFlow)">
                             <option value="implicit">implicit</option>
                             <option value="explicit">explicit</option>
                             <option value="external">external</option>
@@ -51,19 +56,19 @@
                 {
                     <div class="ui-field">
                         <label for="new-client-secret">Client secret</label>
-                        <InputText id="new-client-secret" @bind-Value="_newClientSecret" placeholder="Leave empty to generate without a secret" />
+                        <InputText id="new-client-secret" @bind-Value="_newClientSecret" type="password" autocomplete="new-password" placeholder="Required for confidential clients" />
                     </div>
                 }
 
                 <div class="identity-grid-wide">
                     <div class="ui-field">
                         <label for="new-client-redirects">Redirect URIs</label>
-                        <InputTextArea id="new-client-redirects" @bind-Value="_newRedirectUrisText" placeholder="One URI per line" />
+                        <InputTextArea id="new-client-redirects" @bind-Value="_newRedirectUrisText" placeholder="One URI per line" disabled="@(!_newAllowAuthorizationCodeFlow)" />
                     </div>
 
                     <div class="ui-field">
                         <label for="new-client-post-logout-redirects">Post logout redirect URIs</label>
-                        <InputTextArea id="new-client-post-logout-redirects" @bind-Value="_newPostLogoutRedirectUrisText" placeholder="One URI per line" />
+                        <InputTextArea id="new-client-post-logout-redirects" @bind-Value="_newPostLogoutRedirectUrisText" placeholder="One URI per line" disabled="@(!_newAllowAuthorizationCodeFlow)" />
                     </div>
 
                     <div class="ui-field">
@@ -74,14 +79,24 @@
 
                 <div class="identity-create-options">
                     <label class="role-checkbox">
-                        <InputCheckbox @bind-Value="_newRequirePkce" />
+                        <InputCheckbox @bind-Value="_newAllowAuthorizationCodeFlow" />
+                        <span>Authorization code flow</span>
+                    </label>
+                    <label class="role-checkbox">
+                        <InputCheckbox @bind-Value="_newAllowClientCredentialsFlow" />
+                        <span>Client credentials flow</span>
+                    </label>
+                    <label class="role-checkbox">
+                        <InputCheckbox @bind-Value="_newRequirePkce" disabled="@(!_newAllowAuthorizationCodeFlow)" />
                         <span>Require PKCE</span>
                     </label>
                     <label class="role-checkbox">
-                        <InputCheckbox @bind-Value="_newAllowRefreshTokenFlow" />
+                        <InputCheckbox @bind-Value="_newAllowRefreshTokenFlow" disabled="@(!_newAllowAuthorizationCodeFlow)" />
                         <span>Allow refresh token flow</span>
                     </label>
                 </div>
+
+                <p class="ui-text-muted">Service clients should be confidential, use client credentials only, and have no redirect URIs, PKCE, refresh tokens, or interactive user scopes.</p>
 
                 <div class="ui-actions">
                     <ActionButton Kind="ActionButtonKind.Create" Variant="ActionButtonVariant.Primary" Size="ActionButtonSize.Small" OnClick="CreateClientAsync" Disabled="_isBusy" Label="Create client" />

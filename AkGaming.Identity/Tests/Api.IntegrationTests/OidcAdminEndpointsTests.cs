@@ -1,3 +1,4 @@
+using System.ComponentModel;
 using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
@@ -39,6 +40,7 @@ public sealed class OidcAdminEndpointsTests
             ConsentType: "implicit",
             RequirePkce: true,
             AllowAuthorizationCodeFlow: true,
+            AllowClientCredentialsFlow: false,
             AllowRefreshTokenFlow: true,
             NewClientSecret: null,
             RedirectUris: ["https://app.akgaming.de/callback"],
@@ -76,6 +78,7 @@ public sealed class OidcAdminEndpointsTests
             ConsentType: "explicit",
             RequirePkce: true,
             AllowAuthorizationCodeFlow: true,
+            AllowClientCredentialsFlow: false,
             AllowRefreshTokenFlow: true,
             RedirectUris: ["https://members.akgaming.de/signin-oidc"],
             PostLogoutRedirectUris: ["https://members.akgaming.de/signout-callback-oidc"],
@@ -91,6 +94,7 @@ public sealed class OidcAdminEndpointsTests
             ConsentType: "implicit",
             RequirePkce: true,
             AllowAuthorizationCodeFlow: true,
+            AllowClientCredentialsFlow: false,
             AllowRefreshTokenFlow: false,
             NewClientSecret: null,
             RedirectUris: ["https://members.akgaming.de/signin-oidc"],
@@ -119,6 +123,75 @@ public sealed class OidcAdminEndpointsTests
     }
 
     [Fact]
+    [Description("Creates a confidential machine-to-machine client and verifies that it can obtain a scoped client-credentials token.")]
+    public async Task ServiceClient_CanBeCreatedAndUseClientCredentialsFlow()
+    {
+        // Arrange
+        using var factory = CreateFactory();
+        using var client = CreateNoRedirectClient(factory);
+        var accessToken = await AuthenticateAdminAsync(factory, client, $"service-client-{Guid.NewGuid():N}@example.com");
+        const string scopeName = "identity_discord_links";
+        const string clientId = "service-automation-client";
+        const string clientSecret = "service-automation-secret";
+
+        // Act
+        var createdClient = await CreateClientAsync(client, accessToken, new AdminCreateOidcClientRequest(
+            ClientId: clientId,
+            ClientSecret: clientSecret,
+            DisplayName: "Service Automation Client",
+            ClientType: "confidential",
+            ConsentType: "implicit",
+            RequirePkce: false,
+            AllowAuthorizationCodeFlow: false,
+            AllowClientCredentialsFlow: true,
+            AllowRefreshTokenFlow: false,
+            RedirectUris: [],
+            PostLogoutRedirectUris: [],
+            Scopes: [scopeName]));
+        using var updateRequest = CreateAdminRequest(HttpMethod.Put, $"/admin/oidc/clients/{clientId}", accessToken);
+        updateRequest.Content = JsonContent.Create(new AdminUpdateOidcClientRequest(
+            DisplayName: "Updated Service Automation Client",
+            ClientType: "confidential",
+            ConsentType: "implicit",
+            RequirePkce: false,
+            AllowAuthorizationCodeFlow: false,
+            AllowClientCredentialsFlow: true,
+            AllowRefreshTokenFlow: false,
+            NewClientSecret: null,
+            RedirectUris: [],
+            PostLogoutRedirectUris: [],
+            Scopes: [scopeName]));
+        using var updateResponse = await client.SendAsync(updateRequest);
+        updateResponse.EnsureSuccessStatusCode();
+        var updatedClient = await updateResponse.Content.ReadFromJsonAsync<OidcClientResponse>();
+        using var tokenResponse = await client.PostAsync("/connect/token", new FormUrlEncodedContent(new Dictionary<string, string>
+        {
+            ["grant_type"] = "client_credentials",
+            ["client_id"] = clientId,
+            ["client_secret"] = clientSecret,
+            ["scope"] = scopeName
+        }));
+        tokenResponse.EnsureSuccessStatusCode();
+        using var tokenDocument = JsonDocument.Parse(await tokenResponse.Content.ReadAsStringAsync());
+        var serviceAccessToken = tokenDocument.RootElement.GetProperty("access_token").GetString();
+        using var protectedRequest = new HttpRequestMessage(HttpMethod.Get, $"/internal/discord-links/{Guid.NewGuid()}");
+        protectedRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", serviceAccessToken);
+        using var protectedResponse = await client.SendAsync(protectedRequest);
+
+        // Assert
+        Assert.False(createdClient.AllowAuthorizationCodeFlow);
+        Assert.True(createdClient.AllowClientCredentialsFlow);
+        Assert.False(createdClient.AllowRefreshTokenFlow);
+        Assert.False(createdClient.RequirePkce);
+        Assert.Empty(createdClient.RedirectUris);
+        Assert.NotNull(updatedClient);
+        Assert.Equal("Updated Service Automation Client", updatedClient!.DisplayName);
+        Assert.True(updatedClient.AllowClientCredentialsFlow);
+        Assert.False(string.IsNullOrWhiteSpace(serviceAccessToken));
+        Assert.Equal(HttpStatusCode.NotFound, protectedResponse.StatusCode);
+    }
+
+    [Fact]
     public async Task ConfidentialOidcClient_CanBeUpdatedWithoutReplacingSecret()
     {
         using var factory = CreateFactory();
@@ -142,6 +215,7 @@ public sealed class OidcAdminEndpointsTests
             ConsentType: "explicit",
             RequirePkce: true,
             AllowAuthorizationCodeFlow: true,
+            AllowClientCredentialsFlow: false,
             AllowRefreshTokenFlow: true,
             RedirectUris: ["https://tournaments.akgaming.de/signin-oidc"],
             PostLogoutRedirectUris: ["https://tournaments.akgaming.de/signout-callback-oidc"],
@@ -154,6 +228,7 @@ public sealed class OidcAdminEndpointsTests
             ConsentType: "explicit",
             RequirePkce: true,
             AllowAuthorizationCodeFlow: true,
+            AllowClientCredentialsFlow: false,
             AllowRefreshTokenFlow: true,
             NewClientSecret: null,
             RedirectUris: ["https://tournaments.akgaming.de/signin-oidc"],
@@ -194,6 +269,7 @@ public sealed class OidcAdminEndpointsTests
             ConsentType: "explicit",
             RequirePkce: true,
             AllowAuthorizationCodeFlow: true,
+            AllowClientCredentialsFlow: false,
             AllowRefreshTokenFlow: true,
             RedirectUris: ["https://billing.akgaming.de/signin-oidc"],
             PostLogoutRedirectUris: ["https://billing.akgaming.de/signout-callback-oidc"],
@@ -206,6 +282,7 @@ public sealed class OidcAdminEndpointsTests
             ConsentType: "explicit",
             RequirePkce: true,
             AllowAuthorizationCodeFlow: true,
+            AllowClientCredentialsFlow: false,
             AllowRefreshTokenFlow: true,
             NewClientSecret: "billing-secret-new",
             RedirectUris: ["https://billing.akgaming.de/signin-oidc"],

@@ -23,6 +23,8 @@ public sealed class OidcAdminService : IOidcAdminService
     private const int NotFoundStatusCode = 404;
     private const int ConflictStatusCode = 409;
     private const string ManagementApiScope = "management_api";
+    private const string GamelyBotNotificationsScope = "gamelybot_notifications";
+    private const string IdentityDiscordLinksScope = "identity_discord_links";
 
     private static readonly string[] StandardScopes =
     [
@@ -55,15 +57,21 @@ public sealed class OidcAdminService : IOidcAdminService
         _scopeManager = scopeManager;
         _logger = logger;
 
+        var protectedScopeNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        {
+            ManagementApiScope,
+            GamelyBotNotificationsScope,
+            IdentityDiscordLinksScope
+        };
         var protectedClientIds = seedOptions.Value.Applications
-            .Where(application => application.Scopes.Any(scope => string.Equals(scope, ManagementApiScope, StringComparison.OrdinalIgnoreCase)))
+            .Where(application => application.Scopes.Any(protectedScopeNames.Contains))
             .Select(application => application.ClientId)
             .Where(clientId => !string.IsNullOrWhiteSpace(clientId))
             .Select(clientId => clientId!);
         _protectedClientIds = protectedClientIds.ToHashSet(StringComparer.OrdinalIgnoreCase);
 
-        _protectedScopeNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { ManagementApiScope };
-        foreach (var scope in seedOptions.Value.Scopes.Where(scope => string.Equals(scope.Name, ManagementApiScope, StringComparison.OrdinalIgnoreCase)))
+        _protectedScopeNames = protectedScopeNames;
+        foreach (var scope in seedOptions.Value.Scopes.Where(scope => protectedScopeNames.Contains(scope.Name)))
         {
             if (!string.IsNullOrWhiteSpace(scope.Name))
                 _protectedScopeNames.Add(scope.Name);
@@ -104,6 +112,7 @@ public sealed class OidcAdminService : IOidcAdminService
             request.ConsentType,
             request.RequirePkce,
             request.AllowAuthorizationCodeFlow,
+            request.AllowClientCredentialsFlow,
             request.AllowRefreshTokenFlow,
             request.RedirectUris,
             request.PostLogoutRedirectUris,
@@ -139,6 +148,7 @@ public sealed class OidcAdminService : IOidcAdminService
             request.ConsentType,
             request.RequirePkce,
             request.AllowAuthorizationCodeFlow,
+            request.AllowClientCredentialsFlow,
             request.AllowRefreshTokenFlow,
             request.RedirectUris,
             request.PostLogoutRedirectUris,
@@ -306,6 +316,7 @@ public sealed class OidcAdminService : IOidcAdminService
             ConsentType: await _applicationManager.GetConsentTypeAsync(application, cancellationToken) ?? application.ConsentType ?? OpenIddictConstants.ConsentTypes.Implicit,
             RequirePkce: requirements.Contains(OpenIddictConstants.Requirements.Features.ProofKeyForCodeExchange, StringComparer.Ordinal),
             AllowAuthorizationCodeFlow: permissions.Contains(OpenIddictConstants.Permissions.GrantTypes.AuthorizationCode, StringComparer.Ordinal),
+            AllowClientCredentialsFlow: permissions.Contains(OpenIddictConstants.Permissions.GrantTypes.ClientCredentials, StringComparer.Ordinal),
             AllowRefreshTokenFlow: permissions.Contains(OpenIddictConstants.Permissions.GrantTypes.RefreshToken, StringComparer.Ordinal),
             HasClientSecret: !string.IsNullOrWhiteSpace(application.ClientSecret),
             RedirectUris: (await _applicationManager.GetRedirectUrisAsync(application, cancellationToken)).OrderBy(uri => uri, StringComparer.OrdinalIgnoreCase).ToArray(),
@@ -328,7 +339,7 @@ public sealed class OidcAdminService : IOidcAdminService
             Description: await _scopeManager.GetDescriptionAsync(scope, cancellationToken) ?? scope.Description,
             Resources: resources,
             IsProtected: isProtected,
-            ProtectionReason: isProtected ? "Required by the management tool and restored from server configuration." : null);
+            ProtectionReason: isProtected ? "Required by an internal service integration and restored from server configuration." : null);
     }
 
     private async Task<OpenIddictApplicationDescriptor> BuildApplicationDescriptorAsync(
@@ -339,6 +350,7 @@ public sealed class OidcAdminService : IOidcAdminService
         string consentType,
         bool requirePkce,
         bool allowAuthorizationCodeFlow,
+        bool allowClientCredentialsFlow,
         bool allowRefreshTokenFlow,
         IEnumerable<string>? redirectUris,
         IEnumerable<string>? postLogoutRedirectUris,
@@ -353,8 +365,17 @@ public sealed class OidcAdminService : IOidcAdminService
         var normalizedRedirectUris = NormalizeRedirectUris(redirectUris, "redirectUris", true);
         var normalizedPostLogoutRedirectUris = NormalizeRedirectUris(postLogoutRedirectUris, "postLogoutRedirectUris", true);
 
-        if (!allowAuthorizationCodeFlow)
-            throw new AuthException(BadRequestStatusCode, "Authorization code flow is required.");
+        if (!allowAuthorizationCodeFlow && !allowClientCredentialsFlow)
+            throw new AuthException(BadRequestStatusCode, "At least one grant flow must be enabled.");
+
+        if (allowClientCredentialsFlow && normalizedClientType != OpenIddictConstants.ClientTypes.Confidential)
+            throw new AuthException(BadRequestStatusCode, "Client credentials flow requires a confidential client.");
+
+        if (requirePkce && !allowAuthorizationCodeFlow)
+            throw new AuthException(BadRequestStatusCode, "PKCE can only be enabled with authorization code flow.");
+
+        if (allowRefreshTokenFlow && !allowAuthorizationCodeFlow)
+            throw new AuthException(BadRequestStatusCode, "Refresh token flow requires authorization code flow.");
 
         if (normalizedClientType == OpenIddictConstants.ClientTypes.Confidential)
         {
@@ -378,11 +399,18 @@ public sealed class OidcAdminService : IOidcAdminService
             ConsentType = normalizedConsentType
         };
 
-        descriptor.Permissions.Add(OpenIddictConstants.Permissions.Endpoints.Authorization);
         descriptor.Permissions.Add(OpenIddictConstants.Permissions.Endpoints.Token);
-        descriptor.Permissions.Add(OpenIddictConstants.Permissions.Endpoints.EndSession);
-        descriptor.Permissions.Add(OpenIddictConstants.Permissions.GrantTypes.AuthorizationCode);
-        descriptor.Permissions.Add(OpenIddictConstants.Permissions.ResponseTypes.Code);
+
+        if (allowAuthorizationCodeFlow)
+        {
+            descriptor.Permissions.Add(OpenIddictConstants.Permissions.Endpoints.Authorization);
+            descriptor.Permissions.Add(OpenIddictConstants.Permissions.Endpoints.EndSession);
+            descriptor.Permissions.Add(OpenIddictConstants.Permissions.GrantTypes.AuthorizationCode);
+            descriptor.Permissions.Add(OpenIddictConstants.Permissions.ResponseTypes.Code);
+        }
+
+        if (allowClientCredentialsFlow)
+            descriptor.Permissions.Add(OpenIddictConstants.Permissions.GrantTypes.ClientCredentials);
 
         if (allowRefreshTokenFlow)
             descriptor.Permissions.Add(OpenIddictConstants.Permissions.GrantTypes.RefreshToken);
@@ -396,7 +424,7 @@ public sealed class OidcAdminService : IOidcAdminService
         foreach (var scope in normalizedScopes)
             descriptor.Permissions.Add(OpenIddictConstants.Permissions.Prefixes.Scope + scope);
 
-        if (requirePkce)
+        if (requirePkce && allowAuthorizationCodeFlow)
             descriptor.Requirements.Add(OpenIddictConstants.Requirements.Features.ProofKeyForCodeExchange);
 
         return descriptor;

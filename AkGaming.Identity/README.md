@@ -246,6 +246,7 @@ Example:
   "ClientType": "confidential",
   "RequirePkce": true,
   "AllowAuthorizationCodeFlow": true,
+  "AllowClientCredentialsFlow": false,
   "AllowRefreshTokenFlow": true,
   "RedirectUris": [
     "https://app.example.com/signin-oidc"
@@ -271,6 +272,27 @@ Guidance:
 - use `openid` if the client needs login
 - add `offline_access` if the client needs refresh tokens
 - add custom API scopes only if the client should call those APIs
+
+Machine-to-machine clients should instead use a confidential client with a strong secret, no redirect URIs, and only client credentials:
+
+```json
+{
+  "ClientId": "my-service",
+  "ClientSecret": "set-a-strong-unique-secret",
+  "DisplayName": "My Service",
+  "ConsentType": "implicit",
+  "ClientType": "confidential",
+  "RequirePkce": false,
+  "AllowAuthorizationCodeFlow": false,
+  "AllowClientCredentialsFlow": true,
+  "AllowRefreshTokenFlow": false,
+  "RedirectUris": [],
+  "PostLogoutRedirectUris": [],
+  "Scopes": [ "my_service_scope" ]
+}
+```
+
+The Management OIDC client administration page provides interactive-client and service-client presets for these combinations.
 
 Then configure the client app with matching values for:
 

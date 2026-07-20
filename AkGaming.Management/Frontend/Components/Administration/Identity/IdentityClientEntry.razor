@@ -20,6 +20,18 @@
             {
                 <span class="identity-entry-chip">PKCE</span>
             }
+            @if (Client.AllowAuthorizationCodeFlow)
+            {
+                <span class="identity-entry-chip">authorization code</span>
+            }
+            @if (Client.AllowClientCredentialsFlow)
+            {
+                <span class="identity-entry-chip">client credentials</span>
+            }
+            @if (Client.AllowRefreshTokenFlow)
+            {
+                <span class="identity-entry-chip">refresh tokens</span>
+            }
             @if (Client.IsProtected)
             {
                 <span class="identity-entry-chip identity-entry-chip-protected">protected</span>
@@ -53,7 +65,7 @@
 
                 <div class="ui-field">
                     <label>Consent type</label>
-                    <InputSelect @bind-Value="_consentType" disabled="@Client.IsProtected">
+                    <InputSelect @bind-Value="_consentType" disabled="@(Client.IsProtected || !_allowAuthorizationCodeFlow)">
                         <option value="implicit">implicit</option>
                         <option value="explicit">explicit</option>
                         <option value="external">external</option>
@@ -66,19 +78,19 @@
             {
                 <div class="ui-field">
                     <label>Replace client secret</label>
-                    <InputText @bind-Value="_clientSecret" placeholder="Leave empty to keep current secret" disabled="@Client.IsProtected" />
+                    <InputText @bind-Value="_clientSecret" type="password" autocomplete="new-password" placeholder="Leave empty to keep current secret" disabled="@Client.IsProtected" />
                 </div>
             }
 
             <div class="identity-entry-grid-wide">
                 <div class="ui-field">
                     <label>Redirect URIs</label>
-                    <InputTextArea @bind-Value="_redirectUrisText" disabled="@Client.IsProtected" />
+                    <InputTextArea @bind-Value="_redirectUrisText" disabled="@(Client.IsProtected || !_allowAuthorizationCodeFlow)" />
                 </div>
 
                 <div class="ui-field">
                     <label>Post logout redirect URIs</label>
-                    <InputTextArea @bind-Value="_postLogoutRedirectUrisText" disabled="@Client.IsProtected" />
+                    <InputTextArea @bind-Value="_postLogoutRedirectUrisText" disabled="@(Client.IsProtected || !_allowAuthorizationCodeFlow)" />
                 </div>
 
                 <div class="ui-field">
@@ -89,14 +101,27 @@
 
             <div class="identity-entry-options">
                 <label class="role-checkbox">
-                    <InputCheckbox @bind-Value="_requirePkce" disabled="@Client.IsProtected" />
+                    <InputCheckbox @bind-Value="_allowAuthorizationCodeFlow" disabled="@Client.IsProtected" />
+                    <span>Authorization code flow</span>
+                </label>
+                <label class="role-checkbox">
+                    <InputCheckbox @bind-Value="_allowClientCredentialsFlow" disabled="@Client.IsProtected" />
+                    <span>Client credentials flow</span>
+                </label>
+                <label class="role-checkbox">
+                    <InputCheckbox @bind-Value="_requirePkce" disabled="@(Client.IsProtected || !_allowAuthorizationCodeFlow)" />
                     <span>Require PKCE</span>
                 </label>
                 <label class="role-checkbox">
-                    <InputCheckbox @bind-Value="_allowRefreshTokenFlow" disabled="@Client.IsProtected" />
+                    <InputCheckbox @bind-Value="_allowRefreshTokenFlow" disabled="@(Client.IsProtected || !_allowAuthorizationCodeFlow)" />
                     <span>Allow refresh token flow</span>
                 </label>
             </div>
+
+            @if (_allowClientCredentialsFlow)
+            {
+                <p class="ui-text-muted">Client credentials requires a confidential client. Redirect URIs, consent, PKCE, and refresh tokens are only used by authorization code flow.</p>
+            }
 
             <div class="ui-actions">
                 <ActionButton Kind="ActionButtonKind.Save" Variant="ActionButtonVariant.Primary" Size="ActionButtonSize.Small" OnClick="SaveAsync" Disabled="@(IsBusy || Client.IsProtected)" Label="Save client" />

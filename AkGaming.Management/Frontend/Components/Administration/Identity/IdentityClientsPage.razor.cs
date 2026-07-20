@@ -18,6 +18,8 @@ public partial class IdentityClientsPage : ComponentBase
     private string _newRedirectUrisText = string.Empty;
     private string _newPostLogoutRedirectUrisText = string.Empty;
     private string _newScopesText = "openid\nprofile\nemail\nroles\noffline_access";
+    private bool _newAllowAuthorizationCodeFlow = true;
+    private bool _newAllowClientCredentialsFlow;
     private bool _newRequirePkce = true;
     private bool _newAllowRefreshTokenFlow = true;
 
@@ -67,17 +69,26 @@ public partial class IdentityClientsPage : ComponentBase
         _error = null;
         _success = null;
 
+        if (string.Equals(_newClientType, "confidential", StringComparison.OrdinalIgnoreCase)
+            && string.IsNullOrWhiteSpace(_newClientSecret))
+        {
+            _isBusy = false;
+            _error = "A client secret is required for confidential clients.";
+            return;
+        }
+
         var request = new AdminCreateOidcClientRequest(
             ClientId: _newClientId.Trim(),
             ClientSecret: string.IsNullOrWhiteSpace(_newClientSecret) ? null : _newClientSecret.Trim(),
             DisplayName: _newDisplayName.Trim(),
             ClientType: _newClientType,
             ConsentType: _newConsentType,
-            RequirePkce: _newRequirePkce,
-            AllowAuthorizationCodeFlow: true,
-            AllowRefreshTokenFlow: _newAllowRefreshTokenFlow,
-            RedirectUris: ParseMultiline(_newRedirectUrisText),
-            PostLogoutRedirectUris: ParseMultiline(_newPostLogoutRedirectUrisText),
+            RequirePkce: _newAllowAuthorizationCodeFlow && _newRequirePkce,
+            AllowAuthorizationCodeFlow: _newAllowAuthorizationCodeFlow,
+            AllowClientCredentialsFlow: _newAllowClientCredentialsFlow,
+            AllowRefreshTokenFlow: _newAllowAuthorizationCodeFlow && _newAllowRefreshTokenFlow,
+            RedirectUris: _newAllowAuthorizationCodeFlow ? ParseMultiline(_newRedirectUrisText) : [],
+            PostLogoutRedirectUris: _newAllowAuthorizationCodeFlow ? ParseMultiline(_newPostLogoutRedirectUrisText) : [],
             Scopes: ParseMultiline(_newScopesText));
 
         var result = await IdentityApi.CreateOidcClientAsync(request);
@@ -148,6 +159,8 @@ public partial class IdentityClientsPage : ComponentBase
         _newRedirectUrisText = string.Empty;
         _newPostLogoutRedirectUrisText = string.Empty;
         _newScopesText = "openid\nprofile\nemail\nroles\noffline_access";
+        _newAllowAuthorizationCodeFlow = true;
+        _newAllowClientCredentialsFlow = false;
         _newRequirePkce = true;
         _newAllowRefreshTokenFlow = true;
     }
@@ -162,6 +175,30 @@ public partial class IdentityClientsPage : ComponentBase
 
         _error = null;
         _success = null;
+    }
+
+    private void UseInteractiveClientDefaults()
+    {
+        _newClientType = "confidential";
+        _newConsentType = "explicit";
+        _newScopesText = "openid\nprofile\nemail\nroles\noffline_access";
+        _newAllowAuthorizationCodeFlow = true;
+        _newAllowClientCredentialsFlow = false;
+        _newRequirePkce = true;
+        _newAllowRefreshTokenFlow = true;
+    }
+
+    private void UseServiceClientDefaults()
+    {
+        _newClientType = "confidential";
+        _newConsentType = "implicit";
+        _newRedirectUrisText = string.Empty;
+        _newPostLogoutRedirectUrisText = string.Empty;
+        _newScopesText = string.Empty;
+        _newAllowAuthorizationCodeFlow = false;
+        _newAllowClientCredentialsFlow = true;
+        _newRequirePkce = false;
+        _newAllowRefreshTokenFlow = false;
     }
 
     private static string[] ParseMultiline(string? value)
