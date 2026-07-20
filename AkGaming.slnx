@@ -16,6 +16,15 @@
     <Project Path="AkGaming.GamelyBot/AkGaming.GamelyBot.csproj" />
     <Project Path="AkGaming.GamelyBot/Tests/AkGaming.GamelyBot.Tests.csproj" />
   </Folder>
+  <Folder Name="/AkGaming.GamelyBot/Infrastructure/Persistence/">
+    <Project Path="AkGaming.GamelyBot/Infrastructure/Persistence/AkGaming.GamelyBot.Persistence.csproj" />
+  </Folder>
+  <Folder Name="/AkGaming.GamelyBot/Migrations/Postgres/">
+    <Project Path="AkGaming.GamelyBot/Migrations/Postgres/AkGaming.GamelyBot.Migrations.Postgres.csproj" />
+  </Folder>
+  <Folder Name="/AkGaming.GamelyBot/Migrations/Sqlite/">
+    <Project Path="AkGaming.GamelyBot/Migrations/Sqlite/AkGaming.GamelyBot.Migrations.Sqlite.csproj" />
+  </Folder>
   <Folder Name="/AkGaming.Identity/" />
   <Folder Name="/AkGaming.Identity/Api/">
     <Project Path="AkGaming.Identity/Api/AkGaming.Identity.Api.csproj" />

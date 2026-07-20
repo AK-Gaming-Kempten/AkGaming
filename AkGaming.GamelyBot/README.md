@@ -96,3 +96,10 @@ The GamelyBot deployment workflow applies PostgreSQL migrations before triggerin
 - `GAMELYBOT_PRODUCTION_DB_CONNECTION_STRING`
 
 The workflow uses the shared `DB_SSH_*` tunnel secrets when present. In that case, the connection strings must target the workflow's local tunnel port, matching the Identity and Management deployment convention.
+
+SQLite and PostgreSQL use separate migration projects because their EF models contain provider-specific column types. When the persistence model changes, add the same migration to both providers:
+
+```bash
+dotnet ef migrations add <MigrationName> --project AkGaming.GamelyBot/Migrations/Sqlite/AkGaming.GamelyBot.Migrations.Sqlite.csproj --startup-project AkGaming.GamelyBot/Migrations/Sqlite/AkGaming.GamelyBot.Migrations.Sqlite.csproj --context GamelyBotDbContext
+dotnet ef migrations add <MigrationName> --project AkGaming.GamelyBot/Migrations/Postgres/AkGaming.GamelyBot.Migrations.Postgres.csproj --startup-project AkGaming.GamelyBot/Migrations/Postgres/AkGaming.GamelyBot.Migrations.Postgres.csproj --context GamelyBotDbContext
+```

@@ -8,8 +8,13 @@ public sealed class InvoiceManagementDbContextPostgresFactory : IDesignTimeDbCon
 {
     public InvoiceManagementDbContext CreateDbContext(string[] args)
     {
-        var options = new DbContextOptionsBuilder<InvoiceManagementDbContext>();
-        options.UseNpgsql("Host=localhost;Database=invoice_management_design;Username=postgres;Password=postgres", npgsql => npgsql.MigrationsAssembly(typeof(InvoiceManagementDbContextPostgresFactory).Assembly.FullName));
-        return new InvoiceManagementDbContext(options.Options);
+        var connectionString = Environment.GetEnvironmentVariable("ConnectionStrings__DefaultConnection")
+            ?? "Host=localhost;Database=invoice_management_design;Username=postgres;Password=postgres";
+        var options = new DbContextOptionsBuilder<InvoiceManagementDbContext>()
+            .UseNpgsql(
+                connectionString,
+                database => database.MigrationsAssembly(typeof(InvoiceManagementDbContextPostgresFactory).Assembly.FullName))
+            .Options;
+        return new InvoiceManagementDbContext(options);
     }
 }

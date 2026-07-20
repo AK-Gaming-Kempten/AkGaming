@@ -8,7 +8,13 @@ public sealed class DisbursementsDbContextPostgresFactory : IDesignTimeDbContext
 {
     public DisbursementsDbContext CreateDbContext(string[] args)
     {
-        var options = new DbContextOptionsBuilder<DisbursementsDbContext>().UseNpgsql("Host=localhost;Database=disbursements_design;Username=postgres;Password=postgres", database => database.MigrationsAssembly(typeof(DisbursementsDbContextPostgresFactory).Assembly.FullName)).Options;
+        var connectionString = Environment.GetEnvironmentVariable("ConnectionStrings__DefaultConnection")
+            ?? "Host=localhost;Database=disbursements_design;Username=postgres;Password=postgres";
+        var options = new DbContextOptionsBuilder<DisbursementsDbContext>()
+            .UseNpgsql(
+                connectionString,
+                database => database.MigrationsAssembly(typeof(DisbursementsDbContextPostgresFactory).Assembly.FullName))
+            .Options;
         return new DisbursementsDbContext(options);
     }
 }

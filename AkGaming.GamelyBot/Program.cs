@@ -33,9 +33,9 @@ builder.Services.AddDbContext<GamelyBotDbContext>((serviceProvider, options) =>
     var databaseProvider = configuration["Database:Provider"]?.Trim().ToLowerInvariant() ?? "sqlite";
     var connectionString = configuration.GetConnectionString("DefaultConnection") ?? "Data Source=gamelybot.db";
     if (databaseProvider is "postgres" or "postgresql")
-        options.UseNpgsql(connectionString);
+        options.UseNpgsql(connectionString, database => database.MigrationsAssembly("AkGaming.GamelyBot.Migrations.Postgres"));
     else if (databaseProvider == "sqlite")
-        options.UseSqlite(connectionString);
+        options.UseSqlite(connectionString, database => database.MigrationsAssembly("AkGaming.GamelyBot.Migrations.Sqlite"));
     else
         throw new InvalidOperationException($"Unsupported database provider '{databaseProvider}'.");
 });

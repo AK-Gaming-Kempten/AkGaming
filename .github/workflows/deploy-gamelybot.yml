@@ -80,7 +80,12 @@ jobs:
         env:
           DOTNET_CLI_HOME: /tmp
           DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
-        run: dotnet restore AkGaming.GamelyBot/AkGaming.GamelyBot.csproj -p:RestoreUseStaticGraphEvaluation=true
+        run: dotnet restore AkGaming.GamelyBot/Migrations/Postgres/AkGaming.GamelyBot.Migrations.Postgres.csproj -p:RestoreUseStaticGraphEvaluation=true
+      - name: Build GamelyBot Migration Project
+        env:
+          DOTNET_CLI_HOME: /tmp
+          DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
+        run: dotnet build AkGaming.GamelyBot/Migrations/Postgres/AkGaming.GamelyBot.Migrations.Postgres.csproj --configuration Release --no-restore -p:WarningsNotAsErrors=NU1903
       - name: Configure SSH For Test Database Tunnel
         if: ${{ env.DB_SSH_HOST != '' && env.DB_SSH_USER != '' && env.DB_SSH_PRIVATE_KEY != '' && env.DB_SSH_KNOWN_HOSTS != '' }}
         run: |
@@ -134,9 +139,8 @@ jobs:
         env:
           DOTNET_CLI_HOME: /tmp
           DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
-          Database__Provider: Postgres
           ConnectionStrings__DefaultConnection: ${{ env.GAMELYBOT_TEST_DB_CONNECTION_STRING }}
-        run: dotnet ef database update --project AkGaming.GamelyBot/AkGaming.GamelyBot.csproj --context GamelyBotDbContext
+        run: dotnet ef database update --project AkGaming.GamelyBot/Migrations/Postgres/AkGaming.GamelyBot.Migrations.Postgres.csproj --startup-project AkGaming.GamelyBot/Migrations/Postgres/AkGaming.GamelyBot.Migrations.Postgres.csproj --context GamelyBotDbContext --configuration Release --no-build
       - name: Trigger Coolify Test Deploy
         run: |
           curl --fail --request GET "${{ secrets.COOLIFY_WEBHOOK_GAMELYBOT_TEST }}" \
@@ -171,7 +175,12 @@ jobs:
         env:
           DOTNET_CLI_HOME: /tmp
           DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
-        run: dotnet restore AkGaming.GamelyBot/AkGaming.GamelyBot.csproj -p:RestoreUseStaticGraphEvaluation=true
+        run: dotnet restore AkGaming.GamelyBot/Migrations/Postgres/AkGaming.GamelyBot.Migrations.Postgres.csproj -p:RestoreUseStaticGraphEvaluation=true
+      - name: Build GamelyBot Migration Project
+        env:
+          DOTNET_CLI_HOME: /tmp
+          DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
+        run: dotnet build AkGaming.GamelyBot/Migrations/Postgres/AkGaming.GamelyBot.Migrations.Postgres.csproj --configuration Release --no-restore -p:WarningsNotAsErrors=NU1903
       - name: Configure SSH For Production Database Tunnel
         if: ${{ env.DB_SSH_HOST != '' && env.DB_SSH_USER != '' && env.DB_SSH_PRIVATE_KEY != '' && env.DB_SSH_KNOWN_HOSTS != '' }}
         run: |
@@ -225,9 +234,8 @@ jobs:
         env:
           DOTNET_CLI_HOME: /tmp
           DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
-          Database__Provider: Postgres
           ConnectionStrings__DefaultConnection: ${{ env.GAMELYBOT_PRODUCTION_DB_CONNECTION_STRING }}
-        run: dotnet ef database update --project AkGaming.GamelyBot/AkGaming.GamelyBot.csproj --context GamelyBotDbContext
+        run: dotnet ef database update --project AkGaming.GamelyBot/Migrations/Postgres/AkGaming.GamelyBot.Migrations.Postgres.csproj --startup-project AkGaming.GamelyBot/Migrations/Postgres/AkGaming.GamelyBot.Migrations.Postgres.csproj --context GamelyBotDbContext --configuration Release --no-build
       - name: Trigger Coolify Production Deploy
         run: |
           curl --fail --request GET "${{ secrets.COOLIFY_WEBHOOK_GAMELYBOT }}" \

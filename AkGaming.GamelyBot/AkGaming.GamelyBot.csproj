@@ -8,17 +8,28 @@
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="../AkGaming.Core/Notifications/AkGaming.Core.Notifications.csproj" />
+    <ProjectReference Include="Infrastructure/Persistence/AkGaming.GamelyBot.Persistence.csproj" />
+    <ProjectReference Include="Migrations/Postgres/AkGaming.GamelyBot.Migrations.Postgres.csproj" />
+    <ProjectReference Include="Migrations/Sqlite/AkGaming.GamelyBot.Migrations.Sqlite.csproj" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Remove="Domain/**/*.cs" />
+    <Compile Remove="Infrastructure/Persistence/GamelyBotDbContext.cs" />
+    <Compile Remove="Infrastructure/Persistence/bin/**/*.cs" />
+    <Compile Remove="Infrastructure/Persistence/obj/**/*.cs" />
+    <Compile Remove="Infrastructure/Persistence/Migrations/**/*.cs" />
+    <Compile Remove="Migrations/**/*.cs" />
     <Compile Remove="Tests/**/*.cs" />
+    <Content Remove="Infrastructure/Persistence/bin/**" />
+    <Content Remove="Infrastructure/Persistence/obj/**" />
+    <Content Remove="Migrations/**" />
     <Content Remove="Tests/**" />
+    <None Remove="Infrastructure/Persistence/bin/**" />
+    <None Remove="Infrastructure/Persistence/obj/**" />
+    <None Remove="Migrations/**" />
     <None Remove="Tests/**" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.3">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="10.0.3" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.0" />
     <PackageReference Include="OpenIddict.Validation.AspNetCore" Version="7.4.0" />
