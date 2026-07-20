@@ -14,6 +14,7 @@ if (builder.Environment.IsDevelopment())
 builder.Configuration.AddEnvironmentVariables();
 
 builder.Services.AddProblemDetails();
+builder.Services.AddHealthChecks();
 builder.Services
     .AddTournamentJsonAndControllers()
     .AddTournamentSwagger()
@@ -52,5 +53,6 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+app.MapHealthChecks("/health").AllowAnonymous();
 
 app.Run();

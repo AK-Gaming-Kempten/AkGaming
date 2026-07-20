@@ -1,5 +1,6 @@
 :80 {
     root * /usr/share/caddy
+    respond /health "Healthy" 200
     file_server
 
     # SPA fallback for React Router

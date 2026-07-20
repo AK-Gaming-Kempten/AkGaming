@@ -42,6 +42,7 @@ foreach (var scope in openIddictSeedOptions.Scopes.Where(x => !string.IsNullOrWh
 builder.Services.AddOpenApi();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddHealthChecks();
 builder.Services.AddApplication();
 builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddControllersWithViews();
@@ -201,6 +202,7 @@ app.UseAuthorization();
 
 app.MapControllers();
 app.MapRazorPages();
+app.MapHealthChecks("/health").AllowAnonymous();
 app.MapGet("/", () => Results.Redirect("/account/manage"));
 app.MapGet("/login", (HttpContext context) => Results.Redirect($"/account/login{context.Request.QueryString}"));
 app.MapGet("/register", (HttpContext context) => Results.Redirect($"/account/register{context.Request.QueryString}"));

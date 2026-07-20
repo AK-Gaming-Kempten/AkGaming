@@ -10,6 +10,7 @@ if (builder.Environment.IsDevelopment())
     builder.Configuration.AddUserSecrets<Program>();
 builder.Configuration.AddEnvironmentVariables();
 
+builder.Services.AddHealthChecks();
 builder.Services
     .AddJsonAndControllers()
     .AddAppSwagger()
@@ -29,6 +30,7 @@ app.UseAuthorization();
 
 app.MapMemberManagementEndpoints();
 app.MapControllers();
+app.MapHealthChecks("/health").AllowAnonymous();
 app.MapGeneralMeetingsHub();
 app.MapDebugEndpoints();
 app.UseDatabaseMigrations();
