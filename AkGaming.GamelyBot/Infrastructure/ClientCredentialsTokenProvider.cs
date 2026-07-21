@@ -33,7 +33,14 @@ public sealed class ClientCredentialsTokenProvider(IHttpClientFactory httpClient
                 ["scope"] = _options.Scope
             });
             using var response = await client.PostAsync(_options.TokenEndpoint, content, cancellationToken);
-            response.EnsureSuccessStatusCode();
+            if (!response.IsSuccessStatusCode)
+            {
+                var error = await response.Content.ReadAsStringAsync(cancellationToken);
+                throw new HttpRequestException(
+                    $"Identity client-credentials request failed with {(int)response.StatusCode}: {error}",
+                    null,
+                    response.StatusCode);
+            }
             var token = await response.Content.ReadFromJsonAsync<TokenResponse>(cancellationToken)
                 ?? throw new InvalidOperationException("Identity returned an empty client-credentials response.");
             _token = token.AccessToken;

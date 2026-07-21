@@ -12,7 +12,7 @@ namespace AkGaming.GamelyBot.Api.Controllers;
 [Route("api/discord/interactions")]
 [AllowAnonymous]
 public sealed class DiscordInteractionsController(DiscordInteractionService interactions, IOptions<DiscordOptions> discordOptions,
-    IOptions<DiscordInteractionOptions> interactionOptions) : ControllerBase
+    IOptions<DiscordInteractionOptions> interactionOptions, ILogger<DiscordInteractionsController> logger) : ControllerBase
 {
     [HttpPost]
     public async Task<IActionResult> Handle(CancellationToken cancellationToken)
@@ -34,8 +34,23 @@ public sealed class DiscordInteractionsController(DiscordInteractionService inte
         var discordUserId = root.GetProperty("member").GetProperty("user").GetProperty("id").GetString();
         if (string.IsNullOrWhiteSpace(discordUserId)) return Ok(Ephemeral("Discord did not identify your account."));
         var status = parts[3] == "available" ? "Available" : "Unavailable";
-        var message = await interactions.SetAvailabilityAsync(discordUserId, meetingId, version, status, cancellationToken);
-        return Ok(Ephemeral(message));
+        using var interactionTimeout = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+        interactionTimeout.CancelAfter(TimeSpan.FromSeconds(2));
+        try
+        {
+            var message = await interactions.SetAvailabilityAsync(discordUserId, meetingId, version, status, interactionTimeout.Token);
+            return Ok(Ephemeral(message));
+        }
+        catch (OperationCanceledException) when (!cancellationToken.IsCancellationRequested)
+        {
+            logger.LogWarning("Discord availability interaction timed out for meeting {MeetingId}.", meetingId);
+            return Ok(Ephemeral("The club services did not respond in time. Please try again or use the management tool."));
+        }
+        catch (Exception exception)
+        {
+            logger.LogError(exception, "Discord availability interaction failed for meeting {MeetingId}.", meetingId);
+            return Ok(Ephemeral("I could not save your availability right now. Please try again or use the management tool."));
+        }
     }
 
     private bool HasValidSignature(string body)
