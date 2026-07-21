@@ -75,6 +75,13 @@ public static class ServiceCollectionExtensions {
             AddPermissionPolicy(options, "management.general-meetings.manage");
             AddPermissionPolicy(options, "management.general-meetings.minutes.write");
             AddPermissionPolicy(options, "management.general-meetings.audit.read");
+            AddPermissionPolicy(options, "management.board-meetings.read");
+            AddPermissionPolicy(options, "management.board-meetings.manage");
+            options.AddPolicy("management.board-meetings.discord-interactions", policy => {
+                policy.AddAuthenticationSchemes(OpenIddictValidationAspNetCoreDefaults.AuthenticationScheme);
+                policy.RequireAuthenticatedUser();
+                policy.RequireAssertion(context => HasScope(context.User, "management_board_interactions"));
+            });
             options.AddPolicy("MembersReadOrSelfRouteUserId", p => BuildManagementApiPolicy(p).RequireAssertion(ctx =>
                 HasPermission(ctx.User, "management.members.read") || IsSelfRouteUser(ctx)));
             options.AddPolicy("MembershipsReadOrSelfRouteUserId", p => BuildManagementApiPolicy(p).RequireAssertion(ctx =>

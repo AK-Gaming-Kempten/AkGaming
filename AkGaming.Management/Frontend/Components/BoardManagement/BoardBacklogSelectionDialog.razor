@@ -1,0 +1,40 @@
+@using AkGaming.Management.Frontend.Components.GeneralMeetings
+@using AkGaming.Management.Modules.BoardManagement.Contracts
+
+<GeneralMeetingFormDialog Eyebrow="Board agenda"
+                          Title="Add from backlog"
+                          Description="Select one or more backlog items. They will be appended to this meeting in the displayed order."
+                          OnClose="OnClose">
+    <ChildContent>
+        @if (!string.IsNullOrWhiteSpace(Error))
+        {
+            <p class="selection-error" role="alert">@Error</p>
+        }
+        @if (Items.Count == 0)
+        {
+            <p class="empty-backlog">There are no items in the agenda backlog.</p>
+        }
+        else
+        {
+            <div class="backlog-selection-list">
+                @foreach (var item in Items.OrderBy(x => x.Order).ThenBy(x => x.Title))
+                {
+                    <label class="backlog-selection-item @(IsSelected(item.Id) ? "selected" : string.Empty)">
+                        <input type="checkbox" checked="@IsSelected(item.Id)" @onchange="args => Toggle(item.Id, args)" />
+                        <span>
+                            <strong>@item.Title</strong>
+                            @if (!string.IsNullOrWhiteSpace(item.Description))
+                            {
+                                <small>@item.Description</small>
+                            }
+                        </span>
+                    </label>
+                }
+            </div>
+        }
+    </ChildContent>
+    <Footer>
+        <button type="button" class="dialog-cancel" disabled="@IsBusy" @onclick="OnClose">Cancel</button>
+        <button type="button" class="dialog-primary" disabled="@(IsBusy || _selectedIds.Count == 0)" @onclick="SubmitAsync">Add selected items</button>
+    </Footer>
+</GeneralMeetingFormDialog>

@@ -1,0 +1,25 @@
+@using AkGaming.Management.Modules.BoardManagement.Contracts
+
+<a class="panel meeting-card @(CanAcceptAgendaDrop && IsAgendaDragActive ? "drop-enabled" : string.Empty) @(_isDragOver ? "drag-over" : string.Empty)"
+   href="@($"board/meetings/{Meeting.Id}")"
+   @ondragenter="HandleDragEnter"
+   @ondragleave="HandleDragLeave"
+   @ondragover:preventDefault="CanAcceptAgendaDrop"
+   @ondrop:preventDefault="CanAcceptAgendaDrop"
+   @ondrop:stopPropagation="CanAcceptAgendaDrop"
+   @ondrop="HandleDropAsync">
+    <div class="meeting-card-content">
+        <h3>@Meeting.Title</h3>
+        <p>@Meeting.ScheduledAtUtc.ToLocalTime().ToString("dd.MM.yyyy HH:mm") · @Meeting.DurationMinutes min</p>
+        <span class="meeting-location"><span class="bi bi-geo-alt"></span> @(Meeting.Location ?? "Location pending")</span>
+        <div class="availability-summary">
+            <span class="available"><span class="bi bi-check-circle"></span> @Meeting.AvailableCount available</span>
+            <span class="unavailable"><span class="bi bi-x-circle"></span> @Meeting.UnavailableCount unavailable</span>
+        </div>
+    </div>
+    <span class="meeting-status @StatusCssClass">@Meeting.Status</span>
+    @if (CanAcceptAgendaDrop && IsAgendaDragActive)
+    {
+        <span class="drop-hint"><span class="bi bi-plus-circle"></span> Drop backlog item here</span>
+    }
+</a>

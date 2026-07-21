@@ -6,6 +6,7 @@ GamelyBot is the private Discord integration gateway for AK Gaming applications.
 
 - `reimbursement.submitted`: mentions the treasurer role in the administration channel and confirms submission by DM when the applicant linked Discord.
 - `reimbursement.status-changed`: sends the applicant a DM for review, approval, rejection, payment, or cancellation changes.
+- Board meeting lifecycle and agenda events: notify the board channel. Created and rescheduled meeting messages include availability buttons.
 
 An unavailable or blocked DM is recorded independently and never rolls back the originating reimbursement operation.
 
@@ -36,9 +37,10 @@ For each Discord application:
 1. Enable only the Guild Install context.
 2. Set the public install link to `None`.
 3. Install it manually into the corresponding test or club server.
-4. Grant only View Channels, Send Messages, and Embed Links in the administration channel.
+4. Grant only View Channels, Send Messages, and Embed Links in the administration and board channels.
 5. Do not enable the Message Content intent; outbound notifications do not need it.
-6. Configure the immutable guild, administration-channel, and treasurer-role IDs.
+6. Set the Interactions Endpoint URL to `https://<gamelybot-host>/api/discord/interactions`.
+7. Configure the immutable guild, administration-channel, board-channel, treasurer-role, board-role IDs, and the application's public key.
 
 Startup fails if the bot is installed in another server or if the configured channel/role does not belong to the configured server. Applicant DMs are attempted only after verifying that the linked Discord user belongs to that server. Role mentions use an explicit allowed-role list, so notification payloads cannot introduce arbitrary mentions.
 
@@ -55,11 +57,15 @@ Discord__Token=...
 Discord__GuildId=...
 Discord__AdministrationChannelId=...
 Discord__TreasurerRoleId=...
+Discord__BoardChannelId=...
+Discord__BoardRoleId=...
+Discord__ApplicationPublicKey=...
 IdentityClient__BaseUrl=https://identity.example/
 IdentityClient__TokenEndpoint=https://identity.example/connect/token
 IdentityClient__ClientId=akgaming-gamelybot
 IdentityClient__ClientSecret=...
-IdentityClient__Scope=identity_discord_links
+IdentityClient__Scope=identity_discord_links management_board_interactions
+ManagementClient__BaseUrl=https://management.example/api/
 ```
 
 Management needs:
@@ -76,7 +82,7 @@ Notifications__ManagementBaseUrl=https://management.example
 Identity must seed two confidential clients with client-credentials enabled:
 
 - `akgaming-management-api`, allowed `gamelybot_notifications`
-- `akgaming-gamelybot`, allowed `identity_discord_links`
+- `akgaming-gamelybot`, allowed `identity_discord_links` and `management_board_interactions`
 
 Configure these entries through `OpenIddict__Applications__<index>__...`; never commit their production secrets. The development registrations and secrets are local-only examples in `appsettings.Development.json`.
 

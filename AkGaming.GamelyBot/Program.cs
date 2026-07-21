@@ -20,11 +20,17 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddHealthChecks();
 builder.Services.Configure<DiscordOptions>(builder.Configuration.GetSection(DiscordOptions.SectionName));
 builder.Services.Configure<IdentityClientOptions>(builder.Configuration.GetSection(IdentityClientOptions.SectionName));
+builder.Services.Configure<ManagementClientOptions>(builder.Configuration.GetSection(ManagementClientOptions.SectionName));
+builder.Services.Configure<DiscordInteractionOptions>(builder.Configuration.GetSection(DiscordInteractionOptions.SectionName));
 builder.Services.Configure<NotificationRoutingOptions>(builder.Configuration.GetSection(NotificationRoutingOptions.SectionName));
 builder.Services.PostConfigure<NotificationRoutingOptions>(options =>
 {
     if (string.IsNullOrWhiteSpace(options.TreasurerRoleId))
         options.TreasurerRoleId = builder.Configuration[$"{DiscordOptions.SectionName}:TreasurerRoleId"];
+    if (string.IsNullOrWhiteSpace(options.BoardRoleId))
+        options.BoardRoleId = builder.Configuration[$"{DiscordOptions.SectionName}:BoardRoleId"];
+    if (string.IsNullOrWhiteSpace(options.BoardChannelId))
+        options.BoardChannelId = builder.Configuration[$"{DiscordOptions.SectionName}:BoardChannelId"];
 });
 
 builder.Services.AddDbContext<GamelyBotDbContext>((serviceProvider, options) =>
@@ -72,6 +78,7 @@ builder.Services.AddAuthorization(options =>
 
 builder.Services.AddHttpClient();
 builder.Services.AddSingleton<ClientCredentialsTokenProvider>();
+builder.Services.AddScoped<DiscordInteractionService>();
 builder.Services.AddScoped<INotificationRenderer, NotificationRenderer>();
 builder.Services.AddScoped<INotificationInbox, EfNotificationInbox>();
 var transport = builder.Configuration["NotificationTransport"]?.Trim().ToLowerInvariant() ?? "debug";

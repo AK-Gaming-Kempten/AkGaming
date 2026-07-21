@@ -1,0 +1,25 @@
+@using AkGaming.Management.Frontend.Components.GeneralMeetings
+@using AkGaming.Management.Modules.BoardManagement.Contracts
+
+<GeneralMeetingFormDialog Eyebrow="Board agenda"
+                          Title="Delete agenda item?"
+                          Description="This permanently removes the agenda item. The board notification will show it as deleted."
+                          OnClose="OnClose">
+    <ChildContent>
+        <div class="delete-agenda-content">
+            <strong>@Item.Title</strong>
+            @if (!string.IsNullOrWhiteSpace(Item.Description))
+            {
+                <p>@Item.Description</p>
+            }
+            @if (!string.IsNullOrWhiteSpace(Error))
+            {
+                <p class="error" role="alert">@Error</p>
+            }
+        </div>
+    </ChildContent>
+    <Footer>
+        <button type="button" class="dialog-cancel" disabled="@IsBusy" @onclick="OnClose">Cancel</button>
+        <button type="button" class="delete-action" disabled="@IsBusy" @onclick="OnConfirm">@(IsBusy ? "Deleting…" : "Delete item")</button>
+    </Footer>
+</GeneralMeetingFormDialog>

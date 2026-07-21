@@ -13,6 +13,7 @@ public sealed class OpenIddictSeeder
     private const string ManagementApiScope = "management_api";
     private const string GamelyBotNotificationsScope = "gamelybot_notifications";
     private const string IdentityDiscordLinksScope = "identity_discord_links";
+    private const string ManagementBoardInteractionsScope = "management_board_interactions";
 
     private readonly IOpenIddictApplicationManager _applicationManager;
     private readonly IOpenIddictScopeManager _scopeManager;
@@ -141,12 +142,14 @@ public sealed class OpenIddictSeeder
         => application.Scopes.Any(scope =>
             string.Equals(scope, ManagementApiScope, StringComparison.OrdinalIgnoreCase)
             || string.Equals(scope, GamelyBotNotificationsScope, StringComparison.OrdinalIgnoreCase)
-            || string.Equals(scope, IdentityDiscordLinksScope, StringComparison.OrdinalIgnoreCase));
+            || string.Equals(scope, IdentityDiscordLinksScope, StringComparison.OrdinalIgnoreCase)
+            || string.Equals(scope, ManagementBoardInteractionsScope, StringComparison.OrdinalIgnoreCase));
 
     private static bool IsProtectedScope(OpenIddictScopeSeed scope)
         => string.Equals(scope.Name, ManagementApiScope, StringComparison.OrdinalIgnoreCase)
             || string.Equals(scope.Name, GamelyBotNotificationsScope, StringComparison.OrdinalIgnoreCase)
-            || string.Equals(scope.Name, IdentityDiscordLinksScope, StringComparison.OrdinalIgnoreCase);
+            || string.Equals(scope.Name, IdentityDiscordLinksScope, StringComparison.OrdinalIgnoreCase)
+            || string.Equals(scope.Name, ManagementBoardInteractionsScope, StringComparison.OrdinalIgnoreCase);
 
     private static string NormalizeConsentType(string? value)
     {

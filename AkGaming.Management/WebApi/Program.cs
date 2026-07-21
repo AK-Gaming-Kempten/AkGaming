@@ -2,6 +2,7 @@ using AkGaming.Management.Modules.MemberManagement.Api;
 using AkGaming.Management.Modules.InvoiceManagement.Api;
 using AkGaming.Management.Modules.Disbursements.Api;
 using AkGaming.Management.Modules.GeneralMeetings.Api;
+using AkGaming.Management.Modules.BoardManagement.Api;
 using AkGaming.Management.WebApi.Startup;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -19,7 +20,8 @@ builder.Services
     .AddMemberManagementModule(builder.Configuration)
     .AddInvoiceManagementModule(builder.Configuration)
     .AddDisbursementsModule(builder.Configuration)
-    .AddGeneralMeetingsModule(builder.Configuration);
+    .AddGeneralMeetingsModule(builder.Configuration)
+    .AddBoardManagementModule(builder.Configuration);
 
 var app = builder.Build();
 

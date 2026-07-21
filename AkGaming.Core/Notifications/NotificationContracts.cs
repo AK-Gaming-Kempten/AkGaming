@@ -6,6 +6,11 @@ public static class NotificationEventTypes
 {
     public const string ReimbursementSubmitted = "reimbursement.submitted";
     public const string ReimbursementStatusChanged = "reimbursement.status-changed";
+    public const string BoardMeetingCreated = "board-meeting.created";
+    public const string BoardMeetingRescheduled = "board-meeting.rescheduled";
+    public const string BoardMeetingCancelled = "board-meeting.cancelled";
+    public const string BoardMeetingRescheduleProposed = "board-meeting.reschedule-proposed";
+    public const string BoardAgendaChanged = "board-meeting.agenda-changed";
 }
 
 public sealed record NotificationEnvelope(
@@ -37,3 +42,23 @@ public sealed record ReimbursementStatusChangedNotification(
     string? ManagementUrl);
 
 public sealed record DiscordLinkResponse(Guid UserId, string? DiscordUserId, bool IsLinked);
+public sealed record DiscordUserLinkResponse(Guid UserId, string DisplayName, bool IsLinked, bool CanAccessBoardMeetings);
+
+public sealed record BoardMeetingNotification(Guid MeetingId, string Title, DateTimeOffset ScheduledAtUtc,
+    int DurationMinutes, string? Location, int ScheduleVersion, string? Reason, string? ManagementUrl,
+    IReadOnlyList<string>? AgendaItems = null);
+
+public sealed record BoardRescheduleProposalNotification(Guid MeetingId, Guid ProposalId, string Title,
+    DateTimeOffset ProposedAtUtc, int DurationMinutes, string? Reason, string ProposedByDisplayName, string? ManagementUrl);
+
+public sealed record BoardAgendaNotificationItem(Guid AgendaItemId, string Title, int Order);
+
+public sealed record BoardAgendaChangedNotification(
+    Guid? MeetingId,
+    string? MeetingTitle,
+    string Action,
+    string? ManagementUrl,
+    IReadOnlyList<BoardAgendaNotificationItem>? AgendaItems = null,
+    IReadOnlyList<BoardAgendaNotificationItem>? ChangedItems = null,
+    Guid? AgendaItemId = null,
+    string? Title = null);

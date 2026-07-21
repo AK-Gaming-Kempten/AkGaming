@@ -28,6 +28,8 @@ public static class PermissionNames
     public const string ManagementGeneralMeetingsManage = "management.general-meetings.manage";
     public const string ManagementGeneralMeetingsMinutesWrite = "management.general-meetings.minutes.write";
     public const string ManagementGeneralMeetingsAuditRead = "management.general-meetings.audit.read";
+    public const string ManagementBoardMeetingsRead = "management.board-meetings.read";
+    public const string ManagementBoardMeetingsManage = "management.board-meetings.manage";
 
     public const string TournamentsGamesManage = "tournaments.games.manage";
     public const string TournamentsTournamentsManage = "tournaments.tournaments.manage";

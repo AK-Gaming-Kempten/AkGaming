@@ -1,0 +1,35 @@
+@using AkGaming.Management.Modules.BoardManagement.Contracts
+
+<article class="agenda-item-card @(IsDragging ? "dragging" : string.Empty)"
+         draggable="@(CanManage ? "true" : "false")"
+         data-ak-draggable="@(CanManage ? "true" : "false")"
+         data-ak-drag-id="@Item.Id"
+         @ondragstart="HandleDragStarted"
+         @ondragend="HandleDragEnded">
+    @if (CanManage)
+    {
+        <span class="drag-handle" title="Drag to reorder" aria-hidden="true"><span class="bi bi-grip-vertical"></span></span>
+    }
+    <div class="agenda-item-content">
+        <div class="agenda-item-title">
+            <strong>@Item.Title</strong>
+            <span class="agenda-status @Item.Status.ToString().ToLowerInvariant()">@Item.Status</span>
+        </div>
+        @if (!string.IsNullOrWhiteSpace(Item.Description))
+        {
+            <p>@Item.Description</p>
+        }
+    </div>
+    @if (CanManage)
+    {
+        <ContextMenu AriaLabel="@($"Actions for {Item.Title}")">
+            <ContextMenuItem IconClass="bi-pencil" Text="Edit" OnClick="EditAsync" />
+            @if (Item.Status != BoardAgendaItemStatusDto.Completed)
+            {
+                <ContextMenuItem IconClass="bi-check2-circle" Text="Mark complete" OnClick="CompleteAsync" />
+            }
+            <ContextMenuItem IconClass="bi-archive" Text="Move to backlog" OnClick="MoveToBacklogAsync" />
+            <ContextMenuItem IconClass="bi-trash" Text="Delete" IsDestructive="true" OnClick="DeleteAsync" />
+        </ContextMenu>
+    }
+</article>

@@ -1,0 +1,46 @@
+.backlog-item-card {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: center;
+    gap: .7rem;
+    padding: .9rem 1rem;
+    background: var(--color-background-secondary);
+    border: 1px solid color-mix(in srgb, var(--color-text-secondary) 30%, transparent);
+    border-radius: 6px;
+    transition: opacity .15s ease, border-color .15s ease, transform .15s ease;
+}
+
+.backlog-item-card[draggable="true"] {
+    cursor: grab;
+}
+
+.backlog-item-card.dragging {
+    opacity: .45;
+    border-color: var(--color-highlight-primary);
+    transform: scale(.99);
+}
+
+.drag-handle,
+.backlog-item-card small,
+.backlog-item-card p {
+    color: var(--color-text-secondary);
+}
+
+.backlog-item-card p {
+    margin: .35rem 0 0;
+    overflow-wrap: anywhere;
+}
+
+.backlog-item-card small {
+    white-space: nowrap;
+}
+
+@media (max-width: 600px) {
+    .backlog-item-card {
+        grid-template-columns: auto minmax(0, 1fr);
+    }
+
+    .backlog-item-card small {
+        display: none;
+    }
+}

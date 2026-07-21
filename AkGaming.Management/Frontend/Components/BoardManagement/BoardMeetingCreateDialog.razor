@@ -1,0 +1,72 @@
+@using AkGaming.Management.Frontend.Components.GeneralMeetings
+
+<GeneralMeetingFormDialog Eyebrow="Board management"
+                          Title="Create board meeting"
+                          Description="The board notification is sent with this agenda as soon as the meeting is created."
+                          OnClose="OnClose">
+    <ChildContent>
+        <div class="board-meeting-form">
+            @if (!string.IsNullOrWhiteSpace(Error))
+            {
+                <p class="create-meeting-error" role="alert">@Error</p>
+            }
+            <label>Title <InputText @bind-Value="_title" /></label>
+            <div class="board-meeting-form-row">
+                <label>Date and time <input type="datetime-local" @bind="_scheduledLocal" /></label>
+                <label>Duration (minutes) <InputNumber @bind-Value="_durationMinutes" /></label>
+            </div>
+            <label>Location <InputText @bind-Value="_location" /></label>
+
+            <section class="draft-agenda">
+                <div class="draft-agenda-heading">
+                    <div>
+                        <h4>Initial agenda</h4>
+                        <p class="ui-text-muted">Add the items that should be included in the first Discord notification.</p>
+                    </div>
+                    <button type="button" disabled="@IsBusy" @onclick="AddAgendaItem">
+                        <span class="bi bi-plus-lg"></span> Add item
+                    </button>
+                </div>
+
+                @if (_agendaItems.Count == 0)
+                {
+                    <p class="draft-agenda-empty">No agenda items yet.</p>
+                }
+                else
+                {
+                    @for (var index = 0; index < _agendaItems.Count; index++)
+                    {
+                        var item = _agendaItems[index];
+                        var itemNumber = index + 1;
+                        <BoardAgendaDropZone Position="index"
+                                             IsEnabled="@_draggedAgendaItemId.HasValue"
+                                             OnDropped="DropAtPosition" />
+                        <article class="draft-agenda-item @(_draggedAgendaItemId == item.Id ? "dragging" : string.Empty)"
+                                 draggable="true"
+                                 data-ak-draggable="true"
+                                 data-ak-drag-id="@item.Id"
+                                 @key="item.Id"
+                                 @ondragstart="() => StartDragging(item.Id)"
+                                 @ondragend="StopDragging">
+                            <div class="draft-agenda-item-heading">
+                                <strong><span class="bi bi-grip-vertical draft-drag-handle"></span> Item @itemNumber</strong>
+                                <button type="button" class="remove-agenda-item" disabled="@IsBusy" title="Remove agenda item" aria-label="Remove agenda item" @onclick="() => RemoveAgendaItem(item)">
+                                    <span class="bi bi-trash"></span>
+                                </button>
+                            </div>
+                            <label>Title <InputText @bind-Value="item.Title" /></label>
+                            <label>Description <InputTextArea @bind-Value="item.Description" /></label>
+                        </article>
+                    }
+                    <BoardAgendaDropZone Position="_agendaItems.Count"
+                                         IsEnabled="@_draggedAgendaItemId.HasValue"
+                                         OnDropped="DropAtPosition" />
+                }
+            </section>
+        </div>
+    </ChildContent>
+    <Footer>
+        <button type="button" class="dialog-cancel" disabled="@IsBusy" @onclick="OnClose">Cancel</button>
+        <button type="button" class="dialog-primary" disabled="@IsBusy" @onclick="SubmitAsync">@(IsBusy ? "Creating…" : "Create meeting")</button>
+    </Footer>
+</GeneralMeetingFormDialog>

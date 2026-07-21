@@ -1,0 +1,70 @@
+.backlog-selection-list {
+    display: grid;
+    gap: .65rem;
+}
+
+.backlog-selection-item {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: start;
+    gap: .75rem;
+    padding: .85rem;
+    background: var(--color-background-secondary);
+    border: 1px solid color-mix(in srgb, var(--color-text-secondary) 30%, transparent);
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.backlog-selection-item.selected {
+    border-color: var(--color-highlight-primary);
+    background: color-mix(in srgb, var(--color-highlight-primary) 8%, var(--color-background-secondary));
+}
+
+.backlog-selection-item input {
+    width: 1.1rem;
+    height: 1.1rem;
+    accent-color: var(--color-highlight-primary);
+}
+
+.backlog-selection-item span,
+.backlog-selection-item small {
+    display: grid;
+    min-width: 0;
+}
+
+.backlog-selection-item small {
+    margin-top: .25rem;
+    color: var(--color-text-secondary);
+    overflow-wrap: anywhere;
+}
+
+.selection-error,
+.empty-backlog {
+    margin: 0;
+    padding: .85rem;
+    background: var(--color-background-secondary);
+    border-left: 3px solid var(--color-highlight-primary);
+}
+
+.dialog-cancel,
+.dialog-primary {
+    padding: .55rem .9rem;
+    border-radius: 4px;
+}
+
+.dialog-cancel {
+    color: var(--color-text-primary);
+    background: var(--color-background-secondary);
+    border: 1px solid var(--color-text-secondary);
+}
+
+.dialog-primary {
+    color: var(--color-background-primary);
+    background: var(--color-highlight-primary);
+    border: 1px solid var(--color-highlight-primary);
+    font-weight: 600;
+}
+
+.dialog-primary:disabled {
+    opacity: .5;
+}

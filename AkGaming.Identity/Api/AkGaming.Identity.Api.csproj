@@ -27,6 +27,15 @@
     <ProjectReference Include="..\Migrations\Sqlite\AkGaming.Identity.Migrations.Sqlite.csproj" />
   </ItemGroup>
 
+  <!--
+    The static web assets SDK's content glob can fail to match its backslash-based
+    default bin/obj exclusions on Linux. Explicitly remove generated files so a
+    previous build output can never be copied recursively into the next output.
+  -->
+  <ItemGroup>
+    <Content Remove="bin/**;obj/**" />
+  </ItemGroup>
+
   <Target Name="SyncAkGamingBaseTheme" BeforeTargets="Build;Publish">
     <Copy
       SourceFiles="$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\..\AkGaming.Core\Theme\wwwroot\theme\akgaming-base-theme.css'))"

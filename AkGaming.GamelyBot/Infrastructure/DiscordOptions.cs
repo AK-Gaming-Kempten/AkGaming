@@ -7,6 +7,15 @@ public sealed class DiscordOptions
     public string GuildId { get; set; } = string.Empty;
     public string AdministrationChannelId { get; set; } = string.Empty;
     public string TreasurerRoleId { get; set; } = string.Empty;
+    public string BoardChannelId { get; set; } = string.Empty;
+    public string BoardRoleId { get; set; } = string.Empty;
+    public string ApplicationPublicKey { get; set; } = string.Empty;
+}
+
+public sealed class ManagementClientOptions
+{
+    public const string SectionName = "ManagementClient";
+    public string BaseUrl { get; set; } = string.Empty;
 }
 
 public sealed class IdentityClientOptions

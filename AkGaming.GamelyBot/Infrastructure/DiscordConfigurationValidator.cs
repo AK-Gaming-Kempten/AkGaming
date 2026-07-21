@@ -17,8 +17,11 @@ public sealed class DiscordConfigurationValidator(
         if (string.IsNullOrWhiteSpace(_options.Token)
             || string.IsNullOrWhiteSpace(_options.GuildId)
             || string.IsNullOrWhiteSpace(_options.AdministrationChannelId)
-            || string.IsNullOrWhiteSpace(_options.TreasurerRoleId))
-            throw new InvalidOperationException("Discord Token, GuildId, AdministrationChannelId, and TreasurerRoleId must be configured.");
+            || string.IsNullOrWhiteSpace(_options.TreasurerRoleId)
+            || string.IsNullOrWhiteSpace(_options.BoardChannelId)
+            || string.IsNullOrWhiteSpace(_options.BoardRoleId)
+            || string.IsNullOrWhiteSpace(_options.ApplicationPublicKey))
+            throw new InvalidOperationException("Discord Token, GuildId, AdministrationChannelId, TreasurerRoleId, BoardChannelId, BoardRoleId, and ApplicationPublicKey must be configured.");
 
         var client = httpClientFactory.CreateClient(nameof(DiscordConfigurationValidator));
         client.BaseAddress = new Uri("https://discord.com/api/v10/");
@@ -31,10 +34,15 @@ public sealed class DiscordConfigurationValidator(
         var channel = await GetAsync<DiscordChannel>(client, $"channels/{_options.AdministrationChannelId}", cancellationToken);
         if (channel.GuildId != _options.GuildId)
             throw new InvalidOperationException("The configured administration channel does not belong to the configured club server.");
+        var boardChannel = await GetAsync<DiscordChannel>(client, $"channels/{_options.BoardChannelId}", cancellationToken);
+        if (boardChannel.GuildId != _options.GuildId)
+            throw new InvalidOperationException("The configured board channel does not belong to the configured club server.");
 
         var roles = await GetAsync<List<DiscordRole>>(client, $"guilds/{_options.GuildId}/roles", cancellationToken);
         if (roles.All(role => role.Id != _options.TreasurerRoleId))
             throw new InvalidOperationException("The configured treasurer role does not belong to the configured club server.");
+        if (roles.All(role => role.Id != _options.BoardRoleId))
+            throw new InvalidOperationException("The configured board role does not belong to the configured club server.");
 
         logger.LogInformation("Validated Discord configuration for guild {GuildId}.", _options.GuildId);
     }

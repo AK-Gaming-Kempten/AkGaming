@@ -29,6 +29,8 @@ public static class PermissionCatalog
         new(PermissionNames.ManagementGeneralMeetingsManage, "management", "general-meetings", "manage", "Create and administer general meetings, attendance, agendas, and ballots."),
         new(PermissionNames.ManagementGeneralMeetingsMinutesWrite, "management", "general-meetings", "minutes.write", "Write minutes for general meetings."),
         new(PermissionNames.ManagementGeneralMeetingsAuditRead, "management", "general-meetings", "audit.read", "View general-meeting audit records."),
+        new(PermissionNames.ManagementBoardMeetingsRead, "management", "board-meetings", "read", "View board meetings, agendas, proposals, and availability forecasts."),
+        new(PermissionNames.ManagementBoardMeetingsManage, "management", "board-meetings", "manage", "Create, reschedule, cancel, and administer board meetings and agenda items."),
         new(PermissionNames.TournamentsGamesManage, "tournaments", "games", "manage", "Manage tournament games."),
         new(PermissionNames.TournamentsTournamentsManage, "tournaments", "tournaments", "manage", "Manage tournaments."),
         new(PermissionNames.TournamentsRegistrationsManage, "tournaments", "registrations", "manage", "Manage tournament registrations and check-ins."),

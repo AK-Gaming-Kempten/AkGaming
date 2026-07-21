@@ -1,0 +1,140 @@
+.board-meeting-form {
+    display: grid;
+    gap: 1rem;
+}
+
+.create-meeting-error {
+    margin: 0;
+    padding: .75rem;
+    color: var(--color-error, #e85d75);
+    background: color-mix(in srgb, var(--color-error, #e85d75) 10%, var(--color-background-secondary));
+    border-left: 3px solid var(--color-error, #e85d75);
+}
+
+.board-meeting-form label {
+    display: grid;
+    gap: .4rem;
+    color: var(--color-text-secondary);
+    font-weight: 600;
+}
+
+.board-meeting-form input,
+.board-meeting-form textarea {
+    width: 100%;
+    padding: .7rem .8rem;
+    color: var(--color-text-primary);
+    background: var(--color-background-secondary);
+    border: 1px solid color-mix(in srgb, var(--color-text-secondary) 55%, transparent);
+    border-radius: 4px;
+}
+
+.board-meeting-form textarea {
+    min-height: 5rem;
+    resize: vertical;
+}
+
+.board-meeting-form-row {
+    display: grid;
+    grid-template-columns: minmax(0, 2fr) minmax(10rem, 1fr);
+    gap: 1rem;
+}
+
+.draft-agenda {
+    display: grid;
+    gap: .8rem;
+    padding-top: .5rem;
+    border-top: 1px solid color-mix(in srgb, var(--color-text-secondary) 30%, transparent);
+}
+
+.draft-agenda-heading,
+.draft-agenda-item-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+.draft-agenda-heading h4,
+.draft-agenda-heading p {
+    margin: 0;
+}
+
+.draft-agenda-heading button,
+.remove-agenda-item,
+.dialog-cancel,
+.dialog-primary {
+    padding: .55rem .9rem;
+    border-radius: 4px;
+}
+
+.draft-agenda-heading button,
+.dialog-cancel {
+    color: var(--color-text-primary);
+    background: var(--color-background-secondary);
+    border: 1px solid var(--color-text-secondary);
+}
+
+.dialog-primary {
+    color: var(--color-background-primary);
+    background: var(--color-highlight-primary);
+    border: 1px solid var(--color-highlight-primary);
+    font-weight: 600;
+}
+
+.draft-agenda-item {
+    display: grid;
+    gap: .7rem;
+    padding: .9rem;
+    background: color-mix(in srgb, var(--color-background-secondary) 75%, transparent);
+    border: 1px solid color-mix(in srgb, var(--color-text-secondary) 30%, transparent);
+    border-radius: 6px;
+    cursor: grab;
+    transition: border-color .15s ease, opacity .15s ease, transform .15s ease;
+}
+
+.draft-agenda-item:active {
+    cursor: grabbing;
+}
+
+.draft-agenda-item.dragging {
+    opacity: .45;
+    border-color: var(--color-highlight-primary);
+    transform: scale(.99);
+}
+
+.draft-drag-handle {
+    margin-right: .25rem;
+    color: var(--color-text-secondary);
+}
+
+.remove-agenda-item {
+    padding: .35rem .5rem;
+    color: var(--color-text-primary);
+    background: transparent;
+    border: 0;
+}
+
+.draft-agenda-empty {
+    margin: 0;
+    padding: 1rem;
+    color: var(--color-text-secondary);
+    text-align: center;
+    border: 1px dashed color-mix(in srgb, var(--color-text-secondary) 45%, transparent);
+    border-radius: 6px;
+}
+
+button:disabled {
+    opacity: .55;
+    cursor: not-allowed;
+}
+
+@media (max-width: 600px) {
+    .board-meeting-form-row {
+        grid-template-columns: 1fr;
+    }
+
+    .draft-agenda-heading {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+}

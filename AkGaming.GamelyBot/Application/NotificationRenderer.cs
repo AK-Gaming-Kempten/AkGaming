@@ -10,6 +10,8 @@ public sealed class NotificationRoutingOptions
 {
     public const string SectionName = "NotificationRouting";
     public string? TreasurerRoleId { get; set; }
+    public string? BoardRoleId { get; set; }
+    public string? BoardChannelId { get; set; }
 }
 
 public sealed class NotificationRenderer(IOptions<NotificationRoutingOptions> options) : INotificationRenderer
@@ -22,6 +24,11 @@ public sealed class NotificationRenderer(IOptions<NotificationRoutingOptions> op
         {
             NotificationEventTypes.ReimbursementSubmitted => RenderSubmitted(notification),
             NotificationEventTypes.ReimbursementStatusChanged => RenderStatusChanged(notification),
+            NotificationEventTypes.BoardMeetingCreated => RenderBoardMeeting(notification, "New board meeting"),
+            NotificationEventTypes.BoardMeetingRescheduled => RenderBoardMeeting(notification, "Board meeting rescheduled"),
+            NotificationEventTypes.BoardMeetingCancelled => RenderBoardMeeting(notification, "Board meeting cancelled", false),
+            NotificationEventTypes.BoardMeetingRescheduleProposed => RenderBoardProposal(notification),
+            NotificationEventTypes.BoardAgendaChanged => RenderBoardAgendaChange(notification),
             _ => throw new InvalidOperationException($"Unsupported notification type '{notification.Type}'.")
         };
     }
@@ -51,6 +58,89 @@ public sealed class NotificationRenderer(IOptions<NotificationRoutingOptions> op
             $"Your reimbursement **{data.Purpose}** for **{amount} EUR** changed from **{data.PreviousStatus}** to **{data.Status}**.{note}",
             data.ManagementUrl);
         return new RenderedNotification(null, direct);
+    }
+
+    private RenderedNotification RenderBoardMeeting(NotificationInboxItem notification, string heading, bool includeButtons = true)
+    {
+        var data = JsonSerializer.Deserialize<BoardMeetingNotification>(notification.DataJson, JsonOptions())
+            ?? throw new InvalidOperationException("The board meeting payload is invalid.");
+        var when = $"<t:{data.ScheduledAtUtc.ToUnixTimeSeconds()}:F> (<t:{data.ScheduledAtUtc.ToUnixTimeSeconds()}:R>)";
+        var location = string.IsNullOrWhiteSpace(data.Location) ? "Location to be decided" : data.Location;
+        var reason = string.IsNullOrWhiteSpace(data.Reason) ? string.Empty : $"\nReason: {data.Reason}";
+        var agenda = RenderAgenda(data.AgendaItems);
+        var buttons = includeButtons ? new[]
+        {
+            new RenderedButton("I have time", $"board-availability:{data.MeetingId}:{data.ScheduleVersion}:available", 3),
+            new RenderedButton("I cannot attend", $"board-availability:{data.MeetingId}:{data.ScheduleVersion}:unavailable", 4)
+        } : null;
+        var message = new RenderedMessage(heading, $"**{data.Title}**\n{when}\n{data.DurationMinutes} minutes · {location}{reason}{agenda}", data.ManagementUrl, _options.BoardRoleId, _options.BoardChannelId, buttons);
+        return new RenderedNotification(message, null);
+    }
+
+    private static string RenderAgenda(IReadOnlyList<string>? agendaItems)
+    {
+        if (agendaItems is not { Count: > 0 }) return string.Empty;
+        var visibleItems = agendaItems.Take(10).Select((title, index) => $"{index + 1}. {Truncate(title, 160)}");
+        var remainder = agendaItems.Count > 10 ? $"\n…and {agendaItems.Count - 10} more" : string.Empty;
+        return $"\n\n**Agenda**\n{string.Join('\n', visibleItems)}{remainder}";
+    }
+
+    private static string Truncate(string value, int maximumLength)
+    {
+        return value.Length <= maximumLength ? value : $"{value[..(maximumLength - 1)]}…";
+    }
+
+    private RenderedNotification RenderBoardProposal(NotificationInboxItem notification)
+    {
+        var data = JsonSerializer.Deserialize<BoardRescheduleProposalNotification>(notification.DataJson, JsonOptions())
+            ?? throw new InvalidOperationException("The board reschedule proposal payload is invalid.");
+        var when = $"<t:{data.ProposedAtUtc.ToUnixTimeSeconds()}:F> (<t:{data.ProposedAtUtc.ToUnixTimeSeconds()}:R>)";
+        var reason = string.IsNullOrWhiteSpace(data.Reason) ? string.Empty : $"\nReason: {data.Reason}";
+        var message = new RenderedMessage("Board meeting reschedule proposed", $"**{data.ProposedByDisplayName}** proposed a new date for **{data.Title}**:\n{when}\n{data.DurationMinutes} minutes{reason}", data.ManagementUrl, _options.BoardRoleId, _options.BoardChannelId);
+        return new RenderedNotification(message, null);
+    }
+
+    private RenderedNotification RenderBoardAgendaChange(NotificationInboxItem notification)
+    {
+        var data = JsonSerializer.Deserialize<BoardAgendaChangedNotification>(notification.DataJson, JsonOptions())
+            ?? throw new InvalidOperationException("The board agenda payload is invalid.");
+        var context = string.IsNullOrWhiteSpace(data.MeetingTitle) ? "Board backlog" : data.MeetingTitle;
+        var agendaItems = data.AgendaItems ?? [];
+        var changedItems = data.ChangedItems
+            ?? (data.AgendaItemId.HasValue && !string.IsNullOrWhiteSpace(data.Title)
+                ? [new BoardAgendaNotificationItem(data.AgendaItemId.Value, data.Title, 0)]
+                : []);
+        var changedIds = changedItems.Select(x => x.AgendaItemId).ToHashSet();
+        var agendaLines = agendaItems
+            .OrderBy(x => x.Order)
+            .Select((item, index) => RenderAgendaChangeLine(item, index + 1, changedIds.Contains(item.AgendaItemId), data.Action))
+            .ToList();
+        if (agendaLines.Count == 0)
+        {
+            agendaLines.Add("_No remaining agenda items._");
+        }
+        var removedItems = changedItems
+            .Where(changed => agendaItems.All(item => item.AgendaItemId != changed.AgendaItemId))
+            .Select(item => $"- ~~{Truncate(item.Title, 150)}~~");
+        agendaLines.AddRange(removedItems);
+        var body = $"**{context}**\n\n**Updated agenda**\n{string.Join('\n', agendaLines)}";
+        var message = new RenderedMessage("Board agenda changed", body, data.ManagementUrl, null, _options.BoardChannelId);
+        return new RenderedNotification(message, null);
+    }
+
+    private static string RenderAgendaChangeLine(BoardAgendaNotificationItem item, int position, bool isChanged, string action)
+    {
+        var title = Truncate(item.Title, 150);
+        if (!isChanged)
+        {
+            return $"{position}. {title}";
+        }
+
+        return action switch
+        {
+            "added" or "created" or "added from backlog" => $"+ **{title}**",
+            _ => $"~ **{title}**"
+        };
     }
 
     private static JsonSerializerOptions JsonOptions() => new(JsonSerializerDefaults.Web);

@@ -1,0 +1,26 @@
+@using AkGaming.Management.Modules.BoardManagement.Contracts
+
+<article class="backlog-item-card @(IsDragging ? "dragging" : string.Empty)"
+         draggable="@(CanManage ? "true" : "false")"
+         data-ak-draggable="@(CanManage ? "true" : "false")"
+         data-ak-drag-id="@Item.Id"
+         @ondragstart="HandleDragStarted"
+         @ondragend="HandleDragEnded">
+    @if (CanManage)
+    {
+        <span class="drag-handle" title="Drag onto a meeting" aria-hidden="true"><span class="bi bi-grip-vertical"></span></span>
+    }
+    <div>
+        <strong>@Item.Title</strong>
+        @if (!string.IsNullOrWhiteSpace(Item.Description))
+        {
+            <p>@Item.Description</p>
+        }
+    </div>
+    @if (CanManage)
+    {
+        <ContextMenu AriaLabel="@($"Actions for {Item.Title}")">
+            <ContextMenuItem IconClass="bi-trash" Text="Delete" IsDestructive="true" OnClick="DeleteAsync" />
+        </ContextMenu>
+    }
+</article>

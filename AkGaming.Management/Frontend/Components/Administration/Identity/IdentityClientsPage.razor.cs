@@ -201,6 +201,14 @@ public partial class IdentityClientsPage : ComponentBase
         _newAllowRefreshTokenFlow = false;
     }
 
+    private void UseGamelyBotDefaults()
+    {
+        UseServiceClientDefaults();
+        _newClientId = "akgaming-gamelybot";
+        _newDisplayName = "GamelyBot";
+        _newScopesText = "identity_discord_links\nmanagement_board_interactions";
+    }
+
     private static string[] ParseMultiline(string? value)
     {
         return (value ?? string.Empty)

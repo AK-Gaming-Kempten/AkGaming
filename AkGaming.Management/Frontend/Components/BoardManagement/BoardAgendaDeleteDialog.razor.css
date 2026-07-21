@@ -1,0 +1,29 @@
+.delete-agenda-content {
+    display: grid;
+    gap: .55rem;
+}
+
+.delete-agenda-content p {
+    margin: 0;
+    color: var(--color-text-secondary);
+    white-space: pre-wrap;
+}
+
+.dialog-cancel,
+.delete-action {
+    padding: .55rem .9rem;
+    border-radius: 4px;
+}
+
+.dialog-cancel {
+    color: var(--color-text-primary);
+    background: var(--color-background-secondary);
+    border: 1px solid var(--color-text-secondary);
+}
+
+.delete-action {
+    color: white;
+    background: var(--color-error, #c93c55);
+    border: 1px solid var(--color-error, #c93c55);
+    font-weight: 600;
+}

@@ -53,4 +53,84 @@ public sealed class NotificationRendererTests
         Assert.That(rendered.DirectMessage!.Body, Does.Contain("Approved"));
         Assert.That(rendered.DirectMessage.Body, Does.Contain("Looks good"));
     }
+
+    [Test]
+    [Description("Renders a board meeting in the board channel with schedule-versioned availability buttons.")]
+    public void Render_WhenBoardMeetingIsCreated_ReturnsInteractiveBoardMessage()
+    {
+        // Arrange
+        var renderer = new NotificationRenderer(Options.Create(new NotificationRoutingOptions { BoardChannelId = "board-channel", BoardRoleId = "board-role" }));
+        var meetingId = Guid.NewGuid();
+        var payload = new BoardMeetingNotification(meetingId, "Board meeting", DateTimeOffset.UtcNow.AddDays(1), 90, "Club room", 4, null, null, ["Budget", "Upcoming events"]);
+        var notification = new NotificationInboxItem { Type = NotificationEventTypes.BoardMeetingCreated, DataJson = JsonSerializer.Serialize(payload, new JsonSerializerOptions(JsonSerializerDefaults.Web)) };
+
+        // Act
+        var rendered = renderer.Render(notification);
+
+        // Assert
+        Assert.That(rendered.ChannelMessage?.ChannelId, Is.EqualTo("board-channel"));
+        Assert.That(rendered.ChannelMessage?.RoleId, Is.EqualTo("board-role"));
+        Assert.That(rendered.ChannelMessage?.Buttons, Has.Count.EqualTo(2));
+        Assert.That(rendered.ChannelMessage!.Buttons![0].CustomId, Does.Contain($"{meetingId}:4:available"));
+        Assert.That(rendered.ChannelMessage.Body, Does.Contain("Agenda"));
+        Assert.That(rendered.ChannelMessage.Body, Does.Contain("1. Budget"));
+    }
+
+    [Test]
+    [Description("Renders the complete updated agenda and highlights newly added entries.")]
+    public void Render_WhenAgendaItemIsAdded_ReturnsFullAgendaWithAdditionMarker()
+    {
+        // Arrange
+        var renderer = new NotificationRenderer(Options.Create(new NotificationRoutingOptions { BoardChannelId = "board-channel" }));
+        var unchanged = new BoardAgendaNotificationItem(Guid.NewGuid(), "Budget", 0);
+        var added = new BoardAgendaNotificationItem(Guid.NewGuid(), "Summer event", 1);
+        var payload = new BoardAgendaChangedNotification(
+            Guid.NewGuid(),
+            "Board meeting",
+            "added",
+            null,
+            [unchanged, added],
+            [added]);
+        var notification = new NotificationInboxItem
+        {
+            Type = NotificationEventTypes.BoardAgendaChanged,
+            DataJson = JsonSerializer.Serialize(payload, new JsonSerializerOptions(JsonSerializerDefaults.Web))
+        };
+
+        // Act
+        var rendered = renderer.Render(notification);
+
+        // Assert
+        Assert.That(rendered.ChannelMessage?.Body, Does.Contain("1. Budget"));
+        Assert.That(rendered.ChannelMessage?.Body, Does.Contain("+ **Summer event**"));
+    }
+
+    [Test]
+    [Description("Renders deleted agenda entries struck through after the remaining agenda.")]
+    public void Render_WhenAgendaItemIsDeleted_ReturnsStruckThroughEntry()
+    {
+        // Arrange
+        var renderer = new NotificationRenderer(Options.Create(new NotificationRoutingOptions { BoardChannelId = "board-channel" }));
+        var remaining = new BoardAgendaNotificationItem(Guid.NewGuid(), "Budget", 0);
+        var deleted = new BoardAgendaNotificationItem(Guid.NewGuid(), "Old topic", 1);
+        var payload = new BoardAgendaChangedNotification(
+            Guid.NewGuid(),
+            "Board meeting",
+            "deleted",
+            null,
+            [remaining],
+            [deleted]);
+        var notification = new NotificationInboxItem
+        {
+            Type = NotificationEventTypes.BoardAgendaChanged,
+            DataJson = JsonSerializer.Serialize(payload, new JsonSerializerOptions(JsonSerializerDefaults.Web))
+        };
+
+        // Act
+        var rendered = renderer.Render(notification);
+
+        // Assert
+        Assert.That(rendered.ChannelMessage?.Body, Does.Contain("1. Budget"));
+        Assert.That(rendered.ChannelMessage?.Body, Does.Contain("- ~~Old topic~~"));
+    }
 }

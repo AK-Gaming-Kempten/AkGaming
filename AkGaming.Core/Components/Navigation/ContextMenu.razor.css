@@ -25,6 +25,11 @@
     background-color: color-mix(in oklab, var(--color-highlight-primary) 25%, transparent);
 }
 
+.context-menu-trigger .bi {
+    font-size: 1.2rem;
+    line-height: 1;
+}
+
 .context-menu-content {
     position: absolute;
     z-index: 1;

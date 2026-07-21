@@ -150,6 +150,8 @@ public static class ServiceCollectionExtensions {
             AddPermissionPolicy(options, "management.general-meetings.manage");
             AddPermissionPolicy(options, "management.general-meetings.minutes.write");
             AddPermissionPolicy(options, "management.general-meetings.audit.read");
+            AddPermissionPolicy(options, "management.board-meetings.read");
+            AddPermissionPolicy(options, "management.board-meetings.manage");
         });
 
         return services;
@@ -210,6 +212,8 @@ public static class ServiceCollectionExtensions {
                 sp.GetRequiredKeyedService<HttpClient>("ManagementApi"),
                 sp.GetRequiredService<IHttpClientFactory>().CreateClient("ManagementApiAnonymous")));
         services.AddScoped<GeneralMeetingAccessService>();
+        services.AddScoped<BoardMeetingsApiClient>(sp =>
+            new BoardMeetingsApiClient(sp.GetRequiredKeyedService<HttpClient>("ManagementApi")));
 
         services.AddScoped<IdentityApiClient>(sp =>
             new IdentityApiClient(

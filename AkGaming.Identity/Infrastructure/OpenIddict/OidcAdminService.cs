@@ -25,6 +25,7 @@ public sealed class OidcAdminService : IOidcAdminService
     private const string ManagementApiScope = "management_api";
     private const string GamelyBotNotificationsScope = "gamelybot_notifications";
     private const string IdentityDiscordLinksScope = "identity_discord_links";
+    private const string ManagementBoardInteractionsScope = "management_board_interactions";
 
     private static readonly string[] StandardScopes =
     [
@@ -61,7 +62,8 @@ public sealed class OidcAdminService : IOidcAdminService
         {
             ManagementApiScope,
             GamelyBotNotificationsScope,
-            IdentityDiscordLinksScope
+            IdentityDiscordLinksScope,
+            ManagementBoardInteractionsScope
         };
         var protectedClientIds = seedOptions.Value.Applications
             .Where(application => application.Scopes.Any(protectedScopeNames.Contains))

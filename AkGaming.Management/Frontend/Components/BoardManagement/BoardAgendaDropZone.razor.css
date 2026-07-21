@@ -1,0 +1,45 @@
+.agenda-drop-zone {
+    position: relative;
+    height: .35rem;
+    transition: height .12s ease;
+}
+
+.agenda-drop-zone.enabled {
+    height: .8rem;
+}
+
+.agenda-drop-zone span {
+    position: absolute;
+    top: 50%;
+    right: .35rem;
+    left: .35rem;
+    height: 3px;
+    border-radius: 999px;
+    background: var(--color-highlight-primary);
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(-50%) scaleX(.96);
+    transition: opacity .12s ease, transform .12s ease;
+}
+
+.agenda-drop-zone.drag-over {
+    height: 1.15rem;
+}
+
+.agenda-drop-zone.drag-over span {
+    opacity: 1;
+    transform: translateY(-50%) scaleX(1);
+}
+
+.agenda-drop-zone.drag-over span::before {
+    position: absolute;
+    top: 50%;
+    left: -.2rem;
+    width: .55rem;
+    height: .55rem;
+    border: 2px solid var(--color-highlight-primary);
+    border-radius: 50%;
+    background: var(--color-background-primary);
+    content: "";
+    transform: translateY(-50%);
+}

@@ -80,6 +80,16 @@ jobs:
           DOTNET_CLI_HOME: /tmp
           DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
         run: dotnet test AkGaming.Management/Modules/Disbursements/Tests/AkGaming.Management.Modules.Disbursements.Tests.csproj --configuration Release --no-restore
+      - name: Restore Board Management Tests
+        env:
+          DOTNET_CLI_HOME: /tmp
+          DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
+        run: dotnet restore AkGaming.Management/Modules/BoardManagement/Tests/AkGaming.Management.Modules.BoardManagement.Tests.csproj -p:RestoreUseStaticGraphEvaluation=true
+      - name: Run Board Management Tests
+        env:
+          DOTNET_CLI_HOME: /tmp
+          DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
+        run: dotnet test AkGaming.Management/Modules/BoardManagement/Tests/AkGaming.Management.Modules.BoardManagement.Tests.csproj --configuration Release --no-restore
 
   deploy-test:
     needs:
@@ -128,6 +138,11 @@ jobs:
           DOTNET_CLI_HOME: /tmp
           DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
         run: dotnet restore AkGaming.Management/Modules/GeneralMeetings/Migrations/Postgres/AkGaming.Management.Modules.GeneralMeetings.Migrations.Postgres.csproj -p:RestoreUseStaticGraphEvaluation=true
+      - name: Restore Board Management Migration Project
+        env:
+          DOTNET_CLI_HOME: /tmp
+          DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
+        run: dotnet restore AkGaming.Management/Modules/BoardManagement/Migrations/Postgres/AkGaming.Management.Modules.BoardManagement.Migrations.Postgres.csproj -p:RestoreUseStaticGraphEvaluation=true
       - name: Configure SSH For Test Database Tunnel
         if: ${{ env.DB_SSH_HOST != '' && env.DB_SSH_USER != '' && env.DB_SSH_PRIVATE_KEY != '' && env.DB_SSH_KNOWN_HOSTS != '' }}
         run: |
@@ -204,6 +219,13 @@ jobs:
           DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
           ConnectionStrings__DefaultConnection: ${{ env.MANAGEMENT_TEST_DB_CONNECTION_STRING }}
         run: dotnet ef database update --project AkGaming.Management/Modules/GeneralMeetings/Migrations/Postgres/AkGaming.Management.Modules.GeneralMeetings.Migrations.Postgres.csproj --context GeneralMeetingsDbContext
+      - name: Apply Test Board Management Migrations
+        if: ${{ env.MANAGEMENT_TEST_DB_CONNECTION_STRING != '' }}
+        env:
+          DOTNET_CLI_HOME: /tmp
+          DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
+          ConnectionStrings__DefaultConnection: ${{ env.MANAGEMENT_TEST_DB_CONNECTION_STRING }}
+        run: dotnet ef database update --project AkGaming.Management/Modules/BoardManagement/Migrations/Postgres/AkGaming.Management.Modules.BoardManagement.Migrations.Postgres.csproj --context BoardManagementDbContext
       - name: Trigger Coolify Test Deploy for Backend
         run: |
           curl --fail --request GET "${{ secrets.COOLIFY_WEBHOOK_MANAGEMENT_BACKEND_TEST }}" \
@@ -258,6 +280,11 @@ jobs:
           DOTNET_CLI_HOME: /tmp
           DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
         run: dotnet restore AkGaming.Management/Modules/GeneralMeetings/Migrations/Postgres/AkGaming.Management.Modules.GeneralMeetings.Migrations.Postgres.csproj -p:RestoreUseStaticGraphEvaluation=true
+      - name: Restore Board Management Migration Project
+        env:
+          DOTNET_CLI_HOME: /tmp
+          DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
+        run: dotnet restore AkGaming.Management/Modules/BoardManagement/Migrations/Postgres/AkGaming.Management.Modules.BoardManagement.Migrations.Postgres.csproj -p:RestoreUseStaticGraphEvaluation=true
       - name: Configure SSH For Production Database Tunnel
         if: ${{ env.DB_SSH_HOST != '' && env.DB_SSH_USER != '' && env.DB_SSH_PRIVATE_KEY != '' && env.DB_SSH_KNOWN_HOSTS != '' }}
         run: |
@@ -334,6 +361,13 @@ jobs:
           DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
           ConnectionStrings__DefaultConnection: ${{ env.MANAGEMENT_PRODUCTION_DB_CONNECTION_STRING }}
         run: dotnet ef database update --project AkGaming.Management/Modules/GeneralMeetings/Migrations/Postgres/AkGaming.Management.Modules.GeneralMeetings.Migrations.Postgres.csproj --context GeneralMeetingsDbContext
+      - name: Apply Production Board Management Migrations
+        if: ${{ env.MANAGEMENT_PRODUCTION_DB_CONNECTION_STRING != '' }}
+        env:
+          DOTNET_CLI_HOME: /tmp
+          DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
+          ConnectionStrings__DefaultConnection: ${{ env.MANAGEMENT_PRODUCTION_DB_CONNECTION_STRING }}
+        run: dotnet ef database update --project AkGaming.Management/Modules/BoardManagement/Migrations/Postgres/AkGaming.Management.Modules.BoardManagement.Migrations.Postgres.csproj --context BoardManagementDbContext
       - name: Trigger Coolify Production Deploy for Backend
         run: |
           curl --fail --request GET "${{ secrets.COOLIFY_WEBHOOK_MANAGEMENT_BACKEND }}" \

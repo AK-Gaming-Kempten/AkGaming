@@ -1,0 +1,68 @@
+@page "/board/meetings"
+@using Microsoft.AspNetCore.Authorization
+@using AkGaming.Management.Modules.BoardManagement.Contracts
+@attribute [Authorize(Policy = "management.board-meetings.read")]
+
+<PageTitle>Board Meetings</PageTitle>
+
+<div class="meetings-page ui-stack-md">
+    <section class="panel meetings-heading board-overview-heading">
+        <div><h2>Board Meetings</h2><p class="ui-text-muted">Schedule board meetings, forecast attendance, and prepare the agenda.</p></div>
+        <AuthorizeView Policy="management.board-meetings.manage"><button class="primary-action" type="button" @onclick="OpenCreateDialog"><span class="bi bi-plus-lg"></span> Create meeting</button></AuthorizeView>
+    </section>
+    @if (!string.IsNullOrWhiteSpace(_error)) { <p class="error">@_error</p> }
+    @if (_showCreate)
+    {
+        <BoardMeetingCreateDialog IsBusy="_busy" Error="@_error" OnSubmit="CreateAsync" OnClose="CloseCreateDialog" />
+    }
+    @if (_meetings is null) { <p>Loading...</p> }
+    else if (_meetings.Count == 0) { <section class="panel">No board meetings have been created.</section> }
+    else
+    {
+        <div class="meeting-grid">
+            @foreach (var meeting in _meetings)
+            {
+                <BoardMeetingSummaryCard Meeting="meeting"
+                                         CanAcceptAgendaDrop="@(_canManage && meeting.Status == BoardMeetingStatusDto.Scheduled)"
+                                         IsAgendaDragActive="@_draggedBacklogItemId.HasValue"
+                                         OnAgendaItemDropped="AssignDraggedBacklogItemAsync" />
+            }
+        </div>
+    }
+    <section class="panel ui-stack-sm backlog-panel">
+        <div class="meetings-heading backlog-heading"><div><h3>Agenda backlog</h3><p class="ui-text-muted">Drag an item onto a scheduled meeting above to add it to that agenda.</p></div><AuthorizeView Policy="management.board-meetings.manage"><button type="button" @onclick="ToggleBacklogCreate">@(_showBacklogCreate ? "Cancel" : "Add item")</button></AuthorizeView></div>
+        @if (_showBacklogCreate)
+        {
+            <div class="backlog-create-form">
+                <label>Title <InputText @bind-Value="_backlogTitle" /></label>
+                <label>Description <InputTextArea @bind-Value="_backlogDescription" /></label>
+                <button class="primary-action" type="button" disabled="@_busy" @onclick="CreateBacklogItemAsync">Add to backlog</button>
+            </div>
+        }
+        @if (_backlog is null) { <p>Loading...</p> }
+        else if (_backlog.Count == 0) { <p>No backlog items.</p> }
+        else
+        {
+            <div class="backlog-list">
+                @foreach (var item in _backlog)
+                {
+                    <BoardBacklogItemCard Item="item"
+                                          CanManage="_canManage"
+                                          IsDragging="@(_draggedBacklogItemId == item.Id)"
+                                          OnDragStarted="StartBacklogDrag"
+                                          OnDragEnded="EndBacklogDrag"
+                                          OnDelete="OpenDeleteBacklogDialog" />
+                }
+            </div>
+        }
+    </section>
+</div>
+
+@if (_deletingBacklogItem is not null)
+{
+    <BoardAgendaDeleteDialog Item="_deletingBacklogItem"
+                             IsBusy="_busy"
+                             Error="@_error"
+                             OnConfirm="DeleteBacklogItemAsync"
+                             OnClose="CloseDeleteBacklogDialog" />
+}

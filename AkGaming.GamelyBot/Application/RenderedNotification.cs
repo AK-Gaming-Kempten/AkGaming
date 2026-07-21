@@ -1,6 +1,9 @@
 namespace AkGaming.GamelyBot.Application;
 
-public sealed record RenderedMessage(string Title, string Body, string? Url = null, string? RoleId = null);
+public sealed record RenderedButton(string Label, string CustomId, int Style);
+
+public sealed record RenderedMessage(string Title, string Body, string? Url = null, string? RoleId = null,
+    string? ChannelId = null, IReadOnlyList<RenderedButton>? Buttons = null);
 
 public sealed record RenderedNotification(RenderedMessage? ChannelMessage, RenderedMessage? DirectMessage);
 

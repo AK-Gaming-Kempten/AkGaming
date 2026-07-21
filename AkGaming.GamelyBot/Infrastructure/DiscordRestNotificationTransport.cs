@@ -18,7 +18,8 @@ public sealed class DiscordRestNotificationTransport(IHttpClientFactory httpClie
         var content = string.IsNullOrWhiteSpace(message.RoleId) ? null : $"<@&{message.RoleId}>";
         var allowedRoleIds = string.IsNullOrWhiteSpace(message.RoleId) ? Array.Empty<string>() : new[] { message.RoleId };
         var payload = BuildPayload(content, allowedRoleIds, message);
-        return SendMessageAsync($"channels/{_options.AdministrationChannelId}/messages", payload, cancellationToken);
+        var channelId = string.IsNullOrWhiteSpace(message.ChannelId) ? _options.AdministrationChannelId : message.ChannelId;
+        return SendMessageAsync($"channels/{channelId}/messages", payload, cancellationToken);
     }
 
     public async Task<TransportResult> SendDirectMessageAsync(string discordUserId, RenderedMessage message, CancellationToken cancellationToken)
@@ -72,6 +73,9 @@ public sealed class DiscordRestNotificationTransport(IHttpClientFactory httpClie
 
     private static object BuildPayload(string? content, IReadOnlyCollection<string> allowedRoleIds, RenderedMessage message)
     {
+        var components = message.Buttons is null || message.Buttons.Count == 0
+            ? Array.Empty<object>()
+            : new object[] { new { type = 1, components = message.Buttons.Select(button => new { type = 2, style = button.Style, label = button.Label, custom_id = button.CustomId }).ToArray() } };
         return new
         {
             content,
@@ -79,7 +83,8 @@ public sealed class DiscordRestNotificationTransport(IHttpClientFactory httpClie
             embeds = new[]
             {
                 new { title = message.Title, description = message.Body, url = message.Url, color = 0x5865F2 }
-            }
+            },
+            components
         };
     }
 

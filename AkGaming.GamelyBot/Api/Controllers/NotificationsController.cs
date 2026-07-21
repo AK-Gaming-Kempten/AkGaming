@@ -14,7 +14,12 @@ public sealed class NotificationsController(INotificationInbox inbox) : Controll
     private static readonly HashSet<string> SupportedTypes =
     [
         NotificationEventTypes.ReimbursementSubmitted,
-        NotificationEventTypes.ReimbursementStatusChanged
+        NotificationEventTypes.ReimbursementStatusChanged,
+        NotificationEventTypes.BoardMeetingCreated,
+        NotificationEventTypes.BoardMeetingRescheduled,
+        NotificationEventTypes.BoardMeetingCancelled,
+        NotificationEventTypes.BoardMeetingRescheduleProposed,
+        NotificationEventTypes.BoardAgendaChanged
     ];
 
     [HttpPost]

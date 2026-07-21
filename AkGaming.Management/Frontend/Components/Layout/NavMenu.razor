@@ -24,6 +24,14 @@
                 </NavLink>
             }
 
+            @if (canReadBoardMeetings)
+            {
+                <NavLink href="board/meetings" class="nav-item level-1" @onclick="NotifyNavigation">
+                    <span class="nav-icon bi-calendar2-week"></span>
+                    <span>Board Meetings</span>
+                </NavLink>
+            }
+
             @if (isAuthenticated)
             {
                 <div class="nav-section">

@@ -1,0 +1,10 @@
+<div class="agenda-drop-zone @(IsEnabled ? "enabled" : string.Empty) @(_isDragOver ? "drag-over" : string.Empty)"
+     aria-hidden="true"
+     @ondragenter="HandleDragEnter"
+     @ondragleave="HandleDragLeave"
+     @ondragover:preventDefault="IsEnabled"
+     @ondrop:preventDefault="IsEnabled"
+     @ondrop:stopPropagation="IsEnabled"
+     @ondrop="HandleDropAsync">
+    <span></span>
+</div>

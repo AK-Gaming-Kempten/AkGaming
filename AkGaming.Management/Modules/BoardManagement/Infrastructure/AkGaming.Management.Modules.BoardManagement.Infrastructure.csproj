@@ -1,0 +1,6 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup><TargetFramework>net10.0</TargetFramework><ImplicitUsings>enable</ImplicitUsings><Nullable>enable</Nullable></PropertyGroup>
+  <ItemGroup><ProjectReference Include="..\Application\AkGaming.Management.Modules.BoardManagement.Application.csproj" /><ProjectReference Include="$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\..\..\..\AkGaming.Core\Notifications\AkGaming.Core.Notifications.csproj'))" /></ItemGroup>
+  <ItemGroup><FrameworkReference Include="Microsoft.AspNetCore.App" /></ItemGroup>
+  <ItemGroup><PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.3" /><PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.3"><PrivateAssets>all</PrivateAssets></PackageReference><PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="10.0.3" /><PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.0" /></ItemGroup>
+</Project>

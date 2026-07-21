@@ -1,0 +1,94 @@
+.meetings-page {
+    width: 100%;
+}
+
+.meetings-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+.meetings-heading h2,
+.meetings-heading h3,
+.meetings-heading p {
+    margin: 0;
+}
+
+.meetings-heading p {
+    margin-top: .35rem;
+}
+
+.board-overview-heading {
+    min-height: 8rem;
+}
+
+.meeting-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 28rem), 1fr));
+    gap: 1rem;
+}
+
+.backlog-panel {
+    gap: 1rem;
+}
+
+.backlog-create-form {
+    display: grid;
+    grid-template-columns: minmax(12rem, 1fr) minmax(16rem, 2fr) auto;
+    align-items: end;
+    gap: .8rem;
+    padding: 1rem;
+    background: var(--color-background-secondary);
+    border: 1px solid color-mix(in srgb, var(--color-text-secondary) 30%, transparent);
+    border-radius: 6px;
+}
+
+.backlog-create-form label {
+    display: grid;
+    gap: .4rem;
+    color: var(--color-text-secondary);
+    font-weight: 600;
+}
+
+.backlog-create-form input,
+.backlog-create-form textarea {
+    width: 100%;
+    padding: .65rem .75rem;
+    color: var(--color-text-primary);
+    background: var(--color-background-primary);
+    border: 1px solid color-mix(in srgb, var(--color-text-secondary) 55%, transparent);
+    border-radius: 4px;
+}
+
+.backlog-create-form textarea {
+    min-height: 2.75rem;
+    resize: vertical;
+}
+
+.backlog-list {
+    display: grid;
+    gap: .75rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+@media (max-width: 720px) {
+    .meetings-heading {
+        align-items: stretch;
+    }
+
+    .meetings-heading {
+        flex-direction: column;
+    }
+
+    .meetings-heading > button,
+    .meetings-heading ::deep button {
+        width: 100%;
+    }
+
+    .backlog-create-form {
+        grid-template-columns: 1fr;
+    }
+}

@@ -24,4 +24,21 @@ public sealed class InternalDiscordLinksController(IIdentityRepository repositor
         var response = new DiscordLinkResponse(userId, discordLink?.ProviderUserId, discordLink is not null);
         return Ok(response);
     }
+
+    [HttpGet("by-discord/{discordUserId}")]
+    public async Task<ActionResult<DiscordUserLinkResponse>> GetUserByDiscordId(string discordUserId, CancellationToken cancellationToken)
+    {
+        var discordLink = await repository.GetExternalLoginAsync("discord", discordUserId, cancellationToken);
+        if (discordLink is null)
+            return NotFound();
+        var user = await repository.GetUserByIdAsync(discordLink.UserId, cancellationToken);
+        if (user is null)
+            return NotFound();
+        var displayName = string.IsNullOrWhiteSpace(user.Username) ? user.Email : user.Username;
+        var canAccessBoardMeetings = user.UserRoles
+            .SelectMany(userRole => userRole.Role.RolePermissions)
+            .Any(rolePermission => rolePermission.Permission.Key == "management.board-meetings.read");
+        var response = new DiscordUserLinkResponse(user.Id, displayName, true, canAccessBoardMeetings);
+        return Ok(response);
+    }
 }

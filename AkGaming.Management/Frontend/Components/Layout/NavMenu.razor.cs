@@ -24,6 +24,7 @@ public partial class NavMenu : ComponentBase
     private bool canReadDisbursements;
     private bool canReadUsers;
     private bool canAccessGeneralMeetings;
+    private bool canReadBoardMeetings;
     private bool canReadRoles;
     private bool canReadIdentityAudit;
     private bool canManageOidc;
@@ -69,6 +70,7 @@ public partial class NavMenu : ComponentBase
         canManageInvoices = isAuthenticated && user.HasClaim("permission", "management.invoices.manage");
         canReadDisbursements = isAuthenticated && user.HasClaim("permission", "management.disbursements.read");
         canAccessGeneralMeetings = isAuthenticated && await GeneralMeetingAccess.CanAccessAsync(user);
+        canReadBoardMeetings = isAuthenticated && user.HasClaim("permission", "management.board-meetings.read");
         canReadUsers = isAuthenticated && user.HasClaim("permission", "identity.users.read");
         canReadRoles = isAuthenticated && user.HasClaim("permission", "identity.roles.read");
         canReadIdentityAudit = isAuthenticated && user.HasClaim("permission", "identity.audit.read");
