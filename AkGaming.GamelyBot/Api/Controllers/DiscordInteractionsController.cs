@@ -24,33 +24,139 @@ public sealed class DiscordInteractionsController(DiscordInteractionService inte
         if (interactionOptions.Value.ValidateSignatures && !HasValidSignature(body)) return Unauthorized();
         using var document = JsonDocument.Parse(body);
         var root = document.RootElement;
-        if (root.GetProperty("type").GetInt32() == 1) return Ok(new { type = 1 });
-        if (root.GetProperty("type").GetInt32() != 3) return Ok(Ephemeral("Unsupported interaction."));
+        var interactionType = root.GetProperty("type").GetInt32();
+        if (interactionType == 1) return Ok(new { type = 1 });
         var guildId = root.TryGetProperty("guild_id", out var guild) ? guild.GetString() : null;
         if (!string.Equals(guildId, discordOptions.Value.GuildId, StringComparison.Ordinal)) return Ok(Ephemeral("This bot only accepts interactions from the configured club server."));
-        var customId = root.GetProperty("data").GetProperty("custom_id").GetString();
-        var parts = customId?.Split(':');
-        if (parts is not { Length: 4 } || parts[0] != "board-availability" || !Guid.TryParse(parts[1], out var meetingId) || !int.TryParse(parts[2], out var version)) return Ok(Ephemeral("This meeting action is invalid."));
         var discordUserId = root.GetProperty("member").GetProperty("user").GetProperty("id").GetString();
         if (string.IsNullOrWhiteSpace(discordUserId)) return Ok(Ephemeral("Discord did not identify your account."));
-        var status = parts[3] == "available" ? "Available" : "Unavailable";
         using var interactionTimeout = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
         interactionTimeout.CancelAfter(TimeSpan.FromSeconds(2));
         try
         {
-            var message = await interactions.SetAvailabilityAsync(discordUserId, meetingId, version, status, interactionTimeout.Token);
-            return Ok(Ephemeral(message));
+            var response = await HandleInteractionAsync(root, interactionType, discordUserId, interactionTimeout.Token);
+            return Ok(response);
         }
         catch (OperationCanceledException) when (!cancellationToken.IsCancellationRequested)
         {
-            logger.LogWarning("Discord availability interaction timed out for meeting {MeetingId}.", meetingId);
+            logger.LogWarning("Discord interaction timed out for user {DiscordUserId}.", discordUserId);
             return Ok(Ephemeral("The club services did not respond in time. Please try again or use the management tool."));
         }
         catch (Exception exception)
         {
-            logger.LogError(exception, "Discord availability interaction failed for meeting {MeetingId}.", meetingId);
-            return Ok(Ephemeral("I could not save your availability right now. Please try again or use the management tool."));
+            logger.LogError(exception, "Discord interaction failed for user {DiscordUserId}.", discordUserId);
+            return Ok(Ephemeral("I could not complete that action right now. Please try again or use the management tool."));
         }
+    }
+
+    private async Task<object> HandleInteractionAsync(JsonElement root, int interactionType, string discordUserId, CancellationToken cancellationToken)
+    {
+        var data = root.GetProperty("data");
+        if (interactionType == 3) return await HandleButtonAsync(data, discordUserId, cancellationToken);
+        if (interactionType == 4) return await HandleAutocompleteAsync(data, discordUserId, cancellationToken);
+        if (interactionType == 5) return await HandleModalAsync(data, discordUserId, cancellationToken);
+        if (interactionType != 2 || data.GetProperty("name").GetString() != "board") return Ephemeral("Unsupported interaction.");
+
+        var command = GetMeetingSubcommand(data);
+        return command switch
+        {
+            "help" => Ephemeral(interactions.GetBoardMeetingHelp()),
+            "backlog" => Ephemeral(await interactions.GetBacklogAsync(discordUserId, cancellationToken)),
+            "agenda" => Ephemeral(await interactions.GetNextMeetingAsync(discordUserId, true, cancellationToken)),
+            "details" => Ephemeral(await interactions.GetNextMeetingAsync(discordUserId, false, cancellationToken)),
+            "add-backlog" => AgendaItemModal("board-meeting-add-backlog", "Add backlog item"),
+            "add-agenda" => AgendaItemModal("board-meeting-add-agenda", "Add agenda item"),
+            "promote" => await PromoteAsync(data, discordUserId, cancellationToken),
+            "availability" => await SetNextAvailabilityAsync(data, discordUserId, cancellationToken),
+            _ => Ephemeral("Unsupported board meeting command.")
+        };
+    }
+
+    private async Task<object> HandleButtonAsync(JsonElement data, string discordUserId, CancellationToken cancellationToken)
+    {
+        var customId = data.GetProperty("custom_id").GetString();
+        var parts = customId?.Split(':');
+        if (parts is not { Length: 4 } || parts[0] != "board-availability" || !Guid.TryParse(parts[1], out var meetingId) || !int.TryParse(parts[2], out var version))
+            return Ephemeral("This meeting action is invalid.");
+        var status = parts[3] == "available" ? "Available" : "Unavailable";
+        var message = await interactions.SetAvailabilityAsync(discordUserId, meetingId, version, status, cancellationToken);
+        return Ephemeral(message);
+    }
+
+    private async Task<object> HandleAutocompleteAsync(JsonElement data, string discordUserId, CancellationToken cancellationToken)
+    {
+        if (GetMeetingSubcommand(data) != "promote") return Autocomplete([]);
+        var focused = FindFocusedOption(data);
+        var choices = await interactions.GetBacklogChoicesAsync(discordUserId, focused, cancellationToken);
+        return Autocomplete(choices);
+    }
+
+    private async Task<object> HandleModalAsync(JsonElement data, string discordUserId, CancellationToken cancellationToken)
+    {
+        var customId = data.GetProperty("custom_id").GetString();
+        if (customId is not ("board-meeting-add-backlog" or "board-meeting-add-agenda")) return Ephemeral("Unsupported form submission.");
+        var title = FindComponentValue(data, "title");
+        var description = FindComponentValue(data, "description");
+        if (string.IsNullOrWhiteSpace(title)) return Ephemeral("An agenda item title is required.");
+        var message = await interactions.AddAgendaItemAsync(discordUserId, title, description, customId == "board-meeting-add-agenda", cancellationToken);
+        return Ephemeral(message);
+    }
+
+    private async Task<object> PromoteAsync(JsonElement data, string discordUserId, CancellationToken cancellationToken)
+    {
+        var itemValue = FindOptionValue(data, "item");
+        if (!Guid.TryParse(itemValue, out var itemId)) return Ephemeral("Select a valid backlog item.");
+        var message = await interactions.PromoteBacklogItemAsync(discordUserId, itemId, cancellationToken);
+        return Ephemeral(message);
+    }
+
+    private async Task<object> SetNextAvailabilityAsync(JsonElement data, string discordUserId, CancellationToken cancellationToken)
+    {
+        var value = FindOptionValue(data, "status");
+        var status = value == "available" ? "Available" : value == "unavailable" ? "Unavailable" : null;
+        if (status is null) return Ephemeral("Select whether you have time for the meeting.");
+        var message = await interactions.SetNextMeetingAvailabilityAsync(discordUserId, status, cancellationToken);
+        return Ephemeral(message);
+    }
+
+    private static string? GetMeetingSubcommand(JsonElement data)
+    {
+        if (!data.TryGetProperty("options", out var rootOptions)) return null;
+        var group = rootOptions.EnumerateArray().FirstOrDefault(option => option.GetProperty("name").GetString() == "meeting");
+        if (group.ValueKind == JsonValueKind.Undefined || !group.TryGetProperty("options", out var groupOptions)) return null;
+        return groupOptions.EnumerateArray().FirstOrDefault().GetProperty("name").GetString();
+    }
+
+    private static string FindOptionValue(JsonElement data, string name)
+    {
+        foreach (var option in DescendantOptions(data))
+            if (option.GetProperty("name").GetString() == name && option.TryGetProperty("value", out var value)) return value.GetString() ?? string.Empty;
+        return string.Empty;
+    }
+
+    private static string FindFocusedOption(JsonElement data)
+    {
+        foreach (var option in DescendantOptions(data))
+            if (option.TryGetProperty("focused", out var focused) && focused.GetBoolean()) return option.GetProperty("value").GetString() ?? string.Empty;
+        return string.Empty;
+    }
+
+    private static IEnumerable<JsonElement> DescendantOptions(JsonElement element)
+    {
+        if (!element.TryGetProperty("options", out var options)) yield break;
+        foreach (var option in options.EnumerateArray())
+        {
+            yield return option;
+            foreach (var descendant in DescendantOptions(option)) yield return descendant;
+        }
+    }
+
+    private static string? FindComponentValue(JsonElement data, string customId)
+    {
+        foreach (var row in data.GetProperty("components").EnumerateArray())
+        foreach (var component in row.GetProperty("components").EnumerateArray())
+            if (component.GetProperty("custom_id").GetString() == customId) return component.GetProperty("value").GetString();
+        return null;
     }
 
     private bool HasValidSignature(string body)
@@ -71,4 +177,19 @@ public sealed class DiscordInteractionsController(DiscordInteractionService inte
     }
 
     private static object Ephemeral(string content) => new { type = 4, data = new { content, flags = 64 } };
+    private static object Autocomplete(IReadOnlyList<DiscordCommandChoice> choices) => new { type = 8, data = new { choices = choices.Select(choice => new { name = choice.Name, value = choice.Value }) } };
+    private static object AgendaItemModal(string customId, string title) => new
+    {
+        type = 9,
+        data = new
+        {
+            custom_id = customId,
+            title,
+            components = new object[]
+            {
+                new { type = 1, components = new[] { new { type = 4, custom_id = "title", label = "Title", style = 1, min_length = 1, max_length = 500, required = true } } },
+                new { type = 1, components = new[] { new { type = 4, custom_id = "description", label = "Description", style = 2, min_length = 0, max_length = 2000, required = false } } }
+            }
+        }
+    };
 }

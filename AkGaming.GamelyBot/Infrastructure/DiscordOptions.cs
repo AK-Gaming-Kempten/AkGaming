@@ -16,6 +16,7 @@ public sealed class ManagementClientOptions
 {
     public const string SectionName = "ManagementClient";
     public string BaseUrl { get; set; } = string.Empty;
+    public string BoardMeetingsUrl { get; set; } = string.Empty;
 }
 
 public sealed class IdentityClientOptions

@@ -8,6 +8,8 @@ GamelyBot is the private Discord integration gateway for AK Gaming applications.
 - `reimbursement.status-changed`: sends the applicant a DM for review, approval, rejection, payment, or cancellation changes.
 - Board meeting lifecycle and agenda events: notify the board channel. Created and rescheduled meeting messages include availability buttons.
 
+Board members with a linked Discord account can also use the guild-scoped `/board meeting` commands to view the next meeting and backlog, set availability, add agenda or backlog items, and promote backlog items to the next agenda. Add commands use Discord popup forms, and backlog selection uses autocomplete.
+
 An unavailable or blocked DM is recorded independently and never rolls back the originating reimbursement operation.
 
 ## Local development without Discord
@@ -37,10 +39,13 @@ For each Discord application:
 1. Enable only the Guild Install context.
 2. Set the public install link to `None`.
 3. Install it manually into the corresponding test or club server.
-4. Grant only View Channels, Send Messages, and Embed Links in the administration and board channels.
-5. Do not enable the Message Content intent; outbound notifications do not need it.
-6. Set the Interactions Endpoint URL to `https://<gamelybot-host>/api/discord/interactions`.
-7. Configure the immutable guild, administration-channel, board-channel, treasurer-role, board-role IDs, and the application's public key.
+4. Include the `bot` and `applications.commands` scopes during installation.
+5. Grant only View Channels, Send Messages, and Embed Links in the administration and board channels.
+6. Do not enable the Message Content intent; outbound notifications and slash commands do not need it.
+7. Set the Interactions Endpoint URL to `https://<gamelybot-host>/api/discord/interactions`.
+8. Configure the immutable guild, administration-channel, board-channel, treasurer-role, board-role IDs, and the application's public key.
+
+When the Discord transport is enabled, GamelyBot creates or updates its guild-scoped `/board` command during startup. Existing unrelated guild commands are left unchanged.
 
 Startup fails if the bot is installed in another server or if the configured channel/role does not belong to the configured server. Applicant DMs are attempted only after verifying that the linked Discord user belongs to that server. Role mentions use an explicit allowed-role list, so notification payloads cannot introduce arbitrary mentions.
 
@@ -66,7 +71,10 @@ IdentityClient__ClientId=akgaming-gamelybot
 IdentityClient__ClientSecret=...
 IdentityClient__Scope=identity_discord_links management_board_interactions
 ManagementClient__BaseUrl=https://management.example/api/
+ManagementClient__BoardMeetingsUrl=https://management.example/board/meetings
 ```
+
+`ManagementClient__BoardMeetingsUrl` is optional when the frontend is hosted beside the API; otherwise GamelyBot derives `/board/meetings` from `ManagementClient__BaseUrl`.
 
 Management needs:
 

@@ -67,4 +67,41 @@ public sealed class BoardMeetingsControllerTests
         Assert.That(ok?.Value, Is.EqualTo(dto));
         _service.Verify(x => x.DeleteAgendaItemAsync(itemId, It.IsAny<CancellationToken>()), Times.Once);
     }
+
+    [Test]
+    [Description("Creates a Discord-submitted item at the end of the next meeting agenda using the linked user's identity.")]
+    public async Task CreateNextMeetingAgendaItemFromDiscord_ValidRequest_AppendsItem()
+    {
+        // Arrange
+        var meetingId = Guid.NewGuid();
+        var userId = Guid.NewGuid();
+        var meeting = new BoardMeetingDto(
+            meetingId,
+            "Board meeting",
+            DateTimeOffset.UtcNow.AddDays(1),
+            90,
+            null,
+            BoardMeetingStatusDto.Scheduled,
+            1,
+            [],
+            [],
+            [new BoardAgendaItemDto(Guid.NewGuid(), meetingId, "Existing", null, BoardAgendaItemStatusDto.Scheduled, 0, DateTimeOffset.UtcNow)]);
+        var request = new CreateDiscordBoardAgendaItemRequest(userId, "New topic", "Details");
+        var created = new BoardAgendaItemDto(Guid.NewGuid(), meetingId, request.Title, request.Description, BoardAgendaItemStatusDto.Scheduled, 1, DateTimeOffset.UtcNow);
+        _service.Setup(service => service.GetNextMeetingAsync(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Result<BoardMeetingDto>.Success(meeting));
+        _service.Setup(service => service.CreateAgendaItemAsync(
+                It.Is<SaveBoardAgendaItemRequest>(value => value.MeetingId == meetingId && value.Order == 1 && value.Title == request.Title),
+                userId,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Result<BoardAgendaItemDto>.Success(created));
+
+        // Act
+        var result = await _controller.CreateNextMeetingAgendaItemFromDiscord(request, CancellationToken.None);
+
+        // Assert
+        var response = result.Result as CreatedResult;
+        Assert.That(response?.Value, Is.EqualTo(created));
+        _service.VerifyAll();
+    }
 }

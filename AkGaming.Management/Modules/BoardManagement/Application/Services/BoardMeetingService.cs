@@ -20,6 +20,18 @@ public sealed class BoardMeetingService(IBoardMeetingRepository repository, IBoa
         return meeting is null ? Result<BoardMeetingDto>.Failure("Board meeting not found.") : Result<BoardMeetingDto>.Success(Map(meeting));
     }
 
+    public async Task<Result<BoardMeetingDto>> GetNextMeetingAsync(CancellationToken cancellationToken)
+    {
+        var meetings = await repository.GetMeetingsAsync(cancellationToken);
+        var nextMeeting = meetings
+            .Where(meeting => meeting.Status == BoardMeetingStatus.Scheduled && meeting.ScheduledAtUtc >= DateTimeOffset.UtcNow)
+            .OrderBy(meeting => meeting.ScheduledAtUtc)
+            .FirstOrDefault();
+        return nextMeeting is null
+            ? Result<BoardMeetingDto>.Failure("No upcoming board meeting is scheduled.")
+            : Result<BoardMeetingDto>.Success(Map(nextMeeting));
+    }
+
     public async Task<Result<IReadOnlyList<BoardAgendaItemDto>>> GetBacklogAsync(CancellationToken cancellationToken)
     {
         var items = await repository.GetBacklogAsync(cancellationToken);

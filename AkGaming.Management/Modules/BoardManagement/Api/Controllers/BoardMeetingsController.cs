@@ -34,6 +34,63 @@ public sealed class BoardMeetingsController(IBoardMeetingService service) : Cont
         return result.IsSuccess ? Ok(result.Value) : BadRequest(result.Error);
     }
 
+    [HttpGet("discord/next")]
+    [Authorize(Policy = "management.board-meetings.discord-interactions")]
+    public async Task<ActionResult<BoardMeetingDto>> GetNextMeetingForDiscord(CancellationToken cancellationToken)
+    {
+        var result = await service.GetNextMeetingAsync(cancellationToken);
+        return result.IsSuccess ? Ok(result.Value) : NotFound(result.Error);
+    }
+
+    [HttpGet("discord/backlog")]
+    [Authorize(Policy = "management.board-meetings.discord-interactions")]
+    public async Task<ActionResult<IReadOnlyList<BoardAgendaItemDto>>> GetBacklogForDiscord(CancellationToken cancellationToken)
+    {
+        var result = await service.GetBacklogAsync(cancellationToken);
+        return result.IsSuccess ? Ok(result.Value) : BadRequest(result.Error);
+    }
+
+    [HttpPost("discord/backlog")]
+    [Authorize(Policy = "management.board-meetings.discord-interactions")]
+    public async Task<ActionResult<BoardAgendaItemDto>> CreateBacklogItemFromDiscord(
+        [FromBody] CreateDiscordBoardAgendaItemRequest request,
+        CancellationToken cancellationToken)
+    {
+        var backlog = await service.GetBacklogAsync(cancellationToken);
+        if (!backlog.IsSuccess) return BadRequest(backlog.Error);
+        var saveRequest = new SaveBoardAgendaItemRequest(request.Title, request.Description, null, backlog.Value!.Count);
+        var result = await service.CreateAgendaItemAsync(saveRequest, request.UserId, cancellationToken);
+        return result.IsSuccess ? Created(string.Empty, result.Value) : BadRequest(result.Error);
+    }
+
+    [HttpPost("discord/next/agenda")]
+    [Authorize(Policy = "management.board-meetings.discord-interactions")]
+    public async Task<ActionResult<BoardAgendaItemDto>> CreateNextMeetingAgendaItemFromDiscord(
+        [FromBody] CreateDiscordBoardAgendaItemRequest request,
+        CancellationToken cancellationToken)
+    {
+        var nextMeeting = await service.GetNextMeetingAsync(cancellationToken);
+        if (!nextMeeting.IsSuccess) return NotFound(nextMeeting.Error);
+        var meeting = nextMeeting.Value!;
+        var saveRequest = new SaveBoardAgendaItemRequest(request.Title, request.Description, meeting.Id, meeting.AgendaItems.Count);
+        var result = await service.CreateAgendaItemAsync(saveRequest, request.UserId, cancellationToken);
+        return result.IsSuccess ? Created(string.Empty, result.Value) : BadRequest(result.Error);
+    }
+
+    [HttpPut("discord/backlog/{itemId:guid}/next")]
+    [Authorize(Policy = "management.board-meetings.discord-interactions")]
+    public async Task<ActionResult<BoardMeetingDto>> AssignBacklogItemToNextMeetingFromDiscord(
+        Guid itemId,
+        [FromBody] AssignDiscordBoardAgendaItemRequest request,
+        CancellationToken cancellationToken)
+    {
+        _ = request.UserId;
+        var nextMeeting = await service.GetNextMeetingAsync(cancellationToken);
+        if (!nextMeeting.IsSuccess) return NotFound(nextMeeting.Error);
+        var result = await service.AssignAgendaItemsAsync(nextMeeting.Value!.Id, new AssignBoardAgendaItemsRequest([itemId]), cancellationToken);
+        return result.IsSuccess ? Ok(result.Value) : BadRequest(result.Error);
+    }
+
     [HttpPost]
     [Authorize(Policy = "management.board-meetings.manage")]
     public async Task<ActionResult<BoardMeetingDto>> CreateMeeting([FromBody] CreateBoardMeetingRequest request, CancellationToken cancellationToken)

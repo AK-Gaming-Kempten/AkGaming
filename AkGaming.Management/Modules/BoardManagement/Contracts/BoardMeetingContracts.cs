@@ -12,6 +12,8 @@ public sealed record RescheduleBoardMeetingRequest(DateTimeOffset ScheduledAtUtc
 public sealed record CreateRescheduleProposalRequest(DateTimeOffset ProposedAtUtc, int DurationMinutes, string? Reason);
 public sealed record SetBoardAvailabilityRequest(BoardAvailabilityStatusDto Status);
 public sealed record SetDiscordBoardAvailabilityRequest(Guid UserId, string DisplayName, BoardAvailabilityStatusDto Status, int ScheduleVersion);
+public sealed record CreateDiscordBoardAgendaItemRequest(Guid UserId, string Title, string? Description);
+public sealed record AssignDiscordBoardAgendaItemRequest(Guid UserId);
 public sealed record SaveBoardAgendaItemRequest(string Title, string? Description, Guid? MeetingId, int Order);
 public sealed record MoveBoardAgendaItemRequest(Guid? MeetingId, int Order);
 public sealed record ReorderBoardAgendaItemsRequest(IReadOnlyList<Guid> ItemIds);

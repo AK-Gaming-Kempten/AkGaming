@@ -7,6 +7,7 @@ public interface IBoardMeetingService
 {
     Task<Result<IReadOnlyList<BoardMeetingSummaryDto>>> GetMeetingsAsync(CancellationToken cancellationToken);
     Task<Result<BoardMeetingDto>> GetMeetingAsync(Guid id, CancellationToken cancellationToken);
+    Task<Result<BoardMeetingDto>> GetNextMeetingAsync(CancellationToken cancellationToken);
     Task<Result<IReadOnlyList<BoardAgendaItemDto>>> GetBacklogAsync(CancellationToken cancellationToken);
     Task<Result<BoardMeetingDto>> CreateMeetingAsync(CreateBoardMeetingRequest request, Guid actorUserId, CancellationToken cancellationToken);
     Task<Result<BoardMeetingDto>> RescheduleMeetingAsync(Guid id, RescheduleBoardMeetingRequest request, CancellationToken cancellationToken);

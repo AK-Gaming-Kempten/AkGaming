@@ -86,6 +86,7 @@ if (transport == "discord")
 {
     builder.Services.AddScoped<INotificationTransport, DiscordRestNotificationTransport>();
     builder.Services.AddHostedService<DiscordConfigurationValidator>();
+    builder.Services.AddHostedService<DiscordCommandRegistrationService>();
 }
 else
     builder.Services.AddScoped<INotificationTransport, DebugNotificationTransport>();

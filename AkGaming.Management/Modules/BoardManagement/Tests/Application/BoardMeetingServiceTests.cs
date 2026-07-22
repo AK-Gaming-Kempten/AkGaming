@@ -86,4 +86,24 @@ public sealed class BoardMeetingServiceTests
         Assert.That(notifiedMeeting.AgendaItems.All(x => x.CreatedByUserId == actorUserId), Is.True);
         _repository.Verify(x => x.Add(notifiedMeeting), Times.Once);
     }
+
+    [Test]
+    [Description("Returns the earliest future scheduled board meeting while ignoring cancelled and past meetings.")]
+    public async Task GetNextMeeting_WithMixedMeetings_ReturnsEarliestFutureScheduledMeeting()
+    {
+        // Arrange
+        var expected = new BoardMeeting { Title = "Next", ScheduledAtUtc = DateTimeOffset.UtcNow.AddDays(1), DurationMinutes = 60 };
+        var later = new BoardMeeting { Title = "Later", ScheduledAtUtc = DateTimeOffset.UtcNow.AddDays(2), DurationMinutes = 60 };
+        var cancelled = new BoardMeeting { Title = "Cancelled", ScheduledAtUtc = DateTimeOffset.UtcNow.AddHours(1), DurationMinutes = 60, Status = BoardMeetingStatus.Cancelled };
+        var past = new BoardMeeting { Title = "Past", ScheduledAtUtc = DateTimeOffset.UtcNow.AddDays(-1), DurationMinutes = 60 };
+        _repository.Setup(repository => repository.GetMeetingsAsync(It.IsAny<CancellationToken>()))
+            .ReturnsAsync([later, cancelled, past, expected]);
+
+        // Act
+        var result = await _service.GetNextMeetingAsync(CancellationToken.None);
+
+        // Assert
+        Assert.That(result.IsSuccess, Is.True);
+        Assert.That(result.Value!.Title, Is.EqualTo("Next"));
+    }
 }
