@@ -38,7 +38,11 @@ public sealed class InternalDiscordLinksController(IIdentityRepository repositor
         var canAccessBoardMeetings = user.UserRoles
             .SelectMany(userRole => userRole.Role.RolePermissions)
             .Any(rolePermission => rolePermission.Permission.Key == "management.board-meetings.read");
-        var response = new DiscordUserLinkResponse(user.Id, displayName, true, canAccessBoardMeetings);
+        var canManageBoardMeetings = user.UserRoles
+            .SelectMany(userRole => userRole.Role.RolePermissions)
+            .Any(rolePermission => rolePermission.Permission.Key == "management.board-meetings.manage");
+        var response = new DiscordUserLinkResponse(user.Id, displayName, true, canAccessBoardMeetings,
+            canManageBoardMeetings);
         return Ok(response);
     }
 }

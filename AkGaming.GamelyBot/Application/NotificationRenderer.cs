@@ -98,7 +98,12 @@ public sealed class NotificationRenderer(IOptions<NotificationRoutingOptions> op
             ?? throw new InvalidOperationException("The board reschedule proposal payload is invalid.");
         var when = $"<t:{data.ProposedAtUtc.ToUnixTimeSeconds()}:F> (<t:{data.ProposedAtUtc.ToUnixTimeSeconds()}:R>)";
         var reason = string.IsNullOrWhiteSpace(data.Reason) ? string.Empty : $"\nReason: {data.Reason}";
-        var message = new RenderedMessage("Board meeting reschedule proposed", $"**{data.ProposedByDisplayName}** proposed a new date for **{data.Title}**:\n{when}\n{data.DurationMinutes} minutes{reason}", data.ManagementUrl, _options.BoardRoleId, _options.BoardChannelId);
+        var buttons = new[]
+        {
+            new RenderedButton("Accept proposal", $"bp:{data.MeetingId}:{data.ProposalId}:a", 3),
+            new RenderedButton("Reject proposal", $"bp:{data.MeetingId}:{data.ProposalId}:r", 4)
+        };
+        var message = new RenderedMessage("Board meeting reschedule proposed", $"**{data.ProposedByDisplayName}** proposed a new date for **{data.Title}**:\n{when}\n{data.DurationMinutes} minutes{reason}", data.ManagementUrl, _options.BoardRoleId, _options.BoardChannelId, buttons);
         return new RenderedNotification(message, null);
     }
 
@@ -112,28 +117,32 @@ public sealed class NotificationRenderer(IOptions<NotificationRoutingOptions> op
             ?? (data.AgendaItemId.HasValue && !string.IsNullOrWhiteSpace(data.Title)
                 ? [new BoardAgendaNotificationItem(data.AgendaItemId.Value, data.Title, 0)]
                 : []);
-        var changedIds = changedItems.Select(x => x.AgendaItemId).ToHashSet();
+        var changes = data.Changes?.ToDictionary(change => change.AgendaItemId)
+            ?? changedItems.ToDictionary(
+                item => item.AgendaItemId,
+                item => new BoardAgendaNotificationChange(item.AgendaItemId, item.Title, data.Action));
         var agendaLines = agendaItems
             .OrderBy(x => x.Order)
-            .Select((item, index) => RenderAgendaChangeLine(item, index + 1, changedIds.Contains(item.AgendaItemId), data.Action))
+            .Select((item, index) => RenderAgendaChangeLine(item, index + 1,
+                changes.GetValueOrDefault(item.AgendaItemId)?.Action))
             .ToList();
         if (agendaLines.Count == 0)
         {
             agendaLines.Add("_No remaining agenda items._");
         }
-        var removedItems = changedItems
-            .Where(changed => agendaItems.All(item => item.AgendaItemId != changed.AgendaItemId))
-            .Select(item => $"- ~~{Truncate(item.Title, 150)}~~");
+        var removedItems = changes.Values
+            .Where(change => agendaItems.All(item => item.AgendaItemId != change.AgendaItemId))
+            .Select(change => $"- ~~{Truncate(change.Title, 150)}~~");
         agendaLines.AddRange(removedItems);
         var body = $"**{context}**\n\n**Updated agenda**\n{string.Join('\n', agendaLines)}";
         var message = new RenderedMessage("Board agenda changed", body, data.ManagementUrl, null, _options.BoardChannelId);
         return new RenderedNotification(message, null);
     }
 
-    private static string RenderAgendaChangeLine(BoardAgendaNotificationItem item, int position, bool isChanged, string action)
+    private static string RenderAgendaChangeLine(BoardAgendaNotificationItem item, int position, string? action)
     {
         var title = Truncate(item.Title, 150);
-        if (!isChanged)
+        if (string.IsNullOrWhiteSpace(action))
         {
             return $"{position}. {title}";
         }

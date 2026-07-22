@@ -10,6 +10,12 @@ public sealed class DebugNotificationTransport(ILogger<DebugNotificationTranspor
         return Task.FromResult(TransportResult.Success($"debug-{Guid.NewGuid():N}"));
     }
 
+    public Task<TransportResult> UpdateChannelAsync(string externalMessageId, RenderedMessage message, CancellationToken cancellationToken)
+    {
+        logger.LogInformation("DEBUG Discord channel message {ExternalMessageId} updated: {Title} - {Body} - {Url}", externalMessageId, message.Title, message.Body, message.Url);
+        return Task.FromResult(TransportResult.Success(externalMessageId));
+    }
+
     public Task<TransportResult> SendDirectMessageAsync(string discordUserId, RenderedMessage message, CancellationToken cancellationToken)
     {
         logger.LogInformation("DEBUG Discord DM to {DiscordUserId}: {Title} - {Body} - {Url}", discordUserId, message.Title, message.Body, message.Url);

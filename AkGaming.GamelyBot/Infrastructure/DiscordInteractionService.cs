@@ -187,6 +187,25 @@ public sealed class DiscordInteractionService(IHttpClientFactory clients, Client
         return "I could not submit your rescheduling proposal right now. Please use the management tool or try again later.";
     }
 
+    public async Task<string> DecideRescheduleProposalAsync(string discordUserId, Guid meetingId, Guid proposalId,
+        bool accept, CancellationToken cancellationToken)
+    {
+        var context = await CreateContextAsync(discordUserId, cancellationToken);
+        if (context.Error is not null) return context.Error;
+        if (!context.Link!.CanManageBoardMeetings)
+            return "Your linked account is not authorized to accept or reject board meeting proposals.";
+        using var response = await context.ManagementClient!.PostAsJsonAsync(
+            $"board-meetings/{meetingId}/reschedule-proposals/{proposalId}/decision/discord",
+            new { userId = context.Link.UserId, accept },
+            cancellationToken);
+        if (response.IsSuccessStatusCode)
+            return accept ? "The rescheduling proposal was accepted." : "The rescheduling proposal was rejected.";
+        var body = await response.Content.ReadAsStringAsync(cancellationToken);
+        if (body.Contains("already been decided", StringComparison.OrdinalIgnoreCase))
+            return "This rescheduling proposal has already been decided.";
+        return "I could not update the rescheduling proposal right now. Please use the management tool or try again later.";
+    }
+
     private async Task<InteractionContext> CreateContextAsync(string discordUserId, CancellationToken cancellationToken)
     {
         var token = await tokens.GetTokenAsync(cancellationToken);
@@ -228,7 +247,7 @@ public sealed class DiscordInteractionService(IHttpClientFactory clients, Client
             meeting.Location,
             meeting.ScheduleVersion,
             null,
-            GetBoardMeetingPageUrl(),
+            _management.GetBoardMeetingFrontendUrl(meeting.Id),
             meeting.AgendaItems.OrderBy(item => item.Order).Select(item => item.Title).ToList());
         var envelope = new NotificationEnvelope(eventId, NotificationEventTypes.BoardMeetingReminder,
             "gamelybot", DateTimeOffset.UtcNow, null, JsonSerializer.SerializeToElement(data));
@@ -275,12 +294,7 @@ public sealed class DiscordInteractionService(IHttpClientFactory clients, Client
 
     private string GetBoardMeetingPageUrl()
     {
-        if (!string.IsNullOrWhiteSpace(_management.BoardMeetingsUrl)) return _management.BoardMeetingsUrl;
-        if (!Uri.TryCreate(_management.BaseUrl, UriKind.Absolute, out var baseUri)) return "/board/meetings";
-        var relativePath = baseUri.AbsolutePath.TrimEnd('/').EndsWith("/api", StringComparison.OrdinalIgnoreCase)
-            ? "../board/meetings"
-            : "board/meetings";
-        return new Uri(baseUri, relativePath).AbsoluteUri;
+        return _management.GetBoardMeetingsFrontendUrl();
     }
 
     private static void SetToken(HttpRequestMessage request, string? token)

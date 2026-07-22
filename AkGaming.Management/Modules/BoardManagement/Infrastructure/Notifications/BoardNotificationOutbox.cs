@@ -17,6 +17,7 @@ public sealed class BoardNotificationOutbox(BoardManagementDbContext dbContext, 
     public void EnqueueRescheduleProposed(BoardMeeting meeting, BoardRescheduleProposal proposal) => Enqueue(NotificationEventTypes.BoardMeetingRescheduleProposed, new BoardRescheduleProposalNotification(meeting.Id, proposal.Id, meeting.Title, proposal.ProposedAtUtc, proposal.DurationMinutes, proposal.Reason, proposal.ProposedByDisplayName, MeetingUrl(meeting.Id)));
     public void EnqueueAgendaChanged(BoardMeeting? meeting, IReadOnlyCollection<BoardAgendaItem> changedItems, string action)
     {
+        if (meeting is not null && !CanNotifyAgendaChange(meeting, DateTimeOffset.UtcNow)) return;
         var agendaItems = meeting?.AgendaItems
             .OrderBy(x => x.Order)
             .Select(AgendaItemData)
@@ -30,6 +31,12 @@ public sealed class BoardNotificationOutbox(BoardManagementDbContext dbContext, 
             agendaItems,
             changes);
         Enqueue(NotificationEventTypes.BoardAgendaChanged, data);
+    }
+
+    private static bool CanNotifyAgendaChange(BoardMeeting meeting, DateTimeOffset nowUtc)
+    {
+        if (meeting.Status == BoardMeetingStatus.Cancelled) return false;
+        return meeting.ScheduledAtUtc.AddMinutes(meeting.DurationMinutes) > nowUtc;
     }
 
     private BoardMeetingNotification MeetingData(BoardMeeting meeting, string? reason) => new(

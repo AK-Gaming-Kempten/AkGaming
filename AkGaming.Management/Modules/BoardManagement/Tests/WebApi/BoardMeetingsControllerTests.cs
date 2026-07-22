@@ -133,4 +133,28 @@ public sealed class BoardMeetingsControllerTests
         Assert.That(created?.Value, Is.EqualTo(proposal));
         _service.VerifyAll();
     }
+
+    [Test]
+    [Description("Forwards a confirmed Discord proposal decision with the linked manager identity.")]
+    public async Task DecideProposalFromDiscord_ConfirmedDecision_ForwardsIdentityAndChoice()
+    {
+        // Arrange
+        var meetingId = Guid.NewGuid();
+        var proposalId = Guid.NewGuid();
+        var request = new DecideDiscordRescheduleProposalRequest(Guid.NewGuid(), true);
+        var meeting = new BoardMeetingDto(meetingId, "Board meeting", DateTimeOffset.UtcNow.AddDays(2), 90, null,
+            BoardMeetingStatusDto.Scheduled, 2, [], [], []);
+        _service.Setup(service => service.DecideProposalAsync(meetingId, proposalId, request.Accept, request.UserId,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Result<BoardMeetingDto>.Success(meeting));
+
+        // Act
+        var result = await _controller.DecideProposalFromDiscord(meetingId, proposalId, request,
+            CancellationToken.None);
+
+        // Assert
+        var ok = result.Result as OkObjectResult;
+        Assert.That(ok?.Value, Is.EqualTo(meeting));
+        _service.VerifyAll();
+    }
 }

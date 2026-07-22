@@ -79,6 +79,25 @@ public sealed class DiscordInteractionsController(DiscordInteractionService inte
     {
         var customId = data.GetProperty("custom_id").GetString();
         var parts = customId?.Split(':');
+        if (customId == "bpx") return ReplaceInteractionMessage("No changes were made.");
+        if (parts is { Length: 4 } && parts[0] == "bp"
+            && Guid.TryParse(parts[1], out var proposalMeetingId)
+            && Guid.TryParse(parts[2], out var proposalId)
+            && parts[3] is "a" or "r")
+        {
+            var accept = parts[3] == "a";
+            return ProposalDecisionConfirmation(proposalMeetingId, proposalId, accept);
+        }
+        if (parts is { Length: 4 } && parts[0] == "bpc"
+            && Guid.TryParse(parts[1], out var confirmedMeetingId)
+            && Guid.TryParse(parts[2], out var confirmedProposalId)
+            && parts[3] is "a" or "r")
+        {
+            var accept = parts[3] == "a";
+            var decisionMessage = await interactions.DecideRescheduleProposalAsync(discordUserId,
+                confirmedMeetingId, confirmedProposalId, accept, cancellationToken);
+            return ReplaceInteractionMessage(decisionMessage);
+        }
         if (parts is { Length: 3 } && parts[0] == "board-reschedule"
             && Guid.TryParse(parts[1], out var rescheduleMeetingId)
             && int.TryParse(parts[2], out var rescheduleVersion))
@@ -230,6 +249,47 @@ public sealed class DiscordInteractionsController(DiscordInteractionService inte
                     new { type = 1, components = new[] { new { type = 4, custom_id = "duration", label = "Duration in minutes", style = 1, min_length = 2, max_length = 4, required = true } } },
                     new { type = 1, components = new[] { new { type = 4, custom_id = "reason", label = "Reason", style = 2, min_length = 0, max_length = 1000, required = false } } }
                 }
+            }
+        };
+    }
+
+    private static object ProposalDecisionConfirmation(Guid meetingId, Guid proposalId, bool accept)
+    {
+        var action = accept ? "accept" : "reject";
+        var confirmLabel = accept ? "Confirm acceptance" : "Confirm rejection";
+        var confirmStyle = accept ? 3 : 4;
+        return new
+        {
+            type = 4,
+            data = new
+            {
+                content = $"Are you sure you want to {action} this rescheduling proposal? This will immediately change its status.",
+                flags = 64,
+                components = new object[]
+                {
+                    new
+                    {
+                        type = 1,
+                        components = new object[]
+                        {
+                            new { type = 2, style = confirmStyle, label = confirmLabel, custom_id = $"bpc:{meetingId}:{proposalId}:{(accept ? "a" : "r")}" },
+                            new { type = 2, style = 2, label = "Cancel", custom_id = "bpx" }
+                        }
+                    }
+                }
+            }
+        };
+    }
+
+    private static object ReplaceInteractionMessage(string content)
+    {
+        return new
+        {
+            type = 7,
+            data = new
+            {
+                content,
+                components = Array.Empty<object>()
             }
         };
     }

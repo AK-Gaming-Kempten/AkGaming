@@ -43,7 +43,8 @@ public sealed record ReimbursementStatusChangedNotification(
     string? ManagementUrl);
 
 public sealed record DiscordLinkResponse(Guid UserId, string? DiscordUserId, bool IsLinked);
-public sealed record DiscordUserLinkResponse(Guid UserId, string DisplayName, bool IsLinked, bool CanAccessBoardMeetings);
+public sealed record DiscordUserLinkResponse(Guid UserId, string DisplayName, bool IsLinked,
+    bool CanAccessBoardMeetings, bool CanManageBoardMeetings);
 
 public sealed record BoardMeetingNotification(Guid MeetingId, string Title, DateTimeOffset ScheduledAtUtc,
     int DurationMinutes, string? Location, int ScheduleVersion, string? Reason, string? ManagementUrl,
@@ -54,6 +55,8 @@ public sealed record BoardRescheduleProposalNotification(Guid MeetingId, Guid Pr
 
 public sealed record BoardAgendaNotificationItem(Guid AgendaItemId, string Title, int Order);
 
+public sealed record BoardAgendaNotificationChange(Guid AgendaItemId, string Title, string Action);
+
 public sealed record BoardAgendaChangedNotification(
     Guid? MeetingId,
     string? MeetingTitle,
@@ -62,4 +65,5 @@ public sealed record BoardAgendaChangedNotification(
     IReadOnlyList<BoardAgendaNotificationItem>? AgendaItems = null,
     IReadOnlyList<BoardAgendaNotificationItem>? ChangedItems = null,
     Guid? AgendaItemId = null,
-    string? Title = null);
+    string? Title = null,
+    IReadOnlyList<BoardAgendaNotificationChange>? Changes = null);

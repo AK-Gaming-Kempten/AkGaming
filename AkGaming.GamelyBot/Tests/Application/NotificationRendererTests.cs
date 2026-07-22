@@ -107,6 +107,35 @@ public sealed class NotificationRendererTests
     }
 
     [Test]
+    [Description("Renders a rescheduling proposal with accept and reject controls for the board channel.")]
+    public void Render_WhenRescheduleIsProposed_ReturnsDecisionButtons()
+    {
+        // Arrange
+        var renderer = new NotificationRenderer(Options.Create(new NotificationRoutingOptions
+        {
+            BoardChannelId = "board-channel",
+            BoardRoleId = "board-role"
+        }));
+        var meetingId = Guid.NewGuid();
+        var proposalId = Guid.NewGuid();
+        var payload = new BoardRescheduleProposalNotification(meetingId, proposalId, "Board meeting",
+            DateTimeOffset.UtcNow.AddDays(2), 90, "Conflict", "Board Member", null);
+        var notification = new NotificationInboxItem
+        {
+            Type = NotificationEventTypes.BoardMeetingRescheduleProposed,
+            DataJson = JsonSerializer.Serialize(payload, new JsonSerializerOptions(JsonSerializerDefaults.Web))
+        };
+
+        // Act
+        var rendered = renderer.Render(notification);
+
+        // Assert
+        Assert.That(rendered.ChannelMessage?.Buttons, Has.Count.EqualTo(2));
+        Assert.That(rendered.ChannelMessage!.Buttons![0].CustomId, Is.EqualTo($"bp:{meetingId}:{proposalId}:a"));
+        Assert.That(rendered.ChannelMessage.Buttons[1].CustomId, Is.EqualTo($"bp:{meetingId}:{proposalId}:r"));
+    }
+
+    [Test]
     [Description("Renders the complete updated agenda and highlights newly added entries.")]
     public void Render_WhenAgendaItemIsAdded_ReturnsFullAgendaWithAdditionMarker()
     {

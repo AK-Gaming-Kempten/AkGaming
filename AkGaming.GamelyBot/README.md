@@ -71,13 +71,13 @@ IdentityClient__ClientId=akgaming-gamelybot
 IdentityClient__ClientSecret=...
 IdentityClient__Scope=identity_discord_links management_board_interactions
 ManagementClient__BaseUrl=https://management.example/api/
-ManagementClient__BoardMeetingsUrl=https://management.example/board/meetings
+ManagementClient__FrontendBaseUrl=https://management.example
 DiscordInteractions__EnableAutomaticReminders=true
 DiscordInteractions__ReminderLeadTimeMinutes=60
 DiscordInteractions__ReminderPollIntervalSeconds=60
 ```
 
-`ManagementClient__BoardMeetingsUrl` is optional when the frontend is hosted beside the API; otherwise GamelyBot derives `/board/meetings` from `ManagementClient__BaseUrl`.
+`ManagementClient__BaseUrl` is used only for service-to-service API requests. `ManagementClient__FrontendBaseUrl` is used for user-facing links and must not contain the `/api` path. Meeting links are built as `<FrontendBaseUrl>/board/meetings/<meeting-id>` where applicable.
 
 Management needs:
 

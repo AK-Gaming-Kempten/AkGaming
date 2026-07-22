@@ -1,3 +1,4 @@
+using AkGaming.Core.Notifications;
 using AkGaming.GamelyBot.Domain;
 using AkGaming.GamelyBot.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
@@ -6,6 +7,8 @@ namespace AkGaming.GamelyBot.Application;
 
 public sealed class NotificationDeliveryWorker(IServiceScopeFactory scopeFactory, ILogger<NotificationDeliveryWorker> logger) : BackgroundService
 {
+    private static readonly TimeSpan AgendaDebounceWindow = TimeSpan.FromSeconds(4);
+
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         await ResetInterruptedNotificationsAsync(stoppingToken);
@@ -55,12 +58,32 @@ public sealed class NotificationDeliveryWorker(IServiceScopeFactory scopeFactory
             .Include(item => item.Deliveries)
             .Where(item => item.Status == NotificationStatuses.Pending)
             .ToListAsync(cancellationToken);
-        var notification = candidates
+        var readyCandidates = candidates
             .Where(item => item.NextAttemptAtUtc == null || item.NextAttemptAtUtc <= now)
             .OrderBy(item => item.ReceivedAtUtc)
-            .FirstOrDefault();
+            .ToList();
+        var notification = readyCandidates
+            .FirstOrDefault(item => !IsAgendaWaitingForMoreChanges(item, candidates, now));
         if (notification is null)
             return false;
+
+        if (AgendaNotificationAggregator.TryGetMeetingId(notification, out var meetingId))
+        {
+            var agendaBatch = candidates
+                .Where(item => HasSameAgendaContext(item, meetingId))
+                .OrderBy(item => item.ReceivedAtUtc)
+                .ToList();
+            notification = agendaBatch[^1];
+            notification.DataJson = AgendaNotificationAggregator.Serialize(
+                AgendaNotificationAggregator.Aggregate(agendaBatch));
+            foreach (var coalesced in agendaBatch.Where(item => item.Id != notification.Id))
+            {
+                coalesced.Status = NotificationStatuses.Skipped;
+                coalesced.CompletedAtUtc = now;
+                coalesced.NextAttemptAtUtc = null;
+                coalesced.LastError = $"Coalesced into agenda notification {notification.EventId}.";
+            }
+        }
 
         notification.Status = NotificationStatuses.Processing;
         notification.AttemptCount++;
@@ -78,7 +101,12 @@ public sealed class NotificationDeliveryWorker(IServiceScopeFactory scopeFactory
                 var delivery = GetOrCreateDelivery(dbContext, notification, DeliveryKinds.Channel, "administration", rendered.ChannelMessage);
                 if (delivery.Status != NotificationStatuses.Delivered)
                 {
-                    var result = await transport.SendChannelAsync(rendered.ChannelMessage, cancellationToken);
+                    var previousMessageId = notification.Type == NotificationEventTypes.BoardAgendaChanged
+                        ? await FindLatestAgendaMessageIdAsync(dbContext, notification, cancellationToken)
+                        : null;
+                    var result = string.IsNullOrWhiteSpace(previousMessageId)
+                        ? await transport.SendChannelAsync(rendered.ChannelMessage, cancellationToken)
+                        : await transport.UpdateChannelAsync(previousMessageId, rendered.ChannelMessage, cancellationToken);
                     ApplyResult(delivery, result);
                     await dbContext.SaveChangesAsync(cancellationToken);
                     if (!result.IsSuccess && !result.IsPermanentFailure)
@@ -127,6 +155,53 @@ public sealed class NotificationDeliveryWorker(IServiceScopeFactory scopeFactory
             logger.LogWarning(exception, "Notification {EventId} could not be delivered on attempt {AttemptCount}.", notification.EventId, notification.AttemptCount);
         }
         return true;
+    }
+
+    private static bool IsAgendaWaitingForMoreChanges(
+        NotificationInboxItem notification,
+        IReadOnlyCollection<NotificationInboxItem> candidates,
+        DateTimeOffset now)
+    {
+        if (!AgendaNotificationAggregator.TryGetMeetingId(notification, out var meetingId))
+        {
+            return false;
+        }
+
+        var latestReceivedAt = candidates
+            .Where(item => HasSameAgendaContext(item, meetingId))
+            .Max(item => item.ReceivedAtUtc);
+        return latestReceivedAt > now.Subtract(AgendaDebounceWindow);
+    }
+
+    private static bool HasSameAgendaContext(NotificationInboxItem notification, Guid? meetingId)
+    {
+        return AgendaNotificationAggregator.TryGetMeetingId(notification, out var candidateMeetingId)
+            && candidateMeetingId == meetingId;
+    }
+
+    private static async Task<string?> FindLatestAgendaMessageIdAsync(
+        GamelyBotDbContext dbContext,
+        NotificationInboxItem current,
+        CancellationToken cancellationToken)
+    {
+        AgendaNotificationAggregator.TryGetMeetingId(current, out var meetingId);
+        var delivered = await dbContext.Notifications
+            .AsNoTracking()
+            .Include(item => item.Deliveries)
+            .Where(item => item.Type == NotificationEventTypes.BoardAgendaChanged
+                && item.Status == NotificationStatuses.Delivered
+                && item.Id != current.Id)
+            .ToListAsync(cancellationToken);
+
+        return delivered
+            .Where(item => HasSameAgendaContext(item, meetingId))
+            .OrderByDescending(item => item.CompletedAtUtc)
+            .SelectMany(item => item.Deliveries)
+            .Where(delivery => delivery.Kind == DeliveryKinds.Channel
+                && delivery.Status == NotificationStatuses.Delivered
+                && !string.IsNullOrWhiteSpace(delivery.ExternalMessageId))
+            .Select(delivery => delivery.ExternalMessageId)
+            .FirstOrDefault();
     }
 
     private static NotificationDelivery GetOrCreateDelivery(GamelyBotDbContext dbContext, NotificationInboxItem notification, string kind, string target, RenderedMessage message)

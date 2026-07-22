@@ -11,6 +11,7 @@ public interface INotificationRenderer
 public interface INotificationTransport
 {
     Task<TransportResult> SendChannelAsync(RenderedMessage message, CancellationToken cancellationToken);
+    Task<TransportResult> UpdateChannelAsync(string externalMessageId, RenderedMessage message, CancellationToken cancellationToken);
     Task<TransportResult> SendDirectMessageAsync(string discordUserId, RenderedMessage message, CancellationToken cancellationToken);
 }
 

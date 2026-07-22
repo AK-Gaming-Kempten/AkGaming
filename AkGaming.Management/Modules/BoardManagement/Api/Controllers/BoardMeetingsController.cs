@@ -157,6 +157,19 @@ public sealed class BoardMeetingsController(IBoardMeetingService service) : Cont
         return result.IsSuccess ? Ok(result.Value) : BadRequest(result.Error);
     }
 
+    [HttpPost("{meetingId:guid}/reschedule-proposals/{proposalId:guid}/decision/discord")]
+    [Authorize(Policy = "management.board-meetings.discord-interactions")]
+    public async Task<ActionResult<BoardMeetingDto>> DecideProposalFromDiscord(
+        Guid meetingId,
+        Guid proposalId,
+        [FromBody] DecideDiscordRescheduleProposalRequest request,
+        CancellationToken cancellationToken)
+    {
+        var result = await service.DecideProposalAsync(meetingId, proposalId, request.Accept, request.UserId,
+            cancellationToken);
+        return result.IsSuccess ? Ok(result.Value) : BadRequest(result.Error);
+    }
+
     [HttpPut("{meetingId:guid}/availability")]
     [Authorize(Policy = "management.board-meetings.read")]
     public async Task<ActionResult<BoardAvailabilityDto>> SetAvailability(Guid meetingId, [FromBody] SetBoardAvailabilityRequest request, CancellationToken cancellationToken)

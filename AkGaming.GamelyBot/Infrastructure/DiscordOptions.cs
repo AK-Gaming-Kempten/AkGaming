@@ -16,7 +16,19 @@ public sealed class ManagementClientOptions
 {
     public const string SectionName = "ManagementClient";
     public string BaseUrl { get; set; } = string.Empty;
-    public string BoardMeetingsUrl { get; set; } = string.Empty;
+    public string FrontendBaseUrl { get; set; } = string.Empty;
+
+    public string GetBoardMeetingsFrontendUrl()
+    {
+        if (!Uri.TryCreate(FrontendBaseUrl, UriKind.Absolute, out _))
+            throw new InvalidOperationException("ManagementClient:FrontendBaseUrl must be an absolute URL.");
+        return $"{FrontendBaseUrl.TrimEnd('/')}/board/meetings";
+    }
+
+    public string GetBoardMeetingFrontendUrl(Guid meetingId)
+    {
+        return $"{GetBoardMeetingsFrontendUrl()}/{meetingId:D}";
+    }
 }
 
 public sealed class IdentityClientOptions

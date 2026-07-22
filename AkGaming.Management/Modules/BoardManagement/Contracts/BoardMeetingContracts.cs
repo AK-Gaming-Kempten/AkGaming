@@ -14,6 +14,7 @@ public sealed record SetBoardAvailabilityRequest(BoardAvailabilityStatusDto Stat
 public sealed record SetDiscordBoardAvailabilityRequest(Guid UserId, string DisplayName, BoardAvailabilityStatusDto Status, int ScheduleVersion);
 public sealed record CreateDiscordRescheduleProposalRequest(Guid UserId, string DisplayName, DateTimeOffset ProposedAtUtc,
     int DurationMinutes, string? Reason, int ScheduleVersion);
+public sealed record DecideDiscordRescheduleProposalRequest(Guid UserId, bool Accept);
 public sealed record CreateDiscordBoardAgendaItemRequest(Guid UserId, string Title, string? Description);
 public sealed record AssignDiscordBoardAgendaItemRequest(Guid UserId);
 public sealed record SaveBoardAgendaItemRequest(string Title, string? Description, Guid? MeetingId, int Order);
