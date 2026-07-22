@@ -10,6 +10,34 @@ namespace AkGaming.GamelyBot.Tests.Application;
 public sealed class NotificationRendererTests
 {
     [Test]
+    [Description("Renders a weekly audit summary as an administration-channel message without a role mention.")]
+    public void Render_WhenWeeklyAuditSummaryIsQueued_ReturnsAdministrationMessage()
+    {
+        // Arrange
+        var renderer = new NotificationRenderer(Options.Create(new NotificationRoutingOptions()));
+        var summary = new AuditSummaryResponse("Identity", DateTimeOffset.Parse("2026-07-13T07:00:00Z"),
+            DateTimeOffset.Parse("2026-07-20T07:00:00Z"), 12, 4, 10, 2,
+            [new AuditSummaryCategory("login.succeeded", 8)]);
+        var notification = new NotificationInboxItem
+        {
+            Type = NotificationEventTypes.IdentityAuditSummary,
+            DataJson = JsonSerializer.Serialize(new AuditSummaryNotification(summary),
+                new JsonSerializerOptions(JsonSerializerDefaults.Web))
+        };
+
+        // Act
+        var rendered = renderer.Render(notification);
+
+        // Assert
+        Assert.That(rendered.ChannelMessage, Is.Not.Null);
+        Assert.That(rendered.ChannelMessage!.Title, Is.EqualTo("Identity weekly audit summary"));
+        Assert.That(rendered.ChannelMessage.Body, Does.Contain("login.succeeded: 8"));
+        Assert.That(rendered.ChannelMessage.Body, Does.Contain("Failed: **2**"));
+        Assert.That(rendered.ChannelMessage.RoleId, Is.Null);
+        Assert.That(rendered.DirectMessage, Is.Null);
+    }
+
+    [Test]
     [Description("Renders a reimbursement submission for the treasurer channel and the linked applicant.")]
     public void Render_WhenReimbursementIsSubmitted_ReturnsChannelAndDirectMessages()
     {

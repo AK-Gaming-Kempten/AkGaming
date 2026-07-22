@@ -157,6 +157,12 @@ builder.Services.AddAuthorization(options =>
         policy.RequireAuthenticatedUser();
         policy.RequireAssertion(context => HasScope(context.User, "identity_discord_links"));
     });
+    options.AddPolicy("IdentityAuditSummaries", policy =>
+    {
+        policy.AddAuthenticationSchemes(OpenIddictValidationAspNetCoreDefaults.AuthenticationScheme);
+        policy.RequireAuthenticatedUser();
+        policy.RequireAssertion(context => HasScope(context.User, "identity_audit_summaries"));
+    });
     AddPermissionPolicy(options, PermissionNames.IdentityUsersRead);
     AddPermissionPolicy(options, PermissionNames.IdentityUsersManage);
     AddPermissionPolicy(options, PermissionNames.IdentityRolesRead);

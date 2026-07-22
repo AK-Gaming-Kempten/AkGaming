@@ -73,12 +73,16 @@ IdentityClient__BaseUrl=https://identity.example/
 IdentityClient__TokenEndpoint=https://identity.example/connect/token
 IdentityClient__ClientId=akgaming-gamelybot
 IdentityClient__ClientSecret=...
-IdentityClient__Scope=identity_discord_links management_board_interactions
+IdentityClient__Scope=identity_discord_links management_board_interactions identity_audit_summaries management_audit_summaries
 ManagementClient__BaseUrl=https://management.example/api/
 ManagementClient__FrontendBaseUrl=https://management.example
 DiscordInteractions__EnableAutomaticReminders=true
 DiscordInteractions__ReminderLeadTimeMinutes=60
 DiscordInteractions__ReminderPollIntervalSeconds=60
+AuditSummaries__EnableWeeklySummary=true
+AuditSummaries__TimeZoneId=Europe/Berlin
+AuditSummaries__DayOfWeek=Monday
+AuditSummaries__Hour=9
 ```
 
 `ManagementClient__BaseUrl` is used only for service-to-service API requests. `ManagementClient__FrontendBaseUrl` is used for user-facing links and must not contain the `/api` path. Meeting links are built as `<FrontendBaseUrl>/board/meetings/<meeting-id>` where applicable.
@@ -97,7 +101,7 @@ Notifications__ManagementBaseUrl=https://management.example
 Identity must seed two confidential clients with client-credentials enabled:
 
 - `akgaming-management-api`, allowed `gamelybot_notifications`
-- `akgaming-gamelybot`, allowed `identity_discord_links` and `management_board_interactions`
+- `akgaming-gamelybot`, allowed `identity_discord_links`, `management_board_interactions`, `identity_audit_summaries`, and `management_audit_summaries`
 
 Configure these entries through `OpenIddict__Applications__<index>__...`; never commit their production secrets. The development registrations and secrets are local-only examples in `appsettings.Development.json`.
 
@@ -108,6 +112,8 @@ Management writes the reimbursement and its outbox message in the same database 
 Discord does not offer an idempotency key for message creation, so a process crash after Discord accepts a message but before the local delivery record is committed can rarely produce a duplicate. Normal retries and repeated producer submissions remain idempotent.
 
 Run exactly one bot-service replica per environment. The worker recovers notifications left in `processing` after a restart, but active-active delivery workers are intentionally not part of this first version.
+
+The bot posts separate Identity and Management audit summaries to the administration channel each Monday at 09:00 in the configured time zone. `/auditsummary identity` requires `identity.audit.read`; `/auditsummary management` requires `management.members.read`. The Management summary currently covers the centralized member-management audit log; additional module audit streams can be added to its internal summary endpoint later.
 
 ## Deployment migrations
 

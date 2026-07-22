@@ -22,6 +22,7 @@ builder.Services.Configure<DiscordOptions>(builder.Configuration.GetSection(Disc
 builder.Services.Configure<IdentityClientOptions>(builder.Configuration.GetSection(IdentityClientOptions.SectionName));
 builder.Services.Configure<ManagementClientOptions>(builder.Configuration.GetSection(ManagementClientOptions.SectionName));
 builder.Services.Configure<DiscordInteractionOptions>(builder.Configuration.GetSection(DiscordInteractionOptions.SectionName));
+builder.Services.Configure<AuditSummaryOptions>(builder.Configuration.GetSection(AuditSummaryOptions.SectionName));
 builder.Services.Configure<NotificationRoutingOptions>(builder.Configuration.GetSection(NotificationRoutingOptions.SectionName));
 builder.Services.PostConfigure<NotificationRoutingOptions>(options =>
 {
@@ -82,6 +83,7 @@ builder.Services.AddHttpClient();
 builder.Services.AddSingleton<ClientCredentialsTokenProvider>();
 builder.Services.AddSingleton<BoardRescheduleInputParser>();
 builder.Services.AddScoped<DiscordInteractionService>();
+builder.Services.AddScoped<AuditSummaryService>();
 builder.Services.AddScoped<INotificationRenderer, NotificationRenderer>();
 builder.Services.AddScoped<INotificationInbox, EfNotificationInbox>();
 var transport = builder.Configuration["NotificationTransport"]?.Trim().ToLowerInvariant() ?? "debug";
@@ -101,6 +103,7 @@ else
     builder.Services.AddScoped<IDiscordLinkResolver, IdentityDiscordLinkResolver>();
 builder.Services.AddHostedService<NotificationDeliveryWorker>();
 builder.Services.AddHostedService<BoardMeetingReminderWorker>();
+builder.Services.AddHostedService<AuditSummaryWorker>();
 
 var app = builder.Build();
 await using (var scope = app.Services.CreateAsyncScope())

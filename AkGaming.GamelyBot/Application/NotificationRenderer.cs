@@ -2,6 +2,7 @@ using System.Globalization;
 using System.Text.Json;
 using AkGaming.Core.Notifications;
 using AkGaming.GamelyBot.Domain;
+using AkGaming.GamelyBot.Infrastructure;
 using Microsoft.Extensions.Options;
 
 namespace AkGaming.GamelyBot.Application;
@@ -33,6 +34,8 @@ public sealed class NotificationRenderer(IOptions<NotificationRoutingOptions> op
             NotificationEventTypes.BoardMeetingReminder => RenderBoardMeeting(notification, "Board meeting reminder"),
             NotificationEventTypes.BoardMeetingRescheduleProposed => RenderBoardProposal(notification),
             NotificationEventTypes.BoardAgendaChanged => RenderBoardAgendaChange(notification),
+            NotificationEventTypes.IdentityAuditSummary => RenderAuditSummary(notification),
+            NotificationEventTypes.ManagementAuditSummary => RenderAuditSummary(notification),
             _ => throw new InvalidOperationException($"Unsupported notification type '{notification.Type}'.")
         };
     }
@@ -161,6 +164,15 @@ public sealed class NotificationRenderer(IOptions<NotificationRoutingOptions> op
         agendaLines.AddRange(removedItems);
         var body = $"**{context}**\n\n**Updated agenda**\n{string.Join('\n', agendaLines)}";
         var message = new RenderedMessage("Board agenda changed", body, data.ManagementUrl, null, _options.BoardChannelId);
+        return new RenderedNotification(message, null);
+    }
+
+    private static RenderedNotification RenderAuditSummary(NotificationInboxItem notification)
+    {
+        var data = JsonSerializer.Deserialize<AuditSummaryNotification>(notification.DataJson, JsonOptions())
+            ?? throw new InvalidOperationException("The audit summary payload is invalid.");
+        var message = new RenderedMessage($"{data.Summary.Source} weekly audit summary",
+            AuditSummaryService.Format(data.Summary));
         return new RenderedNotification(message, null);
     }
 

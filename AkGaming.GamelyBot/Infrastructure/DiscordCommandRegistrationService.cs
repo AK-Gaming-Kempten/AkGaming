@@ -23,14 +23,9 @@ public sealed class DiscordCommandRegistrationService(
         var commands = await GetAsync<List<DiscordRegisteredCommand>>(client, path, cancellationToken);
         var existing = commands.SingleOrDefault(command => command.Name == "boardmeeting");
         var legacy = commands.SingleOrDefault(command => command.Name == "board");
-        var definition = BoardCommandDefinition();
-        var commandToUpdate = existing ?? legacy;
-        using var response = commandToUpdate is null
-            ? await client.PostAsJsonAsync(path, definition, cancellationToken)
-            : await client.PatchAsJsonAsync($"{path}/{commandToUpdate.Id}", definition, cancellationToken);
-        var body = await response.Content.ReadAsStringAsync(cancellationToken);
-        if (!response.IsSuccessStatusCode)
-            throw new InvalidOperationException($"Discord command registration failed with {(int)response.StatusCode}: {body}");
+        await UpsertAsync(client, path, existing ?? legacy, BoardCommandDefinition(), cancellationToken);
+        var auditSummary = commands.SingleOrDefault(command => command.Name == "auditsummary");
+        await UpsertAsync(client, path, auditSummary, AuditSummaryCommandDefinition(), cancellationToken);
         if (existing is not null && legacy is not null)
         {
             using var deleteResponse = await client.DeleteAsync($"{path}/{legacy.Id}", cancellationToken);
@@ -40,7 +35,7 @@ public sealed class DiscordCommandRegistrationService(
                 throw new InvalidOperationException($"Legacy Discord command removal failed with {(int)deleteResponse.StatusCode}: {deleteBody}");
             }
         }
-        logger.LogInformation("Registered the guild-scoped /boardmeeting commands for guild {GuildId}.", _options.GuildId);
+        logger.LogInformation("Registered the guild-scoped /boardmeeting and /auditsummary commands for guild {GuildId}.", _options.GuildId);
     }
 
     public Task StopAsync(CancellationToken cancellationToken)
@@ -99,6 +94,33 @@ public sealed class DiscordCommandRegistrationService(
                 }
             }
         };
+    }
+
+    private static object AuditSummaryCommandDefinition()
+    {
+        return new
+        {
+            name = "auditsummary",
+            description = "View authorized weekly audit summaries",
+            type = 1,
+            dm_permission = false,
+            options = new object[]
+            {
+                Subcommand("identity", "View Identity activity from the last seven days"),
+                Subcommand("management", "View Management activity from the last seven days")
+            }
+        };
+    }
+
+    private static async Task UpsertAsync(HttpClient client, string path, DiscordRegisteredCommand? existing,
+        object definition, CancellationToken cancellationToken)
+    {
+        using var response = existing is null
+            ? await client.PostAsJsonAsync(path, definition, cancellationToken)
+            : await client.PatchAsJsonAsync($"{path}/{existing.Id}", definition, cancellationToken);
+        var body = await response.Content.ReadAsStringAsync(cancellationToken);
+        if (!response.IsSuccessStatusCode)
+            throw new InvalidOperationException($"Discord command registration failed with {(int)response.StatusCode}: {body}");
     }
 
     private static object Subcommand(string name, string description)

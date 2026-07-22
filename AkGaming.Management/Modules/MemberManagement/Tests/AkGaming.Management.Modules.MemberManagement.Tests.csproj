@@ -30,6 +30,7 @@
     <ItemGroup>
       <ProjectReference Include="..\Application\AkGaming.Management.Modules.MemberManagement.Application.csproj" />
       <ProjectReference Include="..\Infrastructure\AkGaming.Management.Modules.MemberManagement.Infrastructure.csproj" />
+      <ProjectReference Include="..\Api\AkGaming.Management.Modules.MemberManagement.Api.csproj" />
     </ItemGroup>
 
 </Project>

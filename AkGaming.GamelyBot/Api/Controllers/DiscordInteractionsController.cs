@@ -13,7 +13,7 @@ namespace AkGaming.GamelyBot.Api.Controllers;
 [AllowAnonymous]
 public sealed class DiscordInteractionsController(DiscordInteractionService interactions, IOptions<DiscordOptions> discordOptions,
     IOptions<DiscordInteractionOptions> interactionOptions, BoardRescheduleInputParser rescheduleInputParser,
-    ILogger<DiscordInteractionsController> logger) : ControllerBase
+    AuditSummaryService auditSummaries, ILogger<DiscordInteractionsController> logger) : ControllerBase
 {
     [HttpPost]
     public async Task<IActionResult> Handle(CancellationToken cancellationToken)
@@ -56,7 +56,12 @@ public sealed class DiscordInteractionsController(DiscordInteractionService inte
         if (interactionType == 3) return await HandleButtonAsync(data, discordUserId, cancellationToken);
         if (interactionType == 4) return await HandleAutocompleteAsync(data, discordUserId, cancellationToken);
         if (interactionType == 5) return await HandleModalAsync(data, discordUserId, cancellationToken);
-        if (interactionType != 2 || data.GetProperty("name").GetString() != "boardmeeting") return Ephemeral("Unsupported interaction.");
+        if (interactionType != 2) return Ephemeral("Unsupported interaction.");
+
+        var commandName = data.GetProperty("name").GetString();
+        if (commandName == "auditsummary")
+            return Ephemeral(await GetAuditSummaryAsync(data, discordUserId, cancellationToken));
+        if (commandName != "boardmeeting") return Ephemeral("Unsupported interaction.");
 
         var command = GetSubcommand(data);
         return command switch
@@ -73,6 +78,17 @@ public sealed class DiscordInteractionsController(DiscordInteractionService inte
             "availability" => await SetNextAvailabilityAsync(data, discordUserId, cancellationToken),
             _ => Ephemeral("Unsupported board meeting command.")
         };
+    }
+
+    private async Task<string> GetAuditSummaryAsync(JsonElement data, string discordUserId,
+        CancellationToken cancellationToken)
+    {
+        var source = GetSubcommand(data);
+        if (source is not ("identity" or "management"))
+            return "Select either the Identity or Management audit summary.";
+        var toUtc = DateTimeOffset.UtcNow;
+        var fromUtc = toUtc.AddDays(-7);
+        return await auditSummaries.GetForDiscordAsync(discordUserId, source, fromUtc, toUtc, cancellationToken);
     }
 
     private async Task<object> HandleButtonAsync(JsonElement data, string discordUserId, CancellationToken cancellationToken)

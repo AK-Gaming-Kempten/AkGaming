@@ -14,6 +14,8 @@ public static class NotificationEventTypes
     public const string BoardMeetingReminder = "board-meeting.reminder";
     public const string BoardMeetingRescheduleProposed = "board-meeting.reschedule-proposed";
     public const string BoardAgendaChanged = "board-meeting.agenda-changed";
+    public const string IdentityAuditSummary = "audit-summary.identity";
+    public const string ManagementAuditSummary = "audit-summary.management";
 }
 
 public sealed record NotificationEnvelope(
@@ -59,7 +61,16 @@ public sealed record MemberLinkingRequestCreatedNotification(
 
 public sealed record DiscordLinkResponse(Guid UserId, string? DiscordUserId, bool IsLinked);
 public sealed record DiscordUserLinkResponse(Guid UserId, string DisplayName, bool IsLinked,
-    bool CanAccessBoardMeetings, bool CanManageBoardMeetings);
+    bool CanAccessBoardMeetings, bool CanManageBoardMeetings, bool CanReadIdentityAudit = false,
+    bool CanReadManagementAudit = false);
+
+public sealed record AuditSummaryCategory(string Name, int Count);
+
+public sealed record AuditSummaryResponse(string Source, DateTimeOffset FromUtc, DateTimeOffset ToUtc,
+    int TotalEvents, int UniqueActors, int? SuccessfulEvents, int? FailedEvents,
+    IReadOnlyList<AuditSummaryCategory> TopCategories);
+
+public sealed record AuditSummaryNotification(AuditSummaryResponse Summary);
 
 public sealed record BoardMeetingNotification(Guid MeetingId, string Title, DateTimeOffset ScheduledAtUtc,
     int DurationMinutes, string? Location, int ScheduleVersion, string? Reason, string? ManagementUrl,

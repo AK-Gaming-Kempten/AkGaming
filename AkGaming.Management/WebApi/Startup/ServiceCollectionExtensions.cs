@@ -3,12 +3,14 @@ using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Authorization;
 using OpenIddict.Validation.AspNetCore;
 using System.Net.Security;
+using AkGaming.Management.Modules.MemberManagement.Api.Controllers;
 
 namespace AkGaming.Management.WebApi.Startup;
 
 public static class ServiceCollectionExtensions {
     public static IServiceCollection AddJsonAndControllers(this IServiceCollection services) {
         services.AddControllers()
+            .AddApplicationPart(typeof(MemberAuditSummaryController).Assembly)
             .AddJsonOptions(o =>
                 o.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
         services.ConfigureHttpJsonOptions(o =>
@@ -81,6 +83,11 @@ public static class ServiceCollectionExtensions {
                 policy.AddAuthenticationSchemes(OpenIddictValidationAspNetCoreDefaults.AuthenticationScheme);
                 policy.RequireAuthenticatedUser();
                 policy.RequireAssertion(context => HasScope(context.User, "management_board_interactions"));
+            });
+            options.AddPolicy("management.audit-summaries", policy => {
+                policy.AddAuthenticationSchemes(OpenIddictValidationAspNetCoreDefaults.AuthenticationScheme);
+                policy.RequireAuthenticatedUser();
+                policy.RequireAssertion(context => HasScope(context.User, "management_audit_summaries"));
             });
             options.AddPolicy("MembersReadOrSelfRouteUserId", p => BuildManagementApiPolicy(p).RequireAssertion(ctx =>
                 HasPermission(ctx.User, "management.members.read") || IsSelfRouteUser(ctx)));

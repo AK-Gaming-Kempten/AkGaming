@@ -11,6 +11,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="../../../../AkGaming.Core/Notifications/AkGaming.Core.Notifications.csproj" />
       <ProjectReference Include="..\Application\AkGaming.Management.Modules.MemberManagement.Application.csproj" />
       <ProjectReference Include="..\Contracts\AkGaming.Management.Modules.MemberManagement.Contracts.csproj" />
       <ProjectReference Include="..\Domain\AkGaming.Management.Modules.MemberManagement.Domain.csproj" />
