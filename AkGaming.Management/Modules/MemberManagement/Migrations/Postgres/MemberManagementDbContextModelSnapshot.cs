@@ -132,6 +132,50 @@ namespace AkGaming.Management.Modules.MemberManagement.Infrastructure.Migrations
                     b.ToTable("MemberLinkingRequests");
                 });
 
+            modelBuilder.Entity("AkGaming.Management.Modules.MemberManagement.Domain.Entities.MemberNotificationOutboxMessage", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("AttemptCount")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTimeOffset>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("EventId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("LastError")
+                        .HasMaxLength(4000)
+                        .HasColumnType("character varying(4000)");
+
+                    b.Property<DateTimeOffset?>("NextAttemptAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("PayloadJson")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTimeOffset?>("ProcessedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("EventId")
+                        .IsUnique();
+
+                    b.HasIndex("ProcessedAtUtc", "NextAttemptAtUtc");
+
+                    b.ToTable("MemberNotificationOutbox", (string)null);
+                });
+
             modelBuilder.Entity("AkGaming.Management.Modules.MemberManagement.Domain.Entities.MembershipApplicationRequest", b =>
                 {
                     b.Property<Guid>("Id")

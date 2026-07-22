@@ -6,6 +6,7 @@ using AkGaming.Core.Common.Email;
 using AkGaming.Management.Modules.MemberManagement.Application.Interfaces;
 using AkGaming.Management.Modules.MemberManagement.Infrastructure.Persistence;
 using AkGaming.Management.Modules.MemberManagement.Infrastructure.Persistence.Repositories;
+using AkGaming.Management.Modules.MemberManagement.Infrastructure.Notifications;
 
 namespace AkGaming.Management.Modules.MemberManagement.Infrastructure;
 
@@ -47,6 +48,11 @@ public static class DependencyInjection {
         services.AddScoped<IMembershipPaymentPeriodRepository, EfMembershipPaymentPeriodRepository>();
         services.AddScoped<IMembershipDueRepository, EfMembershipDueRepository>();
         services.AddScoped<IPaymentInformationRepository, EfPaymentInformationRepository>();
+        services.Configure<MemberNotificationOptions>(configuration.GetSection(MemberNotificationOptions.SectionName));
+        services.AddScoped<IMemberNotificationOutbox, MemberNotificationOutbox>();
+        services.AddScoped<MemberNotificationAccessTokenProvider>();
+        services.AddHttpClient("MemberNotifications");
+        services.AddHostedService<MemberNotificationOutboxDispatcher>();
         services.Configure<SmtpOptions>(configuration.GetSection(SmtpOptions.SectionName));
         services.AddSingleton<IEmailSender, SmtpEmailSender>();
 

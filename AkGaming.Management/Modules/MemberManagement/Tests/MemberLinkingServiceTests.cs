@@ -183,18 +183,21 @@ public class MemberLinkingServiceTests {
     }
 
     [Test]
+    [Description("Creates a member linking request, emails the board, and enqueues a Discord notification transactionally.")]
     public async Task CreateMemberLinkingRequest_SendsNotificationEmailToVorstand() {
         var memberRepository = new Mock<IMemberRepository>();
         var memberLinkingRequestRepository = new Mock<IMemberLinkingRequestRepository>();
         var auditLogWriter = new Mock<IMemberAuditLogWriter>();
         var emailSender = new Mock<IEmailSender>();
         var logger = new Mock<ILogger<MemberLinkingService>>();
+        var notificationOutbox = new Mock<IMemberNotificationOutbox>();
         var service = new MemberLinkingService(
             memberRepository.Object,
             memberLinkingRequestRepository.Object,
             auditLogWriter.Object,
             emailSender.Object,
-            logger.Object);
+            logger.Object,
+            notificationOutbox.Object);
 
         var request = new MemberLinkingRequestDto {
             IssuingUserId = Guid.NewGuid(),
@@ -222,6 +225,8 @@ public class MemberLinkingServiceTests {
 
         Assert.That(result.IsSuccess, Is.True);
         emailSender.Verify(x => x.SendAsync(ClubConstants.EmailAddresses.Board, It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string?>(), It.IsAny<CancellationToken>()), Times.Once);
+        notificationOutbox.Verify(x => x.EnqueueMemberLinkingRequestCreated(
+            It.Is<MemberLinkingRequest>(linking => linking.IssuingUserId == request.IssuingUserId)), Times.Once);
         Assert.That(capturedTextBody, Does.Contain(ClubConstants.Urls.ManagementMemberRequests));
         Assert.That(capturedHtmlBody, Does.Contain(ClubConstants.Urls.ManagementMemberRequests));
         Assert.That(capturedHtmlBody, Does.Not.Contain("Dieses Schreiben wurde maschinell erstellt"));

@@ -6,6 +6,8 @@ public static class NotificationEventTypes
 {
     public const string ReimbursementSubmitted = "reimbursement.submitted";
     public const string ReimbursementStatusChanged = "reimbursement.status-changed";
+    public const string MembershipApplicationCreated = "membership-application.created";
+    public const string MemberLinkingRequestCreated = "member-linking-request.created";
     public const string BoardMeetingCreated = "board-meeting.created";
     public const string BoardMeetingRescheduled = "board-meeting.rescheduled";
     public const string BoardMeetingCancelled = "board-meeting.cancelled";
@@ -40,6 +42,19 @@ public sealed record ReimbursementStatusChangedNotification(
     string PreviousStatus,
     string Status,
     string? AdministrativeNote,
+    string? ManagementUrl);
+
+public sealed record MembershipApplicationCreatedNotification(
+    Guid RequestId,
+    string ApplicantName,
+    string? Email,
+    string? ManagementUrl);
+
+public sealed record MemberLinkingRequestCreatedNotification(
+    Guid RequestId,
+    string ApplicantName,
+    string? Email,
+    string Reason,
     string? ManagementUrl);
 
 public sealed record DiscordLinkResponse(Guid UserId, string? DiscordUserId, bool IsLinked);

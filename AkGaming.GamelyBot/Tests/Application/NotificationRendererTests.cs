@@ -59,7 +59,7 @@ public sealed class NotificationRendererTests
     public void Render_WhenBoardMeetingIsCreated_ReturnsInteractiveBoardMessage()
     {
         // Arrange
-        var renderer = new NotificationRenderer(Options.Create(new NotificationRoutingOptions { BoardChannelId = "board-channel", BoardRoleId = "board-role" }));
+        var renderer = new NotificationRenderer(Options.Create(new NotificationRoutingOptions { BoardChannelId = "board-channel", ExtendedBoardRoleId = "extended-board-role" }));
         var meetingId = Guid.NewGuid();
         var payload = new BoardMeetingNotification(meetingId, "Board meeting", DateTimeOffset.UtcNow.AddDays(1), 90, "Club room", 4, null, null, ["Budget", "Upcoming events"]);
         var notification = new NotificationInboxItem { Type = NotificationEventTypes.BoardMeetingCreated, DataJson = JsonSerializer.Serialize(payload, new JsonSerializerOptions(JsonSerializerDefaults.Web)) };
@@ -69,12 +69,72 @@ public sealed class NotificationRendererTests
 
         // Assert
         Assert.That(rendered.ChannelMessage?.ChannelId, Is.EqualTo("board-channel"));
-        Assert.That(rendered.ChannelMessage?.RoleId, Is.EqualTo("board-role"));
+        Assert.That(rendered.ChannelMessage?.RoleId, Is.EqualTo("extended-board-role"));
         Assert.That(rendered.ChannelMessage?.Buttons, Has.Count.EqualTo(3));
         Assert.That(rendered.ChannelMessage!.Buttons![0].CustomId, Does.Contain($"{meetingId}:4:available"));
         Assert.That(rendered.ChannelMessage.Buttons[2].CustomId, Is.EqualTo($"board-reschedule:{meetingId}:4"));
         Assert.That(rendered.ChannelMessage.Body, Does.Contain("Agenda"));
         Assert.That(rendered.ChannelMessage.Body, Does.Contain("1. Budget"));
+    }
+
+    [Test]
+    [Description("Routes new membership applications to the administration channel and pings only the board role.")]
+    public void Render_WhenMembershipApplicationIsCreated_ReturnsBoardNotification()
+    {
+        // Arrange
+        var renderer = new NotificationRenderer(Options.Create(new NotificationRoutingOptions
+        {
+            BoardRoleId = "board-role",
+            ExtendedBoardRoleId = "extended-board-role"
+        }));
+        var payload = new MembershipApplicationCreatedNotification(Guid.NewGuid(), "Erika Mustermann",
+            "erika@example.com", "https://management.test/member-management/requests");
+        var notification = new NotificationInboxItem
+        {
+            Type = NotificationEventTypes.MembershipApplicationCreated,
+            DataJson = JsonSerializer.Serialize(payload, new JsonSerializerOptions(JsonSerializerDefaults.Web))
+        };
+
+        // Act
+        var rendered = renderer.Render(notification);
+
+        // Assert
+        Assert.Multiple(() =>
+        {
+            Assert.That(rendered.ChannelMessage?.RoleId, Is.EqualTo("board-role"));
+            Assert.That(rendered.ChannelMessage?.ChannelId, Is.Null);
+            Assert.That(rendered.ChannelMessage?.Body, Does.Contain("Erika Mustermann"));
+        });
+    }
+
+    [Test]
+    [Description("Routes new member linking requests to the administration channel and pings only the board role.")]
+    public void Render_WhenMemberLinkingRequestIsCreated_ReturnsBoardNotification()
+    {
+        // Arrange
+        var renderer = new NotificationRenderer(Options.Create(new NotificationRoutingOptions
+        {
+            BoardRoleId = "board-role",
+            ExtendedBoardRoleId = "extended-board-role"
+        }));
+        var payload = new MemberLinkingRequestCreatedNotification(Guid.NewGuid(), "Max Mustermann",
+            "max@example.com", "NewRegistration", "https://management.test/member-management/requests");
+        var notification = new NotificationInboxItem
+        {
+            Type = NotificationEventTypes.MemberLinkingRequestCreated,
+            DataJson = JsonSerializer.Serialize(payload, new JsonSerializerOptions(JsonSerializerDefaults.Web))
+        };
+
+        // Act
+        var rendered = renderer.Render(notification);
+
+        // Assert
+        Assert.Multiple(() =>
+        {
+            Assert.That(rendered.ChannelMessage?.RoleId, Is.EqualTo("board-role"));
+            Assert.That(rendered.ChannelMessage?.ChannelId, Is.Null);
+            Assert.That(rendered.ChannelMessage?.Body, Does.Contain("NewRegistration"));
+        });
     }
 
     [Test]
@@ -85,7 +145,7 @@ public sealed class NotificationRendererTests
         var renderer = new NotificationRenderer(Options.Create(new NotificationRoutingOptions
         {
             BoardChannelId = "board-channel",
-            BoardRoleId = "board-role"
+            ExtendedBoardRoleId = "extended-board-role"
         }));
         var meetingId = Guid.NewGuid();
         var payload = new BoardMeetingNotification(meetingId, "Board meeting", DateTimeOffset.UtcNow.AddHours(1),
@@ -114,7 +174,7 @@ public sealed class NotificationRendererTests
         var renderer = new NotificationRenderer(Options.Create(new NotificationRoutingOptions
         {
             BoardChannelId = "board-channel",
-            BoardRoleId = "board-role"
+            ExtendedBoardRoleId = "extended-board-role"
         }));
         var meetingId = Guid.NewGuid();
         var proposalId = Guid.NewGuid();

@@ -11,6 +11,7 @@ public sealed class NotificationRoutingOptions
     public const string SectionName = "NotificationRouting";
     public string? TreasurerRoleId { get; set; }
     public string? BoardRoleId { get; set; }
+    public string? ExtendedBoardRoleId { get; set; }
     public string? BoardChannelId { get; set; }
 }
 
@@ -24,6 +25,8 @@ public sealed class NotificationRenderer(IOptions<NotificationRoutingOptions> op
         {
             NotificationEventTypes.ReimbursementSubmitted => RenderSubmitted(notification),
             NotificationEventTypes.ReimbursementStatusChanged => RenderStatusChanged(notification),
+            NotificationEventTypes.MembershipApplicationCreated => RenderMembershipApplicationCreated(notification),
+            NotificationEventTypes.MemberLinkingRequestCreated => RenderMemberLinkingRequestCreated(notification),
             NotificationEventTypes.BoardMeetingCreated => RenderBoardMeeting(notification, "New board meeting"),
             NotificationEventTypes.BoardMeetingRescheduled => RenderBoardMeeting(notification, "Board meeting rescheduled"),
             NotificationEventTypes.BoardMeetingCancelled => RenderBoardMeeting(notification, "Board meeting cancelled", false),
@@ -75,7 +78,7 @@ public sealed class NotificationRenderer(IOptions<NotificationRoutingOptions> op
             new RenderedButton("I cannot attend", $"board-availability:{data.MeetingId}:{data.ScheduleVersion}:unavailable", 4),
             new RenderedButton("Propose another time", $"board-reschedule:{data.MeetingId}:{data.ScheduleVersion}", 2)
         } : null;
-        var message = new RenderedMessage(heading, $"**{data.Title}**\n{when}\n{data.DurationMinutes} minutes · {location}{reason}{agenda}", data.ManagementUrl, _options.BoardRoleId, _options.BoardChannelId, buttons);
+        var message = new RenderedMessage(heading, $"**{data.Title}**\n{when}\n{data.DurationMinutes} minutes · {location}{reason}{agenda}", data.ManagementUrl, _options.ExtendedBoardRoleId, _options.BoardChannelId, buttons);
         return new RenderedNotification(message, null);
     }
 
@@ -103,7 +106,29 @@ public sealed class NotificationRenderer(IOptions<NotificationRoutingOptions> op
             new RenderedButton("Accept proposal", $"bp:{data.MeetingId}:{data.ProposalId}:a", 3),
             new RenderedButton("Reject proposal", $"bp:{data.MeetingId}:{data.ProposalId}:r", 4)
         };
-        var message = new RenderedMessage("Board meeting reschedule proposed", $"**{data.ProposedByDisplayName}** proposed a new date for **{data.Title}**:\n{when}\n{data.DurationMinutes} minutes{reason}", data.ManagementUrl, _options.BoardRoleId, _options.BoardChannelId, buttons);
+        var message = new RenderedMessage("Board meeting reschedule proposed", $"**{data.ProposedByDisplayName}** proposed a new date for **{data.Title}**:\n{when}\n{data.DurationMinutes} minutes{reason}", data.ManagementUrl, _options.ExtendedBoardRoleId, _options.BoardChannelId, buttons);
+        return new RenderedNotification(message, null);
+    }
+
+    private RenderedNotification RenderMembershipApplicationCreated(NotificationInboxItem notification)
+    {
+        var data = JsonSerializer.Deserialize<MembershipApplicationCreatedNotification>(notification.DataJson, JsonOptions())
+            ?? throw new InvalidOperationException("The membership application payload is invalid.");
+        var email = string.IsNullOrWhiteSpace(data.Email) ? string.Empty : $"\nEmail: {data.Email}";
+        var message = new RenderedMessage("New membership application",
+            $"**{data.ApplicantName}** submitted a membership application.{email}",
+            data.ManagementUrl, _options.BoardRoleId);
+        return new RenderedNotification(message, null);
+    }
+
+    private RenderedNotification RenderMemberLinkingRequestCreated(NotificationInboxItem notification)
+    {
+        var data = JsonSerializer.Deserialize<MemberLinkingRequestCreatedNotification>(notification.DataJson, JsonOptions())
+            ?? throw new InvalidOperationException("The member linking request payload is invalid.");
+        var email = string.IsNullOrWhiteSpace(data.Email) ? string.Empty : $"\nEmail: {data.Email}";
+        var message = new RenderedMessage("New member linking request",
+            $"**{data.ApplicantName}** requested a member-account link.\nReason: {data.Reason}{email}",
+            data.ManagementUrl, _options.BoardRoleId);
         return new RenderedNotification(message, null);
     }
 

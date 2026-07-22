@@ -22,6 +22,7 @@ public class MemberManagementDbContext : DbContext {
     public DbSet<MembershipPaymentPeriod> MembershipPaymentPeriods => Set<MembershipPaymentPeriod>();
     public DbSet<MembershipDue> MembershipDues => Set<MembershipDue>();
     public DbSet<PaymentInformation> PaymentInformation => Set<PaymentInformation>();
+    public DbSet<MemberNotificationOutboxMessage> NotificationOutbox => Set<MemberNotificationOutboxMessage>();
 
     /// <inheritdoc/>
     protected override void OnModelCreating(ModelBuilder modelBuilder) {

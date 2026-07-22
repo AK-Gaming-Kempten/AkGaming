@@ -20,8 +20,9 @@ public sealed class DiscordConfigurationValidator(
             || string.IsNullOrWhiteSpace(_options.TreasurerRoleId)
             || string.IsNullOrWhiteSpace(_options.BoardChannelId)
             || string.IsNullOrWhiteSpace(_options.BoardRoleId)
+            || string.IsNullOrWhiteSpace(_options.ExtendedBoardRoleId)
             || string.IsNullOrWhiteSpace(_options.ApplicationPublicKey))
-            throw new InvalidOperationException("Discord Token, GuildId, AdministrationChannelId, TreasurerRoleId, BoardChannelId, BoardRoleId, and ApplicationPublicKey must be configured.");
+            throw new InvalidOperationException("Discord Token, GuildId, AdministrationChannelId, TreasurerRoleId, BoardChannelId, BoardRoleId, ExtendedBoardRoleId, and ApplicationPublicKey must be configured.");
 
         var client = httpClientFactory.CreateClient(nameof(DiscordConfigurationValidator));
         client.BaseAddress = new Uri("https://discord.com/api/v10/");
@@ -43,11 +44,22 @@ public sealed class DiscordConfigurationValidator(
             throw new InvalidOperationException("The configured treasurer role does not belong to the configured club server.");
         if (roles.All(role => role.Id != _options.BoardRoleId))
             throw new InvalidOperationException("The configured board role does not belong to the configured club server.");
+        if (roles.All(role => role.Id != _options.ExtendedBoardRoleId))
+            throw new InvalidOperationException("The configured extended board role does not belong to the configured club server.");
+        ValidateOptionalRole(roles, _options.SecretaryRoleId, "secretary");
+        ValidateOptionalRole(roles, _options.HeadOfSportsRoleId, "head-of-sports");
+        ValidateOptionalRole(roles, _options.MemberRoleId, "member");
 
         logger.LogInformation("Validated Discord configuration for guild {GuildId}.", _options.GuildId);
     }
 
     public Task StopAsync(CancellationToken cancellationToken) => Task.CompletedTask;
+
+    private static void ValidateOptionalRole(IReadOnlyCollection<DiscordRole> roles, string roleId, string roleName)
+    {
+        if (!string.IsNullOrWhiteSpace(roleId) && roles.All(role => role.Id != roleId))
+            throw new InvalidOperationException($"The configured {roleName} role does not belong to the configured club server.");
+    }
 
     private static async Task<T> GetAsync<T>(HttpClient client, string path, CancellationToken cancellationToken)
     {

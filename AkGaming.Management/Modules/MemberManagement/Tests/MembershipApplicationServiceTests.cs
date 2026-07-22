@@ -226,6 +226,7 @@ public class MembershipApplicationServiceTests {
     }
 
     [Test]
+    [Description("Creates a membership application, emails the board, and enqueues a Discord notification transactionally.")]
     public async Task ApplyForMembership_SendsNotificationEmailToVorstand_WhenRequestCreated() {
         var creationService = new Mock<IMemberCreationService>();
         var linkingService = new Mock<IMemberLinkingService>();
@@ -235,6 +236,7 @@ public class MembershipApplicationServiceTests {
         var auditLogWriter = new Mock<IMemberAuditLogWriter>();
         var emailSender = new Mock<IEmailSender>();
         var logger = new Mock<ILogger<MembershipApplicationService>>();
+        var notificationOutbox = new Mock<IMemberNotificationOutbox>();
         var service = new MembershipApplicationService(
             creationService.Object,
             linkingService.Object,
@@ -243,7 +245,8 @@ public class MembershipApplicationServiceTests {
             requestRepository.Object,
             auditLogWriter.Object,
             emailSender.Object,
-            logger.Object);
+            logger.Object,
+            notificationOutbox.Object);
 
         var userId = Guid.NewGuid();
         var memberId = Guid.NewGuid();
@@ -289,6 +292,8 @@ public class MembershipApplicationServiceTests {
 
         Assert.That(result.IsSuccess, Is.True);
         emailSender.Verify(x => x.SendAsync(ClubConstants.EmailAddresses.Board, It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string?>(), It.IsAny<CancellationToken>()), Times.Once);
+        notificationOutbox.Verify(x => x.EnqueueMembershipApplicationCreated(
+            It.Is<MembershipApplicationRequest>(application => application.IssuingUserId == userId)), Times.Once);
         Assert.That(capturedTextBody, Does.Contain(ClubConstants.Urls.ManagementMemberRequests));
         Assert.That(capturedHtmlBody, Does.Contain("linear-gradient(145deg,#0f221e,#163328)"));
         Assert.That(capturedHtmlBody, Does.Contain(ClubConstants.Urls.LogoAsset));

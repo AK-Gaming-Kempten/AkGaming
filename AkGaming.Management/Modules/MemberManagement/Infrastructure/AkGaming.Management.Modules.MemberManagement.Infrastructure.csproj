@@ -9,6 +9,7 @@
 
     <ItemGroup>
       <ProjectReference Include="$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\..\..\..\AkGaming.Core\Common\AkGaming.Core.Common.csproj'))" />
+      <ProjectReference Include="$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\..\..\..\AkGaming.Core\Notifications\AkGaming.Core.Notifications.csproj'))" />
       <ProjectReference Include="..\Application\AkGaming.Management.Modules.MemberManagement.Application.csproj" />
     </ItemGroup>
 
@@ -22,6 +23,8 @@
       </PackageReference>
       <PackageReference Include="Microsoft.Extensions.Configuration" Version="10.0.3" />
       <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.3" />
+      <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="10.0.0" />
+      <PackageReference Include="Microsoft.Extensions.Http" Version="10.0.0" />
       <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="10.0.3" />
       <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.0" />
     </ItemGroup>

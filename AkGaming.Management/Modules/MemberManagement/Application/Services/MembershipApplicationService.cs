@@ -23,6 +23,7 @@ public class MembershipApplicationService : IMembershipApplicationService {
     private readonly IMemberAuditLogWriter _auditLogWriter;
     private readonly IEmailSender _emailSender;
     private readonly ILogger<MembershipApplicationService> _logger;
+    private readonly IMemberNotificationOutbox _notificationOutbox;
 
     public MembershipApplicationService(
         IMemberCreationService creationService,
@@ -32,7 +33,8 @@ public class MembershipApplicationService : IMembershipApplicationService {
         IMembershipApplicationRequestRepository membershipApplicationRequestRepository,
         IMemberAuditLogWriter auditLogWriter,
         IEmailSender emailSender,
-        ILogger<MembershipApplicationService> logger)
+        ILogger<MembershipApplicationService> logger,
+        IMemberNotificationOutbox? notificationOutbox = null)
     {
         _creationService  = creationService;
         _linkingService    = linkingService;
@@ -42,6 +44,7 @@ public class MembershipApplicationService : IMembershipApplicationService {
         _auditLogWriter = auditLogWriter;
         _emailSender = emailSender;
         _logger = logger;
+        _notificationOutbox = notificationOutbox ?? new NullMemberNotificationOutbox();
     }
 
     public async Task<Result> ApplyForMembershipAsync(MembershipApplicationRequestDto request, Guid? performedByUserId = null) {
@@ -188,6 +191,10 @@ public class MembershipApplicationService : IMembershipApplicationService {
     private async Task<Result> CreateMembershipApplicationRequestAsync(MembershipApplicationRequestDto requestDto, Guid? performedByUserId) {
         var request = requestDto.ToMembershipApplicationRequest();
         var result = await _membershipApplicationRequestRepository.Add(request)
+            .Then(() => {
+                _notificationOutbox.EnqueueMembershipApplicationCreated(request);
+                return Result.Success();
+            })
             .Then(() => _auditLogWriter.Add(new MemberAuditLog {
                 ActionType = "MembershipApplicationRequestCreated",
                 PerformedByUserId = performedByUserId,

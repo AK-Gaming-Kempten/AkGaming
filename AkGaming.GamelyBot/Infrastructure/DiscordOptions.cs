@@ -9,6 +9,10 @@ public sealed class DiscordOptions
     public string TreasurerRoleId { get; set; } = string.Empty;
     public string BoardChannelId { get; set; } = string.Empty;
     public string BoardRoleId { get; set; } = string.Empty;
+    public string ExtendedBoardRoleId { get; set; } = string.Empty;
+    public string SecretaryRoleId { get; set; } = string.Empty;
+    public string HeadOfSportsRoleId { get; set; } = string.Empty;
+    public string MemberRoleId { get; set; } = string.Empty;
     public string ApplicationPublicKey { get; set; } = string.Empty;
 }
 

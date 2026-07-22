@@ -3,6 +3,7 @@ using System;
 using AkGaming.Management.Modules.MemberManagement.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace AkGaming.Management.Modules.MemberManagement.Infrastructure.Migrations
 {
     [DbContext(typeof(MemberManagementDbContext))]
-    partial class MemberManagementDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260722195010_AddMemberNotificationOutbox")]
+    partial class AddMemberNotificationOutbox
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "10.0.3");

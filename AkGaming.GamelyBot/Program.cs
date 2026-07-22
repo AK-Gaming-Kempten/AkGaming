@@ -29,6 +29,8 @@ builder.Services.PostConfigure<NotificationRoutingOptions>(options =>
         options.TreasurerRoleId = builder.Configuration[$"{DiscordOptions.SectionName}:TreasurerRoleId"];
     if (string.IsNullOrWhiteSpace(options.BoardRoleId))
         options.BoardRoleId = builder.Configuration[$"{DiscordOptions.SectionName}:BoardRoleId"];
+    if (string.IsNullOrWhiteSpace(options.ExtendedBoardRoleId))
+        options.ExtendedBoardRoleId = builder.Configuration[$"{DiscordOptions.SectionName}:ExtendedBoardRoleId"];
     if (string.IsNullOrWhiteSpace(options.BoardChannelId))
         options.BoardChannelId = builder.Configuration[$"{DiscordOptions.SectionName}:BoardChannelId"];
 });

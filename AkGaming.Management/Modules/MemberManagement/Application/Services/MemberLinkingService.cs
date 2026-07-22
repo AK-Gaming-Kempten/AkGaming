@@ -23,19 +23,22 @@ public class MemberLinkingService : IMemberLinkingService {
     private readonly IMemberAuditLogWriter _auditLogWriter;
     private readonly IEmailSender _emailSender;
     private readonly ILogger<MemberLinkingService> _logger;
+    private readonly IMemberNotificationOutbox _notificationOutbox;
 
     public MemberLinkingService(
         IMemberRepository memberRepository,
         IMemberLinkingRequestRepository linkingRequestRepository,
         IMemberAuditLogWriter auditLogWriter,
         IEmailSender emailSender,
-        ILogger<MemberLinkingService> logger)
+        ILogger<MemberLinkingService> logger,
+        IMemberNotificationOutbox? notificationOutbox = null)
     {
         _memberRepository = memberRepository;
         _linkingRequestRepository = linkingRequestRepository;
         _auditLogWriter = auditLogWriter;
         _emailSender = emailSender;
         _logger = logger;
+        _notificationOutbox = notificationOutbox ?? new NullMemberNotificationOutbox();
     }
 
     /// <inheritdoc/>
@@ -104,6 +107,10 @@ public class MemberLinkingService : IMemberLinkingService {
 
         var linkingRequest = request.ToMemberLinkingRequest();
         var result = await _linkingRequestRepository.Add(linkingRequest)
+            .Then(() => {
+                _notificationOutbox.EnqueueMemberLinkingRequestCreated(linkingRequest);
+                return Result.Success();
+            })
             .Then(() => _auditLogWriter.Add(new MemberAuditLog {
                 ActionType = "MemberLinkingRequestCreated",
                 PerformedByUserId = performedByUserId,
