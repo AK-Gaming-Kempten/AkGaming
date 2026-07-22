@@ -13,6 +13,8 @@
     <ProjectReference Include="Migrations/Sqlite/AkGaming.GamelyBot.Migrations.Sqlite.csproj" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Remove="bin/**/*.cs" />
+    <Compile Remove="obj/**/*.cs" />
     <Compile Remove="Domain/**/*.cs" />
     <Compile Remove="Infrastructure/Persistence/GamelyBotDbContext.cs" />
     <Compile Remove="Infrastructure/Persistence/bin/**/*.cs" />
@@ -20,10 +22,14 @@
     <Compile Remove="Infrastructure/Persistence/Migrations/**/*.cs" />
     <Compile Remove="Migrations/**/*.cs" />
     <Compile Remove="Tests/**/*.cs" />
+    <Content Remove="bin/**" />
+    <Content Remove="obj/**" />
     <Content Remove="Infrastructure/Persistence/bin/**" />
     <Content Remove="Infrastructure/Persistence/obj/**" />
     <Content Remove="Migrations/**" />
     <Content Remove="Tests/**" />
+    <None Remove="bin/**" />
+    <None Remove="obj/**" />
     <None Remove="Infrastructure/Persistence/bin/**" />
     <None Remove="Infrastructure/Persistence/obj/**" />
     <None Remove="Migrations/**" />

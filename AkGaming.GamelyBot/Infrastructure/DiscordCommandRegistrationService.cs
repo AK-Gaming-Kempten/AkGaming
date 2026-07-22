@@ -21,15 +21,26 @@ public sealed class DiscordCommandRegistrationService(
         var botUser = await GetAsync<DiscordBotUser>(client, "users/@me", cancellationToken);
         var path = $"applications/{botUser.Id}/guilds/{_options.GuildId}/commands";
         var commands = await GetAsync<List<DiscordRegisteredCommand>>(client, path, cancellationToken);
-        var existing = commands.SingleOrDefault(command => command.Name == "board");
+        var existing = commands.SingleOrDefault(command => command.Name == "boardmeeting");
+        var legacy = commands.SingleOrDefault(command => command.Name == "board");
         var definition = BoardCommandDefinition();
-        using var response = existing is null
+        var commandToUpdate = existing ?? legacy;
+        using var response = commandToUpdate is null
             ? await client.PostAsJsonAsync(path, definition, cancellationToken)
-            : await client.PatchAsJsonAsync($"{path}/{existing.Id}", definition, cancellationToken);
+            : await client.PatchAsJsonAsync($"{path}/{commandToUpdate.Id}", definition, cancellationToken);
         var body = await response.Content.ReadAsStringAsync(cancellationToken);
         if (!response.IsSuccessStatusCode)
             throw new InvalidOperationException($"Discord command registration failed with {(int)response.StatusCode}: {body}");
-        logger.LogInformation("Registered the guild-scoped /board meeting commands for guild {GuildId}.", _options.GuildId);
+        if (existing is not null && legacy is not null)
+        {
+            using var deleteResponse = await client.DeleteAsync($"{path}/{legacy.Id}", cancellationToken);
+            if (!deleteResponse.IsSuccessStatusCode)
+            {
+                var deleteBody = await deleteResponse.Content.ReadAsStringAsync(cancellationToken);
+                throw new InvalidOperationException($"Legacy Discord command removal failed with {(int)deleteResponse.StatusCode}: {deleteBody}");
+            }
+        }
+        logger.LogInformation("Registered the guild-scoped /boardmeeting commands for guild {GuildId}.", _options.GuildId);
     }
 
     public Task StopAsync(CancellationToken cancellationToken)
@@ -41,54 +52,47 @@ public sealed class DiscordCommandRegistrationService(
     {
         return new
         {
-            name = "board",
-            description = "Board management",
+            name = "boardmeeting",
+            description = "Board meeting planning",
             type = 1,
             dm_permission = false,
             options = new object[]
             {
+                Subcommand("help", "Show the board meeting commands and management page"),
+                Subcommand("create", "Open the management tool to create a board meeting"),
+                Subcommand("reminder", "Send a reminder for the next board meeting"),
+                Subcommand("agenda", "View the next board meeting agenda"),
+                Subcommand("backlog", "View the board meeting backlog"),
+                Subcommand("details", "View details of the next board meeting"),
+                Subcommand("add-agenda", "Add an item to the next meeting agenda"),
+                Subcommand("add-backlog", "Add an item to the board meeting backlog"),
                 new
                 {
-                    type = 2,
-                    name = "meeting",
-                    description = "Board meeting planning",
+                    type = 1,
+                    name = "promote",
+                    description = "Add a backlog item to the next meeting",
                     options = new object[]
                     {
-                        Subcommand("help", "Show the board meeting commands and management page"),
-                        Subcommand("agenda", "View the next board meeting agenda"),
-                        Subcommand("backlog", "View the board meeting backlog"),
-                        Subcommand("details", "View details of the next board meeting"),
-                        Subcommand("add-agenda", "Add an item to the next meeting agenda"),
-                        Subcommand("add-backlog", "Add an item to the board meeting backlog"),
+                        new { type = 3, name = "item", description = "Backlog item", required = true, autocomplete = true }
+                    }
+                },
+                new
+                {
+                    type = 1,
+                    name = "availability",
+                    description = "Set your availability for the next meeting",
+                    options = new object[]
+                    {
                         new
                         {
-                            type = 1,
-                            name = "promote",
-                            description = "Add a backlog item to the next meeting",
-                            options = new object[]
+                            type = 3,
+                            name = "status",
+                            description = "Whether you have time",
+                            required = true,
+                            choices = new[]
                             {
-                                new { type = 3, name = "item", description = "Backlog item", required = true, autocomplete = true }
-                            }
-                        },
-                        new
-                        {
-                            type = 1,
-                            name = "availability",
-                            description = "Set your availability for the next meeting",
-                            options = new object[]
-                            {
-                                new
-                                {
-                                    type = 3,
-                                    name = "status",
-                                    description = "Whether you have time",
-                                    required = true,
-                                    choices = new[]
-                                    {
-                                        new { name = "I have time", value = "available" },
-                                        new { name = "I cannot attend", value = "unavailable" }
-                                    }
-                                }
+                                new { name = "I have time", value = "available" },
+                                new { name = "I cannot attend", value = "unavailable" }
                             }
                         }
                     }

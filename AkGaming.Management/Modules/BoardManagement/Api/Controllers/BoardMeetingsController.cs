@@ -122,7 +122,20 @@ public sealed class BoardMeetingsController(IBoardMeetingService service) : Cont
     public async Task<ActionResult<BoardRescheduleProposalDto>> ProposeReschedule(Guid id, [FromBody] CreateRescheduleProposalRequest request, CancellationToken cancellationToken)
     {
         if (!TryGetUserId(out var userId)) return Unauthorized();
-        var result = await service.ProposeRescheduleAsync(id, request, userId, GetDisplayName(), cancellationToken);
+        var result = await service.ProposeRescheduleAsync(id, request, userId, GetDisplayName(), null, cancellationToken);
+        return result.IsSuccess ? Created(string.Empty, result.Value) : BadRequest(result.Error);
+    }
+
+    [HttpPost("{meetingId:guid}/reschedule-proposals/discord")]
+    [Authorize(Policy = "management.board-meetings.discord-interactions")]
+    public async Task<ActionResult<BoardRescheduleProposalDto>> ProposeRescheduleFromDiscord(
+        Guid meetingId,
+        [FromBody] CreateDiscordRescheduleProposalRequest request,
+        CancellationToken cancellationToken)
+    {
+        var proposalRequest = new CreateRescheduleProposalRequest(request.ProposedAtUtc, request.DurationMinutes, request.Reason);
+        var result = await service.ProposeRescheduleAsync(meetingId, proposalRequest, request.UserId,
+            request.DisplayName, request.ScheduleVersion, cancellationToken);
         return result.IsSuccess ? Created(string.Empty, result.Value) : BadRequest(result.Error);
     }
 

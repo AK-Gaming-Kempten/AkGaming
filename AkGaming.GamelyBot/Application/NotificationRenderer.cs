@@ -27,6 +27,7 @@ public sealed class NotificationRenderer(IOptions<NotificationRoutingOptions> op
             NotificationEventTypes.BoardMeetingCreated => RenderBoardMeeting(notification, "New board meeting"),
             NotificationEventTypes.BoardMeetingRescheduled => RenderBoardMeeting(notification, "Board meeting rescheduled"),
             NotificationEventTypes.BoardMeetingCancelled => RenderBoardMeeting(notification, "Board meeting cancelled", false),
+            NotificationEventTypes.BoardMeetingReminder => RenderBoardMeeting(notification, "Board meeting reminder"),
             NotificationEventTypes.BoardMeetingRescheduleProposed => RenderBoardProposal(notification),
             NotificationEventTypes.BoardAgendaChanged => RenderBoardAgendaChange(notification),
             _ => throw new InvalidOperationException($"Unsupported notification type '{notification.Type}'.")
@@ -71,7 +72,8 @@ public sealed class NotificationRenderer(IOptions<NotificationRoutingOptions> op
         var buttons = includeButtons ? new[]
         {
             new RenderedButton("I have time", $"board-availability:{data.MeetingId}:{data.ScheduleVersion}:available", 3),
-            new RenderedButton("I cannot attend", $"board-availability:{data.MeetingId}:{data.ScheduleVersion}:unavailable", 4)
+            new RenderedButton("I cannot attend", $"board-availability:{data.MeetingId}:{data.ScheduleVersion}:unavailable", 4),
+            new RenderedButton("Propose another time", $"board-reschedule:{data.MeetingId}:{data.ScheduleVersion}", 2)
         } : null;
         var message = new RenderedMessage(heading, $"**{data.Title}**\n{when}\n{data.DurationMinutes} minutes · {location}{reason}{agenda}", data.ManagementUrl, _options.BoardRoleId, _options.BoardChannelId, buttons);
         return new RenderedNotification(message, null);

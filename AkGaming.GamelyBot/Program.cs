@@ -78,6 +78,7 @@ builder.Services.AddAuthorization(options =>
 
 builder.Services.AddHttpClient();
 builder.Services.AddSingleton<ClientCredentialsTokenProvider>();
+builder.Services.AddSingleton<BoardRescheduleInputParser>();
 builder.Services.AddScoped<DiscordInteractionService>();
 builder.Services.AddScoped<INotificationRenderer, NotificationRenderer>();
 builder.Services.AddScoped<INotificationInbox, EfNotificationInbox>();
@@ -97,6 +98,7 @@ if (builder.Environment.IsDevelopment() && string.IsNullOrWhiteSpace(identityBas
 else
     builder.Services.AddScoped<IDiscordLinkResolver, IdentityDiscordLinkResolver>();
 builder.Services.AddHostedService<NotificationDeliveryWorker>();
+builder.Services.AddHostedService<BoardMeetingReminderWorker>();
 
 var app = builder.Build();
 await using (var scope = app.Services.CreateAsyncScope())

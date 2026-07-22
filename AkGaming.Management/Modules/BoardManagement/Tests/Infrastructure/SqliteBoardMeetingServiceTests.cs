@@ -80,6 +80,7 @@ public sealed class SqliteBoardMeetingServiceTests
             request,
             actorUserId,
             "Board Member",
+            null,
             CancellationToken.None);
 
         // Assert

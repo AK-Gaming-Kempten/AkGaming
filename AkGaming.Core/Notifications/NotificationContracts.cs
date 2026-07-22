@@ -9,6 +9,7 @@ public static class NotificationEventTypes
     public const string BoardMeetingCreated = "board-meeting.created";
     public const string BoardMeetingRescheduled = "board-meeting.rescheduled";
     public const string BoardMeetingCancelled = "board-meeting.cancelled";
+    public const string BoardMeetingReminder = "board-meeting.reminder";
     public const string BoardMeetingRescheduleProposed = "board-meeting.reschedule-proposed";
     public const string BoardAgendaChanged = "board-meeting.agenda-changed";
 }

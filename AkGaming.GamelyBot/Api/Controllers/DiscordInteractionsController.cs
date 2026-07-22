@@ -12,7 +12,8 @@ namespace AkGaming.GamelyBot.Api.Controllers;
 [Route("api/discord/interactions")]
 [AllowAnonymous]
 public sealed class DiscordInteractionsController(DiscordInteractionService interactions, IOptions<DiscordOptions> discordOptions,
-    IOptions<DiscordInteractionOptions> interactionOptions, ILogger<DiscordInteractionsController> logger) : ControllerBase
+    IOptions<DiscordInteractionOptions> interactionOptions, BoardRescheduleInputParser rescheduleInputParser,
+    ILogger<DiscordInteractionsController> logger) : ControllerBase
 {
     [HttpPost]
     public async Task<IActionResult> Handle(CancellationToken cancellationToken)
@@ -55,12 +56,14 @@ public sealed class DiscordInteractionsController(DiscordInteractionService inte
         if (interactionType == 3) return await HandleButtonAsync(data, discordUserId, cancellationToken);
         if (interactionType == 4) return await HandleAutocompleteAsync(data, discordUserId, cancellationToken);
         if (interactionType == 5) return await HandleModalAsync(data, discordUserId, cancellationToken);
-        if (interactionType != 2 || data.GetProperty("name").GetString() != "board") return Ephemeral("Unsupported interaction.");
+        if (interactionType != 2 || data.GetProperty("name").GetString() != "boardmeeting") return Ephemeral("Unsupported interaction.");
 
-        var command = GetMeetingSubcommand(data);
+        var command = GetSubcommand(data);
         return command switch
         {
             "help" => Ephemeral(interactions.GetBoardMeetingHelp()),
+            "create" => Ephemeral(interactions.GetBoardMeetingCreateHelp()),
+            "reminder" => Ephemeral(await interactions.QueueNextMeetingReminderAsync(discordUserId, cancellationToken)),
             "backlog" => Ephemeral(await interactions.GetBacklogAsync(discordUserId, cancellationToken)),
             "agenda" => Ephemeral(await interactions.GetNextMeetingAsync(discordUserId, true, cancellationToken)),
             "details" => Ephemeral(await interactions.GetNextMeetingAsync(discordUserId, false, cancellationToken)),
@@ -76,6 +79,12 @@ public sealed class DiscordInteractionsController(DiscordInteractionService inte
     {
         var customId = data.GetProperty("custom_id").GetString();
         var parts = customId?.Split(':');
+        if (parts is { Length: 3 } && parts[0] == "board-reschedule"
+            && Guid.TryParse(parts[1], out var rescheduleMeetingId)
+            && int.TryParse(parts[2], out var rescheduleVersion))
+        {
+            return RescheduleModal(rescheduleMeetingId, rescheduleVersion);
+        }
         if (parts is not { Length: 4 } || parts[0] != "board-availability" || !Guid.TryParse(parts[1], out var meetingId) || !int.TryParse(parts[2], out var version))
             return Ephemeral("This meeting action is invalid.");
         var status = parts[3] == "available" ? "Available" : "Unavailable";
@@ -85,7 +94,7 @@ public sealed class DiscordInteractionsController(DiscordInteractionService inte
 
     private async Task<object> HandleAutocompleteAsync(JsonElement data, string discordUserId, CancellationToken cancellationToken)
     {
-        if (GetMeetingSubcommand(data) != "promote") return Autocomplete([]);
+        if (GetSubcommand(data) != "promote") return Autocomplete([]);
         var focused = FindFocusedOption(data);
         var choices = await interactions.GetBacklogChoicesAsync(discordUserId, focused, cancellationToken);
         return Autocomplete(choices);
@@ -94,6 +103,20 @@ public sealed class DiscordInteractionsController(DiscordInteractionService inte
     private async Task<object> HandleModalAsync(JsonElement data, string discordUserId, CancellationToken cancellationToken)
     {
         var customId = data.GetProperty("custom_id").GetString();
+        var customIdParts = customId?.Split(':');
+        if (customIdParts is { Length: 3 } && customIdParts[0] == "board-reschedule"
+            && Guid.TryParse(customIdParts[1], out var meetingId)
+            && int.TryParse(customIdParts[2], out var scheduleVersion))
+        {
+            var input = rescheduleInputParser.Parse(
+                FindComponentValue(data, "proposed-at"),
+                FindComponentValue(data, "duration"));
+            if (!input.IsSuccess) return Ephemeral(input.Error!);
+            var reason = FindComponentValue(data, "reason");
+            var proposalMessage = await interactions.ProposeRescheduleAsync(discordUserId, meetingId, scheduleVersion,
+                input.ProposedAtUtc, input.DurationMinutes, reason, cancellationToken);
+            return Ephemeral(proposalMessage);
+        }
         if (customId is not ("board-meeting-add-backlog" or "board-meeting-add-agenda")) return Ephemeral("Unsupported form submission.");
         var title = FindComponentValue(data, "title");
         var description = FindComponentValue(data, "description");
@@ -119,12 +142,11 @@ public sealed class DiscordInteractionsController(DiscordInteractionService inte
         return Ephemeral(message);
     }
 
-    private static string? GetMeetingSubcommand(JsonElement data)
+    private static string? GetSubcommand(JsonElement data)
     {
-        if (!data.TryGetProperty("options", out var rootOptions)) return null;
-        var group = rootOptions.EnumerateArray().FirstOrDefault(option => option.GetProperty("name").GetString() == "meeting");
-        if (group.ValueKind == JsonValueKind.Undefined || !group.TryGetProperty("options", out var groupOptions)) return null;
-        return groupOptions.EnumerateArray().FirstOrDefault().GetProperty("name").GetString();
+        if (!data.TryGetProperty("options", out var options)) return null;
+        var subcommand = options.EnumerateArray().FirstOrDefault();
+        return subcommand.ValueKind == JsonValueKind.Undefined ? null : subcommand.GetProperty("name").GetString();
     }
 
     private static string FindOptionValue(JsonElement data, string name)
@@ -192,4 +214,23 @@ public sealed class DiscordInteractionsController(DiscordInteractionService inte
             }
         }
     };
+
+    private static object RescheduleModal(Guid meetingId, int scheduleVersion)
+    {
+        return new
+        {
+            type = 9,
+            data = new
+            {
+                custom_id = $"board-reschedule:{meetingId}:{scheduleVersion}",
+                title = "Propose another meeting time",
+                components = new object[]
+                {
+                    new { type = 1, components = new[] { new { type = 4, custom_id = "proposed-at", label = "Date and time (DD.MM.YYYY HH:mm)", style = 1, min_length = 10, max_length = 16, required = true } } },
+                    new { type = 1, components = new[] { new { type = 4, custom_id = "duration", label = "Duration in minutes", style = 1, min_length = 2, max_length = 4, required = true } } },
+                    new { type = 1, components = new[] { new { type = 4, custom_id = "reason", label = "Reason", style = 2, min_length = 0, max_length = 1000, required = false } } }
+                }
+            }
+        };
+    }
 }

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Add Management Module"
+  short_description: "Scaffold AK Gaming Management modules safely"
+  default_prompt: "Use $add-management-module to add a new module to the AK Gaming Management application."

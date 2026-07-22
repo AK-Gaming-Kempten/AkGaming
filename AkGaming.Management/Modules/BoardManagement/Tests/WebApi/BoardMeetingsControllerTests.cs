@@ -104,4 +104,33 @@ public sealed class BoardMeetingsControllerTests
         Assert.That(response?.Value, Is.EqualTo(created));
         _service.VerifyAll();
     }
+
+    [Test]
+    [Description("Forwards a Discord rescheduling proposal with the linked identity and announcement schedule version.")]
+    public async Task ProposeRescheduleFromDiscord_ValidRequest_ForwardsVersionAndIdentity()
+    {
+        // Arrange
+        var meetingId = Guid.NewGuid();
+        var request = new CreateDiscordRescheduleProposalRequest(
+            Guid.NewGuid(), "Board Member", DateTimeOffset.UtcNow.AddDays(2), 90, "Conflict", 4);
+        var proposal = new BoardRescheduleProposalDto(Guid.NewGuid(), request.ProposedAtUtc, request.DurationMinutes,
+            request.Reason, RescheduleProposalStatusDto.Pending, request.UserId, request.DisplayName, DateTimeOffset.UtcNow);
+        _service.Setup(service => service.ProposeRescheduleAsync(
+                meetingId,
+                It.Is<CreateRescheduleProposalRequest>(value => value.ProposedAtUtc == request.ProposedAtUtc
+                    && value.DurationMinutes == request.DurationMinutes && value.Reason == request.Reason),
+                request.UserId,
+                request.DisplayName,
+                request.ScheduleVersion,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Result<BoardRescheduleProposalDto>.Success(proposal));
+
+        // Act
+        var result = await _controller.ProposeRescheduleFromDiscord(meetingId, request, CancellationToken.None);
+
+        // Assert
+        var created = result.Result as CreatedResult;
+        Assert.That(created?.Value, Is.EqualTo(proposal));
+        _service.VerifyAll();
+    }
 }

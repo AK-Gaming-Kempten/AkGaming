@@ -12,7 +12,7 @@ public interface IBoardMeetingService
     Task<Result<BoardMeetingDto>> CreateMeetingAsync(CreateBoardMeetingRequest request, Guid actorUserId, CancellationToken cancellationToken);
     Task<Result<BoardMeetingDto>> RescheduleMeetingAsync(Guid id, RescheduleBoardMeetingRequest request, CancellationToken cancellationToken);
     Task<Result<BoardMeetingDto>> CancelMeetingAsync(Guid id, CancellationToken cancellationToken);
-    Task<Result<BoardRescheduleProposalDto>> ProposeRescheduleAsync(Guid id, CreateRescheduleProposalRequest request, Guid actorUserId, string displayName, CancellationToken cancellationToken);
+    Task<Result<BoardRescheduleProposalDto>> ProposeRescheduleAsync(Guid id, CreateRescheduleProposalRequest request, Guid actorUserId, string displayName, int? expectedScheduleVersion, CancellationToken cancellationToken);
     Task<Result<BoardMeetingDto>> DecideProposalAsync(Guid meetingId, Guid proposalId, bool accept, Guid actorUserId, CancellationToken cancellationToken);
     Task<Result<BoardAvailabilityDto>> SetAvailabilityAsync(Guid meetingId, Guid userId, string displayName, BoardAvailabilityStatusDto status, int? expectedScheduleVersion, CancellationToken cancellationToken);
     Task<Result<BoardAgendaItemDto>> CreateAgendaItemAsync(SaveBoardAgendaItemRequest request, Guid actorUserId, CancellationToken cancellationToken);

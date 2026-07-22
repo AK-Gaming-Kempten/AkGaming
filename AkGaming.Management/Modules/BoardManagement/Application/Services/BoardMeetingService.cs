@@ -91,11 +91,13 @@ public sealed class BoardMeetingService(IBoardMeetingRepository repository, IBoa
         return Result<BoardMeetingDto>.Success(Map(meeting));
     }
 
-    public async Task<Result<BoardRescheduleProposalDto>> ProposeRescheduleAsync(Guid id, CreateRescheduleProposalRequest request, Guid actorUserId, string displayName, CancellationToken cancellationToken)
+    public async Task<Result<BoardRescheduleProposalDto>> ProposeRescheduleAsync(Guid id, CreateRescheduleProposalRequest request, Guid actorUserId, string displayName, int? expectedScheduleVersion, CancellationToken cancellationToken)
     {
         var meeting = await repository.GetMeetingAsync(id, cancellationToken);
         if (meeting is null) return Result<BoardRescheduleProposalDto>.Failure("Board meeting not found.");
         if (meeting.Status == BoardMeetingStatus.Cancelled) return Result<BoardRescheduleProposalDto>.Failure("A cancelled meeting cannot be rescheduled.");
+        if (expectedScheduleVersion.HasValue && meeting.ScheduleVersion != expectedScheduleVersion.Value)
+            return Result<BoardRescheduleProposalDto>.Failure("The board meeting was rescheduled. Please use the latest meeting announcement.");
         var validation = ValidateSchedule(meeting.Title, request.ProposedAtUtc, request.DurationMinutes);
         if (validation is not null) return Result<BoardRescheduleProposalDto>.Failure(validation);
         var proposal = new BoardRescheduleProposal { MeetingId = meeting.Id, ProposedAtUtc = request.ProposedAtUtc, DurationMinutes = request.DurationMinutes, Reason = Clean(request.Reason), ProposedByUserId = actorUserId, ProposedByDisplayName = displayName, CreatedAtUtc = DateTimeOffset.UtcNow };

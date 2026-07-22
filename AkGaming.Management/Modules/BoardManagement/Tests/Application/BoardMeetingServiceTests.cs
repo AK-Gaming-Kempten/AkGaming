@@ -60,6 +60,36 @@ public sealed class BoardMeetingServiceTests
     }
 
     [Test]
+    [Description("A Discord rescheduling proposal for an obsolete schedule version is rejected without being persisted.")]
+    public async Task ProposeReschedule_WithStaleVersion_IsRejected()
+    {
+        // Arrange
+        var meeting = new BoardMeeting
+        {
+            Id = Guid.NewGuid(),
+            Title = "Board",
+            ScheduledAtUtc = DateTimeOffset.UtcNow.AddDays(1),
+            DurationMinutes = 60,
+            ScheduleVersion = 3
+        };
+        _repository.Setup(repository => repository.GetMeetingAsync(meeting.Id, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(meeting);
+        var request = new CreateRescheduleProposalRequest(DateTimeOffset.UtcNow.AddDays(2), 90, "Conflict");
+
+        // Act
+        var result = await _service.ProposeRescheduleAsync(meeting.Id, request, Guid.NewGuid(), "Board Member", 2,
+            CancellationToken.None);
+
+        // Assert
+        Assert.That(result.IsSuccess, Is.False);
+        Assert.That(result.Error, Does.Contain("rescheduled"));
+        _repository.Verify(repository => repository.Add(It.IsAny<BoardRescheduleProposal>()), Times.Never);
+        _repository.Verify(repository => repository.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
+        _notifications.Verify(notifications => notifications.EnqueueRescheduleProposed(
+            It.IsAny<BoardMeeting>(), It.IsAny<BoardRescheduleProposal>()), Times.Never);
+    }
+
+    [Test]
     [Description("Creates initial agenda items before enqueueing the meeting-created notification.")]
     public async Task CreateMeeting_WithAgenda_CreatesAgendaBeforeNotification()
     {

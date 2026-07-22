@@ -70,10 +70,40 @@ public sealed class NotificationRendererTests
         // Assert
         Assert.That(rendered.ChannelMessage?.ChannelId, Is.EqualTo("board-channel"));
         Assert.That(rendered.ChannelMessage?.RoleId, Is.EqualTo("board-role"));
-        Assert.That(rendered.ChannelMessage?.Buttons, Has.Count.EqualTo(2));
+        Assert.That(rendered.ChannelMessage?.Buttons, Has.Count.EqualTo(3));
         Assert.That(rendered.ChannelMessage!.Buttons![0].CustomId, Does.Contain($"{meetingId}:4:available"));
+        Assert.That(rendered.ChannelMessage.Buttons[2].CustomId, Is.EqualTo($"board-reschedule:{meetingId}:4"));
         Assert.That(rendered.ChannelMessage.Body, Does.Contain("Agenda"));
         Assert.That(rendered.ChannelMessage.Body, Does.Contain("1. Budget"));
+    }
+
+    [Test]
+    [Description("Renders an automatic board meeting reminder with the current agenda and response controls.")]
+    public void Render_WhenBoardMeetingReminderIsQueued_ReturnsInteractiveReminder()
+    {
+        // Arrange
+        var renderer = new NotificationRenderer(Options.Create(new NotificationRoutingOptions
+        {
+            BoardChannelId = "board-channel",
+            BoardRoleId = "board-role"
+        }));
+        var meetingId = Guid.NewGuid();
+        var payload = new BoardMeetingNotification(meetingId, "Board meeting", DateTimeOffset.UtcNow.AddHours(1),
+            90, "Club room", 2, null, "https://management.test/board/meetings", ["Budget"]);
+        var notification = new NotificationInboxItem
+        {
+            Type = NotificationEventTypes.BoardMeetingReminder,
+            DataJson = JsonSerializer.Serialize(payload, new JsonSerializerOptions(JsonSerializerDefaults.Web))
+        };
+
+        // Act
+        var rendered = renderer.Render(notification);
+
+        // Assert
+        Assert.That(rendered.ChannelMessage?.Title, Is.EqualTo("Board meeting reminder"));
+        Assert.That(rendered.ChannelMessage?.ChannelId, Is.EqualTo("board-channel"));
+        Assert.That(rendered.ChannelMessage?.Buttons, Has.Count.EqualTo(3));
+        Assert.That(rendered.ChannelMessage?.Body, Does.Contain("Budget"));
     }
 
     [Test]
