@@ -53,11 +53,30 @@ public sealed class NotificationsControllerTests
         Assert.That(result.IsDuplicate, Is.True);
     }
 
-    private static NotificationEnvelope ValidRequest()
+    [TestCase(NotificationEventTypes.MembershipApplicationStatusChanged)]
+    [TestCase(NotificationEventTypes.MemberLinkingRequestStatusChanged)]
+    [TestCase(NotificationEventTypes.MembershipStatusChanged)]
+    [Description("Accepts each applicant-facing membership update event so the outbox can deliver its direct message.")]
+    public async Task Submit_WhenMembershipUpdateTypeIsSupported_ReturnsAccepted(string notificationType)
+    {
+        // Arrange
+        var request = ValidRequest(notificationType);
+        _inbox.Setup(inbox => inbox.AcceptAsync(request, CancellationToken.None)).ReturnsAsync(false);
+
+        // Act
+        var response = await _controller.Submit(request, CancellationToken.None);
+
+        // Assert
+        Assert.That(response.Result, Is.TypeOf<AcceptedResult>());
+        _inbox.Verify(inbox => inbox.AcceptAsync(request, CancellationToken.None), Times.Once);
+    }
+
+    private static NotificationEnvelope ValidRequest(
+        string notificationType = NotificationEventTypes.ReimbursementSubmitted)
     {
         return new NotificationEnvelope(
             Guid.NewGuid(),
-            NotificationEventTypes.ReimbursementSubmitted,
+            notificationType,
             "management",
             DateTimeOffset.UtcNow,
             Guid.NewGuid(),
