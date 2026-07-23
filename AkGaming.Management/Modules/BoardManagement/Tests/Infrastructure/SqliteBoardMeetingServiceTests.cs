@@ -118,6 +118,36 @@ public sealed class SqliteBoardMeetingServiceTests
     }
 
     [Test]
+    [Description("Moves existing backlog rows into a newly created meeting before persisting its initial agenda.")]
+    public async Task CreateMeetingAsync_WithBacklogSelection_MovesExistingRows()
+    {
+        // Arrange
+        var backlogItem = await CreateBacklogItemAsync("Existing backlog item");
+        _dbContext.ChangeTracker.Clear();
+        var request = new CreateBoardMeetingRequest(
+            "Board meeting",
+            DateTimeOffset.UtcNow.AddDays(1),
+            90,
+            null,
+            [
+                new CreateBoardAgendaItemRequest("New item", null),
+                new CreateBoardAgendaItemRequest(backlogItem.Title, "Prepared earlier", backlogItem.Id)
+            ]);
+
+        // Act
+        var result = await _service.CreateMeetingAsync(request, Guid.NewGuid(), CancellationToken.None);
+
+        // Assert
+        Assert.That(result.IsSuccess, Is.True);
+        var saved = await _dbContext.AgendaItems.AsNoTracking().OrderBy(item => item.Order).ToListAsync();
+        Assert.That(saved, Has.Count.EqualTo(2));
+        Assert.That(saved.Select(item => item.Title), Is.EqualTo(new[] { "New item", "Existing backlog item" }));
+        Assert.That(saved.All(item => item.MeetingId == result.Value!.Id), Is.True);
+        Assert.That(saved.Single(item => item.Id == backlogItem.Id).Description, Is.EqualTo("Prepared earlier"));
+        Assert.That(await _dbContext.AgendaItems.CountAsync(item => item.MeetingId == null), Is.Zero);
+    }
+
+    [Test]
     [Description("Persists the complete agenda order after a drag-and-drop reorder.")]
     public async Task ReorderAgendaItemsAsync_CompleteOrder_UpdatesEveryPosition()
     {

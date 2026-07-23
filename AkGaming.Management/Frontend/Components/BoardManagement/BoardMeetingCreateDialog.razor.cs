@@ -7,11 +7,13 @@ public partial class BoardMeetingCreateDialog : ComponentBase
 {
     [Parameter] public bool IsBusy { get; set; }
     [Parameter] public string? Error { get; set; }
+    [Parameter] public IReadOnlyList<BoardAgendaItemDto> BacklogItems { get; set; } = [];
     [Parameter] public EventCallback<CreateBoardMeetingRequest> OnSubmit { get; set; }
     [Parameter] public EventCallback OnClose { get; set; }
 
     private readonly List<DraftAgendaItem> _agendaItems = [];
     private Guid? _draggedAgendaItemId;
+    private bool _showBacklogSelection;
     private string _title = "Board meeting";
     private DateTime _scheduledLocal = DateTime.Now.AddDays(7);
     private int _durationMinutes = 90;
@@ -25,6 +27,38 @@ public partial class BoardMeetingCreateDialog : ComponentBase
     private void RemoveAgendaItem(DraftAgendaItem item)
     {
         _agendaItems.Remove(item);
+    }
+
+    private IReadOnlyList<BoardAgendaItemDto> AvailableBacklogItems => BacklogItems
+        .Where(item => _agendaItems.All(draft => draft.BacklogItemId != item.Id))
+        .OrderBy(item => item.Order)
+        .ThenBy(item => item.Title)
+        .ToList();
+
+    private void OpenBacklogSelection()
+    {
+        _showBacklogSelection = true;
+    }
+
+    private void CloseBacklogSelection()
+    {
+        _showBacklogSelection = false;
+    }
+
+    private void AddBacklogItems(IReadOnlyList<Guid> itemIds)
+    {
+        var itemsById = AvailableBacklogItems.ToDictionary(item => item.Id);
+        foreach (var itemId in itemIds)
+        {
+            if (!itemsById.TryGetValue(itemId, out var item)) continue;
+            _agendaItems.Add(new DraftAgendaItem
+            {
+                Title = item.Title,
+                Description = item.Description,
+                BacklogItemId = item.Id
+            });
+        }
+        _showBacklogSelection = false;
     }
 
     private void StartDragging(Guid itemId)
@@ -53,7 +87,7 @@ public partial class BoardMeetingCreateDialog : ComponentBase
     private async Task SubmitAsync()
     {
         var agendaItems = _agendaItems
-            .Select(x => new CreateBoardAgendaItemRequest(x.Title, x.Description))
+            .Select(x => new CreateBoardAgendaItemRequest(x.Title, x.Description, x.BacklogItemId))
             .ToList();
         var request = new CreateBoardMeetingRequest(
             _title,
@@ -74,5 +108,6 @@ public partial class BoardMeetingCreateDialog : ComponentBase
         public Guid Id { get; } = Guid.NewGuid();
         public string Title { get; set; } = string.Empty;
         public string? Description { get; set; }
+        public Guid? BacklogItemId { get; set; }
     }
 }

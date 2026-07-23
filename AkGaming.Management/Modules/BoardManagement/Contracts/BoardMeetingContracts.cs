@@ -5,7 +5,7 @@ public enum BoardAvailabilityStatusDto { Available, Unavailable }
 public enum RescheduleProposalStatusDto { Pending, Accepted, Rejected, Withdrawn }
 public enum BoardAgendaItemStatusDto { Backlog, Scheduled, Completed }
 
-public sealed record CreateBoardAgendaItemRequest(string Title, string? Description);
+public sealed record CreateBoardAgendaItemRequest(string Title, string? Description, Guid? BacklogItemId = null);
 public sealed record CreateBoardMeetingRequest(string Title, DateTimeOffset ScheduledAtUtc, int DurationMinutes,
     string? Location, IReadOnlyList<CreateBoardAgendaItemRequest>? AgendaItems = null);
 public sealed record RescheduleBoardMeetingRequest(DateTimeOffset ScheduledAtUtc, int DurationMinutes, string? Reason);

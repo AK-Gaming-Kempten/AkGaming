@@ -13,7 +13,11 @@
     @if (!string.IsNullOrWhiteSpace(_error)) { <p class="error">@_error</p> }
     @if (_showCreate)
     {
-        <BoardMeetingCreateDialog IsBusy="_busy" Error="@_error" OnSubmit="CreateAsync" OnClose="CloseCreateDialog" />
+        <BoardMeetingCreateDialog IsBusy="_busy"
+                                  Error="@_error"
+                                  BacklogItems="@(_backlog ?? [])"
+                                  OnSubmit="CreateAsync"
+                                  OnClose="CloseCreateDialog" />
     }
     @if (_meetings is null) { <p>Loading...</p> }
     else if (_meetings.Count == 0) { <section class="panel">No board meetings have been created.</section> }

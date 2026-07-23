@@ -44,22 +44,48 @@ public sealed class BoardMeetingService(IBoardMeetingRepository repository, IBoa
         if (validation is not null) return Result<BoardMeetingDto>.Failure(validation);
         var agendaItems = request.AgendaItems ?? [];
         if (agendaItems.Any(x => string.IsNullOrWhiteSpace(x.Title))) return Result<BoardMeetingDto>.Failure("Every agenda item requires a title.");
+        var backlogItemIds = agendaItems.Where(x => x.BacklogItemId.HasValue).Select(x => x.BacklogItemId!.Value).ToList();
+        if (backlogItemIds.Count != backlogItemIds.Distinct().Count())
+            return Result<BoardMeetingDto>.Failure("A backlog item can only be selected once.");
+        var backlogItems = backlogItemIds.Count == 0
+            ? []
+            : await repository.GetAgendaItemsAsync(backlogItemIds, cancellationToken);
+        if (backlogItems.Count != backlogItemIds.Count || backlogItems.Any(x => x.MeetingId.HasValue))
+            return Result<BoardMeetingDto>.Failure("One or more selected items are no longer in the backlog.");
+        var backlogItemsById = backlogItems.ToDictionary(x => x.Id);
         var now = DateTimeOffset.UtcNow;
         var meeting = new BoardMeeting { Title = request.Title.Trim(), ScheduledAtUtc = request.ScheduledAtUtc, DurationMinutes = request.DurationMinutes, Location = Clean(request.Location), CreatedAtUtc = now, UpdatedAtUtc = now };
         var order = 0;
         foreach (var agendaItem in agendaItems)
         {
-            meeting.AgendaItems.Add(new BoardAgendaItem
+            BoardAgendaItem item;
+            if (agendaItem.BacklogItemId.HasValue)
             {
-                MeetingId = meeting.Id,
-                Title = agendaItem.Title.Trim(),
-                Description = Clean(agendaItem.Description),
-                Status = BoardAgendaItemStatus.Scheduled,
-                Order = order++,
-                CreatedByUserId = actorUserId,
-                CreatedAtUtc = now,
-                UpdatedAtUtc = now
-            });
+                item = backlogItemsById[agendaItem.BacklogItemId.Value];
+                item.MeetingId = meeting.Id;
+                item.Meeting = meeting;
+                item.Title = agendaItem.Title.Trim();
+                item.Description = Clean(agendaItem.Description);
+                item.Status = BoardAgendaItemStatus.Scheduled;
+                item.Order = order++;
+                item.UpdatedAtUtc = now;
+            }
+            else
+            {
+                item = new BoardAgendaItem
+                {
+                    MeetingId = meeting.Id,
+                    Meeting = meeting,
+                    Title = agendaItem.Title.Trim(),
+                    Description = Clean(agendaItem.Description),
+                    Status = BoardAgendaItemStatus.Scheduled,
+                    Order = order++,
+                    CreatedByUserId = actorUserId,
+                    CreatedAtUtc = now,
+                    UpdatedAtUtc = now
+                };
+            }
+            meeting.AgendaItems.Add(item);
         }
         repository.Add(meeting);
         notifications.EnqueueMeetingCreated(meeting);

@@ -23,9 +23,15 @@
                         <h4>Initial agenda</h4>
                         <p class="ui-text-muted">Add the items that should be included in the first Discord notification.</p>
                     </div>
-                    <button type="button" disabled="@IsBusy" @onclick="AddAgendaItem">
-                        <span class="bi bi-plus-lg"></span> Add item
-                    </button>
+                    <div class="draft-agenda-actions">
+                        <button type="button" disabled="@IsBusy" @onclick="AddAgendaItem">
+                            <span class="bi bi-plus-lg"></span> Add item
+                        </button>
+                        <button type="button" disabled="@IsBusy" @onclick="OpenBacklogSelection">
+                            <span class="bi bi-archive"></span> Add from backlog
+                            <span class="backlog-count" aria-label="@($"{AvailableBacklogItems.Count} backlog items available")">@AvailableBacklogItems.Count</span>
+                        </button>
+                    </div>
                 </div>
 
                 @if (_agendaItems.Count == 0)
@@ -70,3 +76,11 @@
         <button type="button" class="dialog-primary" disabled="@IsBusy" @onclick="SubmitAsync">@(IsBusy ? "Creating…" : "Create meeting")</button>
     </Footer>
 </GeneralMeetingFormDialog>
+
+@if (_showBacklogSelection)
+{
+    <BoardBacklogSelectionDialog Items="AvailableBacklogItems"
+                                 IsBusy="IsBusy"
+                                 OnSubmit="AddBacklogItems"
+                                 OnClose="CloseBacklogSelection" />
+}

@@ -118,6 +118,50 @@ public sealed class BoardMeetingServiceTests
     }
 
     [Test]
+    [Description("Moves selected backlog items into a new meeting in the draft agenda order before notifying Discord.")]
+    public async Task CreateMeeting_WithBacklogItems_MovesItemsBeforeNotification()
+    {
+        // Arrange
+        var backlogItem = new BoardAgendaItem
+        {
+            Id = Guid.NewGuid(),
+            Title = "Existing backlog item",
+            Status = BoardAgendaItemStatus.Backlog,
+            Order = 4
+        };
+        _repository.Setup(repository => repository.GetAgendaItemsAsync(
+                It.Is<IReadOnlyCollection<Guid>>(ids => ids.SequenceEqual(new[] { backlogItem.Id })),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync([backlogItem]);
+        BoardMeeting? notifiedMeeting = null;
+        _notifications.Setup(notifications => notifications.EnqueueMeetingCreated(It.IsAny<BoardMeeting>()))
+            .Callback<BoardMeeting>(meeting => notifiedMeeting = meeting);
+        var request = new CreateBoardMeetingRequest(
+            "Board meeting",
+            DateTimeOffset.UtcNow.AddDays(1),
+            90,
+            null,
+            [
+                new CreateBoardAgendaItemRequest("New first item", null),
+                new CreateBoardAgendaItemRequest("Updated backlog title", "Updated description", backlogItem.Id)
+            ]);
+
+        // Act
+        var result = await _service.CreateMeetingAsync(request, Guid.NewGuid(), CancellationToken.None);
+
+        // Assert
+        Assert.That(result.IsSuccess, Is.True);
+        Assert.That(notifiedMeeting, Is.Not.Null);
+        Assert.That(notifiedMeeting!.AgendaItems.Select(item => item.Title),
+            Is.EqualTo(new[] { "New first item", "Updated backlog title" }));
+        Assert.That(backlogItem.MeetingId, Is.EqualTo(notifiedMeeting.Id));
+        Assert.That(backlogItem.Status, Is.EqualTo(BoardAgendaItemStatus.Scheduled));
+        Assert.That(backlogItem.Order, Is.EqualTo(1));
+        Assert.That(backlogItem.Description, Is.EqualTo("Updated description"));
+        _notifications.Verify(notifications => notifications.EnqueueMeetingCreated(notifiedMeeting), Times.Once);
+    }
+
+    [Test]
     [Description("Returns the earliest future scheduled board meeting while ignoring cancelled and past meetings.")]
     public async Task GetNextMeeting_WithMixedMeetings_ReturnsEarliestFutureScheduledMeeting()
     {

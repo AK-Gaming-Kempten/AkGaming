@@ -59,6 +59,29 @@
     margin: 0;
 }
 
+.draft-agenda-actions {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: .5rem;
+}
+
+.backlog-count {
+    display: inline-grid;
+    place-items: center;
+    min-width: 1.35rem;
+    height: 1.35rem;
+    margin-left: .25rem;
+    padding: 0 .3rem;
+    color: var(--color-background-primary);
+    background: var(--color-highlight-primary);
+    border-radius: 999px;
+    font-size: .75rem;
+    font-weight: 700;
+    line-height: 1;
+}
+
 .draft-agenda-heading button,
 .remove-agenda-item,
 .dialog-cancel,
@@ -136,5 +159,9 @@ button:disabled {
     .draft-agenda-heading {
         align-items: flex-start;
         flex-direction: column;
+    }
+
+    .draft-agenda-actions {
+        justify-content: flex-start;
     }
 }
