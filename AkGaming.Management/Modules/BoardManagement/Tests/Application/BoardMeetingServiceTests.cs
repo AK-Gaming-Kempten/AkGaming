@@ -60,6 +60,85 @@ public sealed class BoardMeetingServiceTests
     }
 
     [Test]
+    [Description("Queues the complete meeting snapshot after a board member changes their availability.")]
+    public async Task SetAvailability_WithCurrentVersion_QueuesAttendanceUpdate()
+    {
+        // Arrange
+        var meeting = new BoardMeeting
+        {
+            Id = Guid.NewGuid(),
+            Title = "Board",
+            ScheduleVersion = 2
+        };
+        _repository.Setup(x => x.GetMeetingAsync(meeting.Id, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(meeting);
+
+        // Act
+        var result = await _service.SetAvailabilityAsync(
+            meeting.Id,
+            Guid.NewGuid(),
+            "Board Member",
+            BoardAvailabilityStatusDto.Available,
+            2,
+            CancellationToken.None);
+
+        // Assert
+        Assert.That(result.IsSuccess, Is.True);
+        _notifications.Verify(x => x.EnqueueAvailabilityChanged(
+            It.Is<BoardMeeting>(value => value.Availabilities.Single().DisplayName == "Board Member")),
+            Times.Once);
+    }
+
+    [Test]
+    [Description("Finalizes the selected proposal, rejects competing proposals, and queues updates for every affected Discord proposal message.")]
+    public async Task DecideProposal_WhenAccepted_QueuesFinalStateForAffectedProposals()
+    {
+        // Arrange
+        var meeting = new BoardMeeting
+        {
+            Id = Guid.NewGuid(),
+            Title = "Board",
+            ScheduledAtUtc = DateTimeOffset.UtcNow.AddDays(1),
+            DurationMinutes = 60
+        };
+        var accepted = new BoardRescheduleProposal
+        {
+            MeetingId = meeting.Id,
+            ProposedAtUtc = DateTimeOffset.UtcNow.AddDays(2),
+            DurationMinutes = 90,
+            Status = RescheduleProposalStatus.Pending
+        };
+        var superseded = new BoardRescheduleProposal
+        {
+            MeetingId = meeting.Id,
+            ProposedAtUtc = DateTimeOffset.UtcNow.AddDays(3),
+            DurationMinutes = 60,
+            Status = RescheduleProposalStatus.Pending
+        };
+        meeting.RescheduleProposals.Add(accepted);
+        meeting.RescheduleProposals.Add(superseded);
+        _repository.Setup(x => x.GetMeetingAsync(meeting.Id, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(meeting);
+
+        // Act
+        var result = await _service.DecideProposalAsync(
+            meeting.Id,
+            accepted.Id,
+            true,
+            Guid.NewGuid(),
+            CancellationToken.None);
+
+        // Assert
+        Assert.That(result.IsSuccess, Is.True);
+        Assert.That(accepted.Status, Is.EqualTo(RescheduleProposalStatus.Accepted));
+        Assert.That(superseded.Status, Is.EqualTo(RescheduleProposalStatus.Rejected));
+        Assert.That(superseded.DecidedAtUtc, Is.Not.Null);
+        _notifications.Verify(x => x.EnqueueRescheduleProposalChanged(meeting, accepted), Times.Once);
+        _notifications.Verify(x => x.EnqueueRescheduleProposalChanged(meeting, superseded), Times.Once);
+        _notifications.Verify(x => x.EnqueueMeetingRescheduled(meeting, accepted.Reason), Times.Once);
+    }
+
+    [Test]
     [Description("A Discord rescheduling proposal for an obsolete schedule version is rejected without being persisted.")]
     public async Task ProposeReschedule_WithStaleVersion_IsRejected()
     {

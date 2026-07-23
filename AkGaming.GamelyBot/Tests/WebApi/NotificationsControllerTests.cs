@@ -56,8 +56,9 @@ public sealed class NotificationsControllerTests
     [TestCase(NotificationEventTypes.MembershipApplicationStatusChanged)]
     [TestCase(NotificationEventTypes.MemberLinkingRequestStatusChanged)]
     [TestCase(NotificationEventTypes.MembershipStatusChanged)]
-    [Description("Accepts each applicant-facing membership update event so the outbox can deliver its direct message.")]
-    public async Task Submit_WhenMembershipUpdateTypeIsSupported_ReturnsAccepted(string notificationType)
+    [TestCase(NotificationEventTypes.BoardMeetingAvailabilityChanged)]
+    [Description("Accepts supported update events so their outboxes can deliver or update Discord messages.")]
+    public async Task Submit_WhenUpdateTypeIsSupported_ReturnsAccepted(string notificationType)
     {
         // Arrange
         var request = ValidRequest(notificationType);

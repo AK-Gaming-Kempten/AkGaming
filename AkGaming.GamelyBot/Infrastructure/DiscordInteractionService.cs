@@ -248,7 +248,17 @@ public sealed class DiscordInteractionService(IHttpClientFactory clients, Client
             meeting.ScheduleVersion,
             null,
             _management.GetBoardMeetingFrontendUrl(meeting.Id),
-            meeting.AgendaItems.OrderBy(item => item.Order).Select(item => item.Title).ToList());
+            meeting.AgendaItems.OrderBy(item => item.Order).Select(item => item.Title).ToList(),
+            meeting.Availabilities
+                .Where(item => string.Equals(item.Status, "Available", StringComparison.OrdinalIgnoreCase))
+                .OrderBy(item => item.DisplayName)
+                .Select(item => item.DisplayName)
+                .ToList(),
+            meeting.Availabilities
+                .Where(item => string.Equals(item.Status, "Unavailable", StringComparison.OrdinalIgnoreCase))
+                .OrderBy(item => item.DisplayName)
+                .Select(item => item.DisplayName)
+                .ToList());
         var envelope = new NotificationEnvelope(eventId, NotificationEventTypes.BoardMeetingReminder,
             "gamelybot", DateTimeOffset.UtcNow, null, JsonSerializer.SerializeToElement(data));
         await notificationInbox.AcceptAsync(envelope, cancellationToken);
@@ -318,4 +328,4 @@ internal sealed record BoardMeetingResponse(Guid Id, string Title, DateTimeOffse
     public int AvailableCount => Availabilities.Count(item => string.Equals(item.Status, "Available", StringComparison.OrdinalIgnoreCase));
     public int UnavailableCount => Availabilities.Count(item => string.Equals(item.Status, "Unavailable", StringComparison.OrdinalIgnoreCase));
 }
-internal sealed record BoardAvailabilityResponse(string Status);
+internal sealed record BoardAvailabilityResponse(string DisplayName, string Status);

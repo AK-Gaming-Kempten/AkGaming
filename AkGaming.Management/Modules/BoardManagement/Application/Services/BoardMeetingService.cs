@@ -145,9 +145,16 @@ public sealed class BoardMeetingService(IBoardMeetingRepository repository, IBoa
         if (accept)
         {
             ApplyReschedule(meeting, proposal.ProposedAtUtc, proposal.DurationMinutes);
-            foreach (var other in meeting.RescheduleProposals.Where(x => x.Id != proposal.Id && x.Status == RescheduleProposalStatus.Pending)) other.Status = RescheduleProposalStatus.Rejected;
+            foreach (var other in meeting.RescheduleProposals.Where(x => x.Id != proposal.Id && x.Status == RescheduleProposalStatus.Pending))
+            {
+                other.Status = RescheduleProposalStatus.Rejected;
+                other.DecidedByUserId = actorUserId;
+                other.DecidedAtUtc = proposal.DecidedAtUtc;
+                notifications.EnqueueRescheduleProposalChanged(meeting, other);
+            }
             notifications.EnqueueMeetingRescheduled(meeting, proposal.Reason);
         }
+        notifications.EnqueueRescheduleProposalChanged(meeting, proposal);
         await repository.SaveChangesAsync(cancellationToken);
         return Result<BoardMeetingDto>.Success(Map(meeting));
     }
@@ -161,13 +168,20 @@ public sealed class BoardMeetingService(IBoardMeetingRepository repository, IBoa
         var availability = meeting.Availabilities.SingleOrDefault(x => x.UserId == userId);
         if (availability is null)
         {
-            availability = new BoardAvailability { MeetingId = meetingId, UserId = userId };
+            availability = new BoardAvailability
+            {
+                MeetingId = meetingId,
+                Meeting = meeting,
+                UserId = userId
+            };
+            meeting.Availabilities.Add(availability);
             repository.Add(availability);
         }
         availability.DisplayName = string.IsNullOrWhiteSpace(displayName) ? "Board member" : displayName.Trim();
         availability.Status = (BoardAvailabilityStatus)status;
         availability.ScheduleVersion = meeting.ScheduleVersion;
         availability.UpdatedAtUtc = DateTimeOffset.UtcNow;
+        notifications.EnqueueAvailabilityChanged(meeting);
         await repository.SaveChangesAsync(cancellationToken);
         return Result<BoardAvailabilityDto>.Success(Map(availability));
     }

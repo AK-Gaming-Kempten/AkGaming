@@ -35,6 +35,7 @@ public sealed class NotificationRenderer(IOptions<NotificationRoutingOptions> op
             NotificationEventTypes.BoardMeetingRescheduled => RenderBoardMeeting(notification, "Board meeting rescheduled"),
             NotificationEventTypes.BoardMeetingCancelled => RenderBoardMeeting(notification, "Board meeting cancelled", false),
             NotificationEventTypes.BoardMeetingReminder => RenderBoardMeeting(notification, "Board meeting reminder"),
+            NotificationEventTypes.BoardMeetingAvailabilityChanged => RenderBoardMeeting(notification, "Board meeting"),
             NotificationEventTypes.BoardMeetingRescheduleProposed => RenderBoardProposal(notification),
             NotificationEventTypes.BoardAgendaChanged => RenderBoardAgendaChange(notification),
             NotificationEventTypes.IdentityAuditSummary => RenderAuditSummary(notification),
@@ -78,14 +79,28 @@ public sealed class NotificationRenderer(IOptions<NotificationRoutingOptions> op
         var location = string.IsNullOrWhiteSpace(data.Location) ? "Location to be decided" : data.Location;
         var reason = string.IsNullOrWhiteSpace(data.Reason) ? string.Empty : $"\nReason: {data.Reason}";
         var agenda = RenderAgenda(data.AgendaItems);
+        var attendance = RenderAttendance(data.ConfirmedAttendees, data.DeclinedAttendees);
         var buttons = includeButtons ? new[]
         {
             new RenderedButton("I have time", $"board-availability:{data.MeetingId}:{data.ScheduleVersion}:available", 3),
             new RenderedButton("I cannot attend", $"board-availability:{data.MeetingId}:{data.ScheduleVersion}:unavailable", 4),
             new RenderedButton("Propose another time", $"board-reschedule:{data.MeetingId}:{data.ScheduleVersion}", 2)
         } : null;
-        var message = new RenderedMessage(heading, $"**{data.Title}**\n{when}\n{data.DurationMinutes} minutes · {location}{reason}{agenda}", data.ManagementUrl, _options.ExtendedBoardRoleId, _options.BoardChannelId, buttons);
+        var message = new RenderedMessage(heading, $"**{data.Title}**\n{when}\n{data.DurationMinutes} minutes · {location}{reason}{agenda}{attendance}", data.ManagementUrl, _options.ExtendedBoardRoleId, _options.BoardChannelId, buttons);
         return new RenderedNotification(message, null);
+    }
+
+    private static string RenderAttendance(
+        IReadOnlyList<string>? confirmedAttendees,
+        IReadOnlyList<string>? declinedAttendees)
+    {
+        var confirmed = confirmedAttendees is { Count: > 0 }
+            ? string.Join(", ", confirmedAttendees)
+            : "None yet";
+        var declined = declinedAttendees is { Count: > 0 }
+            ? string.Join(", ", declinedAttendees)
+            : "None yet";
+        return $"\n\n**Attendance**\nConfirmed: {confirmed}\nDeclined: {declined}";
     }
 
     private static string RenderAgenda(IReadOnlyList<string>? agendaItems)
@@ -107,12 +122,16 @@ public sealed class NotificationRenderer(IOptions<NotificationRoutingOptions> op
             ?? throw new InvalidOperationException("The board reschedule proposal payload is invalid.");
         var when = $"<t:{data.ProposedAtUtc.ToUnixTimeSeconds()}:F> (<t:{data.ProposedAtUtc.ToUnixTimeSeconds()}:R>)";
         var reason = string.IsNullOrWhiteSpace(data.Reason) ? string.Empty : $"\nReason: {data.Reason}";
-        var buttons = new[]
-        {
-            new RenderedButton("Accept proposal", $"bp:{data.MeetingId}:{data.ProposalId}:a", 3),
-            new RenderedButton("Reject proposal", $"bp:{data.MeetingId}:{data.ProposalId}:r", 4)
-        };
-        var message = new RenderedMessage("Board meeting reschedule proposed", $"**{data.ProposedByDisplayName}** proposed a new date for **{data.Title}**:\n{when}\n{data.DurationMinutes} minutes{reason}", data.ManagementUrl, _options.ExtendedBoardRoleId, _options.BoardChannelId, buttons);
+        var isPending = string.Equals(data.Status, "Pending", StringComparison.OrdinalIgnoreCase);
+        IReadOnlyList<RenderedButton>? buttons = isPending
+            ?
+            [
+                new RenderedButton("Accept proposal", $"bp:{data.MeetingId}:{data.ProposalId}:a", 3),
+                new RenderedButton("Reject proposal", $"bp:{data.MeetingId}:{data.ProposalId}:r", 4)
+            ]
+            : null;
+        var decision = isPending ? string.Empty : $"\n\n**Decision:** {data.Status}.";
+        var message = new RenderedMessage("Board meeting reschedule proposal", $"**{data.ProposedByDisplayName}** proposed a new date for **{data.Title}**:\n{when}\n{data.DurationMinutes} minutes{reason}{decision}", data.ManagementUrl, _options.ExtendedBoardRoleId, _options.BoardChannelId, buttons);
         return new RenderedNotification(message, null);
     }
 

@@ -32,6 +32,7 @@ public static class NotificationEventTypes
     public const string BoardMeetingRescheduled = "board-meeting.rescheduled";
     public const string BoardMeetingCancelled = "board-meeting.cancelled";
     public const string BoardMeetingReminder = "board-meeting.reminder";
+    public const string BoardMeetingAvailabilityChanged = "board-meeting.availability-changed";
     public const string BoardMeetingRescheduleProposed = "board-meeting.reschedule-proposed";
     public const string BoardAgendaChanged = "board-meeting.agenda-changed";
     public const string IdentityAuditSummary = "audit-summary.identity";
@@ -115,10 +116,12 @@ public sealed record AuditSummaryNotification(AuditSummaryResponse Summary);
 
 public sealed record BoardMeetingNotification(Guid MeetingId, string Title, DateTimeOffset ScheduledAtUtc,
     int DurationMinutes, string? Location, int ScheduleVersion, string? Reason, string? ManagementUrl,
-    IReadOnlyList<string>? AgendaItems = null);
+    IReadOnlyList<string>? AgendaItems = null, IReadOnlyList<string>? ConfirmedAttendees = null,
+    IReadOnlyList<string>? DeclinedAttendees = null);
 
 public sealed record BoardRescheduleProposalNotification(Guid MeetingId, Guid ProposalId, string Title,
-    DateTimeOffset ProposedAtUtc, int DurationMinutes, string? Reason, string ProposedByDisplayName, string? ManagementUrl);
+    DateTimeOffset ProposedAtUtc, int DurationMinutes, string? Reason, string ProposedByDisplayName,
+    string? ManagementUrl, string Status = "Pending");
 
 public sealed record BoardAgendaNotificationItem(Guid AgendaItemId, string Title, int Order);
 

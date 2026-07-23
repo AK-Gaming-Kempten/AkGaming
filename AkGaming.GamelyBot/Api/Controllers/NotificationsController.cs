@@ -23,6 +23,7 @@ public sealed class NotificationsController(INotificationInbox inbox) : Controll
         NotificationEventTypes.BoardMeetingCreated,
         NotificationEventTypes.BoardMeetingRescheduled,
         NotificationEventTypes.BoardMeetingCancelled,
+        NotificationEventTypes.BoardMeetingAvailabilityChanged,
         NotificationEventTypes.BoardMeetingRescheduleProposed,
         NotificationEventTypes.BoardAgendaChanged
     ];

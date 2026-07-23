@@ -1,3 +1,4 @@
+using System.Text.Json;
 using AkGaming.Core.Notifications;
 using AkGaming.GamelyBot.Domain;
 using AkGaming.GamelyBot.Infrastructure.Persistence;
@@ -101,9 +102,16 @@ public sealed class NotificationDeliveryWorker(IServiceScopeFactory scopeFactory
                 var delivery = GetOrCreateDelivery(dbContext, notification, DeliveryKinds.Channel, "administration", rendered.ChannelMessage);
                 if (delivery.Status != NotificationStatuses.Delivered)
                 {
-                    var previousMessageId = notification.Type == NotificationEventTypes.BoardAgendaChanged
-                        ? await FindLatestAgendaMessageIdAsync(dbContext, notification, cancellationToken)
-                        : null;
+                    var previousMessageId = notification.Type switch
+                    {
+                        NotificationEventTypes.BoardAgendaChanged =>
+                            await FindLatestAgendaMessageIdAsync(dbContext, notification, cancellationToken),
+                        NotificationEventTypes.BoardMeetingAvailabilityChanged =>
+                            await FindLatestMeetingMessageIdAsync(dbContext, notification, cancellationToken),
+                        NotificationEventTypes.BoardMeetingRescheduleProposed =>
+                            await FindLatestProposalMessageIdAsync(dbContext, notification, cancellationToken),
+                        _ => null
+                    };
                     var result = string.IsNullOrWhiteSpace(previousMessageId)
                         ? await transport.SendChannelAsync(rendered.ChannelMessage, cancellationToken)
                         : await transport.UpdateChannelAsync(previousMessageId, rendered.ChannelMessage, cancellationToken);
@@ -202,6 +210,102 @@ public sealed class NotificationDeliveryWorker(IServiceScopeFactory scopeFactory
                 && !string.IsNullOrWhiteSpace(delivery.ExternalMessageId))
             .Select(delivery => delivery.ExternalMessageId)
             .FirstOrDefault();
+    }
+
+    private static async Task<string?> FindLatestMeetingMessageIdAsync(
+        GamelyBotDbContext dbContext,
+        NotificationInboxItem current,
+        CancellationToken cancellationToken)
+    {
+        if (!TryGetMeetingId(current, out var meetingId))
+            return null;
+
+        var supportedTypes = new[]
+        {
+            NotificationEventTypes.BoardMeetingCreated,
+            NotificationEventTypes.BoardMeetingRescheduled,
+            NotificationEventTypes.BoardMeetingAvailabilityChanged
+        };
+        var delivered = await dbContext.Notifications
+            .AsNoTracking()
+            .Include(item => item.Deliveries)
+            .Where(item => supportedTypes.Contains(item.Type)
+                && item.Status == NotificationStatuses.Delivered
+                && item.Id != current.Id)
+            .ToListAsync(cancellationToken);
+
+        return LatestChannelMessageId(delivered.Where(item =>
+            TryGetMeetingId(item, out var candidateMeetingId) && candidateMeetingId == meetingId));
+    }
+
+    private static async Task<string?> FindLatestProposalMessageIdAsync(
+        GamelyBotDbContext dbContext,
+        NotificationInboxItem current,
+        CancellationToken cancellationToken)
+    {
+        if (!TryGetProposalId(current, out var proposalId))
+            return null;
+
+        var delivered = await dbContext.Notifications
+            .AsNoTracking()
+            .Include(item => item.Deliveries)
+            .Where(item => item.Type == NotificationEventTypes.BoardMeetingRescheduleProposed
+                && item.Status == NotificationStatuses.Delivered
+                && item.Id != current.Id)
+            .ToListAsync(cancellationToken);
+
+        return LatestChannelMessageId(delivered.Where(item =>
+            TryGetProposalId(item, out var candidateProposalId) && candidateProposalId == proposalId));
+    }
+
+    private static string? LatestChannelMessageId(IEnumerable<NotificationInboxItem> notifications)
+    {
+        return notifications
+            .OrderByDescending(item => item.CompletedAtUtc)
+            .SelectMany(item => item.Deliveries)
+            .Where(delivery => delivery.Kind == DeliveryKinds.Channel
+                && delivery.Status == NotificationStatuses.Delivered
+                && !string.IsNullOrWhiteSpace(delivery.ExternalMessageId))
+            .Select(delivery => delivery.ExternalMessageId)
+            .FirstOrDefault();
+    }
+
+    private static bool TryGetMeetingId(NotificationInboxItem notification, out Guid meetingId)
+    {
+        meetingId = Guid.Empty;
+        try
+        {
+            var data = JsonSerializer.Deserialize<BoardMeetingNotification>(
+                notification.DataJson,
+                new JsonSerializerOptions(JsonSerializerDefaults.Web));
+            if (data is null)
+                return false;
+            meetingId = data.MeetingId;
+            return meetingId != Guid.Empty;
+        }
+        catch (JsonException)
+        {
+            return false;
+        }
+    }
+
+    private static bool TryGetProposalId(NotificationInboxItem notification, out Guid proposalId)
+    {
+        proposalId = Guid.Empty;
+        try
+        {
+            var data = JsonSerializer.Deserialize<BoardRescheduleProposalNotification>(
+                notification.DataJson,
+                new JsonSerializerOptions(JsonSerializerDefaults.Web));
+            if (data is null)
+                return false;
+            proposalId = data.ProposalId;
+            return proposalId != Guid.Empty;
+        }
+        catch (JsonException)
+        {
+            return false;
+        }
     }
 
     private static NotificationDelivery GetOrCreateDelivery(GamelyBotDbContext dbContext, NotificationInboxItem notification, string kind, string target, RenderedMessage message)

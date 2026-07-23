@@ -19,6 +19,8 @@ public interface IBoardNotificationOutbox
     void EnqueueMeetingCreated(BoardMeeting meeting);
     void EnqueueMeetingRescheduled(BoardMeeting meeting, string? reason);
     void EnqueueMeetingCancelled(BoardMeeting meeting);
+    void EnqueueAvailabilityChanged(BoardMeeting meeting);
     void EnqueueRescheduleProposed(BoardMeeting meeting, BoardRescheduleProposal proposal);
+    void EnqueueRescheduleProposalChanged(BoardMeeting meeting, BoardRescheduleProposal proposal);
     void EnqueueAgendaChanged(BoardMeeting? meeting, IReadOnlyCollection<BoardAgendaItem> changedItems, string action);
 }

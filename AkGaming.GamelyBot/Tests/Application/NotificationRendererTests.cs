@@ -305,6 +305,75 @@ public sealed class NotificationRendererTests
     }
 
     [Test]
+    [Description("Renders a finalized rescheduling proposal without controls and includes the recorded decision.")]
+    public void Render_WhenRescheduleProposalIsDecided_ReturnsDecisionWithoutButtons()
+    {
+        // Arrange
+        var renderer = new NotificationRenderer(Options.Create(new NotificationRoutingOptions
+        {
+            BoardChannelId = "board-channel",
+            ExtendedBoardRoleId = "extended-board-role"
+        }));
+        var payload = new BoardRescheduleProposalNotification(
+            Guid.NewGuid(),
+            Guid.NewGuid(),
+            "Board meeting",
+            DateTimeOffset.UtcNow.AddDays(2),
+            90,
+            "Conflict",
+            "Board Member",
+            null,
+            "Accepted");
+        var notification = new NotificationInboxItem
+        {
+            Type = NotificationEventTypes.BoardMeetingRescheduleProposed,
+            DataJson = JsonSerializer.Serialize(payload, new JsonSerializerOptions(JsonSerializerDefaults.Web))
+        };
+
+        // Act
+        var rendered = renderer.Render(notification);
+
+        // Assert
+        Assert.That(rendered.ChannelMessage?.Buttons, Is.Null);
+        Assert.That(rendered.ChannelMessage?.Body, Does.Contain("Decision:** Accepted"));
+    }
+
+    [Test]
+    [Description("Renders confirmed and declined attendee names in a meeting attendance update.")]
+    public void Render_WhenAvailabilityChanges_ReturnsAttendanceLists()
+    {
+        // Arrange
+        var renderer = new NotificationRenderer(Options.Create(new NotificationRoutingOptions
+        {
+            BoardChannelId = "board-channel"
+        }));
+        var payload = new BoardMeetingNotification(
+            Guid.NewGuid(),
+            "Board meeting",
+            DateTimeOffset.UtcNow.AddDays(1),
+            90,
+            null,
+            1,
+            null,
+            null,
+            [],
+            ["Confirmed Member"],
+            ["Declined Member"]);
+        var notification = new NotificationInboxItem
+        {
+            Type = NotificationEventTypes.BoardMeetingAvailabilityChanged,
+            DataJson = JsonSerializer.Serialize(payload, new JsonSerializerOptions(JsonSerializerDefaults.Web))
+        };
+
+        // Act
+        var rendered = renderer.Render(notification);
+
+        // Assert
+        Assert.That(rendered.ChannelMessage?.Body, Does.Contain("Confirmed: Confirmed Member"));
+        Assert.That(rendered.ChannelMessage?.Body, Does.Contain("Declined: Declined Member"));
+    }
+
+    [Test]
     [Description("Renders the complete updated agenda and highlights newly added entries.")]
     public void Render_WhenAgendaItemIsAdded_ReturnsFullAgendaWithAdditionMarker()
     {

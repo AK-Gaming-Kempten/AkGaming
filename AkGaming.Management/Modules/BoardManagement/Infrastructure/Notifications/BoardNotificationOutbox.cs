@@ -14,7 +14,9 @@ public sealed class BoardNotificationOutbox(BoardManagementDbContext dbContext, 
     public void EnqueueMeetingCreated(BoardMeeting meeting) => Enqueue(NotificationEventTypes.BoardMeetingCreated, MeetingData(meeting, null));
     public void EnqueueMeetingRescheduled(BoardMeeting meeting, string? reason) => Enqueue(NotificationEventTypes.BoardMeetingRescheduled, MeetingData(meeting, reason));
     public void EnqueueMeetingCancelled(BoardMeeting meeting) => Enqueue(NotificationEventTypes.BoardMeetingCancelled, MeetingData(meeting, null));
-    public void EnqueueRescheduleProposed(BoardMeeting meeting, BoardRescheduleProposal proposal) => Enqueue(NotificationEventTypes.BoardMeetingRescheduleProposed, new BoardRescheduleProposalNotification(meeting.Id, proposal.Id, meeting.Title, proposal.ProposedAtUtc, proposal.DurationMinutes, proposal.Reason, proposal.ProposedByDisplayName, MeetingUrl(meeting.Id)));
+    public void EnqueueAvailabilityChanged(BoardMeeting meeting) => Enqueue(NotificationEventTypes.BoardMeetingAvailabilityChanged, MeetingData(meeting, null));
+    public void EnqueueRescheduleProposed(BoardMeeting meeting, BoardRescheduleProposal proposal) => EnqueueRescheduleProposal(meeting, proposal);
+    public void EnqueueRescheduleProposalChanged(BoardMeeting meeting, BoardRescheduleProposal proposal) => EnqueueRescheduleProposal(meeting, proposal);
     public void EnqueueAgendaChanged(BoardMeeting? meeting, IReadOnlyCollection<BoardAgendaItem> changedItems, string action)
     {
         if (meeting is not null && !CanNotifyAgendaChange(meeting, DateTimeOffset.UtcNow)) return;
@@ -48,7 +50,29 @@ public sealed class BoardNotificationOutbox(BoardManagementDbContext dbContext, 
         meeting.ScheduleVersion,
         reason,
         MeetingUrl(meeting.Id),
-        meeting.AgendaItems.OrderBy(x => x.Order).Select(x => x.Title).ToList());
+        meeting.AgendaItems.OrderBy(x => x.Order).Select(x => x.Title).ToList(),
+        meeting.Availabilities
+            .Where(x => x.Status == BoardAvailabilityStatus.Available)
+            .OrderBy(x => x.DisplayName)
+            .Select(x => x.DisplayName)
+            .ToList(),
+        meeting.Availabilities
+            .Where(x => x.Status == BoardAvailabilityStatus.Unavailable)
+            .OrderBy(x => x.DisplayName)
+            .Select(x => x.DisplayName)
+            .ToList());
+    private void EnqueueRescheduleProposal(BoardMeeting meeting, BoardRescheduleProposal proposal) =>
+        Enqueue(NotificationEventTypes.BoardMeetingRescheduleProposed,
+            new BoardRescheduleProposalNotification(
+                meeting.Id,
+                proposal.Id,
+                meeting.Title,
+                proposal.ProposedAtUtc,
+                proposal.DurationMinutes,
+                proposal.Reason,
+                proposal.ProposedByDisplayName,
+                MeetingUrl(meeting.Id),
+                proposal.Status.ToString()));
     private static BoardAgendaNotificationItem AgendaItemData(BoardAgendaItem item) => new(item.Id, item.Title, item.Order);
     private void Enqueue<T>(string type, T data)
     {

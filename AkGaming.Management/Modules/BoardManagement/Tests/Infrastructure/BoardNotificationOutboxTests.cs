@@ -1,3 +1,4 @@
+using AkGaming.Core.Notifications;
 using AkGaming.Management.Modules.BoardManagement.Domain.Entities;
 using System.Text.Json;
 using AkGaming.Management.Modules.BoardManagement.Infrastructure.Notifications;
@@ -93,6 +94,60 @@ public sealed class BoardNotificationOutboxTests
         using var payload = JsonDocument.Parse(message.PayloadJson);
         Assert.That(payload.RootElement.GetProperty("data").GetProperty("managementUrl").GetString(),
             Is.EqualTo($"https://management.test.akgaming.de/board/meetings/{meeting.Id}"));
+    }
+
+    [Test]
+    [Description("Queues confirmed and declined attendee names in an availability snapshot.")]
+    public void EnqueueAvailabilityChanged_WithResponses_QueuesAttendanceLists()
+    {
+        // Arrange
+        var meeting = CreateMeeting(DateTimeOffset.UtcNow.AddDays(1), BoardMeetingStatus.Scheduled);
+        meeting.Availabilities.Add(new BoardAvailability
+        {
+            DisplayName = "Available Member",
+            Status = BoardAvailabilityStatus.Available
+        });
+        meeting.Availabilities.Add(new BoardAvailability
+        {
+            DisplayName = "Unavailable Member",
+            Status = BoardAvailabilityStatus.Unavailable
+        });
+
+        // Act
+        _outbox.EnqueueAvailabilityChanged(meeting);
+
+        // Assert
+        var message = _dbContext.NotificationOutbox.Local.Single();
+        using var payload = JsonDocument.Parse(message.PayloadJson);
+        var data = payload.RootElement.GetProperty("data");
+        Assert.That(message.Type, Is.EqualTo(NotificationEventTypes.BoardMeetingAvailabilityChanged));
+        Assert.That(data.GetProperty("confirmedAttendees")[0].GetString(), Is.EqualTo("Available Member"));
+        Assert.That(data.GetProperty("declinedAttendees")[0].GetString(), Is.EqualTo("Unavailable Member"));
+    }
+
+    [Test]
+    [Description("Queues a decided rescheduling proposal with its final status.")]
+    public void EnqueueRescheduleProposalChanged_WithAcceptedProposal_QueuesFinalStatus()
+    {
+        // Arrange
+        var meeting = CreateMeeting(DateTimeOffset.UtcNow.AddDays(1), BoardMeetingStatus.Scheduled);
+        var proposal = new BoardRescheduleProposal
+        {
+            MeetingId = meeting.Id,
+            ProposedAtUtc = DateTimeOffset.UtcNow.AddDays(2),
+            DurationMinutes = 90,
+            ProposedByDisplayName = "Board Member",
+            Status = RescheduleProposalStatus.Accepted
+        };
+
+        // Act
+        _outbox.EnqueueRescheduleProposalChanged(meeting, proposal);
+
+        // Assert
+        var message = _dbContext.NotificationOutbox.Local.Single();
+        using var payload = JsonDocument.Parse(message.PayloadJson);
+        Assert.That(payload.RootElement.GetProperty("data").GetProperty("status").GetString(),
+            Is.EqualTo("Accepted"));
     }
 
     private static BoardMeeting CreateMeeting(DateTimeOffset scheduledAtUtc, BoardMeetingStatus status)
