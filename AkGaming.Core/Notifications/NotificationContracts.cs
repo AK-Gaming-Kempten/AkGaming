@@ -24,7 +24,10 @@ public static class NotificationEventTypes
     public const string ReimbursementSubmitted = "reimbursement.submitted";
     public const string ReimbursementStatusChanged = "reimbursement.status-changed";
     public const string MembershipApplicationCreated = "membership-application.created";
+    public const string MembershipApplicationStatusChanged = "membership-application.status-changed";
     public const string MemberLinkingRequestCreated = "member-linking-request.created";
+    public const string MemberLinkingRequestStatusChanged = "member-linking-request.status-changed";
+    public const string MembershipStatusChanged = "membership.status-changed";
     public const string BoardMeetingCreated = "board-meeting.created";
     public const string BoardMeetingRescheduled = "board-meeting.rescheduled";
     public const string BoardMeetingCancelled = "board-meeting.cancelled";
@@ -67,14 +70,32 @@ public sealed record MembershipApplicationCreatedNotification(
     Guid RequestId,
     string ApplicantName,
     string? Email,
-    string? ManagementUrl);
+    string? ManagementUrl,
+    string? ApplicantUrl = null);
+
+public sealed record MembershipApplicationStatusChangedNotification(
+    Guid RequestId,
+    string Status,
+    string? ApplicantUrl);
 
 public sealed record MemberLinkingRequestCreatedNotification(
     Guid RequestId,
     string ApplicantName,
     string? Email,
     string Reason,
-    string? ManagementUrl);
+    string? ManagementUrl,
+    string? ApplicantUrl = null);
+
+public sealed record MemberLinkingRequestStatusChangedNotification(
+    Guid RequestId,
+    string Status,
+    string? ApplicantUrl);
+
+public sealed record MembershipStatusChangedNotification(
+    Guid MemberId,
+    string PreviousStatus,
+    string Status,
+    string? ApplicantUrl);
 
 public sealed record DiscordLinkResponse(Guid UserId, string? DiscordUserId, bool IsLinked);
 public sealed record DiscordUserLinkResponse(Guid UserId, string DisplayName, bool IsLinked,

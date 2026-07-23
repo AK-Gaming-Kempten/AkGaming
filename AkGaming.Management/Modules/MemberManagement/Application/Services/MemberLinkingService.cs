@@ -172,7 +172,10 @@ public class MemberLinkingService : IMemberLinkingService {
             EntityId = request.Id,
             OldValuesJson = JsonSerializer.Serialize(new { IsResolved = false }),
             NewValuesJson = JsonSerializer.Serialize(new { IsResolved = true })
-        }).Then(() => _linkingRequestRepository.SaveChangesAsync());
+        }).Then(() => {
+            _notificationOutbox.EnqueueMemberLinkingRequestStatusChanged(request, accepted: true);
+            return _linkingRequestRepository.SaveChangesAsync();
+        });
 
         if (!saveResult.IsSuccess)
             return saveResult;
@@ -198,7 +201,10 @@ public class MemberLinkingService : IMemberLinkingService {
             EntityId = request.Id,
             OldValuesJson = JsonSerializer.Serialize(new { IsResolved = false }),
             NewValuesJson = JsonSerializer.Serialize(new { IsResolved = true })
-        }).Then(() => _linkingRequestRepository.SaveChangesAsync());
+        }).Then(() => {
+            _notificationOutbox.EnqueueMemberLinkingRequestStatusChanged(request, accepted: false);
+            return _linkingRequestRepository.SaveChangesAsync();
+        });
 
         if (!saveResult.IsSuccess)
             return saveResult;

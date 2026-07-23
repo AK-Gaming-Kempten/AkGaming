@@ -13,15 +13,20 @@ namespace AkGaming.Management.Modules.MemberManagement.Tests;
 public class MemberShipUpdateServiceTests {
 
     [Test]
+    [Description("Updates membership status and queues a private notification for the linked member.")]
     public async Task UpdateMembershipStatusAsync_UpdatesMembershipStatus() {
         //Arrange
         var memberRepository = new Mock<IMemberRepository>();
-        var membershipUpdateService = new MembershipUpdateService(memberRepository.Object);
+        var notificationOutbox = new Mock<IMemberNotificationOutbox>();
+        var membershipUpdateService = new MembershipUpdateService(
+            memberRepository.Object, notificationOutbox.Object);
         var guid = Guid.NewGuid();
+        var userId = Guid.NewGuid();
         var newStatus = ContractEnums.MembershipStatus.Applicant;
         
         var currentMember = new Member {
             Id = guid,
+            UserId = userId,
             Status = (DomainEnums.MembershipStatus)ContractEnums.MembershipStatus.None,
             StatusChanges = new List<MembershipStatusChangeEvent>()
         };
@@ -44,6 +49,8 @@ public class MemberShipUpdateServiceTests {
         Assert.That(currentMember.StatusChanges.Count, Is.EqualTo(1));
         Assert.That(currentMember.StatusChanges.First().OldStatus, Is.EqualTo((DomainEnums.MembershipStatus)ContractEnums.MembershipStatus.None));
         Assert.That(currentMember.StatusChanges.First().NewStatus, Is.EqualTo((DomainEnums.MembershipStatus)newStatus));
+        notificationOutbox.Verify(x => x.EnqueueMembershipStatusChanged(
+            currentMember, DomainEnums.MembershipStatus.None), Times.Once);
     }
     
     [Test]

@@ -170,7 +170,9 @@ public class MembershipApplicationServiceTests {
     }
 
     [Test]
+    [Description("Accepts a membership application and queues an applicant decision notification.")]
     public async Task AcceptMembershipApplication_SendsDecisionEmail() {
+        // Arrange
         var creationService = new Mock<IMemberCreationService>();
         var linkingService = new Mock<IMemberLinkingService>();
         var membershipUpdateService = new Mock<IMembershipUpdateService>();
@@ -179,6 +181,7 @@ public class MembershipApplicationServiceTests {
         var auditLogWriter = new Mock<IMemberAuditLogWriter>();
         var emailSender = new Mock<IEmailSender>();
         var logger = new Mock<ILogger<MembershipApplicationService>>();
+        var notificationOutbox = new Mock<IMemberNotificationOutbox>();
 
         var requestId = Guid.NewGuid();
         var userId = Guid.NewGuid();
@@ -212,10 +215,13 @@ public class MembershipApplicationServiceTests {
             requestRepository.Object,
             auditLogWriter.Object,
             emailSender.Object,
-            logger.Object);
+            logger.Object,
+            notificationOutbox.Object);
 
+        // Act
         var result = await service.AcceptMembershipApplicationAsync(requestId);
 
+        // Assert
         Assert.That(result.IsSuccess, Is.True);
         emailSender.Verify(x => x.SendAsync("applicant@example.com", It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string?>(), It.IsAny<CancellationToken>()), Times.Once);
         Assert.That(capturedTextBody, Does.Contain("dein Aufnahmeantrag"));
@@ -223,6 +229,7 @@ public class MembershipApplicationServiceTests {
         Assert.That(capturedHtmlBody, Does.Contain(ClubConstants.Urls.ManagementMembership));
         Assert.That(capturedHtmlBody, Does.Contain("linear-gradient(145deg,#0f221e,#163328)"));
         Assert.That(capturedHtmlBody, Does.Contain(ClubConstants.Urls.LogoAsset));
+        notificationOutbox.Verify(x => x.EnqueueMembershipApplicationStatusChanged(request, true), Times.Once);
     }
 
     [Test]

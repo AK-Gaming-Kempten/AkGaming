@@ -13,9 +13,13 @@ namespace AkGaming.Management.Modules.MemberManagement.Application.Services;
 
 public class MembershipUpdateService : IMembershipUpdateService {
     private readonly IMemberRepository _members;
+    private readonly IMemberNotificationOutbox _notificationOutbox;
 
-    public MembershipUpdateService(IMemberRepository members) {
+    public MembershipUpdateService(
+        IMemberRepository members,
+        IMemberNotificationOutbox? notificationOutbox = null) {
         _members = members;
+        _notificationOutbox = notificationOutbox ?? new NullMemberNotificationOutbox();
     }
     
     /// <inheritdoc/>
@@ -24,8 +28,13 @@ public class MembershipUpdateService : IMembershipUpdateService {
         if (!memberResult.IsSuccess)
             return memberResult;
         var member = memberResult.Value!;
+        var previousStatus = member.Status;
 
         var result = await member.ChangeStatus((DomainEnums.MembershipStatus)newStatus)
+            .Then(() => {
+                _notificationOutbox.EnqueueMembershipStatusChanged(member, previousStatus);
+                return Result.Success();
+            })
             .Then(() => _members.SaveChangesAsync());
         
         return result;
@@ -57,10 +66,15 @@ public class MembershipUpdateService : IMembershipUpdateService {
             return memberResult;
         var member = memberResult.Value!;
         
-        if(member.StatusChanges.All( x => x.Timestamp < changeEvent.Timestamp))
+        var previousStatus = member.Status;
+        var changesCurrentStatus = member.StatusChanges.All(x => x.Timestamp < changeEvent.Timestamp);
+        if (changesCurrentStatus)
             member.Status = (DomainEnums.MembershipStatus)changeEvent.NewStatus;
         member.StatusChanges.Add(changeEvent.ToMembershipStatusChangeEvent());
-        
+
+        if (changesCurrentStatus && member.Status != previousStatus)
+            _notificationOutbox.EnqueueMembershipStatusChanged(member, previousStatus);
+
         var result = await _members.SaveChangesAsync();
         
         return result;

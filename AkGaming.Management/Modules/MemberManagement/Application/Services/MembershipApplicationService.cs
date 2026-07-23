@@ -143,7 +143,10 @@ public class MembershipApplicationService : IMembershipApplicationService {
             EntityId = request.Id,
             OldValuesJson = JsonSerializer.Serialize(new { IsResolved = false }),
             NewValuesJson = JsonSerializer.Serialize(new { IsResolved = true })
-        }).Then(() => _membershipApplicationRequestRepository.SaveChangesAsync());
+        }).Then(() => {
+            _notificationOutbox.EnqueueMembershipApplicationStatusChanged(request, accepted: true);
+            return _membershipApplicationRequestRepository.SaveChangesAsync();
+        });
 
         if (!result.IsSuccess)
             return result;
@@ -179,7 +182,10 @@ public class MembershipApplicationService : IMembershipApplicationService {
             EntityId = request.Id,
             OldValuesJson = JsonSerializer.Serialize(new { IsResolved = false }),
             NewValuesJson = JsonSerializer.Serialize(new { IsResolved = true })
-        }).Then(() => _membershipApplicationRequestRepository.SaveChangesAsync());
+        }).Then(() => {
+            _notificationOutbox.EnqueueMembershipApplicationStatusChanged(request, accepted: false);
+            return _membershipApplicationRequestRepository.SaveChangesAsync();
+        });
 
         if (!result.IsSuccess)
             return result;

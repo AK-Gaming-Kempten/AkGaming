@@ -27,7 +27,10 @@ public sealed class NotificationRenderer(IOptions<NotificationRoutingOptions> op
             NotificationEventTypes.ReimbursementSubmitted => RenderSubmitted(notification),
             NotificationEventTypes.ReimbursementStatusChanged => RenderStatusChanged(notification),
             NotificationEventTypes.MembershipApplicationCreated => RenderMembershipApplicationCreated(notification),
+            NotificationEventTypes.MembershipApplicationStatusChanged => RenderMembershipApplicationStatusChanged(notification),
             NotificationEventTypes.MemberLinkingRequestCreated => RenderMemberLinkingRequestCreated(notification),
+            NotificationEventTypes.MemberLinkingRequestStatusChanged => RenderMemberLinkingRequestStatusChanged(notification),
+            NotificationEventTypes.MembershipStatusChanged => RenderMembershipStatusChanged(notification),
             NotificationEventTypes.BoardMeetingCreated => RenderBoardMeeting(notification, "New board meeting"),
             NotificationEventTypes.BoardMeetingRescheduled => RenderBoardMeeting(notification, "Board meeting rescheduled"),
             NotificationEventTypes.BoardMeetingCancelled => RenderBoardMeeting(notification, "Board meeting cancelled", false),
@@ -121,7 +124,23 @@ public sealed class NotificationRenderer(IOptions<NotificationRoutingOptions> op
         var message = new RenderedMessage("New membership application",
             $"**{data.ApplicantName}** submitted a membership application.{email}",
             data.ManagementUrl, _options.BoardRoleId);
-        return new RenderedNotification(message, null);
+        var direct = new RenderedMessage(
+            "Membership application received",
+            "Your membership application was submitted successfully. We will notify you when it is reviewed.",
+            data.ApplicantUrl);
+        return new RenderedNotification(message, direct);
+    }
+
+    private static RenderedNotification RenderMembershipApplicationStatusChanged(NotificationInboxItem notification)
+    {
+        var data = JsonSerializer.Deserialize<MembershipApplicationStatusChangedNotification>(
+            notification.DataJson, JsonOptions())
+            ?? throw new InvalidOperationException("The membership application status payload is invalid.");
+        var direct = new RenderedMessage(
+            "Membership application updated",
+            $"Your membership application was **{data.Status.ToLowerInvariant()}**.",
+            data.ApplicantUrl);
+        return new RenderedNotification(null, direct);
     }
 
     private RenderedNotification RenderMemberLinkingRequestCreated(NotificationInboxItem notification)
@@ -132,7 +151,47 @@ public sealed class NotificationRenderer(IOptions<NotificationRoutingOptions> op
         var message = new RenderedMessage("New member linking request",
             $"**{data.ApplicantName}** requested a member-account link.\nReason: {data.Reason}{email}",
             data.ManagementUrl, _options.BoardRoleId);
-        return new RenderedNotification(message, null);
+        var direct = new RenderedMessage(
+            "Member linking request received",
+            "Your request to link your account to a membership record was submitted successfully. We will notify you when it is reviewed.",
+            data.ApplicantUrl);
+        return new RenderedNotification(message, direct);
+    }
+
+    private static RenderedNotification RenderMemberLinkingRequestStatusChanged(NotificationInboxItem notification)
+    {
+        var data = JsonSerializer.Deserialize<MemberLinkingRequestStatusChangedNotification>(
+            notification.DataJson, JsonOptions())
+            ?? throw new InvalidOperationException("The member linking request status payload is invalid.");
+        var direct = new RenderedMessage(
+            "Member linking request updated",
+            $"Your member linking request was **{data.Status.ToLowerInvariant()}**.",
+            data.ApplicantUrl);
+        return new RenderedNotification(null, direct);
+    }
+
+    private static RenderedNotification RenderMembershipStatusChanged(NotificationInboxItem notification)
+    {
+        var data = JsonSerializer.Deserialize<MembershipStatusChangedNotification>(
+            notification.DataJson, JsonOptions())
+            ?? throw new InvalidOperationException("The membership status payload is invalid.");
+        var direct = new RenderedMessage(
+            "Membership status updated",
+            $"Your membership status changed from **{FormatMembershipStatus(data.PreviousStatus)}** to **{FormatMembershipStatus(data.Status)}**.",
+            data.ApplicantUrl);
+        return new RenderedNotification(null, direct);
+    }
+
+    private static string FormatMembershipStatus(string status)
+    {
+        return status switch
+        {
+            "InTrial" => "In trial",
+            "HonoraryMember" => "Honorary member",
+            "ApplicationRejected" => "Application rejected",
+            "SupportingMember" => "Supporting member",
+            _ => status
+        };
     }
 
     private RenderedNotification RenderBoardAgendaChange(NotificationInboxItem notification)

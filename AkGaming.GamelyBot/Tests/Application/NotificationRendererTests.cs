@@ -144,7 +144,30 @@ public sealed class NotificationRendererTests
             Assert.That(rendered.ChannelMessage?.RoleId, Is.EqualTo("board-role"));
             Assert.That(rendered.ChannelMessage?.ChannelId, Is.Null);
             Assert.That(rendered.ChannelMessage?.Body, Does.Contain("Erika Mustermann"));
+            Assert.That(rendered.DirectMessage?.Title, Is.EqualTo("Membership application received"));
         });
+    }
+
+    [Test]
+    [Description("Renders membership application decisions only as a private applicant notification.")]
+    public void Render_WhenMembershipApplicationStatusChanges_ReturnsOnlyDirectMessage()
+    {
+        // Arrange
+        var renderer = new NotificationRenderer(Options.Create(new NotificationRoutingOptions()));
+        var payload = new MembershipApplicationStatusChangedNotification(
+            Guid.NewGuid(), "Accepted", "https://management.test/membership");
+        var notification = new NotificationInboxItem
+        {
+            Type = NotificationEventTypes.MembershipApplicationStatusChanged,
+            DataJson = JsonSerializer.Serialize(payload, new JsonSerializerOptions(JsonSerializerDefaults.Web))
+        };
+
+        // Act
+        var rendered = renderer.Render(notification);
+
+        // Assert
+        Assert.That(rendered.ChannelMessage, Is.Null);
+        Assert.That(rendered.DirectMessage?.Body, Does.Contain("accepted"));
     }
 
     [Test]
@@ -174,7 +197,53 @@ public sealed class NotificationRendererTests
             Assert.That(rendered.ChannelMessage?.RoleId, Is.EqualTo("board-role"));
             Assert.That(rendered.ChannelMessage?.ChannelId, Is.Null);
             Assert.That(rendered.ChannelMessage?.Body, Does.Contain("NewRegistration"));
+            Assert.That(rendered.DirectMessage?.Title, Is.EqualTo("Member linking request received"));
         });
+    }
+
+    [Test]
+    [Description("Renders membership status changes only as a private member notification.")]
+    public void Render_WhenMembershipStatusChanges_ReturnsOnlyDirectMessage()
+    {
+        // Arrange
+        var renderer = new NotificationRenderer(Options.Create(new NotificationRoutingOptions()));
+        var payload = new MembershipStatusChangedNotification(
+            Guid.NewGuid(), "InTrial", "Member", "https://management.test/membership");
+        var notification = new NotificationInboxItem
+        {
+            Type = NotificationEventTypes.MembershipStatusChanged,
+            DataJson = JsonSerializer.Serialize(payload, new JsonSerializerOptions(JsonSerializerDefaults.Web))
+        };
+
+        // Act
+        var rendered = renderer.Render(notification);
+
+        // Assert
+        Assert.That(rendered.ChannelMessage, Is.Null);
+        Assert.That(rendered.DirectMessage?.Body, Does.Contain("In trial"));
+        Assert.That(rendered.DirectMessage?.Body, Does.Contain("Member"));
+    }
+
+    [Test]
+    [Description("Renders member linking decisions only as a private applicant notification.")]
+    public void Render_WhenMemberLinkingRequestStatusChanges_ReturnsOnlyDirectMessage()
+    {
+        // Arrange
+        var renderer = new NotificationRenderer(Options.Create(new NotificationRoutingOptions()));
+        var payload = new MemberLinkingRequestStatusChangedNotification(
+            Guid.NewGuid(), "Rejected", "https://management.test/membership");
+        var notification = new NotificationInboxItem
+        {
+            Type = NotificationEventTypes.MemberLinkingRequestStatusChanged,
+            DataJson = JsonSerializer.Serialize(payload, new JsonSerializerOptions(JsonSerializerDefaults.Web))
+        };
+
+        // Act
+        var rendered = renderer.Render(notification);
+
+        // Assert
+        Assert.That(rendered.ChannelMessage, Is.Null);
+        Assert.That(rendered.DirectMessage?.Body, Does.Contain("rejected"));
     }
 
     [Test]
