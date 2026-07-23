@@ -2,6 +2,23 @@ using System.Text.Json;
 
 namespace AkGaming.Core.Notifications;
 
+public static class NotificationUrlBuilder
+{
+    public static string? ManagementFrontendBaseUrl(string? configuredFrontendBaseUrl, string? legacyBaseUrl)
+    {
+        var value = string.IsNullOrWhiteSpace(configuredFrontendBaseUrl)
+            ? legacyBaseUrl
+            : configuredFrontendBaseUrl;
+        if (string.IsNullOrWhiteSpace(value))
+            return null;
+
+        var normalized = value.Trim().TrimEnd('/');
+        if (normalized.EndsWith("/api", StringComparison.OrdinalIgnoreCase))
+            normalized = normalized[..^4].TrimEnd('/');
+        return normalized;
+    }
+}
+
 public static class NotificationEventTypes
 {
     public const string ReimbursementSubmitted = "reimbursement.submitted";

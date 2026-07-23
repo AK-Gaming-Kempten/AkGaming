@@ -22,7 +22,7 @@ public sealed class MemberNotificationOutboxTests
         await dbContext.Database.EnsureCreatedAsync();
         var outbox = new MemberNotificationOutbox(dbContext, Options.Create(new MemberNotificationOptions
         {
-            ManagementBaseUrl = "https://management.test.akgaming.de"
+            ManagementFrontendBaseUrl = "https://management.test.akgaming.de"
         }));
         var request = new MembershipApplicationRequest
         {
@@ -48,6 +48,20 @@ public sealed class MemberNotificationOutboxTests
             Assert.That(payload.RootElement.GetProperty("data").GetProperty("managementUrl").GetString(),
                 Is.EqualTo("https://management.test.akgaming.de/member-management/requests"));
         });
+    }
+
+    [Test]
+    [Description("Removes a trailing API path from the legacy Management notification URL setting.")]
+    public void ManagementFrontendBaseUrl_WithLegacyApiBase_ReturnsFrontendBaseUrl()
+    {
+        // Arrange
+        const string legacyApiBaseUrl = "https://management.test.akgaming.de/api/";
+
+        // Act
+        var result = NotificationUrlBuilder.ManagementFrontendBaseUrl(null, legacyApiBaseUrl);
+
+        // Assert
+        Assert.That(result, Is.EqualTo("https://management.test.akgaming.de"));
     }
 
     [Test]

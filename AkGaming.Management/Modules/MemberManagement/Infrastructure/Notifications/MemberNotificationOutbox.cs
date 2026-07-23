@@ -52,9 +52,11 @@ public sealed class MemberNotificationOutbox(
 
     private string? BuildRequestsUrl()
     {
-        return string.IsNullOrWhiteSpace(_options.ManagementBaseUrl)
+        var frontendBaseUrl = NotificationUrlBuilder.ManagementFrontendBaseUrl(
+            _options.ManagementFrontendBaseUrl, _options.ManagementBaseUrl);
+        return string.IsNullOrWhiteSpace(frontendBaseUrl)
             ? null
-            : $"{_options.ManagementBaseUrl.TrimEnd('/')}/member-management/requests";
+            : $"{frontendBaseUrl}/member-management/requests";
     }
 
     private static string GetDisplayName(string? firstName, string? lastName, string? email)

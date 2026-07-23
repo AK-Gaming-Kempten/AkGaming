@@ -37,7 +37,10 @@ public sealed class SqlitePersistenceTests
             UpdatedAt = DateTimeOffset.UtcNow,
             Expenses = [new ExpenseItem { Description = "Train", Amount = 42.50m }]
         };
-        var outbox = new DisbursementNotificationOutbox(context, Options.Create(new DisbursementNotificationOptions()));
+        var outbox = new DisbursementNotificationOutbox(context, Options.Create(new DisbursementNotificationOptions
+        {
+            ManagementFrontendBaseUrl = "https://management.test.akgaming.de"
+        }));
         context.Reimbursements.Add(reimbursement);
         outbox.EnqueueSubmitted(reimbursement);
 
@@ -49,6 +52,8 @@ public sealed class SqlitePersistenceTests
         var message = await context.NotificationOutbox.SingleAsync();
         Assert.That(message.Type, Is.EqualTo("reimbursement.submitted"));
         Assert.That(message.PayloadJson, Does.Contain(reimbursement.Id.ToString()));
+        Assert.That(message.PayloadJson, Does.Contain("https://management.test.akgaming.de/disbursements/reimbursements/my"));
+        Assert.That(message.PayloadJson, Does.Not.Contain("management.test.akgaming.de/api/"));
     }
 
     [Test]

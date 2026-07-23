@@ -56,6 +56,16 @@ public sealed class BoardNotificationOutbox(BoardManagementDbContext dbContext, 
         var envelope = new NotificationEnvelope(eventId, type, "management", now, null, JsonSerializer.SerializeToElement(data, JsonOptions));
         dbContext.NotificationOutbox.Add(new BoardNotificationOutboxMessage { EventId = eventId, Type = type, PayloadJson = JsonSerializer.Serialize(envelope, JsonOptions), CreatedAtUtc = now });
     }
-    private string? MeetingUrl(Guid id) => string.IsNullOrWhiteSpace(_options.ManagementBaseUrl) ? null : $"{_options.ManagementBaseUrl.TrimEnd('/')}/board/meetings/{id}";
-    private string? BoardUrl() => string.IsNullOrWhiteSpace(_options.ManagementBaseUrl) ? null : $"{_options.ManagementBaseUrl.TrimEnd('/')}/board/meetings";
+    private string? MeetingUrl(Guid id)
+    {
+        var frontendBaseUrl = FrontendBaseUrl();
+        return string.IsNullOrWhiteSpace(frontendBaseUrl) ? null : $"{frontendBaseUrl}/board/meetings/{id}";
+    }
+    private string? BoardUrl()
+    {
+        var frontendBaseUrl = FrontendBaseUrl();
+        return string.IsNullOrWhiteSpace(frontendBaseUrl) ? null : $"{frontendBaseUrl}/board/meetings";
+    }
+    private string? FrontendBaseUrl() => NotificationUrlBuilder.ManagementFrontendBaseUrl(
+        _options.ManagementFrontendBaseUrl, _options.ManagementBaseUrl);
 }

@@ -95,7 +95,7 @@ Notifications__TokenEndpoint=https://identity.example/connect/token
 Notifications__ClientId=akgaming-management-api
 Notifications__ClientSecret=...
 Notifications__Scope=gamelybot_notifications
-Notifications__ManagementBaseUrl=https://management.example
+Notifications__ManagementFrontendBaseUrl=https://management.example
 ```
 
 Identity must seed two confidential clients with client-credentials enabled:

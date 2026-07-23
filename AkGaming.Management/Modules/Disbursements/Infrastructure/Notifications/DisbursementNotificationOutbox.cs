@@ -63,8 +63,10 @@ public sealed class DisbursementNotificationOutbox(
 
     private string? BuildManagementUrl(Guid reimbursementId)
     {
-        if (string.IsNullOrWhiteSpace(_options.ManagementBaseUrl))
+        var frontendBaseUrl = NotificationUrlBuilder.ManagementFrontendBaseUrl(
+            _options.ManagementFrontendBaseUrl, _options.ManagementBaseUrl);
+        if (string.IsNullOrWhiteSpace(frontendBaseUrl))
             return null;
-        return $"{_options.ManagementBaseUrl.TrimEnd('/')}/disbursements/reimbursements/my?reimbursement={reimbursementId}";
+        return $"{frontendBaseUrl}/disbursements/reimbursements/my?reimbursement={reimbursementId}";
     }
 }

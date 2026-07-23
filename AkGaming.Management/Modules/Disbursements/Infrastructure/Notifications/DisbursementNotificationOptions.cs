@@ -9,5 +9,6 @@ public sealed class DisbursementNotificationOptions
     public string ClientSecret { get; set; } = string.Empty;
     public string Scope { get; set; } = "gamelybot_notifications";
     public bool UseAuthentication { get; set; } = true;
+    public string? ManagementFrontendBaseUrl { get; set; }
     public string? ManagementBaseUrl { get; set; }
 }

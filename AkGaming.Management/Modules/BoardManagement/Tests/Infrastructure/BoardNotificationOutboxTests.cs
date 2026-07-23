@@ -1,4 +1,5 @@
 using AkGaming.Management.Modules.BoardManagement.Domain.Entities;
+using System.Text.Json;
 using AkGaming.Management.Modules.BoardManagement.Infrastructure.Notifications;
 using AkGaming.Management.Modules.BoardManagement.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
@@ -71,6 +72,27 @@ public sealed class BoardNotificationOutboxTests
 
         // Assert
         Assert.That(_dbContext.NotificationOutbox.Local, Has.Count.EqualTo(1));
+    }
+
+    [Test]
+    [Description("Uses the Management frontend base URL for links in board meeting notifications.")]
+    public void EnqueueMeetingCreated_WithFrontendBaseUrl_QueuesFrontendLink()
+    {
+        // Arrange
+        var outbox = new BoardNotificationOutbox(_dbContext, Options.Create(new BoardNotificationOptions
+        {
+            ManagementFrontendBaseUrl = "https://management.test.akgaming.de/"
+        }));
+        var meeting = CreateMeeting(DateTimeOffset.UtcNow.AddDays(1), BoardMeetingStatus.Scheduled);
+
+        // Act
+        outbox.EnqueueMeetingCreated(meeting);
+
+        // Assert
+        var message = _dbContext.NotificationOutbox.Local.Single();
+        using var payload = JsonDocument.Parse(message.PayloadJson);
+        Assert.That(payload.RootElement.GetProperty("data").GetProperty("managementUrl").GetString(),
+            Is.EqualTo($"https://management.test.akgaming.de/board/meetings/{meeting.Id}"));
     }
 
     private static BoardMeeting CreateMeeting(DateTimeOffset scheduledAtUtc, BoardMeetingStatus status)
