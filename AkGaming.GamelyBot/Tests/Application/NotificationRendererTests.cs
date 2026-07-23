@@ -17,7 +17,18 @@ public sealed class NotificationRendererTests
         var renderer = new NotificationRenderer(Options.Create(new NotificationRoutingOptions()));
         var summary = new AuditSummaryResponse("Identity", DateTimeOffset.Parse("2026-07-13T07:00:00Z"),
             DateTimeOffset.Parse("2026-07-20T07:00:00Z"), 12, 4, 10, 2,
-            [new AuditSummaryCategory("login.succeeded", 8)]);
+            [new AuditSummaryCategory("login.succeeded", 8)],
+            [
+                new AuditSummarySection("Account activity",
+                [
+                    new AuditSummaryCategory("New accounts", 3),
+                    new AuditSummaryCategory("Email addresses verified", 2)
+                ]),
+                new AuditSummarySection("Security signals",
+                [
+                    new AuditSummaryCategory("Failed login attempts", 2)
+                ])
+            ]);
         var notification = new NotificationInboxItem
         {
             Type = NotificationEventTypes.IdentityAuditSummary,
@@ -31,8 +42,9 @@ public sealed class NotificationRendererTests
         // Assert
         Assert.That(rendered.ChannelMessage, Is.Not.Null);
         Assert.That(rendered.ChannelMessage!.Title, Is.EqualTo("Identity weekly audit summary"));
-        Assert.That(rendered.ChannelMessage.Body, Does.Contain("login.succeeded: 8"));
-        Assert.That(rendered.ChannelMessage.Body, Does.Contain("Failed: **2**"));
+        Assert.That(rendered.ChannelMessage.Body, Does.Contain("New accounts: **3**"));
+        Assert.That(rendered.ChannelMessage.Body, Does.Contain("Failed login attempts: **2**"));
+        Assert.That(rendered.ChannelMessage.Body, Does.Not.Contain("Events:"));
         Assert.That(rendered.ChannelMessage.RoleId, Is.Null);
         Assert.That(rendered.DirectMessage, Is.Null);
     }

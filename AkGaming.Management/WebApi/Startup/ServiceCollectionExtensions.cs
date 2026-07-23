@@ -3,14 +3,12 @@ using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Authorization;
 using OpenIddict.Validation.AspNetCore;
 using System.Net.Security;
-using AkGaming.Management.Modules.MemberManagement.Api.Controllers;
 
 namespace AkGaming.Management.WebApi.Startup;
 
 public static class ServiceCollectionExtensions {
     public static IServiceCollection AddJsonAndControllers(this IServiceCollection services) {
         services.AddControllers()
-            .AddApplicationPart(typeof(MemberAuditSummaryController).Assembly)
             .AddJsonOptions(o =>
                 o.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
         services.ConfigureHttpJsonOptions(o =>

@@ -83,9 +83,12 @@ public sealed record DiscordUserLinkResponse(Guid UserId, string DisplayName, bo
 
 public sealed record AuditSummaryCategory(string Name, int Count);
 
+public sealed record AuditSummarySection(string Name, IReadOnlyList<AuditSummaryCategory> Metrics);
+
 public sealed record AuditSummaryResponse(string Source, DateTimeOffset FromUtc, DateTimeOffset ToUtc,
     int TotalEvents, int UniqueActors, int? SuccessfulEvents, int? FailedEvents,
-    IReadOnlyList<AuditSummaryCategory> TopCategories);
+    IReadOnlyList<AuditSummaryCategory> TopCategories,
+    IReadOnlyList<AuditSummarySection>? Sections = null);
 
 public sealed record AuditSummaryNotification(AuditSummaryResponse Summary);
 

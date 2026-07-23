@@ -66,18 +66,26 @@ public sealed class AuditSummaryService(
     {
         var lines = new List<string>
         {
-            $"**{summary.Source} audit summary**",
-            $"Period: <t:{summary.FromUtc.ToUnixTimeSeconds()}:D> to <t:{summary.ToUtc.ToUnixTimeSeconds()}:D>",
-            $"Events: **{summary.TotalEvents}**",
-            $"Identified actors: **{summary.UniqueActors}**"
+            $"**{summary.Source} weekly summary**",
+            $"Period: <t:{summary.FromUtc.ToUnixTimeSeconds()}:D> to <t:{summary.ToUtc.ToUnixTimeSeconds()}:D>"
         };
-        if (summary.SuccessfulEvents.HasValue && summary.FailedEvents.HasValue)
-            lines.Add($"Successful: **{summary.SuccessfulEvents}** · Failed: **{summary.FailedEvents}**");
-        lines.Add(string.Empty);
-        lines.Add("**Most frequent activity**");
-        lines.AddRange(summary.TopCategories.Count == 0
-            ? ["No audited activity in this period."]
-            : summary.TopCategories.Select(category => $"- {category.Name}: {category.Count}"));
+        if (summary.Sections is { Count: > 0 })
+        {
+            foreach (var section in summary.Sections)
+            {
+                lines.Add(string.Empty);
+                lines.Add($"**{section.Name}**");
+                lines.AddRange(section.Metrics.Select(metric => $"- {metric.Name}: **{metric.Count}**"));
+            }
+        }
+        else
+        {
+            lines.Add(string.Empty);
+            lines.Add("**Most frequent activity**");
+            lines.AddRange(summary.TopCategories.Count == 0
+                ? ["No audited activity in this period."]
+                : summary.TopCategories.Select(category => $"- {category.Name}: {category.Count}"));
+        }
         var result = string.Join('\n', lines);
         return result.Length <= 1900 ? result : result[..1897] + "...";
     }
