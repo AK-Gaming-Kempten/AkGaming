@@ -108,13 +108,6 @@
     margin: 0.3rem 0 0;
 }
 
-.payment-period-create-form {
-    display: grid;
-    gap: 1rem;
-    padding-top: 1rem;
-    border-top: 1px solid color-mix(in srgb, var(--color-text-secondary) 28%, transparent);
-}
-
 .payment-period-detail-header {
     display: flex;
     align-items: center;

@@ -1,0 +1,45 @@
+@using AkGaming.Management.Frontend.Components.GeneralMeetings
+@using AkGaming.Management.Modules.MemberManagement.Contracts.DTO
+
+<EditForm Model="_request" OnValidSubmit="SubmitAsync">
+    <GeneralMeetingFormDialog Eyebrow="@SharedText["Field_PaymentPeriod"]"
+                              Title="@SharedText["Action_CreatePeriod"]"
+                              Description="@SharedText["Message_CreatePaymentPeriod"]"
+                              OnClose="OnClose">
+        <ChildContent>
+            @if (!string.IsNullOrWhiteSpace(Error))
+            {
+                <p class="text-danger" role="alert">@Error</p>
+            }
+            <div class="payment-period-create-grid">
+                <label>
+                    @SharedText["Field_Name"]
+                    <InputText @bind-Value="_request.Name" />
+                </label>
+                <label>
+                    @SharedText["Field_DueDate"]
+                    <InputDate @bind-Value="_request.DueDate" />
+                </label>
+                <label>
+                    @SharedText["Field_DefaultAmount"]
+                    <InputNumber @bind-Value="_request.DefaultDueAmount" />
+                </label>
+                <label>
+                    @SharedText["Field_ReducedAmount"]
+                    <InputNumber @bind-Value="_request.ReducedDueAmount" />
+                </label>
+            </div>
+        </ChildContent>
+        <Footer>
+            <ActionButton Kind="ActionButtonKind.Cancel"
+                          OnClick="OnClose"
+                          Disabled="IsBusy"
+                          Label="@SharedText["Action_Cancel"]" />
+            <ActionButton Kind="ActionButtonKind.Create"
+                          Variant="ActionButtonVariant.Primary"
+                          ButtonType="submit"
+                          Disabled="IsBusy"
+                          Label="@(IsBusy ? SharedText["State_Saving"] : SharedText["Action_Create"])" />
+        </Footer>
+    </GeneralMeetingFormDialog>
+</EditForm>

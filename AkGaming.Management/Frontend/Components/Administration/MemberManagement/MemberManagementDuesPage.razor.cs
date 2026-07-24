@@ -13,12 +13,6 @@ public partial class MemberManagementDuesPage : ComponentBase {
     [Inject] private IJSRuntime Js { get; set; } = default!;
     [Inject] private AuthenticationStateProvider AuthenticationStateProvider { get; set; } = default!;
 
-    private MembershipPaymentPeriodCreateDto _createRequest = new() {
-        Name = $"{DateTime.UtcNow:yyyy-MM}",
-        DueDate = DateOnly.FromDateTime(DateTime.UtcNow.Date),
-        DefaultDueAmount = 10m
-    };
-
     private readonly List<MembershipPaymentPeriodDto> _paymentPeriods = [];
     private readonly List<MembershipDueDto> _dues = [];
     private readonly Dictionary<Guid, string> _memberFullNameLookup = [];
@@ -32,7 +26,7 @@ public partial class MemberManagementDuesPage : ComponentBase {
     private bool _loadingPaymentPeriods;
     private bool _loadingDues;
     private bool _creatingPeriod;
-    private bool _showCreatePeriodForm;
+    private bool _showCreatePeriodDialog;
     private bool _isReminderDialogOpen;
     private bool _isSuspensionDialogOpen;
     private bool _loadingReminderDispatchPreview;
@@ -44,6 +38,7 @@ public partial class MemberManagementDuesPage : ComponentBase {
     private bool _sendingReminderDispatchCompleted;
     private string? _errorMessage;
     private string? _statusMessage;
+    private string? _createPeriodError;
     private string? _reminderDialogError;
     private string? _suspensionDialogError;
     private string _reminderDialogTitle = "Send reminder emails";
@@ -155,20 +150,23 @@ public partial class MemberManagementDuesPage : ComponentBase {
         _errorMessage = null;
     }
 
-    private async Task CreatePaymentPeriodAsync() {
+    private bool IsAnyDialogOpen =>
+        _showCreatePeriodDialog || _isReminderDialogOpen || _isSuspensionDialogOpen;
+
+    private async Task CreatePaymentPeriodAsync(MembershipPaymentPeriodCreateDto request) {
         _creatingPeriod = true;
-        _errorMessage = null;
+        _createPeriodError = null;
         _statusMessage = null;
 
-        var result = await MemberApi.CreatePaymentPeriodAsync(_createRequest);
+        var result = await MemberApi.CreatePaymentPeriodAsync(request);
         if (!result.IsSuccess) {
-            _errorMessage = result.Error ?? "Failed to create payment period.";
+            _createPeriodError = result.Error ?? "Failed to create payment period.";
             _creatingPeriod = false;
             return;
         }
 
         _statusMessage = $"Payment period '{result.Value!.Name}' created.";
-        _showCreatePeriodForm = false;
+        _showCreatePeriodDialog = false;
         _creatingPeriod = false;
         await LoadPaymentPeriodsAsync();
     }
@@ -199,8 +197,17 @@ public partial class MemberManagementDuesPage : ComponentBase {
         _savingDueIds.Remove(due.Id);
     }
 
-    private void ToggleCreatePeriodForm() {
-        _showCreatePeriodForm = !_showCreatePeriodForm;
+    private void OpenCreatePeriodDialog() {
+        _createPeriodError = null;
+        _showCreatePeriodDialog = true;
+    }
+
+    private void CloseCreatePeriodDialog() {
+        if (_creatingPeriod)
+            return;
+
+        _createPeriodError = null;
+        _showCreatePeriodDialog = false;
     }
 
     private async Task OpenBulkReminderDialogAsync() {

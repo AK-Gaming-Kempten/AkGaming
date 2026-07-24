@@ -235,5 +235,6 @@
   <data name="Heading_PaymentPeriodDues" xml:space="preserve"><value>Payment period dues</value></data>
   <data name="Heading_TotalDues" xml:space="preserve"><value>Total dues</value></data>
   <data name="Message_SelectPaymentPeriod" xml:space="preserve"><value>Select a payment period to view and manage its dues.</value></data>
+  <data name="Message_CreatePaymentPeriod" xml:space="preserve"><value>Creating a payment period generates dues for all eligible members.</value></data>
   <data name="Placeholder_SearchMember" xml:space="preserve"><value>Search member</value></data>
 </root>

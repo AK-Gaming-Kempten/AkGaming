@@ -235,5 +235,6 @@
   <data name="Heading_PaymentPeriodDues" xml:space="preserve"><value>Beiträge des Beitragszeitraums</value></data>
   <data name="Heading_TotalDues" xml:space="preserve"><value>Beiträge gesamt</value></data>
   <data name="Message_SelectPaymentPeriod" xml:space="preserve"><value>Wähle einen Beitragszeitraum aus, um seine Beiträge anzuzeigen und zu verwalten.</value></data>
+  <data name="Message_CreatePaymentPeriod" xml:space="preserve"><value>Beim Erstellen eines Beitragszeitraums werden Beiträge für alle berechtigten Mitglieder erzeugt.</value></data>
   <data name="Placeholder_SearchMember" xml:space="preserve"><value>Mitglied suchen</value></data>
 </root>

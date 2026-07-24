@@ -7,9 +7,9 @@
 <PageTitle>@PageText["Page_MemberDues_Title"]</PageTitle>
 
 <div class="dues-management-page-shell">
-    <div class="ui-stack-md dues-management-page @(_isReminderDialogOpen || _isSuspensionDialogOpen ? "dues-management-page-dialog-open" : string.Empty)"
-         inert="@(_isReminderDialogOpen || _isSuspensionDialogOpen ? string.Empty : null)"
-         aria-hidden="@(_isReminderDialogOpen || _isSuspensionDialogOpen ? "true" : null)">
+    <div class="ui-stack-md dues-management-page @(IsAnyDialogOpen ? "dues-management-page-dialog-open" : string.Empty)"
+         inert="@(IsAnyDialogOpen ? string.Empty : null)"
+         aria-hidden="@(IsAnyDialogOpen ? "true" : null)">
         @if (!string.IsNullOrWhiteSpace(_statusMessage)) {
             <p class="status-message">@_statusMessage</p>
         }
@@ -27,38 +27,14 @@
                     <div class="ui-actions">
                         <ActionButton Kind="ActionButtonKind.Refresh" Size="ActionButtonSize.Small" OnClick="() => LoadPaymentPeriodsAsync()" Disabled="_loadingPaymentPeriods" Label="@SharedText["Action_Refresh"]" />
                         @if (_canManageDues) {
-                            <ActionButton Kind="@(_showCreatePeriodForm ? ActionButtonKind.Cancel : ActionButtonKind.Create)"
+                            <ActionButton Kind="ActionButtonKind.Create"
                                           Variant="ActionButtonVariant.Primary"
                                           Size="ActionButtonSize.Small"
-                                          OnClick="ToggleCreatePeriodForm"
-                                          Label="@(_showCreatePeriodForm ? SharedText["Action_Cancel"] : SharedText["Action_CreatePeriod"])" />
+                                          OnClick="OpenCreatePeriodDialog"
+                                          Label="@SharedText["Action_CreatePeriod"]" />
                         }
                     </div>
                 </div>
-
-                @if (_canManageDues && _showCreatePeriodForm) {
-                    <EditForm Model="_createRequest" OnValidSubmit="CreatePaymentPeriodAsync" class="payment-period-create-form">
-                        <div class="ui-grid-auto-180 dues-create-grid">
-                            <div>
-                                <label>@SharedText["Field_Name"]</label>
-                                <InputText @bind-Value="_createRequest.Name" />
-                            </div>
-                            <div>
-                                <label>@SharedText["Field_DueDate"]</label>
-                                <InputDate @bind-Value="_createRequest.DueDate" />
-                            </div>
-                            <div>
-                                <label>@SharedText["Field_DefaultAmount"]</label>
-                                <InputNumber @bind-Value="_createRequest.DefaultDueAmount" />
-                            </div>
-                            <div>
-                                <label>@SharedText["Field_ReducedAmount"]</label>
-                                <InputNumber @bind-Value="_createRequest.ReducedDueAmount" />
-                            </div>
-                        </div>
-                        <ActionButton Kind="ActionButtonKind.Create" Variant="ActionButtonVariant.Primary" Size="ActionButtonSize.Small" ButtonType="submit" Disabled="_creatingPeriod" Label="@SharedText["Action_Create"]" />
-                    </EditForm>
-                }
 
                 @if (_loadingPaymentPeriods) {
                     <p>@SharedText["State_Loading"]</p>
@@ -171,6 +147,13 @@
             </section>
         }
     </div>
+
+    @if (_showCreatePeriodDialog) {
+        <PaymentPeriodCreateDialog IsBusy="_creatingPeriod"
+                                   Error="_createPeriodError"
+                                   OnSubmit="CreatePaymentPeriodAsync"
+                                   OnClose="CloseCreatePeriodDialog" />
+    }
 
     @if (_isReminderDialogOpen) {
         <div class="dues-reminder-dialog-backdrop"></div>
