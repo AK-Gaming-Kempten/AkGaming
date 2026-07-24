@@ -54,4 +54,8 @@
   <data name="Board_ProposedBy" xml:space="preserve"><value>vorgeschlagen von</value></data>
   <data name="Board_AvailableCount" xml:space="preserve"><value>verfügbar</value></data>
   <data name="Board_UnavailableCount" xml:space="preserve"><value>nicht verfügbar</value></data>
+  <data name="Board_EditAgendaItem" xml:space="preserve"><value>Tagesordnungspunkt bearbeiten</value></data>
+  <data name="Board_AddAgendaItem" xml:space="preserve"><value>Tagesordnungspunkt hinzufügen</value></data>
+  <data name="Board_AgendaDialogDescription" xml:space="preserve"><value>Gespeicherte Tagesordnungspunkte können per Drag-and-drop neu sortiert werden.</value></data>
+  <data name="Board_DropBacklogHere" xml:space="preserve"><value>Backlog-Eintrag hier ablegen</value></data>
 </root>

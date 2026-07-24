@@ -137,10 +137,10 @@
                             <span class="member-history-when">@entry.Timestamp.ToLocalTime().ToString("d")</span>
                             <span class="member-history-transition">
                                 @if (entry.OldStatus == entry.NewStatus) {
-                                    @entry.NewStatus
+                                    @entry.NewStatus.ToLocalizedString(SharedText)
                                 }
                                 else {
-                                    @($"{entry.OldStatus} -> {entry.NewStatus}")
+                                    @($"{entry.OldStatus.ToLocalizedString(SharedText)} → {entry.NewStatus.ToLocalizedString(SharedText)}")
                                 }
                             </span>
                         </li>

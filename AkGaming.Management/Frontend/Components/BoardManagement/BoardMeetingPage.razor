@@ -39,8 +39,8 @@ else
             @if (_canManage)
             {
                 <div class="ui-actions">
-                    <button type="button" @onclick="OpenAgendaCreateDialog"><span class="bi bi-plus-lg"></span> Add item</button>
-                    <button type="button" @onclick="OpenBacklogDialogAsync"><span class="bi bi-archive"></span> Add from backlog</button>
+                    <button type="button" @onclick="OpenAgendaCreateDialog"><span class="bi bi-plus-lg"></span> @Text["Board_AddItem"]</button>
+                    <button type="button" @onclick="OpenBacklogDialogAsync"><span class="bi bi-archive"></span> @Text["Board_AddBacklog"]</button>
                 </div>
             }
         </div>
@@ -76,9 +76,9 @@ else
 
 @if (_showAgendaDialog)
 {
-    <GeneralMeetingFormDialog Eyebrow="Board agenda"
-                              Title="@(_editingAgendaItemId.HasValue ? "Edit agenda item" : "Add agenda item")"
-                              Description="Agenda items can be reordered by dragging them after they are saved."
+    <GeneralMeetingFormDialog Eyebrow="@Text["Board_Agenda"]"
+                              Title="@(_editingAgendaItemId.HasValue ? Text["Board_EditAgendaItem"] : Text["Board_AddAgendaItem"])"
+                              Description="@Text["Board_AgendaDialogDescription"]"
                               OnClose="CloseAgendaDialog">
         <ChildContent>
             <div class="agenda-dialog-form">
@@ -92,7 +92,7 @@ else
         </ChildContent>
         <Footer>
             <button type="button" class="dialog-cancel" disabled="@_busy" @onclick="CloseAgendaDialog">@SharedText["Action_Cancel"]</button>
-            <button type="button" class="dialog-primary" disabled="@_busy" @onclick="SaveAgendaAsync">@(_editingAgendaItemId.HasValue ? "Save changes" : "Add item")</button>
+            <button type="button" class="dialog-primary" disabled="@_busy" @onclick="SaveAgendaAsync">@(_editingAgendaItemId.HasValue ? SharedText["Action_Save"] : Text["Board_AddItem"])</button>
         </Footer>
     </GeneralMeetingFormDialog>
 }

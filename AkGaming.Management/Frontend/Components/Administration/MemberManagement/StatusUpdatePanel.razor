@@ -10,12 +10,12 @@
                     <button type="button"
                             class="tab @( _activeTab == StatusTab.SetStatus ? "active" : "" )"
                             @onclick="() => _activeTab = StatusTab.SetStatus">
-                        Set New Status
+                        @SharedText["Field_NewStatus"]
                     </button>
                     <button type="button"
                             class="tab @( _activeTab == StatusTab.InsertEvent ? "active" : "" )"
                             @onclick="() => _activeTab = StatusTab.InsertEvent">
-                        Insert Status Event
+                        @SharedText["Action_InsertStatusEvent"]
                     </button>
                 </div>
 
@@ -24,10 +24,10 @@
                         <!-- Form A: Set current status -->
                         <div class="form-grid">
                             <div class="form-col">
-                                <label>Set New Status</label>
+                                <label>@SharedText["Field_NewStatus"]</label>
                                 <InputSelect @bind-Value="_updateStatus">
                                     @foreach (var s in Enum.GetValues<MembershipStatus>()) {
-                                        <option value="@s">@s</option>
+                                        <option value="@s">@s.ToLocalizedString(SharedText)</option>
                                     }
                                 </InputSelect>
                             </div>
@@ -42,7 +42,7 @@
                                 <label>@SharedText["Field_OldStatus"]</label>
                                 <InputSelect @bind-Value="_insertModel.OldStatus">
                                     @foreach (var s in Enum.GetValues<MembershipStatus>()) {
-                                        <option value="@s">@s</option>
+                                        <option value="@s">@s.ToLocalizedString(SharedText)</option>
                                     }
                                 </InputSelect>
                             </div>
@@ -51,7 +51,7 @@
                                 <label>@SharedText["Field_NewStatus"]</label>
                                 <InputSelect @bind-Value="_insertModel.NewStatus">
                                     @foreach (var s in Enum.GetValues<MembershipStatus>()) {
-                                        <option value="@s">@s</option>
+                                        <option value="@s">@s.ToLocalizedString(SharedText)</option>
                                     }
                                 </InputSelect>
                             </div>
@@ -78,7 +78,7 @@
                     <ul class="status-list">
                         @foreach (var evt in _statusChanges.OrderByDescending(e => e.Timestamp)) {
                             <li>
-                                <strong>@evt.NewStatus</strong><br />
+                                <strong>@evt.NewStatus.ToLocalizedString(SharedText)</strong><br />
                                 <small>@evt.Timestamp.ToString("g")</small>
                             </li>
                         }

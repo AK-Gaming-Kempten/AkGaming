@@ -36,6 +36,7 @@
   <data name="Action_AddFromBacklog" xml:space="preserve"><value>Add from backlog</value></data>
   <data name="Action_AddToBacklog" xml:space="preserve"><value>Add to backlog</value></data>
   <data name="Action_AddWithoutCheckIn" xml:space="preserve"><value>Add without check-in</value></data>
+  <data name="Action_InsertStatusEvent" xml:space="preserve"><value>Insert status event</value></data>
   <data name="Action_AssignRoles" xml:space="preserve"><value>Assign roles</value></data>
   <data name="Action_CreateRole" xml:space="preserve"><value>Create role</value></data>
   <data name="Action_FilterByName" xml:space="preserve"><value>Filter by name</value></data>
@@ -215,5 +216,10 @@
   <data name="Status_Failed" xml:space="preserve"><value>Failed</value></data>
   <data name="Status_CheckInOpen" xml:space="preserve"><value>Check-in open</value></data>
   <data name="Status_InvitationsSent" xml:space="preserve"><value>Invitations sent</value></data>
+  <data name="Status_Accepted" xml:space="preserve"><value>Accepted</value></data>
+  <data name="Status_Resolved" xml:space="preserve"><value>Resolved</value></data>
+  <data name="Status_Expelled" xml:space="preserve"><value>Expelled</value></data>
+  <data name="Status_Withdrawn" xml:space="preserve"><value>Withdrawn</value></data>
+  <data name="Status_ApplicationRejected" xml:space="preserve"><value>Application rejected</value></data>
   <data name="Unit_Minutes" xml:space="preserve"><value>min</value></data>
 </root>

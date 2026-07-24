@@ -54,4 +54,8 @@
   <data name="Board_ProposedBy" xml:space="preserve"><value>proposed by</value></data>
   <data name="Board_AvailableCount" xml:space="preserve"><value>available</value></data>
   <data name="Board_UnavailableCount" xml:space="preserve"><value>unavailable</value></data>
+  <data name="Board_EditAgendaItem" xml:space="preserve"><value>Edit agenda item</value></data>
+  <data name="Board_AddAgendaItem" xml:space="preserve"><value>Add agenda item</value></data>
+  <data name="Board_AgendaDialogDescription" xml:space="preserve"><value>Agenda items can be reordered by dragging them after they are saved.</value></data>
+  <data name="Board_DropBacklogHere" xml:space="preserve"><value>Drop backlog item here</value></data>
 </root>

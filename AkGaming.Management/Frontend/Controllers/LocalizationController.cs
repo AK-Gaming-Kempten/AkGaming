@@ -15,7 +15,7 @@ public sealed class LocalizationController : Controller
     [HttpGet("set")]
     public IActionResult SetCulture(string culture, string? returnUrl)
     {
-        var selectedCulture = SupportedCultures.Contains(culture) ? culture : "en-GB";
+        var selectedCulture = SupportedCultures.Contains(culture) ? culture : "de-DE";
         var requestCulture = new RequestCulture(selectedCulture);
         var cookieValue = CookieRequestCultureProvider.MakeCookieValue(requestCulture);
         var cookieOptions = new CookieOptions

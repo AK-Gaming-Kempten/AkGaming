@@ -12,13 +12,13 @@
                     @foreach (var request in ApplicationRequests) {
                         <div class="request-status-entry">
                             <div><strong>@Text["Requests_Application"]</strong><span class="ui-text-muted">@RequestDetails(request)</span></div>
-                            <span class="request-status @(request.IsResolved ? "resolved" : "pending")">@(request.IsResolved ? "Resolved" : "Pending")</span>
+                            <span class="request-status @(request.IsResolved ? "resolved" : "pending")">@(request.IsResolved ? SharedText["Status_Resolved"] : SharedText["Status_Pending"])</span>
                         </div>
                     }
                     @foreach (var request in LinkingRequests) {
                         <div class="request-status-entry">
                             <div><strong>@Text["Requests_Linking"]</strong><span class="ui-text-muted">@request.Reason</span></div>
-                            <span class="request-status @(request.IsResolved ? "resolved" : "pending")">@(request.IsResolved ? "Resolved" : "Pending")</span>
+                            <span class="request-status @(request.IsResolved ? "resolved" : "pending")">@(request.IsResolved ? SharedText["Status_Resolved"] : SharedText["Status_Pending"])</span>
                         </div>
                     }
                 </div>

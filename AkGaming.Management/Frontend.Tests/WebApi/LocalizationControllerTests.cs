@@ -51,8 +51,8 @@ public sealed class LocalizationControllerTests
     }
 
     [Test]
-    [Description("An unsupported culture and external return URL fall back to English and the application root.")]
-    public void SetCulture_WithUnsupportedCultureAndExternalReturnUrl_UsesSafeFallbacks()
+    [Description("An unsupported culture and external return URL fall back to German and the application root.")]
+    public void SetCulture_WithUnsupportedCultureAndExternalReturnUrl_UsesGermanSafeFallback()
     {
         // Arrange
         const string returnUrl = "https://example.org/phishing";
@@ -65,6 +65,6 @@ public sealed class LocalizationControllerTests
         var redirect = result as LocalRedirectResult;
         Assert.That(redirect, Is.Not.Null);
         Assert.That(redirect!.Url, Is.EqualTo("/"));
-        Assert.That(_httpContext.Response.Headers.SetCookie.ToString(), Does.Contain("c%3Den-GB%7Cuic%3Den-GB"));
+        Assert.That(_httpContext.Response.Headers.SetCookie.ToString(), Does.Contain("c%3Dde-DE%7Cuic%3Dde-DE"));
     }
 }

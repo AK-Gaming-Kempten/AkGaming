@@ -8,7 +8,7 @@
 <div class="meetings-page ui-stack-md">
     <section class="panel meetings-heading board-overview-heading">
         <div><h2>@PageText["Page_BoardMeetings_Title"]</h2><p class="ui-text-muted">@PageText["Page_BoardMeetings_Description"]</p></div>
-        <AuthorizeView Policy="management.board-meetings.manage"><button class="primary-action" type="button" @onclick="OpenCreateDialog"><span class="bi bi-plus-lg"></span> Create meeting</button></AuthorizeView>
+        <AuthorizeView Policy="management.board-meetings.manage"><button class="primary-action" type="button" @onclick="OpenCreateDialog"><span class="bi bi-plus-lg"></span> @Text["Board_Create"]</button></AuthorizeView>
     </section>
     @if (!string.IsNullOrWhiteSpace(_error)) { <p class="error">@_error</p> }
     @if (_showCreate)
@@ -34,7 +34,7 @@
         </div>
     }
     <section class="panel ui-stack-sm backlog-panel">
-        <div class="meetings-heading backlog-heading"><div><h3>@Text["Board_Backlog"]</h3><p class="ui-text-muted">@Text["Board_BacklogHelp"]</p></div><AuthorizeView Policy="management.board-meetings.manage"><button type="button" @onclick="ToggleBacklogCreate">@(_showBacklogCreate ? "Cancel" : "Add item")</button></AuthorizeView></div>
+        <div class="meetings-heading backlog-heading"><div><h3>@Text["Board_Backlog"]</h3><p class="ui-text-muted">@Text["Board_BacklogHelp"]</p></div><AuthorizeView Policy="management.board-meetings.manage"><button type="button" @onclick="ToggleBacklogCreate">@(_showBacklogCreate ? SharedText["Action_Cancel"] : Text["Board_AddItem"])</button></AuthorizeView></div>
         @if (_showBacklogCreate)
         {
             <div class="backlog-create-form">

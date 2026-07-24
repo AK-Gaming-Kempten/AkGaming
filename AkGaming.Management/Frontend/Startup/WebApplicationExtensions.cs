@@ -19,13 +19,13 @@ public static class WebApplicationExtensions {
         var germanCulture = new CultureInfo("de-DE");
         var supportedCultures = new List<CultureInfo> { englishCulture, germanCulture };
         var localizationOptions = new RequestLocalizationOptions {
-            DefaultRequestCulture = new RequestCulture(englishCulture),
+            DefaultRequestCulture = new RequestCulture(germanCulture),
             SupportedCultures = supportedCultures,
             SupportedUICultures = supportedCultures
         };
         app.UseRequestLocalization(localizationOptions);
-        CultureInfo.DefaultThreadCurrentCulture = englishCulture;
-        CultureInfo.DefaultThreadCurrentUICulture = englishCulture;
+        CultureInfo.DefaultThreadCurrentCulture = germanCulture;
+        CultureInfo.DefaultThreadCurrentUICulture = germanCulture;
     }
 
     public static void ConfigureRequestPipeline(this WebApplication app) {

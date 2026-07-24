@@ -10,16 +10,16 @@
    @ondrop="HandleDropAsync">
     <div class="meeting-card-content">
         <h3>@Meeting.Title</h3>
-        <p>@Meeting.ScheduledAtUtc.ToLocalTime().ToString("g") · @Meeting.DurationMinutes min</p>
-        <span class="meeting-location"><span class="bi bi-geo-alt"></span> @(Meeting.Location ?? "Location pending")</span>
+        <p>@Meeting.ScheduledAtUtc.ToLocalTime().ToString("g") · @Meeting.DurationMinutes @SharedText["Unit_Minutes"]</p>
+        <span class="meeting-location"><span class="bi bi-geo-alt"></span> @(Meeting.Location ?? Text["General_LocationPending"])</span>
         <div class="availability-summary">
-            <span class="available"><span class="bi bi-check-circle"></span> @Meeting.AvailableCount available</span>
-            <span class="unavailable"><span class="bi bi-x-circle"></span> @Meeting.UnavailableCount unavailable</span>
+            <span class="available"><span class="bi bi-check-circle"></span> @Meeting.AvailableCount @Text["Board_AvailableCount"]</span>
+            <span class="unavailable"><span class="bi bi-x-circle"></span> @Meeting.UnavailableCount @Text["Board_UnavailableCount"]</span>
         </div>
     </div>
     <span class="meeting-status @StatusCssClass">@Meeting.Status.ToLocalizedString(SharedText)</span>
     @if (CanAcceptAgendaDrop && IsAgendaDragActive)
     {
-        <span class="drop-hint"><span class="bi bi-plus-circle"></span> Drop backlog item here</span>
+        <span class="drop-hint"><span class="bi bi-plus-circle"></span> @Text["Board_DropBacklogHere"]</span>
     }
 </a>
