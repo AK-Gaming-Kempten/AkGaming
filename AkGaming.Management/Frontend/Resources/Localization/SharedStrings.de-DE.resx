@@ -66,6 +66,14 @@
   <data name="State_NoAudit" xml:space="preserve"><value>Keine Protokolleinträge gefunden.</value></data>
   <data name="State_LoadingTrialMembers" xml:space="preserve"><value>Probemitglieder werden geladen…</value></data>
   <data name="State_NoTrialMembers" xml:space="preserve"><value>Derzeit befinden sich keine Mitglieder in der Probezeit.</value></data>
+  <data name="TrialQueue_ManualDecisionHint" xml:space="preserve"><value>Abgelaufene Probezeiten bleiben hier sichtbar, bis du den Mitgliedschaftsstatus aktualisierst.</value></data>
+  <data name="TrialQueue_PeriodUnavailable" xml:space="preserve"><value>Probezeit nicht verfügbar</value></data>
+  <data name="TrialQueue_Overdue" xml:space="preserve"><value>ÜBERFÄLLIG</value></data>
+  <data name="TrialQueue_EndedOn" xml:space="preserve"><value>Beendet am {0}</value></data>
+  <data name="TrialQueue_DueToday" xml:space="preserve"><value>Entscheidung heute fällig</value></data>
+  <data name="TrialQueue_OneDayRemaining" xml:space="preserve"><value>Noch 1 Tag</value></data>
+  <data name="TrialQueue_DaysRemaining" xml:space="preserve"><value>Noch {0} Tage</value></data>
+  <data name="TrialQueue_Until" xml:space="preserve"><value>bis {0}</value></data>
   <data name="State_NoHistory" xml:space="preserve"><value>Kein Verlauf verfügbar.</value></data>
   <data name="State_NoAgenda" xml:space="preserve"><value>Noch keine Tagesordnungspunkte.</value></data>
   <data name="State_NotFound" xml:space="preserve"><value>Unter dieser Adresse wurde nichts gefunden.</value></data>

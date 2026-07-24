@@ -187,6 +187,7 @@ public class MemberShipUpdateServiceTests {
     }
     
     [Test]
+    [Description("Calculates the default trial end from the member's trial start.")]
     public async Task GetDefaultEndOfTrialPeriodAsync_ReturnsDefaultEndOfTrialPeriod() {
         //Arrange
         var memberRepository = new Mock<IMemberRepository>();
@@ -224,8 +225,46 @@ public class MemberShipUpdateServiceTests {
         Assert.That(result, Has.Property("IsSuccess").True);
         Assert.That(result.Value, Is.EqualTo(DateTime.UtcNow.AddDays(MemberManagementConstants.DefaultTrialPeriodInDays).Date));
     }
+
+    [Test]
+    [Description("Calculates the default trial end from the latest entry when a member enters trial more than once.")]
+    public async Task GetDefaultEndOfTrialPeriodAsync_UsesLatestTrialEntry() {
+        // Arrange
+        var memberRepository = new Mock<IMemberRepository>();
+        var membershipUpdateService = new MembershipUpdateService(memberRepository.Object);
+        var memberId = Guid.NewGuid();
+        var latestTrialStart = DateTime.UtcNow.AddDays(-10).Date;
+        var member = new Member {
+            Id = memberId,
+            Status = DomainEnums.MembershipStatus.InTrial,
+            StatusChanges = new List<MembershipStatusChangeEvent> {
+                new() {
+                    OldStatus = DomainEnums.MembershipStatus.Applicant,
+                    NewStatus = DomainEnums.MembershipStatus.InTrial,
+                    Timestamp = DateTime.UtcNow.AddDays(-400).Date
+                },
+                new() {
+                    OldStatus = DomainEnums.MembershipStatus.Applicant,
+                    NewStatus = DomainEnums.MembershipStatus.InTrial,
+                    Timestamp = latestTrialStart
+                }
+            }
+        };
+        memberRepository.Setup(repository => repository.GetByMemberIdAsync(memberId))
+            .ReturnsAsync(Result<Member>.Success(member));
+
+        // Act
+        var result = await membershipUpdateService.GetDefaultEndOfTrialPeriodAsync(memberId);
+
+        // Assert
+        Assert.That(result.IsSuccess, Is.True);
+        Assert.That(
+            result.Value,
+            Is.EqualTo(latestTrialStart.AddDays(MemberManagementConstants.DefaultTrialPeriodInDays).Date));
+    }
     
     [Test]
+    [Description("Fails to calculate a trial end when the member has no trial entry.")]
     public async Task GetDefaultEndOfTrialPeriodAsync_Fails_WhenMemberDidNotStartTrialPeriod() {
         //Arrange
         var memberRepository = new Mock<IMemberRepository>();

@@ -3,6 +3,7 @@ using AkGaming.Management.Modules.MemberManagement.Application.Interfaces;
 using AkGaming.Management.Modules.MemberManagement.Contracts.DTO;
 using AkGaming.Management.Modules.MemberManagement.Application.Mapping;
 using AkGaming.Management.Modules.MemberManagement.Contracts.Services;
+using AkGaming.Management.Modules.MemberManagement.Domain.Constants;
 using ContractEnums = AkGaming.Management.Modules.MemberManagement.Contracts.Enums ; 
 using DomainEnums = AkGaming.Management.Modules.MemberManagement.Domain.Enums;
 
@@ -67,5 +68,36 @@ public class MemberQueryService : IMemberQueryService {
         return Result<ICollection<MemberDto>>.Success(members
             .Where(m => statuses.Contains((ContractEnums.MembershipStatus)m.Status))
             .Select(m => m.ToDto()).ToList());
+    }
+
+    /// <inheritdoc/>
+    public async Task<Result<ICollection<TrialMemberDto>>> GetTrialMembersAsync() {
+        var membersResult = await _memberRepository.GetAllAsync();
+        if (!membersResult.IsSuccess)
+            return Result<ICollection<TrialMemberDto>>.Failure(membersResult.Error ?? "Trial members not found");
+
+        var trialMembers = membersResult.Value!
+            .Where(member => member.Status == DomainEnums.MembershipStatus.InTrial)
+            .Select(member => {
+                var activeTrialStart = member.StatusChanges
+                    .Where(change => change.NewStatus == DomainEnums.MembershipStatus.InTrial)
+                    .OrderByDescending(change => change.Timestamp)
+                    .FirstOrDefault();
+
+                return new TrialMemberDto {
+                    Member = member.ToDto(),
+                    TrialStartedAt = activeTrialStart?.Timestamp,
+                    TrialEndsAt = activeTrialStart?.Timestamp
+                        .AddDays(MemberManagementConstants.DefaultTrialPeriodInDays)
+                        .Date
+                };
+            })
+            .OrderBy(trial => trial.TrialEndsAt is null)
+            .ThenBy(trial => trial.TrialEndsAt)
+            .ThenBy(trial => trial.Member.LastName, StringComparer.OrdinalIgnoreCase)
+            .ThenBy(trial => trial.Member.FirstName, StringComparer.OrdinalIgnoreCase)
+            .ToList();
+
+        return Result<ICollection<TrialMemberDto>>.Success(trialMembers);
     }
 }

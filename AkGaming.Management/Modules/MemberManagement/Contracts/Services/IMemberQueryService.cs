@@ -39,4 +39,10 @@ public interface IMemberQueryService {
     /// <param name="statuses"> Collection of <see cref="MembershipStatus"/> the <see cref="MemberDto"/> should have</param>
     /// <returns> Collection of <see cref="MemberDto"/> with the specified <see cref="MembershipStatus"/></returns>
     Task<Result<ICollection<MemberDto>>> GetMembersWithStatusAsync(ICollection<MembershipStatus> statuses);
+
+    /// <summary>
+    /// Gets unresolved trial memberships ordered by the date on which a decision is due.
+    /// </summary>
+    /// <returns>Current trial members with their active trial interval.</returns>
+    Task<Result<ICollection<TrialMemberDto>>> GetTrialMembersAsync();
 }

@@ -10,6 +10,15 @@
     cursor: pointer;
 }
 
+.trial-queue-hint {
+    display: flex;
+    gap: 0.5rem;
+    align-items: flex-start;
+    color: var(--color-text-secondary);
+    font-size: 0.9rem;
+    margin: 0 0 1rem;
+}
+
 .member-preview-card {
     background-color: var(--color-card-bg);
     border: 1px solid var(--color-card-border);

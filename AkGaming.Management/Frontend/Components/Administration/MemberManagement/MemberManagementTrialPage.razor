@@ -11,6 +11,10 @@
             <ActionButton Kind="ActionButtonKind.Refresh" Variant="ActionButtonVariant.Primary" OnClick="LoadTrialMembersAsync" Label="@SharedText["Action_Refresh"]" />
         </div>
         <div class="list-main">
+            <p class="trial-queue-hint">
+                <i class="bi bi-info-circle" aria-hidden="true"></i>
+                @SharedText["TrialQueue_ManualDecisionHint"]
+            </p>
             @if (_isLoading)
             {
                 <p>@SharedText["State_LoadingTrialMembers"]</p>
@@ -27,36 +31,43 @@
             {
                 <div class="list-scroll-container">
                     <div class="preview-card-list">
-                        @foreach (var member in _trialMembers)
+                        @foreach (var trialMember in _trialMembers)
                         {
-                            var trial = GetTrialInfo(member.Id);
+                            var member = trialMember.Member;
+                            var trial = GetTrialInfo(trialMember);
 
-                            <div class="member-preview-card trial-member-preview @(member == _selectedMember ? "selected" : "")"
+                            <div class="member-preview-card trial-member-preview @(member.Id == _selectedMember?.Id ? "selected" : "")"
                                  @onclick="() => SelectMember(member)">
                                 <div class="member-preview-card-content">
                                     <div>@member.LastName, @member.FirstName</div>
                                     <div>@member.DiscordUserName</div>
 
-                                    @if (trial is null)
+                                    @if (trial.HasError)
                                     {
-                                        <div class="trial-remaining trial-loading">Trial period: loading...</div>
-                                    }
-                                    else if (trial.HasError)
-                                    {
-                                        <div class="trial-remaining trial-error">Trial period: unavailable</div>
+                                        <div class="trial-remaining trial-error">@SharedText["TrialQueue_PeriodUnavailable"]</div>
                                     }
                                     else
                                     {
                                         <div class="trial-remaining">
                                             @if (trial.IsExpired)
                                             {
-                                                <span class="expired-badge">EXPIRED</span>
-                                                <span>Ended on @trial.EndDate.ToString("d")</span>
+                                                <span class="expired-badge">@SharedText["TrialQueue_Overdue"]</span>
+                                                <span>@SharedText["TrialQueue_EndedOn", trial.EndDate.ToString("d")]</span>
+                                            }
+                                            else if (trial.DaysRemaining == 0)
+                                            {
+                                                <span>@SharedText["TrialQueue_DueToday"]</span>
+                                                <span class="trial-end-date">(@trial.EndDate.ToString("d"))</span>
+                                            }
+                                            else if (trial.DaysRemaining == 1)
+                                            {
+                                                <span>@SharedText["TrialQueue_OneDayRemaining"]</span>
+                                                <span class="trial-end-date">(@SharedText["TrialQueue_Until", trial.EndDate.ToString("d")])</span>
                                             }
                                             else
                                             {
-                                                <span>@trial.DaysRemaining day(s) remaining</span>
-                                                <span class="trial-end-date">(until @trial.EndDate.ToString("d"))</span>
+                                                <span>@SharedText["TrialQueue_DaysRemaining", trial.DaysRemaining]</span>
+                                                <span class="trial-end-date">(@SharedText["TrialQueue_Until", trial.EndDate.ToString("d")])</span>
                                             }
                                         </div>
                                     }

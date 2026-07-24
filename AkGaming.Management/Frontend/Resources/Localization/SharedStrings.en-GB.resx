@@ -66,6 +66,14 @@
   <data name="State_NoAudit" xml:space="preserve"><value>No audit logs found.</value></data>
   <data name="State_LoadingTrialMembers" xml:space="preserve"><value>Loading trial members…</value></data>
   <data name="State_NoTrialMembers" xml:space="preserve"><value>No members currently in trial.</value></data>
+  <data name="TrialQueue_ManualDecisionHint" xml:space="preserve"><value>Expired trials remain here until you update the member's status.</value></data>
+  <data name="TrialQueue_PeriodUnavailable" xml:space="preserve"><value>Trial period unavailable</value></data>
+  <data name="TrialQueue_Overdue" xml:space="preserve"><value>OVERDUE</value></data>
+  <data name="TrialQueue_EndedOn" xml:space="preserve"><value>Ended on {0}</value></data>
+  <data name="TrialQueue_DueToday" xml:space="preserve"><value>Decision due today</value></data>
+  <data name="TrialQueue_OneDayRemaining" xml:space="preserve"><value>1 day remaining</value></data>
+  <data name="TrialQueue_DaysRemaining" xml:space="preserve"><value>{0} days remaining</value></data>
+  <data name="TrialQueue_Until" xml:space="preserve"><value>until {0}</value></data>
   <data name="State_NoHistory" xml:space="preserve"><value>No history available.</value></data>
   <data name="State_NoAgenda" xml:space="preserve"><value>No agenda items yet.</value></data>
   <data name="State_NotFound" xml:space="preserve"><value>Sorry, there's nothing at this address.</value></data>

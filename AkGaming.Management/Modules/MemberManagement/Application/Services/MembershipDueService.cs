@@ -587,7 +587,7 @@ public class MembershipDueService(
 
         var inTrialStart = member.StatusChanges
             .Where(sc => sc.NewStatus == DomainEnums.MembershipStatus.InTrial)
-            .OrderBy(sc => sc.Timestamp)
+            .OrderByDescending(sc => sc.Timestamp)
             .FirstOrDefault();
 
         if (inTrialStart is null)
@@ -680,16 +680,16 @@ public class MembershipDueService(
     }
 
     private static string? GetTrialWindowSkipReason(Member member, MembershipPaymentPeriod paymentPeriod) {
-        var firstTrialStart = member.StatusChanges
+        var latestTrialStart = member.StatusChanges
             .Where(statusChange => statusChange.NewStatus == DomainEnums.MembershipStatus.InTrial)
-            .OrderBy(statusChange => statusChange.Timestamp)
+            .OrderByDescending(statusChange => statusChange.Timestamp)
             .FirstOrDefault();
 
-        if (firstTrialStart is null)
+        if (latestTrialStart is null)
             return null;
 
-        var trialStartDate = DateOnly.FromDateTime(firstTrialStart.Timestamp);
-        var trialEndDate = DateOnly.FromDateTime(firstTrialStart.Timestamp.AddDays(MemberManagementConstants.DefaultTrialPeriodInDays));
+        var trialStartDate = DateOnly.FromDateTime(latestTrialStart.Timestamp);
+        var trialEndDate = DateOnly.FromDateTime(latestTrialStart.Timestamp.AddDays(MemberManagementConstants.DefaultTrialPeriodInDays));
         var paymentPeriodTrialCutoff = paymentPeriod.DueDate.AddMonths(3);
 
         if (trialStartDate > paymentPeriodTrialCutoff)

@@ -40,7 +40,7 @@
   <data name="Page_Members_Title" xml:space="preserve"><value>Members</value></data>
   <data name="Page_Members_Description" xml:space="preserve"><value>Find members and maintain their club and contact information.</value></data>
   <data name="Page_TrialMembers_Title" xml:space="preserve"><value>Trial members</value></data>
-  <data name="Page_TrialMembers_Description" xml:space="preserve"><value>Review active and completed trial memberships.</value></data>
+  <data name="Page_TrialMembers_Description" xml:space="preserve"><value>Review ongoing trials and resolve overdue membership decisions.</value></data>
   <data name="Page_MemberRequests_Title" xml:space="preserve"><value>Membership requests</value></data>
   <data name="Page_MemberRequests_Description" xml:space="preserve"><value>Process membership applications and account-linking requests.</value></data>
   <data name="Page_MemberDues_Title" xml:space="preserve"><value>Membership dues</value></data>

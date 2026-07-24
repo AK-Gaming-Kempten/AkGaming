@@ -30,6 +30,9 @@ public sealed class MemberManagementApiClient : ApiClientBase {
         return GetAsync<ICollection<MemberDto>>($"members?status={q}", ct);
     }
 
+    public Task<Result<ICollection<TrialMemberDto>>> GetTrialMembersAsync(CancellationToken ct = default) =>
+        GetAsync<ICollection<TrialMemberDto>>("members/trial", ct);
+
     public Task<Result<Guid>> CreateMemberAsync(MemberCreationDto dto, CancellationToken ct = default) =>
         PostJsonAsync<MemberCreationDto, Guid>("members", dto, ct);
 
@@ -89,8 +92,8 @@ public sealed class MemberManagementApiClient : ApiClientBase {
     public Task<Result<ICollection<MembershipStatusChangeEventDto>>> GetMembershipStatusChangesAsync(Guid memberId, CancellationToken ct = default) =>
         GetAsync<ICollection<MembershipStatusChangeEventDto>>($"members/{memberId}/statusChanges", ct);
 
-    public Task<Result<DateTime>> GetDefaultEndOfTrialPeriodAsync(Guid memberId, CancellationToken ct = default) =>
-        GetAsync<DateTime>($"members/{memberId}/endOfTrial", ct);
+    public Task<Result<DateTime?>> GetDefaultEndOfTrialPeriodAsync(Guid memberId, CancellationToken ct = default) =>
+        GetAsync<DateTime?>($"members/{memberId}/endOfTrial", ct);
 
     public Task<Result<MemberAuditLogsResponseDto>> GetMemberAuditLogsAsync(
         int page = 1,

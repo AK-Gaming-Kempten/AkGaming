@@ -40,7 +40,7 @@
   <data name="Page_Members_Title" xml:space="preserve"><value>Mitglieder</value></data>
   <data name="Page_Members_Description" xml:space="preserve"><value>Mitglieder finden und Vereins- sowie Kontaktdaten pflegen.</value></data>
   <data name="Page_TrialMembers_Title" xml:space="preserve"><value>Probemitglieder</value></data>
-  <data name="Page_TrialMembers_Description" xml:space="preserve"><value>Aktive und abgeschlossene Probemitgliedschaften einsehen.</value></data>
+  <data name="Page_TrialMembers_Description" xml:space="preserve"><value>Laufende Probezeiten prüfen und überfällige Mitgliedschaftsentscheidungen bearbeiten.</value></data>
   <data name="Page_MemberRequests_Title" xml:space="preserve"><value>Mitgliedsanträge</value></data>
   <data name="Page_MemberRequests_Description" xml:space="preserve"><value>Mitgliedsanträge und Anfragen zur Kontoverknüpfung bearbeiten.</value></data>
   <data name="Page_MemberDues_Title" xml:space="preserve"><value>Mitgliedsbeiträge</value></data>

@@ -34,6 +34,11 @@ public static class MemberQueryEndpoints {
             return result.IsSuccess ? Results.Ok(result.Value) : Results.NotFound(result.Error);
         }).RequireAuthorization("management.members.read");
 
+        group.MapGet("/trial", async (IMemberQueryService service) => {
+            var result = await service.GetTrialMembersAsync();
+            return result.IsSuccess ? Results.Ok(result.Value) : Results.NotFound(result.Error);
+        }).RequireAuthorization("management.members.read");
+
         // ----- Admin or self (scoped to a single user) -----
         
         group.MapGet("/user/{userId:guid}", async (Guid userId, IMemberQueryService service) => {

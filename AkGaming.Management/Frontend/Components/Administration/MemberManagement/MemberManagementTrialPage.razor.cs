@@ -1,6 +1,5 @@
 using AkGaming.Management.Frontend.ApiClients;
 using AkGaming.Management.Modules.MemberManagement.Contracts.DTO;
-using AkGaming.Management.Modules.MemberManagement.Contracts.Enums;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 
@@ -10,8 +9,7 @@ public partial class MemberManagementTrialPage : ComponentBase {
     [Inject]
     private MemberManagementApiClient MemberApi { get; set; } = default!;
 
-    private readonly List<MemberDto> _trialMembers = [];
-    private readonly Dictionary<Guid, TrialPeriodInfo> _trialPeriodsByMemberId = [];
+    private readonly List<TrialMemberDto> _trialMembers = [];
 
     private MemberDto? _selectedMember;
     private bool _isLoading = true;
@@ -35,9 +33,8 @@ public partial class MemberManagementTrialPage : ComponentBase {
         _isLoading = true;
         _loadError = null;
         _trialMembers.Clear();
-        _trialPeriodsByMemberId.Clear();
 
-        var result = await MemberApi.GetMembersWithStatusAsync(MembershipStatus.InTrial);
+        var result = await MemberApi.GetTrialMembersAsync();
         if (!result.IsSuccess) {
             _loadError = result.Error;
             _isLoading = false;
@@ -48,47 +45,25 @@ public partial class MemberManagementTrialPage : ComponentBase {
 
         var previousSelectedMemberId = _selectedMember?.Id;
         _selectedMember = previousSelectedMemberId.HasValue
-            ? _trialMembers.FirstOrDefault(m => m.Id == previousSelectedMemberId.Value)
-            : _trialMembers.FirstOrDefault();
-
-        await LoadTrialPeriodsAsync(_trialMembers);
-
-        _trialMembers.RemoveAll(member => {
-            var trialInfo = _trialPeriodsByMemberId.GetValueOrDefault(member.Id);
-            return trialInfo is null;
-        });
-
-        if (_selectedMember is not null && _trialMembers.All(m => m.Id != _selectedMember.Id)) {
-            _selectedMember = _trialMembers.FirstOrDefault();
-        }
+            ? _trialMembers.FirstOrDefault(item => item.Member.Id == previousSelectedMemberId.Value)?.Member
+            : _trialMembers.FirstOrDefault()?.Member;
 
         _isLoading = false;
     }
 
-    private async Task LoadTrialPeriodsAsync(IEnumerable<MemberDto> members) {
+    private static TrialPeriodInfo GetTrialInfo(TrialMemberDto trialMember) {
+        if (!trialMember.TrialEndsAt.HasValue)
+            return TrialPeriodInfo.Error();
+
         var nowDate = DateTime.UtcNow.Date;
-        var tasks = members.Select(async member => {
-            var endResult = await MemberApi.GetDefaultEndOfTrialPeriodAsync(member.Id);
-            if (!endResult.IsSuccess) {
-                _trialPeriodsByMemberId[member.Id] = TrialPeriodInfo.Error();
-                return;
-            }
-
-            var endDate = endResult.Value.Date;
-            var daysRemaining = (endDate - nowDate).Days;
-            _trialPeriodsByMemberId[member.Id] = new TrialPeriodInfo(
-                EndDate: endDate,
-                DaysRemaining: Math.Max(daysRemaining, 0),
-                IsExpired: daysRemaining < 0,
-                HasError: false
-            );
-        });
-
-        await Task.WhenAll(tasks);
-    }
-
-    private TrialPeriodInfo? GetTrialInfo(Guid memberId) {
-        return _trialPeriodsByMemberId.GetValueOrDefault(memberId);
+        var endDate = trialMember.TrialEndsAt.Value.Date;
+        var daysRemaining = (endDate - nowDate).Days;
+        return new TrialPeriodInfo(
+            EndDate: endDate,
+            DaysRemaining: Math.Max(daysRemaining, 0),
+            IsExpired: daysRemaining < 0,
+            HasError: false
+        );
     }
 
     private void SelectMember(MemberDto member) {
@@ -98,7 +73,7 @@ public partial class MemberManagementTrialPage : ComponentBase {
 
     private async Task ReloadAfterUpdate(MemberDto member) {
         await LoadTrialMembersAsync();
-        _selectedMember = _trialMembers.FirstOrDefault(m => m.Id == member.Id);
+        _selectedMember = _trialMembers.FirstOrDefault(item => item.Member.Id == member.Id)?.Member;
         _isMobileDetailOpen = _selectedMember is not null;
     }
 

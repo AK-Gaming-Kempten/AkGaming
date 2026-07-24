@@ -50,7 +50,7 @@ public class MembershipUpdateService : IMembershipUpdateService {
         var statusChanges = member.StatusChanges;
         var startOfTrialPeriod = statusChanges
             .Where(sc => sc.NewStatus == DomainEnums.MembershipStatus.InTrial)
-            .OrderBy(sc => sc.Timestamp)
+            .OrderByDescending(sc => sc.Timestamp)
             .FirstOrDefault();
         
         if (startOfTrialPeriod is null)

@@ -159,6 +159,7 @@ public class MembershipDueServiceTests {
     }
 
     [Test]
+    [Description("Creates dues only for eligible members and evaluates a returning trial member's latest trial interval.")]
     public async Task CreatePaymentPeriodAsync_CreatesDues_OnlyForQualifiedMembers() {
         // Arrange
         var dueRepository = new Mock<IMembershipDueRepository>();
@@ -170,6 +171,13 @@ public class MembershipDueServiceTests {
         var member = new Member { Id = Guid.NewGuid(), Status = DomainEnums.MembershipStatus.Member };
         var trialInWindow = CreateTrialMember(Guid.NewGuid(), dueDate.AddMonths(2));
         var trialOutOfWindow = CreateTrialMember(Guid.NewGuid(), dueDate.AddMonths(4));
+        trialOutOfWindow.StatusChanges.Add(new MembershipStatusChangeEvent {
+            MemberId = trialOutOfWindow.Id,
+            OldStatus = DomainEnums.MembershipStatus.Applicant,
+            NewStatus = DomainEnums.MembershipStatus.InTrial,
+            Timestamp = dueDate.AddMonths(2).ToDateTime(TimeOnly.MinValue, DateTimeKind.Utc)
+                .AddDays(-MemberManagementConstants.DefaultTrialPeriodInDays)
+        });
         var applicant = new Member { Id = Guid.NewGuid(), Status = DomainEnums.MembershipStatus.Applicant };
         var members = new List<Member> { member, trialInWindow, trialOutOfWindow, applicant };
 
