@@ -1,0 +1,22 @@
+@using AkGaming.Management.Modules.MemberManagement.Contracts.DTO
+
+<div class="payment-period-list">
+    @foreach (var period in Periods)
+    {
+        <button type="button"
+                class="panel payment-period-entry"
+                disabled="@IsBusy"
+                @onclick="() => SelectAsync(period)">
+            <span class="payment-period-icon bi bi-calendar3" aria-hidden="true"></span>
+            <span class="payment-period-content">
+                <strong>@period.Name</strong>
+                <span>@SharedText["Field_DueDate"]: @period.DueDate.ToString("d")</span>
+                <small>
+                    @SharedText["Field_DefaultAmount"]: @period.DefaultDueAmount.ToString("N2")
+                    · @SharedText["Field_ReducedAmount"]: @period.ReducedDueAmount.ToString("N2")
+                </small>
+            </span>
+            <span class="bi bi-chevron-right" aria-hidden="true"></span>
+        </button>
+    }
+</div>

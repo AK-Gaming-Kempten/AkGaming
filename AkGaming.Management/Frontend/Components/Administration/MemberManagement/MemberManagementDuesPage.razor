@@ -10,71 +10,34 @@
     <div class="ui-stack-md dues-management-page @(_isReminderDialogOpen || _isSuspensionDialogOpen ? "dues-management-page-dialog-open" : string.Empty)"
          inert="@(_isReminderDialogOpen || _isSuspensionDialogOpen ? string.Empty : null)"
          aria-hidden="@(_isReminderDialogOpen || _isSuspensionDialogOpen ? "true" : null)">
-        <div class="ui-grid-2 dues-top-grid">
-            <section class="panel dues-card dues-controls-card">
-                <h4 class="ui-title">@SharedText["Heading_Controls"]</h4>
-                <div class="ui-grid-auto-160 dues-toolbar">
-                    <div class="ui-field dues-control">
-                        <label for="payment-period-select">@SharedText["Field_PaymentPeriod"]</label>
-                        <select id="payment-period-select"
-                                class="ui-select-sm"
-                                value="@_selectedPaymentPeriodId"
-                                @onchange="OnPaymentPeriodChanged"
-                                disabled="@(_loadingPaymentPeriods || _paymentPeriods.Count == 0)">
-                            @if (_paymentPeriods.Count == 0) {
-                                <option value="">No payment periods</option>
-                            }
-                            else {
-                                @foreach (var period in _paymentPeriods) {
-                                    <option value="@period.Id">@period.Name - due @period.DueDate</option>
-                                }
-                            }
-                        </select>
-                    </div>
+        @if (!string.IsNullOrWhiteSpace(_statusMessage)) {
+            <p class="status-message">@_statusMessage</p>
+        }
+        @if (!string.IsNullOrWhiteSpace(_errorMessage)) {
+            <p class="text-danger">@_errorMessage</p>
+        }
 
-                    <div class="ui-field dues-control">
-                        <label for="member-display-mode">@SharedText["Field_MemberDisplay"]</label>
-                        <InputSelect id="member-display-mode"
-                                     class="ui-select-sm"
-                                     @bind-Value="_memberDisplayMode">
-                            <option value="@MemberDisplayMode.FullName">@SharedText["Field_FullName"]</option>
-                            <option value="@MemberDisplayMode.MemberId">@SharedText["Field_MemberId"]</option>
-                        </InputSelect>
+        @if (_selectedPaymentPeriodId is null) {
+            <section class="panel dues-card payment-period-list-state">
+                <div class="dues-list-header">
+                    <div>
+                        <h4 class="ui-title">@SharedText["Heading_PaymentPeriods"]</h4>
+                        <p class="ui-text-muted">@SharedText["Message_SelectPaymentPeriod"]</p>
                     </div>
-
-                    <div class="ui-field dues-control">
-                        <label for="member-name-filter">@SharedText["Action_FilterByName"]</label>
-                        <InputText id="member-name-filter"
-                                   class="ui-input-sm"
-                                   placeholder="Search member"
-                                   @bind-Value="_memberNameFilter" />
-                    </div>
-
-                    <div class="ui-field dues-control">
-                        <label for="status-filter">@SharedText["Action_FilterByStatus"]</label>
-                        <InputSelect id="status-filter"
-                                     class="ui-select-sm"
-                                     @bind-Value="_selectedStatusFilter">
-                            <option value="">@SharedText["Field_AllStatuses"]</option>
-                            @foreach (var status in Enum.GetValues<MembershipDueStatus>()) {
-                                <option value="@status">@status.ToLocalizedString(SharedText)</option>
-                            }
-                        </InputSelect>
-                    </div>
-
-                    <div class="ui-actions dues-control-actions">
-                        <ActionButton Kind="ActionButtonKind.Refresh" Size="ActionButtonSize.Small" OnClick="() => LoadPaymentPeriodsAsync(true)" Disabled="@(_loadingPaymentPeriods || _loadingDues)" Label="@SharedText["Action_Refresh"]" />
-                        @if (_canDispatchDues) {
-                            <ActionButton Kind="ActionButtonKind.Send" Variant="ActionButtonVariant.Primary" Size="ActionButtonSize.Small" OnClick="OpenBulkReminderDialogAsync" Disabled="@(_selectedPaymentPeriodId is null || _loadingPaymentPeriods || _loadingDues)" Label="@SharedText["Action_Send"]" />
-                        }
+                    <div class="ui-actions">
+                        <ActionButton Kind="ActionButtonKind.Refresh" Size="ActionButtonSize.Small" OnClick="() => LoadPaymentPeriodsAsync()" Disabled="_loadingPaymentPeriods" Label="@SharedText["Action_Refresh"]" />
                         @if (_canManageDues) {
-                            <ActionButton Kind="@(_showCreatePeriodForm ? ActionButtonKind.Cancel : ActionButtonKind.Create)" Variant="ActionButtonVariant.Outline" Size="ActionButtonSize.Small" OnClick="ToggleCreatePeriodForm" Label="@(_showCreatePeriodForm ? "Hide create period" : "Create period")" />
+                            <ActionButton Kind="@(_showCreatePeriodForm ? ActionButtonKind.Cancel : ActionButtonKind.Create)"
+                                          Variant="ActionButtonVariant.Primary"
+                                          Size="ActionButtonSize.Small"
+                                          OnClick="ToggleCreatePeriodForm"
+                                          Label="@(_showCreatePeriodForm ? SharedText["Action_Cancel"] : SharedText["Action_CreatePeriod"])" />
                         }
                     </div>
                 </div>
 
                 @if (_canManageDues && _showCreatePeriodForm) {
-                    <EditForm Model="_createRequest" OnValidSubmit="CreatePaymentPeriodAsync">
+                    <EditForm Model="_createRequest" OnValidSubmit="CreatePaymentPeriodAsync" class="payment-period-create-form">
                         <div class="ui-grid-auto-180 dues-create-grid">
                             <div>
                                 <label>@SharedText["Field_Name"]</label>
@@ -96,51 +59,98 @@
                         <ActionButton Kind="ActionButtonKind.Create" Variant="ActionButtonVariant.Primary" Size="ActionButtonSize.Small" ButtonType="submit" Disabled="_creatingPeriod" Label="@SharedText["Action_Create"]" />
                     </EditForm>
                 }
+
+                @if (_loadingPaymentPeriods) {
+                    <p>@SharedText["State_Loading"]</p>
+                }
+                else if (_paymentPeriods.Count == 0) {
+                    <p>@SharedText["State_NoPaymentPeriods"]</p>
+                }
+                else {
+                    <PaymentPeriodList Periods="_paymentPeriods"
+                                       IsBusy="_loadingPaymentPeriods"
+                                       OnSelect="SelectPaymentPeriodAsync" />
+                }
             </section>
-
-            <section class="panel dues-card dues-summary-card">
-                <h4 class="ui-title">@SharedText["Heading_Summary"]</h4>
-                <div class="dues-dashboard">
-                    <div class="dues-half-pie-shell">
-                        <div class="dues-half-pie" style="@GetHalfPieStyle()">
-                            <div class="dues-half-pie-inner">
-                                <strong>@TotalCount</strong>
-                                <span>total dues</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="dues-summary">
-                        <span class="dues-chip dues-chip-open">Open: @PendingCount</span>
-                        <span class="dues-chip dues-chip-paid">Paid: @PaidCount</span>
-                        <span class="dues-chip dues-chip-waived">Waived: @WaivedCount</span>
-                        <span class="dues-chip dues-chip-cancelled">Cancelled: @CancelledCount</span>
-                    </div>
+        }
+        else {
+            <section class="panel dues-card payment-period-detail-header">
+                <div>
+                    <ActionButton Kind="ActionButtonKind.Back" Variant="ActionButtonVariant.Outline" Size="ActionButtonSize.Small" OnClick="ShowPaymentPeriodList" Label="@SharedText["Action_BackToList"]" />
+                    <h3 class="ui-title">@SelectedPaymentPeriod?.Name</h3>
+                    <p class="ui-text-muted">
+                        @SharedText["Field_DueDate"]: @SelectedPaymentPeriod?.DueDate.ToString("d")
+                        · @SharedText["Field_DefaultAmount"]: @SelectedPaymentPeriod?.DefaultDueAmount.ToString("N2")
+                        · @SharedText["Field_ReducedAmount"]: @SelectedPaymentPeriod?.ReducedDueAmount.ToString("N2")
+                    </p>
+                </div>
+                <div class="ui-actions">
+                    <ActionButton Kind="ActionButtonKind.Refresh" Size="ActionButtonSize.Small" OnClick="() => LoadPaymentPeriodsAsync(true)" Disabled="@(_loadingPaymentPeriods || _loadingDues)" Label="@SharedText["Action_Refresh"]" />
+                    @if (_canDispatchDues) {
+                        <ActionButton Kind="ActionButtonKind.Send" Variant="ActionButtonVariant.Primary" Size="ActionButtonSize.Small" OnClick="OpenBulkReminderDialogAsync" Disabled="@(_loadingPaymentPeriods || _loadingDues)" Label="@SharedText["Action_Send"]" />
+                    }
                 </div>
             </section>
-        </div>
 
-        <section class="panel dues-card dues-list-card">
-            <div class="dues-list-header">
-                <h4 class="ui-title">Payment Period Dues</h4>
-                @if (_canDispatchDues && _selectedPaymentPeriodId is not null) {
-                    <ActionButton Kind="ActionButtonKind.Send" Variant="ActionButtonVariant.Primary" Size="ActionButtonSize.Small" OnClick="OpenBulkReminderDialogAsync" Disabled="@(_loadingPaymentPeriods || _loadingDues)" Label="@SharedText["Action_Send"]" />
-                }
+            <div class="ui-grid-2 dues-top-grid">
+                <section class="panel dues-card dues-controls-card">
+                    <h4 class="ui-title">@SharedText["Heading_Controls"]</h4>
+                    <div class="ui-grid-auto-160 dues-toolbar">
+                        <div class="ui-field dues-control">
+                            <label for="member-display-mode">@SharedText["Field_MemberDisplay"]</label>
+                            <InputSelect id="member-display-mode" class="ui-select-sm" @bind-Value="_memberDisplayMode">
+                                <option value="@MemberDisplayMode.FullName">@SharedText["Field_FullName"]</option>
+                                <option value="@MemberDisplayMode.MemberId">@SharedText["Field_MemberId"]</option>
+                            </InputSelect>
+                        </div>
+                        <div class="ui-field dues-control">
+                            <label for="member-name-filter">@SharedText["Action_FilterByName"]</label>
+                            <InputText id="member-name-filter" class="ui-input-sm" placeholder="@SharedText["Placeholder_SearchMember"]" @bind-Value="_memberNameFilter" />
+                        </div>
+                        <div class="ui-field dues-control">
+                            <label for="status-filter">@SharedText["Action_FilterByStatus"]</label>
+                            <InputSelect id="status-filter" class="ui-select-sm" @bind-Value="_selectedStatusFilter">
+                                <option value="">@SharedText["Field_AllStatuses"]</option>
+                                @foreach (var status in Enum.GetValues<MembershipDueStatus>()) {
+                                    <option value="@status">@status.ToLocalizedString(SharedText)</option>
+                                }
+                            </InputSelect>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="panel dues-card dues-summary-card">
+                    <h4 class="ui-title">@SharedText["Heading_Summary"]</h4>
+                    <div class="dues-dashboard">
+                        <div class="dues-half-pie-shell">
+                            <div class="dues-half-pie" style="@GetHalfPieStyle()">
+                                <div class="dues-half-pie-inner">
+                                    <strong>@TotalCount</strong>
+                                    <span>@SharedText["Heading_TotalDues"]</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="dues-summary">
+                            <span class="dues-chip dues-chip-open">@SharedText["Status_Open"]: @PendingCount</span>
+                            <span class="dues-chip dues-chip-paid">@SharedText["Status_Paid"]: @PaidCount</span>
+                            <span class="dues-chip dues-chip-waived">@SharedText["Status_Waived"]: @WaivedCount</span>
+                            <span class="dues-chip dues-chip-cancelled">@SharedText["Status_Cancelled"]: @CancelledCount</span>
+                        </div>
+                    </div>
+                </section>
             </div>
-            @if (!string.IsNullOrWhiteSpace(_statusMessage)) {
-                <p class="status-message">@_statusMessage</p>
-            }
-            @if (!string.IsNullOrWhiteSpace(_errorMessage)) {
-                <p class="text-danger">@_errorMessage</p>
-            }
-            @if (_loadingPaymentPeriods || _loadingDues) {
-                <p>@SharedText["State_LoadingDues"]</p>
-            }
-            else if (_selectedPaymentPeriodId is null) {
-                <p>@SharedText["State_NoPaymentPeriods"]</p>
-            }
-            else {
-                @if (_dues.Count == 0) {
+
+            <section class="panel dues-card dues-list-card">
+                <div class="dues-list-header">
+                    <h4 class="ui-title">@SharedText["Heading_PaymentPeriodDues"]</h4>
+                    @if (_canDispatchDues) {
+                        <ActionButton Kind="ActionButtonKind.Send" Variant="ActionButtonVariant.Primary" Size="ActionButtonSize.Small" OnClick="OpenBulkReminderDialogAsync" Disabled="@(_loadingPaymentPeriods || _loadingDues)" Label="@SharedText["Action_Send"]" />
+                    }
+                </div>
+                @if (_loadingPaymentPeriods || _loadingDues) {
+                    <p>@SharedText["State_LoadingDues"]</p>
+                }
+                else if (_dues.Count == 0) {
                     <p>@SharedText["State_NoDues"]</p>
                 }
                 else {
@@ -158,8 +168,8 @@
                         }
                     </div>
                 }
-            }
-        </section>
+            </section>
+        }
     </div>
 
     @if (_isReminderDialogOpen) {

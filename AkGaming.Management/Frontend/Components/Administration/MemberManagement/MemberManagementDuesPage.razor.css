@@ -98,6 +98,34 @@
     color: var(--color-highlight-primary);
 }
 
+.payment-period-list-state {
+    display: grid;
+    gap: 1rem;
+}
+
+.payment-period-list-state .ui-text-muted,
+.payment-period-detail-header .ui-text-muted {
+    margin: 0.3rem 0 0;
+}
+
+.payment-period-create-form {
+    display: grid;
+    gap: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid color-mix(in srgb, var(--color-text-secondary) 28%, transparent);
+}
+
+.payment-period-detail-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+.payment-period-detail-header h3 {
+    margin: 0.8rem 0 0;
+}
+
 .dues-list-header {
     display: flex;
     align-items: center;
@@ -248,6 +276,7 @@
     }
 
     .dues-list-header,
+    .payment-period-detail-header,
     .dues-reminder-dialog-header,
     .dues-reminder-list-item,
     .dues-reminder-dialog-actions {

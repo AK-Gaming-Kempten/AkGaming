@@ -102,11 +102,16 @@ public partial class MemberManagementDuesPage : ComponentBase {
             return;
         }
 
-        if (!preserveSelection || _selectedPaymentPeriodId is null || _paymentPeriods.All(x => x.Id != _selectedPaymentPeriodId.Value))
-            _selectedPaymentPeriodId = _paymentPeriods[0].Id;
+        var selectedPeriodStillExists = _selectedPaymentPeriodId is not null
+            && _paymentPeriods.Any(x => x.Id == _selectedPaymentPeriodId.Value);
+        if (!preserveSelection || !selectedPeriodStillExists) {
+            _selectedPaymentPeriodId = null;
+            _dues.Clear();
+        }
 
         _loadingPaymentPeriods = false;
-        await LoadSelectedPaymentPeriodDuesAsync();
+        if (_selectedPaymentPeriodId is not null)
+            await LoadSelectedPaymentPeriodDuesAsync();
     }
 
     private async Task LoadSelectedPaymentPeriodDuesAsync() {
@@ -132,13 +137,22 @@ public partial class MemberManagementDuesPage : ComponentBase {
         _loadingDues = false;
     }
 
-    private async Task OnPaymentPeriodChanged(ChangeEventArgs args) {
-        var raw = args.Value?.ToString();
-        if (!int.TryParse(raw, out var paymentPeriodId))
-            return;
-
-        _selectedPaymentPeriodId = paymentPeriodId;
+    private async Task SelectPaymentPeriodAsync(MembershipPaymentPeriodDto paymentPeriod) {
+        _selectedPaymentPeriodId = paymentPeriod.Id;
+        _memberNameFilter = null;
+        _selectedStatusFilter = null;
+        _statusMessage = null;
+        _errorMessage = null;
         await LoadSelectedPaymentPeriodDuesAsync();
+    }
+
+    private void ShowPaymentPeriodList() {
+        _selectedPaymentPeriodId = null;
+        _dues.Clear();
+        _memberNameFilter = null;
+        _selectedStatusFilter = null;
+        _statusMessage = null;
+        _errorMessage = null;
     }
 
     private async Task CreatePaymentPeriodAsync() {
@@ -368,6 +382,8 @@ public partial class MemberManagementDuesPage : ComponentBase {
     private int CancelledCount => _dues.Count(x => x.Status == MembershipDueStatus.Cancelled);
     private int WaivedCount => _dues.Count(x => x.Status == MembershipDueStatus.Waived);
     private int TotalCount => _dues.Count;
+    private MembershipPaymentPeriodDto? SelectedPaymentPeriod =>
+        _paymentPeriods.FirstOrDefault(period => period.Id == _selectedPaymentPeriodId);
     private IEnumerable<MembershipDueDto> FilteredAndSortedDues => BuildFilteredAndSortedDues();
     private string ReminderDialogTitle => _reminderDialogTitle;
     private string SuspensionDialogTitle => _suspensionDue is null

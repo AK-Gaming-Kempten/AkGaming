@@ -222,4 +222,10 @@
   <data name="Status_Withdrawn" xml:space="preserve"><value>Ausgetreten</value></data>
   <data name="Status_ApplicationRejected" xml:space="preserve"><value>Antrag abgelehnt</value></data>
   <data name="Unit_Minutes" xml:space="preserve"><value>Min.</value></data>
+  <data name="Action_CreatePeriod" xml:space="preserve"><value>Beitragszeitraum erstellen</value></data>
+  <data name="Heading_PaymentPeriods" xml:space="preserve"><value>Beitragszeiträume</value></data>
+  <data name="Heading_PaymentPeriodDues" xml:space="preserve"><value>Beiträge des Beitragszeitraums</value></data>
+  <data name="Heading_TotalDues" xml:space="preserve"><value>Beiträge gesamt</value></data>
+  <data name="Message_SelectPaymentPeriod" xml:space="preserve"><value>Wähle einen Beitragszeitraum aus, um seine Beiträge anzuzeigen und zu verwalten.</value></data>
+  <data name="Placeholder_SearchMember" xml:space="preserve"><value>Mitglied suchen</value></data>
 </root>

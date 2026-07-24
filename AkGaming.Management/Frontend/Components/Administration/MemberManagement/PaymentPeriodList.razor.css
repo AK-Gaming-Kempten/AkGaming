@@ -1,0 +1,40 @@
+.payment-period-list {
+    display: grid;
+    gap: 0.75rem;
+}
+
+.payment-period-entry {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 1rem;
+    width: 100%;
+    color: var(--color-text-primary);
+    text-align: left;
+    cursor: pointer;
+}
+
+.payment-period-entry:hover {
+    border-color: var(--color-highlight-primary);
+    background: color-mix(in srgb, var(--color-highlight-secondary) 8%, var(--color-background-primary));
+}
+
+.payment-period-entry:disabled {
+    cursor: wait;
+    opacity: 0.7;
+}
+
+.payment-period-icon {
+    font-size: 1.5rem;
+    color: var(--color-highlight-primary);
+}
+
+.payment-period-content {
+    display: grid;
+    gap: 0.2rem;
+}
+
+.payment-period-content span,
+.payment-period-content small {
+    color: var(--color-text-secondary);
+}
