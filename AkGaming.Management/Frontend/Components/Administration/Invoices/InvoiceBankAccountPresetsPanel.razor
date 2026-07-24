@@ -1,18 +1,18 @@
 <div class="preset-panel ui-stack-md">
     <section class="panel preset-toolbar">
-        <div><h3 class="ui-title">Bank account presets</h3><span class="ui-text-muted">Reusable payment account details.</span></div>
+        <div><h3 class="ui-title">@Text["Bank_Title"]</h3><span class="ui-text-muted">@Text["Bank_Description"]</span></div>
         <ActionButton Kind="@(_showCreate ? ActionButtonKind.Cancel : ActionButtonKind.Create)" Variant="@(_showCreate ? ActionButtonVariant.Outline : ActionButtonVariant.Primary)" OnClick="ToggleCreate" Disabled="_isBusy" Label="@(_showCreate ? "Cancel creation" : "Create bank account preset")" />
     </section>
     @if (!string.IsNullOrWhiteSpace(_error)) { <p class="text-danger">@_error</p> }
     @if (!string.IsNullOrWhiteSpace(_status)) { <p class="text-success">@_status</p> }
     <div class="preset-layout two-column-layout mobile-master-detail @(_isMobileDetailOpen ? "mobile-detail-open" : string.Empty)">
-        <section class="panel preset-list-pane two-column-layout-left"><h4 class="ui-title">Presets</h4>
-            @if (_presets is null) { <p>Loading presets...</p> }
-            else if (_presets.Count == 0) { <p>No bank account presets have been created.</p> }
+        <section class="panel preset-list-pane two-column-layout-left"><h4 class="ui-title">@Text["Presets_Title"]</h4>
+            @if (_presets is null) { <p>@Text["Presets_Loading"]</p> }
+            else if (_presets.Count == 0) { <p>@Text["Bank_None"]</p> }
             else { <div class="list-scroll-container"><div class="preset-list preview-card-list">@foreach (var preset in _presets) { <button type="button" class="preset-entry @(preset.Id == _editing.Id ? "active" : "")" @onclick="() => Select(preset)"><strong>@preset.Label</strong><span>@(preset.BankDetails.AccountHolder ?? preset.BankDetails.Iban)</span></button> }</div></div> }
         </section>
         <section class="preset-detail-pane two-column-layout-right">
-            <div class="mobile-detail-nav"><ActionButton Kind="ActionButtonKind.Back" Variant="ActionButtonVariant.Outline" Size="ActionButtonSize.Small" OnClick="ShowListMobile" Label="Back to bank accounts" /></div>
+            <div class="mobile-detail-nav"><ActionButton Kind="ActionButtonKind.Back" Variant="ActionButtonVariant.Outline" Size="ActionButtonSize.Small" OnClick="ShowListMobile" Label="@SharedText["Action_BackToList"]" /></div>
             @if (_showCreate || _editing.Id != Guid.Empty) { @Form(_showCreate ? "New preset" : "Edit preset") }
         </section>
     </div>

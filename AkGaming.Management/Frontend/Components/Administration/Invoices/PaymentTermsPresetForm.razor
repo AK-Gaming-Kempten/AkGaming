@@ -3,18 +3,18 @@
 <section class="panel payment-terms-preset-form ui-stack-md">
     <h4 class="ui-title">@Title</h4>
     <div class="ui-field">
-        <label>Preset label</label>
+        <label>@Text["Presets_Label"]</label>
         <InputText @bind-Value="Model.Label" />
     </div>
     <div class="ui-field">
-        <label>Payment terms</label>
+        <label>@Text["Invoice_PaymentTerms"]</label>
         <InputTextArea @bind-Value="Model.Terms" />
     </div>
     <div class="ui-actions">
-        <ActionButton Kind="ActionButtonKind.Save" Variant="ActionButtonVariant.Primary" OnClick="SaveAsync" Disabled="IsBusy" Label="Save payment terms preset" />
+        <ActionButton Kind="ActionButtonKind.Save" Variant="ActionButtonVariant.Primary" OnClick="SaveAsync" Disabled="IsBusy" Label="@SharedText["Action_Save"]" />
         @if (ShowDelete)
         {
-            <ActionButton Kind="ActionButtonKind.Delete" Variant="ActionButtonVariant.Danger" OnClick="DeleteAsync" Disabled="IsBusy" Label="Delete payment terms preset" />
+            <ActionButton Kind="ActionButtonKind.Delete" Variant="ActionButtonVariant.Danger" OnClick="DeleteAsync" Disabled="IsBusy" Label="@SharedText["Action_Delete"]" />
         }
         @if (OnCancel.HasDelegate)
         {

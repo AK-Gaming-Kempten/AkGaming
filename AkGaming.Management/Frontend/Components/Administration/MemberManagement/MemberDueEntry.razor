@@ -11,7 +11,7 @@
         </div>
 
         <div class="due-entry-meta">
-            <span class="due-entry-status @GetStatusClass(Due.Status)">Status: @Due.Status</span>
+            <span class="due-entry-status @GetStatusClass(Due.Status)">@SharedText["Field_Status"]: @Due.Status.ToLocalizedString(SharedText)</span>
             <span>Due: @Due.DueAmount.ToString("0.00")</span>
             <span>Paid: @(Due.PaidAmount?.ToString("0.00") ?? "-")</span>
             <span>Due date: @Due.DueDate</span>
@@ -73,45 +73,45 @@
         <div class="ui-divider-top-dashed due-entry-editor">
             <div class="ui-grid-auto-180 due-entry-grid">
                 <div>
-                    <label>Status</label>
+                    <label>@SharedText["Field_Status"]</label>
                     <InputSelect @bind-Value="_editingDue.Status">
                         @foreach (var status in _statuses) {
-                            <option value="@status">@status</option>
+                            <option value="@status">@status.ToLocalizedString(SharedText)</option>
                         }
                     </InputSelect>
                 </div>
 
                 <div>
-                    <label>Due amount</label>
+                    <label>@SharedText["Field_DueAmount"]</label>
                     <InputNumber @bind-Value="_editingDue.DueAmount" />
                 </div>
 
                 <div>
-                    <label>Paid amount</label>
+                    <label>@SharedText["Field_PaidAmount"]</label>
                     <InputNumber @bind-Value="_editingDue.PaidAmount" />
                 </div>
 
                 <div>
-                    <label>Due date</label>
+                    <label>@SharedText["Field_DueDate"]</label>
                     <InputDate @bind-Value="_editingDue.DueDate" />
                 </div>
 
                 <div>
-                    <label>Settled at</label>
+                    <label>@SharedText["Field_SettledAt"]</label>
                     <input type="datetime-local"
                            value="@GetSettledAtValue(_editingDue.SettledAt)"
                            @onchange="SetSettledAt" />
                 </div>
 
                 <div>
-                    <label>Reference</label>
+                    <label>@SharedText["Field_Reference"]</label>
                     <InputText @bind-Value="_editingDue.SettlementReference" />
                 </div>
             </div>
 
             <div class="ui-actions due-entry-actions">
-                <ActionButton Kind="ActionButtonKind.Save" Variant="ActionButtonVariant.Primary" Size="ActionButtonSize.Small" OnClick="SaveDueAsync" Disabled="IsSaving" Label="Save due" />
-                <ActionButton Kind="ActionButtonKind.Cancel" Variant="ActionButtonVariant.Outline" Size="ActionButtonSize.Small" OnClick="CancelEditing" Disabled="IsSaving" Label="Cancel due editing" />
+                <ActionButton Kind="ActionButtonKind.Save" Variant="ActionButtonVariant.Primary" Size="ActionButtonSize.Small" OnClick="SaveDueAsync" Disabled="IsSaving" Label="@SharedText["Action_Save"]" />
+                <ActionButton Kind="ActionButtonKind.Cancel" Variant="ActionButtonVariant.Outline" Size="ActionButtonSize.Small" OnClick="CancelEditing" Disabled="IsSaving" Label="@SharedText["Action_Cancel"]" />
             </div>
         </div>
     }
@@ -126,27 +126,27 @@
             }
             else if (_reminderPreview is not null) {
                 <div class="ui-actions">
-                    <ActionButton Kind="ActionButtonKind.DownloadPdf" Variant="ActionButtonVariant.Primary" Size="ActionButtonSize.Small" OnClick="DownloadReminderPdfAsync" Disabled="_downloadingReminderPdf" Label="Download reminder PDF" />
+                    <ActionButton Kind="ActionButtonKind.DownloadPdf" Variant="ActionButtonVariant.Primary" Size="ActionButtonSize.Small" OnClick="DownloadReminderPdfAsync" Disabled="_downloadingReminderPdf" Label="@SharedText["Action_Download"]" />
                 </div>
                 <div class="due-email-preview-meta">
                     <div>
-                        <label>Recipient</label>
+                        <label>@SharedText["Field_Recipient"]</label>
                         <div class="due-email-preview-value">@_reminderPreview.RecipientDisplayName (@_reminderPreview.RecipientEmail)</div>
                     </div>
                     <div>
-                        <label>Subject</label>
+                        <label>@SharedText["Field_Subject"]</label>
                         <div class="due-email-preview-value">@_reminderPreview.Subject</div>
                     </div>
                 </div>
 
                 <div class="due-email-preview-sections">
                     <div class="due-email-preview-section">
-                        <label>Fallback text</label>
+                        <label>@SharedText["Field_FallbackText"]</label>
                         <textarea class="due-email-preview-text" readonly>@_reminderPreview.TextBody</textarea>
                     </div>
 
                     <div class="due-email-preview-section">
-                        <label>HTML preview</label>
+                        <label>@SharedText["Field_HtmlPreview"]</label>
                         <div class="due-email-preview-render">@ReminderHtmlPreview</div>
                     </div>
                 </div>
@@ -164,27 +164,27 @@
             }
             else if (_suspensionPreview is not null) {
                 <div class="ui-actions">
-                    <ActionButton Kind="ActionButtonKind.DownloadPdf" Variant="ActionButtonVariant.Primary" Size="ActionButtonSize.Small" OnClick="DownloadSuspensionPdfAsync" Disabled="_downloadingSuspensionPdf" Label="Download suspension PDF" />
+                    <ActionButton Kind="ActionButtonKind.DownloadPdf" Variant="ActionButtonVariant.Primary" Size="ActionButtonSize.Small" OnClick="DownloadSuspensionPdfAsync" Disabled="_downloadingSuspensionPdf" Label="@SharedText["Action_Download"]" />
                 </div>
                 <div class="due-email-preview-meta">
                     <div>
-                        <label>Recipient</label>
+                        <label>@SharedText["Field_Recipient"]</label>
                         <div class="due-email-preview-value">@_suspensionPreview.RecipientDisplayName (@_suspensionPreview.RecipientEmail)</div>
                     </div>
                     <div>
-                        <label>Subject</label>
+                        <label>@SharedText["Field_Subject"]</label>
                         <div class="due-email-preview-value">@_suspensionPreview.Subject</div>
                     </div>
                 </div>
 
                 <div class="due-email-preview-sections">
                     <div class="due-email-preview-section">
-                        <label>Fallback text</label>
+                        <label>@SharedText["Field_FallbackText"]</label>
                         <textarea class="due-email-preview-text" readonly>@_suspensionPreview.TextBody</textarea>
                     </div>
 
                     <div class="due-email-preview-section">
-                        <label>HTML preview</label>
+                        <label>@SharedText["Field_HtmlPreview"]</label>
                         <div class="due-email-preview-render">@SuspensionHtmlPreview</div>
                     </div>
                 </div>

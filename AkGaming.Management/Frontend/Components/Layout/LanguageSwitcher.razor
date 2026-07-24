@@ -1,0 +1,22 @@
+@inject NavigationManager Navigation
+@inject IStringLocalizer<NavigationStrings> Text
+
+<div class="language-switcher-box">
+    <div class="language-switcher-control" role="radiogroup" aria-label="@Text["Language_AriaLabel"]">
+        <span class="bi bi-translate" aria-hidden="true"></span>
+        <button type="button"
+                role="radio"
+                aria-checked="@IsEnglish"
+                title="@Text["Language_English"]"
+                @onclick="SelectEnglish">
+            EN
+        </button>
+        <button type="button"
+                role="radio"
+                aria-checked="@IsGerman"
+                title="@Text["Language_German"]"
+                @onclick="SelectGerman">
+            DE
+        </button>
+    </div>
+</div>

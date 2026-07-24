@@ -2,18 +2,18 @@
 @using Microsoft.AspNetCore.Authorization
 @attribute [Authorize(Policy = "management.members.read")]
 
-<PageTitle>Trial Members</PageTitle>
+<PageTitle>@PageText["Page_TrialMembers_Title"]</PageTitle>
 
 <div class="two-column-layout mobile-master-detail @(_isMobileDetailOpen ? "mobile-detail-open" : string.Empty)">
     <div class="two-column-layout-left">
         <div class="list-buttons">
-            <h4>Trial Members</h4>
-            <ActionButton Kind="ActionButtonKind.Refresh" Variant="ActionButtonVariant.Primary" OnClick="LoadTrialMembersAsync" Label="Refresh trial members" />
+            <h4>@SharedText["Heading_TrialMembers"]</h4>
+            <ActionButton Kind="ActionButtonKind.Refresh" Variant="ActionButtonVariant.Primary" OnClick="LoadTrialMembersAsync" Label="@SharedText["Action_Refresh"]" />
         </div>
         <div class="list-main">
             @if (_isLoading)
             {
-                <p>Loading trial members...</p>
+                <p>@SharedText["State_LoadingTrialMembers"]</p>
             }
             else if (!string.IsNullOrWhiteSpace(_loadError))
             {
@@ -21,7 +21,7 @@
             }
             else if (_trialMembers.Count == 0)
             {
-                <p>No members currently in trial.</p>
+                <p>@SharedText["State_NoTrialMembers"]</p>
             }
             else
             {
@@ -51,12 +51,12 @@
                                             @if (trial.IsExpired)
                                             {
                                                 <span class="expired-badge">EXPIRED</span>
-                                                <span>Ended on @trial.EndDate.ToString("yyyy-MM-dd")</span>
+                                                <span>Ended on @trial.EndDate.ToString("d")</span>
                                             }
                                             else
                                             {
                                                 <span>@trial.DaysRemaining day(s) remaining</span>
-                                                <span class="trial-end-date">(until @trial.EndDate.ToString("yyyy-MM-dd"))</span>
+                                                <span class="trial-end-date">(until @trial.EndDate.ToString("d"))</span>
                                             }
                                         </div>
                                     }
@@ -71,7 +71,7 @@
 
     <div class="two-column-layout-right">
         <div class="mobile-detail-nav">
-            <ActionButton Kind="ActionButtonKind.Back" Variant="ActionButtonVariant.Outline" Size="ActionButtonSize.Small" OnClick="ShowListMobile" Label="Back to trial members" />
+            <ActionButton Kind="ActionButtonKind.Back" Variant="ActionButtonVariant.Outline" Size="ActionButtonSize.Small" OnClick="ShowListMobile" Label="@SharedText["Action_BackToList"]" />
         </div>
         <CascadingValue Value="MemberApi" Name="MemberManagementApi" IsFixed="true">
             <MemberCard Member="_selectedMember" IsEditable="_canManageMemberDetails" IsStatusEditable="_canManageMemberStatus" OnMemberUpdated="ReloadAfterUpdate" />

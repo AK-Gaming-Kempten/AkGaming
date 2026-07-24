@@ -4,7 +4,7 @@
 @using AkGaming.Management.Modules.MemberManagement.Contracts.Enums
 @attribute [Authorize(Policy = "management.dues.read")]
 
-<PageTitle>Membership Dues</PageTitle>
+<PageTitle>@PageText["Page_MemberDues_Title"]</PageTitle>
 
 <div class="dues-management-page-shell">
     <div class="ui-stack-md dues-management-page @(_isReminderDialogOpen || _isSuspensionDialogOpen ? "dues-management-page-dialog-open" : string.Empty)"
@@ -12,10 +12,10 @@
          aria-hidden="@(_isReminderDialogOpen || _isSuspensionDialogOpen ? "true" : null)">
         <div class="ui-grid-2 dues-top-grid">
             <section class="panel dues-card dues-controls-card">
-                <h4 class="ui-title">Controls</h4>
+                <h4 class="ui-title">@SharedText["Heading_Controls"]</h4>
                 <div class="ui-grid-auto-160 dues-toolbar">
                     <div class="ui-field dues-control">
-                        <label for="payment-period-select">Payment period</label>
+                        <label for="payment-period-select">@SharedText["Field_PaymentPeriod"]</label>
                         <select id="payment-period-select"
                                 class="ui-select-sm"
                                 value="@_selectedPaymentPeriodId"
@@ -33,17 +33,17 @@
                     </div>
 
                     <div class="ui-field dues-control">
-                        <label for="member-display-mode">Member display</label>
+                        <label for="member-display-mode">@SharedText["Field_MemberDisplay"]</label>
                         <InputSelect id="member-display-mode"
                                      class="ui-select-sm"
                                      @bind-Value="_memberDisplayMode">
-                            <option value="@MemberDisplayMode.FullName">Full name</option>
-                            <option value="@MemberDisplayMode.MemberId">Member ID</option>
+                            <option value="@MemberDisplayMode.FullName">@SharedText["Field_FullName"]</option>
+                            <option value="@MemberDisplayMode.MemberId">@SharedText["Field_MemberId"]</option>
                         </InputSelect>
                     </div>
 
                     <div class="ui-field dues-control">
-                        <label for="member-name-filter">Filter by name</label>
+                        <label for="member-name-filter">@SharedText["Action_FilterByName"]</label>
                         <InputText id="member-name-filter"
                                    class="ui-input-sm"
                                    placeholder="Search member"
@@ -51,21 +51,21 @@
                     </div>
 
                     <div class="ui-field dues-control">
-                        <label for="status-filter">Filter by status</label>
+                        <label for="status-filter">@SharedText["Action_FilterByStatus"]</label>
                         <InputSelect id="status-filter"
                                      class="ui-select-sm"
                                      @bind-Value="_selectedStatusFilter">
-                            <option value="">All statuses</option>
+                            <option value="">@SharedText["Field_AllStatuses"]</option>
                             @foreach (var status in Enum.GetValues<MembershipDueStatus>()) {
-                                <option value="@status">@status</option>
+                                <option value="@status">@status.ToLocalizedString(SharedText)</option>
                             }
                         </InputSelect>
                     </div>
 
                     <div class="ui-actions dues-control-actions">
-                        <ActionButton Kind="ActionButtonKind.Refresh" Size="ActionButtonSize.Small" OnClick="() => LoadPaymentPeriodsAsync(true)" Disabled="@(_loadingPaymentPeriods || _loadingDues)" Label="Refresh dues" />
+                        <ActionButton Kind="ActionButtonKind.Refresh" Size="ActionButtonSize.Small" OnClick="() => LoadPaymentPeriodsAsync(true)" Disabled="@(_loadingPaymentPeriods || _loadingDues)" Label="@SharedText["Action_Refresh"]" />
                         @if (_canDispatchDues) {
-                            <ActionButton Kind="ActionButtonKind.Send" Variant="ActionButtonVariant.Primary" Size="ActionButtonSize.Small" OnClick="OpenBulkReminderDialogAsync" Disabled="@(_selectedPaymentPeriodId is null || _loadingPaymentPeriods || _loadingDues)" Label="Send all reminders" />
+                            <ActionButton Kind="ActionButtonKind.Send" Variant="ActionButtonVariant.Primary" Size="ActionButtonSize.Small" OnClick="OpenBulkReminderDialogAsync" Disabled="@(_selectedPaymentPeriodId is null || _loadingPaymentPeriods || _loadingDues)" Label="@SharedText["Action_Send"]" />
                         }
                         @if (_canManageDues) {
                             <ActionButton Kind="@(_showCreatePeriodForm ? ActionButtonKind.Cancel : ActionButtonKind.Create)" Variant="ActionButtonVariant.Outline" Size="ActionButtonSize.Small" OnClick="ToggleCreatePeriodForm" Label="@(_showCreatePeriodForm ? "Hide create period" : "Create period")" />
@@ -77,29 +77,29 @@
                     <EditForm Model="_createRequest" OnValidSubmit="CreatePaymentPeriodAsync">
                         <div class="ui-grid-auto-180 dues-create-grid">
                             <div>
-                                <label>Name</label>
+                                <label>@SharedText["Field_Name"]</label>
                                 <InputText @bind-Value="_createRequest.Name" />
                             </div>
                             <div>
-                                <label>Due date</label>
+                                <label>@SharedText["Field_DueDate"]</label>
                                 <InputDate @bind-Value="_createRequest.DueDate" />
                             </div>
                             <div>
-                                <label>Default amount (€)</label>
+                                <label>@SharedText["Field_DefaultAmount"]</label>
                                 <InputNumber @bind-Value="_createRequest.DefaultDueAmount" />
                             </div>
                             <div>
-                                <label>Reduced amount (€)</label>
+                                <label>@SharedText["Field_ReducedAmount"]</label>
                                 <InputNumber @bind-Value="_createRequest.ReducedDueAmount" />
                             </div>
                         </div>
-                        <ActionButton Kind="ActionButtonKind.Create" Variant="ActionButtonVariant.Primary" Size="ActionButtonSize.Small" ButtonType="submit" Disabled="_creatingPeriod" Label="Create period and dues" />
+                        <ActionButton Kind="ActionButtonKind.Create" Variant="ActionButtonVariant.Primary" Size="ActionButtonSize.Small" ButtonType="submit" Disabled="_creatingPeriod" Label="@SharedText["Action_Create"]" />
                     </EditForm>
                 }
             </section>
 
             <section class="panel dues-card dues-summary-card">
-                <h4 class="ui-title">Summary</h4>
+                <h4 class="ui-title">@SharedText["Heading_Summary"]</h4>
                 <div class="dues-dashboard">
                     <div class="dues-half-pie-shell">
                         <div class="dues-half-pie" style="@GetHalfPieStyle()">
@@ -124,7 +124,7 @@
             <div class="dues-list-header">
                 <h4 class="ui-title">Payment Period Dues</h4>
                 @if (_canDispatchDues && _selectedPaymentPeriodId is not null) {
-                    <ActionButton Kind="ActionButtonKind.Send" Variant="ActionButtonVariant.Primary" Size="ActionButtonSize.Small" OnClick="OpenBulkReminderDialogAsync" Disabled="@(_loadingPaymentPeriods || _loadingDues)" Label="Send all reminders" />
+                    <ActionButton Kind="ActionButtonKind.Send" Variant="ActionButtonVariant.Primary" Size="ActionButtonSize.Small" OnClick="OpenBulkReminderDialogAsync" Disabled="@(_loadingPaymentPeriods || _loadingDues)" Label="@SharedText["Action_Send"]" />
                 }
             </div>
             @if (!string.IsNullOrWhiteSpace(_statusMessage)) {
@@ -134,14 +134,14 @@
                 <p class="text-danger">@_errorMessage</p>
             }
             @if (_loadingPaymentPeriods || _loadingDues) {
-                <p>Loading dues...</p>
+                <p>@SharedText["State_LoadingDues"]</p>
             }
             else if (_selectedPaymentPeriodId is null) {
-                <p>No payment periods exist yet.</p>
+                <p>@SharedText["State_NoPaymentPeriods"]</p>
             }
             else {
                 @if (_dues.Count == 0) {
-                    <p>No dues found for this payment period.</p>
+                    <p>@SharedText["State_NoDues"]</p>
                 }
                 else {
                     <div class="ui-list dues-entry-list">
@@ -168,10 +168,10 @@
             <section class="panel dues-reminder-dialog">
                 <header class="dues-reminder-dialog-header">
                     <div>
-                        <p class="dues-reminder-dialog-eyebrow">Reminder Dispatch</p>
+                        <p class="dues-reminder-dialog-eyebrow">@SharedText["Heading_ReminderDispatch"]</p>
                         <h3 id="dues-reminder-dialog-title">@ReminderDialogTitle</h3>
                     </div>
-                    <ActionButton Kind="ActionButtonKind.Close" Variant="ActionButtonVariant.Outline" Size="ActionButtonSize.Small" OnClick="CloseReminderDialog" Disabled="_sendingReminderDispatch" Label="Close reminder dialog" />
+                    <ActionButton Kind="ActionButtonKind.Close" Variant="ActionButtonVariant.Outline" Size="ActionButtonSize.Small" OnClick="CloseReminderDialog" Disabled="_sendingReminderDispatch" Label="@SharedText["Action_Close"]" />
                 </header>
 
                 @if (_loadingReminderDispatchPreview) {
@@ -192,9 +192,9 @@
 
                     <div class="dues-reminder-dialog-columns">
                         <section class="dues-reminder-card">
-                            <h4>Recipients</h4>
+                            <h4>@SharedText["Field_Recipients"]</h4>
                             @if (_dispatchRecipientStates.Count == 0) {
-                                <p>No eligible reminder recipients.</p>
+                                <p>@SharedText["State_NoReminderRecipients"]</p>
                             }
                             else {
                                 <div class="dues-reminder-list">
@@ -225,7 +225,7 @@
                         <section class="dues-reminder-card">
                             <h4>Will not receive mail</h4>
                             @if (_reminderDispatchPreview.SkippedMembers.Count == 0) {
-                                <p>No skipped members.</p>
+                                <p>@SharedText["State_NoSkippedMembers"]</p>
                             }
                             else {
                                 <div class="dues-reminder-list">
@@ -244,7 +244,7 @@
 
                     <footer class="dues-reminder-dialog-actions">
                         @if (_canDispatchDues && !_sendingReminderDispatchCompleted && _dispatchRecipientStates.Count > 0) {
-                            <ActionButton Kind="ActionButtonKind.Send" Variant="ActionButtonVariant.Primary" OnClick="SendReminderDispatchAsync" Disabled="@(_sendingReminderDispatch || _loadingReminderDispatchPreview)" Label="Send reminders" />
+                            <ActionButton Kind="ActionButtonKind.Send" Variant="ActionButtonVariant.Primary" OnClick="SendReminderDispatchAsync" Disabled="@(_sendingReminderDispatch || _loadingReminderDispatchPreview)" Label="@SharedText["Action_Send"]" />
                         }
                         <ActionButton Kind="@(_sendingReminderDispatchCompleted || _dispatchRecipientStates.Count == 0 ? ActionButtonKind.Close : ActionButtonKind.Cancel)" OnClick="CloseReminderDialog" Disabled="_sendingReminderDispatch" Label="@(_sendingReminderDispatchCompleted || _dispatchRecipientStates.Count == 0 ? "Close" : "Cancel")" />
                     </footer>
@@ -259,10 +259,10 @@
             <section class="panel dues-reminder-dialog">
                 <header class="dues-reminder-dialog-header">
                     <div>
-                        <p class="dues-reminder-dialog-eyebrow">Suspension Mail</p>
+                        <p class="dues-reminder-dialog-eyebrow">@SharedText["Heading_SuspensionMail"]</p>
                         <h3 id="dues-suspension-dialog-title">@SuspensionDialogTitle</h3>
                     </div>
-                    <ActionButton Kind="ActionButtonKind.Close" Variant="ActionButtonVariant.Outline" Size="ActionButtonSize.Small" OnClick="CloseSuspensionDialog" Disabled="_sendingSuspension" Label="Close suspension dialog" />
+                    <ActionButton Kind="ActionButtonKind.Close" Variant="ActionButtonVariant.Outline" Size="ActionButtonSize.Small" OnClick="CloseSuspensionDialog" Disabled="_sendingSuspension" Label="@SharedText["Action_Close"]" />
                 </header>
 
                 @if (_loadingSuspensionPreview) {
@@ -280,23 +280,23 @@
                     <div class="due-email-preview">
                         <div class="due-email-preview-meta">
                             <div>
-                                <label>Recipient</label>
+                                <label>@SharedText["Field_Recipient"]</label>
                                 <div class="due-email-preview-value">@_suspensionPreview.RecipientDisplayName (@_suspensionPreview.RecipientEmail)</div>
                             </div>
                             <div>
-                                <label>Subject</label>
+                                <label>@SharedText["Field_Subject"]</label>
                                 <div class="due-email-preview-value">@_suspensionPreview.Subject</div>
                             </div>
                         </div>
 
                         <div class="due-email-preview-sections">
                             <div class="due-email-preview-section">
-                                <label>Fallback text</label>
+                                <label>@SharedText["Field_FallbackText"]</label>
                                 <textarea class="due-email-preview-text" readonly>@_suspensionPreview.TextBody</textarea>
                             </div>
 
                             <div class="due-email-preview-section">
-                                <label>HTML preview</label>
+                                <label>@SharedText["Field_HtmlPreview"]</label>
                                 <div class="due-email-preview-render">@SuspensionHtmlPreview</div>
                             </div>
                         </div>
@@ -304,8 +304,8 @@
 
                     <footer class="dues-reminder-dialog-actions">
                         @if (_canDispatchDues) {
-                            <ActionButton Kind="ActionButtonKind.DownloadPdf" Variant="ActionButtonVariant.Primary" OnClick="DownloadSuspensionPdfAsync" Disabled="@(_downloadingSuspensionPdf || _loadingSuspensionPreview)" Label="Download suspension PDF" />
-                            <ActionButton Kind="ActionButtonKind.Send" Variant="ActionButtonVariant.Danger" OnClick="SendSuspensionAsync" Disabled="@(_sendingSuspension || _loadingSuspensionPreview)" Label="Send suspension and suspend member" />
+                            <ActionButton Kind="ActionButtonKind.DownloadPdf" Variant="ActionButtonVariant.Primary" OnClick="DownloadSuspensionPdfAsync" Disabled="@(_downloadingSuspensionPdf || _loadingSuspensionPreview)" Label="@SharedText["Action_Download"]" />
+                            <ActionButton Kind="ActionButtonKind.Send" Variant="ActionButtonVariant.Danger" OnClick="SendSuspensionAsync" Disabled="@(_sendingSuspension || _loadingSuspensionPreview)" Label="@SharedText["Action_Send"]" />
                         }
                         <ActionButton Kind="ActionButtonKind.Cancel" OnClick="CloseSuspensionDialog" Disabled="_sendingSuspension" />
                     </footer>

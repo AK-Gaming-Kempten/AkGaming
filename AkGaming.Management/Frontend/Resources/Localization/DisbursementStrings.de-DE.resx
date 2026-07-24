@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms</value></resheader>
+  <data name="Events_Title" xml:space="preserve"><value>Auszahlungsveranstaltungen</value></data>
+  <data name="Events_Description" xml:space="preserve"><value>Preispools und andere veranstaltungsbezogene Auszahlungen erstellen.</value></data>
+  <data name="Events_New" xml:space="preserve"><value>Neue Veranstaltung</value></data>
+  <data name="Events_Create" xml:space="preserve"><value>Veranstaltung erstellen</value></data>
+  <data name="Events_None" xml:space="preserve"><value>Keine Auszahlungsveranstaltungen vorhanden.</value></data>
+  <data name="Events_NoDate" xml:space="preserve"><value>Kein Veranstaltungsdatum</value></data>
+  <data name="Event_AddAllocation" xml:space="preserve"><value>Zuteilung hinzufügen</value></data>
+  <data name="Event_CreateAllocation" xml:space="preserve"><value>Zuteilung erstellen</value></data>
+  <data name="Event_NoAllocations" xml:space="preserve"><value>Noch keine Zuteilungen.</value></data>
+  <data name="Event_CopyClaimLink" xml:space="preserve"><value>Antragslink kopieren</value></data>
+  <data name="Event_NoApplications" xml:space="preserve"><value>Keine Anträge.</value></data>
+  <data name="Reimbursements_Title" xml:space="preserve"><value>Auslagenerstattungen</value></data>
+  <data name="Reimbursements_Description" xml:space="preserve"><value>Für den Verein bezahlte Ausgaben einreichen und deren Auszahlungsstatus verfolgen.</value></data>
+  <data name="Reimbursements_New" xml:space="preserve"><value>Neue Erstattung</value></data>
+  <data name="Reimbursements_CloseForm" xml:space="preserve"><value>Formular schließen</value></data>
+  <data name="Reimbursements_AdditionalNote" xml:space="preserve"><value>Zusätzliche Notiz</value></data>
+  <data name="Reimbursements_AddExpense" xml:space="preserve"><value>Ausgabe hinzufügen</value></data>
+  <data name="Reimbursements_Submit" xml:space="preserve"><value>Erstattung einreichen</value></data>
+  <data name="Reimbursements_YourCases" xml:space="preserve"><value>Deine Vorgänge</value></data>
+  <data name="Reimbursements_None" xml:space="preserve"><value>Noch keine Erstattungen eingereicht.</value></data>
+  <data name="Reimbursements_AdminNone" xml:space="preserve"><value>Keine Erstattungsvorgänge.</value></data>
+  <data name="Reimbursements_Total" xml:space="preserve"><value>Gesamt:</value></data>
+  <data name="Allocation_Loading" xml:space="preserve"><value>Zuteilung wird geladen…</value></data>
+  <data name="Allocation_ApplyTitle" xml:space="preserve"><value>Diese Zuteilung beantragen</value></data>
+  <data name="Allocation_Submit" xml:space="preserve"><value>Antrag einreichen</value></data>
+  <data name="Allocation_Applications" xml:space="preserve"><value>Anträge</value></data>
+  <data name="Allocation_None" xml:space="preserve"><value>Es wurden noch keine Anträge eingereicht.</value></data>
+  <data name="Allocation_ApproveQuestion" xml:space="preserve"><value>Stimmst du dieser Auszahlung zu?</value></data>
+  <data name="Allocation_Approve" xml:space="preserve"><value>Zustimmen</value></data>
+  <data name="Allocation_Object" xml:space="preserve"><value>Widersprechen</value></data>
+  <data name="Allocation_MyNone" xml:space="preserve"><value>Du hast noch mit keiner Zuteilung interagiert. Die Links werden direkt von den Veranstaltern geteilt.</value></data>
+  <data name="Payment_Method" xml:space="preserve"><value>Auszahlungsweg</value></data>
+  <data name="Payment_None" xml:space="preserve"><value>Kein Zahlungsweg verfügbar</value></data>
+  <data name="Payment_NoneHelp" xml:space="preserve"><value>Füge in einem separaten Tab einen Zahlungsweg zu deinem Profil hinzu und aktualisiere anschließend diese Liste. Deine Eingaben bleiben erhalten.</value></data>
+  <data name="Payment_OpenProfile" xml:space="preserve"><value>Profil öffnen</value></data>
+  <data name="Payment_Snapshot" xml:space="preserve"><value>Gespeichertes Auszahlungsziel</value></data>
+  <data name="Payment_SnapshotHelp" xml:space="preserve"><value>Dies sind genau die Daten, die beim Einreichen des Auszahlungsantrags ausgewählt wurden.</value></data>
+  <data name="Payment_AccountHolder" xml:space="preserve"><value>Kontoinhaber</value></data>
+  <data name="Payment_BankAccount" xml:space="preserve"><value>Bankkonto</value></data>
+  <data name="Expense_Receipts" xml:space="preserve"><value>Belege</value></data>
+  <data name="Expense_FileHelp" xml:space="preserve"><value>PDF oder Bild, maximal 10 MB pro Datei.</value></data>
+  <data name="Case_InternalNote" xml:space="preserve"><value>Interne Notiz</value></data>
+  <data name="Case_SaveStatus" xml:space="preserve"><value>Status speichern</value></data>
+  <data name="Case_Update" xml:space="preserve"><value>Aktualisierung:</value></data>
+  <data name="Case_Cancel" xml:space="preserve"><value>Erstattung stornieren</value></data>
+</root>

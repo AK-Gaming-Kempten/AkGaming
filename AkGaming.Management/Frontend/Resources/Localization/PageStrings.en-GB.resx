@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms</value></resheader>
+  <data name="Page_Management_Title" xml:space="preserve"><value>Management</value></data>
+  <data name="Page_Management_Description" xml:space="preserve"><value>Manage AK Gaming's organisational work.</value></data>
+  <data name="Page_Home_Title" xml:space="preserve"><value>Welcome to the Management Tool</value></data>
+  <data name="Page_Home_Description" xml:space="preserve"><value>Your central workspace for membership, finances, meetings, and administration.</value></data>
+  <data name="Page_Home_Teaser" xml:space="preserve"><value>Early modules are live, and more features are on the way. Please report any issues you encounter.</value></data>
+  <data name="Page_AccessDenied_Title" xml:space="preserve"><value>Access denied</value></data>
+  <data name="Page_AccessDenied_Description" xml:space="preserve"><value>Your account does not have permission to open this area.</value></data>
+  <data name="Page_Error_Title" xml:space="preserve"><value>Something went wrong</value></data>
+  <data name="Page_Error_Description" xml:space="preserve"><value>The requested operation could not be completed.</value></data>
+  <data name="Page_Debug_Title" xml:space="preserve"><value>Diagnostics</value></data>
+  <data name="Page_Debug_Description" xml:space="preserve"><value>Inspect authentication, culture, claims, and API connectivity.</value></data>
+  <data name="Page_Profile_Title" xml:space="preserve"><value>My profile</value></data>
+  <data name="Page_Profile_Description" xml:space="preserve"><value>Review your membership information, payments, dues, and applications.</value></data>
+  <data name="Page_GeneralMeetings_Title" xml:space="preserve"><value>General meetings</value></data>
+  <data name="Page_GeneralMeetings_Description" xml:space="preserve"><value>Prepare, run, and record member meetings.</value></data>
+  <data name="Page_GeneralMeeting_Title" xml:space="preserve"><value>General meeting</value></data>
+  <data name="Page_GeneralMeeting_Description" xml:space="preserve"><value>Attend the meeting, follow the agenda, vote, and manage the minutes.</value></data>
+  <data name="Page_BoardMeetings_Title" xml:space="preserve"><value>Board meetings</value></data>
+  <data name="Page_BoardMeetings_Description" xml:space="preserve"><value>Schedule board meetings, forecast attendance, and prepare agendas.</value></data>
+  <data name="Page_BoardMeeting_Title" xml:space="preserve"><value>Board meeting</value></data>
+  <data name="Page_BoardMeeting_Description" xml:space="preserve"><value>Coordinate attendance, scheduling, and agenda work for this meeting.</value></data>
+  <data name="Page_MyReimbursements_Title" xml:space="preserve"><value>My reimbursements</value></data>
+  <data name="Page_MyReimbursements_Description" xml:space="preserve"><value>Submit club expenses and follow their review and payout status.</value></data>
+  <data name="Page_MyAllocations_Title" xml:space="preserve"><value>My allocations</value></data>
+  <data name="Page_MyAllocations_Description" xml:space="preserve"><value>Review event allocations where you applied or made a decision.</value></data>
+  <data name="Page_AllocationClaim_Title" xml:space="preserve"><value>Claim allocation</value></data>
+  <data name="Page_AllocationClaim_Description" xml:space="preserve"><value>Apply for a share of an event allocation and provide payout details.</value></data>
+  <data name="Page_ReimbursementsAdmin_Title" xml:space="preserve"><value>Reimbursement cases</value></data>
+  <data name="Page_ReimbursementsAdmin_Description" xml:space="preserve"><value>Review submitted expenses, receipts, payout details, and processing status.</value></data>
+  <data name="Page_DisbursementEvents_Title" xml:space="preserve"><value>Disbursement events</value></data>
+  <data name="Page_DisbursementEvents_Description" xml:space="preserve"><value>Create prize pools and other event-based payouts.</value></data>
+  <data name="Page_DisbursementEvent_Title" xml:space="preserve"><value>Disbursement event</value></data>
+  <data name="Page_DisbursementEvent_Description" xml:space="preserve"><value>Manage allocations, applications, approvals, and available funds.</value></data>
+  <data name="Page_Members_Title" xml:space="preserve"><value>Members</value></data>
+  <data name="Page_Members_Description" xml:space="preserve"><value>Find members and maintain their club and contact information.</value></data>
+  <data name="Page_TrialMembers_Title" xml:space="preserve"><value>Trial members</value></data>
+  <data name="Page_TrialMembers_Description" xml:space="preserve"><value>Review active and completed trial memberships.</value></data>
+  <data name="Page_MemberRequests_Title" xml:space="preserve"><value>Membership requests</value></data>
+  <data name="Page_MemberRequests_Description" xml:space="preserve"><value>Process membership applications and account-linking requests.</value></data>
+  <data name="Page_MemberDues_Title" xml:space="preserve"><value>Membership dues</value></data>
+  <data name="Page_MemberDues_Description" xml:space="preserve"><value>Track dues, payments, reminders, and outstanding balances.</value></data>
+  <data name="Page_MemberAudit_Title" xml:space="preserve"><value>Member audit log</value></data>
+  <data name="Page_MemberAudit_Description" xml:space="preserve"><value>Review administrative changes made to member records.</value></data>
+  <data name="Page_Invoices_Title" xml:space="preserve"><value>Invoices</value></data>
+  <data name="Page_Invoices_Description" xml:space="preserve"><value>Create, edit, preview, and regenerate stored invoices.</value></data>
+  <data name="Page_InvoicePresets_Title" xml:space="preserve"><value>Invoice presets</value></data>
+  <data name="Page_InvoicePresets_Description" xml:space="preserve"><value>Manage reusable invoice data in one place.</value></data>
+  <data name="Page_InvoiceParties_Title" xml:space="preserve"><value>Invoice party presets</value></data>
+  <data name="Page_InvoiceParties_Description" xml:space="preserve"><value>Maintain reusable seller and buyer addresses.</value></data>
+  <data name="Page_InvoicePaymentTerms_Title" xml:space="preserve"><value>Payment terms presets</value></data>
+  <data name="Page_InvoicePaymentTerms_Description" xml:space="preserve"><value>Maintain reusable payment instructions for invoices.</value></data>
+  <data name="Page_IdentityClients_Title" xml:space="preserve"><value>Identity clients</value></data>
+  <data name="Page_IdentityClients_Description" xml:space="preserve"><value>Configure applications that authenticate through AK Gaming Identity.</value></data>
+  <data name="Page_IdentityScopes_Title" xml:space="preserve"><value>Identity scopes</value></data>
+  <data name="Page_IdentityScopes_Description" xml:space="preserve"><value>Manage the API permissions applications may request.</value></data>
+  <data name="Page_IdentityRoles_Title" xml:space="preserve"><value>Identity roles</value></data>
+  <data name="Page_IdentityRoles_Description" xml:space="preserve"><value>Organise permissions into roles and assign them consistently.</value></data>
+  <data name="Page_IdentityUsers_Title" xml:space="preserve"><value>Identity users</value></data>
+  <data name="Page_IdentityUsers_Description" xml:space="preserve"><value>Find accounts and maintain their role assignments.</value></data>
+  <data name="Page_IdentityAudit_Title" xml:space="preserve"><value>Identity audit log</value></data>
+  <data name="Page_IdentityAudit_Description" xml:space="preserve"><value>Review security-relevant changes and identity events.</value></data>
+</root>

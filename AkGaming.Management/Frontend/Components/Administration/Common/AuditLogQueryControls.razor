@@ -9,8 +9,8 @@
                  ValueExpression="() => PageSize"
                  min="1"
                  max="200" />
-    <ActionButton Kind="ActionButtonKind.Search" OnClick="OnSearchClicked" Disabled="IsBusy" Label="Search audit logs" />
-    <ActionButton Kind="ActionButtonKind.Refresh" OnClick="OnRefreshClicked" Disabled="IsBusy" Label="Refresh audit logs" />
+    <ActionButton Kind="ActionButtonKind.Search" OnClick="OnSearchClicked" Disabled="IsBusy" Label="@SharedText["Action_Search"]" />
+    <ActionButton Kind="ActionButtonKind.Refresh" OnClick="OnRefreshClicked" Disabled="IsBusy" Label="@SharedText["Action_Refresh"]" />
 </div>
 
 @code {

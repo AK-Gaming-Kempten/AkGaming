@@ -1,18 +1,19 @@
 ﻿@inherits LayoutComponentBase
 @inject NavigationManager Nav
+@inject IStringLocalizer<NavigationStrings> Text
 
 <div class="page">
     <header class="mobile-header">
         <button type="button"
                 class="mobile-menu-toggle"
-                aria-label="Toggle navigation menu"
+                aria-label="@Text["Navigation_Toggle"]"
                 aria-expanded="@_isMobileNavOpen"
                 @onclick="ToggleMobileNav">
             <span class="bi bi-list"></span>
         </button>
         <div class="mobile-header-brand">
             <img src="images/icons/AKG_Logos/default.png" alt="AKGaming Logo" class="mobile-header-logo" />
-            <span>Management Tool</span>
+            <span>@Text["App_Name"]</span>
         </div>
     </header>
 
@@ -23,11 +24,15 @@
 
         @if (_isMobileNavOpen)
         {
-            <button type="button" class="sidebar-backdrop" aria-label="Close navigation menu" @onclick="CloseMobileNav"></button>
+            <button type="button" class="sidebar-backdrop" aria-label="@Text["Navigation_Close"]" @onclick="CloseMobileNav"></button>
         }
 
         <main @onclick="CloseMobileNavIfOpen">
             <article class="content @(IsHomeRoute ? "content-fullbleed" : string.Empty)">
+                @if (!IsHomeRoute)
+                {
+                    <PageBannerHost />
+                }
                 @Body
             </article>
         </main>

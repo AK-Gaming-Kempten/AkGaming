@@ -3,39 +3,39 @@
 <div class="member-form">
     <EditForm Model="@_profile" OnValidSubmit="@RequestMemberLinkingAsync">
         <DataAnnotationsValidator />
-        <h3> Request member linking </h3>
+        <h3>@Text["Link_Title"]</h3>
         <hr class="spacer" />
         <div class="form-grid">
             <div class="form-col">
-                <label>First Name</label>
+                <label>@Text["Profile_FirstName"]</label>
                 <InputText @bind-Value="_profile.FirstName" required />
             </div>
 
             <div class="form-col">
-                <label>Last Name</label>
+                <label>@Text["Profile_LastName"]</label>
                 <InputText @bind-Value="_profile.LastName" required />
             </div>
 
             <div class="form-col">
-                <label>Email</label>
+                <label>@SharedText["Field_Email"]</label>
                 <InputText @bind-Value="_profile.Email" required />
             </div>
 
             <div class="form-col">
-                <label>Discord Username</label>
+                <label>@Text["Profile_Discord"]</label>
                 <InputText @bind-Value="_profile.DiscordUserName" required />
             </div>
             <div class="form-col">
-                <label>Phone</label>
+                <label>@Text["Profile_Phone"]</label>
                 <InputText @bind-Value="_profile.Phone" />
             </div>
             <div class="form-col">
-                <label>Birth Date</label>
+                <label>@Text["Profile_BirthDate"]</label>
                 <InputDate @bind-Value="_profile.BirthDate" />
             </div>
 
             <div class="form-col">
-                <label>Reason</label>
+                <label>@SharedText["Field_Reason"]</label>
                 <InputSelect @bind-Value="_request.Reason" required >
                     @foreach (var s in Enum.GetValues<MemberLinkingRequestReason>()) {
                         <option value="@s">@s</option>
@@ -44,19 +44,19 @@
                 <ValidationMessage For="@(() => _request.Reason)" />
             </div>
         </div>
-        <h5>Address</h5>
+        <h5>@SharedText["Field_Address"]</h5>
         <div class="form-grid">
-            <div class="form-col"><label>Street / House Number</label><InputText @bind-Value="_profile.Address.Street" /></div>
-            <div class="form-col"><label>Zip Code</label><InputText @bind-Value="_profile.Address.ZipCode" /></div>
-            <div class="form-col"><label>City</label><InputText @bind-Value="_profile.Address.City" /></div>
-            <div class="form-col"><label>Country</label><InputText @bind-Value="_profile.Address.Country" /></div>
+            <div class="form-col"><label>@Text["Profile_Street"]</label><InputText @bind-Value="_profile.Address.Street" /></div>
+            <div class="form-col"><label>@Text["Profile_ZipCode"]</label><InputText @bind-Value="_profile.Address.ZipCode" /></div>
+            <div class="form-col"><label>@Text["Profile_City"]</label><InputText @bind-Value="_profile.Address.City" /></div>
+            <div class="form-col"><label>@Text["Profile_Country"]</label><InputText @bind-Value="_profile.Address.Country" /></div>
         </div>
         <div class="form-grid">
             <div class="form-col">
                 <div class="form-checkbox-with-text">
                     <InputCheckbox @bind-Value="_request.PrivacyPolicyAccepted"/>
                     <label>
-                        I accept the <a href="@ClubConstants.Urls.PrivacyPolicy" target="_blank" rel="noopener noreferrer">privacy policy</a>.
+                        @Text["Privacy_AcceptPrefix"] <a href="@ClubConstants.Urls.PrivacyPolicy" target="_blank" rel="noopener noreferrer">@Text["Privacy_Policy"]</a>.
                     </label>
                 </div>
                 <ValidationMessage For="@(() => _request.PrivacyPolicyAccepted)"/>
@@ -64,7 +64,7 @@
         </div>
 
         <hr class="spacer" />
-        <button type="submit" class="btn btn-primary ">Apply</button>
+        <button type="submit" class="btn btn-primary ">@SharedText["Action_Apply"]</button>
         @if (!string.IsNullOrWhiteSpace(_requestError)) {
             <p class="text-danger">@_requestError</p>
         }

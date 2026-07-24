@@ -1,8 +1,7 @@
 @page "/Account/AccessDenied"
 
-<h3>Access denied</h3>
-<p>You do not have permission to access this resource.</p>
+<p>@SharedText["Message_AccessDenied"]</p>
 
 <button class="btn btn-primary" @onclick="Logout">
-    Logout
+    @SharedText["Action_Logout"]
 </button>

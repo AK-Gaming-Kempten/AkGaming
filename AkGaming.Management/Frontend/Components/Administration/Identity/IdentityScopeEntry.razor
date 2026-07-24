@@ -32,24 +32,24 @@
 
             <div class="ui-grid-auto-180">
                 <div class="ui-field">
-                    <label>Display name</label>
+                    <label>@SharedText["Field_DisplayName"]</label>
                     <InputText @bind-Value="_displayName" disabled="@Scope.IsProtected" />
                 </div>
             </div>
 
             <div class="ui-field">
-                <label>Description</label>
+                <label>@SharedText["Field_Description"]</label>
                 <InputTextArea @bind-Value="_description" disabled="@Scope.IsProtected" />
             </div>
 
             <div class="ui-field">
-                <label>Resources</label>
+                <label>@SharedText["Field_Resources"]</label>
                 <InputTextArea @bind-Value="_resourcesText" disabled="@Scope.IsProtected" />
             </div>
 
             <div class="ui-actions">
-                <ActionButton Kind="ActionButtonKind.Save" Variant="ActionButtonVariant.Primary" Size="ActionButtonSize.Small" OnClick="SaveAsync" Disabled="@(IsBusy || Scope.IsProtected)" Label="Save scope" />
-                <ActionButton Kind="ActionButtonKind.Delete" Variant="ActionButtonVariant.Danger" Size="ActionButtonSize.Small" OnClick="DeleteAsync" Disabled="@(IsBusy || Scope.IsProtected)" Label="Delete scope" />
+                <ActionButton Kind="ActionButtonKind.Save" Variant="ActionButtonVariant.Primary" Size="ActionButtonSize.Small" OnClick="SaveAsync" Disabled="@(IsBusy || Scope.IsProtected)" Label="@SharedText["Action_Save"]" />
+                <ActionButton Kind="ActionButtonKind.Delete" Variant="ActionButtonVariant.Danger" Size="ActionButtonSize.Small" OnClick="DeleteAsync" Disabled="@(IsBusy || Scope.IsProtected)" Label="@SharedText["Action_Delete"]" />
                 <ActionButton Kind="ActionButtonKind.Cancel" Variant="ActionButtonVariant.Outline" Size="ActionButtonSize.Small" OnClick="CancelEditing" Disabled="IsBusy" />
             </div>
         </div>

@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms</value></resheader>
+  <data name="Invoices_Stored" xml:space="preserve"><value>Stored invoices</value></data>
+  <data name="Invoices_Loading" xml:space="preserve"><value>Loading invoices…</value></data>
+  <data name="Invoices_None" xml:space="preserve"><value>No invoices have been saved.</value></data>
+  <data name="Invoices_Select" xml:space="preserve"><value>Select an invoice</value></data>
+  <data name="Invoices_SelectHelp" xml:space="preserve"><value>Choose an existing invoice or create a new one.</value></data>
+  <data name="Invoice_Number" xml:space="preserve"><value>Invoice number</value></data>
+  <data name="Invoice_Date" xml:space="preserve"><value>Invoice date</value></data>
+  <data name="Invoice_ServiceDate" xml:space="preserve"><value>Service date</value></data>
+  <data name="Invoice_Text" xml:space="preserve"><value>Invoice text</value></data>
+  <data name="Invoice_Introduction" xml:space="preserve"><value>Introduction</value></data>
+  <data name="Invoice_Body" xml:space="preserve"><value>Body</value></data>
+  <data name="Invoice_LineItems" xml:space="preserve"><value>Line items</value></data>
+  <data name="Invoice_AddItemPreset" xml:space="preserve"><value>Add item preset…</value></data>
+  <data name="Invoice_ReplaceCollection" xml:space="preserve"><value>Replace with collection…</value></data>
+  <data name="Invoice_UnitPrice" xml:space="preserve"><value>Unit price</value></data>
+  <data name="Invoice_Quantity" xml:space="preserve"><value>Quantity</value></data>
+  <data name="Invoice_PaymentClosing" xml:space="preserve"><value>Payment and closing</value></data>
+  <data name="Invoice_PaymentTerms" xml:space="preserve"><value>Payment terms</value></data>
+  <data name="Invoice_ApplyPreset" xml:space="preserve"><value>Apply preset…</value></data>
+  <data name="Invoice_BankAccount" xml:space="preserve"><value>Bank account</value></data>
+  <data name="Invoice_ApplyBankPreset" xml:space="preserve"><value>Apply bank preset…</value></data>
+  <data name="Invoice_AccountHolder" xml:space="preserve"><value>Account holder</value></data>
+  <data name="Invoice_ClosingText" xml:space="preserve"><value>Closing text</value></data>
+  <data name="Invoice_Greeting" xml:space="preserve"><value>Greeting</value></data>
+  <data name="Invoice_Signature" xml:space="preserve"><value>Signature name</value></data>
+  <data name="Invoice_HtmlPreview" xml:space="preserve"><value>HTML preview</value></data>
+  <data name="Presets_Title" xml:space="preserve"><value>Presets</value></data>
+  <data name="Presets_Loading" xml:space="preserve"><value>Loading presets…</value></data>
+  <data name="Presets_Label" xml:space="preserve"><value>Preset label</value></data>
+  <data name="Presets_CancelCreation" xml:space="preserve"><value>Cancel creation</value></data>
+  <data name="Parties_Create" xml:space="preserve"><value>Create party preset</value></data>
+  <data name="Parties_None" xml:space="preserve"><value>No party presets have been created.</value></data>
+  <data name="Party_Street" xml:space="preserve"><value>Street</value></data>
+  <data name="Party_PostalCode" xml:space="preserve"><value>Postal code</value></data>
+  <data name="Party_City" xml:space="preserve"><value>City</value></data>
+  <data name="Party_Country" xml:space="preserve"><value>Country</value></data>
+  <data name="Terms_Create" xml:space="preserve"><value>Create payment terms preset</value></data>
+  <data name="Terms_None" xml:space="preserve"><value>No payment terms presets have been created.</value></data>
+  <data name="Bank_Title" xml:space="preserve"><value>Bank account presets</value></data>
+  <data name="Bank_Description" xml:space="preserve"><value>Reusable payment account details.</value></data>
+  <data name="Bank_None" xml:space="preserve"><value>No bank account presets have been created.</value></data>
+  <data name="Items_Title" xml:space="preserve"><value>Line item presets</value></data>
+  <data name="Items_Description" xml:space="preserve"><value>Reusable individual invoice positions.</value></data>
+  <data name="Items_None" xml:space="preserve"><value>No line item presets have been created.</value></data>
+  <data name="Collections_Title" xml:space="preserve"><value>Line item collection presets</value></data>
+  <data name="Collections_Description" xml:space="preserve"><value>Reusable ordered sets of invoice positions.</value></data>
+  <data name="Collections_None" xml:space="preserve"><value>No line item collections have been created.</value></data>
+  <data name="Collections_Label" xml:space="preserve"><value>Collection label</value></data>
+</root>

@@ -3,11 +3,11 @@
 @using AkGaming.Management.Modules.BoardManagement.Contracts
 @attribute [Authorize(Policy = "management.board-meetings.read")]
 
-<PageTitle>Board Meetings</PageTitle>
+<PageTitle>@PageText["Page_BoardMeetings_Title"]</PageTitle>
 
 <div class="meetings-page ui-stack-md">
     <section class="panel meetings-heading board-overview-heading">
-        <div><h2>Board Meetings</h2><p class="ui-text-muted">Schedule board meetings, forecast attendance, and prepare the agenda.</p></div>
+        <div><h2>@PageText["Page_BoardMeetings_Title"]</h2><p class="ui-text-muted">@PageText["Page_BoardMeetings_Description"]</p></div>
         <AuthorizeView Policy="management.board-meetings.manage"><button class="primary-action" type="button" @onclick="OpenCreateDialog"><span class="bi bi-plus-lg"></span> Create meeting</button></AuthorizeView>
     </section>
     @if (!string.IsNullOrWhiteSpace(_error)) { <p class="error">@_error</p> }
@@ -19,8 +19,8 @@
                                   OnSubmit="CreateAsync"
                                   OnClose="CloseCreateDialog" />
     }
-    @if (_meetings is null) { <p>Loading...</p> }
-    else if (_meetings.Count == 0) { <section class="panel">No board meetings have been created.</section> }
+    @if (_meetings is null) { <p>@SharedText["State_Loading"]</p> }
+    else if (_meetings.Count == 0) { <section class="panel">@Text["Board_None"]</section> }
     else
     {
         <div class="meeting-grid">
@@ -34,17 +34,17 @@
         </div>
     }
     <section class="panel ui-stack-sm backlog-panel">
-        <div class="meetings-heading backlog-heading"><div><h3>Agenda backlog</h3><p class="ui-text-muted">Drag an item onto a scheduled meeting above to add it to that agenda.</p></div><AuthorizeView Policy="management.board-meetings.manage"><button type="button" @onclick="ToggleBacklogCreate">@(_showBacklogCreate ? "Cancel" : "Add item")</button></AuthorizeView></div>
+        <div class="meetings-heading backlog-heading"><div><h3>@Text["Board_Backlog"]</h3><p class="ui-text-muted">@Text["Board_BacklogHelp"]</p></div><AuthorizeView Policy="management.board-meetings.manage"><button type="button" @onclick="ToggleBacklogCreate">@(_showBacklogCreate ? "Cancel" : "Add item")</button></AuthorizeView></div>
         @if (_showBacklogCreate)
         {
             <div class="backlog-create-form">
-                <label>Title <InputText @bind-Value="_backlogTitle" /></label>
-                <label>Description <InputTextArea @bind-Value="_backlogDescription" /></label>
-                <button class="primary-action" type="button" disabled="@_busy" @onclick="CreateBacklogItemAsync">Add to backlog</button>
+                <label>@SharedText["Field_Title"]<InputText @bind-Value="_backlogTitle" /></label>
+                <label>@SharedText["Field_Description"]<InputTextArea @bind-Value="_backlogDescription" /></label>
+                <button class="primary-action" type="button" disabled="@_busy" @onclick="CreateBacklogItemAsync">@SharedText["Action_AddToBacklog"]</button>
             </div>
         }
-        @if (_backlog is null) { <p>Loading...</p> }
-        else if (_backlog.Count == 0) { <p>No backlog items.</p> }
+        @if (_backlog is null) { <p>@SharedText["State_Loading"]</p> }
+        else if (_backlog.Count == 0) { <p>@Text["Board_NoBacklog"]</p> }
         else
         {
             <div class="backlog-list">

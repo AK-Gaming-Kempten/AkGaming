@@ -13,6 +13,10 @@ public enum Theme
 public partial class ThemeSwitcherBox : ComponentBase, IAsyncDisposable
 {
     [Inject] private IJSRuntime JS { get; set; } = default!;
+    [Parameter] public string AriaLabel { get; set; } = "Theme";
+    [Parameter] public string SystemTitle { get; set; } = "Use system theme";
+    [Parameter] public string LightTitle { get; set; } = "Use light theme";
+    [Parameter] public string DarkTitle { get; set; } = "Use dark theme";
 
     private Theme _currentTheme = Theme.System;
     private DotNetObjectReference<ThemeSwitcherBox>? _selfRef;

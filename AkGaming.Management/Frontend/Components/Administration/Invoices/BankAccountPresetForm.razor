@@ -1,10 +1,10 @@
 <div class="ui-stack-md">
-    <div class="ui-field"><label>Preset label</label><InputText @bind-Value="Model.Label" /></div>
+    <div class="ui-field"><label>@Text["Presets_Label"]</label><InputText @bind-Value="Model.Label" /></div>
     <div class="ui-grid-auto-180">
         <div class="ui-field"><label>IBAN</label><InputText @bind-Value="Model.BankDetails.Iban" /></div>
         <div class="ui-field"><label>BIC</label><InputText @bind-Value="Model.BankDetails.Bic" /></div>
         <div class="ui-field"><label>BLZ</label><InputText @bind-Value="Model.BankDetails.Blz" /></div>
-        <div class="ui-field"><label>Account holder</label><InputText @bind-Value="Model.BankDetails.AccountHolder" /></div>
+        <div class="ui-field"><label>@Text["Invoice_AccountHolder"]</label><InputText @bind-Value="Model.BankDetails.AccountHolder" /></div>
     </div>
-    <div class="ui-actions"><ActionButton Kind="ActionButtonKind.Save" Variant="ActionButtonVariant.Primary" OnClick="SaveAsync" Disabled="IsBusy" Label="Save bank account preset" />@if (ShowDelete) { <ActionButton Kind="ActionButtonKind.Delete" Variant="ActionButtonVariant.Danger" OnClick="DeleteAsync" Disabled="IsBusy" Label="Delete bank account preset" /> }</div>
+    <div class="ui-actions"><ActionButton Kind="ActionButtonKind.Save" Variant="ActionButtonVariant.Primary" OnClick="SaveAsync" Disabled="IsBusy" Label="@SharedText["Action_Save"]" />@if (ShowDelete) { <ActionButton Kind="ActionButtonKind.Delete" Variant="ActionButtonVariant.Danger" OnClick="DeleteAsync" Disabled="IsBusy" Label="@SharedText["Action_Delete"]" /> }</div>
 </div>

@@ -2,66 +2,66 @@
 <div class="member-form">
     <EditForm Model="@_profile" OnValidSubmit="@ApplyForMembershipAsync">
         <DataAnnotationsValidator />
-        <h3> Apply for membership </h3>
+        <h3>@Text["Application_Title"]</h3>
         <hr class="spacer" />
         <div class="form-grid">
             <div class="form-col">
-                <label>First Name</label>
+                <label>@Text["Profile_FirstName"]</label>
                 <InputText @bind-Value="_profile.FirstName" required />
             </div>
 
             <div class="form-col">
-                <label>Last Name</label>
+                <label>@Text["Profile_LastName"]</label>
                 <InputText @bind-Value="_profile.LastName" required />
             </div>
 
             <div class="form-col">
-                <label>Email</label>
+                <label>@SharedText["Field_Email"]</label>
                 <InputText @bind-Value="_profile.Email" required />
             </div>
 
             <div class="form-col">
-                <label>Phone</label>
+                <label>@Text["Profile_Phone"]</label>
                 <InputText @bind-Value="_profile.Phone" required />
             </div>
 
             <div class="form-col">
-                <label>Discord Username</label>
+                <label>@Text["Profile_Discord"]</label>
                 <InputText @bind-Value="_profile.DiscordUserName" required />
             </div>
 
             <div class="form-col">
-                <label>Birth Date</label>
+                <label>@Text["Profile_BirthDate"]</label>
                 <InputDate @bind-Value="_profile.BirthDate" required />
             </div>
         </div>
 
-        <h5>Address</h5>
+        <h5>@SharedText["Field_Address"]</h5>
 
         <div class="form-grid">
             <div class="form-col">
-                <label>Street / House Number</label>
+                <label>@Text["Profile_Street"]</label>
                 <InputText @bind-Value="_profile.Address.Street" required />
             </div>
 
             <div class="form-col">
-                <label>Zip Code</label>
+                <label>@Text["Profile_ZipCode"]</label>
                 <InputText @bind-Value="_profile.Address.ZipCode" required />
             </div>
 
             <div class="form-col">
-                <label>City</label>
+                <label>@Text["Profile_City"]</label>
                 <InputText @bind-Value="_profile.Address.City" required />
             </div>
 
             <div class="form-col">
-                <label>Country</label>
+                <label>@Text["Profile_Country"]</label>
                 <InputText @bind-Value="_profile.Address.Country" required />
             </div>
         </div>
         <div class="form-grid">
             <div class="form-col">
-                <label>Application Message</label>
+                <label>@Text["Application_Message"]</label>
                 <InputTextArea @bind-Value="_application.ApplicationText" required/>
                 <ValidationMessage For="@(() => _application.ApplicationText)"/>
             </div>
@@ -71,7 +71,7 @@
                 <div class="form-checkbox-with-text">
                     <InputCheckbox @bind-Value="_application.PrivacyPolicyAccepted"/>
                     <label>
-                        I accept the <a href="@ClubConstants.Urls.PrivacyPolicy" target="_blank" rel="noopener noreferrer">privacy policy</a>.
+                        @Text["Privacy_AcceptPrefix"] <a href="@ClubConstants.Urls.PrivacyPolicy" target="_blank" rel="noopener noreferrer">@Text["Privacy_Policy"]</a>.
                     </label>
                 </div>
                 <ValidationMessage For="@(() => _application.PrivacyPolicyAccepted)"/>
@@ -79,7 +79,7 @@
         </div>
         
         <hr class="spacer" />
-        <button type="submit" class="btn btn-primary ">Apply</button>
+        <button type="submit" class="btn btn-primary ">@SharedText["Action_Apply"]</button>
         @if (!string.IsNullOrWhiteSpace(_createError)) {
             <p class="text-danger">@_createError</p>
         }

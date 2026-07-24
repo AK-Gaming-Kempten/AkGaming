@@ -3,21 +3,21 @@
 <section class="ui-stack-md membership-requests">
     @if (ShowStatuses) {
         <article class="panel ui-stack-md">
-            <h3>Membership Requests</h3>
+            <h3>@Text["Requests_Title"]</h3>
             @if (ApplicationRequests.Count == 0 && LinkingRequests.Count == 0) {
-                <p class="ui-text-muted">No membership applications or linking requests have been sent.</p>
+                <p class="ui-text-muted">@Text["Requests_None"]</p>
             }
             else {
                 <div class="request-status-list">
                     @foreach (var request in ApplicationRequests) {
                         <div class="request-status-entry">
-                            <div><strong>Membership application</strong><span class="ui-text-muted">@RequestDetails(request)</span></div>
+                            <div><strong>@Text["Requests_Application"]</strong><span class="ui-text-muted">@RequestDetails(request)</span></div>
                             <span class="request-status @(request.IsResolved ? "resolved" : "pending")">@(request.IsResolved ? "Resolved" : "Pending")</span>
                         </div>
                     }
                     @foreach (var request in LinkingRequests) {
                         <div class="request-status-entry">
-                            <div><strong>Membership linking request</strong><span class="ui-text-muted">@request.Reason</span></div>
+                            <div><strong>@Text["Requests_Linking"]</strong><span class="ui-text-muted">@request.Reason</span></div>
                             <span class="request-status @(request.IsResolved ? "resolved" : "pending")">@(request.IsResolved ? "Resolved" : "Pending")</span>
                         </div>
                     }
@@ -29,12 +29,12 @@
     @if (CanCreateRequests && !HasPendingRequest) {
         <article class="panel ui-stack-md">
             <div>
-                <h3>Membership Actions</h3>
-                <p class="ui-text-muted">Apply for membership or link your account to an existing club member record.</p>
+                <h3>@Text["Requests_Actions"]</h3>
+                <p class="ui-text-muted">@Text["Requests_ActionsDescription"]</p>
             </div>
             <div class="ui-actions">
-                <ActionButton Kind="ActionButtonKind.Create" Variant="ActionButtonVariant.Primary" OnClick="ShowApply" Label="Apply for membership" />
-                <ActionButton Kind="ActionButtonKind.Link" OnClick="ShowRequestLink" Label="Request member linking" />
+                <ActionButton Kind="ActionButtonKind.Create" Variant="ActionButtonVariant.Primary" OnClick="ShowApply" Label="@SharedText["Action_Apply"]" />
+                <ActionButton Kind="ActionButtonKind.Link" OnClick="ShowRequestLink" Label="@SharedText["Action_Link"]" />
             </div>
         </article>
     }
@@ -45,7 +45,7 @@
             <section class="panel membership-request-dialog">
                 <header class="membership-request-dialog-header">
                     <h3 id="membership-request-dialog-title">@DialogTitle</h3>
-                    <ActionButton Kind="ActionButtonKind.Close" Variant="ActionButtonVariant.Outline" Size="ActionButtonSize.Small" OnClick="CloseDialog" Label="Close dialog" />
+                    <ActionButton Kind="ActionButtonKind.Close" Variant="ActionButtonVariant.Outline" Size="ActionButtonSize.Small" OnClick="CloseDialog" Label="@SharedText["Action_Close"]" />
                 </header>
                 <div class="membership-request-dialog-content">
                     @if (_formMode == FormMode.RequestLink) {

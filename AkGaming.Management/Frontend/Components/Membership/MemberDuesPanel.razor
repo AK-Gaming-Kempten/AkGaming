@@ -3,14 +3,14 @@
 
 <div class="ui-stack-md member-dues-panel">
     @if (_loading) {
-        <p>Loading dues...</p>
+        <p>@Text["Fees_Loading"]</p>
     }
     else if (!string.IsNullOrWhiteSpace(_error)) {
         <p class="text-danger">@_error</p>
     }
     else {
         <section class="panel member-dues-summary-card">
-            <h5 class="ui-title">Fee Summary</h5>
+            <h5 class="ui-title">@Text["Fees_Summary"]</h5>
             <div class="member-dues-summary-chips">
                 <span class="member-dues-chip member-dues-chip-open">Open: @_pendingDues.Count</span>
                 <span class="member-dues-chip member-dues-chip-paid">Paid: @_paidDues.Count</span>
@@ -18,24 +18,24 @@
         </section>
 
         <section class="panel member-dues-section">
-            <h5 class="ui-title">Pending Fees</h5>
+            <h5 class="ui-title">@Text["Fees_Pending"]</h5>
             @if (_pendingDues.Count == 0) {
-                <p class="ui-text-muted">No pending fees.</p>
+                <p class="ui-text-muted">@Text["Fees_NoPending"]</p>
             }
             else {
                 <div class="ui-list">
                     @foreach (var due in _pendingDues.OrderBy(x => x.DueDate)) {
                         <article class="member-due-item">
                             <div>
-                                <strong>@due.DueDate.ToString("yyyy-MM-dd")</strong>
-                                <p class="ui-text-muted">Due date</p>
+                                <strong>@due.DueDate.ToString("d")</strong>
+                                <p class="ui-text-muted">@Text["Fees_DueDate"]</p>
                             </div>
                             <div>
                                 <strong>@due.DueAmount.ToString("0.00") €</strong>
-                                <p class="ui-text-muted">Amount</p>
+                                <p class="ui-text-muted">@SharedText["Field_Amount"]</p>
                             </div>
                             <div class="member-due-item-flags">
-                                <span class="member-due-item-status member-due-item-status-open">Pending</span>
+                                <span class="member-due-item-status member-due-item-status-open">@SharedText["Status_Pending"]</span>
                                 <span class="member-due-item-status @(due.IsOverdue() ? "member-due-item-status-overdue" : "member-due-item-status-ontrack")">
                                     @(due.IsOverdue() ? "Overdue" : "On track")
                                 </span>
@@ -47,32 +47,32 @@
         </section>
 
         <section class="panel member-dues-section">
-            <h5 class="ui-title">Previously Paid Fees</h5>
+            <h5 class="ui-title">@Text["Fees_PreviouslyPaid"]</h5>
             @if (_paidDues.Count == 0) {
-                <p class="ui-text-muted">No paid fees yet.</p>
+                <p class="ui-text-muted">@Text["Fees_NoPaid"]</p>
             }
             else {
                 <div class="ui-list">
                     @foreach (var due in _paidDues.OrderByDescending(x => x.DueDate)) {
                         <article class="member-due-item">
                             <div>
-                                <strong>@due.DueDate.ToString("yyyy-MM-dd")</strong>
-                                <p class="ui-text-muted">Due date</p>
+                                <strong>@due.DueDate.ToString("d")</strong>
+                                <p class="ui-text-muted">@Text["Fees_DueDate"]</p>
                             </div>
                             <div>
                                 <strong>@due.DueAmount.ToString("0.00") €</strong>
-                                <p class="ui-text-muted">Due amount</p>
+                                <p class="ui-text-muted">@Text["Fees_DueAmount"]</p>
                             </div>
                             <div>
                                 <strong>@GetPaidAmountText(due)</strong>
-                                <p class="ui-text-muted">Paid amount</p>
+                                <p class="ui-text-muted">@Text["Fees_PaidAmount"]</p>
                             </div>
                             <div>
                                 <strong>@GetSettledAtText(due)</strong>
-                                <p class="ui-text-muted">Settled at</p>
+                                <p class="ui-text-muted">@Text["Fees_SettledAt"]</p>
                             </div>
                             <div class="member-due-item-flags">
-                                <span class="member-due-item-status member-due-item-status-paid">Paid</span>
+                                <span class="member-due-item-status member-due-item-status-paid">@SharedText["Status_Paid"]</span>
                             </div>
                         </article>
                     }

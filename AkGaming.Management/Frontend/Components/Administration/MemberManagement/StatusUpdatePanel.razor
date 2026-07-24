@@ -1,9 +1,9 @@
 @using global::AkGaming.Management.Modules.MemberManagement.Contracts.Enums
 <div class="status-section">
     @if (Member is null) {
-            <em>Loading member…</em>
+            <em>@SharedText["State_LoadingMembers"]</em>
     } else {
-            <h4>Status History</h4>
+            <h4>@SharedText["Heading_StatusHistory"]</h4>
             
             @if (Editable) {
                 <div class="status-tabs">
@@ -32,14 +32,14 @@
                                 </InputSelect>
                             </div>
                             <div class="form-col" style="align-self:end;">
-                                <ActionButton Kind="ActionButtonKind.Update" Variant="ActionButtonVariant.Primary" OnClick="UpdateStatusAsync" Disabled="@(_updateStatus == MembershipStatus.None)" Label="Update status" />
+                                <ActionButton Kind="ActionButtonKind.Update" Variant="ActionButtonVariant.Primary" OnClick="UpdateStatusAsync" Disabled="@(_updateStatus == MembershipStatus.None)" Label="@SharedText["Action_Update"]" />
                             </div>
                         </div>
                     } else if (_activeTab == StatusTab.InsertEvent) {
                         <!-- Form B: Insert a status-change event (manual entry) -->
                         <div class="form-grid">
                             <div class="form-col">
-                                <label>Old Status</label>
+                                <label>@SharedText["Field_OldStatus"]</label>
                                 <InputSelect @bind-Value="_insertModel.OldStatus">
                                     @foreach (var s in Enum.GetValues<MembershipStatus>()) {
                                         <option value="@s">@s</option>
@@ -48,7 +48,7 @@
                             </div>
 
                             <div class="form-col">
-                                <label>New Status</label>
+                                <label>@SharedText["Field_NewStatus"]</label>
                                 <InputSelect @bind-Value="_insertModel.NewStatus">
                                     @foreach (var s in Enum.GetValues<MembershipStatus>()) {
                                         <option value="@s">@s</option>
@@ -57,12 +57,12 @@
                             </div>
 
                             <div class="form-col">
-                                <label>Timestamp</label>
+                                <label>@SharedText["Field_Timestamp"]</label>
                                 <InputDate @bind-Value="_insertModel.Timestamp" />
                             </div>
 
                             <div class="form-col" style="align-self:end;">
-                                <ActionButton Kind="ActionButtonKind.Add" Variant="ActionButtonVariant.Primary" OnClick="InsertStatusChangeEventAsync" Disabled="@(_insertModel.NewStatus == MembershipStatus.None || _insertModel.Timestamp == DateTime.MinValue)" Label="Insert status event" />
+                                <ActionButton Kind="ActionButtonKind.Add" Variant="ActionButtonVariant.Primary" OnClick="InsertStatusChangeEventAsync" Disabled="@(_insertModel.NewStatus == MembershipStatus.None || _insertModel.Timestamp == DateTime.MinValue)" Label="@SharedText["Action_Add"]" />
                             </div>
                         </div>
                     }
@@ -71,9 +71,9 @@
             
             <div class="status-history">
                 @if (_statusChanges is null) {
-                    <p>Loading status history…</p>
+                    <p>@SharedText["State_LoadingHistory"]</p>
                 } else if (!_statusChanges.Any()) {
-                    <em>No history available</em>
+                    <em>@SharedText["State_NoHistory"]</em>
                 } else {
                     <ul class="status-list">
                         @foreach (var evt in _statusChanges.OrderByDescending(e => e.Timestamp)) {

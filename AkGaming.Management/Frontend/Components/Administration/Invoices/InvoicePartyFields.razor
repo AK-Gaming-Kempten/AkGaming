@@ -9,7 +9,7 @@
         @if (Presets.Count > 0)
         {
             <select class="ui-select-sm" value="" @onchange="ApplyPresetAsync">
-                <option value="">Apply preset...</option>
+                <option value="">@Text["Invoice_ApplyPreset"]</option>
                 @foreach (var preset in Presets)
                 {
                     <option value="@preset.Id">@preset.Label</option>
@@ -20,23 +20,23 @@
 
     <div class="ui-grid-auto-180">
         <div class="ui-field">
-            <label>Name</label>
+            <label>@SharedText["Field_Name"]</label>
             <InputText @bind-Value="Value.Name" />
         </div>
         <div class="ui-field">
-            <label>Street</label>
+            <label>@Text["Party_Street"]</label>
             <InputText @bind-Value="Value.Street" />
         </div>
         <div class="ui-field">
-            <label>Postal code</label>
+            <label>@Text["Party_PostalCode"]</label>
             <InputText @bind-Value="Value.PostalCode" />
         </div>
         <div class="ui-field">
-            <label>City</label>
+            <label>@Text["Party_City"]</label>
             <InputText @bind-Value="Value.City" />
         </div>
         <div class="ui-field">
-            <label>Country</label>
+            <label>@Text["Party_Country"]</label>
             <InputText @bind-Value="Value.Country" />
         </div>
     </div>

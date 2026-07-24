@@ -2,10 +2,10 @@
 @using Microsoft.AspNetCore.Authorization
 @attribute [Authorize(Policy = "identity.audit.read")]
 
-<PageTitle>Identity Audit Log</PageTitle>
+<PageTitle>@PageText["Page_IdentityAudit_Title"]</PageTitle>
 
 <div class="identity-audit-page card">
-    <h4>Identity Audit Log</h4>
+    <h4>@PageText["Page_IdentityAudit_Title"]</h4>
 
     <AuditLogQueryControls Search="@_search"
                            SearchChanged="OnSearchChanged"
@@ -28,11 +28,11 @@
 
     @if (_auditLogs is null)
     {
-        <p>Loading audit logs...</p>
+        <p>@SharedText["State_LoadingAudit"]</p>
     }
     else if (_auditLogs.Items.Count == 0)
     {
-        <p>No audit logs found.</p>
+        <p>@SharedText["State_NoAudit"]</p>
     }
     else
     {
@@ -41,12 +41,12 @@
                 <thead>
                 <tr>
                     <th>Created (UTC)</th>
-                    <th>Event</th>
+                    <th>@SharedText["Field_Event"]</th>
                     <th>Success</th>
-                    <th>Subject Email</th>
-                    <th>User Id</th>
+                    <th>@SharedText["Field_SubjectEmail"]</th>
+                    <th>@SharedText["Field_UserId"]</th>
                     <th>IP</th>
-                    <th>Details</th>
+                    <th>@SharedText["Heading_Details"]</th>
                 </tr>
                 </thead>
                 <tbody>

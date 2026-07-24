@@ -11,29 +11,29 @@
                 </h3>
             </div>
             <div class="ui-actions">
-                <ActionButton Kind="ActionButtonKind.Save" Variant="ActionButtonVariant.Primary" ButtonType="submit" Disabled="IsBusy" Label="Save invoice" />
-                <ActionButton Kind="ActionButtonKind.Preview" OnClick="PreviewAsync" Disabled="IsBusy" Label="Preview HTML" />
+                <ActionButton Kind="ActionButtonKind.Save" Variant="ActionButtonVariant.Primary" ButtonType="submit" Disabled="IsBusy" Label="@SharedText["Action_Save"]" />
+                <ActionButton Kind="ActionButtonKind.Preview" OnClick="PreviewAsync" Disabled="IsBusy" Label="@SharedText["Action_Preview"]" />
                 <ActionButton Kind="ActionButtonKind.DownloadHtml" OnClick="DownloadHtmlAsync" Disabled="IsBusy" />
                 <ActionButton Kind="ActionButtonKind.DownloadPdf" OnClick="DownloadPdfAsync" Disabled="IsBusy" />
                 @if (Model.Id != Guid.Empty)
                 {
-                    <ActionButton Kind="ActionButtonKind.Delete" Variant="ActionButtonVariant.Danger" OnClick="DeleteAsync" Disabled="IsBusy" Label="Delete invoice" />
+                    <ActionButton Kind="ActionButtonKind.Delete" Variant="ActionButtonVariant.Danger" OnClick="DeleteAsync" Disabled="IsBusy" Label="@SharedText["Action_Delete"]" />
                 }
-                <ActionButton Kind="ActionButtonKind.Close" Variant="ActionButtonVariant.Outline" OnClick="CancelAsync" Disabled="IsBusy" Label="Close invoice" />
+                <ActionButton Kind="ActionButtonKind.Close" Variant="ActionButtonVariant.Outline" OnClick="CancelAsync" Disabled="IsBusy" Label="@SharedText["Action_Close"]" />
             </div>
         </div>
 
         <div class="ui-grid-auto-180">
             <div class="ui-field">
-                <label>Invoice number</label>
+                <label>@Text["Invoice_Number"]</label>
                 <InputText @bind-Value="Model.InvoiceNumber" />
             </div>
             <div class="ui-field">
-                <label>Invoice date</label>
+                <label>@Text["Invoice_Date"]</label>
                 <InputDate @bind-Value="Model.InvoiceDate" />
             </div>
             <div class="ui-field">
-                <label>Service date</label>
+                <label>@Text["Invoice_ServiceDate"]</label>
                 <InputDate TValue="DateOnly?" @bind-Value="Model.ServiceDate" />
             </div>
         </div>
@@ -47,14 +47,14 @@
     <section class="panel ui-stack-md">
         <h4 class="ui-title invoice-section-title">
             <span class="bi bi-card-text" aria-hidden="true"></span>
-            <span>Invoice text</span>
+            <span>@Text["Invoice_Text"]</span>
         </h4>
         <div class="ui-field">
-            <label>Introduction</label>
+            <label>@Text["Invoice_Introduction"]</label>
             <InputTextArea @bind-Value="Model.IntroText" />
         </div>
         <div class="ui-field">
-            <label>Body</label>
+            <label>@Text["Invoice_Body"]</label>
             <InputTextArea @bind-Value="Model.BodyText" />
         </div>
     </section>
@@ -63,13 +63,13 @@
         <div class="invoice-section-heading">
             <h4 class="ui-title invoice-section-title">
                 <span class="bi bi-list-check" aria-hidden="true"></span>
-                <span>Line items</span>
+                <span>@Text["Invoice_LineItems"]</span>
             </h4>
             <div class="ui-actions">
                 @if (LineItemPresets.Count > 0)
                 {
                     <select class="ui-select-sm" value="" @onchange="AddLineItemPreset">
-                        <option value="">Add item preset...</option>
+                        <option value="">@Text["Invoice_AddItemPreset"]</option>
                         @foreach (var preset in LineItemPresets)
                         {
                             <option value="@preset.Id">@preset.Label</option>
@@ -79,14 +79,14 @@
                 @if (LineItemCollectionPresets.Count > 0)
                 {
                     <select class="ui-select-sm" value="" @onchange="ApplyLineItemCollectionPreset">
-                        <option value="">Replace with collection...</option>
+                        <option value="">@Text["Invoice_ReplaceCollection"]</option>
                         @foreach (var preset in LineItemCollectionPresets)
                         {
                             <option value="@preset.Id">@preset.Label</option>
                         }
                     </select>
                 }
-                <ActionButton Kind="ActionButtonKind.Add" Size="ActionButtonSize.Small" OnClick="AddLineItem" Label="Add line item" />
+                <ActionButton Kind="ActionButtonKind.Add" Size="ActionButtonSize.Small" OnClick="AddLineItem" Label="@SharedText["Action_Add"]" />
             </div>
         </div>
 
@@ -96,19 +96,19 @@
                 var item = Model.LineItems[index];
                 <div class="invoice-line" @key="item">
                     <div class="ui-field invoice-line-description">
-                        <label>Description</label>
+                        <label>@SharedText["Field_Description"]</label>
                         <InputText @bind-Value="item.Description" />
                     </div>
                     <div class="ui-field">
-                        <label>Unit price</label>
+                        <label>@Text["Invoice_UnitPrice"]</label>
                         <InputNumber @bind-Value="item.UnitPrice" />
                     </div>
                     <div class="ui-field">
-                        <label>Quantity</label>
+                        <label>@Text["Invoice_Quantity"]</label>
                         <InputNumber @bind-Value="item.Quantity" />
                     </div>
                     <div class="invoice-line-total">@item.TotalPrice.ToString("N2") EUR</div>
-                    <ActionButton Kind="ActionButtonKind.Remove" Variant="ActionButtonVariant.Danger" Size="ActionButtonSize.Small" OnClick="() => RemoveLineItem(item)" Disabled="@(Model.LineItems.Count == 1)" Label="Remove line item" />
+                    <ActionButton Kind="ActionButtonKind.Remove" Variant="ActionButtonVariant.Danger" Size="ActionButtonSize.Small" OnClick="() => RemoveLineItem(item)" Disabled="@(Model.LineItems.Count == 1)" Label="@SharedText["Action_Remove"]" />
                 </div>
             }
         </div>
@@ -118,15 +118,15 @@
     <section class="panel ui-stack-md">
         <h4 class="ui-title invoice-section-title">
             <span class="bi bi-credit-card" aria-hidden="true"></span>
-            <span>Payment and closing</span>
+            <span>@Text["Invoice_PaymentClosing"]</span>
         </h4>
         <div class="ui-field">
             <div class="invoice-field-heading">
-                <label>Payment terms</label>
+                <label>@Text["Invoice_PaymentTerms"]</label>
                 @if (PaymentTermsPresets.Count > 0)
                 {
                     <select class="ui-select-sm" value="" @onchange="ApplyPaymentTermsPreset">
-                        <option value="">Apply preset...</option>
+                        <option value="">@Text["Invoice_ApplyPreset"]</option>
                         @foreach (var preset in PaymentTermsPresets)
                         {
                             <option value="@preset.Id">@preset.Label</option>
@@ -139,12 +139,12 @@
         <div class="invoice-field-heading">
             <h4 class="ui-title invoice-section-title invoice-section-title-secondary">
                 <span class="bi bi-bank" aria-hidden="true"></span>
-                <span>Bank account</span>
+                <span>@Text["Invoice_BankAccount"]</span>
             </h4>
             @if (BankAccountPresets.Count > 0)
             {
                 <select class="ui-select-sm" value="" @onchange="ApplyBankAccountPreset">
-                    <option value="">Apply bank preset...</option>
+                    <option value="">@Text["Invoice_ApplyBankPreset"]</option>
                     @foreach (var preset in BankAccountPresets)
                     {
                         <option value="@preset.Id">@preset.Label</option>
@@ -156,12 +156,12 @@
             <div class="ui-field"><label>IBAN</label><InputText @bind-Value="Model.BankDetails.Iban" /></div>
             <div class="ui-field"><label>BIC</label><InputText @bind-Value="Model.BankDetails.Bic" /></div>
             <div class="ui-field"><label>BLZ</label><InputText @bind-Value="Model.BankDetails.Blz" /></div>
-            <div class="ui-field"><label>Account holder</label><InputText @bind-Value="Model.BankDetails.AccountHolder" /></div>
+            <div class="ui-field"><label>@Text["Invoice_AccountHolder"]</label><InputText @bind-Value="Model.BankDetails.AccountHolder" /></div>
         </div>
-        <div class="ui-field"><label>Closing text</label><InputTextArea @bind-Value="Model.ClosingText" /></div>
+        <div class="ui-field"><label>@Text["Invoice_ClosingText"]</label><InputTextArea @bind-Value="Model.ClosingText" /></div>
         <div class="ui-grid-2">
-            <div class="ui-field"><label>Greeting</label><InputText @bind-Value="Model.Greeting" /></div>
-            <div class="ui-field"><label>Signature name</label><InputText @bind-Value="Model.SignatureName" /></div>
+            <div class="ui-field"><label>@Text["Invoice_Greeting"]</label><InputText @bind-Value="Model.Greeting" /></div>
+            <div class="ui-field"><label>@Text["Invoice_Signature"]</label><InputText @bind-Value="Model.SignatureName" /></div>
         </div>
     </section>
 
@@ -171,9 +171,9 @@
             <div class="invoice-section-heading">
                 <h4 class="ui-title invoice-section-title">
                     <span class="bi bi-eye" aria-hidden="true"></span>
-                    <span>HTML preview</span>
+                    <span>@Text["Invoice_HtmlPreview"]</span>
                 </h4>
-                <ActionButton Kind="ActionButtonKind.Close" Variant="ActionButtonVariant.Outline" Size="ActionButtonSize.Small" OnClick="ClosePreview" Label="Close preview" />
+                <ActionButton Kind="ActionButtonKind.Close" Variant="ActionButtonVariant.Outline" Size="ActionButtonSize.Small" OnClick="ClosePreview" Label="@SharedText["Action_Close"]" />
             </div>
             <iframe class="invoice-preview" title="Invoice preview" srcdoc="@_previewHtml"></iframe>
         </section>

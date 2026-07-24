@@ -1,7 +1,7 @@
 @using global::AkGaming.Management.Modules.MemberManagement.Contracts.Enums
 <div class="member-card readonly-mode">
     @if (Request is null) {
-        <div class="no-request-selected">No request selected</div>
+        <div class="no-request-selected">@SharedText["State_NoSelection"]</div>
     }
     else {
         <div class="member-card-content">
@@ -9,25 +9,25 @@
                 <div class="form-section">
                     <div class="form-grid">
                         <div class="form-col">
-                            <label>First name</label>
+                            <label>@SharedText["Field_FirstName"]</label>
                             <InputText @bind-Value="Request.FirstName" readonly="true" />
                         </div>
                         <div class="form-col">
-                            <label>Last name</label>
+                            <label>@SharedText["Field_LastName"]</label>
                             <InputText @bind-Value="Request.LastName" readonly="true" />
                         </div>
 
                         <div class="form-col">
-                            <label>Email</label>
+                            <label>@SharedText["Field_Email"]</label>
                             <InputText @bind-Value="Request.Email" readonly="true" />
                         </div>
                         <div class="form-col">
-                            <label>Discord</label>
+                            <label>@SharedText["Field_Discord"]</label>
                             <InputText @bind-Value="Request.DiscordUserName" readonly="true" />
                         </div>
                         
                         <div class="form-col">
-                            <label>Reason</label>
+                            <label>@SharedText["Field_Reason"]</label>
                             <div>
                                 @Request.Reason.ToString()
                             </div>
@@ -46,8 +46,8 @@
                     </div>
                 </div>
                 <div class="form-actions">
-                    <ActionButton Kind="ActionButtonKind.Link" Variant="ActionButtonVariant.Primary" OnClick="Link" Disabled="@(_selectedMember == null)" Label="Link member" />
-                    <ActionButton Kind="ActionButtonKind.Reject" Variant="ActionButtonVariant.Danger" OnClick="Reject" Label="Reject request" />
+                    <ActionButton Kind="ActionButtonKind.Link" Variant="ActionButtonVariant.Primary" OnClick="Link" Disabled="@(_selectedMember == null)" Label="@SharedText["Action_Link"]" />
+                    <ActionButton Kind="ActionButtonKind.Reject" Variant="ActionButtonVariant.Danger" OnClick="Reject" Label="@SharedText["Action_Reject"]" />
                 </div>  
             }
         </div>

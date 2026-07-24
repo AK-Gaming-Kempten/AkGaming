@@ -2,15 +2,15 @@
 @using Microsoft.AspNetCore.Authorization
 @attribute [Authorize(Policy = "management.invoices.manage")]
 
-<PageTitle>Invoice Party Presets</PageTitle>
+<PageTitle>@PageText["Page_InvoiceParties_Title"]</PageTitle>
 
 <div class="invoice-presets-page ui-stack-md">
     <section class="panel invoice-presets-toolbar">
         <div>
-            <h3 class="ui-title">Invoice party presets</h3>
-            <span class="ui-text-muted">Reusable seller and buyer addresses for invoice editing.</span>
+            <h3 class="ui-title">@PageText["Page_InvoiceParties_Title"]</h3>
+            <span class="ui-text-muted">@PageText["Page_InvoiceParties_Description"]</span>
         </div>
-        <ActionButton Kind="@(_showCreate ? ActionButtonKind.Cancel : ActionButtonKind.Create)" Variant="@(_showCreate ? ActionButtonVariant.Outline : ActionButtonVariant.Primary)" OnClick="ToggleCreate" Disabled="_isBusy" Label="@(_showCreate ? "Cancel creation" : "Create party preset")" />
+        <ActionButton Kind="@(_showCreate ? ActionButtonKind.Cancel : ActionButtonKind.Create)" Variant="@(_showCreate ? ActionButtonVariant.Outline : ActionButtonVariant.Primary)" OnClick="ToggleCreate" Disabled="_isBusy" Label="@(_showCreate ? Text["Presets_CancelCreation"] : Text["Parties_Create"])" />
     </section>
 
     @if (!string.IsNullOrWhiteSpace(_error))
@@ -24,14 +24,14 @@
 
     <div class="invoice-presets-layout two-column-layout mobile-master-detail @(_isMobileDetailOpen ? "mobile-detail-open" : string.Empty)">
         <section class="panel preset-list-pane two-column-layout-left">
-            <h4 class="ui-title">Presets</h4>
+            <h4 class="ui-title">@Text["Presets_Title"]</h4>
             @if (_presets is null)
             {
-                <p>Loading presets...</p>
+                <p>@Text["Presets_Loading"]</p>
             }
             else if (_presets.Count == 0)
             {
-                <p>No party presets have been created.</p>
+                <p>@Text["Parties_None"]</p>
             }
             else
             {
@@ -51,22 +51,22 @@
 
         <section class="preset-detail-pane two-column-layout-right">
             <div class="mobile-detail-nav">
-                <ActionButton Kind="ActionButtonKind.Back" Variant="ActionButtonVariant.Outline" Size="ActionButtonSize.Small" OnClick="ShowListMobile" Label="Back to party presets" />
+                <ActionButton Kind="ActionButtonKind.Back" Variant="ActionButtonVariant.Outline" Size="ActionButtonSize.Small" OnClick="ShowListMobile" Label="@SharedText["Action_BackToList"]" />
             </div>
             @if (_showCreate || _editingPreset.Id != Guid.Empty)
             {
                 <div class="panel ui-stack-md">
                 <h4 class="ui-title">@(_showCreate ? "New preset" : "Edit preset")</h4>
                 <div class="ui-field">
-                    <label>Preset label</label>
+                    <label>@Text["Presets_Label"]</label>
                     <InputText @bind-Value="_editingPreset.Label" />
                 </div>
                 <InvoicePartyFields Title="Address" Value="_editingPreset.Party" />
                 <div class="ui-actions">
-                    <ActionButton Kind="ActionButtonKind.Save" Variant="ActionButtonVariant.Primary" OnClick="SaveAsync" Disabled="_isBusy" Label="Save party preset" />
+                    <ActionButton Kind="ActionButtonKind.Save" Variant="ActionButtonVariant.Primary" OnClick="SaveAsync" Disabled="_isBusy" Label="@SharedText["Action_Save"]" />
                     @if (!_showCreate)
                     {
-                        <ActionButton Kind="ActionButtonKind.Delete" Variant="ActionButtonVariant.Danger" OnClick="DeleteAsync" Disabled="_isBusy" Label="Delete party preset" />
+                        <ActionButton Kind="ActionButtonKind.Delete" Variant="ActionButtonVariant.Danger" OnClick="DeleteAsync" Disabled="_isBusy" Label="@SharedText["Action_Delete"]" />
                     }
                 </div>
                 </div>

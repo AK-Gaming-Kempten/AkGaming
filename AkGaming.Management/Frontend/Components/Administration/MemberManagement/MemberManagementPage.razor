@@ -1,5 +1,5 @@
 @page "/member-management/members"
-<PageTitle>Member Management</PageTitle>
+<PageTitle>@PageText["Page_Members_Title"]</PageTitle>
 @using Microsoft.AspNetCore.Authorization
 @attribute [Authorize(Policy = "management.members.read")]
 @inject HttpClient Api
@@ -7,21 +7,21 @@
 <div class="two-column-layout mobile-master-detail @(_isMobileDetailOpen ? "mobile-detail-open" : string.Empty)">
     <div class="two-column-layout-left">
         <div class="list-buttons">
-            <h4>Existing Members</h4>
-            <ActionButton Kind="ActionButtonKind.Filter" OnClick="OpenFilters" Disabled="true" Label="Filter members" />
+            <h4>@SharedText["Heading_ExistingMembers"]</h4>
+            <ActionButton Kind="ActionButtonKind.Filter" OnClick="OpenFilters" Disabled="true" Label="@SharedText["Action_Filter"]" />
             @if (_canManageMemberDetails)
             {
-                <ActionButton Kind="ActionButtonKind.Create" Variant="ActionButtonVariant.Primary" OnClick="CreateMember" Label="Create member" />
+                <ActionButton Kind="ActionButtonKind.Create" Variant="ActionButtonVariant.Primary" OnClick="CreateMember" Label="@SharedText["Action_Create"]" />
             }
         </div>
         <div class="list-main">
             @if (_members == null)
             {
-                <p>Loading…</p>
+                <p>@SharedText["State_Loading"]</p>
             }
             else if (!_members.Any())
             {
-                <p>No members found.</p>
+                <p>@SharedText["State_NoMembers"]</p>
             }
             else
             {
@@ -38,7 +38,7 @@
     </div>
     <div class="two-column-layout-right">
         <div class="mobile-detail-nav">
-            <ActionButton Kind="ActionButtonKind.Back" Variant="ActionButtonVariant.Outline" Size="ActionButtonSize.Small" OnClick="ShowListMobile" Label="Back to members" />
+            <ActionButton Kind="ActionButtonKind.Back" Variant="ActionButtonVariant.Outline" Size="ActionButtonSize.Small" OnClick="ShowListMobile" Label="@SharedText["Action_BackToList"]" />
         </div>
         <CascadingValue Value="MemberApi" Name="MemberManagementApi" IsFixed="true">
             <MemberCard Member="_selectedMember" IsEditable="_canManageMemberDetails" IsStatusEditable="_canManageMemberStatus" OnMemberUpdated="Reload" />

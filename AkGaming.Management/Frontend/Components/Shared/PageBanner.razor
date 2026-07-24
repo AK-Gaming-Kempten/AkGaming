@@ -1,0 +1,15 @@
+<section class="page-banner" aria-labelledby="@HeadingId">
+    <div class="page-banner-icon" aria-hidden="true">
+        <span class="bi @Icon"></span>
+    </div>
+    <div class="page-banner-copy">
+        <h1 id="@HeadingId">@Title</h1>
+        <p>@Description</p>
+    </div>
+    @if (Actions is not null)
+    {
+        <div class="page-banner-actions">
+            @Actions
+        </div>
+    }
+</section>

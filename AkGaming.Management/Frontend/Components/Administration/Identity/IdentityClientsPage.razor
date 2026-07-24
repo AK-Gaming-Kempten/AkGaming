@@ -2,14 +2,14 @@
 @using Microsoft.AspNetCore.Authorization
 @attribute [Authorize(Policy = "identity.oidc.manage")]
 
-<PageTitle>Identity Clients</PageTitle>
+<PageTitle>@PageText["Page_IdentityClients_Title"]</PageTitle>
 
 <div class="ui-stack-md identity-admin-page">
     <section class="panel identity-admin-card">
         <div class="identity-admin-toolbar">
-            <h4 class="ui-title">OIDC Clients</h4>
+            <h4 class="ui-title">@PageText["Page_IdentityClients_Title"]</h4>
             <div class="ui-actions">
-                <ActionButton Kind="ActionButtonKind.Refresh" Size="ActionButtonSize.Small" OnClick="ReloadAsync" Disabled="_isBusy" Label="Refresh clients" />
+                <ActionButton Kind="ActionButtonKind.Refresh" Size="ActionButtonSize.Small" OnClick="ReloadAsync" Disabled="_isBusy" Label="@SharedText["Action_Refresh"]" />
                 <ActionButton Kind="@(_showCreateForm ? ActionButtonKind.Cancel : ActionButtonKind.Create)" Variant="ActionButtonVariant.Outline" Size="ActionButtonSize.Small" OnClick="ToggleCreateForm" Label="@(_showCreateForm ? "Hide create client" : "Create client")" />
             </div>
         </div>
@@ -25,17 +25,17 @@
 
                 <div class="ui-grid-auto-180">
                     <div class="ui-field">
-                        <label for="new-client-id">Client id</label>
+                        <label for="new-client-id">@SharedText["Field_ClientId"]</label>
                         <InputText id="new-client-id" @bind-Value="_newClientId" placeholder="frontend-app" />
                     </div>
 
                     <div class="ui-field">
-                        <label for="new-display-name">Display name</label>
+                        <label for="new-display-name">@SharedText["Field_DisplayName"]</label>
                         <InputText id="new-display-name" @bind-Value="_newDisplayName" placeholder="Frontend App" />
                     </div>
 
                     <div class="ui-field">
-                        <label for="new-client-type">Client type</label>
+                        <label for="new-client-type">@SharedText["Field_ClientType"]</label>
                         <InputSelect id="new-client-type" @bind-Value="_newClientType">
                             <option value="confidential">confidential</option>
                             <option value="public">public</option>
@@ -43,7 +43,7 @@
                     </div>
 
                     <div class="ui-field">
-                        <label for="new-consent-type">Consent type</label>
+                        <label for="new-consent-type">@SharedText["Field_ConsentType"]</label>
                         <InputSelect id="new-consent-type" @bind-Value="_newConsentType" disabled="@(!_newAllowAuthorizationCodeFlow)">
                             <option value="implicit">implicit</option>
                             <option value="explicit">explicit</option>
@@ -56,19 +56,19 @@
                 @if (string.Equals(_newClientType, "confidential", StringComparison.OrdinalIgnoreCase))
                 {
                     <div class="ui-field">
-                        <label for="new-client-secret">Client secret</label>
+                        <label for="new-client-secret">@SharedText["Field_ClientSecret"]</label>
                         <InputText id="new-client-secret" @bind-Value="_newClientSecret" type="password" autocomplete="new-password" placeholder="Required for confidential clients" />
                     </div>
                 }
 
                 <div class="identity-grid-wide">
                     <div class="ui-field">
-                        <label for="new-client-redirects">Redirect URIs</label>
+                        <label for="new-client-redirects">@SharedText["Field_RedirectUris"]</label>
                         <InputTextArea id="new-client-redirects" @bind-Value="_newRedirectUrisText" placeholder="One URI per line" disabled="@(!_newAllowAuthorizationCodeFlow)" />
                     </div>
 
                     <div class="ui-field">
-                        <label for="new-client-post-logout-redirects">Post logout redirect URIs</label>
+                        <label for="new-client-post-logout-redirects">@SharedText["Field_PostLogoutUris"]</label>
                         <InputTextArea id="new-client-post-logout-redirects" @bind-Value="_newPostLogoutRedirectUrisText" placeholder="One URI per line" disabled="@(!_newAllowAuthorizationCodeFlow)" />
                     </div>
 
@@ -100,7 +100,7 @@
                 <p class="ui-text-muted">Service clients should be confidential, use client credentials only, and have no redirect URIs, PKCE, refresh tokens, or interactive user scopes.</p>
 
                 <div class="ui-actions">
-                    <ActionButton Kind="ActionButtonKind.Create" Variant="ActionButtonVariant.Primary" Size="ActionButtonSize.Small" OnClick="CreateClientAsync" Disabled="_isBusy" Label="Create client" />
+                    <ActionButton Kind="ActionButtonKind.Create" Variant="ActionButtonVariant.Primary" Size="ActionButtonSize.Small" OnClick="CreateClientAsync" Disabled="_isBusy" Label="@SharedText["Action_Create"]" />
                     <ActionButton Kind="ActionButtonKind.Cancel" Variant="ActionButtonVariant.Outline" Size="ActionButtonSize.Small" OnClick="ToggleCreateForm" Disabled="_isBusy" />
                 </div>
             </div>
@@ -118,15 +118,15 @@
     </section>
 
     <section class="panel identity-admin-card">
-        <h4 class="ui-title">Existing Clients</h4>
+        <h4 class="ui-title">@SharedText["Heading_ExistingClients"]</h4>
 
         @if (_clients is null)
         {
-            <p>Loading clients...</p>
+            <p>@SharedText["State_LoadingClients"]</p>
         }
         else if (_clients.Count == 0)
         {
-            <p>No clients found.</p>
+            <p>@SharedText["State_NoClients"]</p>
         }
         else
         {

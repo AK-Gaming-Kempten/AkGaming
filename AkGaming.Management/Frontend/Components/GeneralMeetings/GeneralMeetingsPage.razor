@@ -2,45 +2,45 @@
 @using Microsoft.AspNetCore.Authorization
 @attribute [Authorize]
 
-<PageTitle>General Meetings</PageTitle>
+<PageTitle>@PageText["Page_GeneralMeetings_Title"]</PageTitle>
 @if (_canAccess is null)
 {
-    <p>Checking meeting access...</p>
+    <p>@Text["Access_Checking"]</p>
 }
 else if (!_canAccess.Value)
 {
     <UnauthorizedPanel ImageUrl="images/icons/AKG_Logos/Red.png">
-        <p>Access denied. General meetings are available to members only.</p>
+        <p>@Text["Access_Denied"]</p>
     </UnauthorizedPanel>
 }
 else
 {
 <div class="meetings-page ui-stack-md">
     <section class="panel meetings-heading">
-        <div><h2>General Meetings</h2><p class="ui-text-muted">Prepare, run and record member meetings.</p></div>
-        <AuthorizeView Policy="management.general-meetings.manage"><button class="primary-action" type="button" @onclick="ToggleCreate"><span class="bi bi-plus-lg"></span> Create</button></AuthorizeView>
+        <div><h2>@PageText["Page_GeneralMeetings_Title"]</h2><p class="ui-text-muted">@PageText["Page_GeneralMeetings_Description"]</p></div>
+        <AuthorizeView Policy="management.general-meetings.manage"><button class="primary-action" type="button" @onclick="ToggleCreate"><span class="bi bi-plus-lg"></span>@SharedText["Action_Create"]</button></AuthorizeView>
     </section>
     @if (!string.IsNullOrWhiteSpace(_error)) { <p class="error">@_error</p> }
     @if (_showCreate)
     {
         <section class="panel create-meeting ui-stack-sm">
-            <h3>Create meeting</h3>
-            <label>Title <InputText @bind-Value="_title" /></label>
+            <h3>@Text["General_Create"]</h3>
+            <label>@SharedText["Field_Title"]<InputText @bind-Value="_title" /></label>
             <label>Date and time <input type="datetime-local" @bind="_scheduledLocal" /></label>
-            <label>Location <InputText @bind-Value="_location" /></label>
-            <button class="primary-action" type="button" disabled="@_busy" @onclick="CreateAsync">Create meeting</button>
+            <label>@SharedText["Field_Location"]<InputText @bind-Value="_location" /></label>
+            <button class="primary-action" type="button" disabled="@_busy" @onclick="CreateAsync">@Text["General_Create"]</button>
         </section>
     }
-    @if (_meetings is null) { <p>Loading...</p> }
-    else if (_meetings.Count == 0) { <section class="panel">No general meetings have been created.</section> }
+    @if (_meetings is null) { <p>@SharedText["State_Loading"]</p> }
+    else if (_meetings.Count == 0) { <section class="panel">@Text["General_None"]</section> }
     else
     {
         <div class="meeting-grid">
             @foreach (var meeting in _meetings)
             {
                 <a class="panel meeting-card" href="@($"general-meetings/{meeting.Id}")">
-                    <div><h3>@meeting.Title</h3><p>@meeting.ScheduledAt.ToLocalTime().ToString("dd.MM.yyyy HH:mm") · @(meeting.Location ?? "Location pending")</p></div>
-                    <span class="meeting-status">@meeting.Status</span>
+                    <div><h3>@meeting.Title</h3><p>@meeting.ScheduledAt.ToLocalTime().ToString("g") · @(meeting.Location ?? Text["General_LocationPending"])</p></div>
+                    <span class="meeting-status">@meeting.Status.ToLocalizedString(SharedText)</span>
                 </a>
             }
         </div>

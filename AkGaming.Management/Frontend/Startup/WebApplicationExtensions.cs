@@ -15,21 +15,17 @@ public static class WebApplicationExtensions {
     internal const string SilentSignInSkippedCookie = "akgaming.management.silent-sign-in-skipped";
 
     public static void ConfigureCultureAndLocalization(this WebApplication app) {
-        var defaultCulture = new CultureInfo("en-GB");
+        var englishCulture = new CultureInfo("en-GB");
+        var germanCulture = new CultureInfo("de-DE");
+        var supportedCultures = new List<CultureInfo> { englishCulture, germanCulture };
         var localizationOptions = new RequestLocalizationOptions {
-            DefaultRequestCulture = new RequestCulture(defaultCulture),
-            SupportedCultures = new List<CultureInfo> { defaultCulture },
-            SupportedUICultures = new List<CultureInfo> { defaultCulture }
+            DefaultRequestCulture = new RequestCulture(englishCulture),
+            SupportedCultures = supportedCultures,
+            SupportedUICultures = supportedCultures
         };
         app.UseRequestLocalization(localizationOptions);
-        CultureInfo.DefaultThreadCurrentCulture = new CultureInfo("en-GB");
-        CultureInfo.DefaultThreadCurrentUICulture = new CultureInfo("en-GB");
-        app.Use(async (context, next) => {
-            var culture = new CultureInfo("en-GB");
-            CultureInfo.CurrentCulture = culture;
-            CultureInfo.CurrentUICulture = culture;
-            await next();
-        });
+        CultureInfo.DefaultThreadCurrentCulture = englishCulture;
+        CultureInfo.DefaultThreadCurrentUICulture = englishCulture;
     }
 
     public static void ConfigureRequestPipeline(this WebApplication app) {
@@ -65,6 +61,7 @@ public static class WebApplicationExtensions {
 
         app.UseAntiforgery();
 
+        app.MapControllers();
         app.MapStaticAssets();
         app.MapRazorComponents<AkGaming.Management.Frontend.Components.App>()
             .AddInteractiveServerRenderMode();
@@ -148,6 +145,7 @@ public static class WebApplicationExtensions {
 
         var path = context.Request.Path;
         return !path.StartsWithSegments("/authentication")
+            && !path.StartsWithSegments("/localization")
             && !path.StartsWithSegments("/api")
             && !path.StartsWithSegments("/_blazor");
     }

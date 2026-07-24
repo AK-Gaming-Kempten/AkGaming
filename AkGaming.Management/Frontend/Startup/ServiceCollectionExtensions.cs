@@ -20,9 +20,11 @@ namespace AkGaming.Management.Frontend.Startup;
 
 public static class ServiceCollectionExtensions {
     public static IServiceCollection AddRazorAndBlazor(this IServiceCollection services) {
+        services.AddLocalization(options => options.ResourcesPath = "Resources");
         services.AddRazorComponents()
             .AddInteractiveServerComponents();
 
+        services.AddControllers();
         services.AddRazorPages();
         services.AddServerSideBlazor();
         services.AddHttpContextAccessor();

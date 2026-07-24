@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms</value></resheader>
+  <data name="Page_Management_Title" xml:space="preserve"><value>Verwaltung</value></data>
+  <data name="Page_Management_Description" xml:space="preserve"><value>Organisatorische Aufgaben von AK Gaming verwalten.</value></data>
+  <data name="Page_Home_Title" xml:space="preserve"><value>Willkommen in der Verwaltung</value></data>
+  <data name="Page_Home_Description" xml:space="preserve"><value>Der zentrale Arbeitsbereich für Mitglieder, Finanzen, Sitzungen und Administration.</value></data>
+  <data name="Page_Home_Teaser" xml:space="preserve"><value>Die ersten Module sind verfügbar und weitere Funktionen folgen. Bitte melde auftretende Probleme.</value></data>
+  <data name="Page_AccessDenied_Title" xml:space="preserve"><value>Zugriff verweigert</value></data>
+  <data name="Page_AccessDenied_Description" xml:space="preserve"><value>Dein Konto ist nicht berechtigt, diesen Bereich zu öffnen.</value></data>
+  <data name="Page_Error_Title" xml:space="preserve"><value>Etwas ist schiefgelaufen</value></data>
+  <data name="Page_Error_Description" xml:space="preserve"><value>Der angeforderte Vorgang konnte nicht abgeschlossen werden.</value></data>
+  <data name="Page_Debug_Title" xml:space="preserve"><value>Diagnose</value></data>
+  <data name="Page_Debug_Description" xml:space="preserve"><value>Authentifizierung, Sprache, Ansprüche und API-Verbindungen prüfen.</value></data>
+  <data name="Page_Profile_Title" xml:space="preserve"><value>Mein Profil</value></data>
+  <data name="Page_Profile_Description" xml:space="preserve"><value>Mitgliedsdaten, Zahlungen, Beiträge und Anträge einsehen.</value></data>
+  <data name="Page_GeneralMeetings_Title" xml:space="preserve"><value>Mitgliederversammlungen</value></data>
+  <data name="Page_GeneralMeetings_Description" xml:space="preserve"><value>Mitgliederversammlungen vorbereiten, durchführen und dokumentieren.</value></data>
+  <data name="Page_GeneralMeeting_Title" xml:space="preserve"><value>Mitgliederversammlung</value></data>
+  <data name="Page_GeneralMeeting_Description" xml:space="preserve"><value>Teilnehmen, Tagesordnung verfolgen, abstimmen und Protokoll führen.</value></data>
+  <data name="Page_BoardMeetings_Title" xml:space="preserve"><value>Vorstandssitzungen</value></data>
+  <data name="Page_BoardMeetings_Description" xml:space="preserve"><value>Vorstandssitzungen planen, Teilnahme abstimmen und Tagesordnungen vorbereiten.</value></data>
+  <data name="Page_BoardMeeting_Title" xml:space="preserve"><value>Vorstandssitzung</value></data>
+  <data name="Page_BoardMeeting_Description" xml:space="preserve"><value>Teilnahme, Terminplanung und Tagesordnung dieser Sitzung koordinieren.</value></data>
+  <data name="Page_MyReimbursements_Title" xml:space="preserve"><value>Meine Erstattungen</value></data>
+  <data name="Page_MyReimbursements_Description" xml:space="preserve"><value>Vereinsausgaben einreichen und Prüfung sowie Auszahlung verfolgen.</value></data>
+  <data name="Page_MyAllocations_Title" xml:space="preserve"><value>Meine Zuteilungen</value></data>
+  <data name="Page_MyAllocations_Description" xml:space="preserve"><value>Veranstaltungszuteilungen mit eigenen Anträgen oder Entscheidungen einsehen.</value></data>
+  <data name="Page_AllocationClaim_Title" xml:space="preserve"><value>Zuteilung beantragen</value></data>
+  <data name="Page_AllocationClaim_Description" xml:space="preserve"><value>Anteil an einer Veranstaltungszuteilung beantragen und Zahlungsdaten angeben.</value></data>
+  <data name="Page_ReimbursementsAdmin_Title" xml:space="preserve"><value>Erstattungsvorgänge</value></data>
+  <data name="Page_ReimbursementsAdmin_Description" xml:space="preserve"><value>Ausgaben, Belege, Zahlungsdaten und Bearbeitungsstatus prüfen.</value></data>
+  <data name="Page_DisbursementEvents_Title" xml:space="preserve"><value>Auszahlungsveranstaltungen</value></data>
+  <data name="Page_DisbursementEvents_Description" xml:space="preserve"><value>Preispools und andere veranstaltungsbezogene Auszahlungen erstellen.</value></data>
+  <data name="Page_DisbursementEvent_Title" xml:space="preserve"><value>Auszahlungsveranstaltung</value></data>
+  <data name="Page_DisbursementEvent_Description" xml:space="preserve"><value>Zuteilungen, Anträge, Freigaben und verfügbare Mittel verwalten.</value></data>
+  <data name="Page_Members_Title" xml:space="preserve"><value>Mitglieder</value></data>
+  <data name="Page_Members_Description" xml:space="preserve"><value>Mitglieder finden und Vereins- sowie Kontaktdaten pflegen.</value></data>
+  <data name="Page_TrialMembers_Title" xml:space="preserve"><value>Probemitglieder</value></data>
+  <data name="Page_TrialMembers_Description" xml:space="preserve"><value>Aktive und abgeschlossene Probemitgliedschaften einsehen.</value></data>
+  <data name="Page_MemberRequests_Title" xml:space="preserve"><value>Mitgliedsanträge</value></data>
+  <data name="Page_MemberRequests_Description" xml:space="preserve"><value>Mitgliedsanträge und Anfragen zur Kontoverknüpfung bearbeiten.</value></data>
+  <data name="Page_MemberDues_Title" xml:space="preserve"><value>Mitgliedsbeiträge</value></data>
+  <data name="Page_MemberDues_Description" xml:space="preserve"><value>Beiträge, Zahlungen, Erinnerungen und offene Beträge verfolgen.</value></data>
+  <data name="Page_MemberAudit_Title" xml:space="preserve"><value>Mitgliederprotokoll</value></data>
+  <data name="Page_MemberAudit_Description" xml:space="preserve"><value>Administrative Änderungen an Mitgliedsdaten nachvollziehen.</value></data>
+  <data name="Page_Invoices_Title" xml:space="preserve"><value>Rechnungen</value></data>
+  <data name="Page_Invoices_Description" xml:space="preserve"><value>Gespeicherte Rechnungen erstellen, bearbeiten, prüfen und neu erzeugen.</value></data>
+  <data name="Page_InvoicePresets_Title" xml:space="preserve"><value>Rechnungsvorlagen</value></data>
+  <data name="Page_InvoicePresets_Description" xml:space="preserve"><value>Wiederverwendbare Rechnungsdaten zentral verwalten.</value></data>
+  <data name="Page_InvoiceParties_Title" xml:space="preserve"><value>Vorlagen für Rechnungsparteien</value></data>
+  <data name="Page_InvoiceParties_Description" xml:space="preserve"><value>Wiederverwendbare Verkäufer- und Käuferadressen pflegen.</value></data>
+  <data name="Page_InvoicePaymentTerms_Title" xml:space="preserve"><value>Zahlungsbedingungen</value></data>
+  <data name="Page_InvoicePaymentTerms_Description" xml:space="preserve"><value>Wiederverwendbare Zahlungsanweisungen für Rechnungen pflegen.</value></data>
+  <data name="Page_IdentityClients_Title" xml:space="preserve"><value>Identity-Clients</value></data>
+  <data name="Page_IdentityClients_Description" xml:space="preserve"><value>Anwendungen konfigurieren, die sich über AK Gaming Identity anmelden.</value></data>
+  <data name="Page_IdentityScopes_Title" xml:space="preserve"><value>Identity-Berechtigungsbereiche</value></data>
+  <data name="Page_IdentityScopes_Description" xml:space="preserve"><value>API-Berechtigungen verwalten, die Anwendungen anfordern können.</value></data>
+  <data name="Page_IdentityRoles_Title" xml:space="preserve"><value>Identity-Rollen</value></data>
+  <data name="Page_IdentityRoles_Description" xml:space="preserve"><value>Berechtigungen in Rollen bündeln und einheitlich zuweisen.</value></data>
+  <data name="Page_IdentityUsers_Title" xml:space="preserve"><value>Identity-Benutzer</value></data>
+  <data name="Page_IdentityUsers_Description" xml:space="preserve"><value>Konten finden und deren Rollenzuweisungen pflegen.</value></data>
+  <data name="Page_IdentityAudit_Title" xml:space="preserve"><value>Identity-Änderungsprotokoll</value></data>
+  <data name="Page_IdentityAudit_Description" xml:space="preserve"><value>Sicherheitsrelevante Änderungen und Identitätsereignisse nachvollziehen.</value></data>
+</root>

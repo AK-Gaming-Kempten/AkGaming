@@ -2,10 +2,10 @@
 @using Microsoft.AspNetCore.Authorization
 @attribute [Authorize(Policy = "management.invoices.manage")]
 
-<PageTitle>Invoice Presets</PageTitle>
+<PageTitle>@PageText["Page_InvoicePresets_Title"]</PageTitle>
 
 <div class="invoice-presets-workspace">
-    <section class="panel preset-page-heading"><h3 class="ui-title">Invoice presets</h3><span class="ui-text-muted">Manage reusable invoice data in one place.</span></section>
+    <section class="panel preset-page-heading"><h3 class="ui-title">@PageText["Page_InvoicePresets_Title"]</h3><span class="ui-text-muted">@PageText["Page_InvoicePresets_Description"]</span></section>
     <div class="tabs">
         @foreach (var tab in Enum.GetValues<PresetTab>())
         {

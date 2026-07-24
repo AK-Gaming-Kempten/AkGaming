@@ -4,7 +4,7 @@
 @using Microsoft.AspNetCore.Components.Authorization
 @attribute [Authorize]
 
-<h2>Redirecting...</h2>
+<h2>@Text["State_Redirecting"]</h2>
 
 @code {
     [Inject] AuthenticationStateProvider AuthStateProvider { get; set; } = default!;

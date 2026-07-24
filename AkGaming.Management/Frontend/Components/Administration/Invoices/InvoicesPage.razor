@@ -2,7 +2,7 @@
 @using Microsoft.AspNetCore.Authorization
 @attribute [Authorize(Policy = "management.invoices.manage")]
 
-<PageTitle>Invoices</PageTitle>
+<PageTitle>@PageText["Page_Invoices_Title"]</PageTitle>
 
 <Toast Visible="@(!string.IsNullOrWhiteSpace(_error))"
        AppName="AK Gaming Management"
@@ -14,8 +14,8 @@
 <div class="invoice-page ui-stack-md">
     <section class="panel invoice-page-toolbar">
         <div>
-            <h3 class="ui-title">Invoices</h3>
-            <span class="ui-text-muted">Create, edit, preview, and regenerate stored invoices.</span>
+            <h3 class="ui-title">@PageText["Page_Invoices_Title"]</h3>
+            <span class="ui-text-muted">@PageText["Page_Invoices_Description"]</span>
         </div>
     </section>
 
@@ -27,17 +27,17 @@
     <div class="invoice-page-layout two-column-layout mobile-master-detail @(_isMobileDetailOpen ? "mobile-detail-open" : string.Empty)">
         <aside class="panel invoice-selector two-column-layout-left">
             <div class="list-buttons">
-                <h4 class="ui-title">Stored invoices</h4>
-                <ActionButton Kind="ActionButtonKind.Refresh" OnClick="ReloadAsync" Disabled="_isBusy" Label="Refresh invoices" />
-                <ActionButton Kind="ActionButtonKind.Create" Variant="ActionButtonVariant.Primary" OnClick="StartCreate" Disabled="_isBusy" Label="Create invoice" />
+                <h4 class="ui-title">@Text["Invoices_Stored"]</h4>
+                <ActionButton Kind="ActionButtonKind.Refresh" OnClick="ReloadAsync" Disabled="_isBusy" Label="@SharedText["Action_Refresh"]" />
+                <ActionButton Kind="ActionButtonKind.Create" Variant="ActionButtonVariant.Primary" OnClick="StartCreate" Disabled="_isBusy" Label="@SharedText["Action_Create"]" />
             </div>
             @if (_invoices is null)
             {
-                <p>Loading invoices...</p>
+                <p>@Text["Invoices_Loading"]</p>
             }
             else if (_invoices.Count == 0)
             {
-                <p>No invoices have been saved.</p>
+                <p>@Text["Invoices_None"]</p>
             }
             else
             {
@@ -51,7 +51,7 @@
                                     disabled="@_isBusy">
                                 <strong>@invoice.InvoiceNumber</strong>
                                 <span>@invoice.BuyerName</span>
-                                <small>@invoice.InvoiceDate.ToString("dd.MM.yyyy") - @invoice.TotalAmount.ToString("N2") EUR</small>
+                                <small>@invoice.InvoiceDate.ToString("d") - @invoice.TotalAmount.ToString("N2") EUR</small>
                             </button>
                         }
                     </div>
@@ -61,7 +61,7 @@
 
         <main class="invoice-detail two-column-layout-right">
             <div class="mobile-detail-nav">
-                <ActionButton Kind="ActionButtonKind.Back" Variant="ActionButtonVariant.Outline" Size="ActionButtonSize.Small" OnClick="ShowListMobile" Label="Back to invoices" />
+                <ActionButton Kind="ActionButtonKind.Back" Variant="ActionButtonVariant.Outline" Size="ActionButtonSize.Small" OnClick="ShowListMobile" Label="@SharedText["Action_BackToList"]" />
             </div>
             @if (_selectedInvoice is not null)
             {
@@ -81,8 +81,8 @@
             else
             {
                 <section class="panel invoice-empty-state">
-                    <h4>Select an invoice</h4>
-                    <p>Choose an existing invoice or create a new one.</p>
+                    <h4>@Text["Invoices_Select"]</h4>
+                    <p>@Text["Invoices_SelectHelp"]</p>
                 </section>
             }
         </main>

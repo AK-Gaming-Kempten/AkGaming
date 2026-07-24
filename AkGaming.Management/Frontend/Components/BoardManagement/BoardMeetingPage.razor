@@ -4,38 +4,38 @@
 @using AkGaming.Management.Frontend.Components.GeneralMeetings
 @attribute [Authorize(Policy = "management.board-meetings.read")]
 
-<PageTitle>Board Meeting</PageTitle>
+<PageTitle>@PageText["Page_BoardMeeting_Title"]</PageTitle>
 @if (_meeting is null) { <p>@(_error ?? "Loading...")</p> }
 else
 {
 <div class="ui-stack-md">
-    <section class="panel meetings-heading"><div><a href="board/meetings">← Board meetings</a><h2>@_meeting.Title</h2><p>@_meeting.ScheduledAtUtc.ToLocalTime().ToString("dd.MM.yyyy HH:mm") · @_meeting.DurationMinutes min · @(_meeting.Location ?? "Location pending")</p></div><span class="meeting-status">@_meeting.Status</span></section>
+    <section class="panel meetings-heading"><div><a href="board/meetings">← @Text["Board_Back"]</a><h2>@_meeting.Title</h2><p>@_meeting.ScheduledAtUtc.ToLocalTime().ToString("g") · @_meeting.DurationMinutes @SharedText["Unit_Minutes"] · @(_meeting.Location ?? Text["General_LocationPending"])</p></div><span class="meeting-status">@_meeting.Status.ToLocalizedString(SharedText)</span></section>
     @if (!string.IsNullOrWhiteSpace(_error)) { <p class="error">@_error</p> }
     @if (_meeting.Status == BoardMeetingStatusDto.Scheduled)
     {
         <section class="panel ui-stack-sm">
-            <h3>Can you attend?</h3>
-            <div class="ui-actions"><button type="button" disabled="@_busy" @onclick="() => SetAvailabilityAsync(BoardAvailabilityStatusDto.Available)">I have time</button><button type="button" disabled="@_busy" @onclick="() => SetAvailabilityAsync(BoardAvailabilityStatusDto.Unavailable)">I cannot attend</button></div>
-            <p>@_meeting.Availabilities.Count(x => x.Status == BoardAvailabilityStatusDto.Available) available · @_meeting.Availabilities.Count(x => x.Status == BoardAvailabilityStatusDto.Unavailable) unavailable</p>
-            <ul>@foreach (var response in _meeting.Availabilities) { <li><strong>@response.DisplayName</strong>: @response.Status</li> }</ul>
+            <h3>@Text["Board_AttendQuestion"]</h3>
+            <div class="ui-actions"><button type="button" disabled="@_busy" @onclick="() => SetAvailabilityAsync(BoardAvailabilityStatusDto.Available)">@Text["Board_Available"]</button><button type="button" disabled="@_busy" @onclick="() => SetAvailabilityAsync(BoardAvailabilityStatusDto.Unavailable)">@Text["Board_Unavailable"]</button></div>
+            <p>@_meeting.Availabilities.Count(x => x.Status == BoardAvailabilityStatusDto.Available) @Text["Board_AvailableCount"] · @_meeting.Availabilities.Count(x => x.Status == BoardAvailabilityStatusDto.Unavailable) @Text["Board_UnavailableCount"]</p>
+            <ul>@foreach (var response in _meeting.Availabilities) { <li><strong>@response.DisplayName</strong>: @response.Status.ToLocalizedString(SharedText)</li> }</ul>
         </section>
     }
     <section class="panel ui-stack-sm">
-        <div class="meetings-heading"><h3>Rescheduling</h3><button type="button" @onclick="ToggleProposal">@(_showProposal ? "Cancel" : "Propose another date")</button></div>
+        <div class="meetings-heading"><h3>@Text["Board_Rescheduling"]</h3><button type="button" @onclick="ToggleProposal">@(_showProposal ? SharedText["Action_Cancel"] : Text["Board_ProposeDate"])</button></div>
         @if (_showProposal)
         {
-            <label>Proposed date <input type="datetime-local" @bind="_newDateLocal" /></label><label>Duration <InputNumber @bind-Value="_newDuration" /></label><label>Reason <InputTextArea @bind-Value="_reason" /></label>
-            <div class="ui-actions"><button type="button" disabled="@_busy" @onclick="ProposeAsync">Submit proposal</button><AuthorizeView Policy="management.board-meetings.manage"><button type="button" disabled="@_busy" @onclick="RescheduleImmediatelyAsync">Reschedule immediately</button></AuthorizeView></div>
+            <label>@Text["Board_ProposedDate"] <input type="datetime-local" @bind="_newDateLocal" /></label><label>@SharedText["Field_Duration"]<InputNumber @bind-Value="_newDuration" /></label><label>@SharedText["Field_Reason"]<InputTextArea @bind-Value="_reason" /></label>
+            <div class="ui-actions"><button type="button" disabled="@_busy" @onclick="ProposeAsync">@Text["Board_SubmitProposal"]</button><AuthorizeView Policy="management.board-meetings.manage"><button type="button" disabled="@_busy" @onclick="RescheduleImmediatelyAsync">@Text["Board_RescheduleNow"]</button></AuthorizeView></div>
         }
         @foreach (var proposal in _meeting.RescheduleProposals)
         {
-            <div class="ui-divider-top-dashed"><strong>@proposal.ProposedAtUtc.ToLocalTime().ToString("dd.MM.yyyy HH:mm")</strong> · @proposal.DurationMinutes min · proposed by @proposal.ProposedByDisplayName · @proposal.Status @if (!string.IsNullOrWhiteSpace(proposal.Reason)) { <p>@proposal.Reason</p> } @if (proposal.Status == RescheduleProposalStatusDto.Pending) { <AuthorizeView Policy="management.board-meetings.manage"><div class="ui-actions"><button type="button" @onclick="() => DecideAsync(proposal.Id, true)">Accept</button><button type="button" @onclick="() => DecideAsync(proposal.Id, false)">Reject</button></div></AuthorizeView> }</div>
+            <div class="ui-divider-top-dashed"><strong>@proposal.ProposedAtUtc.ToLocalTime().ToString("g")</strong> · @proposal.DurationMinutes @SharedText["Unit_Minutes"] · @Text["Board_ProposedBy"] @proposal.ProposedByDisplayName · @proposal.Status.ToLocalizedString(SharedText) @if (!string.IsNullOrWhiteSpace(proposal.Reason)) { <p>@proposal.Reason</p> } @if (proposal.Status == RescheduleProposalStatusDto.Pending) { <AuthorizeView Policy="management.board-meetings.manage"><div class="ui-actions"><button type="button" @onclick="() => DecideAsync(proposal.Id, true)">@Text["Board_Accept"]</button><button type="button" @onclick="() => DecideAsync(proposal.Id, false)">@Text["Board_Reject"]</button></div></AuthorizeView> }</div>
         }
-        <AuthorizeView Policy="management.board-meetings.manage"><button type="button" disabled="@_busy" @onclick="CancelMeetingAsync">Cancel meeting</button></AuthorizeView>
+        <AuthorizeView Policy="management.board-meetings.manage"><button type="button" disabled="@_busy" @onclick="CancelMeetingAsync">@Text["Board_CancelMeeting"]</button></AuthorizeView>
     </section>
     <section class="panel ui-stack-sm">
         <div class="meetings-heading agenda-heading">
-            <div><h3>Agenda</h3><p class="ui-text-muted">Drag items to reorder them. Further actions are available from each item's context menu.</p></div>
+            <div><h3>@Text["Board_Agenda"]</h3><p class="ui-text-muted">@Text["Board_AgendaHelp"]</p></div>
             @if (_canManage)
             {
                 <div class="ui-actions">
@@ -44,7 +44,7 @@ else
                 </div>
             }
         </div>
-        @if (_meeting.AgendaItems.Count == 0) { <p>No agenda items.</p> }
+        @if (_meeting.AgendaItems.Count == 0) { <p>@Text["Board_NoAgenda"]</p> }
         else
         {
             <div class="board-agenda-list">
@@ -86,12 +86,12 @@ else
                 {
                     <p class="error">@_error</p>
                 }
-                <label>Title <InputText autofocus @bind-Value="_agendaTitle" /></label>
-                <label>Description <InputTextArea @bind-Value="_agendaDescription" /></label>
+                <label>@SharedText["Field_Title"]<InputText autofocus @bind-Value="_agendaTitle" /></label>
+                <label>@SharedText["Field_Description"]<InputTextArea @bind-Value="_agendaDescription" /></label>
             </div>
         </ChildContent>
         <Footer>
-            <button type="button" class="dialog-cancel" disabled="@_busy" @onclick="CloseAgendaDialog">Cancel</button>
+            <button type="button" class="dialog-cancel" disabled="@_busy" @onclick="CloseAgendaDialog">@SharedText["Action_Cancel"]</button>
             <button type="button" class="dialog-primary" disabled="@_busy" @onclick="SaveAgendaAsync">@(_editingAgendaItemId.HasValue ? "Save changes" : "Add item")</button>
         </Footer>
     </GeneralMeetingFormDialog>

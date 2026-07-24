@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms</value></resheader>
+  <data name="Events_Title" xml:space="preserve"><value>Disbursement events</value></data>
+  <data name="Events_Description" xml:space="preserve"><value>Create prize pools and other event-based payouts.</value></data>
+  <data name="Events_New" xml:space="preserve"><value>New event</value></data>
+  <data name="Events_Create" xml:space="preserve"><value>Create event</value></data>
+  <data name="Events_None" xml:space="preserve"><value>No disbursement events.</value></data>
+  <data name="Events_NoDate" xml:space="preserve"><value>No event date</value></data>
+  <data name="Event_AddAllocation" xml:space="preserve"><value>Add allocation</value></data>
+  <data name="Event_CreateAllocation" xml:space="preserve"><value>Create allocation</value></data>
+  <data name="Event_NoAllocations" xml:space="preserve"><value>No allocations yet.</value></data>
+  <data name="Event_CopyClaimLink" xml:space="preserve"><value>Copy claim link</value></data>
+  <data name="Event_NoApplications" xml:space="preserve"><value>No applications.</value></data>
+  <data name="Reimbursements_Title" xml:space="preserve"><value>Expense reimbursements</value></data>
+  <data name="Reimbursements_Description" xml:space="preserve"><value>Submit expenses paid on behalf of the club and follow their payout status.</value></data>
+  <data name="Reimbursements_New" xml:space="preserve"><value>New reimbursement</value></data>
+  <data name="Reimbursements_CloseForm" xml:space="preserve"><value>Close form</value></data>
+  <data name="Reimbursements_AdditionalNote" xml:space="preserve"><value>Additional note</value></data>
+  <data name="Reimbursements_AddExpense" xml:space="preserve"><value>Add expense</value></data>
+  <data name="Reimbursements_Submit" xml:space="preserve"><value>Submit reimbursement</value></data>
+  <data name="Reimbursements_YourCases" xml:space="preserve"><value>Your cases</value></data>
+  <data name="Reimbursements_None" xml:space="preserve"><value>No reimbursements submitted yet.</value></data>
+  <data name="Reimbursements_AdminNone" xml:space="preserve"><value>No reimbursement cases.</value></data>
+  <data name="Reimbursements_Total" xml:space="preserve"><value>Total:</value></data>
+  <data name="Allocation_Loading" xml:space="preserve"><value>Loading allocation…</value></data>
+  <data name="Allocation_ApplyTitle" xml:space="preserve"><value>Apply for this allocation</value></data>
+  <data name="Allocation_Submit" xml:space="preserve"><value>Submit application</value></data>
+  <data name="Allocation_Applications" xml:space="preserve"><value>Applications</value></data>
+  <data name="Allocation_None" xml:space="preserve"><value>No applications have been submitted.</value></data>
+  <data name="Allocation_ApproveQuestion" xml:space="preserve"><value>Do you approve this payout?</value></data>
+  <data name="Allocation_Approve" xml:space="preserve"><value>Approve</value></data>
+  <data name="Allocation_Object" xml:space="preserve"><value>Object</value></data>
+  <data name="Allocation_MyNone" xml:space="preserve"><value>You have not interacted with any allocations yet. Allocation links are shared directly by event organisers.</value></data>
+  <data name="Payment_Method" xml:space="preserve"><value>Payout method</value></data>
+  <data name="Payment_None" xml:space="preserve"><value>No payment method available</value></data>
+  <data name="Payment_NoneHelp" xml:space="preserve"><value>Add one on your profile in a separate tab, then refresh this list. Your form entries will stay here.</value></data>
+  <data name="Payment_OpenProfile" xml:space="preserve"><value>Open profile</value></data>
+  <data name="Payment_Snapshot" xml:space="preserve"><value>Payout destination snapshot</value></data>
+  <data name="Payment_SnapshotHelp" xml:space="preserve"><value>These are the exact details selected when the payout request was submitted.</value></data>
+  <data name="Payment_AccountHolder" xml:space="preserve"><value>Account holder</value></data>
+  <data name="Payment_BankAccount" xml:space="preserve"><value>Bank account</value></data>
+  <data name="Expense_Receipts" xml:space="preserve"><value>Receipts</value></data>
+  <data name="Expense_FileHelp" xml:space="preserve"><value>PDF or image, up to 10 MB per file.</value></data>
+  <data name="Case_InternalNote" xml:space="preserve"><value>Internal note</value></data>
+  <data name="Case_SaveStatus" xml:space="preserve"><value>Save status</value></data>
+  <data name="Case_Update" xml:space="preserve"><value>Update:</value></data>
+  <data name="Case_Cancel" xml:space="preserve"><value>Cancel reimbursement</value></data>
+</root>

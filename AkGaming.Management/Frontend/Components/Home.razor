@@ -1,17 +1,15 @@
 ﻿@page "/"
 @using AkGaming.Core.Constants
 
-<PageTitle>Management Tool</PageTitle>
+<PageTitle>@PageText["Page_Home_Title"]</PageTitle>
 
 <section class="home-hero">
     <div class="home-hero-icon" aria-hidden="true">
         <img src="images/icons/AKG_Logos/default.png" alt="@($"{ClubConstants.Organization.ShortName} logo")" class="home-hero-logo" />
     </div>
 
-    <h1>Welcome to the @ClubConstants.Organization.LegalName <br/> Management Tool</h1>
-    <p class="home-hero-subtitle">
-        We are building a toolset for both members and admins to make organizational task less shit.
-    </p>
+    <h1>@PageText["Page_Home_Title"]</h1>
+    <p class="home-hero-subtitle">@PageText["Page_Home_Description"]</p>
 
-    <p class="home-hero-teaser">Early modules are live. Bigger features are on the way. Please report any bugs you encounter :)</p>
+    <p class="home-hero-teaser">@PageText["Page_Home_Teaser"]</p>
 </section>

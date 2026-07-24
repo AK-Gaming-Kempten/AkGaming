@@ -14,10 +14,15 @@ public partial class BoardMeetingCreateDialog : ComponentBase
     private readonly List<DraftAgendaItem> _agendaItems = [];
     private Guid? _draggedAgendaItemId;
     private bool _showBacklogSelection;
-    private string _title = "Board meeting";
+    private string _title = string.Empty;
     private DateTime _scheduledLocal = DateTime.Now.AddDays(7);
     private int _durationMinutes = 90;
     private string? _location;
+
+    protected override void OnInitialized()
+    {
+        _title = Text["Board_DefaultTitle"];
+    }
 
     private void AddAgendaItem()
     {

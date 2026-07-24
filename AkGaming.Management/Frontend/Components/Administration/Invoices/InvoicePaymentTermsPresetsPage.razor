@@ -2,15 +2,15 @@
 @using Microsoft.AspNetCore.Authorization
 @attribute [Authorize(Policy = "management.invoices.manage")]
 
-<PageTitle>Invoice Payment Terms Presets</PageTitle>
+<PageTitle>@PageText["Page_InvoicePaymentTerms_Title"]</PageTitle>
 
 <div class="invoice-payment-presets-page ui-stack-md">
     <section class="panel invoice-payment-presets-toolbar">
         <div>
-            <h3 class="ui-title">Payment terms presets</h3>
-            <span class="ui-text-muted">Reusable payment instructions for invoice editing.</span>
+            <h3 class="ui-title">@PageText["Page_InvoicePaymentTerms_Title"]</h3>
+            <span class="ui-text-muted">@PageText["Page_InvoicePaymentTerms_Description"]</span>
         </div>
-        <ActionButton Kind="@(_showCreate ? ActionButtonKind.Cancel : ActionButtonKind.Create)" Variant="@(_showCreate ? ActionButtonVariant.Outline : ActionButtonVariant.Primary)" OnClick="ToggleCreate" Disabled="_isBusy" Label="@(_showCreate ? "Cancel creation" : "Create payment terms preset")" />
+        <ActionButton Kind="@(_showCreate ? ActionButtonKind.Cancel : ActionButtonKind.Create)" Variant="@(_showCreate ? ActionButtonVariant.Outline : ActionButtonVariant.Primary)" OnClick="ToggleCreate" Disabled="_isBusy" Label="@(_showCreate ? Text["Presets_CancelCreation"] : Text["Terms_Create"])" />
     </section>
 
     @if (!string.IsNullOrWhiteSpace(_error))
@@ -24,14 +24,14 @@
 
     <div class="invoice-payment-presets-layout two-column-layout mobile-master-detail @(_isMobileDetailOpen ? "mobile-detail-open" : string.Empty)">
         <section class="panel preset-list-pane two-column-layout-left">
-            <h4 class="ui-title">Presets</h4>
+            <h4 class="ui-title">@Text["Presets_Title"]</h4>
             @if (_presets is null)
             {
-                <p>Loading presets...</p>
+                <p>@Text["Presets_Loading"]</p>
             }
             else if (_presets.Count == 0)
             {
-                <p>No payment terms presets have been created.</p>
+                <p>@Text["Terms_None"]</p>
             }
             else
             {
@@ -53,7 +53,7 @@
 
         <section class="preset-detail-pane two-column-layout-right">
             <div class="mobile-detail-nav">
-                <ActionButton Kind="ActionButtonKind.Back" Variant="ActionButtonVariant.Outline" Size="ActionButtonSize.Small" OnClick="ShowListMobile" Label="Back to payment terms" />
+                <ActionButton Kind="ActionButtonKind.Back" Variant="ActionButtonVariant.Outline" Size="ActionButtonSize.Small" OnClick="ShowListMobile" Label="@SharedText["Action_BackToList"]" />
             </div>
             @if (_showCreate || _editingPreset.Id != Guid.Empty)
             {

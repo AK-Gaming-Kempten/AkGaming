@@ -1,0 +1,219 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms</value></resheader>
+  <data name="Action_Add" xml:space="preserve"><value>Add</value></data>
+  <data name="Action_Apply" xml:space="preserve"><value>Apply</value></data>
+  <data name="Action_Approve" xml:space="preserve"><value>Approve</value></data>
+  <data name="Action_Back" xml:space="preserve"><value>Back</value></data>
+  <data name="Action_Cancel" xml:space="preserve"><value>Cancel</value></data>
+  <data name="Action_Close" xml:space="preserve"><value>Close</value></data>
+  <data name="Action_Confirm" xml:space="preserve"><value>Confirm</value></data>
+  <data name="Action_Copy" xml:space="preserve"><value>Copy</value></data>
+  <data name="Action_Create" xml:space="preserve"><value>Create</value></data>
+  <data name="Action_Delete" xml:space="preserve"><value>Delete</value></data>
+  <data name="Action_Edit" xml:space="preserve"><value>Edit</value></data>
+  <data name="Action_Filter" xml:space="preserve"><value>Filter</value></data>
+  <data name="Action_Link" xml:space="preserve"><value>Link</value></data>
+  <data name="Action_Logout" xml:space="preserve"><value>Log out</value></data>
+  <data name="Action_Open" xml:space="preserve"><value>Open</value></data>
+  <data name="Action_Preview" xml:space="preserve"><value>Preview</value></data>
+  <data name="Action_Reject" xml:space="preserve"><value>Reject</value></data>
+  <data name="Action_Refresh" xml:space="preserve"><value>Refresh</value></data>
+  <data name="Action_Remove" xml:space="preserve"><value>Remove</value></data>
+  <data name="Action_Save" xml:space="preserve"><value>Save</value></data>
+  <data name="Action_Search" xml:space="preserve"><value>Search</value></data>
+  <data name="Action_Send" xml:space="preserve"><value>Send</value></data>
+  <data name="Action_Download" xml:space="preserve"><value>Download</value></data>
+  <data name="Action_Previous" xml:space="preserve"><value>Previous</value></data>
+  <data name="Action_Next" xml:space="preserve"><value>Next</value></data>
+  <data name="Action_Submit" xml:space="preserve"><value>Submit</value></data>
+  <data name="Action_Update" xml:space="preserve"><value>Update</value></data>
+  <data name="Action_BackToList" xml:space="preserve"><value>Back to list</value></data>
+  <data name="Action_AddAgendaItem" xml:space="preserve"><value>Add agenda item</value></data>
+  <data name="Action_AddFromBacklog" xml:space="preserve"><value>Add from backlog</value></data>
+  <data name="Action_AddToBacklog" xml:space="preserve"><value>Add to backlog</value></data>
+  <data name="Action_AddWithoutCheckIn" xml:space="preserve"><value>Add without check-in</value></data>
+  <data name="Action_AssignRoles" xml:space="preserve"><value>Assign roles</value></data>
+  <data name="Action_CreateRole" xml:space="preserve"><value>Create role</value></data>
+  <data name="Action_FilterByName" xml:space="preserve"><value>Filter by name</value></data>
+  <data name="Action_FilterByStatus" xml:space="preserve"><value>Filter by status</value></data>
+  <data name="Action_MakeCurrent" xml:space="preserve"><value>Make current</value></data>
+  <data name="Action_ReplaceSecret" xml:space="preserve"><value>Replace client secret</value></data>
+  <data name="State_All" xml:space="preserve"><value>All</value></data>
+  <data name="State_Loading" xml:space="preserve"><value>Loading…</value></data>
+  <data name="State_Saving" xml:space="preserve"><value>Saving…</value></data>
+  <data name="State_None" xml:space="preserve"><value>None</value></data>
+  <data name="State_Unknown" xml:space="preserve"><value>Unknown</value></data>
+  <data name="State_LoadingUsers" xml:space="preserve"><value>Loading users…</value></data>
+  <data name="State_LoadingRoles" xml:space="preserve"><value>Loading roles…</value></data>
+  <data name="State_LoadingScopes" xml:space="preserve"><value>Loading scopes…</value></data>
+  <data name="State_LoadingClients" xml:space="preserve"><value>Loading clients…</value></data>
+  <data name="State_LoadingMembers" xml:space="preserve"><value>Loading members…</value></data>
+  <data name="State_LoadingRequests" xml:space="preserve"><value>Loading requests…</value></data>
+  <data name="State_NoUsers" xml:space="preserve"><value>No users found.</value></data>
+  <data name="State_NoRoles" xml:space="preserve"><value>No roles found.</value></data>
+  <data name="State_NoScopes" xml:space="preserve"><value>No scopes found.</value></data>
+  <data name="State_NoClients" xml:space="preserve"><value>No clients found.</value></data>
+  <data name="State_NoMembers" xml:space="preserve"><value>No members found.</value></data>
+  <data name="State_NoRequests" xml:space="preserve"><value>No requests found.</value></data>
+  <data name="State_NoSelection" xml:space="preserve"><value>Nothing selected.</value></data>
+  <data name="State_AccessRequiresLogin" xml:space="preserve"><value>Access denied. You must log in.</value></data>
+  <data name="State_LoadingAudit" xml:space="preserve"><value>Loading audit logs…</value></data>
+  <data name="State_NoAudit" xml:space="preserve"><value>No audit logs found.</value></data>
+  <data name="State_LoadingTrialMembers" xml:space="preserve"><value>Loading trial members…</value></data>
+  <data name="State_NoTrialMembers" xml:space="preserve"><value>No members currently in trial.</value></data>
+  <data name="State_NoHistory" xml:space="preserve"><value>No history available.</value></data>
+  <data name="State_NoAgenda" xml:space="preserve"><value>No agenda items yet.</value></data>
+  <data name="State_NotFound" xml:space="preserve"><value>Sorry, there's nothing at this address.</value></data>
+  <data name="Heading_ExistingMembers" xml:space="preserve"><value>Existing members</value></data>
+  <data name="Heading_TrialMembers" xml:space="preserve"><value>Trial members</value></data>
+  <data name="Heading_PendingRequests" xml:space="preserve"><value>Pending requests</value></data>
+  <data name="Heading_Controls" xml:space="preserve"><value>Controls</value></data>
+  <data name="Heading_Details" xml:space="preserve"><value>Details</value></data>
+  <data name="Heading_Summary" xml:space="preserve"><value>Summary</value></data>
+  <data name="Heading_StatusHistory" xml:space="preserve"><value>Status history</value></data>
+  <data name="Heading_RoleDetails" xml:space="preserve"><value>Role details</value></data>
+  <data name="Heading_UserRoles" xml:space="preserve"><value>User details and roles</value></data>
+  <data name="Heading_ExistingClients" xml:space="preserve"><value>Existing clients</value></data>
+  <data name="Heading_ExistingScopes" xml:space="preserve"><value>Existing scopes</value></data>
+  <data name="Heading_Attendees" xml:space="preserve"><value>Attendees</value></data>
+  <data name="Heading_Collections" xml:space="preserve"><value>Collections</value></data>
+  <data name="Heading_FinalProtocol" xml:space="preserve"><value>Final protocol</value></data>
+  <data name="Heading_Nominations" xml:space="preserve"><value>Nominations</value></data>
+  <data name="Heading_ReminderDispatch" xml:space="preserve"><value>Reminder dispatch</value></data>
+  <data name="Heading_SuspensionMail" xml:space="preserve"><value>Suspension mail</value></data>
+  <data name="Field_Name" xml:space="preserve"><value>Name</value></data>
+  <data name="Field_Title" xml:space="preserve"><value>Title</value></data>
+  <data name="Field_Description" xml:space="preserve"><value>Description</value></data>
+  <data name="Field_Status" xml:space="preserve"><value>Status</value></data>
+  <data name="Field_Date" xml:space="preserve"><value>Date</value></data>
+  <data name="Field_Amount" xml:space="preserve"><value>Amount</value></data>
+  <data name="Field_Note" xml:space="preserve"><value>Note</value></data>
+  <data name="Field_Reason" xml:space="preserve"><value>Reason</value></data>
+  <data name="Field_Email" xml:space="preserve"><value>Email</value></data>
+  <data name="Field_FirstName" xml:space="preserve"><value>First name</value></data>
+  <data name="Field_LastName" xml:space="preserve"><value>Last name</value></data>
+  <data name="Field_Phone" xml:space="preserve"><value>Phone</value></data>
+  <data name="Field_Discord" xml:space="preserve"><value>Discord</value></data>
+  <data name="Field_BirthDate" xml:space="preserve"><value>Birth date</value></data>
+  <data name="Field_Address" xml:space="preserve"><value>Address</value></data>
+  <data name="Field_Street" xml:space="preserve"><value>Street</value></data>
+  <data name="Field_PostalCode" xml:space="preserve"><value>Postal code</value></data>
+  <data name="Field_City" xml:space="preserve"><value>City</value></data>
+  <data name="Field_Country" xml:space="preserve"><value>Country</value></data>
+  <data name="Field_Purpose" xml:space="preserve"><value>Purpose</value></data>
+  <data name="Field_Duration" xml:space="preserve"><value>Duration</value></data>
+  <data name="Field_Location" xml:space="preserve"><value>Location</value></data>
+  <data name="Field_PageSize" xml:space="preserve"><value>Page size</value></data>
+  <data name="Field_Recipient" xml:space="preserve"><value>Recipient</value></data>
+  <data name="Field_Subject" xml:space="preserve"><value>Subject</value></data>
+  <data name="Field_Timestamp" xml:space="preserve"><value>Timestamp</value></data>
+  <data name="Field_Reference" xml:space="preserve"><value>Reference</value></data>
+  <data name="Field_DisplayName" xml:space="preserve"><value>Display name</value></data>
+  <data name="Field_ClientId" xml:space="preserve"><value>Client ID</value></data>
+  <data name="Field_ClientSecret" xml:space="preserve"><value>Client secret</value></data>
+  <data name="Field_ClientType" xml:space="preserve"><value>Client type</value></data>
+  <data name="Field_RoleName" xml:space="preserve"><value>Role name</value></data>
+  <data name="Field_ScopeName" xml:space="preserve"><value>Scope name</value></data>
+  <data name="Field_Action" xml:space="preserve"><value>Action</value></data>
+  <data name="Field_Type" xml:space="preserve"><value>Type</value></data>
+  <data name="Field_Question" xml:space="preserve"><value>Question</value></data>
+  <data name="Field_Order" xml:space="preserve"><value>Order</value></data>
+  <data name="Field_Parent" xml:space="preserve"><value>Parent</value></data>
+  <data name="Field_Entity" xml:space="preserve"><value>Entity</value></data>
+  <data name="Field_EntityId" xml:space="preserve"><value>Entity ID</value></data>
+  <data name="Field_UserId" xml:space="preserve"><value>User ID</value></data>
+  <data name="Field_RoleId" xml:space="preserve"><value>Role ID</value></data>
+  <data name="Field_MemberId" xml:space="preserve"><value>Member ID</value></data>
+  <data name="Field_FullName" xml:space="preserve"><value>Full name</value></data>
+  <data name="Field_Permissions" xml:space="preserve"><value>Permissions</value></data>
+  <data name="Field_CurrentRoles" xml:space="preserve"><value>Current roles</value></data>
+  <data name="Field_RedirectUris" xml:space="preserve"><value>Redirect URIs</value></data>
+  <data name="Field_PostLogoutUris" xml:space="preserve"><value>Post-logout redirect URIs</value></data>
+  <data name="Field_ConsentType" xml:space="preserve"><value>Consent type</value></data>
+  <data name="Field_HtmlPreview" xml:space="preserve"><value>HTML preview</value></data>
+  <data name="Field_FallbackText" xml:space="preserve"><value>Fallback text</value></data>
+  <data name="Field_DueAmount" xml:space="preserve"><value>Due amount</value></data>
+  <data name="Field_DueDate" xml:space="preserve"><value>Due date</value></data>
+  <data name="Field_PaidAmount" xml:space="preserve"><value>Paid amount</value></data>
+  <data name="Field_SettledAt" xml:space="preserve"><value>Settled at</value></data>
+  <data name="Field_AllStatuses" xml:space="preserve"><value>All statuses</value></data>
+  <data name="Field_ApplicationMessage" xml:space="preserve"><value>Application message</value></data>
+  <data name="Field_DateTime" xml:space="preserve"><value>Date and time</value></data>
+  <data name="Field_DefaultAmount" xml:space="preserve"><value>Default amount (€)</value></data>
+  <data name="Field_ReducedAmount" xml:space="preserve"><value>Reduced amount (€)</value></data>
+  <data name="Field_DurationMinutes" xml:space="preserve"><value>Duration (minutes)</value></data>
+  <data name="Field_Event" xml:space="preserve"><value>Event</value></data>
+  <data name="Field_Heading" xml:space="preserve"><value>Heading</value></data>
+  <data name="Field_MaxSelections" xml:space="preserve"><value>Maximum selections</value></data>
+  <data name="Field_Member" xml:space="preserve"><value>Member</value></data>
+  <data name="Field_MemberDisplay" xml:space="preserve"><value>Member display</value></data>
+  <data name="Field_NewStatus" xml:space="preserve"><value>New status</value></data>
+  <data name="Field_OldStatus" xml:space="preserve"><value>Old status</value></data>
+  <data name="Field_NewValues" xml:space="preserve"><value>New values</value></data>
+  <data name="Field_OldValues" xml:space="preserve"><value>Old values</value></data>
+  <data name="Field_PaymentPeriod" xml:space="preserve"><value>Payment period</value></data>
+  <data name="Field_PerformedBy" xml:space="preserve"><value>Performed by</value></data>
+  <data name="Field_ProviderUserId" xml:space="preserve"><value>Provider user ID</value></data>
+  <data name="Field_ProviderUsername" xml:space="preserve"><value>Provider username</value></data>
+  <data name="Field_Recipients" xml:space="preserve"><value>Recipients</value></data>
+  <data name="Field_Resources" xml:space="preserve"><value>Resources</value></data>
+  <data name="Field_SubjectEmail" xml:space="preserve"><value>Subject email</value></data>
+  <data name="State_LoadingDues" xml:space="preserve"><value>Loading dues…</value></data>
+  <data name="State_LoadingPermissions" xml:space="preserve"><value>Loading permissions…</value></data>
+  <data name="State_LoadingHistory" xml:space="preserve"><value>Loading status history…</value></data>
+  <data name="State_NoDues" xml:space="preserve"><value>No dues found for this payment period.</value></data>
+  <data name="State_NoPaymentPeriods" xml:space="preserve"><value>No payment periods exist yet.</value></data>
+  <data name="State_NoReminderRecipients" xml:space="preserve"><value>No eligible reminder recipients.</value></data>
+  <data name="State_NoSkippedMembers" xml:space="preserve"><value>No skipped members.</value></data>
+  <data name="Message_BallotEligibility" xml:space="preserve"><value>Your eligibility is checked before a credential is issued. The stored vote cannot be traced back to you.</value></data>
+  <data name="Message_VoteAccepted" xml:space="preserve"><value>Your vote was accepted. The voting right has been consumed.</value></data>
+  <data name="Action_GetVotingRight" xml:space="preserve"><value>Get my voting right</value></data>
+  <data name="Action_RequestAnonymousVote" xml:space="preserve"><value>Request an anonymous voting right</value></data>
+  <data name="Action_IssueOfflineVote" xml:space="preserve"><value>Issue an offline voting right</value></data>
+  <data name="Action_SubmitSecretVote" xml:space="preserve"><value>Submit secret vote</value></data>
+  <data name="Option_YesNoAbstain" xml:space="preserve"><value>Yes / No / Abstain</value></data>
+  <data name="Message_SelectRole" xml:space="preserve"><value>Select a role to rename or delete it.</value></data>
+  <data name="Message_SelectUser" xml:space="preserve"><value>Select a user to view details and edit roles.</value></data>
+  <data name="Message_RolesRequired" xml:space="preserve"><value>No roles are available. Create roles first on the Roles page.</value></data>
+  <data name="Message_SystemRolePermissions" xml:space="preserve"><value>System role permissions are managed by the application.</value></data>
+  <data name="Message_SystemRoleOpenCloud" xml:space="preserve"><value>System role OpenCloud roles are managed by the application.</value></data>
+  <data name="Message_SecretOnce" xml:space="preserve"><value>Show or copy this once. It is not linked to the member in storage.</value></data>
+  <data name="Message_AccessDenied" xml:space="preserve"><value>You do not have permission to access this resource.</value></data>
+  <data name="Message_NoResults" xml:space="preserve"><value>No results found.</value></data>
+  <data name="Message_NoData" xml:space="preserve"><value>No data available.</value></data>
+  <data name="Message_RequestId" xml:space="preserve"><value>Request ID:</value></data>
+  <data name="Status_Pending" xml:space="preserve"><value>Pending</value></data>
+  <data name="Status_Approved" xml:space="preserve"><value>Approved</value></data>
+  <data name="Status_Rejected" xml:space="preserve"><value>Rejected</value></data>
+  <data name="Status_Cancelled" xml:space="preserve"><value>Cancelled</value></data>
+  <data name="Status_Paid" xml:space="preserve"><value>Paid</value></data>
+  <data name="Status_Open" xml:space="preserve"><value>Open</value></data>
+  <data name="Status_Closed" xml:space="preserve"><value>Closed</value></data>
+  <data name="Status_Draft" xml:space="preserve"><value>Draft</value></data>
+  <data name="Status_None" xml:space="preserve"><value>None</value></data>
+  <data name="Status_Scheduled" xml:space="preserve"><value>Scheduled</value></data>
+  <data name="Status_InProgress" xml:space="preserve"><value>In progress</value></data>
+  <data name="Status_Completed" xml:space="preserve"><value>Completed</value></data>
+  <data name="Status_Available" xml:space="preserve"><value>Available</value></data>
+  <data name="Status_Unavailable" xml:space="preserve"><value>Unavailable</value></data>
+  <data name="Status_UnderReview" xml:space="preserve"><value>Under review</value></data>
+  <data name="Status_Submitted" xml:space="preserve"><value>Submitted</value></data>
+  <data name="Status_Waived" xml:space="preserve"><value>Waived</value></data>
+  <data name="Status_Suspended" xml:space="preserve"><value>Suspended</value></data>
+  <data name="Status_Member" xml:space="preserve"><value>Member</value></data>
+  <data name="Status_HonoraryMember" xml:space="preserve"><value>Honorary member</value></data>
+  <data name="Status_SupportingMember" xml:space="preserve"><value>Supporting member</value></data>
+  <data name="Status_InTrial" xml:space="preserve"><value>In trial</value></data>
+  <data name="Status_Applicant" xml:space="preserve"><value>Applicant</value></data>
+  <data name="Status_Active" xml:space="preserve"><value>Active</value></data>
+  <data name="Status_Expired" xml:space="preserve"><value>Expired</value></data>
+  <data name="Status_Sent" xml:space="preserve"><value>Sent</value></data>
+  <data name="Status_Failed" xml:space="preserve"><value>Failed</value></data>
+  <data name="Status_CheckInOpen" xml:space="preserve"><value>Check-in open</value></data>
+  <data name="Status_InvitationsSent" xml:space="preserve"><value>Invitations sent</value></data>
+  <data name="Unit_Minutes" xml:space="preserve"><value>min</value></data>
+</root>

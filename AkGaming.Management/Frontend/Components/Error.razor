@@ -1,15 +1,12 @@
 ﻿@page "/Error"
 @using System.Diagnostics
 
-<PageTitle>Error</PageTitle>
-
-<h1 class="text-danger">Error.</h1>
-<h2 class="text-danger">An error occurred while processing your request.</h2>
+<PageTitle>@PageText["Page_Error_Title"]</PageTitle>
 
 @if (ShowRequestId)
 {
     <p>
-        <strong>Request ID:</strong> <code>@RequestId</code>
+        <strong>@SharedText["Message_RequestId"]</strong> <code>@RequestId</code>
     </p>
 }
 

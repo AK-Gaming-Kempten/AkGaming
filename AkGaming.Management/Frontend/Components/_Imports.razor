@@ -7,8 +7,11 @@
 @using static Microsoft.AspNetCore.Components.Web.RenderMode
 @using Microsoft.AspNetCore.Components.Web.Virtualization
 @using Microsoft.JSInterop
+@using Microsoft.Extensions.Localization
 @using AkGaming.Management.Frontend
 @using AkGaming.Management.Frontend.Components
+@using AkGaming.Management.Frontend.Components.Shared
+@using AkGaming.Management.Frontend.Localization
 @using AkGaming.Management.Frontend.Components.Administration.Common
 @using AkGaming.Management.Frontend.Components.Disbursements
 @using AkGaming.Management.Modules.Disbursements.Contracts.DTO
@@ -16,3 +19,5 @@
 @using AkGaming.Core.Components.Feedback
 @using AkGaming.Core.Components.Layout
 @using AkGaming.Core.Components.Navigation
+@inject IStringLocalizer<SharedStrings> SharedText
+@inject IStringLocalizer<PageStrings> PageText

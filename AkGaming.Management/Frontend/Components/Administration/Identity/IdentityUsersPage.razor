@@ -2,26 +2,26 @@
 @using Microsoft.AspNetCore.Authorization
 @attribute [Authorize(Policy = "identity.users.read")]
 
-<PageTitle>Identity Users</PageTitle>
+<PageTitle>@PageText["Page_IdentityUsers_Title"]</PageTitle>
 
 <div class="identity-users-page mobile-master-detail @(_isMobileDetailOpen ? "mobile-detail-open" : string.Empty)">
     <div class="users-list-pane card">
-        <h4>Users</h4>
+        <h4>@PageText["Page_IdentityUsers_Title"]</h4>
 
         <div class="toolbar">
             <InputText @bind-Value="_search" placeholder="Search by email" />
             <InputNumber @bind-Value="_pageSize" min="1" max="200" />
-            <ActionButton Kind="ActionButtonKind.Search" OnClick="SearchAsync" Disabled="_isBusy" Label="Search users" />
-            <ActionButton Kind="ActionButtonKind.Refresh" OnClick="ReloadUsersAsync" Disabled="_isBusy" Label="Refresh users" />
+            <ActionButton Kind="ActionButtonKind.Search" OnClick="SearchAsync" Disabled="_isBusy" Label="@SharedText["Action_Search"]" />
+            <ActionButton Kind="ActionButtonKind.Refresh" OnClick="ReloadUsersAsync" Disabled="_isBusy" Label="@SharedText["Action_Refresh"]" />
         </div>
 
         @if (_usersResponse is null)
         {
-            <p>Loading users...</p>
+            <p>@SharedText["State_LoadingUsers"]</p>
         }
         else if (_usersResponse.Items.Count == 0)
         {
-            <p>No users found.</p>
+            <p>@SharedText["State_NoUsers"]</p>
         }
         else
         {
@@ -38,32 +38,32 @@
             </div>
 
             <div class="pager">
-                <ActionButton Kind="ActionButtonKind.Previous" OnClick="PrevPageAsync" Disabled="@(_isBusy || _page <= 1)" Label="Previous users page" />
+                <ActionButton Kind="ActionButtonKind.Previous" OnClick="PrevPageAsync" Disabled="@(_isBusy || _page <= 1)" Label="@SharedText["Action_Previous"]" />
                 <span>Page @_page of @_totalPages (Total @_usersResponse.TotalCount)</span>
-                <ActionButton Kind="ActionButtonKind.Next" OnClick="NextPageAsync" Disabled="@(_isBusy || _page >= _totalPages)" Label="Next users page" />
+                <ActionButton Kind="ActionButtonKind.Next" OnClick="NextPageAsync" Disabled="@(_isBusy || _page >= _totalPages)" Label="@SharedText["Action_Next"]" />
             </div>
         }
     </div>
 
     <div class="user-detail-pane card">
         <div class="mobile-detail-nav">
-            <ActionButton Kind="ActionButtonKind.Back" Variant="ActionButtonVariant.Outline" Size="ActionButtonSize.Small" OnClick="ShowListMobile" Label="Back to users" />
+            <ActionButton Kind="ActionButtonKind.Back" Variant="ActionButtonVariant.Outline" Size="ActionButtonSize.Small" OnClick="ShowListMobile" Label="@SharedText["Action_BackToList"]" />
         </div>
-        <h4>User Details & Roles</h4>
+        <h4>@SharedText["Heading_UserRoles"]</h4>
 
         @if (_selectedUserDetails is null)
         {
-            <p>Select a user to view details and edit roles.</p>
+            <p>@SharedText["Message_SelectUser"]</p>
         }
         else
         {
             <div class="detail-grid">
                 <div>
-                    <label>User Id</label>
+                    <label>@SharedText["Field_UserId"]</label>
                     <input value="@_selectedUserDetails.UserId" disabled />
                 </div>
                 <div>
-                    <label>Email</label>
+                    <label>@SharedText["Field_Email"]</label>
                     <input value="@_selectedUserDetails.Email" disabled />
                 </div>
                 <div>
@@ -86,11 +86,11 @@
                     <h5>Discord Link</h5>
                     <div class="detail-grid">
                         <div>
-                            <label>Provider user id</label>
+                            <label>@SharedText["Field_ProviderUserId"]</label>
                             <input value="@_selectedUserDetails.Discord.ProviderUserId" disabled />
                         </div>
                         <div>
-                            <label>Provider username</label>
+                            <label>@SharedText["Field_ProviderUsername"]</label>
                             <input value="@_selectedUserDetails.Discord.ProviderUsername" disabled />
                         </div>
                         <div>
@@ -103,10 +103,10 @@
 
             @if (_canManageUsers)
             {
-                <h5>Assign Roles</h5>
+                <h5>@SharedText["Action_AssignRoles"]</h5>
                 @if (_availableRoles.Count == 0)
                 {
-                    <p>No roles available. Create roles first on the Roles page.</p>
+                    <p>@SharedText["Message_RolesRequired"]</p>
                 }
                 else
                 {
@@ -124,12 +124,12 @@
                 }
 
                 <div class="actions">
-                    <ActionButton Kind="ActionButtonKind.Save" Variant="ActionButtonVariant.Primary" OnClick="SaveRolesAsync" Disabled="@(_isBusy || !_selectedUserId.HasValue)" Label="Save roles" />
+                    <ActionButton Kind="ActionButtonKind.Save" Variant="ActionButtonVariant.Primary" OnClick="SaveRolesAsync" Disabled="@(_isBusy || !_selectedUserId.HasValue)" Label="@SharedText["Action_Save"]" />
                 </div>
             }
 
             <div>
-                <label>Current roles</label>
+                <label>@SharedText["Field_CurrentRoles"]</label>
                 <div class="role-chips">
                     @foreach (var role in _currentRoles.OrderBy(r => r, StringComparer.OrdinalIgnoreCase))
                     {

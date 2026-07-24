@@ -51,12 +51,12 @@
 
             <div class="ui-grid-auto-180">
                 <div class="ui-field">
-                    <label>Display name</label>
+                    <label>@SharedText["Field_DisplayName"]</label>
                     <InputText @bind-Value="_displayName" disabled="@Client.IsProtected" />
                 </div>
 
                 <div class="ui-field">
-                    <label>Client type</label>
+                    <label>@SharedText["Field_ClientType"]</label>
                     <InputSelect @bind-Value="_clientType" disabled="@Client.IsProtected">
                         <option value="confidential">confidential</option>
                         <option value="public">public</option>
@@ -64,7 +64,7 @@
                 </div>
 
                 <div class="ui-field">
-                    <label>Consent type</label>
+                    <label>@SharedText["Field_ConsentType"]</label>
                     <InputSelect @bind-Value="_consentType" disabled="@(Client.IsProtected || !_allowAuthorizationCodeFlow)">
                         <option value="implicit">implicit</option>
                         <option value="explicit">explicit</option>
@@ -77,19 +77,19 @@
             @if (string.Equals(_clientType, "confidential", StringComparison.OrdinalIgnoreCase))
             {
                 <div class="ui-field">
-                    <label>Replace client secret</label>
+                    <label>@SharedText["Action_ReplaceSecret"]</label>
                     <InputText @bind-Value="_clientSecret" type="password" autocomplete="new-password" placeholder="Leave empty to keep current secret" disabled="@Client.IsProtected" />
                 </div>
             }
 
             <div class="identity-entry-grid-wide">
                 <div class="ui-field">
-                    <label>Redirect URIs</label>
+                    <label>@SharedText["Field_RedirectUris"]</label>
                     <InputTextArea @bind-Value="_redirectUrisText" disabled="@(Client.IsProtected || !_allowAuthorizationCodeFlow)" />
                 </div>
 
                 <div class="ui-field">
-                    <label>Post logout redirect URIs</label>
+                    <label>@SharedText["Field_PostLogoutUris"]</label>
                     <InputTextArea @bind-Value="_postLogoutRedirectUrisText" disabled="@(Client.IsProtected || !_allowAuthorizationCodeFlow)" />
                 </div>
 
@@ -124,8 +124,8 @@
             }
 
             <div class="ui-actions">
-                <ActionButton Kind="ActionButtonKind.Save" Variant="ActionButtonVariant.Primary" Size="ActionButtonSize.Small" OnClick="SaveAsync" Disabled="@(IsBusy || Client.IsProtected)" Label="Save client" />
-                <ActionButton Kind="ActionButtonKind.Delete" Variant="ActionButtonVariant.Danger" Size="ActionButtonSize.Small" OnClick="DeleteAsync" Disabled="@(IsBusy || Client.IsProtected)" Label="Delete client" />
+                <ActionButton Kind="ActionButtonKind.Save" Variant="ActionButtonVariant.Primary" Size="ActionButtonSize.Small" OnClick="SaveAsync" Disabled="@(IsBusy || Client.IsProtected)" Label="@SharedText["Action_Save"]" />
+                <ActionButton Kind="ActionButtonKind.Delete" Variant="ActionButtonVariant.Danger" Size="ActionButtonSize.Small" OnClick="DeleteAsync" Disabled="@(IsBusy || Client.IsProtected)" Label="@SharedText["Action_Delete"]" />
                 <ActionButton Kind="ActionButtonKind.Cancel" Variant="ActionButtonVariant.Outline" Size="ActionButtonSize.Small" OnClick="CancelEditing" Disabled="IsBusy" />
             </div>
         </div>

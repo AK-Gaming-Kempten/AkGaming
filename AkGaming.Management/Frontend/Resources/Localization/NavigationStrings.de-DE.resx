@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms</value></resheader>
+  <data name="Language_AriaLabel" xml:space="preserve"><value>Sprache</value></data>
+  <data name="Language_English" xml:space="preserve"><value>Englisch verwenden</value></data>
+  <data name="Language_German" xml:space="preserve"><value>Deutsch verwenden</value></data>
+  <data name="Theme_AriaLabel" xml:space="preserve"><value>Farbschema</value></data>
+  <data name="Theme_System" xml:space="preserve"><value>Systemeinstellung verwenden</value></data>
+  <data name="Theme_Light" xml:space="preserve"><value>Helles Farbschema verwenden</value></data>
+  <data name="Theme_Dark" xml:space="preserve"><value>Dunkles Farbschema verwenden</value></data>
+  <data name="Navigation_Toggle" xml:space="preserve"><value>Navigationsmenü öffnen oder schließen</value></data>
+  <data name="Navigation_Close" xml:space="preserve"><value>Navigationsmenü schließen</value></data>
+  <data name="App_Name" xml:space="preserve"><value>Verwaltung</value></data>
+  <data name="Home" xml:space="preserve"><value>Startseite</value></data>
+  <data name="Profile" xml:space="preserve"><value>Profil</value></data>
+  <data name="GeneralMeetings" xml:space="preserve"><value>Mitgliederversammlungen</value></data>
+  <data name="BoardMeetings" xml:space="preserve"><value>Vorstandssitzungen</value></data>
+  <data name="Disbursements" xml:space="preserve"><value>Auszahlungen</value></data>
+  <data name="MyReimbursements" xml:space="preserve"><value>Meine Erstattungen</value></data>
+  <data name="MyAllocations" xml:space="preserve"><value>Meine Zuteilungen</value></data>
+  <data name="Cases" xml:space="preserve"><value>Vorgänge</value></data>
+  <data name="Events" xml:space="preserve"><value>Veranstaltungen</value></data>
+  <data name="MemberManagement" xml:space="preserve"><value>Mitgliederverwaltung</value></data>
+  <data name="Members" xml:space="preserve"><value>Mitglieder</value></data>
+  <data name="Trial" xml:space="preserve"><value>Probezeit</value></data>
+  <data name="Requests" xml:space="preserve"><value>Anträge</value></data>
+  <data name="Dues" xml:space="preserve"><value>Beiträge</value></data>
+  <data name="AuditLog" xml:space="preserve"><value>Änderungsprotokoll</value></data>
+  <data name="Invoices" xml:space="preserve"><value>Rechnungen</value></data>
+  <data name="Presets" xml:space="preserve"><value>Vorlagen</value></data>
+  <data name="Identity" xml:space="preserve"><value>Identitäten</value></data>
+  <data name="Clients" xml:space="preserve"><value>Clients</value></data>
+  <data name="Scopes" xml:space="preserve"><value>Berechtigungsbereiche</value></data>
+  <data name="Roles" xml:space="preserve"><value>Rollen</value></data>
+  <data name="Users" xml:space="preserve"><value>Benutzer</value></data>
+</root>

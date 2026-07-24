@@ -6,14 +6,14 @@
             <AuthorizeRouteView RouteData="@routeData" DefaultLayout="@typeof(Layout.MainLayout)">
                 <NotAuthorized>
                     <UnauthorizedPanel ImageUrl="images/icons/AKG_Logos/Red.png">
-                        <p>Access denied. You must log in.</p>
+                        <p>@SharedText["State_AccessRequiresLogin"]</p>
                     </UnauthorizedPanel>
                 </NotAuthorized>
             </AuthorizeRouteView>
         </Found>
         <NotFound>
             <LayoutView Layout="@typeof(Layout.MainLayout)">
-                <p>Sorry, there's nothing at this address.</p>
+                <p>@SharedText["State_NotFound"]</p>
             </LayoutView>
         </NotFound>
     </Router>

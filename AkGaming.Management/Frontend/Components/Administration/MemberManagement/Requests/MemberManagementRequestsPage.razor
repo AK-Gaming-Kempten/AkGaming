@@ -2,7 +2,7 @@
 @using Microsoft.AspNetCore.Authorization
 @attribute [Authorize(Policy = "management.requests.read")]
 
-<PageTitle>Requests</PageTitle>
+<PageTitle>@PageText["Page_MemberRequests_Title"]</PageTitle>
 
 <CascadingValue Value="MemberApi" Name="MemberManagementApi" IsFixed="true">
     <div class="request-management-page">

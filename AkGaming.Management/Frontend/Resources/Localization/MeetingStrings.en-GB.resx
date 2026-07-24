@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms</value></resheader>
+  <data name="Access_Checking" xml:space="preserve"><value>Checking meeting access…</value></data>
+  <data name="Access_Denied" xml:space="preserve"><value>Access denied. General meetings are available to members only.</value></data>
+  <data name="General_Create" xml:space="preserve"><value>Create meeting</value></data>
+  <data name="General_None" xml:space="preserve"><value>No general meetings have been created.</value></data>
+  <data name="General_Back" xml:space="preserve"><value>General meetings</value></data>
+  <data name="General_CheckIn" xml:space="preserve"><value>Check in</value></data>
+  <data name="General_SendInvitations" xml:space="preserve"><value>Send invitations</value></data>
+  <data name="General_SendReminder" xml:space="preserve"><value>Send reminder</value></data>
+  <data name="General_Finalize" xml:space="preserve"><value>Finalize protocol</value></data>
+  <data name="General_Agenda" xml:space="preserve"><value>Agenda</value></data>
+  <data name="General_Attendees" xml:space="preserve"><value>Attendees</value></data>
+  <data name="General_Votes" xml:space="preserve"><value>votes</value></data>
+  <data name="General_LocationPending" xml:space="preserve"><value>Location pending</value></data>
+  <data name="Board_Create" xml:space="preserve"><value>Create meeting</value></data>
+  <data name="Board_Management" xml:space="preserve"><value>Board management</value></data>
+  <data name="Board_CreateTitle" xml:space="preserve"><value>Create board meeting</value></data>
+  <data name="Board_DefaultTitle" xml:space="preserve"><value>Board meeting</value></data>
+  <data name="Board_CreateDescription" xml:space="preserve"><value>The board notification is sent with this agenda as soon as the meeting is created.</value></data>
+  <data name="Board_Creating" xml:space="preserve"><value>Creating…</value></data>
+  <data name="Board_Item" xml:space="preserve"><value>Item</value></data>
+  <data name="Board_BacklogAvailable" xml:space="preserve"><value>{0} backlog items available</value></data>
+  <data name="Board_None" xml:space="preserve"><value>No board meetings have been created.</value></data>
+  <data name="Board_Back" xml:space="preserve"><value>Board meetings</value></data>
+  <data name="Board_AttendQuestion" xml:space="preserve"><value>Can you attend?</value></data>
+  <data name="Board_Available" xml:space="preserve"><value>I have time</value></data>
+  <data name="Board_Unavailable" xml:space="preserve"><value>I cannot attend</value></data>
+  <data name="Board_Rescheduling" xml:space="preserve"><value>Rescheduling</value></data>
+  <data name="Board_ProposeDate" xml:space="preserve"><value>Propose another date</value></data>
+  <data name="Board_ProposedDate" xml:space="preserve"><value>Proposed date</value></data>
+  <data name="Board_SubmitProposal" xml:space="preserve"><value>Submit proposal</value></data>
+  <data name="Board_RescheduleNow" xml:space="preserve"><value>Reschedule immediately</value></data>
+  <data name="Board_CancelMeeting" xml:space="preserve"><value>Cancel meeting</value></data>
+  <data name="Board_Agenda" xml:space="preserve"><value>Agenda</value></data>
+  <data name="Board_AgendaHelp" xml:space="preserve"><value>Drag items to reorder them. Further actions are available from each item's context menu.</value></data>
+  <data name="Board_AddItem" xml:space="preserve"><value>Add item</value></data>
+  <data name="Board_AddBacklog" xml:space="preserve"><value>Add from backlog</value></data>
+  <data name="Board_NoAgenda" xml:space="preserve"><value>No agenda items.</value></data>
+  <data name="Board_Backlog" xml:space="preserve"><value>Agenda backlog</value></data>
+  <data name="Board_BacklogHelp" xml:space="preserve"><value>Drag an item onto a scheduled meeting above to add it to that agenda.</value></data>
+  <data name="Board_NoBacklog" xml:space="preserve"><value>No backlog items.</value></data>
+  <data name="Board_BacklogEmpty" xml:space="preserve"><value>There are no items in the agenda backlog.</value></data>
+  <data name="Board_AddSelected" xml:space="preserve"><value>Add selected items</value></data>
+  <data name="Board_InitialAgenda" xml:space="preserve"><value>Initial agenda</value></data>
+  <data name="Board_InitialAgendaHelp" xml:space="preserve"><value>Add the items that should be included in the first Discord notification.</value></data>
+  <data name="Board_DurationMinutes" xml:space="preserve"><value>Duration (minutes)</value></data>
+  <data name="Board_Accept" xml:space="preserve"><value>Accept</value></data>
+  <data name="Board_Reject" xml:space="preserve"><value>Reject</value></data>
+  <data name="Board_ProposedBy" xml:space="preserve"><value>proposed by</value></data>
+  <data name="Board_AvailableCount" xml:space="preserve"><value>available</value></data>
+  <data name="Board_UnavailableCount" xml:space="preserve"><value>unavailable</value></data>
+</root>

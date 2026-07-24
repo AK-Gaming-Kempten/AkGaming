@@ -2,7 +2,7 @@
 @using Microsoft.AspNetCore.Authorization
 @attribute [Authorize(Policy = "management.members.read")]
 
-<PageTitle>Member Management Audit Log</PageTitle>
+<PageTitle>@PageText["Page_MemberAudit_Title"]</PageTitle>
 
 <div class="member-audit-page card">
     <h4>Member Management Audit Log</h4>
@@ -28,11 +28,11 @@
 
     @if (_auditLogs is null)
     {
-        <p>Loading audit logs...</p>
+        <p>@SharedText["State_LoadingAudit"]</p>
     }
     else if (_auditLogs.Items.Count == 0)
     {
-        <p>No audit logs found.</p>
+        <p>@SharedText["State_NoAudit"]</p>
     }
     else
     {
@@ -41,12 +41,12 @@
                 <thead>
                 <tr>
                     <th>Occurred (UTC)</th>
-                    <th>Action</th>
-                    <th>Performed By</th>
-                    <th>Entity</th>
-                    <th>Entity Id</th>
-                    <th>Old Values</th>
-                    <th>New Values</th>
+                    <th>@SharedText["Field_Action"]</th>
+                    <th>@SharedText["Field_PerformedBy"]</th>
+                    <th>@SharedText["Field_Entity"]</th>
+                    <th>@SharedText["Field_EntityId"]</th>
+                    <th>@SharedText["Field_OldValues"]</th>
+                    <th>@SharedText["Field_NewValues"]</th>
                 </tr>
                 </thead>
                 <tbody>

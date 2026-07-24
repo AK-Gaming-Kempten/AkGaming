@@ -13,7 +13,7 @@
     <div class="agenda-item-content">
         <div class="agenda-item-title">
             <strong>@Item.Title</strong>
-            <span class="agenda-status @Item.Status.ToString().ToLowerInvariant()">@Item.Status</span>
+            <span class="agenda-status @Item.Status.ToString().ToLowerInvariant()">@Item.Status.ToLocalizedString(SharedText)</span>
         </div>
         @if (!string.IsNullOrWhiteSpace(Item.Description))
         {

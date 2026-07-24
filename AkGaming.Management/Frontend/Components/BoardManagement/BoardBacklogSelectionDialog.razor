@@ -12,7 +12,7 @@
         }
         @if (Items.Count == 0)
         {
-            <p class="empty-backlog">There are no items in the agenda backlog.</p>
+            <p class="empty-backlog">@Text["Board_BacklogEmpty"]</p>
         }
         else
         {
@@ -34,7 +34,7 @@
         }
     </ChildContent>
     <Footer>
-        <button type="button" class="dialog-cancel" disabled="@IsBusy" @onclick="OnClose">Cancel</button>
-        <button type="button" class="dialog-primary" disabled="@(IsBusy || _selectedIds.Count == 0)" @onclick="SubmitAsync">Add selected items</button>
+        <button type="button" class="dialog-cancel" disabled="@IsBusy" @onclick="OnClose">@SharedText["Action_Cancel"]</button>
+        <button type="button" class="dialog-primary" disabled="@(IsBusy || _selectedIds.Count == 0)" @onclick="SubmitAsync">@Text["Board_AddSelected"]</button>
     </Footer>
 </GeneralMeetingFormDialog>

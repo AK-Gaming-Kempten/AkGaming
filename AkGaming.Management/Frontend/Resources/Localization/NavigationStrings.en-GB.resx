@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms</value></resheader>
+  <data name="Language_AriaLabel" xml:space="preserve"><value>Language</value></data>
+  <data name="Language_English" xml:space="preserve"><value>Use English</value></data>
+  <data name="Language_German" xml:space="preserve"><value>Use German</value></data>
+  <data name="Theme_AriaLabel" xml:space="preserve"><value>Theme</value></data>
+  <data name="Theme_System" xml:space="preserve"><value>Use system theme</value></data>
+  <data name="Theme_Light" xml:space="preserve"><value>Use light theme</value></data>
+  <data name="Theme_Dark" xml:space="preserve"><value>Use dark theme</value></data>
+  <data name="Navigation_Toggle" xml:space="preserve"><value>Toggle navigation menu</value></data>
+  <data name="Navigation_Close" xml:space="preserve"><value>Close navigation menu</value></data>
+  <data name="App_Name" xml:space="preserve"><value>Management Tool</value></data>
+  <data name="Home" xml:space="preserve"><value>Home</value></data>
+  <data name="Profile" xml:space="preserve"><value>Profile</value></data>
+  <data name="GeneralMeetings" xml:space="preserve"><value>General Meetings</value></data>
+  <data name="BoardMeetings" xml:space="preserve"><value>Board Meetings</value></data>
+  <data name="Disbursements" xml:space="preserve"><value>Disbursements</value></data>
+  <data name="MyReimbursements" xml:space="preserve"><value>My reimbursements</value></data>
+  <data name="MyAllocations" xml:space="preserve"><value>My allocations</value></data>
+  <data name="Cases" xml:space="preserve"><value>Cases</value></data>
+  <data name="Events" xml:space="preserve"><value>Events</value></data>
+  <data name="MemberManagement" xml:space="preserve"><value>Member Management</value></data>
+  <data name="Members" xml:space="preserve"><value>Members</value></data>
+  <data name="Trial" xml:space="preserve"><value>Trial</value></data>
+  <data name="Requests" xml:space="preserve"><value>Requests</value></data>
+  <data name="Dues" xml:space="preserve"><value>Dues</value></data>
+  <data name="AuditLog" xml:space="preserve"><value>Audit Log</value></data>
+  <data name="Invoices" xml:space="preserve"><value>Invoices</value></data>
+  <data name="Presets" xml:space="preserve"><value>Presets</value></data>
+  <data name="Identity" xml:space="preserve"><value>Identity</value></data>
+  <data name="Clients" xml:space="preserve"><value>Clients</value></data>
+  <data name="Scopes" xml:space="preserve"><value>Scopes</value></data>
+  <data name="Roles" xml:space="preserve"><value>Roles</value></data>
+  <data name="Users" xml:space="preserve"><value>Users</value></data>
+</root>

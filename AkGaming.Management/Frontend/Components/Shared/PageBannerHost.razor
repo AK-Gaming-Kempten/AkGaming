@@ -1,0 +1,11 @@
+@implements IDisposable
+@inject NavigationManager Navigation
+@inject IStringLocalizer<PageStrings> Text
+
+@if (CurrentBanner is not null)
+{
+    <PageTitle>@Text[CurrentBanner.TitleKey]</PageTitle>
+    <PageBanner Icon="@CurrentBanner.Icon"
+                Title="@Text[CurrentBanner.TitleKey]"
+                Description="@Text[CurrentBanner.DescriptionKey]" />
+}

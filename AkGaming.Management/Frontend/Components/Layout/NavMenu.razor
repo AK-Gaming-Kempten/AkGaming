@@ -1,26 +1,28 @@
+@inject IStringLocalizer<NavigationStrings> Text
+
 <div class="sidebar">
     <div class="sidebar-header">
         <img src="images/icons/AKG_Logos/default.png" alt="AKGaming Logo" class="sidebar-logo">
-        <span class="sidebar-title">Management Tool</span>
+        <span class="sidebar-title">@Text["App_Name"]</span>
     </div>
 
     <div class="sidebar-content">
         <nav class="sidebar-nav">
             <NavLink href="" Match="NavLinkMatch.All" class="nav-item level-1" @onclick="NotifyNavigation">
                 <span class="nav-icon bi-house-door-fill"></span>
-                <span>Home</span>
+                <span>@Text["Home"]</span>
             </NavLink>
 
             <NavLink href="membership" class="nav-item level-1" @onclick="NotifyNavigation">
                 <span class="nav-icon bi-person-fill"></span>
-                <span>Profile</span>
+                <span>@Text["Profile"]</span>
             </NavLink>
 
             @if (canAccessGeneralMeetings)
             {
                 <NavLink href="general-meetings" class="nav-item level-1" @onclick="NotifyNavigation">
                     <span class="nav-icon bi-people"></span>
-                    <span>General Meetings</span>
+                    <span>@Text["GeneralMeetings"]</span>
                 </NavLink>
             }
 
@@ -28,7 +30,7 @@
             {
                 <NavLink href="board/meetings" class="nav-item level-1" @onclick="NotifyNavigation">
                     <span class="nav-icon bi-calendar2-week"></span>
-                    <span>Board Meetings</span>
+                    <span>@Text["BoardMeetings"]</span>
                 </NavLink>
             }
 
@@ -37,24 +39,24 @@
                 <div class="nav-section">
                     <button type="button" class="nav-section-toggle nav-item level-1 @(isDisbursementsExpanded ? "active" : null)" @onclick="ToggleDisbursementsExpanded">
                         <span class="nav-icon bi-wallet2"></span>
-                        Disbursements
+                        @Text["Disbursements"]
                         <span class="nav-chevron bi @(isDisbursementsExpanded ? "bi-chevron-up" : "bi-chevron-down")"></span>
                     </button>
                     @if (isDisbursementsExpanded)
                     {
                         <NavLink href="disbursements/reimbursements/my" class="nav-item level-2" @onclick="NotifyNavigation">
-                            <span class="nav-icon bi-receipt-cutoff"></span><span>My reimbursements</span>
+                            <span class="nav-icon bi-receipt-cutoff"></span><span>@Text["MyReimbursements"]</span>
                         </NavLink>
                         <NavLink href="disbursements/allocations/my" class="nav-item level-2" @onclick="NotifyNavigation">
-                            <span class="nav-icon bi-trophy"></span><span>My allocations</span>
+                            <span class="nav-icon bi-trophy"></span><span>@Text["MyAllocations"]</span>
                         </NavLink>
                         @if (canReadDisbursements)
                         {
                             <NavLink href="disbursements/admin/reimbursements" class="nav-item level-2" @onclick="NotifyNavigation">
-                                <span class="nav-icon bi-clipboard-check"></span><span>Cases</span>
+                                <span class="nav-icon bi-clipboard-check"></span><span>@Text["Cases"]</span>
                             </NavLink>
                             <NavLink href="disbursements/admin/events" class="nav-item level-2" @onclick="NotifyNavigation">
-                                <span class="nav-icon bi-calendar-event"></span><span>Events</span>
+                                <span class="nav-icon bi-calendar-event"></span><span>@Text["Events"]</span>
                             </NavLink>
                         }
                     }
@@ -65,7 +67,7 @@
                 <div class="nav-section">
                     <button type="button" class="nav-section-toggle nav-item level-1 @(isMemberManagementExpanded ? "active" : null)" @onclick="ToggleMemberManagementExpanded">
                         <span class="nav-icon bi-shield-lock-fill"></span>
-                        Member Management
+                        @Text["MemberManagement"]
                         <span class="nav-chevron bi @(isMemberManagementExpanded ? "bi-chevron-up" : "bi-chevron-down")"></span>
                     </button>
 
@@ -75,7 +77,7 @@
                         {
                         <NavLink href="member-management/members" class="nav-item level-2" @onclick="NotifyNavigation">
                             <span class="nav-icon bi-people-fill"></span>
-                            <span>Members</span>
+                            <span>@Text["Members"]</span>
                         </NavLink>
                         }
 
@@ -83,7 +85,7 @@
                         {
                         <NavLink href="member-management/trial" class="nav-item level-2" @onclick="NotifyNavigation">
                             <span class="nav-icon bi-hourglass-split"></span>
-                            <span>Trial</span>
+                            <span>@Text["Trial"]</span>
                         </NavLink>
                         }
                         
@@ -91,7 +93,7 @@
                         {
                         <NavLink href="member-management/requests" class="nav-item level-2" @onclick="NotifyNavigation">
                             <span class="nav-icon bi-envelope-fill"></span>
-                            <span>Requests</span>
+                            <span>@Text["Requests"]</span>
                         </NavLink>
                         }
 
@@ -99,14 +101,14 @@
                         {
                         <NavLink href="member-management/dues" class="nav-item level-2" @onclick="NotifyNavigation">
                             <span class="nav-icon bi-cash-stack"></span>
-                            <span>Dues</span>
+                            <span>@Text["Dues"]</span>
                         </NavLink>
                         }
                         @if (canReadMembers)
                         {
                         <NavLink href="member-management/audit-log" class="nav-item level-2" @onclick="NotifyNavigation">
                             <span class="nav-icon bi-journal-text"></span>
-                            <span>Audit Log</span>
+                            <span>@Text["AuditLog"]</span>
                         </NavLink>
                         }
                     }
@@ -118,7 +120,7 @@
                 <div class="nav-section">
                     <button type="button" class="nav-section-toggle nav-item level-1 @(isInvoicesExpanded ? "active" : null)" @onclick="ToggleInvoicesExpanded">
                         <span class="nav-icon bi-receipt"></span>
-                        Invoices
+                        @Text["Invoices"]
                         <span class="nav-chevron bi @(isInvoicesExpanded ? "bi-chevron-up" : "bi-chevron-down")"></span>
                     </button>
 
@@ -126,12 +128,12 @@
                     {
                         <NavLink href="invoices/manage" class="nav-item level-2" @onclick="NotifyNavigation">
                             <span class="nav-icon bi-file-earmark-text"></span>
-                            <span>Invoices</span>
+                            <span>@Text["Invoices"]</span>
                         </NavLink>
 
                         <NavLink href="invoices/presets" class="nav-item level-2" @onclick="NotifyNavigation">
                             <span class="nav-icon bi-collection"></span>
-                            <span>Presets</span>
+                            <span>@Text["Presets"]</span>
                         </NavLink>
                     }
                 </div>
@@ -142,7 +144,7 @@
                 <div class="nav-section">
                     <button type="button" class="nav-section-toggle nav-item level-1 @(isIdentityExpanded ? "active" : null)" @onclick="ToggleIdentityExpanded">
                         <span class="nav-icon bi-person-fill-lock"></span>
-                        Identity
+                        @Text["Identity"]
                         <span class="nav-chevron bi @(isIdentityExpanded ? "bi-chevron-up" : "bi-chevron-down")"></span>
                     </button>
 
@@ -152,12 +154,12 @@
                         {
                         <NavLink href="identity/clients" class="nav-item level-2" @onclick="NotifyNavigation">
                             <span class="nav-icon bi-window-stack"></span>
-                            <span>Clients</span>
+                            <span>@Text["Clients"]</span>
                         </NavLink>
 
                         <NavLink href="identity/scopes" class="nav-item level-2" @onclick="NotifyNavigation">
                             <span class="nav-icon bi-diagram-3"></span>
-                            <span>Scopes</span>
+                            <span>@Text["Scopes"]</span>
                         </NavLink>
                         }
 
@@ -165,7 +167,7 @@
                         {
                         <NavLink href="identity/roles" class="nav-item level-2" @onclick="NotifyNavigation">
                             <span class="nav-icon bi-person-badge-fill"></span>
-                            <span>Roles</span>
+                            <span>@Text["Roles"]</span>
                         </NavLink>
                         }
 
@@ -173,7 +175,7 @@
                         {
                         <NavLink href="identity/users" class="nav-item level-2" @onclick="NotifyNavigation">
                             <span class="nav-icon bi-person-gear"></span>
-                            <span>Users</span>
+                            <span>@Text["Users"]</span>
                         </NavLink>
                         }
                         
@@ -181,7 +183,7 @@
                         {
                         <NavLink href="identity/audit-log" class="nav-item level-2" @onclick="NotifyNavigation">
                             <span class="nav-icon bi-journal-text"></span>
-                            <span>Audit Log</span>
+                            <span>@Text["AuditLog"]</span>
                         </NavLink>
                         }
                     }
@@ -202,7 +204,13 @@
         </nav>
     </div>
     <div class="sidebar-footer">
-        <ThemeSwitcherBox />
+        <div class="preference-switchers">
+            <ThemeSwitcherBox AriaLabel="@Text["Theme_AriaLabel"]"
+                              SystemTitle="@Text["Theme_System"]"
+                              LightTitle="@Text["Theme_Light"]"
+                              DarkTitle="@Text["Theme_Dark"]" />
+            <LanguageSwitcher />
+        </div>
         <UserBox IdentityUrl="@IdentityUrl" />
     </div>
 </div>

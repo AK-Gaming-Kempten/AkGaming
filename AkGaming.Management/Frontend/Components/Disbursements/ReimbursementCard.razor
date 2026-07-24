@@ -4,9 +4,9 @@
 <article class="reimbursement-card panel">
     <header>
         <div>
-            <span class="status-badge status-@Item.Status.ToString().ToLowerInvariant()">@FormatStatus(Item.Status)</span>
+            <span class="status-badge status-@Item.Status.ToString().ToLowerInvariant()">@Item.Status.ToLocalizedString(SharedText)</span>
             <h4>@Item.Purpose</h4>
-            <small class="ui-text-muted">@Item.ApplicantName · @Item.CreatedAt.LocalDateTime.ToString("dd.MM.yyyy HH:mm")</small>
+            <small class="ui-text-muted">@Item.ApplicantName · @Item.CreatedAt.LocalDateTime.ToString("g")</small>
         </div>
         <strong class="reimbursement-total">@Item.TotalAmount.ToString("N2") EUR</strong>
     </header>
@@ -25,7 +25,7 @@
         @foreach (var expense in Item.Expenses)
         {
             <div class="expense-row">
-                <span>@expense.Description @if (expense.IncurredOn.HasValue) { <small>· @expense.IncurredOn.Value.ToString("dd.MM.yyyy")</small> }</span>
+                <span>@expense.Description @if (expense.IncurredOn.HasValue) { <small>· @expense.IncurredOn.Value.ToString("d")</small> }</span>
                 <strong>@expense.Amount.ToString("N2") EUR</strong>
                 <div class="receipt-list">
                     @foreach (var receipt in expense.Receipts)
@@ -43,23 +43,23 @@
                 <div class="administrative-controls">
                     <label>Status
                         <InputSelect @bind-Value="_status" disabled="@Disabled">
-                            @foreach (var status in Enum.GetValues<DisbursementStatus>()) { <option value="@status">@FormatStatus(status)</option> }
+                            @foreach (var status in Enum.GetValues<DisbursementStatus>()) { <option value="@status">@status.ToLocalizedString(SharedText)</option> }
                         </InputSelect>
                     </label>
-                    <label>Internal note <InputTextArea @bind-Value="_administrativeNote" disabled="@Disabled" /></label>
-                    <button type="button" class="primary-action" @onclick="SaveStatusAsync" disabled="@Disabled"><span class="bi bi-floppy"></span> Save status</button>
+                    <label>@Text["Case_InternalNote"] <InputTextArea @bind-Value="_administrativeNote" disabled="@Disabled" /></label>
+                    <button type="button" class="primary-action" @onclick="SaveStatusAsync" disabled="@Disabled"><span class="bi bi-floppy"></span> @Text["Case_SaveStatus"]</button>
                 </div>
             </Authorized>
-            <NotAuthorized><p class="administrative-message"><strong>Internal note:</strong> @(Item.AdministrativeNote ?? "—")</p></NotAuthorized>
+            <NotAuthorized><p class="administrative-message"><strong>@Text["Case_InternalNote"]:</strong> @(Item.AdministrativeNote ?? "—")</p></NotAuthorized>
         </AuthorizeView>
     }
     else if (!string.IsNullOrWhiteSpace(Item.AdministrativeNote))
     {
-        <p class="administrative-message"><strong>Update:</strong> @Item.AdministrativeNote</p>
+        <p class="administrative-message"><strong>@Text["Case_Update"]</strong> @Item.AdministrativeNote</p>
     }
     @if (!Administrative && Item.Status is not DisbursementStatus.Paid and not DisbursementStatus.Rejected and not DisbursementStatus.Cancelled)
     {
-        <div class="user-actions"><button type="button" class="cancel-action" @onclick="() => OnCancel.InvokeAsync(Item.Id)" disabled="@Disabled"><span class="bi bi-x-circle"></span> Cancel reimbursement</button></div>
+        <div class="user-actions"><button type="button" class="cancel-action" @onclick="() => OnCancel.InvokeAsync(Item.Id)" disabled="@Disabled"><span class="bi bi-x-circle"></span> @Text["Case_Cancel"]</button></div>
     }
 </article>
 

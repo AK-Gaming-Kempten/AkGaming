@@ -17,7 +17,7 @@
                 <div class="member-badge-content">
                     <div class="member-badge-title-row">
                         <h3 class="ui-title">@DisplayName</h3>
-                        <span class="member-status-badge @StatusClass">@_localMember.Status</span>
+                        <span class="member-status-badge @StatusClass">@_localMember.Status.ToLocalizedString(SharedText)</span>
                     </div>
                     <p class="ui-text-muted member-membership-time">Membership time: @ServiceYearsText</p>
                     <p class="ui-text-muted member-membership-since">@MembershipStartText</p>
@@ -27,14 +27,14 @@
 
         <article class="panel member-personal-card">
             <div class="member-card-header">
-                <h5 class="ui-title">Personal Info</h5>
+                <h5 class="ui-title">@Text["Profile_PersonalInfo"]</h5>
                 <div class="ui-actions member-personal-edit-actions">
                     @if (!EditMode) {
-                        <ActionButton Kind="ActionButtonKind.Edit" OnClick="EnableEditing" Label="Edit profile" />
+                        <ActionButton Kind="ActionButtonKind.Edit" OnClick="EnableEditing" Label="@SharedText["Action_Edit"]" />
                     }
                     else {
-                        <ActionButton Kind="ActionButtonKind.Save" Variant="ActionButtonVariant.Primary" OnClick="SaveChangesAsync" Label="Save profile changes" />
-                        <ActionButton Kind="ActionButtonKind.Cancel" OnClick="CancelChanges" Label="Cancel profile editing" />
+                        <ActionButton Kind="ActionButtonKind.Save" Variant="ActionButtonVariant.Primary" OnClick="SaveChangesAsync" Label="@SharedText["Action_Save"]" />
+                        <ActionButton Kind="ActionButtonKind.Cancel" OnClick="CancelChanges" Label="@SharedText["Action_Cancel"]" />
                     }
                 </div>
             </div>
@@ -46,9 +46,9 @@
                             <span class="member-read-section-line"></span>
                         </div>
                         <dl class="member-read-grid">
-                            <div><dt>First name</dt><dd>@ValueOrDash(_localMember.FirstName)</dd></div>
-                            <div><dt>Last name</dt><dd>@ValueOrDash(_localMember.LastName)</dd></div>
-                            <div><dt>Birth date</dt><dd>@(_localMember.BirthDate?.ToString("yyyy-MM-dd") ?? "-")</dd></div>
+                            <div><dt>@Text["Profile_FirstName"]</dt><dd>@ValueOrDash(_localMember.FirstName)</dd></div>
+                            <div><dt>@Text["Profile_LastName"]</dt><dd>@ValueOrDash(_localMember.LastName)</dd></div>
+                            <div><dt>@Text["Profile_BirthDate"]</dt><dd>@(_localMember.BirthDate?.ToString("d") ?? "-")</dd></div>
                         </dl>
                     </section>
 
@@ -59,9 +59,9 @@
                             <span class="member-read-section-line"></span>
                         </div>
                         <dl class="member-read-grid">
-                            <div><dt>Email</dt><dd>@ValueOrDash(_localMember.Email)</dd></div>
-                            <div><dt>Phone</dt><dd>@ValueOrDash(_localMember.Phone)</dd></div>
-                            <div><dt>Discord</dt><dd>@ValueOrDash(_localMember.DiscordUserName)</dd></div>
+                            <div><dt>@SharedText["Field_Email"]</dt><dd>@ValueOrDash(_localMember.Email)</dd></div>
+                            <div><dt>@Text["Profile_Phone"]</dt><dd>@ValueOrDash(_localMember.Phone)</dd></div>
+                            <div><dt>@Text["Profile_Discord"]</dt><dd>@ValueOrDash(_localMember.DiscordUserName)</dd></div>
                         </dl>
                     </section>
 
@@ -71,10 +71,10 @@
                             <span class="member-read-section-line"></span>
                         </div>
                         <dl class="member-read-grid">
-                            <div><dt>Street</dt><dd>@ValueOrDash(_localMember.Address.Street)</dd></div>
-                            <div><dt>ZIP</dt><dd>@ValueOrDash(_localMember.Address.ZipCode)</dd></div>
-                            <div><dt>City</dt><dd>@ValueOrDash(_localMember.Address.City)</dd></div>
-                            <div><dt>Country</dt><dd>@ValueOrDash(_localMember.Address.Country)</dd></div>
+                            <div><dt>@Text["Profile_Street"]</dt><dd>@ValueOrDash(_localMember.Address.Street)</dd></div>
+                            <div><dt>@Text["Profile_ZipCode"]</dt><dd>@ValueOrDash(_localMember.Address.ZipCode)</dd></div>
+                            <div><dt>@Text["Profile_City"]</dt><dd>@ValueOrDash(_localMember.Address.City)</dd></div>
+                            <div><dt>@Text["Profile_Country"]</dt><dd>@ValueOrDash(_localMember.Address.Country)</dd></div>
                         </dl>
                     </section>
                 </div>
@@ -82,43 +82,43 @@
             else {
                 <div class="ui-grid-auto-180">
                     <div class="ui-field">
-                        <label>First name</label>
+                        <label>@Text["Profile_FirstName"]</label>
                         <InputText @bind-Value="_localMember.FirstName" />
                     </div>
                     <div class="ui-field">
-                        <label>Last name</label>
+                        <label>@Text["Profile_LastName"]</label>
                         <InputText @bind-Value="_localMember.LastName" />
                     </div>
                     <div class="ui-field">
-                        <label>Birth date</label>
+                        <label>@Text["Profile_BirthDate"]</label>
                         <InputDate @bind-Value="_localMember.BirthDate" />
                     </div>
                     <div class="ui-field">
-                        <label>Email</label>
+                        <label>@SharedText["Field_Email"]</label>
                         <InputText @bind-Value="_localMember.Email" />
                     </div>
                     <div class="ui-field">
-                        <label>Phone</label>
+                        <label>@Text["Profile_Phone"]</label>
                         <InputText @bind-Value="_localMember.Phone" />
                     </div>
                     <div class="ui-field">
-                        <label>Discord</label>
+                        <label>@Text["Profile_Discord"]</label>
                         <InputText @bind-Value="_localMember.DiscordUserName" />
                     </div>
                     <div class="ui-field">
-                        <label>Street</label>
+                        <label>@Text["Profile_Street"]</label>
                         <InputText @bind-Value="_localMember.Address.Street" />
                     </div>
                     <div class="ui-field">
-                        <label>ZIP</label>
+                        <label>@Text["Profile_ZipCode"]</label>
                         <InputText @bind-Value="_localMember.Address.ZipCode" />
                     </div>
                     <div class="ui-field">
-                        <label>City</label>
+                        <label>@Text["Profile_City"]</label>
                         <InputText @bind-Value="_localMember.Address.City" />
                     </div>
                     <div class="ui-field">
-                        <label>Country</label>
+                        <label>@Text["Profile_Country"]</label>
                         <InputText @bind-Value="_localMember.Address.Country" />
                     </div>
                 </div>
@@ -126,15 +126,15 @@
         </article>
 
         <article class="panel member-history-card">
-            <h5 class="ui-title">Membership History</h5>
+            <h5 class="ui-title">@Text["Profile_History"]</h5>
             @if (HistoryEntries.Count == 0) {
-                <p class="ui-text-muted">No status history recorded yet.</p>
+                <p class="ui-text-muted">@Text["Profile_NoHistory"]</p>
             }
             else {
                 <ul class="member-history-list">
                     @foreach (var entry in HistoryEntries.Take(8)) {
                         <li>
-                            <span class="member-history-when">@entry.Timestamp.ToLocalTime().ToString("yyyy-MM-dd")</span>
+                            <span class="member-history-when">@entry.Timestamp.ToLocalTime().ToString("d")</span>
                             <span class="member-history-transition">
                                 @if (entry.OldStatus == entry.NewStatus) {
                                     @entry.NewStatus
@@ -150,43 +150,43 @@
         </article>
 
         <article class="panel member-actions-card">
-            <h5 class="ui-title">Actions</h5>
+            <h5 class="ui-title">@Text["Profile_Actions"]</h5>
             <div class="ui-list member-action-links">
                 @if (CanCreateMembershipRequest) {
                     <button type="button" class="btn btn-secondary member-action-btn" @onclick="ShowMembershipApplication">
                         <span class="action-icon bi bi-person-plus" aria-hidden="true"></span>
                         <span class="member-action-content">
-                            <span class="member-action-title">Apply for Membership</span>
-                            <span class="member-action-description">Send a membership application to the club.</span>
+                            <span class="member-action-title">@Text["Application_Title"]</span>
+                            <span class="member-action-description">@Text["Application_Description"]</span>
                         </span>
                     </button>
                     <button type="button" class="btn btn-secondary member-action-btn" @onclick="ShowMemberLinking">
                         <span class="action-icon bi bi-person-check" aria-hidden="true"></span>
                         <span class="member-action-content">
-                            <span class="member-action-title">Request Member Linking</span>
-                            <span class="member-action-description">Link your account to an existing member record.</span>
+                            <span class="member-action-title">@Text["Link_Title"]</span>
+                            <span class="member-action-description">@Text["Link_Description"]</span>
                         </span>
                     </button>
                 }
                 <a class="btn btn-secondary member-action-btn" href="@WebsiteUrl" target="_blank" rel="noopener noreferrer">
                     <span class="action-icon bi bi-globe2" aria-hidden="true"></span>
                     <span class="member-action-content">
-                        <span class="member-action-title">Go to Website</span>
-                        <span class="member-action-description">Open the main club website.</span>
+                        <span class="member-action-title">@Text["Link_Website"]</span>
+                        <span class="member-action-description">@Text["Link_WebsiteDescription"]</span>
                     </span>
                 </a>
                 <a class="btn btn-secondary member-action-btn" href="@SatzungUrl" target="_blank" rel="noopener noreferrer">
                     <span class="action-icon bi bi-file-earmark-text" aria-hidden="true"></span>
                     <span class="member-action-content">
                         <span class="member-action-title">Satzung</span>
-                        <span class="member-action-description">Read the club rules.</span>
+                        <span class="member-action-description">@Text["Link_RulesDescription"]</span>
                     </span>
                 </a>
                 <a class="btn btn-secondary member-action-btn" href="@DiscordUrl" target="_blank" rel="noopener noreferrer">
                     <span class="action-icon bi bi-discord" aria-hidden="true"></span>
                     <span class="member-action-content">
-                        <span class="member-action-title">Join Discord</span>
-                        <span class="member-action-description">Get updates and connect with other members.</span>
+                        <span class="member-action-title">@Text["Link_Discord"]</span>
+                        <span class="member-action-description">@Text["Link_DiscordDescription"]</span>
                     </span>
                 </a>
             </div>
@@ -199,7 +199,7 @@
             <section class="panel member-request-dialog">
                 <header class="member-request-dialog-header">
                     <h3 id="member-request-dialog-title">@RequestDialogTitle</h3>
-                    <ActionButton Kind="ActionButtonKind.Close" Variant="ActionButtonVariant.Outline" Size="ActionButtonSize.Small" OnClick="CloseRequestDialog" Label="Close dialog" />
+                    <ActionButton Kind="ActionButtonKind.Close" Variant="ActionButtonVariant.Outline" Size="ActionButtonSize.Small" OnClick="CloseRequestDialog" Label="@SharedText["Action_Close"]" />
                 </header>
                 @if (_requestFormMode == RequestFormMode.Apply) {
                     <ApplyForMembershipPanel UserGuid="UserId" Member="Member" OnSubmitted="HandleRequestSubmittedAsync" />

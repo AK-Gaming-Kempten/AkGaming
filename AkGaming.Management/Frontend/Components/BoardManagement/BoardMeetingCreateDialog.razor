@@ -1,8 +1,8 @@
 @using AkGaming.Management.Frontend.Components.GeneralMeetings
 
-<GeneralMeetingFormDialog Eyebrow="Board management"
-                          Title="Create board meeting"
-                          Description="The board notification is sent with this agenda as soon as the meeting is created."
+<GeneralMeetingFormDialog Eyebrow="@Text["Board_Management"]"
+                          Title="@Text["Board_CreateTitle"]"
+                          Description="@Text["Board_CreateDescription"]"
                           OnClose="OnClose">
     <ChildContent>
         <div class="board-meeting-form">
@@ -10,33 +10,33 @@
             {
                 <p class="create-meeting-error" role="alert">@Error</p>
             }
-            <label>Title <InputText @bind-Value="_title" /></label>
+            <label>@SharedText["Field_Title"]<InputText @bind-Value="_title" /></label>
             <div class="board-meeting-form-row">
-                <label>Date and time <input type="datetime-local" @bind="_scheduledLocal" /></label>
-                <label>Duration (minutes) <InputNumber @bind-Value="_durationMinutes" /></label>
+                <label>@SharedText["Field_DateTime"] <input type="datetime-local" @bind="_scheduledLocal" /></label>
+                <label>@SharedText["Field_DurationMinutes"] <InputNumber @bind-Value="_durationMinutes" /></label>
             </div>
-            <label>Location <InputText @bind-Value="_location" /></label>
+            <label>@SharedText["Field_Location"]<InputText @bind-Value="_location" /></label>
 
             <section class="draft-agenda">
                 <div class="draft-agenda-heading">
                     <div>
-                        <h4>Initial agenda</h4>
-                        <p class="ui-text-muted">Add the items that should be included in the first Discord notification.</p>
+                        <h4>@Text["Board_InitialAgenda"]</h4>
+                        <p class="ui-text-muted">@Text["Board_InitialAgendaHelp"]</p>
                     </div>
                     <div class="draft-agenda-actions">
                         <button type="button" disabled="@IsBusy" @onclick="AddAgendaItem">
-                            <span class="bi bi-plus-lg"></span> Add item
+                            <span class="bi bi-plus-lg"></span> @Text["Board_AddItem"]
                         </button>
                         <button type="button" disabled="@IsBusy" @onclick="OpenBacklogSelection">
-                            <span class="bi bi-archive"></span> Add from backlog
-                            <span class="backlog-count" aria-label="@($"{AvailableBacklogItems.Count} backlog items available")">@AvailableBacklogItems.Count</span>
+                            <span class="bi bi-archive"></span> @Text["Board_AddBacklog"]
+                            <span class="backlog-count" aria-label="@Text["Board_BacklogAvailable", AvailableBacklogItems.Count]">@AvailableBacklogItems.Count</span>
                         </button>
                     </div>
                 </div>
 
                 @if (_agendaItems.Count == 0)
                 {
-                    <p class="draft-agenda-empty">No agenda items yet.</p>
+                    <p class="draft-agenda-empty">@SharedText["State_NoAgenda"]</p>
                 }
                 else
                 {
@@ -55,13 +55,13 @@
                                  @ondragstart="() => StartDragging(item.Id)"
                                  @ondragend="StopDragging">
                             <div class="draft-agenda-item-heading">
-                                <strong><span class="bi bi-grip-vertical draft-drag-handle"></span> Item @itemNumber</strong>
+                                <strong><span class="bi bi-grip-vertical draft-drag-handle"></span> @Text["Board_Item"] @itemNumber</strong>
                                 <button type="button" class="remove-agenda-item" disabled="@IsBusy" title="Remove agenda item" aria-label="Remove agenda item" @onclick="() => RemoveAgendaItem(item)">
                                     <span class="bi bi-trash"></span>
                                 </button>
                             </div>
-                            <label>Title <InputText @bind-Value="item.Title" /></label>
-                            <label>Description <InputTextArea @bind-Value="item.Description" /></label>
+                            <label>@SharedText["Field_Title"]<InputText @bind-Value="item.Title" /></label>
+                            <label>@SharedText["Field_Description"]<InputTextArea @bind-Value="item.Description" /></label>
                         </article>
                     }
                     <BoardAgendaDropZone Position="_agendaItems.Count"
@@ -72,8 +72,8 @@
         </div>
     </ChildContent>
     <Footer>
-        <button type="button" class="dialog-cancel" disabled="@IsBusy" @onclick="OnClose">Cancel</button>
-        <button type="button" class="dialog-primary" disabled="@IsBusy" @onclick="SubmitAsync">@(IsBusy ? "Creating…" : "Create meeting")</button>
+        <button type="button" class="dialog-cancel" disabled="@IsBusy" @onclick="OnClose">@SharedText["Action_Cancel"]</button>
+        <button type="button" class="dialog-primary" disabled="@IsBusy" @onclick="SubmitAsync">@(IsBusy ? Text["Board_Creating"] : Text["Board_Create"])</button>
     </Footer>
 </GeneralMeetingFormDialog>
 

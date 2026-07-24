@@ -2,22 +2,22 @@
 @using Microsoft.AspNetCore.Authorization
 @attribute [Authorize(Policy = "identity.roles.read")]
 
-<PageTitle>Identity Roles</PageTitle>
+<PageTitle>@PageText["Page_IdentityRoles_Title"]</PageTitle>
 
 <div class="identity-roles-page mobile-master-detail @(_isMobileDetailOpen ? "mobile-detail-open" : string.Empty)">
     <div class="roles-list-pane">
         <div class="pane-header">
-            <h4>Roles</h4>
-            <ActionButton Kind="ActionButtonKind.Refresh" OnClick="ReloadAsync" Label="Refresh roles" />
+            <h4>@PageText["Page_IdentityRoles_Title"]</h4>
+            <ActionButton Kind="ActionButtonKind.Refresh" OnClick="ReloadAsync" Label="@SharedText["Action_Refresh"]" />
         </div>
 
         @if (_canManageRoles)
         {
         <div class="create-role card">
-            <label for="new-role-name">Create role</label>
+            <label for="new-role-name">@SharedText["Action_CreateRole"]</label>
             <div class="inline-controls">
                 <InputText id="new-role-name" @bind-Value="_newRoleName" placeholder="Role name" />
-                <ActionButton Kind="ActionButtonKind.Create" Variant="ActionButtonVariant.Primary" OnClick="CreateRoleAsync" Disabled="_isBusy" Label="Create role" />
+                <ActionButton Kind="ActionButtonKind.Create" Variant="ActionButtonVariant.Primary" OnClick="CreateRoleAsync" Disabled="_isBusy" Label="@SharedText["Action_Create"]" />
             </div>
         </div>
         }
@@ -25,11 +25,11 @@
         <div class="roles-list card">
             @if (_roles is null)
             {
-                <p>Loading roles...</p>
+                <p>@SharedText["State_LoadingRoles"]</p>
             }
             else if (_roles.Count == 0)
             {
-                <p>No roles found.</p>
+                <p>@SharedText["State_NoRoles"]</p>
             }
             else
             {
@@ -48,39 +48,39 @@
 
     <div class="role-editor-pane card">
         <div class="mobile-detail-nav">
-            <ActionButton Kind="ActionButtonKind.Back" Variant="ActionButtonVariant.Outline" Size="ActionButtonSize.Small" OnClick="ShowListMobile" Label="Back to roles" />
+            <ActionButton Kind="ActionButtonKind.Back" Variant="ActionButtonVariant.Outline" Size="ActionButtonSize.Small" OnClick="ShowListMobile" Label="@SharedText["Action_BackToList"]" />
         </div>
-        <h4>Role Details</h4>
+        <h4>@SharedText["Heading_RoleDetails"]</h4>
 
         @if (_selectedRole is null)
         {
-            <p>Select a role to rename or delete it.</p>
+            <p>@SharedText["Message_SelectRole"]</p>
         }
         else
         {
             <div class="form-col">
-                <label>Role Id</label>
+                <label>@SharedText["Field_RoleId"]</label>
                 <input value="@_selectedRole.Id.ToString()" disabled />
             </div>
 
             <div class="form-col">
-                <label for="rename-role-name">Role name</label>
+                <label for="rename-role-name">@SharedText["Field_RoleName"]</label>
                 <InputText id="rename-role-name" @bind-Value="_renameRoleName" />
             </div>
 
             @if (_canManageRoles)
             {
             <div class="editor-actions">
-                <ActionButton Kind="ActionButtonKind.Save" Variant="ActionButtonVariant.Primary" OnClick="RenameRoleAsync" Disabled="_isBusy" Label="Save role name" />
-                <ActionButton Kind="ActionButtonKind.Delete" Variant="ActionButtonVariant.Danger" OnClick="DeleteRoleAsync" Disabled="_isBusy" Label="Delete role" />
+                <ActionButton Kind="ActionButtonKind.Save" Variant="ActionButtonVariant.Primary" OnClick="RenameRoleAsync" Disabled="_isBusy" Label="@SharedText["Action_Save"]" />
+                <ActionButton Kind="ActionButtonKind.Delete" Variant="ActionButtonVariant.Danger" OnClick="DeleteRoleAsync" Disabled="_isBusy" Label="@SharedText["Action_Delete"]" />
             </div>
             }
 
             <div class="form-col permission-editor">
-                <label>Permissions</label>
+                <label>@SharedText["Field_Permissions"]</label>
                 @if (_permissions is null)
                 {
-                    <p>Loading permissions...</p>
+                    <p>@SharedText["State_LoadingPermissions"]</p>
                 }
                 else
                 {
@@ -115,11 +115,11 @@
                     </div>
                     @if (_canManageRoles)
                     {
-                        <ActionButton Kind="ActionButtonKind.Save" Variant="ActionButtonVariant.Primary" OnClick="SavePermissionsAsync" Disabled="@(_isBusy || IsSelectedRoleSystemRole)" Label="Save permissions" />
+                        <ActionButton Kind="ActionButtonKind.Save" Variant="ActionButtonVariant.Primary" OnClick="SavePermissionsAsync" Disabled="@(_isBusy || IsSelectedRoleSystemRole)" Label="@SharedText["Action_Save"]" />
                     }
                     @if (IsSelectedRoleSystemRole)
                     {
-                        <small>System role permissions are managed by the application.</small>
+                        <small>@SharedText["Message_SystemRolePermissions"]</small>
                     }
                 }
             </div>
@@ -149,11 +149,11 @@
                     </div>
                     @if (_canManageRoles)
                     {
-                        <ActionButton Kind="ActionButtonKind.Save" Variant="ActionButtonVariant.Primary" OnClick="SaveOpenCloudRolesAsync" Disabled="@(_isBusy || IsSelectedRoleSystemRole)" Label="Save OpenCloud roles" />
+                        <ActionButton Kind="ActionButtonKind.Save" Variant="ActionButtonVariant.Primary" OnClick="SaveOpenCloudRolesAsync" Disabled="@(_isBusy || IsSelectedRoleSystemRole)" Label="@SharedText["Action_Save"]" />
                     }
                     @if (IsSelectedRoleSystemRole)
                     {
-                        <small>System role OpenCloud roles are managed by the application.</small>
+                        <small>@SharedText["Message_SystemRoleOpenCloud"]</small>
                     }
                 }
             </div>

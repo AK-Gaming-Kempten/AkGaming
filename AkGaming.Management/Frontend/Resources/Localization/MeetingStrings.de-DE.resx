@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms</value></resheader>
+  <data name="Access_Checking" xml:space="preserve"><value>Zugriffsberechtigung wird geprüft…</value></data>
+  <data name="Access_Denied" xml:space="preserve"><value>Zugriff verweigert. Mitgliederversammlungen stehen nur Mitgliedern zur Verfügung.</value></data>
+  <data name="General_Create" xml:space="preserve"><value>Versammlung erstellen</value></data>
+  <data name="General_None" xml:space="preserve"><value>Es wurden noch keine Mitgliederversammlungen erstellt.</value></data>
+  <data name="General_Back" xml:space="preserve"><value>Mitgliederversammlungen</value></data>
+  <data name="General_CheckIn" xml:space="preserve"><value>Einchecken</value></data>
+  <data name="General_SendInvitations" xml:space="preserve"><value>Einladungen senden</value></data>
+  <data name="General_SendReminder" xml:space="preserve"><value>Erinnerung senden</value></data>
+  <data name="General_Finalize" xml:space="preserve"><value>Protokoll abschließen</value></data>
+  <data name="General_Agenda" xml:space="preserve"><value>Tagesordnung</value></data>
+  <data name="General_Attendees" xml:space="preserve"><value>Teilnehmende</value></data>
+  <data name="General_Votes" xml:space="preserve"><value>Stimmen</value></data>
+  <data name="General_LocationPending" xml:space="preserve"><value>Ort noch offen</value></data>
+  <data name="Board_Create" xml:space="preserve"><value>Sitzung erstellen</value></data>
+  <data name="Board_Management" xml:space="preserve"><value>Vorstandsverwaltung</value></data>
+  <data name="Board_CreateTitle" xml:space="preserve"><value>Vorstandssitzung erstellen</value></data>
+  <data name="Board_DefaultTitle" xml:space="preserve"><value>Vorstandssitzung</value></data>
+  <data name="Board_CreateDescription" xml:space="preserve"><value>Die Vorstandsbenachrichtigung wird direkt nach dem Erstellen mit dieser Tagesordnung versendet.</value></data>
+  <data name="Board_Creating" xml:space="preserve"><value>Wird erstellt…</value></data>
+  <data name="Board_Item" xml:space="preserve"><value>Eintrag</value></data>
+  <data name="Board_BacklogAvailable" xml:space="preserve"><value>{0} Einträge im Vorrat verfügbar</value></data>
+  <data name="Board_None" xml:space="preserve"><value>Es wurden noch keine Vorstandssitzungen erstellt.</value></data>
+  <data name="Board_Back" xml:space="preserve"><value>Vorstandssitzungen</value></data>
+  <data name="Board_AttendQuestion" xml:space="preserve"><value>Kannst du teilnehmen?</value></data>
+  <data name="Board_Available" xml:space="preserve"><value>Ich habe Zeit</value></data>
+  <data name="Board_Unavailable" xml:space="preserve"><value>Ich kann nicht teilnehmen</value></data>
+  <data name="Board_Rescheduling" xml:space="preserve"><value>Terminverschiebung</value></data>
+  <data name="Board_ProposeDate" xml:space="preserve"><value>Anderen Termin vorschlagen</value></data>
+  <data name="Board_ProposedDate" xml:space="preserve"><value>Vorgeschlagener Termin</value></data>
+  <data name="Board_SubmitProposal" xml:space="preserve"><value>Vorschlag absenden</value></data>
+  <data name="Board_RescheduleNow" xml:space="preserve"><value>Sofort verschieben</value></data>
+  <data name="Board_CancelMeeting" xml:space="preserve"><value>Sitzung absagen</value></data>
+  <data name="Board_Agenda" xml:space="preserve"><value>Tagesordnung</value></data>
+  <data name="Board_AgendaHelp" xml:space="preserve"><value>Ziehe Einträge, um sie zu sortieren. Weitere Aktionen findest du im Kontextmenü des Eintrags.</value></data>
+  <data name="Board_AddItem" xml:space="preserve"><value>Eintrag hinzufügen</value></data>
+  <data name="Board_AddBacklog" xml:space="preserve"><value>Aus dem Vorrat hinzufügen</value></data>
+  <data name="Board_NoAgenda" xml:space="preserve"><value>Keine Tagesordnungspunkte.</value></data>
+  <data name="Board_Backlog" xml:space="preserve"><value>Tagesordnungsvorrat</value></data>
+  <data name="Board_BacklogHelp" xml:space="preserve"><value>Ziehe einen Eintrag auf eine geplante Sitzung, um ihn dort zur Tagesordnung hinzuzufügen.</value></data>
+  <data name="Board_NoBacklog" xml:space="preserve"><value>Keine Einträge im Vorrat.</value></data>
+  <data name="Board_BacklogEmpty" xml:space="preserve"><value>Der Tagesordnungsvorrat enthält keine Einträge.</value></data>
+  <data name="Board_AddSelected" xml:space="preserve"><value>Ausgewählte Einträge hinzufügen</value></data>
+  <data name="Board_InitialAgenda" xml:space="preserve"><value>Erste Tagesordnung</value></data>
+  <data name="Board_InitialAgendaHelp" xml:space="preserve"><value>Füge die Einträge hinzu, die in der ersten Discord-Benachrichtigung enthalten sein sollen.</value></data>
+  <data name="Board_DurationMinutes" xml:space="preserve"><value>Dauer (Minuten)</value></data>
+  <data name="Board_Accept" xml:space="preserve"><value>Annehmen</value></data>
+  <data name="Board_Reject" xml:space="preserve"><value>Ablehnen</value></data>
+  <data name="Board_ProposedBy" xml:space="preserve"><value>vorgeschlagen von</value></data>
+  <data name="Board_AvailableCount" xml:space="preserve"><value>verfügbar</value></data>
+  <data name="Board_UnavailableCount" xml:space="preserve"><value>nicht verfügbar</value></data>
+</root>

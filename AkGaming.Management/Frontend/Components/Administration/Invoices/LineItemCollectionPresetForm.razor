@@ -1,11 +1,11 @@
 <section class="panel ui-stack-md">
-    <div class="invoice-section-heading"><h4 class="ui-title">@Title</h4><ActionButton Kind="ActionButtonKind.Add" Size="ActionButtonSize.Small" OnClick="AddItem" Label="Add item" /></div>
-    <div class="ui-field"><label>Collection label</label><InputText @bind-Value="Model.Label" /></div>
+    <div class="invoice-section-heading"><h4 class="ui-title">@Title</h4><ActionButton Kind="ActionButtonKind.Add" Size="ActionButtonSize.Small" OnClick="AddItem" Label="@SharedText["Action_Add"]" /></div>
+    <div class="ui-field"><label>@Text["Collections_Label"]</label><InputText @bind-Value="Model.Label" /></div>
     <div class="collection-item-list">
         @foreach (var item in Model.LineItems)
         {
-            <div class="collection-item" @key="item"><div class="ui-field collection-description"><label>Description</label><InputText @bind-Value="item.Description" /></div><div class="ui-field"><label>Unit price</label><InputNumber @bind-Value="item.UnitPrice" /></div><div class="ui-field"><label>Quantity</label><InputNumber @bind-Value="item.Quantity" /></div><ActionButton Kind="ActionButtonKind.Remove" Variant="ActionButtonVariant.Danger" Size="ActionButtonSize.Small" OnClick="() => RemoveItem(item)" Disabled="@(Model.LineItems.Count == 1)" Label="Remove item" /></div>
+            <div class="collection-item" @key="item"><div class="ui-field collection-description"><label>@SharedText["Field_Description"]</label><InputText @bind-Value="item.Description" /></div><div class="ui-field"><label>@Text["Invoice_UnitPrice"]</label><InputNumber @bind-Value="item.UnitPrice" /></div><div class="ui-field"><label>@Text["Invoice_Quantity"]</label><InputNumber @bind-Value="item.Quantity" /></div><ActionButton Kind="ActionButtonKind.Remove" Variant="ActionButtonVariant.Danger" Size="ActionButtonSize.Small" OnClick="() => RemoveItem(item)" Disabled="@(Model.LineItems.Count == 1)" Label="@SharedText["Action_Remove"]" /></div>
         }
     </div>
-    <div class="ui-actions"><ActionButton Kind="ActionButtonKind.Save" Variant="ActionButtonVariant.Primary" OnClick="SaveAsync" Disabled="IsBusy" Label="Save collection" />@if (ShowDelete) { <ActionButton Kind="ActionButtonKind.Delete" Variant="ActionButtonVariant.Danger" OnClick="DeleteAsync" Disabled="IsBusy" Label="Delete collection" /> }</div>
+    <div class="ui-actions"><ActionButton Kind="ActionButtonKind.Save" Variant="ActionButtonVariant.Primary" OnClick="SaveAsync" Disabled="IsBusy" Label="@SharedText["Action_Save"]" />@if (ShowDelete) { <ActionButton Kind="ActionButtonKind.Delete" Variant="ActionButtonVariant.Danger" OnClick="DeleteAsync" Disabled="IsBusy" Label="@SharedText["Action_Delete"]" /> }</div>
 </section>

@@ -1,12 +1,12 @@
 @page "/membership/user/{UserId}"
-<PageTitle>My Profile</PageTitle>
+<PageTitle>@PageText["Page_Profile_Title"]</PageTitle>
 @using Microsoft.AspNetCore.Authorization
 @using AkGaming.Management.Modules.MemberManagement.Contracts.Enums
 @attribute [Authorize]
 
 <CascadingValue Value="MemberApi" Name="MemberManagementApi" IsFixed="true">
     @if (_loading) {
-        <p>Loading...</p>
+        <p>@SharedText["State_Loading"]</p>
     }
     else if (!string.IsNullOrWhiteSpace(_loadError)) {
         <p class="text-danger">@_loadError</p>
@@ -16,17 +16,17 @@
             <button type="button"
                     class="tab @(_activeTab == MemberTab.Profile ? "active" : "")"
                     @onclick="() => _activeTab = MemberTab.Profile">
-                Profile
+                @Text["Tab_Profile"]
             </button>
             <button type="button"
                     class="tab @(_activeTab == MemberTab.Payments ? "active" : "")"
                     @onclick="() => _activeTab = MemberTab.Payments">
-                Payments
+                @Text["Tab_Payments"]
             </button>
             <button type="button"
                     class="tab @(_activeTab == MemberTab.Dues ? "active" : "")"
                     @onclick="() => _activeTab = MemberTab.Dues">
-                Membership
+                @Text["Tab_Membership"]
             </button>
         </div>
 
@@ -49,7 +49,7 @@
                                ShowStatuses="true"
                                CanCreateRequests="CanCreateMembershipRequest"
                                OnRequestSubmitted="HandleRequestSubmittedAsync" />
-                <h3>Fees</h3>
+                <h3>@Text["Fees_Title"]</h3>
                 <MemberDuesPanel />
             </section>
         }

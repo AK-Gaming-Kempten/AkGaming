@@ -6,11 +6,11 @@
     <div class="payment-method-empty">
         <span class="bi bi-exclamation-circle"></span>
         <div>
-            <strong>No payment method available</strong>
-            <p>Add one on your profile in a separate tab, then refresh this list. Your form entries will stay here.</p>
+            <strong>@Text["Payment_None"]</strong>
+            <p>@Text["Payment_NoneHelp"]</p>
             <div class="payment-method-actions">
-                <a class="payment-method-link" href="membership" target="_blank" rel="noopener">Open profile</a>
-                <button type="button" class="payment-method-refresh" @onclick="OnRefresh" disabled="@Disabled"><span class="bi bi-arrow-clockwise"></span> Refresh</button>
+                <a class="payment-method-link" href="membership" target="_blank" rel="noopener">@Text["Payment_OpenProfile"]</a>
+                <button type="button" class="payment-method-refresh" @onclick="OnRefresh" disabled="@Disabled"><span class="bi bi-arrow-clockwise"></span>@SharedText["Action_Refresh"]</button>
             </div>
         </div>
     </div>

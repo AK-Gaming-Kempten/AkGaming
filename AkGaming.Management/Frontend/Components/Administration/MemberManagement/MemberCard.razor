@@ -1,7 +1,7 @@
 <div class="member-card @(EditMode ? "edit-mode" : "readonly-mode")">
     @if (Member is null)
     {
-        <div class="no-member-selected">No member selected</div>
+        <div class="no-member-selected">@SharedText["State_NoSelection"]</div>
     }
     else
     {
@@ -11,12 +11,12 @@
                 <div class="form-actions">
                     @if (!EditMode)
                     {
-                        <ActionButton Kind="ActionButtonKind.Edit" Variant="ActionButtonVariant.Primary" OnClick="EnableEditing" Label="Edit member" />
+                        <ActionButton Kind="ActionButtonKind.Edit" Variant="ActionButtonVariant.Primary" OnClick="EnableEditing" Label="@SharedText["Action_Edit"]" />
                     }
                     else
                     {
-                        <ActionButton Kind="ActionButtonKind.Save" Variant="ActionButtonVariant.Primary" OnClick="SaveChanges" Label="Save member" />
-                        <ActionButton Kind="ActionButtonKind.Cancel" Variant="ActionButtonVariant.Danger" OnClick="CancelChanges" Label="Cancel editing" />
+                        <ActionButton Kind="ActionButtonKind.Save" Variant="ActionButtonVariant.Primary" OnClick="SaveChanges" Label="@SharedText["Action_Save"]" />
+                        <ActionButton Kind="ActionButtonKind.Cancel" Variant="ActionButtonVariant.Danger" OnClick="CancelChanges" Label="@SharedText["Action_Cancel"]" />
                     }
                 </div>
             }
@@ -26,51 +26,51 @@
                     <div class="form-section">
                         <div class="form-grid">
                             <div class="form-col">
-                                <label>First name</label>
+                                <label>@SharedText["Field_FirstName"]</label>
                                 <InputText @bind-Value="_localMember.FirstName" readonly="@(!EditMode)" />
                             </div>
                             <div class="form-col">
-                                <label>Last name</label>
+                                <label>@SharedText["Field_LastName"]</label>
                                 <InputText @bind-Value="_localMember.LastName" readonly="@(!EditMode)" />
                             </div>
 
                             <div class="form-col">
-                                <label>Email</label>
+                                <label>@SharedText["Field_Email"]</label>
                                 <InputText @bind-Value="_localMember.Email" readonly="@(!EditMode)" />
                             </div>
                             <div class="form-col">
-                                <label>Phone</label>
+                                <label>@SharedText["Field_Phone"]</label>
                                 <InputText @bind-Value="_localMember.Phone" readonly="@(!EditMode)" />
                             </div>
 
                             <div class="form-col">
-                                <label>Discord</label>
+                                <label>@SharedText["Field_Discord"]</label>
                                 <InputText @bind-Value="_localMember.DiscordUserName" readonly="@(!EditMode)" />
                             </div>
                             <div class="form-col">
-                                <label>Birthdate</label>
+                                <label>@SharedText["Field_BirthDate"]</label>
                                 <InputDate @bind-Value="_localMember.BirthDate" readonly="@(!EditMode)" />
                             </div>
                         </div>
                     </div>
 
                     <div class="form-section">
-                        <h4>Address</h4>
+                        <h4>@SharedText["Field_Address"]</h4>
                         <div class="form-grid">
                             <div class="form-col">
-                                <label>Street</label>
+                                <label>@SharedText["Field_Street"]</label>
                                 <InputText @bind-Value="_localMember.Address.Street" readonly="@(!EditMode)" />
                             </div>
                             <div class="form-col">
-                                <label>ZIP</label>
+                                <label>@SharedText["Field_PostalCode"]</label>
                                 <InputText @bind-Value="_localMember.Address.ZipCode" readonly="@(!EditMode)" />
                             </div>
                             <div class="form-col">
-                                <label>City</label>
+                                <label>@SharedText["Field_City"]</label>
                                 <InputText @bind-Value="_localMember.Address.City" readonly="@(!EditMode)" />
                             </div>
                             <div class="form-col">
-                                <label>Country</label>
+                                <label>@SharedText["Field_Country"]</label>
                                 <InputText @bind-Value="_localMember.Address.Country" readonly="@(!EditMode)" />
                             </div>
                         </div>

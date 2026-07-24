@@ -2,8 +2,8 @@
 
 <section class="ui-stack-md">
     <div>
-        <h3>Payments</h3>
-        <p class="ui-text-muted">Manage payment methods used when the club sends money to you. These methods are not used to collect payments.</p>
+        <h3>@Text["Payments_Title"]</h3>
+        <p class="ui-text-muted">@Text["Payments_Description"]</p>
     </div>
 
     @if (!string.IsNullOrWhiteSpace(_error)) {
@@ -11,7 +11,7 @@
     }
 
     @if (_loading) {
-        <p>Loading...</p>
+        <p>@SharedText["State_Loading"]</p>
     }
     else {
         @foreach (var item in _items) {
@@ -27,33 +27,33 @@
                         <strong>@(item.Type == PaymentInformationType.PayPal ? "PayPal" : "Bank account")</strong>
                     </div>
                     @if (!IsEditing(item)) {
-                        <ActionButton Kind="ActionButtonKind.Edit" Size="ActionButtonSize.Small" CssClass="payment-information-edit" OnClick="() => StartEditing(item)" Label="Edit payment information" />
+                        <ActionButton Kind="ActionButtonKind.Edit" Size="ActionButtonSize.Small" CssClass="payment-information-edit" OnClick="() => StartEditing(item)" Label="@SharedText["Action_Edit"]" />
                     }
                 </header>
                 @if (IsEditing(item)) {
                     @if (_editingItem!.Type == PaymentInformationType.PayPal) {
-                        <div class="ui-field"><label>PayPal email</label><InputText @bind-Value="_editingItem.PayPalEmail" /></div>
+                        <div class="ui-field"><label>@Text["Payments_PayPalEmail"]</label><InputText @bind-Value="_editingItem.PayPalEmail" /></div>
                     }
                     else {
                         <div class="ui-grid-auto-180">
-                            <div class="ui-field"><label>Account holder</label><InputText @bind-Value="_editingItem.AccountHolder" /></div>
+                            <div class="ui-field"><label>@Text["Payments_AccountHolder"]</label><InputText @bind-Value="_editingItem.AccountHolder" /></div>
                             <div class="ui-field"><label>IBAN</label><InputText @bind-Value="_editingItem.Iban" /></div>
                             <div class="ui-field"><label>BIC</label><InputText @bind-Value="_editingItem.Bic" /></div>
                         </div>
                     }
                     <div class="ui-actions">
-                        <ActionButton Kind="ActionButtonKind.Save" Variant="ActionButtonVariant.Primary" OnClick="SaveEditingAsync" Label="Save payment information" />
-                        <ActionButton Kind="ActionButtonKind.Delete" Variant="ActionButtonVariant.Danger" OnClick="() => DeleteAsync(item.Id)" Label="Delete payment information" />
-                        <ActionButton Kind="ActionButtonKind.Cancel" OnClick="CancelEditing" Label="Cancel editing" />
+                        <ActionButton Kind="ActionButtonKind.Save" Variant="ActionButtonVariant.Primary" OnClick="SaveEditingAsync" Label="@SharedText["Action_Save"]" />
+                        <ActionButton Kind="ActionButtonKind.Delete" Variant="ActionButtonVariant.Danger" OnClick="() => DeleteAsync(item.Id)" Label="@SharedText["Action_Delete"]" />
+                        <ActionButton Kind="ActionButtonKind.Cancel" OnClick="CancelEditing" Label="@SharedText["Action_Cancel"]" />
                     </div>
                 }
                 else {
                     @if (item.Type == PaymentInformationType.PayPal) {
-                        <dl class="payment-information-read-grid"><div><dt>PayPal email</dt><dd>@ValueOrDash(item.PayPalEmail)</dd></div></dl>
+                        <dl class="payment-information-read-grid"><div><dt>@Text["Payments_PayPalEmail"]</dt><dd>@ValueOrDash(item.PayPalEmail)</dd></div></dl>
                     }
                     else {
                         <dl class="payment-information-read-grid">
-                            <div><dt>Account holder</dt><dd>@ValueOrDash(item.AccountHolder)</dd></div>
+                            <div><dt>@Text["Payments_AccountHolder"]</dt><dd>@ValueOrDash(item.AccountHolder)</dd></div>
                             <div><dt>IBAN</dt><dd>@ValueOrDash(item.Iban)</dd></div>
                             <div><dt>BIC</dt><dd>@ValueOrDash(item.Bic)</dd></div>
                         </dl>
@@ -65,11 +65,11 @@
         @if (_showCreate) {
             <article class="panel payment-information-create ui-stack-md">
                 <div>
-                    <h4 class="ui-title">Add payment information</h4>
-                    <p class="ui-text-muted">Choose where the club should send your payouts.</p>
+                    <h4 class="ui-title">@Text["Payments_AddTitle"]</h4>
+                    <p class="ui-text-muted">@Text["Payments_AddDescription"]</p>
                 </div>
                 <div class="ui-field">
-                    <label>Payment method</label>
+                    <label>@Text["Payments_Method"]</label>
                     <div class="payment-method-selector" role="group" aria-label="Payment method">
                         <button type="button" class="payment-method-option @(_newItem.Type == PaymentInformationType.PayPal ? "active" : string.Empty)" aria-pressed="@(_newItem.Type == PaymentInformationType.PayPal)" @onclick="() => SelectPaymentType(PaymentInformationType.PayPal)">
                             <img class="payment-method-logo" src="images/payment-methods/paypal.webp" alt="" />
@@ -77,28 +77,28 @@
                         </button>
                         <button type="button" class="payment-method-option @(_newItem.Type == PaymentInformationType.BankAccount ? "active" : string.Empty)" aria-pressed="@(_newItem.Type == PaymentInformationType.BankAccount)" @onclick="() => SelectPaymentType(PaymentInformationType.BankAccount)">
                             <span class="payment-method-icon bi bi-bank" aria-hidden="true"></span>
-                            <span>Bank account</span>
+                            <span>@Text["Payments_BankAccount"]</span>
                         </button>
                     </div>
                 </div>
                 @if (_newItem.Type == PaymentInformationType.PayPal) {
-                    <div class="ui-field"><label>PayPal email</label><InputText @bind-Value="_newItem.PayPalEmail" /></div>
+                    <div class="ui-field"><label>@Text["Payments_PayPalEmail"]</label><InputText @bind-Value="_newItem.PayPalEmail" /></div>
                 }
                 else {
                     <div class="ui-grid-auto-180">
-                        <div class="ui-field"><label>Account holder</label><InputText @bind-Value="_newItem.AccountHolder" /></div>
+                        <div class="ui-field"><label>@Text["Payments_AccountHolder"]</label><InputText @bind-Value="_newItem.AccountHolder" /></div>
                         <div class="ui-field"><label>IBAN</label><InputText @bind-Value="_newItem.Iban" /></div>
                         <div class="ui-field"><label>BIC</label><InputText @bind-Value="_newItem.Bic" /></div>
                     </div>
                 }
                 <div class="ui-actions">
-                    <ActionButton Kind="ActionButtonKind.Save" Variant="ActionButtonVariant.Primary" OnClick="CreateAsync" Label="Create payment information" />
+                    <ActionButton Kind="ActionButtonKind.Save" Variant="ActionButtonVariant.Primary" OnClick="CreateAsync" Label="@SharedText["Action_Create"]" />
                     <ActionButton Kind="ActionButtonKind.Cancel" OnClick="CancelCreate" Label="Cancel" />
                 </div>
             </article>
         }
         else {
-            <ActionButton Kind="ActionButtonKind.Add" Variant="ActionButtonVariant.Primary" OnClick="ShowCreate" Label="Add payment information" />
+            <ActionButton Kind="ActionButtonKind.Add" Variant="ActionButtonVariant.Primary" OnClick="ShowCreate" Label="@SharedText["Action_Add"]" />
         }
     }
 </section>

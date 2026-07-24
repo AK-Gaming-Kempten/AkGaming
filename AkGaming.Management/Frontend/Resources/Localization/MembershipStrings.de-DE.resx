@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms</value></resheader>
+  <data name="Tab_Profile" xml:space="preserve"><value>Profil</value></data>
+  <data name="Tab_Payments" xml:space="preserve"><value>Zahlungen</value></data>
+  <data name="Tab_Membership" xml:space="preserve"><value>Mitgliedschaft</value></data>
+  <data name="Fees_Title" xml:space="preserve"><value>Beiträge</value></data>
+  <data name="Fees_Loading" xml:space="preserve"><value>Beiträge werden geladen…</value></data>
+  <data name="Fees_Summary" xml:space="preserve"><value>Beitragsübersicht</value></data>
+  <data name="Fees_Pending" xml:space="preserve"><value>Offene Beiträge</value></data>
+  <data name="Fees_PreviouslyPaid" xml:space="preserve"><value>Bereits bezahlte Beiträge</value></data>
+  <data name="Fees_NoPending" xml:space="preserve"><value>Keine offenen Beiträge.</value></data>
+  <data name="Fees_NoPaid" xml:space="preserve"><value>Noch keine bezahlten Beiträge.</value></data>
+  <data name="Fees_DueDate" xml:space="preserve"><value>Fälligkeitsdatum</value></data>
+  <data name="Fees_DueAmount" xml:space="preserve"><value>Fälliger Betrag</value></data>
+  <data name="Fees_PaidAmount" xml:space="preserve"><value>Bezahlter Betrag</value></data>
+  <data name="Fees_SettledAt" xml:space="preserve"><value>Beglichen am</value></data>
+  <data name="Payments_Title" xml:space="preserve"><value>Zahlungen</value></data>
+  <data name="Payments_Description" xml:space="preserve"><value>Zahlungswege verwalten, über die der Verein Geld an dich auszahlt. Sie werden nicht zum Einzug von Zahlungen verwendet.</value></data>
+  <data name="Payments_AddTitle" xml:space="preserve"><value>Zahlungsdaten hinzufügen</value></data>
+  <data name="Payments_AddDescription" xml:space="preserve"><value>Wähle aus, wohin der Verein deine Auszahlungen senden soll.</value></data>
+  <data name="Payments_Method" xml:space="preserve"><value>Zahlungsweg</value></data>
+  <data name="Payments_PayPalEmail" xml:space="preserve"><value>PayPal-E-Mail</value></data>
+  <data name="Payments_AccountHolder" xml:space="preserve"><value>Kontoinhaber</value></data>
+  <data name="Payments_BankAccount" xml:space="preserve"><value>Bankkonto</value></data>
+  <data name="Profile_PersonalInfo" xml:space="preserve"><value>Persönliche Daten</value></data>
+  <data name="Profile_FirstName" xml:space="preserve"><value>Vorname</value></data>
+  <data name="Profile_LastName" xml:space="preserve"><value>Nachname</value></data>
+  <data name="Profile_BirthDate" xml:space="preserve"><value>Geburtsdatum</value></data>
+  <data name="Profile_Phone" xml:space="preserve"><value>Telefon</value></data>
+  <data name="Profile_Discord" xml:space="preserve"><value>Discord-Benutzername</value></data>
+  <data name="Profile_Street" xml:space="preserve"><value>Straße / Hausnummer</value></data>
+  <data name="Profile_ZipCode" xml:space="preserve"><value>Postleitzahl</value></data>
+  <data name="Profile_City" xml:space="preserve"><value>Ort</value></data>
+  <data name="Profile_Country" xml:space="preserve"><value>Land</value></data>
+  <data name="Profile_History" xml:space="preserve"><value>Mitgliedschaftsverlauf</value></data>
+  <data name="Profile_NoHistory" xml:space="preserve"><value>Noch kein Statusverlauf vorhanden.</value></data>
+  <data name="Profile_Actions" xml:space="preserve"><value>Aktionen</value></data>
+  <data name="Application_Title" xml:space="preserve"><value>Mitgliedschaft beantragen</value></data>
+  <data name="Application_Description" xml:space="preserve"><value>Einen Mitgliedsantrag an den Verein senden.</value></data>
+  <data name="Application_Message" xml:space="preserve"><value>Nachricht zum Antrag</value></data>
+  <data name="Link_Title" xml:space="preserve"><value>Mitglied verknüpfen</value></data>
+  <data name="Link_Description" xml:space="preserve"><value>Dein Konto mit einem bestehenden Mitglied verknüpfen.</value></data>
+  <data name="Requests_Title" xml:space="preserve"><value>Mitgliedsanträge</value></data>
+  <data name="Requests_None" xml:space="preserve"><value>Es wurden noch keine Mitglieds- oder Verknüpfungsanträge gesendet.</value></data>
+  <data name="Requests_Application" xml:space="preserve"><value>Mitgliedsantrag</value></data>
+  <data name="Requests_Linking" xml:space="preserve"><value>Verknüpfungsantrag</value></data>
+  <data name="Requests_Actions" xml:space="preserve"><value>Aktionen zur Mitgliedschaft</value></data>
+  <data name="Requests_ActionsDescription" xml:space="preserve"><value>Eine Mitgliedschaft beantragen oder dein Konto mit einem bestehenden Vereinsmitglied verknüpfen.</value></data>
+  <data name="Privacy_AcceptPrefix" xml:space="preserve"><value>Ich akzeptiere die</value></data>
+  <data name="Privacy_Policy" xml:space="preserve"><value>Datenschutzerklärung</value></data>
+  <data name="Link_Website" xml:space="preserve"><value>Zur Website</value></data>
+  <data name="Link_WebsiteDescription" xml:space="preserve"><value>Die Vereinswebsite öffnen.</value></data>
+  <data name="Link_RulesDescription" xml:space="preserve"><value>Die Vereinssatzung lesen.</value></data>
+  <data name="Link_Discord" xml:space="preserve"><value>Discord beitreten</value></data>
+  <data name="Link_DiscordDescription" xml:space="preserve"><value>Neuigkeiten erhalten und mit anderen Mitgliedern austauschen.</value></data>
+  <data name="State_Redirecting" xml:space="preserve"><value>Weiterleitung…</value></data>
+</root>

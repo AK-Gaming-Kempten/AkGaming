@@ -1,9 +1,9 @@
 @using AkGaming.Management.Modules.GeneralMeetings.Contracts
 
 <section class="ballot-panel">
-    <div class="ballot-heading"><div><strong>@Ballot.Question</strong><small>@Ballot.Status · @Ballot.VotesCast / @Ballot.EligibleVoters votes</small></div>
-        @if (CanManage && Ballot.Status == BallotStatusDto.Draft) { <span><button type="button" @onclick="() => OnEdit.InvokeAsync(Ballot)">Edit</button> <button type="button" @onclick="OpenAsync">Open</button></span> }
-        @if (CanManage && Ballot.Status == BallotStatusDto.Open) { <button class="danger-action" type="button" @onclick="CloseAsync">Close</button> }
+    <div class="ballot-heading"><div><strong>@Ballot.Question</strong><small>@Ballot.Status.ToLocalizedString(SharedText) · @Ballot.VotesCast / @Ballot.EligibleVoters @Text["General_Votes"]</small></div>
+        @if (CanManage && Ballot.Status == BallotStatusDto.Draft) { <span><button type="button" @onclick="() => OnEdit.InvokeAsync(Ballot)">@SharedText["Action_Edit"]</button> <button type="button" @onclick="OpenAsync">@SharedText["Action_Open"]</button></span> }
+        @if (CanManage && Ballot.Status == BallotStatusDto.Open) { <button class="danger-action" type="button" @onclick="CloseAsync">@SharedText["Action_Close"]</button> }
     </div>
     @if (!string.IsNullOrWhiteSpace(_error)) { <p class="error">@_error</p> }
     @if (Ballot.Status == BallotStatusDto.Open)
@@ -44,9 +44,9 @@
                 {
                     <div class="voting-right-intro">
                         <span class="bi bi-shield-lock"></span>
-                        <div><strong>Request an anonymous voting right</strong><small>Your eligibility is checked before a credential is issued. The stored vote cannot be traced back to you.</small></div>
+                        <div><strong>@SharedText["Action_RequestAnonymousVote"]</strong><small>@SharedText["Message_BallotEligibility"]</small></div>
                     </div>
-                    <button class="primary-action" type="button" @onclick="IssueOwnAsync">Get my voting right</button>
+                    <button class="primary-action" type="button" @onclick="IssueOwnAsync">@SharedText["Action_GetVotingRight"]</button>
                 }
                 else
                 {
@@ -72,7 +72,7 @@
                 @if (CanManage)
                 {
                     <details class="offline-voting-right">
-                        <summary>Issue an offline voting right</summary>
+                        <summary>@SharedText["Action_IssueOfflineVote"]</summary>
                         <div>
                             <select @bind="_offlineMember"><option value="">Select eligible attendee</option>@foreach (var attendee in Attendees.Where(x => x.CheckedInAt.HasValue && !x.CheckedOutAt.HasValue)) { <option value="@attendee.MemberId">@attendee.DisplayName</option> }</select>
                             <button type="button" @onclick="IssueOfflineAsync">Issue</button>
@@ -80,17 +80,17 @@
                         @if (!string.IsNullOrWhiteSpace(_offlineCredential))
                         {
                             <code class="credential">@_offlineCredential</code>
-                            <p><small>Show or copy this once. It is not linked to the member in storage.</small></p>
+                            <p><small>@SharedText["Message_SecretOnce"]</small></p>
                         }
                     </details>
                 }
             </div>
         </ChildContent>
         <Footer>
-            <button type="button" class="dialog-cancel" @onclick="CloseVotingDialog">Close</button>
+            <button type="button" class="dialog-cancel" @onclick="CloseVotingDialog">@SharedText["Action_Close"]</button>
             @if (!_submitted && !string.IsNullOrWhiteSpace(_credential))
             {
-                <button type="button" class="dialog-primary" disabled="@(_selected.Count == 0)" @onclick="VoteAsync">Submit secret vote</button>
+                <button type="button" class="dialog-primary" disabled="@(_selected.Count == 0)" @onclick="VoteAsync">@SharedText["Action_SubmitSecretVote"]</button>
             }
         </Footer>
     </GeneralMeetingFormDialog>
