@@ -1,4 +1,4 @@
-.disbursement-page { max-width: 1200px; }
+.disbursement-page { width: 100%; }
 .page-heading, .list-heading, .form-actions { display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap; }
 .page-heading p { margin: .3rem 0 0; }
 .primary-action, .secondary-action { padding: .55rem .75rem; border-radius: 4px; }
