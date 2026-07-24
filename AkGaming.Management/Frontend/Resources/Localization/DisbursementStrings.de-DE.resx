@@ -22,6 +22,8 @@
   <data name="Reimbursements_AdditionalNote" xml:space="preserve"><value>Zusätzliche Notiz</value></data>
   <data name="Reimbursements_AddExpense" xml:space="preserve"><value>Ausgabe hinzufügen</value></data>
   <data name="Reimbursements_Submit" xml:space="preserve"><value>Erstattung einreichen</value></data>
+  <data name="Reimbursements_Submitted" xml:space="preserve"><value>Erstattung wurde eingereicht.</value></data>
+  <data name="Reimbursements_ReceiptRequired" xml:space="preserve"><value>Ausgabe {0} benötigt mindestens einen Beleg.</value></data>
   <data name="Reimbursements_YourCases" xml:space="preserve"><value>Deine Vorgänge</value></data>
   <data name="Reimbursements_None" xml:space="preserve"><value>Noch keine Erstattungen eingereicht.</value></data>
   <data name="Reimbursements_AdminNone" xml:space="preserve"><value>Keine Erstattungsvorgänge.</value></data>
@@ -45,6 +47,9 @@
   <data name="Payment_BankAccount" xml:space="preserve"><value>Bankkonto</value></data>
   <data name="Expense_Receipts" xml:space="preserve"><value>Belege</value></data>
   <data name="Expense_FileHelp" xml:space="preserve"><value>PDF oder Bild, maximal 10 MB pro Datei.</value></data>
+  <data name="Expense_ReadingFiles" xml:space="preserve"><value>Beleg wird eingelesen…</value></data>
+  <data name="Expense_FileReadFailed" xml:space="preserve"><value>Der Beleg konnte nicht gelesen werden. Prüfe, ob er höchstens 10 MB groß ist, und versuche es erneut.</value></data>
+  <data name="Expense_RemoveReceipt" xml:space="preserve"><value>Beleg entfernen</value></data>
   <data name="Case_InternalNote" xml:space="preserve"><value>Interne Notiz</value></data>
   <data name="Case_SaveStatus" xml:space="preserve"><value>Status speichern</value></data>
   <data name="Case_Update" xml:space="preserve"><value>Aktualisierung:</value></data>

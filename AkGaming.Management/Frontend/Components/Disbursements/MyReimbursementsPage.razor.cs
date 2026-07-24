@@ -2,7 +2,6 @@ using AkGaming.Management.Frontend.ApiClients;
 using AkGaming.Management.Modules.Disbursements.Contracts.DTO;
 using AkGaming.Management.Modules.MemberManagement.Contracts.DTO;
 using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.JSInterop;
 
 namespace AkGaming.Management.Frontend.Components.Disbursements;
@@ -45,7 +44,14 @@ public partial class MyReimbursementsPage : ComponentBase
     private async Task SubmitAsync()
     {
         _error = null; _message = null;
-        var files = new List<IBrowserFile>();
+        var expenseWithoutReceiptIndex = _expenses.FindIndex(draft => draft.Receipts.Count == 0);
+        if (expenseWithoutReceiptIndex >= 0)
+        {
+            _error = Text["Reimbursements_ReceiptRequired", expenseWithoutReceiptIndex + 1];
+            return;
+        }
+
+        var files = new List<ReceiptUploadFile>();
         _request.Expenses = [];
         foreach (var draft in _expenses)
         {
@@ -58,7 +64,7 @@ public partial class MyReimbursementsPage : ComponentBase
         _busy = false;
         if (!result.IsSuccess) { _error = result.Error; return; }
         _request = new CreateReimbursementRequest { PaymentInformationId = _paymentMethods.FirstOrDefault()?.Id ?? Guid.Empty };
-        _expenses = [new ExpenseDraft()]; _showCreate = false; _message = "Reimbursement submitted.";
+        _expenses = [new ExpenseDraft()]; _showCreate = false; _message = Text["Reimbursements_Submitted"];
         await LoadAsync();
     }
     private async Task DownloadReceiptAsync(ReceiptDto receipt, bool administrative)

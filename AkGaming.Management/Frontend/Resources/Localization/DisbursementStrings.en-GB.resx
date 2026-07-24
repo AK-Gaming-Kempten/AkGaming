@@ -22,6 +22,8 @@
   <data name="Reimbursements_AdditionalNote" xml:space="preserve"><value>Additional note</value></data>
   <data name="Reimbursements_AddExpense" xml:space="preserve"><value>Add expense</value></data>
   <data name="Reimbursements_Submit" xml:space="preserve"><value>Submit reimbursement</value></data>
+  <data name="Reimbursements_Submitted" xml:space="preserve"><value>Reimbursement submitted.</value></data>
+  <data name="Reimbursements_ReceiptRequired" xml:space="preserve"><value>Expense {0} needs at least one receipt.</value></data>
   <data name="Reimbursements_YourCases" xml:space="preserve"><value>Your cases</value></data>
   <data name="Reimbursements_None" xml:space="preserve"><value>No reimbursements submitted yet.</value></data>
   <data name="Reimbursements_AdminNone" xml:space="preserve"><value>No reimbursement cases.</value></data>
@@ -45,6 +47,9 @@
   <data name="Payment_BankAccount" xml:space="preserve"><value>Bank account</value></data>
   <data name="Expense_Receipts" xml:space="preserve"><value>Receipts</value></data>
   <data name="Expense_FileHelp" xml:space="preserve"><value>PDF or image, up to 10 MB per file.</value></data>
+  <data name="Expense_ReadingFiles" xml:space="preserve"><value>Reading receipt…</value></data>
+  <data name="Expense_FileReadFailed" xml:space="preserve"><value>The receipt could not be read. Check that it is no larger than 10 MB and try again.</value></data>
+  <data name="Expense_RemoveReceipt" xml:space="preserve"><value>Remove receipt</value></data>
   <data name="Case_InternalNote" xml:space="preserve"><value>Internal note</value></data>
   <data name="Case_SaveStatus" xml:space="preserve"><value>Save status</value></data>
   <data name="Case_Update" xml:space="preserve"><value>Update:</value></data>

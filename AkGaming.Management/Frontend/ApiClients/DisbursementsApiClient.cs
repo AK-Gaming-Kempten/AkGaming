@@ -2,7 +2,6 @@ using System.Net.Http.Json;
 using System.Text.Json;
 using AkGaming.Core.Common.Generics;
 using AkGaming.Management.Modules.Disbursements.Contracts.DTO;
-using Microsoft.AspNetCore.Components.Forms;
 
 namespace AkGaming.Management.Frontend.ApiClients;
 
@@ -23,7 +22,7 @@ public sealed class DisbursementsApiClient(HttpClient http) : ApiClientBase(http
     public Task<Result<AllocationApplicationDto>> UpdateApplicationStatusAsync(Guid applicationId, UpdateAllocationApplicationStatusRequest request, CancellationToken cancellationToken = default) => PutJsonAsync<UpdateAllocationApplicationStatusRequest, AllocationApplicationDto>($"disbursements/admin/applications/{applicationId}/status", request, cancellationToken);
     public Task<Result<byte[]>> DownloadReceiptAsync(Guid receiptId, bool administrative, CancellationToken cancellationToken = default) => GetBytesAsync(administrative ? $"disbursements/admin/receipts/{receiptId}" : $"disbursements/receipts/{receiptId}", cancellationToken);
 
-    public async Task<Result<ReimbursementDto>> CreateReimbursementAsync(CreateReimbursementRequest request, IReadOnlyList<IBrowserFile> files, CancellationToken cancellationToken = default)
+    public async Task<Result<ReimbursementDto>> CreateReimbursementAsync(CreateReimbursementRequest request, IReadOnlyList<ReceiptUploadFile> files, CancellationToken cancellationToken = default)
     {
         try
         {
@@ -31,9 +30,9 @@ public sealed class DisbursementsApiClient(HttpClient http) : ApiClientBase(http
             form.Add(new StringContent(JsonSerializer.Serialize(request, Json)), "requestJson");
             foreach (var file in files)
             {
-                var content = new StreamContent(file.OpenReadStream(10 * 1024 * 1024, cancellationToken));
+                var content = new ByteArrayContent(file.Content);
                 content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(file.ContentType);
-                form.Add(content, "receipts", file.Name);
+                form.Add(content, "receipts", file.FileName);
             }
             using var response = await Http.PostAsync("disbursements/reimbursements", form, cancellationToken);
             return await ToResult<ReimbursementDto>(response, cancellationToken);
