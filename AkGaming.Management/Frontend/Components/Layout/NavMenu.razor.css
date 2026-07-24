@@ -11,7 +11,7 @@
     --color-nav-item-active-text: var(--color-text-special);
     --color-nav-icon: var(--color-highlight-primary);
     
-    width: 250px;
+    width: 280px;
     height: 100dvh;
     min-height: 100dvh;
     background-color: var(--color-nav-bg);

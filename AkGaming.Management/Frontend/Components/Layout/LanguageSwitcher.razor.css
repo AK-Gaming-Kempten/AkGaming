@@ -1,45 +1,68 @@
 .language-switcher-box {
     display: flex;
     align-items: center;
+    background-color: var(--color-background-special);
     min-height: 44px;
     padding: 0 0.75rem;
+    color: var(--color-text-special);
+    box-sizing: border-box;
 }
 
 .language-switcher-control {
+    position: relative;
     display: grid;
-    grid-template-columns: 1.25rem repeat(2, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     align-items: center;
     width: 100%;
-    padding: 0.25rem;
-    gap: 0.2rem;
-    border: 1px solid var(--color-nav-border);
-    border-radius: 6px;
-    background: color-mix(in oklab, var(--color-background-primary) 14%, transparent);
+    padding: 0.2rem;
+    overflow: hidden;
+    border: 1px solid color-mix(in oklab, var(--color-text-special) 26%, transparent);
+    border-radius: 0.55rem;
+    background: color-mix(in oklab, var(--color-background-special) 85%, var(--color-text-special) 15%);
 }
 
-.language-switcher-control > .bi {
-    justify-self: center;
-    color: var(--color-nav-icon);
+.language-switcher-thumb {
+    position: absolute;
+    z-index: 0;
+    top: 0.2rem;
+    bottom: 0.2rem;
+    left: 0.2rem;
+    width: calc((100% - 0.4rem) / 2);
+    border-radius: 0.35rem;
+    background: var(--color-highlight-secondary);
+    box-shadow: 0 1px 3px color-mix(in oklab, var(--color-black) 35%, transparent);
+    transition: transform 180ms ease;
+}
+
+.language-switcher-control.language-german .language-switcher-thumb {
+    transform: translateX(100%);
 }
 
 .language-switcher-control button {
-    min-height: 30px;
-    padding: 0.2rem 0.45rem;
+    position: relative;
+    z-index: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 0;
+    min-height: 2rem;
+    margin: 0;
+    padding: 0.3rem 0.45rem;
     border: 0;
-    border-radius: 4px;
+    border-radius: 0.35rem;
     background: transparent;
-    color: var(--color-text-special);
+    color: var(--color-text-special-secondary);
     cursor: pointer;
     font-size: 0.75rem;
     font-weight: 700;
 }
 
-.language-switcher-control button[aria-checked="true"] {
-    background: var(--color-highlight-secondary);
-    color: var(--color-button-primary-text);
+.language-switcher-control button[aria-checked="true"],
+.language-switcher-control button:hover {
+    color: var(--color-text-special);
 }
 
 .language-switcher-control button:focus-visible {
     outline: 2px solid var(--color-highlight-primary);
-    outline-offset: 1px;
+    outline-offset: -2px;
 }

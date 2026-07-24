@@ -7,6 +7,7 @@ public partial class LanguageSwitcher : ComponentBase
 {
     private bool IsEnglish => CultureInfo.CurrentUICulture.Name.StartsWith("en", StringComparison.OrdinalIgnoreCase);
     private bool IsGerman => CultureInfo.CurrentUICulture.Name.StartsWith("de", StringComparison.OrdinalIgnoreCase);
+    private string LanguageCssClass => IsGerman ? "language-german" : "language-english";
 
     private void SelectEnglish()
     {
