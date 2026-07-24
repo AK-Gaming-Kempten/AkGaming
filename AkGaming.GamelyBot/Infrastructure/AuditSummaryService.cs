@@ -14,7 +14,8 @@ public sealed class AuditSummaryService(
     ClientCredentialsTokenProvider tokens,
     IOptions<IdentityClientOptions> identityOptions,
     IOptions<ManagementClientOptions> managementOptions,
-    INotificationInbox notificationInbox)
+    INotificationInbox notificationInbox,
+    BotText text)
 {
     private readonly IdentityClientOptions _identity = identityOptions.Value;
     private readonly ManagementClientOptions _management = managementOptions.Value;
@@ -30,16 +31,16 @@ public sealed class AuditSummaryService(
             ?? throw new InvalidOperationException("The client-credentials token endpoint returned no access token.");
         var link = await GetLinkAsync(discordUserId, token, cancellationToken);
         if (link is null)
-            return "Your Discord account is not linked to an AK Gaming account.";
+            return text["DiscordAccountNotLinked"];
 
         var isIdentity = string.Equals(source, "identity", StringComparison.OrdinalIgnoreCase);
         if (isIdentity && !link.CanReadIdentityAudit)
-            return "Your linked account is not authorized to read Identity audit summaries.";
+            return text["IdentityAuditUnauthorized"];
         if (!isIdentity && !link.CanReadManagementAudit)
-            return "Your linked account is not authorized to read Management audit summaries.";
+            return text["ManagementAuditUnauthorized"];
 
         var summary = await GetSummaryAsync(source, fromUtc, toUtc, token, cancellationToken);
-        return Format(summary);
+        return Format(summary, text);
     }
 
     public async Task QueueWeeklySummariesAsync(
@@ -62,12 +63,12 @@ public sealed class AuditSummaryService(
         }
     }
 
-    internal static string Format(AuditSummaryResponse summary)
+    internal static string Format(AuditSummaryResponse summary, BotText text)
     {
         var lines = new List<string>
         {
-            $"**{summary.Source} weekly summary**",
-            $"Period: <t:{summary.FromUtc.ToUnixTimeSeconds()}:D> to <t:{summary.ToUtc.ToUnixTimeSeconds()}:D>"
+            text.Format("WeeklySummaryHeading", summary.Source),
+            text.Format("AuditPeriod", summary.FromUtc.ToUnixTimeSeconds(), summary.ToUtc.ToUnixTimeSeconds())
         };
         if (summary.Sections is { Count: > 0 })
         {
@@ -81,9 +82,9 @@ public sealed class AuditSummaryService(
         else
         {
             lines.Add(string.Empty);
-            lines.Add("**Most frequent activity**");
+            lines.Add(text["MostFrequentActivity"]);
             lines.AddRange(summary.TopCategories.Count == 0
-                ? ["No audited activity in this period."]
+                ? [text["NoAuditedActivity"]]
                 : summary.TopCategories.Select(category => $"- {category.Name}: {category.Count}"));
         }
         var result = string.Join('\n', lines);

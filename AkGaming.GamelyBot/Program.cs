@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using System.Globalization;
 using System.Text.Json.Serialization;
 using AkGaming.GamelyBot.Application;
 using AkGaming.GamelyBot.Infrastructure;
@@ -12,12 +13,26 @@ if (builder.Environment.IsDevelopment())
 builder.Configuration.AddEnvironmentVariables();
 
 var authenticationDisabled = builder.Environment.IsDevelopment() && builder.Configuration.GetValue<bool>("Authentication:Disabled");
+var localizationOptions = builder.Configuration
+    .GetSection(BotLocalizationOptions.SectionName)
+    .Get<BotLocalizationOptions>() ?? new BotLocalizationOptions();
+if (!BotLocalizationOptions.SupportedCultures.Contains(localizationOptions.Culture))
+{
+    throw new InvalidOperationException(
+        $"Unsupported bot culture '{localizationOptions.Culture}'. Supported cultures: {string.Join(", ", BotLocalizationOptions.SupportedCultures)}.");
+}
+var botCulture = CultureInfo.GetCultureInfo(localizationOptions.Culture);
+CultureInfo.DefaultThreadCurrentCulture = botCulture;
+CultureInfo.DefaultThreadCurrentUICulture = botCulture;
 
 builder.Services.AddControllers().AddJsonOptions(options =>
     options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddHealthChecks();
+builder.Services.Configure<BotLocalizationOptions>(
+    builder.Configuration.GetSection(BotLocalizationOptions.SectionName));
+builder.Services.AddSingleton(new BotText(localizationOptions));
 builder.Services.Configure<DiscordOptions>(builder.Configuration.GetSection(DiscordOptions.SectionName));
 builder.Services.Configure<IdentityClientOptions>(builder.Configuration.GetSection(IdentityClientOptions.SectionName));
 builder.Services.Configure<ManagementClientOptions>(builder.Configuration.GetSection(ManagementClientOptions.SectionName));

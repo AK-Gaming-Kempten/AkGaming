@@ -13,7 +13,8 @@ namespace AkGaming.GamelyBot.Api.Controllers;
 [AllowAnonymous]
 public sealed class DiscordInteractionsController(DiscordInteractionService interactions, IOptions<DiscordOptions> discordOptions,
     IOptions<DiscordInteractionOptions> interactionOptions, BoardRescheduleInputParser rescheduleInputParser,
-    AuditSummaryService auditSummaries, ILogger<DiscordInteractionsController> logger) : ControllerBase
+    AuditSummaryService auditSummaries, BotText text,
+    ILogger<DiscordInteractionsController> logger) : ControllerBase
 {
     [HttpPost]
     public async Task<IActionResult> Handle(CancellationToken cancellationToken)
@@ -28,9 +29,9 @@ public sealed class DiscordInteractionsController(DiscordInteractionService inte
         var interactionType = root.GetProperty("type").GetInt32();
         if (interactionType == 1) return Ok(new { type = 1 });
         var guildId = root.TryGetProperty("guild_id", out var guild) ? guild.GetString() : null;
-        if (!string.Equals(guildId, discordOptions.Value.GuildId, StringComparison.Ordinal)) return Ok(Ephemeral("This bot only accepts interactions from the configured club server."));
+        if (!string.Equals(guildId, discordOptions.Value.GuildId, StringComparison.Ordinal)) return Ok(Ephemeral(text["WrongDiscordServer"]));
         var discordUserId = root.GetProperty("member").GetProperty("user").GetProperty("id").GetString();
-        if (string.IsNullOrWhiteSpace(discordUserId)) return Ok(Ephemeral("Discord did not identify your account."));
+        if (string.IsNullOrWhiteSpace(discordUserId)) return Ok(Ephemeral(text["DiscordAccountUnknown"]));
         using var interactionTimeout = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
         interactionTimeout.CancelAfter(TimeSpan.FromSeconds(2));
         try
@@ -41,12 +42,12 @@ public sealed class DiscordInteractionsController(DiscordInteractionService inte
         catch (OperationCanceledException) when (!cancellationToken.IsCancellationRequested)
         {
             logger.LogWarning("Discord interaction timed out for user {DiscordUserId}.", discordUserId);
-            return Ok(Ephemeral("The club services did not respond in time. Please try again or use the management tool."));
+            return Ok(Ephemeral(text["InteractionTimedOut"]));
         }
         catch (Exception exception)
         {
             logger.LogError(exception, "Discord interaction failed for user {DiscordUserId}.", discordUserId);
-            return Ok(Ephemeral("I could not complete that action right now. Please try again or use the management tool."));
+            return Ok(Ephemeral(text["InteractionFailed"]));
         }
     }
 
@@ -56,12 +57,12 @@ public sealed class DiscordInteractionsController(DiscordInteractionService inte
         if (interactionType == 3) return await HandleButtonAsync(data, discordUserId, cancellationToken);
         if (interactionType == 4) return await HandleAutocompleteAsync(data, discordUserId, cancellationToken);
         if (interactionType == 5) return await HandleModalAsync(data, discordUserId, cancellationToken);
-        if (interactionType != 2) return Ephemeral("Unsupported interaction.");
+        if (interactionType != 2) return Ephemeral(text["UnsupportedInteraction"]);
 
         var commandName = data.GetProperty("name").GetString();
         if (commandName == "auditsummary")
             return Ephemeral(await GetAuditSummaryAsync(data, discordUserId, cancellationToken));
-        if (commandName != "boardmeeting") return Ephemeral("Unsupported interaction.");
+        if (commandName != "boardmeeting") return Ephemeral(text["UnsupportedInteraction"]);
 
         var command = GetSubcommand(data);
         return command switch
@@ -72,11 +73,11 @@ public sealed class DiscordInteractionsController(DiscordInteractionService inte
             "backlog" => Ephemeral(await interactions.GetBacklogAsync(discordUserId, cancellationToken)),
             "agenda" => Ephemeral(await interactions.GetNextMeetingAsync(discordUserId, true, cancellationToken)),
             "details" => Ephemeral(await interactions.GetNextMeetingAsync(discordUserId, false, cancellationToken)),
-            "add-backlog" => AgendaItemModal("board-meeting-add-backlog", "Add backlog item"),
-            "add-agenda" => AgendaItemModal("board-meeting-add-agenda", "Add agenda item"),
+            "add-backlog" => AgendaItemModal("board-meeting-add-backlog", text["AddBacklogItem"]),
+            "add-agenda" => AgendaItemModal("board-meeting-add-agenda", text["AddAgendaItem"]),
             "promote" => await PromoteAsync(data, discordUserId, cancellationToken),
             "availability" => await SetNextAvailabilityAsync(data, discordUserId, cancellationToken),
-            _ => Ephemeral("Unsupported board meeting command.")
+            _ => Ephemeral(text["UnsupportedBoardMeetingCommand"])
         };
     }
 
@@ -85,7 +86,7 @@ public sealed class DiscordInteractionsController(DiscordInteractionService inte
     {
         var source = GetSubcommand(data);
         if (source is not ("identity" or "management"))
-            return "Select either the Identity or Management audit summary.";
+            return text["SelectAuditSummary"];
         var toUtc = DateTimeOffset.UtcNow;
         var fromUtc = toUtc.AddDays(-7);
         return await auditSummaries.GetForDiscordAsync(discordUserId, source, fromUtc, toUtc, cancellationToken);
@@ -95,7 +96,7 @@ public sealed class DiscordInteractionsController(DiscordInteractionService inte
     {
         var customId = data.GetProperty("custom_id").GetString();
         var parts = customId?.Split(':');
-        if (customId == "bpx") return ReplaceInteractionMessage("No changes were made.");
+        if (customId == "bpx") return ReplaceInteractionMessage(text["NoChangesMade"]);
         if (parts is { Length: 4 } && parts[0] == "bp"
             && Guid.TryParse(parts[1], out var proposalMeetingId)
             && Guid.TryParse(parts[2], out var proposalId)
@@ -121,7 +122,7 @@ public sealed class DiscordInteractionsController(DiscordInteractionService inte
             return RescheduleModal(rescheduleMeetingId, rescheduleVersion);
         }
         if (parts is not { Length: 4 } || parts[0] != "board-availability" || !Guid.TryParse(parts[1], out var meetingId) || !int.TryParse(parts[2], out var version))
-            return Ephemeral("This meeting action is invalid.");
+            return Ephemeral(text["InvalidMeetingAction"]);
         var status = parts[3] == "available" ? "Available" : "Unavailable";
         var message = await interactions.SetAvailabilityAsync(discordUserId, meetingId, version, status, cancellationToken);
         return Ephemeral(message);
@@ -152,10 +153,10 @@ public sealed class DiscordInteractionsController(DiscordInteractionService inte
                 input.ProposedAtUtc, input.DurationMinutes, reason, cancellationToken);
             return Ephemeral(proposalMessage);
         }
-        if (customId is not ("board-meeting-add-backlog" or "board-meeting-add-agenda")) return Ephemeral("Unsupported form submission.");
+        if (customId is not ("board-meeting-add-backlog" or "board-meeting-add-agenda")) return Ephemeral(text["UnsupportedFormSubmission"]);
         var title = FindComponentValue(data, "title");
         var description = FindComponentValue(data, "description");
-        if (string.IsNullOrWhiteSpace(title)) return Ephemeral("An agenda item title is required.");
+        if (string.IsNullOrWhiteSpace(title)) return Ephemeral(text["AgendaItemTitleRequired"]);
         var message = await interactions.AddAgendaItemAsync(discordUserId, title, description, customId == "board-meeting-add-agenda", cancellationToken);
         return Ephemeral(message);
     }
@@ -163,7 +164,7 @@ public sealed class DiscordInteractionsController(DiscordInteractionService inte
     private async Task<object> PromoteAsync(JsonElement data, string discordUserId, CancellationToken cancellationToken)
     {
         var itemValue = FindOptionValue(data, "item");
-        if (!Guid.TryParse(itemValue, out var itemId)) return Ephemeral("Select a valid backlog item.");
+        if (!Guid.TryParse(itemValue, out var itemId)) return Ephemeral(text["SelectValidBacklogItem"]);
         var message = await interactions.PromoteBacklogItemAsync(discordUserId, itemId, cancellationToken);
         return Ephemeral(message);
     }
@@ -172,7 +173,7 @@ public sealed class DiscordInteractionsController(DiscordInteractionService inte
     {
         var value = FindOptionValue(data, "status");
         var status = value == "available" ? "Available" : value == "unavailable" ? "Unavailable" : null;
-        if (status is null) return Ephemeral("Select whether you have time for the meeting.");
+        if (status is null) return Ephemeral(text["SelectAvailability"]);
         var message = await interactions.SetNextMeetingAvailabilityAsync(discordUserId, status, cancellationToken);
         return Ephemeral(message);
     }
@@ -235,7 +236,7 @@ public sealed class DiscordInteractionsController(DiscordInteractionService inte
 
     private static object Ephemeral(string content) => new { type = 4, data = new { content, flags = 64 } };
     private static object Autocomplete(IReadOnlyList<DiscordCommandChoice> choices) => new { type = 8, data = new { choices = choices.Select(choice => new { name = choice.Name, value = choice.Value }) } };
-    private static object AgendaItemModal(string customId, string title) => new
+    private object AgendaItemModal(string customId, string title) => new
     {
         type = 9,
         data = new
@@ -244,13 +245,13 @@ public sealed class DiscordInteractionsController(DiscordInteractionService inte
             title,
             components = new object[]
             {
-                new { type = 1, components = new[] { new { type = 4, custom_id = "title", label = "Title", style = 1, min_length = 1, max_length = 500, required = true } } },
-                new { type = 1, components = new[] { new { type = 4, custom_id = "description", label = "Description", style = 2, min_length = 0, max_length = 2000, required = false } } }
+                new { type = 1, components = new[] { new { type = 4, custom_id = "title", label = text["Title"], style = 1, min_length = 1, max_length = 500, required = true } } },
+                new { type = 1, components = new[] { new { type = 4, custom_id = "description", label = text["Description"], style = 2, min_length = 0, max_length = 2000, required = false } } }
             }
         }
     };
 
-    private static object RescheduleModal(Guid meetingId, int scheduleVersion)
+    private object RescheduleModal(Guid meetingId, int scheduleVersion)
     {
         return new
         {
@@ -258,28 +259,28 @@ public sealed class DiscordInteractionsController(DiscordInteractionService inte
             data = new
             {
                 custom_id = $"board-reschedule:{meetingId}:{scheduleVersion}",
-                title = "Propose another meeting time",
+                title = text["ProposeAnotherMeetingTime"],
                 components = new object[]
                 {
-                    new { type = 1, components = new[] { new { type = 4, custom_id = "proposed-at", label = "Date and time (DD.MM.YYYY HH:mm)", style = 1, min_length = 10, max_length = 16, required = true } } },
-                    new { type = 1, components = new[] { new { type = 4, custom_id = "duration", label = "Duration in minutes", style = 1, min_length = 2, max_length = 4, required = true } } },
-                    new { type = 1, components = new[] { new { type = 4, custom_id = "reason", label = "Reason", style = 2, min_length = 0, max_length = 1000, required = false } } }
+                    new { type = 1, components = new[] { new { type = 4, custom_id = "proposed-at", label = text["DateAndTimeLabel"], style = 1, min_length = 10, max_length = 16, required = true } } },
+                    new { type = 1, components = new[] { new { type = 4, custom_id = "duration", label = text["DurationMinutesLabel"], style = 1, min_length = 2, max_length = 4, required = true } } },
+                    new { type = 1, components = new[] { new { type = 4, custom_id = "reason", label = text["Reason"], style = 2, min_length = 0, max_length = 1000, required = false } } }
                 }
             }
         };
     }
 
-    private static object ProposalDecisionConfirmation(Guid meetingId, Guid proposalId, bool accept)
+    private object ProposalDecisionConfirmation(Guid meetingId, Guid proposalId, bool accept)
     {
-        var action = accept ? "accept" : "reject";
-        var confirmLabel = accept ? "Confirm acceptance" : "Confirm rejection";
+        var action = accept ? text["AcceptAction"] : text["RejectAction"];
+        var confirmLabel = accept ? text["ConfirmAcceptance"] : text["ConfirmRejection"];
         var confirmStyle = accept ? 3 : 4;
         return new
         {
             type = 4,
             data = new
             {
-                content = $"Are you sure you want to {action} this rescheduling proposal? This will immediately change its status.",
+                content = text.Format("ConfirmProposalDecision", action),
                 flags = 64,
                 components = new object[]
                 {
@@ -289,7 +290,7 @@ public sealed class DiscordInteractionsController(DiscordInteractionService inte
                         components = new object[]
                         {
                             new { type = 2, style = confirmStyle, label = confirmLabel, custom_id = $"bpc:{meetingId}:{proposalId}:{(accept ? "a" : "r")}" },
-                            new { type = 2, style = 2, label = "Cancel", custom_id = "bpx" }
+                            new { type = 2, style = 2, label = text["Cancel"], custom_id = "bpx" }
                         }
                     }
                 }

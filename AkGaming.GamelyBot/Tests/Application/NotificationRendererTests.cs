@@ -68,7 +68,7 @@ public sealed class NotificationRendererTests
         // Assert
         Assert.That(rendered.ChannelMessage, Is.Not.Null);
         Assert.That(rendered.ChannelMessage!.RoleId, Is.EqualTo("treasurer"));
-        Assert.That(rendered.ChannelMessage.Body, Does.Contain("42,50 EUR"));
+        Assert.That(rendered.ChannelMessage.Body, Does.Contain("42.50 EUR"));
         Assert.That(rendered.DirectMessage, Is.Not.Null);
     }
 
@@ -90,7 +90,7 @@ public sealed class NotificationRendererTests
 
         // Assert
         Assert.That(rendered.ChannelMessage, Is.Null);
-        Assert.That(rendered.DirectMessage!.Body, Does.Contain("Approved"));
+        Assert.That(rendered.DirectMessage!.Body, Does.Contain("approved"));
         Assert.That(rendered.DirectMessage.Body, Does.Contain("Looks good"));
     }
 
@@ -335,7 +335,7 @@ public sealed class NotificationRendererTests
 
         // Assert
         Assert.That(rendered.ChannelMessage?.Buttons, Is.Null);
-        Assert.That(rendered.ChannelMessage?.Body, Does.Contain("Decision:** Accepted"));
+        Assert.That(rendered.ChannelMessage?.Body, Does.Contain("Decision:** accepted"));
     }
 
     [Test]

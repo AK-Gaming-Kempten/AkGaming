@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms</value></resheader>
+  <data name="AcceptAction" xml:space="preserve"><value>accept</value></data>
+  <data name="AcceptProposal" xml:space="preserve"><value>Accept proposal</value></data>
+  <data name="AddAgendaItem" xml:space="preserve"><value>Add agenda item</value></data>
+  <data name="AddBacklogItem" xml:space="preserve"><value>Add backlog item</value></data>
+  <data name="AdministrativeNote" xml:space="preserve"><value>&#10;&#10;Note: {0}</value></data>
+  <data name="AgendaBlock" xml:space="preserve"><value>&#10;&#10;**Agenda**&#10;{0}{1}</value></data>
+  <data name="AgendaHeading" xml:space="preserve"><value>**Agenda**</value></data>
+  <data name="AgendaItemAddFailed" xml:space="preserve"><value>I could not add the item to the next meeting agenda.</value></data>
+  <data name="AgendaItemAdded" xml:space="preserve"><value>Added **{0}** to the next meeting agenda.</value></data>
+  <data name="AgendaItemTitleRequired" xml:space="preserve"><value>An agenda item title is required.</value></data>
+  <data name="AndMore" xml:space="preserve"><value>&#10;…and {0} more</value></data>
+  <data name="AttendanceBlock" xml:space="preserve"><value>&#10;&#10;**Attendance**&#10;Confirmed: {0}&#10;Declined: {1}</value></data>
+  <data name="AuditPeriod" xml:space="preserve"><value>Period: &lt;t:{0}:D&gt; to &lt;t:{1}:D&gt;</value></data>
+  <data name="AvailabilityAvailable" xml:space="preserve"><value>I have time</value></data>
+  <data name="AvailabilityCounts" xml:space="preserve"><value>Availability: {0} available, {1} unavailable</value></data>
+  <data name="AvailabilityRecordedAvailable" xml:space="preserve"><value>Recorded: you have time for this meeting.</value></data>
+  <data name="AvailabilityRecordedUnavailable" xml:space="preserve"><value>Recorded: you cannot attend this meeting.</value></data>
+  <data name="AvailabilitySaveFailed" xml:space="preserve"><value>I could not save your availability right now. Please use the management tool or try again later.</value></data>
+  <data name="AvailabilityUnavailable" xml:space="preserve"><value>I cannot attend</value></data>
+  <data name="BacklogEmpty" xml:space="preserve"><value>The board backlog is empty.</value></data>
+  <data name="BacklogItemAddFailed" xml:space="preserve"><value>I could not add the item to the backlog.</value></data>
+  <data name="BacklogItemAdded" xml:space="preserve"><value>Added **{0}** to the board backlog.</value></data>
+  <data name="BacklogList" xml:space="preserve"><value>**Board meeting backlog**&#10;{0}</value></data>
+  <data name="BacklogLoadFailed" xml:space="preserve"><value>I could not load the board backlog right now.</value></data>
+  <data name="BacklogPromoteFailed" xml:space="preserve"><value>I could not add that backlog item to the next meeting.</value></data>
+  <data name="BacklogPromoted" xml:space="preserve"><value>Added the backlog item to the next meeting agenda.</value></data>
+  <data name="BoardAgendaChangedTitle" xml:space="preserve"><value>Board agenda changed</value></data>
+  <data name="BoardBacklog" xml:space="preserve"><value>Board backlog</value></data>
+  <data name="BoardMeeting" xml:space="preserve"><value>Board meeting</value></data>
+  <data name="BoardMeetingBody" xml:space="preserve"><value>**{0}**&#10;{1}&#10;{2} minutes · {3}{4}{5}{6}</value></data>
+  <data name="BoardMeetingCancelled" xml:space="preserve"><value>Board meeting cancelled</value></data>
+  <data name="BoardMeetingCreateHelp" xml:space="preserve"><value>Meetings are created in the management tool so the date, location, and initial agenda can be reviewed together.&#10;[Create a board meeting]({0})</value></data>
+  <data name="BoardMeetingHelp" xml:space="preserve"><value>**Board meeting commands**&#10;`/boardmeeting agenda` - View the next meeting agenda&#10;`/boardmeeting backlog` - View the agenda backlog&#10;`/boardmeeting details` - View the next meeting details and attendance forecast&#10;`/boardmeeting create` - Open the management tool to create a meeting&#10;`/boardmeeting reminder` - Send a reminder for the next meeting&#10;`/boardmeeting availability` - Record whether you can attend&#10;`/boardmeeting add-agenda` - Add an item to the next meeting&#10;`/boardmeeting add-backlog` - Add an item to the backlog&#10;`/boardmeeting promote` - Move a backlog item to the next meeting&#10;&#10;Use the management tool to create, reschedule or cancel meetings and for more complex agenda changes:</value></data>
+  <data name="BoardMeetingNew" xml:space="preserve"><value>New board meeting</value></data>
+  <data name="BoardMeetingReminder" xml:space="preserve"><value>Board meeting reminder</value></data>
+  <data name="BoardMeetingRescheduled" xml:space="preserve"><value>Board meeting rescheduled</value></data>
+  <data name="BoardMemberUnauthorized" xml:space="preserve"><value>Your linked account is not currently authorized as a board member.</value></data>
+  <data name="BoardRescheduleProposalBody" xml:space="preserve"><value>**{0}** proposed a new date for **{1}**:&#10;{2}&#10;{3} minutes{4}{5}</value></data>
+  <data name="BoardRescheduleProposalTitle" xml:space="preserve"><value>Board meeting reschedule proposal</value></data>
+  <data name="Cancel" xml:space="preserve"><value>Cancel</value></data>
+  <data name="CommandAddAgendaDescription" xml:space="preserve"><value>Add an item to the next meeting agenda</value></data>
+  <data name="CommandAddBacklogDescription" xml:space="preserve"><value>Add an item to the board meeting backlog</value></data>
+  <data name="CommandAgendaDescription" xml:space="preserve"><value>View the next board meeting agenda</value></data>
+  <data name="CommandAuditSummaryDescription" xml:space="preserve"><value>View authorized weekly audit summaries</value></data>
+  <data name="CommandAvailabilityDescription" xml:space="preserve"><value>Set your availability for the next meeting</value></data>
+  <data name="CommandAvailabilityOptionDescription" xml:space="preserve"><value>Whether you have time</value></data>
+  <data name="CommandBacklogDescription" xml:space="preserve"><value>View the board meeting backlog</value></data>
+  <data name="CommandBacklogItemDescription" xml:space="preserve"><value>Backlog item</value></data>
+  <data name="CommandBoardDescription" xml:space="preserve"><value>Board meeting planning</value></data>
+  <data name="CommandCreateDescription" xml:space="preserve"><value>Open the management tool to create a board meeting</value></data>
+  <data name="CommandDetailsDescription" xml:space="preserve"><value>View details of the next board meeting</value></data>
+  <data name="CommandHelpDescription" xml:space="preserve"><value>Show the board meeting commands and management page</value></data>
+  <data name="CommandIdentityAuditDescription" xml:space="preserve"><value>View Identity activity from the last seven days</value></data>
+  <data name="CommandManagementAuditDescription" xml:space="preserve"><value>View Management activity from the last seven days</value></data>
+  <data name="CommandPromoteDescription" xml:space="preserve"><value>Add a backlog item to the next meeting</value></data>
+  <data name="CommandReminderDescription" xml:space="preserve"><value>Send a reminder for the next board meeting</value></data>
+  <data name="ConfirmAcceptance" xml:space="preserve"><value>Confirm acceptance</value></data>
+  <data name="ConfirmProposalDecision" xml:space="preserve"><value>Are you sure you want to {0} this rescheduling proposal? This will immediately change its status.</value></data>
+  <data name="ConfirmRejection" xml:space="preserve"><value>Confirm rejection</value></data>
+  <data name="DateAndTimeLabel" xml:space="preserve"><value>Date and time (DD.MM.YYYY HH:mm)</value></data>
+  <data name="DecisionBlock" xml:space="preserve"><value>&#10;&#10;**Decision:** {0}.</value></data>
+  <data name="Description" xml:space="preserve"><value>Description</value></data>
+  <data name="DescriptionSuffix" xml:space="preserve"><value> — {0}</value></data>
+  <data name="DiscordAccountNotLinked" xml:space="preserve"><value>Your Discord account is not linked to an AK Gaming account.</value></data>
+  <data name="DiscordAccountNotLinkedWithHelp" xml:space="preserve"><value>Your Discord account is not linked to an AK Gaming account. Link it in your account settings, then try again.</value></data>
+  <data name="DiscordAccountUnknown" xml:space="preserve"><value>Discord did not identify your account.</value></data>
+  <data name="DurationMinutesLabel" xml:space="preserve"><value>Duration in minutes</value></data>
+  <data name="EmailLine" xml:space="preserve"><value>&#10;Email: {0}</value></data>
+  <data name="IdentityAuditUnauthorized" xml:space="preserve"><value>Your linked account is not authorized to read Identity audit summaries.</value></data>
+  <data name="InteractionFailed" xml:space="preserve"><value>I could not complete that action right now. Please try again or use the management tool.</value></data>
+  <data name="InteractionTimedOut" xml:space="preserve"><value>The club services did not respond in time. Please try again or use the management tool.</value></data>
+  <data name="InvalidMeetingAction" xml:space="preserve"><value>This meeting action is invalid.</value></data>
+  <data name="InvalidMeetingResponse" xml:space="preserve"><value>The management tool returned an invalid meeting.</value></data>
+  <data name="LinkedAccountLookupFailed" xml:space="preserve"><value>I could not look up your linked account right now. Please try again later.</value></data>
+  <data name="LocationPending" xml:space="preserve"><value>Location pending</value></data>
+  <data name="LocationToBeDecided" xml:space="preserve"><value>Location to be decided</value></data>
+  <data name="ManagementAuditUnauthorized" xml:space="preserve"><value>Your linked account is not authorized to read Management audit summaries.</value></data>
+  <data name="MeetingDurationLocation" xml:space="preserve"><value>{0} minutes - {1}</value></data>
+  <data name="MemberLinkingNewBody" xml:space="preserve"><value>**{0}** requested a member-account link.&#10;Reason: {1}{2}</value></data>
+  <data name="MemberLinkingNewTitle" xml:space="preserve"><value>New member linking request</value></data>
+  <data name="MemberLinkingReceivedBody" xml:space="preserve"><value>Your request to link your account to a membership record was submitted successfully. We will notify you when it is reviewed.</value></data>
+  <data name="MemberLinkingReceivedTitle" xml:space="preserve"><value>Member linking request received</value></data>
+  <data name="MemberLinkingUpdatedBody" xml:space="preserve"><value>Your member linking request was **{0}**.</value></data>
+  <data name="MemberLinkingUpdatedTitle" xml:space="preserve"><value>Member linking request updated</value></data>
+  <data name="MembershipApplicationNewBody" xml:space="preserve"><value>**{0}** submitted a membership application.{1}</value></data>
+  <data name="MembershipApplicationNewTitle" xml:space="preserve"><value>New membership application</value></data>
+  <data name="MembershipApplicationReceivedBody" xml:space="preserve"><value>Your membership application was submitted successfully. We will notify you when it is reviewed.</value></data>
+  <data name="MembershipApplicationReceivedTitle" xml:space="preserve"><value>Membership application received</value></data>
+  <data name="MembershipApplicationUpdatedBody" xml:space="preserve"><value>Your membership application was **{0}**.</value></data>
+  <data name="MembershipApplicationUpdatedTitle" xml:space="preserve"><value>Membership application updated</value></data>
+  <data name="MembershipStatusUpdatedBody" xml:space="preserve"><value>Your membership status changed from **{0}** to **{1}**.</value></data>
+  <data name="MembershipStatusUpdatedTitle" xml:space="preserve"><value>Membership status updated</value></data>
+  <data name="MostFrequentActivity" xml:space="preserve"><value>**Most frequent activity**</value></data>
+  <data name="NextBoardMeetingLoadFailed" xml:space="preserve"><value>I could not load the next board meeting right now.</value></data>
+  <data name="NoAgendaItemsYet" xml:space="preserve"><value>No agenda items yet.</value></data>
+  <data name="NoAuditedActivity" xml:space="preserve"><value>No audited activity in this period.</value></data>
+  <data name="NoChangesMade" xml:space="preserve"><value>No changes were made.</value></data>
+  <data name="NoRemainingAgendaItems" xml:space="preserve"><value>_No remaining agenda items._</value></data>
+  <data name="NoUpcomingBoardMeeting" xml:space="preserve"><value>No upcoming board meeting is scheduled.</value></data>
+  <data name="NoneYet" xml:space="preserve"><value>None yet</value></data>
+  <data name="OldAvailabilityResponse" xml:space="preserve"><value>This response belongs to an old meeting date. Please use the buttons on the latest notification.</value></data>
+  <data name="OldMeetingAnnouncement" xml:space="preserve"><value>This announcement belongs to an old meeting date. Please use the latest meeting announcement.</value></data>
+  <data name="OpenBoardMeetingManagement" xml:space="preserve"><value>Open board meeting management</value></data>
+  <data name="ProposalAccepted" xml:space="preserve"><value>The rescheduling proposal was accepted.</value></data>
+  <data name="ProposalAlreadyDecided" xml:space="preserve"><value>This rescheduling proposal has already been decided.</value></data>
+  <data name="ProposalDecisionUnauthorized" xml:space="preserve"><value>Your linked account is not authorized to accept or reject board meeting proposals.</value></data>
+  <data name="ProposalRejected" xml:space="preserve"><value>The rescheduling proposal was rejected.</value></data>
+  <data name="ProposalUpdateFailed" xml:space="preserve"><value>I could not update the rescheduling proposal right now. Please use the management tool or try again later.</value></data>
+  <data name="ProposeAnotherMeetingTime" xml:space="preserve"><value>Propose another meeting time</value></data>
+  <data name="ProposeAnotherTime" xml:space="preserve"><value>Propose another time</value></data>
+  <data name="Reason" xml:space="preserve"><value>Reason</value></data>
+  <data name="ReasonLine" xml:space="preserve"><value>&#10;Reason: {0}</value></data>
+  <data name="ReimbursementNewTitle" xml:space="preserve"><value>New expense reimbursement</value></data>
+  <data name="ReimbursementStatusUpdatedBody" xml:space="preserve"><value>Your reimbursement **{0}** for **{1} EUR** changed from **{2}** to **{3}**.{4}</value></data>
+  <data name="ReimbursementStatusUpdatedTitle" xml:space="preserve"><value>Reimbursement status updated</value></data>
+  <data name="ReimbursementSubmittedChannelBody" xml:space="preserve"><value>{0} submitted **{1}** for **{2} EUR**.</value></data>
+  <data name="ReimbursementSubmittedDirectBody" xml:space="preserve"><value>Your reimbursement **{0}** for **{1} EUR** was submitted successfully. We will notify you when its status changes.</value></data>
+  <data name="ReimbursementSubmittedTitle" xml:space="preserve"><value>Reimbursement submitted</value></data>
+  <data name="RejectAction" xml:space="preserve"><value>reject</value></data>
+  <data name="RejectProposal" xml:space="preserve"><value>Reject proposal</value></data>
+  <data name="ReminderQueued" xml:space="preserve"><value>Queued a reminder for **{0}** in the board channel.</value></data>
+  <data name="RescheduleAmbiguousDate" xml:space="preserve"><value>That local time is ambiguous or does not exist because of daylight-saving time. Choose another time.</value></data>
+  <data name="RescheduleInvalidDate" xml:space="preserve"><value>Enter the proposed time as DD.MM.YYYY HH:mm, for example 24.07.2026 19:30.</value></data>
+  <data name="RescheduleInvalidDuration" xml:space="preserve"><value>Duration must be a whole number between 15 and 1440 minutes.</value></data>
+  <data name="RescheduleProposalFailed" xml:space="preserve"><value>I could not submit your rescheduling proposal right now. Please use the management tool or try again later.</value></data>
+  <data name="RescheduleProposalSubmitted" xml:space="preserve"><value>Submitted your proposal for &lt;t:{0}:F&gt;.</value></data>
+  <data name="SelectAuditSummary" xml:space="preserve"><value>Select either the Identity or Management audit summary.</value></data>
+  <data name="SelectAvailability" xml:space="preserve"><value>Select whether you have time for the meeting.</value></data>
+  <data name="SelectValidBacklogItem" xml:space="preserve"><value>Select a valid backlog item.</value></data>
+  <data name="StatusAccepted" xml:space="preserve"><value>accepted</value></data>
+  <data name="StatusApplicationRejected" xml:space="preserve"><value>Application rejected</value></data>
+  <data name="StatusApproved" xml:space="preserve"><value>approved</value></data>
+  <data name="StatusCancelled" xml:space="preserve"><value>cancelled</value></data>
+  <data name="StatusHonoraryMember" xml:space="preserve"><value>Honorary member</value></data>
+  <data name="StatusInTrial" xml:space="preserve"><value>In trial</value></data>
+  <data name="StatusRejected" xml:space="preserve"><value>rejected</value></data>
+  <data name="StatusApplicant" xml:space="preserve"><value>Applicant</value></data>
+  <data name="StatusExpelled" xml:space="preserve"><value>Expelled</value></data>
+  <data name="StatusMember" xml:space="preserve"><value>Member</value></data>
+  <data name="StatusNone" xml:space="preserve"><value>None</value></data>
+  <data name="StatusPaid" xml:space="preserve"><value>paid</value></data>
+  <data name="StatusPending" xml:space="preserve"><value>pending</value></data>
+  <data name="StatusSubmitted" xml:space="preserve"><value>submitted</value></data>
+  <data name="StatusSuspended" xml:space="preserve"><value>Suspended</value></data>
+  <data name="StatusUnderReview" xml:space="preserve"><value>under review</value></data>
+  <data name="StatusWithdrawn" xml:space="preserve"><value>Withdrawn</value></data>
+  <data name="StatusSupportingMember" xml:space="preserve"><value>Supporting member</value></data>
+  <data name="Title" xml:space="preserve"><value>Title</value></data>
+  <data name="UnsupportedBoardMeetingCommand" xml:space="preserve"><value>Unsupported board meeting command.</value></data>
+  <data name="UnsupportedFormSubmission" xml:space="preserve"><value>Unsupported form submission.</value></data>
+  <data name="UnsupportedInteraction" xml:space="preserve"><value>Unsupported interaction.</value></data>
+  <data name="UpdatedAgendaBody" xml:space="preserve"><value>**{0}**&#10;&#10;**Updated agenda**&#10;{1}</value></data>
+  <data name="WeeklyAuditSummaryTitle" xml:space="preserve"><value>{0} weekly audit summary</value></data>
+  <data name="WeeklySummaryHeading" xml:space="preserve"><value>**{0} weekly summary**</value></data>
+  <data name="WrongDiscordServer" xml:space="preserve"><value>This bot only accepts interactions from the configured club server.</value></data>
+</root>

@@ -58,6 +58,7 @@ Database__Provider=Postgres
 ConnectionStrings__DefaultConnection=Host=...;Database=...;Username=...;Password=...
 OpenIddictValidation__Issuer=https://identity.example/
 NotificationTransport=discord
+Localization__Culture=de-DE
 Discord__Token=...
 Discord__GuildId=...
 Discord__AdministrationChannelId=...
@@ -84,6 +85,12 @@ AuditSummaries__TimeZoneId=Europe/Berlin
 AuditSummaries__DayOfWeek=Monday
 AuditSummaries__Hour=9
 ```
+
+`Localization__Culture` selects one language for the complete bot deployment. Supported values are
+`en-GB` and `de-DE`; startup fails for unsupported values. It controls Discord notifications,
+interaction responses, modal labels, slash-command descriptions, audit summaries, and culture-aware
+number formatting. Stable Discord command names, option names, custom IDs, and internal logs remain
+unchanged.
 
 `ManagementClient__BaseUrl` is used only for service-to-service API requests. `ManagementClient__FrontendBaseUrl` is used for user-facing links and must not contain the `/api` path. Meeting links are built as `<FrontendBaseUrl>/board/meetings/<meeting-id>` where applicable.
 

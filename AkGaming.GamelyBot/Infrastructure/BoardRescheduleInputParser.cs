@@ -3,29 +3,36 @@ using Microsoft.Extensions.Options;
 
 namespace AkGaming.GamelyBot.Infrastructure;
 
-public sealed class BoardRescheduleInputParser(IOptions<DiscordInteractionOptions> options)
+public sealed class BoardRescheduleInputParser(
+    IOptions<DiscordInteractionOptions> options,
+    BotText text)
 {
     private static readonly string[] SupportedFormats = ["dd.MM.yyyy HH:mm", "d.M.yyyy H:mm", "yyyy-MM-dd HH:mm"];
     private readonly TimeZoneInfo _timeZone = TimeZoneInfo.FindSystemTimeZoneById(options.Value.TimeZoneId);
+
+    public BoardRescheduleInputParser(IOptions<DiscordInteractionOptions> options)
+        : this(options, BotText.English)
+    {
+    }
 
     public BoardRescheduleInputResult Parse(string? proposedAt, string? duration)
     {
         if (!DateTime.TryParseExact(proposedAt, SupportedFormats, CultureInfo.InvariantCulture,
                 DateTimeStyles.AllowWhiteSpaces, out var localDateTime))
         {
-            return BoardRescheduleInputResult.Failure("Enter the proposed time as DD.MM.YYYY HH:mm, for example 24.07.2026 19:30.");
+            return BoardRescheduleInputResult.Failure(text["RescheduleInvalidDate"]);
         }
 
         localDateTime = DateTime.SpecifyKind(localDateTime, DateTimeKind.Unspecified);
         if (_timeZone.IsInvalidTime(localDateTime) || _timeZone.IsAmbiguousTime(localDateTime))
         {
-            return BoardRescheduleInputResult.Failure("That local time is ambiguous or does not exist because of daylight-saving time. Choose another time.");
+            return BoardRescheduleInputResult.Failure(text["RescheduleAmbiguousDate"]);
         }
 
         if (!int.TryParse(duration, NumberStyles.None, CultureInfo.InvariantCulture, out var durationMinutes)
             || durationMinutes is < 15 or > 1440)
         {
-            return BoardRescheduleInputResult.Failure("Duration must be a whole number between 15 and 1440 minutes.");
+            return BoardRescheduleInputResult.Failure(text["RescheduleInvalidDuration"]);
         }
 
         var proposedAtUtc = new DateTimeOffset(TimeZoneInfo.ConvertTimeToUtc(localDateTime, _timeZone));

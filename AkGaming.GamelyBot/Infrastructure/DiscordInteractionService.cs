@@ -21,7 +21,8 @@ public sealed class DiscordInteractionOptions
 
 public sealed class DiscordInteractionService(IHttpClientFactory clients, ClientCredentialsTokenProvider tokens,
     IOptions<IdentityClientOptions> identityOptions, IOptions<ManagementClientOptions> managementOptions,
-    IOptions<DiscordInteractionOptions> interactionOptions, INotificationInbox notificationInbox)
+    IOptions<DiscordInteractionOptions> interactionOptions, INotificationInbox notificationInbox,
+    BotText text)
 {
     private readonly IdentityClientOptions _identity = identityOptions.Value;
     private readonly ManagementClientOptions _management = managementOptions.Value;
@@ -30,25 +31,12 @@ public sealed class DiscordInteractionService(IHttpClientFactory clients, Client
     public string GetBoardMeetingHelp()
     {
         var pageUrl = GetBoardMeetingPageUrl();
-        return """
-            **Board meeting commands**
-            `/boardmeeting agenda` - View the next meeting agenda
-            `/boardmeeting backlog` - View the agenda backlog
-            `/boardmeeting details` - View the next meeting details and attendance forecast
-            `/boardmeeting create` - Open the management tool to create a meeting
-            `/boardmeeting reminder` - Send a reminder for the next meeting
-            `/boardmeeting availability` - Record whether you can attend
-            `/boardmeeting add-agenda` - Add an item to the next meeting
-            `/boardmeeting add-backlog` - Add an item to the backlog
-            `/boardmeeting promote` - Move a backlog item to the next meeting
-
-            Use the management tool to create, reschedule or cancel meetings and for more complex agenda changes:
-            """ + $"\n[Open board meeting management]({pageUrl})";
+        return text["BoardMeetingHelp"] + $"\n[{text["OpenBoardMeetingManagement"]}]({pageUrl})";
     }
 
     public string GetBoardMeetingCreateHelp()
     {
-        return $"Meetings are created in the management tool so the date, location, and initial agenda can be reviewed together.\n[Create a board meeting]({GetBoardMeetingPageUrl()})";
+        return text.Format("BoardMeetingCreateHelp", GetBoardMeetingPageUrl());
     }
 
     public async Task<string> QueueNextMeetingReminderAsync(string discordUserId, CancellationToken cancellationToken)
@@ -58,7 +46,7 @@ public sealed class DiscordInteractionService(IHttpClientFactory clients, Client
         var next = await GetNextMeetingResponseAsync(context.ManagementClient!, cancellationToken);
         if (next.Meeting is null) return next.Error;
         await QueueReminderAsync(next.Meeting, Guid.NewGuid(), cancellationToken);
-        return $"Queued a reminder for **{next.Meeting.Title}** in the board channel.";
+        return text.Format("ReminderQueued", next.Meeting.Title);
     }
 
     public async Task QueueAutomaticReminderAsync(DateTimeOffset nowUtc, CancellationToken cancellationToken)
@@ -79,10 +67,11 @@ public sealed class DiscordInteractionService(IHttpClientFactory clients, Client
         var context = await CreateContextAsync(discordUserId, cancellationToken);
         if (context.Error is not null) return context.Error;
         using var response = await context.ManagementClient!.GetAsync("board-meetings/discord/backlog", cancellationToken);
-        if (!response.IsSuccessStatusCode) return "I could not load the board backlog right now.";
+        if (!response.IsSuccessStatusCode) return text["BacklogLoadFailed"];
         var items = await response.Content.ReadFromJsonAsync<List<BoardAgendaItemResponse>>(cancellationToken) ?? [];
-        if (items.Count == 0) return "The board backlog is empty.";
-        return Limit("**Board meeting backlog**\n" + string.Join('\n', items.Select((item, index) => $"{index + 1}. **{item.Title}**{Description(item.Description)}")));
+        if (items.Count == 0) return text["BacklogEmpty"];
+        return Limit(text.Format("BacklogList", string.Join('\n',
+            items.Select((item, index) => $"{index + 1}. **{item.Title}**{Description(item.Description)}"))));
     }
 
     public async Task<string> GetNextMeetingAsync(string discordUserId, bool includeAgenda, CancellationToken cancellationToken)
@@ -93,20 +82,20 @@ public sealed class DiscordInteractionService(IHttpClientFactory clients, Client
         if (result.Meeting is null) return result.Error;
         var meeting = result.Meeting;
         var timestamp = meeting.ScheduledAtUtc.ToUnixTimeSeconds();
-        var location = string.IsNullOrWhiteSpace(meeting.Location) ? "Location pending" : meeting.Location;
+        var location = string.IsNullOrWhiteSpace(meeting.Location) ? text["LocationPending"] : meeting.Location;
         var lines = new List<string>
         {
             $"**{meeting.Title}**",
             $"<t:{timestamp}:F> (<t:{timestamp}:R>)",
-            $"{meeting.DurationMinutes} minutes - {location}",
-            $"Availability: {meeting.AvailableCount} available, {meeting.UnavailableCount} unavailable"
+            text.Format("MeetingDurationLocation", meeting.DurationMinutes, location),
+            text.Format("AvailabilityCounts", meeting.AvailableCount, meeting.UnavailableCount)
         };
         if (includeAgenda)
         {
             lines.Add(string.Empty);
-            lines.Add("**Agenda**");
+            lines.Add(text["AgendaHeading"]);
             lines.AddRange(meeting.AgendaItems.Count == 0
-                ? ["No agenda items yet."]
+                ? [text["NoAgendaItemsYet"]]
                 : meeting.AgendaItems.OrderBy(item => item.Order).Select((item, index) => $"{index + 1}. **{item.Title}**{Description(item.Description)}"));
         }
         return Limit(string.Join('\n', lines));
@@ -119,8 +108,9 @@ public sealed class DiscordInteractionService(IHttpClientFactory clients, Client
         var path = addToNextMeeting ? "board-meetings/discord/next/agenda" : "board-meetings/discord/backlog";
         using var response = await context.ManagementClient!.PostAsJsonAsync(path, new { userId = context.Link!.UserId, title, description }, cancellationToken);
         if (response.IsSuccessStatusCode)
-            return addToNextMeeting ? $"Added **{title}** to the next meeting agenda." : $"Added **{title}** to the board backlog.";
-        return await ErrorMessageAsync(response, addToNextMeeting ? "I could not add the item to the next meeting agenda." : "I could not add the item to the backlog.", cancellationToken);
+            return addToNextMeeting ? text.Format("AgendaItemAdded", title) : text.Format("BacklogItemAdded", title);
+        return await ErrorMessageAsync(response,
+            addToNextMeeting ? text["AgendaItemAddFailed"] : text["BacklogItemAddFailed"], cancellationToken);
     }
 
     public async Task<IReadOnlyList<DiscordCommandChoice>> GetBacklogChoicesAsync(string discordUserId, string query, CancellationToken cancellationToken)
@@ -142,8 +132,8 @@ public sealed class DiscordInteractionService(IHttpClientFactory clients, Client
         var context = await CreateContextAsync(discordUserId, cancellationToken);
         if (context.Error is not null) return context.Error;
         using var response = await context.ManagementClient!.PutAsJsonAsync($"board-meetings/discord/backlog/{itemId}/next", new { userId = context.Link!.UserId }, cancellationToken);
-        if (response.IsSuccessStatusCode) return "Added the backlog item to the next meeting agenda.";
-        return await ErrorMessageAsync(response, "I could not add that backlog item to the next meeting.", cancellationToken);
+        if (response.IsSuccessStatusCode) return text["BacklogPromoted"];
+        return await ErrorMessageAsync(response, text["BacklogPromoteFailed"], cancellationToken);
     }
 
     public async Task<string> SetNextMeetingAvailabilityAsync(string discordUserId, string status, CancellationToken cancellationToken)
@@ -180,11 +170,11 @@ public sealed class DiscordInteractionService(IHttpClientFactory clients, Client
             },
             cancellationToken);
         if (response.IsSuccessStatusCode)
-            return $"Submitted your proposal for <t:{proposedAtUtc.ToUnixTimeSeconds()}:F>.";
+            return text.Format("RescheduleProposalSubmitted", proposedAtUtc.ToUnixTimeSeconds());
         var body = await response.Content.ReadAsStringAsync(cancellationToken);
         if (body.Contains("rescheduled", StringComparison.OrdinalIgnoreCase))
-            return "This announcement belongs to an old meeting date. Please use the latest meeting announcement.";
-        return "I could not submit your rescheduling proposal right now. Please use the management tool or try again later.";
+            return text["OldMeetingAnnouncement"];
+        return text["RescheduleProposalFailed"];
     }
 
     public async Task<string> DecideRescheduleProposalAsync(string discordUserId, Guid meetingId, Guid proposalId,
@@ -193,17 +183,17 @@ public sealed class DiscordInteractionService(IHttpClientFactory clients, Client
         var context = await CreateContextAsync(discordUserId, cancellationToken);
         if (context.Error is not null) return context.Error;
         if (!context.Link!.CanManageBoardMeetings)
-            return "Your linked account is not authorized to accept or reject board meeting proposals.";
+            return text["ProposalDecisionUnauthorized"];
         using var response = await context.ManagementClient!.PostAsJsonAsync(
             $"board-meetings/{meetingId}/reschedule-proposals/{proposalId}/decision/discord",
             new { userId = context.Link.UserId, accept },
             cancellationToken);
         if (response.IsSuccessStatusCode)
-            return accept ? "The rescheduling proposal was accepted." : "The rescheduling proposal was rejected.";
+            return accept ? text["ProposalAccepted"] : text["ProposalRejected"];
         var body = await response.Content.ReadAsStringAsync(cancellationToken);
         if (body.Contains("already been decided", StringComparison.OrdinalIgnoreCase))
-            return "This rescheduling proposal has already been decided.";
-        return "I could not update the rescheduling proposal right now. Please use the management tool or try again later.";
+            return text["ProposalAlreadyDecided"];
+        return text["ProposalUpdateFailed"];
     }
 
     private async Task<InteractionContext> CreateContextAsync(string discordUserId, CancellationToken cancellationToken)
@@ -215,12 +205,12 @@ public sealed class DiscordInteractionService(IHttpClientFactory clients, Client
         SetToken(identityRequest, token);
         using var identityResponse = await identityClient.SendAsync(identityRequest, cancellationToken);
         if (identityResponse.StatusCode == System.Net.HttpStatusCode.NotFound)
-            return InteractionContext.Failure("Your Discord account is not linked to an AK Gaming account. Link it in your account settings, then try again.");
+            return InteractionContext.Failure(text["DiscordAccountNotLinkedWithHelp"]);
         if (!identityResponse.IsSuccessStatusCode)
-            return InteractionContext.Failure("I could not look up your linked account right now. Please try again later.");
+            return InteractionContext.Failure(text["LinkedAccountLookupFailed"]);
         var link = await identityResponse.Content.ReadFromJsonAsync<DiscordUserLinkResponse>(cancellationToken);
-        if (link?.IsLinked != true) return InteractionContext.Failure("Your Discord account is not linked to an AK Gaming account.");
-        if (!link.CanAccessBoardMeetings) return InteractionContext.Failure("Your linked account is not currently authorized as a board member.");
+        if (link?.IsLinked != true) return InteractionContext.Failure(text["DiscordAccountNotLinked"]);
+        if (!link.CanAccessBoardMeetings) return InteractionContext.Failure(text["BoardMemberUnauthorized"]);
 
         var managementClient = clients.CreateClient(nameof(DiscordInteractionService));
         managementClient.BaseAddress = new Uri(_management.BaseUrl, UriKind.Absolute);
@@ -271,26 +261,26 @@ public sealed class DiscordInteractionService(IHttpClientFactory clients, Client
         return new Guid(hash.AsSpan(0, 16));
     }
 
-    private static async Task<string> SetAvailabilityWithContextAsync(InteractionContext context, Guid meetingId, int scheduleVersion, string status, CancellationToken cancellationToken)
+    private async Task<string> SetAvailabilityWithContextAsync(InteractionContext context, Guid meetingId, int scheduleVersion, string status, CancellationToken cancellationToken)
     {
         var managementClient = context.ManagementClient!;
         using var managementRequest = new HttpRequestMessage(HttpMethod.Put, $"board-meetings/{meetingId}/availability/discord");
         managementRequest.Content = JsonContent.Create(new { userId = context.Link!.UserId, displayName = context.Link.DisplayName, status, scheduleVersion });
         using var managementResponse = await managementClient.SendAsync(managementRequest, cancellationToken);
         if (managementResponse.IsSuccessStatusCode)
-            return status == "Available" ? "Recorded: you have time for this meeting." : "Recorded: you cannot attend this meeting.";
+            return status == "Available" ? text["AvailabilityRecordedAvailable"] : text["AvailabilityRecordedUnavailable"];
         var body = await managementResponse.Content.ReadAsStringAsync(cancellationToken);
-        if (body.Contains("rescheduled", StringComparison.OrdinalIgnoreCase)) return "This response belongs to an old meeting date. Please use the buttons on the latest notification.";
-        return "I could not save your availability right now. Please use the management tool or try again later.";
+        if (body.Contains("rescheduled", StringComparison.OrdinalIgnoreCase)) return text["OldAvailabilityResponse"];
+        return text["AvailabilitySaveFailed"];
     }
 
-    private static async Task<(BoardMeetingResponse? Meeting, string Error)> GetNextMeetingResponseAsync(HttpClient managementClient, CancellationToken cancellationToken)
+    private async Task<(BoardMeetingResponse? Meeting, string Error)> GetNextMeetingResponseAsync(HttpClient managementClient, CancellationToken cancellationToken)
     {
         using var response = await managementClient.GetAsync("board-meetings/discord/next", cancellationToken);
-        if (response.StatusCode == System.Net.HttpStatusCode.NotFound) return (null, "No upcoming board meeting is scheduled.");
-        if (!response.IsSuccessStatusCode) return (null, "I could not load the next board meeting right now.");
+        if (response.StatusCode == System.Net.HttpStatusCode.NotFound) return (null, text["NoUpcomingBoardMeeting"]);
+        if (!response.IsSuccessStatusCode) return (null, text["NextBoardMeetingLoadFailed"]);
         var meeting = await response.Content.ReadFromJsonAsync<BoardMeetingResponse>(cancellationToken);
-        return meeting is null ? (null, "The management tool returned an invalid meeting.") : (meeting, string.Empty);
+        return meeting is null ? (null, text["InvalidMeetingResponse"]) : (meeting, string.Empty);
     }
 
     private static async Task<string> ErrorMessageAsync(HttpResponseMessage response, string fallback, CancellationToken cancellationToken)
@@ -299,7 +289,8 @@ public sealed class DiscordInteractionService(IHttpClientFactory clients, Client
         return string.IsNullOrWhiteSpace(body) ? fallback : $"{fallback} {body.Trim().Trim('"')}";
     }
 
-    private static string Description(string? description) => string.IsNullOrWhiteSpace(description) ? string.Empty : $" — {description}";
+    private string Description(string? description) =>
+        string.IsNullOrWhiteSpace(description) ? string.Empty : text.Format("DescriptionSuffix", description);
     private static string Limit(string value) => value.Length <= 1900 ? value : value[..1897] + "...";
 
     private string GetBoardMeetingPageUrl()

@@ -1,4 +1,3 @@
-using System.Globalization;
 using System.Text.Json;
 using AkGaming.Core.Notifications;
 using AkGaming.GamelyBot.Domain;
@@ -16,9 +15,16 @@ public sealed class NotificationRoutingOptions
     public string? BoardChannelId { get; set; }
 }
 
-public sealed class NotificationRenderer(IOptions<NotificationRoutingOptions> options) : INotificationRenderer
+public sealed class NotificationRenderer(
+    IOptions<NotificationRoutingOptions> options,
+    BotText text) : INotificationRenderer
 {
     private readonly NotificationRoutingOptions _options = options.Value;
+
+    public NotificationRenderer(IOptions<NotificationRoutingOptions> options)
+        : this(options, BotText.English)
+    {
+    }
 
     public RenderedNotification Render(NotificationInboxItem notification)
     {
@@ -31,11 +37,11 @@ public sealed class NotificationRenderer(IOptions<NotificationRoutingOptions> op
             NotificationEventTypes.MemberLinkingRequestCreated => RenderMemberLinkingRequestCreated(notification),
             NotificationEventTypes.MemberLinkingRequestStatusChanged => RenderMemberLinkingRequestStatusChanged(notification),
             NotificationEventTypes.MembershipStatusChanged => RenderMembershipStatusChanged(notification),
-            NotificationEventTypes.BoardMeetingCreated => RenderBoardMeeting(notification, "New board meeting"),
-            NotificationEventTypes.BoardMeetingRescheduled => RenderBoardMeeting(notification, "Board meeting rescheduled"),
-            NotificationEventTypes.BoardMeetingCancelled => RenderBoardMeeting(notification, "Board meeting cancelled", false),
-            NotificationEventTypes.BoardMeetingReminder => RenderBoardMeeting(notification, "Board meeting reminder"),
-            NotificationEventTypes.BoardMeetingAvailabilityChanged => RenderBoardMeeting(notification, "Board meeting"),
+            NotificationEventTypes.BoardMeetingCreated => RenderBoardMeeting(notification, text["BoardMeetingNew"]),
+            NotificationEventTypes.BoardMeetingRescheduled => RenderBoardMeeting(notification, text["BoardMeetingRescheduled"]),
+            NotificationEventTypes.BoardMeetingCancelled => RenderBoardMeeting(notification, text["BoardMeetingCancelled"], false),
+            NotificationEventTypes.BoardMeetingReminder => RenderBoardMeeting(notification, text["BoardMeetingReminder"]),
+            NotificationEventTypes.BoardMeetingAvailabilityChanged => RenderBoardMeeting(notification, text["BoardMeeting"]),
             NotificationEventTypes.BoardMeetingRescheduleProposed => RenderBoardProposal(notification),
             NotificationEventTypes.BoardAgendaChanged => RenderBoardAgendaChange(notification),
             NotificationEventTypes.IdentityAuditSummary => RenderAuditSummary(notification),
@@ -48,25 +54,28 @@ public sealed class NotificationRenderer(IOptions<NotificationRoutingOptions> op
     {
         var data = JsonSerializer.Deserialize<ReimbursementSubmittedNotification>(notification.DataJson, JsonOptions())
             ?? throw new InvalidOperationException("The reimbursement submission payload is invalid.");
-        var amount = data.TotalAmount.ToString("N2", CultureInfo.GetCultureInfo("de-DE"));
-        var body = $"{data.ApplicantName} submitted **{data.Purpose}** for **{amount} EUR**.";
-        var channel = new RenderedMessage("New expense reimbursement", body, data.ManagementUrl, _options.TreasurerRoleId);
+        var amount = data.TotalAmount.ToString("N2", text.Culture);
+        var body = text.Format("ReimbursementSubmittedChannelBody", data.ApplicantName, data.Purpose, amount);
+        var channel = new RenderedMessage(text["ReimbursementNewTitle"], body, data.ManagementUrl, _options.TreasurerRoleId);
         var direct = new RenderedMessage(
-            "Reimbursement submitted",
-            $"Your reimbursement **{data.Purpose}** for **{amount} EUR** was submitted successfully. We will notify you when its status changes.",
+            text["ReimbursementSubmittedTitle"],
+            text.Format("ReimbursementSubmittedDirectBody", data.Purpose, amount),
             data.ManagementUrl);
         return new RenderedNotification(channel, direct);
     }
 
-    private static RenderedNotification RenderStatusChanged(NotificationInboxItem notification)
+    private RenderedNotification RenderStatusChanged(NotificationInboxItem notification)
     {
         var data = JsonSerializer.Deserialize<ReimbursementStatusChangedNotification>(notification.DataJson, JsonOptions())
             ?? throw new InvalidOperationException("The reimbursement status payload is invalid.");
-        var amount = data.TotalAmount.ToString("N2", CultureInfo.GetCultureInfo("de-DE"));
-        var note = string.IsNullOrWhiteSpace(data.AdministrativeNote) ? string.Empty : $"\n\nNote: {data.AdministrativeNote}";
+        var amount = data.TotalAmount.ToString("N2", text.Culture);
+        var note = string.IsNullOrWhiteSpace(data.AdministrativeNote)
+            ? string.Empty
+            : text.Format("AdministrativeNote", data.AdministrativeNote);
         var direct = new RenderedMessage(
-            "Reimbursement status updated",
-            $"Your reimbursement **{data.Purpose}** for **{amount} EUR** changed from **{data.PreviousStatus}** to **{data.Status}**.{note}",
+            text["ReimbursementStatusUpdatedTitle"],
+            text.Format("ReimbursementStatusUpdatedBody", data.Purpose, amount,
+                FormatStatus(data.PreviousStatus), FormatStatus(data.Status), note),
             data.ManagementUrl);
         return new RenderedNotification(null, direct);
     }
@@ -76,39 +85,41 @@ public sealed class NotificationRenderer(IOptions<NotificationRoutingOptions> op
         var data = JsonSerializer.Deserialize<BoardMeetingNotification>(notification.DataJson, JsonOptions())
             ?? throw new InvalidOperationException("The board meeting payload is invalid.");
         var when = $"<t:{data.ScheduledAtUtc.ToUnixTimeSeconds()}:F> (<t:{data.ScheduledAtUtc.ToUnixTimeSeconds()}:R>)";
-        var location = string.IsNullOrWhiteSpace(data.Location) ? "Location to be decided" : data.Location;
-        var reason = string.IsNullOrWhiteSpace(data.Reason) ? string.Empty : $"\nReason: {data.Reason}";
+        var location = string.IsNullOrWhiteSpace(data.Location) ? text["LocationToBeDecided"] : data.Location;
+        var reason = string.IsNullOrWhiteSpace(data.Reason) ? string.Empty : text.Format("ReasonLine", data.Reason);
         var agenda = RenderAgenda(data.AgendaItems);
         var attendance = RenderAttendance(data.ConfirmedAttendees, data.DeclinedAttendees);
         var buttons = includeButtons ? new[]
         {
-            new RenderedButton("I have time", $"board-availability:{data.MeetingId}:{data.ScheduleVersion}:available", 3),
-            new RenderedButton("I cannot attend", $"board-availability:{data.MeetingId}:{data.ScheduleVersion}:unavailable", 4),
-            new RenderedButton("Propose another time", $"board-reschedule:{data.MeetingId}:{data.ScheduleVersion}", 2)
+            new RenderedButton(text["AvailabilityAvailable"], $"board-availability:{data.MeetingId}:{data.ScheduleVersion}:available", 3),
+            new RenderedButton(text["AvailabilityUnavailable"], $"board-availability:{data.MeetingId}:{data.ScheduleVersion}:unavailable", 4),
+            new RenderedButton(text["ProposeAnotherTime"], $"board-reschedule:{data.MeetingId}:{data.ScheduleVersion}", 2)
         } : null;
-        var message = new RenderedMessage(heading, $"**{data.Title}**\n{when}\n{data.DurationMinutes} minutes · {location}{reason}{agenda}{attendance}", data.ManagementUrl, _options.ExtendedBoardRoleId, _options.BoardChannelId, buttons);
+        var message = new RenderedMessage(heading,
+            text.Format("BoardMeetingBody", data.Title, when, data.DurationMinutes, location, reason, agenda, attendance),
+            data.ManagementUrl, _options.ExtendedBoardRoleId, _options.BoardChannelId, buttons);
         return new RenderedNotification(message, null);
     }
 
-    private static string RenderAttendance(
+    private string RenderAttendance(
         IReadOnlyList<string>? confirmedAttendees,
         IReadOnlyList<string>? declinedAttendees)
     {
         var confirmed = confirmedAttendees is { Count: > 0 }
             ? string.Join(", ", confirmedAttendees)
-            : "None yet";
+            : text["NoneYet"];
         var declined = declinedAttendees is { Count: > 0 }
             ? string.Join(", ", declinedAttendees)
-            : "None yet";
-        return $"\n\n**Attendance**\nConfirmed: {confirmed}\nDeclined: {declined}";
+            : text["NoneYet"];
+        return text.Format("AttendanceBlock", confirmed, declined);
     }
 
-    private static string RenderAgenda(IReadOnlyList<string>? agendaItems)
+    private string RenderAgenda(IReadOnlyList<string>? agendaItems)
     {
         if (agendaItems is not { Count: > 0 }) return string.Empty;
         var visibleItems = agendaItems.Take(10).Select((title, index) => $"{index + 1}. {Truncate(title, 160)}");
-        var remainder = agendaItems.Count > 10 ? $"\n…and {agendaItems.Count - 10} more" : string.Empty;
-        return $"\n\n**Agenda**\n{string.Join('\n', visibleItems)}{remainder}";
+        var remainder = agendaItems.Count > 10 ? text.Format("AndMore", agendaItems.Count - 10) : string.Empty;
+        return text.Format("AgendaBlock", string.Join('\n', visibleItems), remainder);
     }
 
     private static string Truncate(string value, int maximumLength)
@@ -121,17 +132,20 @@ public sealed class NotificationRenderer(IOptions<NotificationRoutingOptions> op
         var data = JsonSerializer.Deserialize<BoardRescheduleProposalNotification>(notification.DataJson, JsonOptions())
             ?? throw new InvalidOperationException("The board reschedule proposal payload is invalid.");
         var when = $"<t:{data.ProposedAtUtc.ToUnixTimeSeconds()}:F> (<t:{data.ProposedAtUtc.ToUnixTimeSeconds()}:R>)";
-        var reason = string.IsNullOrWhiteSpace(data.Reason) ? string.Empty : $"\nReason: {data.Reason}";
+        var reason = string.IsNullOrWhiteSpace(data.Reason) ? string.Empty : text.Format("ReasonLine", data.Reason);
         var isPending = string.Equals(data.Status, "Pending", StringComparison.OrdinalIgnoreCase);
         IReadOnlyList<RenderedButton>? buttons = isPending
             ?
             [
-                new RenderedButton("Accept proposal", $"bp:{data.MeetingId}:{data.ProposalId}:a", 3),
-                new RenderedButton("Reject proposal", $"bp:{data.MeetingId}:{data.ProposalId}:r", 4)
+                new RenderedButton(text["AcceptProposal"], $"bp:{data.MeetingId}:{data.ProposalId}:a", 3),
+                new RenderedButton(text["RejectProposal"], $"bp:{data.MeetingId}:{data.ProposalId}:r", 4)
             ]
             : null;
-        var decision = isPending ? string.Empty : $"\n\n**Decision:** {data.Status}.";
-        var message = new RenderedMessage("Board meeting reschedule proposal", $"**{data.ProposedByDisplayName}** proposed a new date for **{data.Title}**:\n{when}\n{data.DurationMinutes} minutes{reason}{decision}", data.ManagementUrl, _options.ExtendedBoardRoleId, _options.BoardChannelId, buttons);
+        var decision = isPending ? string.Empty : text.Format("DecisionBlock", FormatStatus(data.Status));
+        var message = new RenderedMessage(text["BoardRescheduleProposalTitle"],
+            text.Format("BoardRescheduleProposalBody", data.ProposedByDisplayName, data.Title, when,
+                data.DurationMinutes, reason, decision),
+            data.ManagementUrl, _options.ExtendedBoardRoleId, _options.BoardChannelId, buttons);
         return new RenderedNotification(message, null);
     }
 
@@ -139,25 +153,25 @@ public sealed class NotificationRenderer(IOptions<NotificationRoutingOptions> op
     {
         var data = JsonSerializer.Deserialize<MembershipApplicationCreatedNotification>(notification.DataJson, JsonOptions())
             ?? throw new InvalidOperationException("The membership application payload is invalid.");
-        var email = string.IsNullOrWhiteSpace(data.Email) ? string.Empty : $"\nEmail: {data.Email}";
-        var message = new RenderedMessage("New membership application",
-            $"**{data.ApplicantName}** submitted a membership application.{email}",
+        var email = string.IsNullOrWhiteSpace(data.Email) ? string.Empty : text.Format("EmailLine", data.Email);
+        var message = new RenderedMessage(text["MembershipApplicationNewTitle"],
+            text.Format("MembershipApplicationNewBody", data.ApplicantName, email),
             data.ManagementUrl, _options.BoardRoleId);
         var direct = new RenderedMessage(
-            "Membership application received",
-            "Your membership application was submitted successfully. We will notify you when it is reviewed.",
+            text["MembershipApplicationReceivedTitle"],
+            text["MembershipApplicationReceivedBody"],
             data.ApplicantUrl);
         return new RenderedNotification(message, direct);
     }
 
-    private static RenderedNotification RenderMembershipApplicationStatusChanged(NotificationInboxItem notification)
+    private RenderedNotification RenderMembershipApplicationStatusChanged(NotificationInboxItem notification)
     {
         var data = JsonSerializer.Deserialize<MembershipApplicationStatusChangedNotification>(
             notification.DataJson, JsonOptions())
             ?? throw new InvalidOperationException("The membership application status payload is invalid.");
         var direct = new RenderedMessage(
-            "Membership application updated",
-            $"Your membership application was **{data.Status.ToLowerInvariant()}**.",
+            text["MembershipApplicationUpdatedTitle"],
+            text.Format("MembershipApplicationUpdatedBody", FormatStatus(data.Status)),
             data.ApplicantUrl);
         return new RenderedNotification(null, direct);
     }
@@ -166,49 +180,65 @@ public sealed class NotificationRenderer(IOptions<NotificationRoutingOptions> op
     {
         var data = JsonSerializer.Deserialize<MemberLinkingRequestCreatedNotification>(notification.DataJson, JsonOptions())
             ?? throw new InvalidOperationException("The member linking request payload is invalid.");
-        var email = string.IsNullOrWhiteSpace(data.Email) ? string.Empty : $"\nEmail: {data.Email}";
-        var message = new RenderedMessage("New member linking request",
-            $"**{data.ApplicantName}** requested a member-account link.\nReason: {data.Reason}{email}",
+        var email = string.IsNullOrWhiteSpace(data.Email) ? string.Empty : text.Format("EmailLine", data.Email);
+        var message = new RenderedMessage(text["MemberLinkingNewTitle"],
+            text.Format("MemberLinkingNewBody", data.ApplicantName, data.Reason, email),
             data.ManagementUrl, _options.BoardRoleId);
         var direct = new RenderedMessage(
-            "Member linking request received",
-            "Your request to link your account to a membership record was submitted successfully. We will notify you when it is reviewed.",
+            text["MemberLinkingReceivedTitle"],
+            text["MemberLinkingReceivedBody"],
             data.ApplicantUrl);
         return new RenderedNotification(message, direct);
     }
 
-    private static RenderedNotification RenderMemberLinkingRequestStatusChanged(NotificationInboxItem notification)
+    private RenderedNotification RenderMemberLinkingRequestStatusChanged(NotificationInboxItem notification)
     {
         var data = JsonSerializer.Deserialize<MemberLinkingRequestStatusChangedNotification>(
             notification.DataJson, JsonOptions())
             ?? throw new InvalidOperationException("The member linking request status payload is invalid.");
         var direct = new RenderedMessage(
-            "Member linking request updated",
-            $"Your member linking request was **{data.Status.ToLowerInvariant()}**.",
+            text["MemberLinkingUpdatedTitle"],
+            text.Format("MemberLinkingUpdatedBody", FormatStatus(data.Status)),
             data.ApplicantUrl);
         return new RenderedNotification(null, direct);
     }
 
-    private static RenderedNotification RenderMembershipStatusChanged(NotificationInboxItem notification)
+    private RenderedNotification RenderMembershipStatusChanged(NotificationInboxItem notification)
     {
         var data = JsonSerializer.Deserialize<MembershipStatusChangedNotification>(
             notification.DataJson, JsonOptions())
             ?? throw new InvalidOperationException("The membership status payload is invalid.");
         var direct = new RenderedMessage(
-            "Membership status updated",
-            $"Your membership status changed from **{FormatMembershipStatus(data.PreviousStatus)}** to **{FormatMembershipStatus(data.Status)}**.",
+            text["MembershipStatusUpdatedTitle"],
+            text.Format("MembershipStatusUpdatedBody", FormatMembershipStatus(data.PreviousStatus), FormatMembershipStatus(data.Status)),
             data.ApplicantUrl);
         return new RenderedNotification(null, direct);
     }
 
-    private static string FormatMembershipStatus(string status)
+    private string FormatMembershipStatus(string status) => FormatStatus(status);
+
+    private string FormatStatus(string status)
     {
         return status switch
         {
-            "InTrial" => "In trial",
-            "HonoraryMember" => "Honorary member",
-            "ApplicationRejected" => "Application rejected",
-            "SupportingMember" => "Supporting member",
+            "Accepted" => text["StatusAccepted"],
+            "Rejected" => text["StatusRejected"],
+            "Approved" => text["StatusApproved"],
+            "Cancelled" => text["StatusCancelled"],
+            "Submitted" => text["StatusSubmitted"],
+            "UnderReview" => text["StatusUnderReview"],
+            "Paid" => text["StatusPaid"],
+            "Pending" => text["StatusPending"],
+            "None" => text["StatusNone"],
+            "Expelled" => text["StatusExpelled"],
+            "Suspended" => text["StatusSuspended"],
+            "Withdrawn" => text["StatusWithdrawn"],
+            "Applicant" => text["StatusApplicant"],
+            "InTrial" => text["StatusInTrial"],
+            "Member" => text["StatusMember"],
+            "HonoraryMember" => text["StatusHonoraryMember"],
+            "ApplicationRejected" => text["StatusApplicationRejected"],
+            "SupportingMember" => text["StatusSupportingMember"],
             _ => status
         };
     }
@@ -217,7 +247,7 @@ public sealed class NotificationRenderer(IOptions<NotificationRoutingOptions> op
     {
         var data = JsonSerializer.Deserialize<BoardAgendaChangedNotification>(notification.DataJson, JsonOptions())
             ?? throw new InvalidOperationException("The board agenda payload is invalid.");
-        var context = string.IsNullOrWhiteSpace(data.MeetingTitle) ? "Board backlog" : data.MeetingTitle;
+        var context = string.IsNullOrWhiteSpace(data.MeetingTitle) ? text["BoardBacklog"] : data.MeetingTitle;
         var agendaItems = data.AgendaItems ?? [];
         var changedItems = data.ChangedItems
             ?? (data.AgendaItemId.HasValue && !string.IsNullOrWhiteSpace(data.Title)
@@ -234,23 +264,23 @@ public sealed class NotificationRenderer(IOptions<NotificationRoutingOptions> op
             .ToList();
         if (agendaLines.Count == 0)
         {
-            agendaLines.Add("_No remaining agenda items._");
+            agendaLines.Add(text["NoRemainingAgendaItems"]);
         }
         var removedItems = changes.Values
             .Where(change => agendaItems.All(item => item.AgendaItemId != change.AgendaItemId))
             .Select(change => $"- ~~{Truncate(change.Title, 150)}~~");
         agendaLines.AddRange(removedItems);
-        var body = $"**{context}**\n\n**Updated agenda**\n{string.Join('\n', agendaLines)}";
-        var message = new RenderedMessage("Board agenda changed", body, data.ManagementUrl, null, _options.BoardChannelId);
+        var body = text.Format("UpdatedAgendaBody", context, string.Join('\n', agendaLines));
+        var message = new RenderedMessage(text["BoardAgendaChangedTitle"], body, data.ManagementUrl, null, _options.BoardChannelId);
         return new RenderedNotification(message, null);
     }
 
-    private static RenderedNotification RenderAuditSummary(NotificationInboxItem notification)
+    private RenderedNotification RenderAuditSummary(NotificationInboxItem notification)
     {
         var data = JsonSerializer.Deserialize<AuditSummaryNotification>(notification.DataJson, JsonOptions())
             ?? throw new InvalidOperationException("The audit summary payload is invalid.");
-        var message = new RenderedMessage($"{data.Summary.Source} weekly audit summary",
-            AuditSummaryService.Format(data.Summary));
+        var message = new RenderedMessage(text.Format("WeeklyAuditSummaryTitle", data.Summary.Source),
+            AuditSummaryService.Format(data.Summary, text));
         return new RenderedNotification(message, null);
     }
 

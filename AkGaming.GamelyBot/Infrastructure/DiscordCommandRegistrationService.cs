@@ -8,6 +8,7 @@ namespace AkGaming.GamelyBot.Infrastructure;
 public sealed class DiscordCommandRegistrationService(
     IHttpClientFactory httpClientFactory,
     IOptions<DiscordOptions> options,
+    BotText text,
     ILogger<DiscordCommandRegistrationService> logger) : IHostedService
 {
     private readonly DiscordOptions _options = options.Value;
@@ -43,51 +44,51 @@ public sealed class DiscordCommandRegistrationService(
         return Task.CompletedTask;
     }
 
-    private static object BoardCommandDefinition()
+    private object BoardCommandDefinition()
     {
         return new
         {
             name = "boardmeeting",
-            description = "Board meeting planning",
+            description = text["CommandBoardDescription"],
             type = 1,
             dm_permission = false,
             options = new object[]
             {
-                Subcommand("help", "Show the board meeting commands and management page"),
-                Subcommand("create", "Open the management tool to create a board meeting"),
-                Subcommand("reminder", "Send a reminder for the next board meeting"),
-                Subcommand("agenda", "View the next board meeting agenda"),
-                Subcommand("backlog", "View the board meeting backlog"),
-                Subcommand("details", "View details of the next board meeting"),
-                Subcommand("add-agenda", "Add an item to the next meeting agenda"),
-                Subcommand("add-backlog", "Add an item to the board meeting backlog"),
+                Subcommand("help", text["CommandHelpDescription"]),
+                Subcommand("create", text["CommandCreateDescription"]),
+                Subcommand("reminder", text["CommandReminderDescription"]),
+                Subcommand("agenda", text["CommandAgendaDescription"]),
+                Subcommand("backlog", text["CommandBacklogDescription"]),
+                Subcommand("details", text["CommandDetailsDescription"]),
+                Subcommand("add-agenda", text["CommandAddAgendaDescription"]),
+                Subcommand("add-backlog", text["CommandAddBacklogDescription"]),
                 new
                 {
                     type = 1,
                     name = "promote",
-                    description = "Add a backlog item to the next meeting",
+                    description = text["CommandPromoteDescription"],
                     options = new object[]
                     {
-                        new { type = 3, name = "item", description = "Backlog item", required = true, autocomplete = true }
+                        new { type = 3, name = "item", description = text["CommandBacklogItemDescription"], required = true, autocomplete = true }
                     }
                 },
                 new
                 {
                     type = 1,
                     name = "availability",
-                    description = "Set your availability for the next meeting",
+                    description = text["CommandAvailabilityDescription"],
                     options = new object[]
                     {
                         new
                         {
                             type = 3,
                             name = "status",
-                            description = "Whether you have time",
+                            description = text["CommandAvailabilityOptionDescription"],
                             required = true,
                             choices = new[]
                             {
-                                new { name = "I have time", value = "available" },
-                                new { name = "I cannot attend", value = "unavailable" }
+                                new { name = text["AvailabilityAvailable"], value = "available" },
+                                new { name = text["AvailabilityUnavailable"], value = "unavailable" }
                             }
                         }
                     }
@@ -96,18 +97,18 @@ public sealed class DiscordCommandRegistrationService(
         };
     }
 
-    private static object AuditSummaryCommandDefinition()
+    private object AuditSummaryCommandDefinition()
     {
         return new
         {
             name = "auditsummary",
-            description = "View authorized weekly audit summaries",
+            description = text["CommandAuditSummaryDescription"],
             type = 1,
             dm_permission = false,
             options = new object[]
             {
-                Subcommand("identity", "View Identity activity from the last seven days"),
-                Subcommand("management", "View Management activity from the last seven days")
+                Subcommand("identity", text["CommandIdentityAuditDescription"]),
+                Subcommand("management", text["CommandManagementAuditDescription"])
             }
         };
     }
