@@ -1,0 +1,13 @@
+@if (Approvals.Count > 0)
+{
+    <ul class="approval-decisions">
+        @foreach (var approval in Approvals.OrderBy(item => item.CreatedAt))
+        {
+            <li class="@(approval.IsApproved ? "approved" : "rejected")">
+                <span class="bi @(approval.IsApproved ? "bi-check-circle-fill" : "bi-x-circle-fill")" aria-hidden="true"></span>
+                <strong>@approval.ApproverName</strong>
+                <span>@SharedText[approval.IsApproved ? "Status_Approved" : "Status_Rejected"]</span>
+            </li>
+        }
+    </ul>
+}

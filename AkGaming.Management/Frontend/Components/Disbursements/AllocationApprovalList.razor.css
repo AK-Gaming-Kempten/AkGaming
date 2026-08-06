@@ -1,0 +1,30 @@
+.approval-decisions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .5rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.approval-decisions li {
+    display: inline-flex;
+    align-items: center;
+    gap: .35rem;
+    padding: .3rem .5rem;
+    border: 1px solid currentColor;
+    border-radius: 999px;
+    font-size: .9rem;
+}
+
+.approval-decisions .approved {
+    color: var(--color-highlight-primary);
+}
+
+.approval-decisions .rejected {
+    color: var(--color-error, #d9534f);
+}
+
+.approval-decisions strong {
+    color: var(--color-text-primary);
+}

@@ -35,6 +35,7 @@
                     <header><div><h4>@application.ApplicantName</h4><small>@application.CreatedAt.LocalDateTime.ToString("g") · @application.Status.ToLocalizedString(SharedText)</small></div><strong>@application.Amount.ToString("N2") EUR</strong></header>
                     @if (!string.IsNullOrWhiteSpace(application.Note)) { <p>@application.Note</p> }
                     <div class="approval-summary"><span class="approved"><span class="bi bi-check-circle"></span> @application.Approvals.Count(item => item.IsApproved) approvals</span><span class="objected"><span class="bi bi-x-circle"></span> @application.Approvals.Count(item => !item.IsApproved) objections</span></div>
+                    <AllocationApprovalList Approvals="application.Approvals" />
                     @if (application.ApplicantUserId != _userId)
                     {
                         <div class="decision-actions"><span>@Text["Allocation_ApproveQuestion"]</span><button type="button" class="approve" @onclick="() => DecideAsync(application.Id, true)" disabled="@_busy"><span class="bi bi-check-lg"></span> @Text["Allocation_Approve"]</button><button type="button" class="object" @onclick="() => DecideAsync(application.Id, false)" disabled="@_busy"><span class="bi bi-x-lg"></span> @Text["Allocation_Object"]</button></div>
