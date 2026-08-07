@@ -9,6 +9,7 @@ public interface IDisbursementRepository
     Task<Receipt?> GetReceiptAsync(Guid id, CancellationToken cancellationToken);
     Task<List<DisbursementEvent>> GetEventsAsync(CancellationToken cancellationToken);
     Task<DisbursementEvent?> GetEventAsync(Guid id, CancellationToken cancellationToken);
+    Task<Allocation?> GetAllocationAsync(Guid id, CancellationToken cancellationToken);
     Task<Allocation?> GetAllocationByTokenAsync(Guid token, CancellationToken cancellationToken);
     Task<AllocationApplication?> GetApplicationAsync(Guid id, CancellationToken cancellationToken);
     Task<List<Allocation>> GetAllocationsForUserAsync(Guid userId, CancellationToken cancellationToken);

@@ -15,7 +15,17 @@
         @foreach (var allocation in _event.Allocations)
         {
             <section class="panel allocation-card ui-stack-md">
-                <header><div><h4>@allocation.Name</h4><p>@allocation.Description</p></div><strong>@allocation.Amount.ToString("N2") EUR</strong></header>
+                <header>
+                    <div><h4>@allocation.Name</h4><p>@allocation.Description</p></div>
+                    <div class="allocation-actions">
+                        <strong>@allocation.Amount.ToString("N2") EUR</strong>
+                        <AuthorizeView Policy="management.disbursements.manage">
+                            <ContextMenu AriaLabel="@($"{SharedText["Action_Edit"]} {allocation.Name}")">
+                                <ContextMenuItem IconClass="bi-pencil" Text="@SharedText["Action_Edit"]" OnClick="() => OpenEditDialogAsync(allocation)" />
+                            </ContextMenu>
+                        </AuthorizeView>
+                    </div>
+                </header>
                 <div class="share-row"><input readonly value="@ShareUrl(allocation)" /><button type="button" @onclick="() => CopyAsync(ShareUrl(allocation))"><span class="bi bi-copy"></span> @Text["Event_CopyClaimLink"]</button><a href="@($"disbursements/claim/{allocation.ShareToken}")" target="_blank">@SharedText["Action_Open"]</a></div>
                 @if (!string.IsNullOrWhiteSpace(allocation.DiscordChannelId))
                 {
@@ -34,7 +44,7 @@
 
 @if (_discordCatalog is not null)
 {
-    <CreateAllocationDialog Catalog="_discordCatalog" Busy="_busy" Error="_dialogError" OnSubmit="CreateAllocationAsync" OnClose="CloseCreateDialog" />
+    <CreateAllocationDialog @key="_editingAllocation?.Id" Catalog="_discordCatalog" Allocation="_editingAllocation" Busy="_busy" Error="_dialogError" OnSubmit="SaveAllocationAsync" OnClose="CloseAllocationDialog" />
 }
 
 @if (_selectedPaymentMethod is not null)

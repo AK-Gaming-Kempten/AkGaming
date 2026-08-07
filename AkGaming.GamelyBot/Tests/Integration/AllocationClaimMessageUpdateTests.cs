@@ -52,6 +52,45 @@ public sealed class AllocationClaimMessageUpdateTests
         }
     }
 
+    [Test]
+    [Description("Creates a claim message in the new destination when an existing allocation's Discord channel changes.")]
+    public async Task ClaimSnapshots_WhenChannelChanges_CreatesMessageInNewChannel()
+    {
+        // Arrange
+        var databasePath = Path.Combine(Path.GetTempPath(), $"akgaming-gamelybot-{Guid.NewGuid():N}.db");
+        try
+        {
+            await using var factory = CreateFactory(databasePath);
+            using var client = factory.CreateClient();
+            var applicationId = Guid.NewGuid();
+            var first = Envelope(applicationId, ["Anna"], [], "channel-123");
+            var second = Envelope(applicationId, ["Anna"], [], "channel-456");
+
+            // Act
+            await client.PostAsJsonAsync("/api/notifications", first);
+            await WaitForDeliveriesAsync(client, 1);
+            await client.PostAsJsonAsync("/api/notifications", second);
+            var deliveries = await WaitForDeliveriesAsync(client, 2);
+
+            // Assert
+            Assert.Multiple(() =>
+            {
+                Assert.That(deliveries.EnumerateArray()
+                    .Select(item => item.GetProperty("target").GetString()),
+                    Is.EquivalentTo(new[] { "channel-123", "channel-456" }));
+                Assert.That(deliveries.EnumerateArray()
+                    .Select(item => item.GetProperty("externalMessageId").GetString())
+                    .Distinct()
+                    .ToList(), Has.Count.EqualTo(2));
+            });
+        }
+        finally
+        {
+            if (File.Exists(databasePath))
+                File.Delete(databasePath);
+        }
+    }
+
     private static WebApplicationFactory<Program> CreateFactory(string databasePath)
     {
         return new WebApplicationFactory<Program>().WithWebHostBuilder(builder =>
@@ -73,7 +112,8 @@ public sealed class AllocationClaimMessageUpdateTests
     private static NotificationEnvelope Envelope(
         Guid applicationId,
         IReadOnlyList<string> approvals,
-        IReadOnlyList<string> objections)
+        IReadOnlyList<string> objections,
+        string channelId = "channel-123")
     {
         var data = new AllocationClaimChangedNotification(
             applicationId,
@@ -86,7 +126,7 @@ public sealed class AllocationClaimMessageUpdateTests
             approvals,
             objections,
             "https://management.test/claim",
-            "channel-123",
+            channelId,
             "role-456");
         return new NotificationEnvelope(
             Guid.NewGuid(),

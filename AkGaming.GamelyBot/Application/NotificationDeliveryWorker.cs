@@ -112,7 +112,8 @@ public sealed class NotificationDeliveryWorker(IServiceScopeFactory scopeFactory
                         NotificationEventTypes.BoardMeetingRescheduleProposed =>
                             await FindLatestProposalMessageIdAsync(dbContext, notification, cancellationToken),
                         NotificationEventTypes.AllocationClaimChanged =>
-                            await FindLatestAllocationClaimMessageIdAsync(dbContext, notification, cancellationToken),
+                            await FindLatestAllocationClaimMessageIdAsync(dbContext, notification,
+                                rendered.ChannelMessage.ChannelId, cancellationToken),
                         _ => null
                     };
                     var result = string.IsNullOrWhiteSpace(previousMessageId)
@@ -264,6 +265,7 @@ public sealed class NotificationDeliveryWorker(IServiceScopeFactory scopeFactory
     private static async Task<string?> FindLatestAllocationClaimMessageIdAsync(
         GamelyBotDbContext dbContext,
         NotificationInboxItem current,
+        string? channelId,
         CancellationToken cancellationToken)
     {
         if (!TryGetAllocationApplicationId(current, out var applicationId))
@@ -278,7 +280,11 @@ public sealed class NotificationDeliveryWorker(IServiceScopeFactory scopeFactory
             .ToListAsync(cancellationToken);
 
         return LatestChannelMessageId(delivered.Where(item =>
-            TryGetAllocationApplicationId(item, out var candidateId) && candidateId == applicationId));
+            TryGetAllocationApplicationId(item, out var candidateId)
+            && candidateId == applicationId
+            && item.Deliveries.Any(delivery => delivery.Kind == DeliveryKinds.Channel
+                && delivery.Status == NotificationStatuses.Delivered
+                && delivery.Target == channelId)));
     }
 
     private static string? LatestChannelMessageId(IEnumerable<NotificationInboxItem> notifications)

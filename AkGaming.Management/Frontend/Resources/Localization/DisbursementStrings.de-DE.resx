@@ -12,6 +12,8 @@
   <data name="Events_NoDate" xml:space="preserve"><value>Kein Veranstaltungsdatum</value></data>
   <data name="Event_AddAllocation" xml:space="preserve"><value>Zuteilung hinzufügen</value></data>
   <data name="Event_CreateAllocation" xml:space="preserve"><value>Zuteilung erstellen</value></data>
+  <data name="Event_EditAllocation" xml:space="preserve"><value>Zuteilung bearbeiten</value></data>
+  <data name="Event_SaveAllocation" xml:space="preserve"><value>Zuteilung speichern</value></data>
   <data name="Event_NoAllocations" xml:space="preserve"><value>Noch keine Zuteilungen.</value></data>
   <data name="Event_CopyClaimLink" xml:space="preserve"><value>Antragslink kopieren</value></data>
   <data name="Event_NoApplications" xml:space="preserve"><value>Keine Anträge.</value></data>

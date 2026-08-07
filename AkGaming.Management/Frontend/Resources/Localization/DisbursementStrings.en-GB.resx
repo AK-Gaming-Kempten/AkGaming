@@ -12,6 +12,8 @@
   <data name="Events_NoDate" xml:space="preserve"><value>No event date</value></data>
   <data name="Event_AddAllocation" xml:space="preserve"><value>Add allocation</value></data>
   <data name="Event_CreateAllocation" xml:space="preserve"><value>Create allocation</value></data>
+  <data name="Event_EditAllocation" xml:space="preserve"><value>Edit allocation</value></data>
+  <data name="Event_SaveAllocation" xml:space="preserve"><value>Save allocation</value></data>
   <data name="Event_NoAllocations" xml:space="preserve"><value>No allocations yet.</value></data>
   <data name="Event_CopyClaimLink" xml:space="preserve"><value>Copy claim link</value></data>
   <data name="Event_NoApplications" xml:space="preserve"><value>No applications.</value></data>

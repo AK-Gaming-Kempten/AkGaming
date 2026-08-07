@@ -30,6 +30,9 @@ public sealed class EfDisbursementRepository(DisbursementsDbContext dbContext) :
     public Task<DisbursementEvent?> GetEventAsync(Guid id, CancellationToken cancellationToken) =>
         EventsQuery().FirstOrDefaultAsync(item => item.Id == id, cancellationToken);
 
+    public Task<Allocation?> GetAllocationAsync(Guid id, CancellationToken cancellationToken) =>
+        AllocationsQuery().FirstOrDefaultAsync(item => item.Id == id, cancellationToken);
+
     public Task<Allocation?> GetAllocationByTokenAsync(Guid token, CancellationToken cancellationToken) =>
         AllocationsQuery().FirstOrDefaultAsync(item => item.ShareToken == token, cancellationToken);
 

@@ -15,6 +15,7 @@ public interface IDisbursementService
     Task<Result<DisbursementEventDto>> GetEventAsync(Guid id, CancellationToken cancellationToken = default);
     Task<Result<DisbursementEventDto>> CreateEventAsync(SaveDisbursementEventRequest request, CancellationToken cancellationToken = default);
     Task<Result<AllocationDto>> CreateAllocationAsync(Guid eventId, SaveAllocationRequest request, CancellationToken cancellationToken = default);
+    Task<Result<AllocationDto>> UpdateAllocationAsync(Guid allocationId, SaveAllocationRequest request, CancellationToken cancellationToken = default);
     Task<Result<AllocationDto>> GetAllocationByTokenAsync(Guid token, CancellationToken cancellationToken = default);
     Task<Result<IReadOnlyList<AllocationDto>>> GetAllocationsForUserAsync(Guid userId, CancellationToken cancellationToken = default);
     Task<Result<AllocationApplicationDto>> ApplyAsync(Guid token, Guid userId, string applicantName, CreateAllocationApplicationRequest request, CancellationToken cancellationToken = default);

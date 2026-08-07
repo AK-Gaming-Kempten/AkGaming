@@ -176,18 +176,9 @@ public sealed class DisbursementService(
 
     public async Task<Result<AllocationDto>> CreateAllocationAsync(Guid eventId, SaveAllocationRequest request, CancellationToken cancellationToken = default)
     {
-        if (string.IsNullOrWhiteSpace(request.Name) || request.Amount <= 0)
-            return Result<AllocationDto>.Failure("Allocation name and a positive amount are required.");
-        var hasAnyDiscordRouting = !string.IsNullOrWhiteSpace(request.DiscordChannelId)
-            || !string.IsNullOrWhiteSpace(request.DiscordChannelName)
-            || !string.IsNullOrWhiteSpace(request.DiscordRoleId)
-            || !string.IsNullOrWhiteSpace(request.DiscordRoleName);
-        var hasCompleteDiscordRouting = !string.IsNullOrWhiteSpace(request.DiscordChannelId)
-            && !string.IsNullOrWhiteSpace(request.DiscordChannelName)
-            && !string.IsNullOrWhiteSpace(request.DiscordRoleId)
-            && !string.IsNullOrWhiteSpace(request.DiscordRoleName);
-        if (hasAnyDiscordRouting && !hasCompleteDiscordRouting)
-            return Result<AllocationDto>.Failure("Discord notifications require both a channel and a role.");
+        var validationError = ValidateAllocation(request);
+        if (validationError is not null)
+            return Result<AllocationDto>.Failure(validationError);
 
         var disbursementEvent = await repository.GetEventAsync(eventId, cancellationToken);
         if (disbursementEvent is null)
@@ -196,18 +187,35 @@ public sealed class DisbursementService(
         var entity = new Allocation
         {
             EventId = eventId,
-            Event = disbursementEvent,
-            Name = request.Name.Trim(),
-            Description = Clean(request.Description),
-            Amount = request.Amount,
-            DiscordChannelId = request.DiscordChannelId?.Trim() ?? string.Empty,
-            DiscordChannelName = request.DiscordChannelName?.Trim() ?? string.Empty,
-            DiscordRoleId = request.DiscordRoleId?.Trim() ?? string.Empty,
-            DiscordRoleName = request.DiscordRoleName?.Trim() ?? string.Empty
+            Event = disbursementEvent
         };
+        ApplyAllocationChanges(entity, request);
         repository.Add(entity);
         await repository.SaveChangesAsync(cancellationToken);
         return Result<AllocationDto>.Success(ToDto(entity));
+    }
+
+    public async Task<Result<AllocationDto>> UpdateAllocationAsync(Guid allocationId, SaveAllocationRequest request, CancellationToken cancellationToken = default)
+    {
+        var validationError = ValidateAllocation(request);
+        if (validationError is not null)
+            return Result<AllocationDto>.Failure(validationError);
+
+        var allocation = await repository.GetAllocationAsync(allocationId, cancellationToken);
+        if (allocation is null)
+            return Result<AllocationDto>.Failure("Allocation not found.");
+
+        var committedAmount = allocation.Applications
+            .Where(application => (AllocationApplicationStatus)application.Status != AllocationApplicationStatus.Rejected)
+            .Sum(application => application.Amount);
+        if (request.Amount < committedAmount)
+            return Result<AllocationDto>.Failure("The allocation amount cannot be lower than the amount already claimed.");
+
+        ApplyAllocationChanges(allocation, request);
+        foreach (var application in allocation.Applications)
+            notificationOutbox.EnqueueAllocationClaimChanged(application);
+        await repository.SaveChangesAsync(cancellationToken);
+        return Result<AllocationDto>.Success(ToDto(allocation, true));
     }
 
     public async Task<Result<AllocationDto>> GetAllocationByTokenAsync(Guid token, CancellationToken cancellationToken = default)
@@ -328,6 +336,35 @@ public sealed class DisbursementService(
         return method is null
             ? Result<PaymentInformationDto>.Failure("The selected payment method does not belong to your profile.")
             : Result<PaymentInformationDto>.Success(method);
+    }
+
+    private static string? ValidateAllocation(SaveAllocationRequest request)
+    {
+        if (string.IsNullOrWhiteSpace(request.Name) || request.Amount <= 0)
+            return "Allocation name and a positive amount are required.";
+
+        var hasAnyDiscordRouting = !string.IsNullOrWhiteSpace(request.DiscordChannelId)
+            || !string.IsNullOrWhiteSpace(request.DiscordChannelName)
+            || !string.IsNullOrWhiteSpace(request.DiscordRoleId)
+            || !string.IsNullOrWhiteSpace(request.DiscordRoleName);
+        var hasCompleteDiscordRouting = !string.IsNullOrWhiteSpace(request.DiscordChannelId)
+            && !string.IsNullOrWhiteSpace(request.DiscordChannelName)
+            && !string.IsNullOrWhiteSpace(request.DiscordRoleId)
+            && !string.IsNullOrWhiteSpace(request.DiscordRoleName);
+        return hasAnyDiscordRouting && !hasCompleteDiscordRouting
+            ? "Discord notifications require both a channel and a role."
+            : null;
+    }
+
+    private static void ApplyAllocationChanges(Allocation allocation, SaveAllocationRequest request)
+    {
+        allocation.Name = request.Name.Trim();
+        allocation.Description = Clean(request.Description);
+        allocation.Amount = request.Amount;
+        allocation.DiscordChannelId = request.DiscordChannelId?.Trim() ?? string.Empty;
+        allocation.DiscordChannelName = request.DiscordChannelName?.Trim() ?? string.Empty;
+        allocation.DiscordRoleId = request.DiscordRoleId?.Trim() ?? string.Empty;
+        allocation.DiscordRoleName = request.DiscordRoleName?.Trim() ?? string.Empty;
     }
 
     private static Result ValidateReimbursement(CreateReimbursementRequest request, IReadOnlyList<ReceiptUpload> files)

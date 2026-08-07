@@ -9,6 +9,9 @@ public partial class CreateAllocationDialog : ComponentBase
     public required DiscordGuildCatalogDto Catalog { get; set; }
 
     [Parameter]
+    public AllocationDto? Allocation { get; set; }
+
+    [Parameter]
     public bool Busy { get; set; }
 
     [Parameter]
@@ -20,7 +23,29 @@ public partial class CreateAllocationDialog : ComponentBase
     [Parameter]
     public EventCallback OnClose { get; set; }
 
-    private readonly SaveAllocationRequest _model = new();
+    private SaveAllocationRequest _model = new();
+    private bool _initialized;
+
+    protected override void OnParametersSet()
+    {
+        if (_initialized)
+            return;
+
+        _initialized = true;
+        if (Allocation is null)
+            return;
+
+        _model = new SaveAllocationRequest
+        {
+            Name = Allocation.Name,
+            Description = Allocation.Description,
+            Amount = Allocation.Amount,
+            DiscordChannelId = Allocation.DiscordChannelId,
+            DiscordChannelName = Allocation.DiscordChannelName,
+            DiscordRoleId = Allocation.DiscordRoleId,
+            DiscordRoleName = Allocation.DiscordRoleName
+        };
+    }
 
     private bool CanSubmit => !string.IsNullOrWhiteSpace(_model.Name)
         && _model.Amount > 0
@@ -34,10 +59,10 @@ public partial class CreateAllocationDialog : ComponentBase
         if (!string.IsNullOrWhiteSpace(_model.DiscordChannelId)
             && !string.IsNullOrWhiteSpace(_model.DiscordRoleId))
         {
-            var channel = Catalog.Channels.First(item => item.Id == _model.DiscordChannelId);
-            var role = Catalog.Roles.First(item => item.Id == _model.DiscordRoleId);
-            _model.DiscordChannelName = channel.Name;
-            _model.DiscordRoleName = role.Name;
+            var channel = Catalog.Channels.FirstOrDefault(item => item.Id == _model.DiscordChannelId);
+            var role = Catalog.Roles.FirstOrDefault(item => item.Id == _model.DiscordRoleId);
+            _model.DiscordChannelName = channel?.Name ?? _model.DiscordChannelName;
+            _model.DiscordRoleName = role?.Name ?? _model.DiscordRoleName;
         }
         else
         {

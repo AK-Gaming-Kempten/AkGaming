@@ -1,7 +1,7 @@
 <div class="dialog-backdrop" role="presentation">
     <section class="allocation-dialog" role="dialog" aria-modal="true" aria-labelledby="allocation-dialog-title">
         <header>
-            <h4 id="allocation-dialog-title">@Text["Event_AddAllocation"]</h4>
+            <h4 id="allocation-dialog-title">@Text[Allocation is null ? "Event_AddAllocation" : "Event_EditAllocation"]</h4>
             <button type="button" title="@SharedText["Action_Close"]" @onclick="OnClose"><span class="bi bi-x-lg"></span></button>
         </header>
 
@@ -37,7 +37,7 @@
 
         <footer>
             <button type="button" class="secondary-action" @onclick="OnClose" disabled="@Busy">@SharedText["Action_Cancel"]</button>
-            <button type="button" class="primary-action" @onclick="SubmitAsync" disabled="@(Busy || !CanSubmit)">@Text["Event_CreateAllocation"]</button>
+            <button type="button" class="primary-action" @onclick="SubmitAsync" disabled="@(Busy || !CanSubmit)">@Text[Allocation is null ? "Event_CreateAllocation" : "Event_SaveAllocation"]</button>
         </footer>
     </section>
 </div>
