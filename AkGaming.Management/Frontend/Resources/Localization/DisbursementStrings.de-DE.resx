@@ -42,6 +42,8 @@
   <data name="Allocation_SelectDiscordChannel" xml:space="preserve"><value>Discord-Kanal auswählen</value></data>
   <data name="Allocation_DiscordRole" xml:space="preserve"><value>Zu benachrichtigende Discord-Rolle</value></data>
   <data name="Allocation_DiscordOptional" xml:space="preserve"><value>Discord-Benachrichtigungen sind optional. Wähle zum Aktivieren einen Kanal und eine Rolle aus oder lasse beide Felder leer.</value></data>
+  <data name="Allocation_DiscordLoading" xml:space="preserve"><value>Discord-Kanäle und -Rollen werden geladen…</value></data>
+  <data name="Allocation_VoiceChannelSuffix" xml:space="preserve"><value>(Voice)</value></data>
   <data name="Allocation_DiscordUnavailable" xml:space="preserve"><value>Discord-Kanäle und -Rollen konnten nicht geladen werden. Die Zuteilung kann trotzdem ohne Discord-Benachrichtigungen erstellt werden.</value></data>
   <data name="Allocation_SelectDiscordRole" xml:space="preserve"><value>Discord-Rolle auswählen</value></data>
   <data name="Allocation_MyNone" xml:space="preserve"><value>Du hast noch mit keiner Zuteilung interagiert. Die Links werden direkt von den Veranstaltern geteilt.</value></data>

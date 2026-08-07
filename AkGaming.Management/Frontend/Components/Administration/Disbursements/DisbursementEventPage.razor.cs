@@ -16,6 +16,7 @@ public partial class DisbursementEventPage : ComponentBase
     private PaymentMethodSnapshotDto? _selectedPaymentMethod;
     private DiscordGuildCatalogDto? _discordCatalog;
     private AllocationDto? _editingAllocation;
+    private bool _discordCatalogReady;
     private bool _busy;
     private string? _error;
     private string? _dialogError;
@@ -36,6 +37,7 @@ public partial class DisbursementEventPage : ComponentBase
         _editingAllocation = allocation;
         var loadingCatalog = CatalogWithExistingRoute(new DiscordGuildCatalogDto(), allocation);
         _discordCatalog = loadingCatalog;
+        _discordCatalogReady = false;
         _dialogError = null;
         StateHasChanged();
 
@@ -47,6 +49,7 @@ public partial class DisbursementEventPage : ComponentBase
             _discordCatalog = CatalogWithExistingRoute(result.Value ?? loadingCatalog, allocation);
         else
             _dialogError = Text["Allocation_DiscordUnavailable"];
+        _discordCatalogReady = true;
     }
 
     private async Task SaveAllocationAsync(SaveAllocationRequest request)
@@ -65,6 +68,7 @@ public partial class DisbursementEventPage : ComponentBase
 
         _discordCatalog = null;
         _editingAllocation = null;
+        _discordCatalogReady = false;
         await LoadAsync();
     }
     private async Task SetStatusAsync(AllocationApplicationDto application, AllocationApplicationStatus status) { _busy = true; var result = await Api.UpdateApplicationStatusAsync(application.Id, new UpdateAllocationApplicationStatusRequest { Status = status }); _busy = false; if (!result.IsSuccess) _error = result.Error; else await LoadAsync(); }
@@ -80,6 +84,7 @@ public partial class DisbursementEventPage : ComponentBase
             return;
         _discordCatalog = null;
         _editingAllocation = null;
+        _discordCatalogReady = false;
     }
 
     private static DiscordGuildCatalogDto CatalogWithExistingRoute(

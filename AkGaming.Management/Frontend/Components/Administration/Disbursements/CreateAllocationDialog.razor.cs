@@ -5,11 +5,17 @@ namespace AkGaming.Management.Frontend.Components.Administration.Disbursements;
 
 public partial class CreateAllocationDialog : ComponentBase
 {
+    private const int DiscordGuildVoiceChannelType = 2;
+    private const int DiscordGuildStageChannelType = 13;
+
     [Parameter, EditorRequired]
     public required DiscordGuildCatalogDto Catalog { get; set; }
 
     [Parameter]
     public AllocationDto? Allocation { get; set; }
+
+    [Parameter]
+    public bool CatalogReady { get; set; }
 
     [Parameter]
     public bool Busy { get; set; }
@@ -49,10 +55,21 @@ public partial class CreateAllocationDialog : ComponentBase
 
     private bool CanSubmit => !string.IsNullOrWhiteSpace(_model.Name)
         && _model.Amount > 0
-        && HasCompleteOrEmptyDiscordRouting;
+        && HasCompleteOrEmptyDiscordRouting
+        && (CatalogReady || !HasDiscordRouting);
 
     private bool HasCompleteOrEmptyDiscordRouting =>
         string.IsNullOrWhiteSpace(_model.DiscordChannelId) == string.IsNullOrWhiteSpace(_model.DiscordRoleId);
+
+    private bool HasDiscordRouting => !string.IsNullOrWhiteSpace(_model.DiscordChannelId)
+        || !string.IsNullOrWhiteSpace(_model.DiscordRoleId);
+
+    private string ChannelLabel(DiscordChannelDto channel)
+    {
+        return channel.Type is DiscordGuildVoiceChannelType or DiscordGuildStageChannelType
+            ? $"{channel.Name} {Text["Allocation_VoiceChannelSuffix"]}"
+            : channel.Name;
+    }
 
     private async Task SubmitAsync()
     {

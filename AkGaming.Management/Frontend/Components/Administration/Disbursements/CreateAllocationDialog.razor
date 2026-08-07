@@ -15,24 +15,31 @@
             <label>@SharedText["Field_Amount"] (EUR)<InputNumber @bind-Value="_model.Amount" min="0.01" step="0.01" disabled="@Busy" /></label>
             <label>@SharedText["Field_Description"]<InputTextArea @bind-Value="_model.Description" disabled="@Busy" /></label>
             <p class="field-hint">@Text["Allocation_DiscordOptional"]</p>
-            <label>@Text["Allocation_DiscordChannel"]
-                <InputSelect @bind-Value="_model.DiscordChannelId" disabled="@Busy">
-                    <option value="">@Text["Allocation_SelectDiscordChannel"]</option>
-                    @foreach (var channel in Catalog.Channels)
-                    {
-                        <option value="@channel.Id">@channel.Name</option>
-                    }
-                </InputSelect>
-            </label>
-            <label>@Text["Allocation_DiscordRole"]
-                <InputSelect @bind-Value="_model.DiscordRoleId" disabled="@Busy">
-                    <option value="">@Text["Allocation_SelectDiscordRole"]</option>
-                    @foreach (var role in Catalog.Roles)
-                    {
-                        <option value="@role.Id">@role.Name</option>
-                    }
-                </InputSelect>
-            </label>
+            @if (!CatalogReady)
+            {
+                <p class="field-hint">@Text["Allocation_DiscordLoading"]</p>
+            }
+            else
+            {
+                <label>@Text["Allocation_DiscordChannel"]
+                    <InputSelect @bind-Value="_model.DiscordChannelId" disabled="@Busy">
+                        <option value="">@Text["Allocation_SelectDiscordChannel"]</option>
+                        @foreach (var channel in Catalog.Channels)
+                        {
+                            <option value="@channel.Id">@ChannelLabel(channel)</option>
+                        }
+                    </InputSelect>
+                </label>
+                <label>@Text["Allocation_DiscordRole"]
+                    <InputSelect @bind-Value="_model.DiscordRoleId" disabled="@Busy">
+                        <option value="">@Text["Allocation_SelectDiscordRole"]</option>
+                        @foreach (var role in Catalog.Roles)
+                        {
+                            <option value="@role.Id">@role.Name</option>
+                        }
+                    </InputSelect>
+                </label>
+            }
         </div>
 
         <footer>

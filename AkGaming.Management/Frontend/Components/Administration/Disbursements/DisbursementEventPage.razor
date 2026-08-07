@@ -44,7 +44,7 @@
 
 @if (_discordCatalog is not null)
 {
-    <CreateAllocationDialog @key="_editingAllocation?.Id" Catalog="_discordCatalog" Allocation="_editingAllocation" Busy="_busy" Error="_dialogError" OnSubmit="SaveAllocationAsync" OnClose="CloseAllocationDialog" />
+    <CreateAllocationDialog @key="_editingAllocation?.Id" Catalog="_discordCatalog" CatalogReady="_discordCatalogReady" Allocation="_editingAllocation" Busy="_busy" Error="_dialogError" OnSubmit="SaveAllocationAsync" OnClose="CloseAllocationDialog" />
 }
 
 @if (_selectedPaymentMethod is not null)
