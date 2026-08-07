@@ -16,7 +16,7 @@ public static class MemberMappingExtensions {
         Phone = m.PhoneNumber,
         DiscordUserName = m.DiscordUsername,
         BirthDate = m.BirthDate,
-        Address = m.Address?.ToDto(),
+        Address = m.Address?.ToDto() ?? new AddressDto(),
         Status = (ContractEnums.MembershipStatus)m.Status,
         StatusChanges = m.StatusChanges.Select(sc => sc.ToDto()).ToList()
     };

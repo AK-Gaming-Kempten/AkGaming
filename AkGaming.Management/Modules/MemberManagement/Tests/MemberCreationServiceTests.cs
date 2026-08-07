@@ -109,7 +109,7 @@ public class MemberCreationServiceTests {
             m.FirstName == memberCreationDto.FirstName &&
             m.LastName == memberCreationDto.LastName &&
             m.BirthDate == memberCreationDto.BirthDate &&
-            m.Address.Street == memberCreationDto.Address.Street &&
+            m.Address!.Street == memberCreationDto.Address!.Street &&
             m.Address.ZipCode == memberCreationDto.Address.ZipCode &&
             m.Address.City == memberCreationDto.Address.City &&
             m.Address.Country == memberCreationDto.Address.Country

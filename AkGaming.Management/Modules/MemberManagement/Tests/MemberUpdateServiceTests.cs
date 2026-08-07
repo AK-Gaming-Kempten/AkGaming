@@ -78,7 +78,7 @@ public class MemberUpdateServiceTests {
             Assert.That(updatedMember.Email, Is.EqualTo("NewTest@example.com"));
             Assert.That(updatedMember.PhoneNumber, Is.EqualTo("New1234567890"));
             Assert.That(updatedMember.DiscordUsername, Is.EqualTo("NewDiscordUsername"));
-            Assert.That(updatedMember.Address.Street, Is.EqualTo("NewStreet"));
+            Assert.That(updatedMember.Address!.Street, Is.EqualTo("NewStreet"));
             Assert.That(updatedMember.Address.ZipCode, Is.EqualTo("NewZipCode"));
             Assert.That(updatedMember.Address.City, Is.EqualTo("NewCity"));
             Assert.That(updatedMember.Address.Country, Is.EqualTo("NewCountry"));

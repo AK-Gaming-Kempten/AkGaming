@@ -1,5 +1,5 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup><TargetFramework>net10.0</TargetFramework><ImplicitUsings>enable</ImplicitUsings><Nullable>enable</Nullable><AssemblyName>AkGaming.Management.Modules.Disbursements.Migrations.Sqlite</AssemblyName></PropertyGroup>
   <ItemGroup><ProjectReference Include="..\..\Infrastructure\AkGaming.Management.Modules.Disbursements.Infrastructure.csproj" /></ItemGroup>
-  <ItemGroup><PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.3"><PrivateAssets>all</PrivateAssets></PackageReference><PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="10.0.3" /></ItemGroup>
+  <ItemGroup><PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.3"><PrivateAssets>all</PrivateAssets></PackageReference><PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="10.0.3" /><PackageReference Include="SQLitePCLRaw.bundle_e_sqlite3" Version="2.1.12" /></ItemGroup>
 </Project>

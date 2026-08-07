@@ -14,7 +14,7 @@ public class MemberDto {
     public string? Phone { get; set; }
     public string? DiscordUserName { get; set; }
     public DateOnly? BirthDate { get; set; }
-    public AddressDto Address { get; set; }
+    public AddressDto Address { get; set; } = new();
     public MembershipStatus Status { get; set; }
-    public ICollection<MembershipStatusChangeEventDto> StatusChanges { get; set; }
+    public ICollection<MembershipStatusChangeEventDto> StatusChanges { get; set; } = [];
 }
