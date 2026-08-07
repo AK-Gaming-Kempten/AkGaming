@@ -13,7 +13,7 @@
   <data name="Theme_Dark" xml:space="preserve"><value>Dunkles Farbschema verwenden</value></data>
   <data name="Navigation_Toggle" xml:space="preserve"><value>Navigationsmenü öffnen oder schließen</value></data>
   <data name="Navigation_Close" xml:space="preserve"><value>Navigationsmenü schließen</value></data>
-  <data name="App_Name" xml:space="preserve"><value>Verwaltung</value></data>
+  <data name="App_Name" xml:space="preserve"><value>Management Tool</value></data>
   <data name="Home" xml:space="preserve"><value>Startseite</value></data>
   <data name="Profile" xml:space="preserve"><value>Profil</value></data>
   <data name="GeneralMeetings" xml:space="preserve"><value>Mitgliederversammlungen</value></data>
@@ -31,7 +31,7 @@
   <data name="AuditLog" xml:space="preserve"><value>Änderungsprotokoll</value></data>
   <data name="Invoices" xml:space="preserve"><value>Rechnungen</value></data>
   <data name="Presets" xml:space="preserve"><value>Vorlagen</value></data>
-  <data name="Identity" xml:space="preserve"><value>Identitäten</value></data>
+  <data name="Identity" xml:space="preserve"><value>Identity</value></data>
   <data name="Clients" xml:space="preserve"><value>Clients</value></data>
   <data name="Scopes" xml:space="preserve"><value>Berechtigungsbereiche</value></data>
   <data name="Roles" xml:space="preserve"><value>Rollen</value></data>

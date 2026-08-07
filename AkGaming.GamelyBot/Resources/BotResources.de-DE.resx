@@ -21,7 +21,7 @@
   <data name="AvailabilityCounts" xml:space="preserve"><value>Verfügbarkeit: {0} verfügbar, {1} nicht verfügbar</value></data>
   <data name="AvailabilityRecordedAvailable" xml:space="preserve"><value>Gespeichert: Du hast Zeit für diese Sitzung.</value></data>
   <data name="AvailabilityRecordedUnavailable" xml:space="preserve"><value>Gespeichert: Du kannst nicht an dieser Sitzung teilnehmen.</value></data>
-  <data name="AvailabilitySaveFailed" xml:space="preserve"><value>Deine Verfügbarkeit konnte gerade nicht gespeichert werden. Bitte verwende das Management-Tool oder versuche es später erneut.</value></data>
+  <data name="AvailabilitySaveFailed" xml:space="preserve"><value>Deine Verfügbarkeit konnte gerade nicht gespeichert werden. Bitte verwende das Management Tool oder versuche es später erneut.</value></data>
   <data name="AvailabilityUnavailable" xml:space="preserve"><value>Ich kann nicht teilnehmen</value></data>
   <data name="BacklogEmpty" xml:space="preserve"><value>Der Vorstands-Backlog ist leer.</value></data>
   <data name="BacklogItemAddFailed" xml:space="preserve"><value>Der Eintrag konnte nicht zum Backlog hinzugefügt werden.</value></data>
@@ -35,8 +35,8 @@
   <data name="BoardMeeting" xml:space="preserve"><value>Vorstandssitzung</value></data>
   <data name="BoardMeetingBody" xml:space="preserve"><value>**{0}**&#10;{1}&#10;{2} Minuten · {3}{4}{5}{6}</value></data>
   <data name="BoardMeetingCancelled" xml:space="preserve"><value>Vorstandssitzung abgesagt</value></data>
-  <data name="BoardMeetingCreateHelp" xml:space="preserve"><value>Sitzungen werden im Management-Tool erstellt, damit Datum, Ort und erste Agenda gemeinsam geprüft werden können.&#10;[Vorstandssitzung erstellen]({0})</value></data>
-  <data name="BoardMeetingHelp" xml:space="preserve"><value>**Befehle für Vorstandssitzungen**&#10;`/boardmeeting agenda` - Agenda der nächsten Sitzung anzeigen&#10;`/boardmeeting backlog` - Agenda-Backlog anzeigen&#10;`/boardmeeting details` - Details und Teilnahmeprognose anzeigen&#10;`/boardmeeting create` - Management-Tool zum Erstellen öffnen&#10;`/boardmeeting reminder` - Erinnerung für die nächste Sitzung senden&#10;`/boardmeeting availability` - Verfügbarkeit eintragen&#10;`/boardmeeting add-agenda` - Eintrag zur nächsten Sitzung hinzufügen&#10;`/boardmeeting add-backlog` - Eintrag zum Backlog hinzufügen&#10;`/boardmeeting promote` - Backlog-Eintrag in die nächste Sitzung übernehmen&#10;&#10;Verwende das Management-Tool zum Erstellen, Verschieben oder Absagen von Sitzungen sowie für umfangreichere Agendaänderungen:</value></data>
+  <data name="BoardMeetingCreateHelp" xml:space="preserve"><value>Sitzungen werden im Management Tool erstellt, damit Datum, Ort und erste Agenda gemeinsam geprüft werden können.&#10;[Vorstandssitzung erstellen]({0})</value></data>
+  <data name="BoardMeetingHelp" xml:space="preserve"><value>**Befehle für Vorstandssitzungen**&#10;`/boardmeeting agenda` - Agenda der nächsten Sitzung anzeigen&#10;`/boardmeeting backlog` - Agenda-Backlog anzeigen&#10;`/boardmeeting details` - Details und Teilnahmeprognose anzeigen&#10;`/boardmeeting create` - Management Tool zum Erstellen öffnen&#10;`/boardmeeting reminder` - Erinnerung für die nächste Sitzung senden&#10;`/boardmeeting availability` - Verfügbarkeit eintragen&#10;`/boardmeeting add-agenda` - Eintrag zur nächsten Sitzung hinzufügen&#10;`/boardmeeting add-backlog` - Eintrag zum Backlog hinzufügen&#10;`/boardmeeting promote` - Backlog-Eintrag in die nächste Sitzung übernehmen&#10;&#10;Verwende das Management Tool zum Erstellen, Verschieben oder Absagen von Sitzungen sowie für umfangreichere Agendaänderungen:</value></data>
   <data name="BoardMeetingNew" xml:space="preserve"><value>Neue Vorstandssitzung</value></data>
   <data name="AllocationClaimTitle" xml:space="preserve"><value>Antrag auf Auszahlung</value></data>
   <data name="AllocationClaimBody" xml:space="preserve"><value>**Veranstaltung:** {0}&#10;**Zuteilung:** {1}&#10;**Antragsteller:** {2}&#10;**Betrag:** {3} EUR&#10;**Status:** {4}{5}&#10;&#10;**Zustimmungen ({6}):** {7}&#10;**Widersprüche ({8}):** {9}</value></data>
@@ -62,7 +62,7 @@
   <data name="CommandBacklogDescription" xml:space="preserve"><value>Vorstands-Backlog anzeigen</value></data>
   <data name="CommandBacklogItemDescription" xml:space="preserve"><value>Backlog-Eintrag</value></data>
   <data name="CommandBoardDescription" xml:space="preserve"><value>Planung von Vorstandssitzungen</value></data>
-  <data name="CommandCreateDescription" xml:space="preserve"><value>Management-Tool zum Erstellen einer Sitzung öffnen</value></data>
+  <data name="CommandCreateDescription" xml:space="preserve"><value>Management Tool zum Erstellen einer Sitzung öffnen</value></data>
   <data name="CommandDetailsDescription" xml:space="preserve"><value>Details der nächsten Vorstandssitzung anzeigen</value></data>
   <data name="CommandHelpDescription" xml:space="preserve"><value>Befehle und Management-Seite anzeigen</value></data>
   <data name="CommandIdentityAuditDescription" xml:space="preserve"><value>Identity-Aktivität der letzten sieben Tage anzeigen</value></data>
@@ -76,16 +76,16 @@
   <data name="DecisionBlock" xml:space="preserve"><value>&#10;&#10;**Entscheidung:** {0}.</value></data>
   <data name="Description" xml:space="preserve"><value>Beschreibung</value></data>
   <data name="DescriptionSuffix" xml:space="preserve"><value> — {0}</value></data>
-  <data name="DiscordAccountNotLinked" xml:space="preserve"><value>Dein Discord-Konto ist nicht mit einem AK-Gaming-Konto verknüpft.</value></data>
-  <data name="DiscordAccountNotLinkedWithHelp" xml:space="preserve"><value>Dein Discord-Konto ist nicht mit einem AK-Gaming-Konto verknüpft. Verknüpfe es in deinen Kontoeinstellungen und versuche es erneut.</value></data>
+  <data name="DiscordAccountNotLinked" xml:space="preserve"><value>Dein Discord-Konto ist nicht mit einem AK Gaming-Konto verknüpft.</value></data>
+  <data name="DiscordAccountNotLinkedWithHelp" xml:space="preserve"><value>Dein Discord-Konto ist nicht mit einem AK Gaming-Konto verknüpft. Verknüpfe es in deinen Kontoeinstellungen und versuche es erneut.</value></data>
   <data name="DiscordAccountUnknown" xml:space="preserve"><value>Discord konnte dein Konto nicht identifizieren.</value></data>
   <data name="DurationMinutesLabel" xml:space="preserve"><value>Dauer in Minuten</value></data>
   <data name="EmailLine" xml:space="preserve"><value>&#10;E-Mail: {0}</value></data>
   <data name="IdentityAuditUnauthorized" xml:space="preserve"><value>Dein verknüpftes Konto darf keine Identity-Audit-Zusammenfassungen lesen.</value></data>
-  <data name="InteractionFailed" xml:space="preserve"><value>Diese Aktion konnte gerade nicht abgeschlossen werden. Bitte versuche es erneut oder verwende das Management-Tool.</value></data>
-  <data name="InteractionTimedOut" xml:space="preserve"><value>Die Vereinsdienste haben nicht rechtzeitig geantwortet. Bitte versuche es erneut oder verwende das Management-Tool.</value></data>
+  <data name="InteractionFailed" xml:space="preserve"><value>Diese Aktion konnte gerade nicht abgeschlossen werden. Bitte versuche es erneut oder verwende das Management Tool.</value></data>
+  <data name="InteractionTimedOut" xml:space="preserve"><value>Die Vereinsdienste haben nicht rechtzeitig geantwortet. Bitte versuche es erneut oder verwende das Management Tool.</value></data>
   <data name="InvalidMeetingAction" xml:space="preserve"><value>Diese Sitzungsaktion ist ungültig.</value></data>
-  <data name="InvalidMeetingResponse" xml:space="preserve"><value>Das Management-Tool hat eine ungültige Sitzung zurückgegeben.</value></data>
+  <data name="InvalidMeetingResponse" xml:space="preserve"><value>Das Management Tool hat eine ungültige Sitzung zurückgegeben.</value></data>
   <data name="LinkedAccountLookupFailed" xml:space="preserve"><value>Dein verknüpftes Konto konnte gerade nicht abgerufen werden. Bitte versuche es später erneut.</value></data>
   <data name="LocationPending" xml:space="preserve"><value>Ort noch offen</value></data>
   <data name="LocationToBeDecided" xml:space="preserve"><value>Ort wird noch festgelegt</value></data>
@@ -120,7 +120,7 @@
   <data name="ProposalAlreadyDecided" xml:space="preserve"><value>Über diesen Verschiebungsvorschlag wurde bereits entschieden.</value></data>
   <data name="ProposalDecisionUnauthorized" xml:space="preserve"><value>Dein verknüpftes Konto darf Vorschläge für Vorstandssitzungen nicht annehmen oder ablehnen.</value></data>
   <data name="ProposalRejected" xml:space="preserve"><value>Der Verschiebungsvorschlag wurde abgelehnt.</value></data>
-  <data name="ProposalUpdateFailed" xml:space="preserve"><value>Der Verschiebungsvorschlag konnte gerade nicht aktualisiert werden. Bitte verwende das Management-Tool oder versuche es später erneut.</value></data>
+  <data name="ProposalUpdateFailed" xml:space="preserve"><value>Der Verschiebungsvorschlag konnte gerade nicht aktualisiert werden. Bitte verwende das Management Tool oder versuche es später erneut.</value></data>
   <data name="ProposeAnotherMeetingTime" xml:space="preserve"><value>Anderen Sitzungstermin vorschlagen</value></data>
   <data name="ProposeAnotherTime" xml:space="preserve"><value>Anderen Termin vorschlagen</value></data>
   <data name="Reason" xml:space="preserve"><value>Grund</value></data>
@@ -137,7 +137,7 @@
   <data name="RescheduleAmbiguousDate" xml:space="preserve"><value>Diese Ortszeit ist wegen der Zeitumstellung mehrdeutig oder existiert nicht. Wähle eine andere Zeit.</value></data>
   <data name="RescheduleInvalidDate" xml:space="preserve"><value>Gib den vorgeschlagenen Termin als TT.MM.JJJJ HH:mm ein, zum Beispiel 24.07.2026 19:30.</value></data>
   <data name="RescheduleInvalidDuration" xml:space="preserve"><value>Die Dauer muss eine ganze Zahl zwischen 15 und 1440 Minuten sein.</value></data>
-  <data name="RescheduleProposalFailed" xml:space="preserve"><value>Dein Verschiebungsvorschlag konnte gerade nicht eingereicht werden. Bitte verwende das Management-Tool oder versuche es später erneut.</value></data>
+  <data name="RescheduleProposalFailed" xml:space="preserve"><value>Dein Verschiebungsvorschlag konnte gerade nicht eingereicht werden. Bitte verwende das Management Tool oder versuche es später erneut.</value></data>
   <data name="RescheduleProposalSubmitted" xml:space="preserve"><value>Dein Vorschlag für &lt;t:{0}:F&gt; wurde eingereicht.</value></data>
   <data name="SelectAuditSummary" xml:space="preserve"><value>Wähle entweder die Identity- oder die Management-Audit-Zusammenfassung.</value></data>
   <data name="SelectAvailability" xml:space="preserve"><value>Wähle aus, ob du Zeit für die Sitzung hast.</value></data>
