@@ -38,6 +38,15 @@
   <data name="BoardMeetingCreateHelp" xml:space="preserve"><value>Sitzungen werden im Management-Tool erstellt, damit Datum, Ort und erste Agenda gemeinsam geprüft werden können.&#10;[Vorstandssitzung erstellen]({0})</value></data>
   <data name="BoardMeetingHelp" xml:space="preserve"><value>**Befehle für Vorstandssitzungen**&#10;`/boardmeeting agenda` - Agenda der nächsten Sitzung anzeigen&#10;`/boardmeeting backlog` - Agenda-Backlog anzeigen&#10;`/boardmeeting details` - Details und Teilnahmeprognose anzeigen&#10;`/boardmeeting create` - Management-Tool zum Erstellen öffnen&#10;`/boardmeeting reminder` - Erinnerung für die nächste Sitzung senden&#10;`/boardmeeting availability` - Verfügbarkeit eintragen&#10;`/boardmeeting add-agenda` - Eintrag zur nächsten Sitzung hinzufügen&#10;`/boardmeeting add-backlog` - Eintrag zum Backlog hinzufügen&#10;`/boardmeeting promote` - Backlog-Eintrag in die nächste Sitzung übernehmen&#10;&#10;Verwende das Management-Tool zum Erstellen, Verschieben oder Absagen von Sitzungen sowie für umfangreichere Agendaänderungen:</value></data>
   <data name="BoardMeetingNew" xml:space="preserve"><value>Neue Vorstandssitzung</value></data>
+  <data name="AllocationClaimTitle" xml:space="preserve"><value>Antrag auf Auszahlung</value></data>
+  <data name="AllocationClaimBody" xml:space="preserve"><value>**Veranstaltung:** {0}&#10;**Zuteilung:** {1}&#10;**Antragsteller:** {2}&#10;**Betrag:** {3} EUR&#10;**Status:** {4}{5}&#10;&#10;**Zustimmungen ({6}):** {7}&#10;**Widersprüche ({8}):** {9}</value></data>
+  <data name="AllocationClaimNoteLine" xml:space="preserve"><value>&#10;**Hinweis:** {0}</value></data>
+  <data name="AllocationClaimApprove" xml:space="preserve"><value>Zustimmen</value></data>
+  <data name="AllocationClaimObject" xml:space="preserve"><value>Widersprechen</value></data>
+  <data name="AllocationClaimDecisionApproved" xml:space="preserve"><value>Deine Zustimmung wurde gespeichert.</value></data>
+  <data name="AllocationClaimDecisionObjected" xml:space="preserve"><value>Dein Widerspruch wurde gespeichert.</value></data>
+  <data name="InvalidAllocationClaimAction" xml:space="preserve"><value>Diese Aktion für den Auszahlungsantrag ist ungültig.</value></data>
+  <data name="AllocationClaimUpdateFailed" xml:space="preserve"><value>Der Auszahlungsantrag konnte nicht aktualisiert werden.</value></data>
   <data name="BoardMeetingReminder" xml:space="preserve"><value>Erinnerung an Vorstandssitzung</value></data>
   <data name="BoardMeetingRescheduled" xml:space="preserve"><value>Vorstandssitzung verschoben</value></data>
   <data name="BoardMemberUnauthorized" xml:space="preserve"><value>Dein verknüpftes Konto ist derzeit nicht als Vorstandsmitglied berechtigt.</value></data>

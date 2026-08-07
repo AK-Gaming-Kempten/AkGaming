@@ -9,5 +9,9 @@ public sealed class Allocation
     public string? Description { get; set; }
     public decimal Amount { get; set; }
     public Guid ShareToken { get; set; } = Guid.NewGuid();
+    public string DiscordChannelId { get; set; } = string.Empty;
+    public string DiscordChannelName { get; set; } = string.Empty;
+    public string DiscordRoleId { get; set; } = string.Empty;
+    public string DiscordRoleName { get; set; } = string.Empty;
     public ICollection<AllocationApplication> Applications { get; set; } = new List<AllocationApplication>();
 }

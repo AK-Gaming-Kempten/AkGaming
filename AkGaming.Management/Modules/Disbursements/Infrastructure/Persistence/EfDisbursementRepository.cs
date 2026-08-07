@@ -34,7 +34,10 @@ public sealed class EfDisbursementRepository(DisbursementsDbContext dbContext) :
         AllocationsQuery().FirstOrDefaultAsync(item => item.ShareToken == token, cancellationToken);
 
     public Task<AllocationApplication?> GetApplicationAsync(Guid id, CancellationToken cancellationToken) =>
-        dbContext.AllocationApplications.Include(item => item.Allocation).Include(item => item.Approvals).FirstOrDefaultAsync(item => item.Id == id, cancellationToken);
+        dbContext.AllocationApplications
+            .Include(item => item.Allocation).ThenInclude(allocation => allocation!.Event)
+            .Include(item => item.Approvals)
+            .FirstOrDefaultAsync(item => item.Id == id, cancellationToken);
 
     public Task<List<Allocation>> GetAllocationsForUserAsync(Guid userId, CancellationToken cancellationToken) =>
         AllocationsQuery().Where(item => item.Applications.Any(application => application.ApplicantUserId == userId || application.Approvals.Any(approval => approval.ApproverUserId == userId))).ToListAsync(cancellationToken);

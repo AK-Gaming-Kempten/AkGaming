@@ -178,12 +178,33 @@ public sealed class DisbursementService(
     {
         if (string.IsNullOrWhiteSpace(request.Name) || request.Amount <= 0)
             return Result<AllocationDto>.Failure("Allocation name and a positive amount are required.");
+        var hasAnyDiscordRouting = !string.IsNullOrWhiteSpace(request.DiscordChannelId)
+            || !string.IsNullOrWhiteSpace(request.DiscordChannelName)
+            || !string.IsNullOrWhiteSpace(request.DiscordRoleId)
+            || !string.IsNullOrWhiteSpace(request.DiscordRoleName);
+        var hasCompleteDiscordRouting = !string.IsNullOrWhiteSpace(request.DiscordChannelId)
+            && !string.IsNullOrWhiteSpace(request.DiscordChannelName)
+            && !string.IsNullOrWhiteSpace(request.DiscordRoleId)
+            && !string.IsNullOrWhiteSpace(request.DiscordRoleName);
+        if (hasAnyDiscordRouting && !hasCompleteDiscordRouting)
+            return Result<AllocationDto>.Failure("Discord notifications require both a channel and a role.");
 
         var disbursementEvent = await repository.GetEventAsync(eventId, cancellationToken);
         if (disbursementEvent is null)
             return Result<AllocationDto>.Failure("Disbursement event not found.");
 
-        var entity = new Allocation { EventId = eventId, Event = disbursementEvent, Name = request.Name.Trim(), Description = Clean(request.Description), Amount = request.Amount };
+        var entity = new Allocation
+        {
+            EventId = eventId,
+            Event = disbursementEvent,
+            Name = request.Name.Trim(),
+            Description = Clean(request.Description),
+            Amount = request.Amount,
+            DiscordChannelId = request.DiscordChannelId?.Trim() ?? string.Empty,
+            DiscordChannelName = request.DiscordChannelName?.Trim() ?? string.Empty,
+            DiscordRoleId = request.DiscordRoleId?.Trim() ?? string.Empty,
+            DiscordRoleName = request.DiscordRoleName?.Trim() ?? string.Empty
+        };
         repository.Add(entity);
         await repository.SaveChangesAsync(cancellationToken);
         return Result<AllocationDto>.Success(ToDto(entity));
@@ -226,6 +247,7 @@ public sealed class DisbursementService(
             Amount = request.Amount, Note = Clean(request.Note), Status = (int)AllocationApplicationStatus.Submitted,
             CreatedAt = DateTimeOffset.UtcNow, PaymentMethod = Snapshot(paymentResult.Value!)
         };
+        notificationOutbox.EnqueueAllocationClaimChanged(application);
         var wasReserved = await repository.TryAddAllocationApplicationAsync(application, allocation.Amount, (int)AllocationApplicationStatus.Rejected, cancellationToken);
         if (!wasReserved)
             return Result<AllocationApplicationDto>.Failure("The available amount changed while the application was submitted. Refresh the allocation and try again.");
@@ -241,6 +263,30 @@ public sealed class DisbursementService(
         if (application.ApplicantUserId == userId)
             return Result<AllocationApplicationDto>.Failure("Applicants cannot approve their own application.");
 
+        return await RecordDecisionAsync(application, userId, approverName, request.IsApproved, cancellationToken);
+    }
+
+    public async Task<Result<AllocationApplicationDto>> DecideFromDiscordAsync(Guid applicationId, DiscordAllocationDecisionRequest request, CancellationToken cancellationToken = default)
+    {
+        if (request.UserId == Guid.Empty)
+            return Result<AllocationApplicationDto>.Failure("A linked AK Gaming account is required.");
+
+        var application = await repository.GetApplicationAsync(applicationId, cancellationToken);
+        if (application is null)
+            return Result<AllocationApplicationDto>.Failure("Application not found.");
+        if (application.ApplicantUserId == request.UserId)
+            return Result<AllocationApplicationDto>.Failure("Applicants cannot approve their own application.");
+
+        return await RecordDecisionAsync(application, request.UserId, request.ApproverName, request.IsApproved, cancellationToken);
+    }
+
+    private async Task<Result<AllocationApplicationDto>> RecordDecisionAsync(
+        AllocationApplication application,
+        Guid userId,
+        string approverName,
+        bool isApproved,
+        CancellationToken cancellationToken)
+    {
         var decision = application.Approvals.FirstOrDefault(item => item.ApproverUserId == userId);
         if (decision is null)
         {
@@ -248,9 +294,10 @@ public sealed class DisbursementService(
             application.Approvals.Add(decision);
             repository.Add(decision);
         }
-        decision.IsApproved = request.IsApproved;
-        decision.ApproverName = approverName;
+        decision.IsApproved = isApproved;
+        decision.ApproverName = string.IsNullOrWhiteSpace(approverName) ? "Team member" : approverName.Trim();
         decision.CreatedAt = DateTimeOffset.UtcNow;
+        notificationOutbox.EnqueueAllocationClaimChanged(application);
         await repository.SaveChangesAsync(cancellationToken);
         return Result<AllocationApplicationDto>.Success(ToDto(application));
     }
@@ -262,6 +309,10 @@ public sealed class DisbursementService(
             return Result<AllocationApplicationDto>.Failure("Application not found.");
         if (application.Allocation is null)
             return Result<AllocationApplicationDto>.Failure("Allocation not found.");
+        var statusChanged = application.Status != (int)request.Status;
+        application.Status = (int)request.Status;
+        if (statusChanged)
+            notificationOutbox.EnqueueAllocationClaimChanged(application);
         var wasUpdated = await repository.TryUpdateAllocationApplicationStatusAsync(application, (int)request.Status, application.Allocation.Amount, (int)AllocationApplicationStatus.Rejected, cancellationToken);
         if (!wasUpdated)
             return Result<AllocationApplicationDto>.Failure("The status change would exceed the allocation amount. Refresh and try again.");
@@ -322,7 +373,7 @@ public sealed class DisbursementService(
     private static ExpenseItemDto ToDto(ExpenseItem item) => new() { Id = item.Id, Description = item.Description, Amount = item.Amount, IncurredOn = item.IncurredOn, Receipts = item.Receipts.Select(ToDto).ToList() };
     private static ReceiptDto ToDto(Receipt item) => new() { Id = item.Id, FileName = item.FileName, ContentType = item.ContentType, Size = item.Size };
     private static DisbursementEventDto ToDto(DisbursementEvent item, bool includePaymentMethods) => new() { Id = item.Id, Name = item.Name, Description = item.Description, OccurredOn = item.OccurredOn, CreatedAt = item.CreatedAt, Allocations = item.Allocations.Select(allocation => ToDto(allocation, includePaymentMethods)).ToList() };
-    private static AllocationDto ToDto(Allocation item, bool includePaymentMethods = false) => new() { Id = item.Id, EventId = item.EventId, EventName = item.Event?.Name ?? string.Empty, Name = item.Name, Description = item.Description, Amount = item.Amount, ShareToken = item.ShareToken, Applications = item.Applications.Select(application => ToDto(application, includePaymentMethods)).ToList() };
+    private static AllocationDto ToDto(Allocation item, bool includePaymentMethods = false) => new() { Id = item.Id, EventId = item.EventId, EventName = item.Event?.Name ?? string.Empty, Name = item.Name, Description = item.Description, Amount = item.Amount, ShareToken = item.ShareToken, DiscordChannelId = item.DiscordChannelId, DiscordChannelName = item.DiscordChannelName, DiscordRoleId = item.DiscordRoleId, DiscordRoleName = item.DiscordRoleName, Applications = item.Applications.Select(application => ToDto(application, includePaymentMethods)).ToList() };
     private static AllocationApplicationDto ToDto(AllocationApplication item, bool includePaymentMethod = true) => new() { Id = item.Id, AllocationId = item.AllocationId, ApplicantUserId = item.ApplicantUserId, ApplicantName = item.ApplicantName, Amount = item.Amount, Note = item.Note, Status = (AllocationApplicationStatus)item.Status, CreatedAt = item.CreatedAt, PaymentMethod = includePaymentMethod ? ToDto(item.PaymentMethod) : new PaymentMethodSnapshotDto(), Approvals = item.Approvals.Select(ToDto).ToList() };
     private static AllocationApprovalDto ToDto(AllocationApproval item) => new() { Id = item.Id, ApproverUserId = item.ApproverUserId, ApproverName = item.ApproverName, IsApproved = item.IsApproved, CreatedAt = item.CreatedAt };
     private static PaymentMethodSnapshotDto ToDto(PaymentMethodSnapshot item) => new() { PaymentInformationId = item.PaymentInformationId, Type = (PaymentInformationType)item.Type, DisplayName = item.DisplayName, PayPalEmail = GetPayPalEmail(item), AccountHolder = item.AccountHolder, Iban = item.Iban, Bic = item.Bic };

@@ -67,6 +67,10 @@ public sealed class DisbursementsDbContext(DbContextOptions<DisbursementsDbConte
             builder.Property(item => item.Name).HasMaxLength(300);
             builder.Property(item => item.Description).HasMaxLength(4000);
             builder.Property(item => item.Amount).HasPrecision(12, 2);
+            builder.Property(item => item.DiscordChannelId).HasMaxLength(32);
+            builder.Property(item => item.DiscordChannelName).HasMaxLength(100);
+            builder.Property(item => item.DiscordRoleId).HasMaxLength(32);
+            builder.Property(item => item.DiscordRoleName).HasMaxLength(100);
             builder.HasIndex(item => item.ShareToken).IsUnique();
             builder.HasOne(item => item.Event).WithMany(item => item.Allocations).HasForeignKey(item => item.EventId).OnDelete(DeleteBehavior.Cascade);
         });

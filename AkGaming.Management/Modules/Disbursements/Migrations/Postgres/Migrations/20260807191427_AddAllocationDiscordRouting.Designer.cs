@@ -3,64 +3,72 @@ using System;
 using AkGaming.Management.Modules.Disbursements.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
-namespace AkGaming.Management.Modules.Disbursements.Migrations.Sqlite.Migrations
+namespace AkGaming.Management.Modules.Disbursements.Migrations.Postgres.Migrations
 {
     [DbContext(typeof(DisbursementsDbContext))]
-    partial class DisbursementsDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260807191427_AddAllocationDiscordRouting")]
+    partial class AddAllocationDiscordRouting
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
-            modelBuilder.HasAnnotation("ProductVersion", "10.0.3");
+            modelBuilder
+                .HasAnnotation("ProductVersion", "10.0.3")
+                .HasAnnotation("Relational:MaxIdentifierLength", 63);
+
+            NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
             modelBuilder.Entity("AkGaming.Management.Modules.Disbursements.Domain.Entities.Allocation", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("uuid");
 
                     b.Property<decimal>("Amount")
                         .HasPrecision(12, 2)
-                        .HasColumnType("TEXT");
+                        .HasColumnType("numeric(12,2)");
 
                     b.Property<string>("Description")
                         .HasMaxLength(4000)
-                        .HasColumnType("TEXT");
+                        .HasColumnType("character varying(4000)");
 
                     b.Property<string>("DiscordChannelId")
                         .IsRequired()
                         .HasMaxLength(32)
-                        .HasColumnType("TEXT");
+                        .HasColumnType("character varying(32)");
 
                     b.Property<string>("DiscordChannelName")
                         .IsRequired()
                         .HasMaxLength(100)
-                        .HasColumnType("TEXT");
+                        .HasColumnType("character varying(100)");
 
                     b.Property<string>("DiscordRoleId")
                         .IsRequired()
                         .HasMaxLength(32)
-                        .HasColumnType("TEXT");
+                        .HasColumnType("character varying(32)");
 
                     b.Property<string>("DiscordRoleName")
                         .IsRequired()
                         .HasMaxLength(100)
-                        .HasColumnType("TEXT");
+                        .HasColumnType("character varying(100)");
 
                     b.Property<Guid>("EventId")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("uuid");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(300)
-                        .HasColumnType("TEXT");
+                        .HasColumnType("character varying(300)");
 
                     b.Property<Guid>("ShareToken")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("uuid");
 
                     b.HasKey("Id");
 
@@ -76,32 +84,32 @@ namespace AkGaming.Management.Modules.Disbursements.Migrations.Sqlite.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("uuid");
 
                     b.Property<Guid>("AllocationId")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("uuid");
 
                     b.Property<decimal>("Amount")
                         .HasPrecision(12, 2)
-                        .HasColumnType("TEXT");
+                        .HasColumnType("numeric(12,2)");
 
                     b.Property<string>("ApplicantName")
                         .IsRequired()
                         .HasMaxLength(256)
-                        .HasColumnType("TEXT");
+                        .HasColumnType("character varying(256)");
 
                     b.Property<Guid>("ApplicantUserId")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("uuid");
 
                     b.Property<DateTimeOffset>("CreatedAt")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Note")
                         .HasMaxLength(4000)
-                        .HasColumnType("TEXT");
+                        .HasColumnType("character varying(4000)");
 
                     b.Property<int>("Status")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("integer");
 
                     b.HasKey("Id");
 
@@ -116,24 +124,24 @@ namespace AkGaming.Management.Modules.Disbursements.Migrations.Sqlite.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("uuid");
 
                     b.Property<Guid>("ApplicationId")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("uuid");
 
                     b.Property<string>("ApproverName")
                         .IsRequired()
                         .HasMaxLength(256)
-                        .HasColumnType("TEXT");
+                        .HasColumnType("character varying(256)");
 
                     b.Property<Guid>("ApproverUserId")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("uuid");
 
                     b.Property<DateTimeOffset>("CreatedAt")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<bool>("IsApproved")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("boolean");
 
                     b.HasKey("Id");
 
@@ -147,22 +155,22 @@ namespace AkGaming.Management.Modules.Disbursements.Migrations.Sqlite.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("uuid");
 
                     b.Property<DateTimeOffset>("CreatedAt")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Description")
                         .HasMaxLength(4000)
-                        .HasColumnType("TEXT");
+                        .HasColumnType("character varying(4000)");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(300)
-                        .HasColumnType("TEXT");
+                        .HasColumnType("character varying(300)");
 
                     b.Property<DateOnly?>("OccurredOn")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("date");
 
                     b.HasKey("Id");
 
@@ -173,22 +181,22 @@ namespace AkGaming.Management.Modules.Disbursements.Migrations.Sqlite.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("uuid");
 
                     b.Property<decimal>("Amount")
                         .HasPrecision(12, 2)
-                        .HasColumnType("TEXT");
+                        .HasColumnType("numeric(12,2)");
 
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasMaxLength(500)
-                        .HasColumnType("TEXT");
+                        .HasColumnType("character varying(500)");
 
                     b.Property<DateOnly?>("IncurredOn")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("date");
 
                     b.Property<Guid>("ReimbursementId")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("uuid");
 
                     b.HasKey("Id");
 
@@ -201,35 +209,35 @@ namespace AkGaming.Management.Modules.Disbursements.Migrations.Sqlite.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("uuid");
 
                     b.Property<int>("AttemptCount")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("integer");
 
                     b.Property<DateTimeOffset>("CreatedAtUtc")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<Guid>("EventId")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("uuid");
 
                     b.Property<string>("LastError")
                         .HasMaxLength(4000)
-                        .HasColumnType("TEXT");
+                        .HasColumnType("character varying(4000)");
 
                     b.Property<DateTimeOffset?>("NextAttemptAtUtc")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("PayloadJson")
                         .IsRequired()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("text");
 
                     b.Property<DateTimeOffset?>("ProcessedAtUtc")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Type")
                         .IsRequired()
                         .HasMaxLength(128)
-                        .HasColumnType("TEXT");
+                        .HasColumnType("character varying(128)");
 
                     b.HasKey("Id");
 
@@ -245,28 +253,28 @@ namespace AkGaming.Management.Modules.Disbursements.Migrations.Sqlite.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("uuid");
 
                     b.Property<string>("ContentType")
                         .IsRequired()
                         .HasMaxLength(100)
-                        .HasColumnType("TEXT");
+                        .HasColumnType("character varying(100)");
 
                     b.Property<Guid>("ExpenseItemId")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("uuid");
 
                     b.Property<string>("FileName")
                         .IsRequired()
                         .HasMaxLength(255)
-                        .HasColumnType("TEXT");
+                        .HasColumnType("character varying(255)");
 
                     b.Property<long>("Size")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("bigint");
 
                     b.Property<string>("StorageKey")
                         .IsRequired()
                         .HasMaxLength(500)
-                        .HasColumnType("TEXT");
+                        .HasColumnType("character varying(500)");
 
                     b.HasKey("Id");
 
@@ -279,37 +287,37 @@ namespace AkGaming.Management.Modules.Disbursements.Migrations.Sqlite.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("uuid");
 
                     b.Property<string>("AdministrativeNote")
                         .HasMaxLength(4000)
-                        .HasColumnType("TEXT");
+                        .HasColumnType("character varying(4000)");
 
                     b.Property<string>("ApplicantName")
                         .IsRequired()
                         .HasMaxLength(256)
-                        .HasColumnType("TEXT");
+                        .HasColumnType("character varying(256)");
 
                     b.Property<DateTimeOffset>("CreatedAt")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Note")
                         .HasMaxLength(4000)
-                        .HasColumnType("TEXT");
+                        .HasColumnType("character varying(4000)");
 
                     b.Property<string>("Purpose")
                         .IsRequired()
                         .HasMaxLength(300)
-                        .HasColumnType("TEXT");
+                        .HasColumnType("character varying(300)");
 
                     b.Property<int>("Status")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("integer");
 
                     b.Property<DateTimeOffset>("UpdatedAt")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<Guid>("UserId")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("uuid");
 
                     b.HasKey("Id");
 
@@ -340,40 +348,40 @@ namespace AkGaming.Management.Modules.Disbursements.Migrations.Sqlite.Migrations
                     b.OwnsOne("AkGaming.Management.Modules.Disbursements.Domain.Entities.PaymentMethodSnapshot", "PaymentMethod", b1 =>
                         {
                             b1.Property<Guid>("AllocationApplicationId")
-                                .HasColumnType("TEXT");
+                                .HasColumnType("uuid");
 
                             b1.Property<string>("AccountHolder")
                                 .HasMaxLength(300)
-                                .HasColumnType("TEXT")
+                                .HasColumnType("character varying(300)")
                                 .HasColumnName("PaymentMethodAccountHolder");
 
                             b1.Property<string>("Bic")
                                 .HasMaxLength(11)
-                                .HasColumnType("TEXT")
+                                .HasColumnType("character varying(11)")
                                 .HasColumnName("PaymentMethodBic");
 
                             b1.Property<string>("DisplayName")
                                 .IsRequired()
                                 .HasMaxLength(500)
-                                .HasColumnType("TEXT")
+                                .HasColumnType("character varying(500)")
                                 .HasColumnName("PaymentMethodDisplayName");
 
                             b1.Property<string>("Iban")
                                 .HasMaxLength(34)
-                                .HasColumnType("TEXT")
+                                .HasColumnType("character varying(34)")
                                 .HasColumnName("PaymentMethodIban");
 
                             b1.Property<string>("PayPalEmail")
                                 .HasMaxLength(320)
-                                .HasColumnType("TEXT")
+                                .HasColumnType("character varying(320)")
                                 .HasColumnName("PaymentMethodPayPalEmail");
 
                             b1.Property<Guid>("PaymentInformationId")
-                                .HasColumnType("TEXT")
+                                .HasColumnType("uuid")
                                 .HasColumnName("PaymentInformationId");
 
                             b1.Property<int>("Type")
-                                .HasColumnType("INTEGER")
+                                .HasColumnType("integer")
                                 .HasColumnName("PaymentMethodType");
 
                             b1.HasKey("AllocationApplicationId");
@@ -428,40 +436,40 @@ namespace AkGaming.Management.Modules.Disbursements.Migrations.Sqlite.Migrations
                     b.OwnsOne("AkGaming.Management.Modules.Disbursements.Domain.Entities.PaymentMethodSnapshot", "PaymentMethod", b1 =>
                         {
                             b1.Property<Guid>("ReimbursementId")
-                                .HasColumnType("TEXT");
+                                .HasColumnType("uuid");
 
                             b1.Property<string>("AccountHolder")
                                 .HasMaxLength(300)
-                                .HasColumnType("TEXT")
+                                .HasColumnType("character varying(300)")
                                 .HasColumnName("PaymentMethodAccountHolder");
 
                             b1.Property<string>("Bic")
                                 .HasMaxLength(11)
-                                .HasColumnType("TEXT")
+                                .HasColumnType("character varying(11)")
                                 .HasColumnName("PaymentMethodBic");
 
                             b1.Property<string>("DisplayName")
                                 .IsRequired()
                                 .HasMaxLength(500)
-                                .HasColumnType("TEXT")
+                                .HasColumnType("character varying(500)")
                                 .HasColumnName("PaymentMethodDisplayName");
 
                             b1.Property<string>("Iban")
                                 .HasMaxLength(34)
-                                .HasColumnType("TEXT")
+                                .HasColumnType("character varying(34)")
                                 .HasColumnName("PaymentMethodIban");
 
                             b1.Property<string>("PayPalEmail")
                                 .HasMaxLength(320)
-                                .HasColumnType("TEXT")
+                                .HasColumnType("character varying(320)")
                                 .HasColumnName("PaymentMethodPayPalEmail");
 
                             b1.Property<Guid>("PaymentInformationId")
-                                .HasColumnType("TEXT")
+                                .HasColumnType("uuid")
                                 .HasColumnName("PaymentInformationId");
 
                             b1.Property<int>("Type")
-                                .HasColumnType("INTEGER")
+                                .HasColumnType("integer")
                                 .HasColumnName("PaymentMethodType");
 
                             b1.HasKey("ReimbursementId");

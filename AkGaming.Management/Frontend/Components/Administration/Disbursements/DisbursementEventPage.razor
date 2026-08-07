@@ -10,17 +10,17 @@
     @if (_event is null) { <p>@SharedText["State_Loading"]</p> }
     else
     {
-        <section class="panel heading"><div><h3>@_event.Name</h3><p>@_event.Description</p><small>@_event.OccurredOn?.ToString("d")</small></div><AuthorizeView Policy="management.disbursements.manage"><button type="button" class="primary-action" @onclick="() => _showCreate = !_showCreate"><span class="bi bi-plus-lg"></span> @Text["Event_AddAllocation"]</button></AuthorizeView></section>
-        @if (_showCreate)
-        {
-            <AuthorizeView Policy="management.disbursements.manage"><section class="panel allocation-form"><label>@SharedText["Field_Name"]<InputText @bind-Value="_newAllocation.Name" /></label><label>@SharedText["Field_Amount"] (EUR) <InputNumber @bind-Value="_newAllocation.Amount" min="0.01" step="0.01" /></label><label>@SharedText["Field_Description"]<InputTextArea @bind-Value="_newAllocation.Description" /></label><button type="button" class="primary-action" @onclick="CreateAllocationAsync" disabled="@_busy">@Text["Event_CreateAllocation"]</button></section></AuthorizeView>
-        }
+        <section class="panel heading"><div><h3>@_event.Name</h3><p>@_event.Description</p><small>@_event.OccurredOn?.ToString("d")</small></div><AuthorizeView Policy="management.disbursements.manage"><button type="button" class="primary-action" @onclick="OpenCreateDialogAsync" disabled="@_busy"><span class="bi bi-plus-lg"></span> @Text["Event_AddAllocation"]</button></AuthorizeView></section>
         @if (_event.Allocations.Count == 0) { <section class="panel empty">@Text["Event_NoAllocations"]</section> }
         @foreach (var allocation in _event.Allocations)
         {
             <section class="panel allocation-card ui-stack-md">
                 <header><div><h4>@allocation.Name</h4><p>@allocation.Description</p></div><strong>@allocation.Amount.ToString("N2") EUR</strong></header>
                 <div class="share-row"><input readonly value="@ShareUrl(allocation)" /><button type="button" @onclick="() => CopyAsync(ShareUrl(allocation))"><span class="bi bi-copy"></span> @Text["Event_CopyClaimLink"]</button><a href="@($"disbursements/claim/{allocation.ShareToken}")" target="_blank">@SharedText["Action_Open"]</a></div>
+                @if (!string.IsNullOrWhiteSpace(allocation.DiscordChannelId))
+                {
+                    <small class="discord-route"><span class="bi bi-discord"></span> #@allocation.DiscordChannelName · @($"@{allocation.DiscordRoleName}")</small>
+                }
                 <div class="allocation-progress"><span style="width:@Progress(allocation)%"></span></div><small>@allocation.AppliedAmount.ToString("N2") EUR applied · @(AvailableAmount(allocation).ToString("N2")) EUR available</small>
                 @if (allocation.Applications.Count == 0) { <p class="ui-text-muted">@Text["Event_NoApplications"]</p> }
                 @foreach (var application in allocation.Applications)
@@ -31,6 +31,11 @@
         }
     }
 </div>
+
+@if (_discordCatalog is not null)
+{
+    <CreateAllocationDialog Catalog="_discordCatalog" Busy="_busy" Error="_dialogError" OnSubmit="CreateAllocationAsync" OnClose="CloseCreateDialog" />
+}
 
 @if (_selectedPaymentMethod is not null)
 {

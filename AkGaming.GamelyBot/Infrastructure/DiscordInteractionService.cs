@@ -152,6 +152,31 @@ public sealed class DiscordInteractionService(IHttpClientFactory clients, Client
         return await SetAvailabilityWithContextAsync(context, meetingId, scheduleVersion, status, cancellationToken);
     }
 
+    public async Task<string> SetAllocationClaimDecisionAsync(
+        string discordUserId,
+        Guid applicationId,
+        bool isApproved,
+        CancellationToken cancellationToken)
+    {
+        var context = await CreateContextAsync(discordUserId, cancellationToken, requireBoardAccess: false);
+        if (context.Error is not null) return context.Error;
+
+        using var response = await context.ManagementClient!.PutAsJsonAsync(
+            $"disbursements/discord/applications/{applicationId}/decision",
+            new
+            {
+                userId = context.Link!.UserId,
+                approverName = context.Link.DisplayName,
+                isApproved
+            },
+            cancellationToken);
+        if (response.IsSuccessStatusCode)
+            return isApproved
+                ? text["AllocationClaimDecisionApproved"]
+                : text["AllocationClaimDecisionObjected"];
+        return await ErrorMessageAsync(response, text["AllocationClaimUpdateFailed"], cancellationToken);
+    }
+
     public async Task<string> ProposeRescheduleAsync(string discordUserId, Guid meetingId, int scheduleVersion,
         DateTimeOffset proposedAtUtc, int durationMinutes, string? reason, CancellationToken cancellationToken)
     {
@@ -196,7 +221,10 @@ public sealed class DiscordInteractionService(IHttpClientFactory clients, Client
         return text["ProposalUpdateFailed"];
     }
 
-    private async Task<InteractionContext> CreateContextAsync(string discordUserId, CancellationToken cancellationToken)
+    private async Task<InteractionContext> CreateContextAsync(
+        string discordUserId,
+        CancellationToken cancellationToken,
+        bool requireBoardAccess = true)
     {
         var token = await tokens.GetTokenAsync(cancellationToken);
         var identityClient = clients.CreateClient(nameof(DiscordInteractionService));
@@ -210,7 +238,8 @@ public sealed class DiscordInteractionService(IHttpClientFactory clients, Client
             return InteractionContext.Failure(text["LinkedAccountLookupFailed"]);
         var link = await identityResponse.Content.ReadFromJsonAsync<DiscordUserLinkResponse>(cancellationToken);
         if (link?.IsLinked != true) return InteractionContext.Failure(text["DiscordAccountNotLinked"]);
-        if (!link.CanAccessBoardMeetings) return InteractionContext.Failure(text["BoardMemberUnauthorized"]);
+        if (requireBoardAccess && !link.CanAccessBoardMeetings)
+            return InteractionContext.Failure(text["BoardMemberUnauthorized"]);
 
         var managementClient = clients.CreateClient(nameof(DiscordInteractionService));
         managementClient.BaseAddress = new Uri(_management.BaseUrl, UriKind.Absolute);

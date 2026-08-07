@@ -27,3 +27,10 @@ public sealed class UpdateAllocationApplicationStatusRequest
 {
     public AllocationApplicationStatus Status { get; set; }
 }
+
+public sealed class DiscordAllocationDecisionRequest
+{
+    public Guid UserId { get; set; }
+    public string ApproverName { get; set; } = string.Empty;
+    public bool IsApproved { get; set; }
+}

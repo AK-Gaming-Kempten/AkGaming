@@ -1,0 +1,15 @@
+.dialog-backdrop { position: fixed; inset: 0; z-index: 1100; display: grid; place-items: center; padding: 1rem; background: rgb(0 0 0 / 58%); }
+.allocation-dialog { width: min(100%, 620px); padding: 1rem; color: var(--color-text-primary); background: var(--color-background-primary); border: 1px solid var(--color-text-secondary); border-radius: 8px; box-shadow: 0 18px 60px rgb(0 0 0 / 40%); }
+.allocation-dialog header, .allocation-dialog footer { display: flex; justify-content: space-between; align-items: center; gap: 1rem; }
+.allocation-dialog h4 { margin: 0; }
+.allocation-dialog header button { padding: .4rem; color: var(--color-text-primary); background: transparent; border: 0; }
+.form-fields { display: grid; gap: .8rem; margin: 1rem 0; }
+.field-hint { margin: 0; color: var(--color-text-secondary); font-size: .9rem; }
+.form-fields label { display: grid; gap: .3rem; color: var(--color-text-secondary); }
+.form-fields input, .form-fields textarea, .form-fields select { width: 100%; padding: .55rem .65rem; color: var(--color-text-primary); background: var(--color-background-secondary); border: 1px solid var(--color-text-secondary); border-radius: 4px; }
+.form-fields textarea { min-height: 90px; resize: vertical; }
+.allocation-dialog footer { justify-content: flex-end; }
+.primary-action, .secondary-action { padding: .55rem .8rem; border-radius: 4px; }
+.primary-action { color: var(--color-background-primary); background: var(--color-highlight-primary); border: 1px solid var(--color-highlight-primary); }
+.secondary-action { color: var(--color-text-primary); background: var(--color-background-secondary); border: 1px solid var(--color-text-secondary); }
+.error { padding: .6rem; color: var(--color-error, #d9534f); border: 1px solid currentColor; border-radius: 4px; }

@@ -101,6 +101,7 @@ builder.Services.AddScoped<DiscordInteractionService>();
 builder.Services.AddScoped<AuditSummaryService>();
 builder.Services.AddScoped<INotificationRenderer, NotificationRenderer>();
 builder.Services.AddScoped<INotificationInbox, EfNotificationInbox>();
+builder.Services.AddScoped<IDiscordGuildCatalog, DiscordRestGuildCatalog>();
 var transport = builder.Configuration["NotificationTransport"]?.Trim().ToLowerInvariant() ?? "debug";
 if (transport == "discord")
 {

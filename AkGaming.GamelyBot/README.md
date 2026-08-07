@@ -6,6 +6,7 @@ GamelyBot is the private Discord integration gateway for AK Gaming applications.
 
 - `reimbursement.submitted`: mentions the treasurer role in the administration channel and confirms submission by DM when the applicant linked Discord.
 - `reimbursement.status-changed`: sends the applicant a DM for review, approval, rejection, payment, or cancellation changes.
+- `allocation-claim.changed`: posts one message in the channel configured for the allocation, mentions its configured role on creation, and updates that message with the current approvals, objections, and status. Linked Discord users can approve or object through the message buttons.
 - Board meeting lifecycle, agenda, and reminder events: notify the board channel. Created, rescheduled, and reminder messages include availability and rescheduling controls. GamelyBot automatically queues one reminder when the next meeting enters the configured one-hour window.
 
 Board members with a linked Discord account can also use the guild-scoped `/boardmeeting` commands to view the next meeting and backlog, set availability, send a manual reminder, add agenda or backlog items, and promote backlog items to the next agenda. `/boardmeeting create` links to the management tool, where meetings and their initial agendas are created. Add commands use Discord popup forms, and backlog selection uses autocomplete.
@@ -40,7 +41,7 @@ For each Discord application:
 2. Set the public install link to `None`.
 3. Install it manually into the corresponding test or club server.
 4. Include the `bot` and `applications.commands` scopes during installation.
-5. Grant only View Channels, Send Messages, and Embed Links in the administration and board channels.
+5. Grant View Channels, Send Messages, and Embed Links in the administration channel, board channel, and every channel administrators may select for an allocation. Grant Mention Everyone when the bot must mention roles that are not independently mentionable.
 6. Do not enable the Message Content intent; outbound notifications and slash commands do not need it.
 7. Set the Interactions Endpoint URL to `https://<gamelybot-host>/api/discord/interactions`.
 8. Configure the immutable guild, administration-channel, board-channel, treasurer-role, board-role IDs, and the application's public key.
@@ -74,7 +75,7 @@ IdentityClient__BaseUrl=https://identity.example/
 IdentityClient__TokenEndpoint=https://identity.example/connect/token
 IdentityClient__ClientId=akgaming-gamelybot
 IdentityClient__ClientSecret=...
-IdentityClient__Scope=identity_discord_links management_board_interactions identity_audit_summaries management_audit_summaries
+IdentityClient__Scope=identity_discord_links management_board_interactions management_disbursement_interactions identity_audit_summaries management_audit_summaries
 ManagementClient__BaseUrl=https://management.example/api/
 ManagementClient__FrontendBaseUrl=https://management.example
 DiscordInteractions__EnableAutomaticReminders=true
@@ -108,7 +109,7 @@ Notifications__ManagementFrontendBaseUrl=https://management.example
 Identity must seed two confidential clients with client-credentials enabled:
 
 - `akgaming-management-api`, allowed `gamelybot_notifications`
-- `akgaming-gamelybot`, allowed `identity_discord_links`, `management_board_interactions`, `identity_audit_summaries`, and `management_audit_summaries`
+- `akgaming-gamelybot`, allowed `identity_discord_links`, `management_board_interactions`, `management_disbursement_interactions`, `identity_audit_summaries`, and `management_audit_summaries`
 
 Configure these entries through `OpenIddict__Applications__<index>__...`; never commit their production secrets. The development registrations and secrets are local-only examples in `appsettings.Development.json`.
 

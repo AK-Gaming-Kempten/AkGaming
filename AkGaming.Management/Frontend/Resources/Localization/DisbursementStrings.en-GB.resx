@@ -36,6 +36,12 @@
   <data name="Allocation_ApproveQuestion" xml:space="preserve"><value>Do you approve this payout?</value></data>
   <data name="Allocation_Approve" xml:space="preserve"><value>Approve</value></data>
   <data name="Allocation_Object" xml:space="preserve"><value>Object</value></data>
+  <data name="Allocation_DiscordChannel" xml:space="preserve"><value>Discord channel</value></data>
+  <data name="Allocation_SelectDiscordChannel" xml:space="preserve"><value>Select a Discord channel</value></data>
+  <data name="Allocation_DiscordRole" xml:space="preserve"><value>Discord role to notify</value></data>
+  <data name="Allocation_DiscordOptional" xml:space="preserve"><value>Discord notifications are optional. Select both a channel and a role to enable them, or leave both empty.</value></data>
+  <data name="Allocation_DiscordUnavailable" xml:space="preserve"><value>Discord channels and roles could not be loaded. You can still create the allocation without Discord notifications.</value></data>
+  <data name="Allocation_SelectDiscordRole" xml:space="preserve"><value>Select a Discord role</value></data>
   <data name="Allocation_MyNone" xml:space="preserve"><value>You have not interacted with any allocations yet. Allocation links are shared directly by event organisers.</value></data>
   <data name="Payment_Method" xml:space="preserve"><value>Payout method</value></data>
   <data name="Payment_None" xml:space="preserve"><value>No payment method available</value></data>

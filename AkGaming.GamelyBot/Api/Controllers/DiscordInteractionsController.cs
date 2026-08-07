@@ -97,6 +97,19 @@ public sealed class DiscordInteractionsController(DiscordInteractionService inte
         var customId = data.GetProperty("custom_id").GetString();
         var parts = customId?.Split(':');
         if (customId == "bpx") return ReplaceInteractionMessage(text["NoChangesMade"]);
+        if (parts is { Length: 3 } && parts[0] == "ac"
+            && Guid.TryParse(parts[1], out var allocationApplicationId)
+            && parts[2] is "a" or "o")
+        {
+            var decisionMessage = await interactions.SetAllocationClaimDecisionAsync(
+                discordUserId,
+                allocationApplicationId,
+                parts[2] == "a",
+                cancellationToken);
+            return Ephemeral(decisionMessage);
+        }
+        if (parts is { Length: > 0 } && parts[0] == "ac")
+            return Ephemeral(text["InvalidAllocationClaimAction"]);
         if (parts is { Length: 4 } && parts[0] == "bp"
             && Guid.TryParse(parts[1], out var proposalMeetingId)
             && Guid.TryParse(parts[2], out var proposalId)

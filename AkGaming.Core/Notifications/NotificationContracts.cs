@@ -23,6 +23,7 @@ public static class NotificationEventTypes
 {
     public const string ReimbursementSubmitted = "reimbursement.submitted";
     public const string ReimbursementStatusChanged = "reimbursement.status-changed";
+    public const string AllocationClaimChanged = "allocation-claim.changed";
     public const string MembershipApplicationCreated = "membership-application.created";
     public const string MembershipApplicationStatusChanged = "membership-application.status-changed";
     public const string MemberLinkingRequestCreated = "member-linking-request.created";
@@ -66,6 +67,20 @@ public sealed record ReimbursementStatusChangedNotification(
     string Status,
     string? AdministrativeNote,
     string? ManagementUrl);
+
+public sealed record AllocationClaimChangedNotification(
+    Guid ApplicationId,
+    string EventName,
+    string AllocationName,
+    string ApplicantName,
+    decimal Amount,
+    string? Note,
+    string Status,
+    IReadOnlyList<string> Approvals,
+    IReadOnlyList<string> Objections,
+    string? ManagementUrl,
+    string ChannelId,
+    string RoleId);
 
 public sealed record MembershipApplicationCreatedNotification(
     Guid RequestId,

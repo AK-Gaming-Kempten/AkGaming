@@ -24,7 +24,7 @@ public sealed class DisbursementNotificationOutbox(
             reimbursement.Expenses.Sum(expense => expense.Amount),
             ((DisbursementStatus)reimbursement.Status).ToString(),
             BuildManagementUrl(reimbursement.Id));
-        Enqueue(NotificationEventTypes.ReimbursementSubmitted, reimbursement, data);
+        Enqueue(NotificationEventTypes.ReimbursementSubmitted, reimbursement.UserId, data);
     }
 
     public void EnqueueStatusChanged(Reimbursement reimbursement, DisbursementStatus previousStatus)
@@ -38,10 +38,34 @@ public sealed class DisbursementNotificationOutbox(
             ((DisbursementStatus)reimbursement.Status).ToString(),
             reimbursement.AdministrativeNote,
             BuildManagementUrl(reimbursement.Id));
-        Enqueue(NotificationEventTypes.ReimbursementStatusChanged, reimbursement, data);
+        Enqueue(NotificationEventTypes.ReimbursementStatusChanged, reimbursement.UserId, data);
     }
 
-    private void Enqueue<T>(string type, Reimbursement reimbursement, T data)
+    public void EnqueueAllocationClaimChanged(AllocationApplication application)
+    {
+        var allocation = application.Allocation
+            ?? throw new InvalidOperationException("Allocation claim notifications require the allocation.");
+        if (string.IsNullOrWhiteSpace(allocation.DiscordChannelId)
+            || string.IsNullOrWhiteSpace(allocation.DiscordRoleId))
+            return;
+
+        var data = new AllocationClaimChangedNotification(
+            application.Id,
+            allocation.Event?.Name ?? string.Empty,
+            allocation.Name,
+            application.ApplicantName,
+            application.Amount,
+            application.Note,
+            ((AllocationApplicationStatus)application.Status).ToString(),
+            application.Approvals.Where(item => item.IsApproved).Select(item => item.ApproverName).Order().ToList(),
+            application.Approvals.Where(item => !item.IsApproved).Select(item => item.ApproverName).Order().ToList(),
+            BuildAllocationUrl(allocation.ShareToken),
+            allocation.DiscordChannelId,
+            allocation.DiscordRoleId);
+        Enqueue(NotificationEventTypes.AllocationClaimChanged, application.ApplicantUserId, data);
+    }
+
+    private void Enqueue<T>(string type, Guid? subjectUserId, T data)
     {
         var eventId = Guid.NewGuid();
         var occurredAtUtc = DateTimeOffset.UtcNow;
@@ -50,7 +74,7 @@ public sealed class DisbursementNotificationOutbox(
             type,
             "management",
             occurredAtUtc,
-            reimbursement.UserId,
+            subjectUserId,
             JsonSerializer.SerializeToElement(data, JsonOptions));
         dbContext.NotificationOutbox.Add(new NotificationOutboxMessage
         {
@@ -68,5 +92,14 @@ public sealed class DisbursementNotificationOutbox(
         if (string.IsNullOrWhiteSpace(frontendBaseUrl))
             return null;
         return $"{frontendBaseUrl}/disbursements/reimbursements/my?reimbursement={reimbursementId}";
+    }
+
+    private string? BuildAllocationUrl(Guid shareToken)
+    {
+        var frontendBaseUrl = NotificationUrlBuilder.ManagementFrontendBaseUrl(
+            _options.ManagementFrontendBaseUrl, _options.ManagementBaseUrl);
+        return string.IsNullOrWhiteSpace(frontendBaseUrl)
+            ? null
+            : $"{frontendBaseUrl}/disbursements/claim/{shareToken}";
     }
 }

@@ -1,4 +1,5 @@
 using AkGaming.Management.Modules.Disbursements.Application.Interfaces;
+using AkGaming.Management.Modules.Disbursements.Contracts.Services;
 using AkGaming.Management.Modules.Disbursements.Infrastructure.Files;
 using AkGaming.Management.Modules.Disbursements.Infrastructure.Persistence;
 using AkGaming.Management.Modules.Disbursements.Infrastructure.Notifications;
@@ -33,6 +34,7 @@ public static class DependencyInjection
         services.AddSingleton<IReceiptFileStorage>(new LocalReceiptFileStorage(Path.GetFullPath(storagePath)));
         services.AddScoped<IDisbursementRepository, EfDisbursementRepository>();
         services.AddScoped<IDisbursementNotificationOutbox, DisbursementNotificationOutbox>();
+        services.AddScoped<IDiscordGuildCatalogService, DiscordGuildCatalogService>();
         services.AddScoped<NotificationAccessTokenProvider>();
         services.AddHttpClient("DisbursementNotifications");
         services.AddHostedService<DisbursementOutboxDispatcher>();

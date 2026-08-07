@@ -15,6 +15,7 @@ public sealed class NotificationsController(INotificationInbox inbox) : Controll
     [
         NotificationEventTypes.ReimbursementSubmitted,
         NotificationEventTypes.ReimbursementStatusChanged,
+        NotificationEventTypes.AllocationClaimChanged,
         NotificationEventTypes.MembershipApplicationCreated,
         NotificationEventTypes.MembershipApplicationStatusChanged,
         NotificationEventTypes.MemberLinkingRequestCreated,

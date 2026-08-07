@@ -32,6 +32,7 @@ public sealed class NotificationRenderer(
         {
             NotificationEventTypes.ReimbursementSubmitted => RenderSubmitted(notification),
             NotificationEventTypes.ReimbursementStatusChanged => RenderStatusChanged(notification),
+            NotificationEventTypes.AllocationClaimChanged => RenderAllocationClaim(notification),
             NotificationEventTypes.MembershipApplicationCreated => RenderMembershipApplicationCreated(notification),
             NotificationEventTypes.MembershipApplicationStatusChanged => RenderMembershipApplicationStatusChanged(notification),
             NotificationEventTypes.MemberLinkingRequestCreated => RenderMemberLinkingRequestCreated(notification),
@@ -78,6 +79,35 @@ public sealed class NotificationRenderer(
                 FormatStatus(data.PreviousStatus), FormatStatus(data.Status), note),
             data.ManagementUrl);
         return new RenderedNotification(null, direct);
+    }
+
+    private RenderedNotification RenderAllocationClaim(NotificationInboxItem notification)
+    {
+        var data = JsonSerializer.Deserialize<AllocationClaimChangedNotification>(notification.DataJson, JsonOptions())
+            ?? throw new InvalidOperationException("The allocation claim payload is invalid.");
+        var amount = data.Amount.ToString("N2", text.Culture);
+        var note = string.IsNullOrWhiteSpace(data.Note)
+            ? string.Empty
+            : text.Format("AllocationClaimNoteLine", data.Note);
+        var approvals = RenderNames(data.Approvals);
+        var objections = RenderNames(data.Objections);
+        var body = text.Format("AllocationClaimBody", data.EventName, data.AllocationName, data.ApplicantName,
+            amount, FormatStatus(data.Status), note, data.Approvals.Count, approvals, data.Objections.Count, objections);
+        var buttons = data.Status is "Paid" or "Rejected"
+            ? null
+            : new[]
+            {
+                new RenderedButton(text["AllocationClaimApprove"], $"ac:{data.ApplicationId}:a", 3),
+                new RenderedButton(text["AllocationClaimObject"], $"ac:{data.ApplicationId}:o", 4)
+            };
+        var channel = new RenderedMessage(text["AllocationClaimTitle"], body, data.ManagementUrl,
+            data.RoleId, data.ChannelId, buttons);
+        return new RenderedNotification(channel, null);
+    }
+
+    private string RenderNames(IReadOnlyList<string> names)
+    {
+        return names.Count == 0 ? text["NoneYet"] : Truncate(string.Join(", ", names), 700);
     }
 
     private RenderedNotification RenderBoardMeeting(NotificationInboxItem notification, string heading, bool includeButtons = true)

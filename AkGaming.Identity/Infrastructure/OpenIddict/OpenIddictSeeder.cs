@@ -14,6 +14,7 @@ public sealed class OpenIddictSeeder
     private const string GamelyBotNotificationsScope = "gamelybot_notifications";
     private const string IdentityDiscordLinksScope = "identity_discord_links";
     private const string ManagementBoardInteractionsScope = "management_board_interactions";
+    private const string ManagementDisbursementInteractionsScope = "management_disbursement_interactions";
     private const string IdentityAuditSummariesScope = "identity_audit_summaries";
     private const string ManagementAuditSummariesScope = "management_audit_summaries";
 
@@ -146,6 +147,7 @@ public sealed class OpenIddictSeeder
             || string.Equals(scope, GamelyBotNotificationsScope, StringComparison.OrdinalIgnoreCase)
             || string.Equals(scope, IdentityDiscordLinksScope, StringComparison.OrdinalIgnoreCase)
             || string.Equals(scope, ManagementBoardInteractionsScope, StringComparison.OrdinalIgnoreCase)
+            || string.Equals(scope, ManagementDisbursementInteractionsScope, StringComparison.OrdinalIgnoreCase)
             || string.Equals(scope, IdentityAuditSummariesScope, StringComparison.OrdinalIgnoreCase)
             || string.Equals(scope, ManagementAuditSummariesScope, StringComparison.OrdinalIgnoreCase));
 
@@ -154,6 +156,7 @@ public sealed class OpenIddictSeeder
             || string.Equals(scope.Name, GamelyBotNotificationsScope, StringComparison.OrdinalIgnoreCase)
             || string.Equals(scope.Name, IdentityDiscordLinksScope, StringComparison.OrdinalIgnoreCase)
             || string.Equals(scope.Name, ManagementBoardInteractionsScope, StringComparison.OrdinalIgnoreCase)
+            || string.Equals(scope.Name, ManagementDisbursementInteractionsScope, StringComparison.OrdinalIgnoreCase)
             || string.Equals(scope.Name, IdentityAuditSummariesScope, StringComparison.OrdinalIgnoreCase)
             || string.Equals(scope.Name, ManagementAuditSummariesScope, StringComparison.OrdinalIgnoreCase);
 

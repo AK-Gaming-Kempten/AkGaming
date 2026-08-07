@@ -26,6 +26,7 @@ public sealed class OidcAdminService : IOidcAdminService
     private const string GamelyBotNotificationsScope = "gamelybot_notifications";
     private const string IdentityDiscordLinksScope = "identity_discord_links";
     private const string ManagementBoardInteractionsScope = "management_board_interactions";
+    private const string ManagementDisbursementInteractionsScope = "management_disbursement_interactions";
     private const string IdentityAuditSummariesScope = "identity_audit_summaries";
     private const string ManagementAuditSummariesScope = "management_audit_summaries";
 
@@ -66,6 +67,7 @@ public sealed class OidcAdminService : IOidcAdminService
             GamelyBotNotificationsScope,
             IdentityDiscordLinksScope,
             ManagementBoardInteractionsScope,
+            ManagementDisbursementInteractionsScope,
             IdentityAuditSummariesScope,
             ManagementAuditSummariesScope
         };

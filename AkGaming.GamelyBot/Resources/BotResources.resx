@@ -38,6 +38,15 @@
   <data name="BoardMeetingCreateHelp" xml:space="preserve"><value>Meetings are created in the management tool so the date, location, and initial agenda can be reviewed together.&#10;[Create a board meeting]({0})</value></data>
   <data name="BoardMeetingHelp" xml:space="preserve"><value>**Board meeting commands**&#10;`/boardmeeting agenda` - View the next meeting agenda&#10;`/boardmeeting backlog` - View the agenda backlog&#10;`/boardmeeting details` - View the next meeting details and attendance forecast&#10;`/boardmeeting create` - Open the management tool to create a meeting&#10;`/boardmeeting reminder` - Send a reminder for the next meeting&#10;`/boardmeeting availability` - Record whether you can attend&#10;`/boardmeeting add-agenda` - Add an item to the next meeting&#10;`/boardmeeting add-backlog` - Add an item to the backlog&#10;`/boardmeeting promote` - Move a backlog item to the next meeting&#10;&#10;Use the management tool to create, reschedule or cancel meetings and for more complex agenda changes:</value></data>
   <data name="BoardMeetingNew" xml:space="preserve"><value>New board meeting</value></data>
+  <data name="AllocationClaimTitle" xml:space="preserve"><value>Allocation claim</value></data>
+  <data name="AllocationClaimBody" xml:space="preserve"><value>**Event:** {0}&#10;**Allocation:** {1}&#10;**Applicant:** {2}&#10;**Amount:** {3} EUR&#10;**Status:** {4}{5}&#10;&#10;**Approvals ({6}):** {7}&#10;**Objections ({8}):** {9}</value></data>
+  <data name="AllocationClaimNoteLine" xml:space="preserve"><value>&#10;**Note:** {0}</value></data>
+  <data name="AllocationClaimApprove" xml:space="preserve"><value>Approve</value></data>
+  <data name="AllocationClaimObject" xml:space="preserve"><value>Object</value></data>
+  <data name="AllocationClaimDecisionApproved" xml:space="preserve"><value>Your approval was recorded.</value></data>
+  <data name="AllocationClaimDecisionObjected" xml:space="preserve"><value>Your objection was recorded.</value></data>
+  <data name="InvalidAllocationClaimAction" xml:space="preserve"><value>This allocation claim action is invalid.</value></data>
+  <data name="AllocationClaimUpdateFailed" xml:space="preserve"><value>The allocation claim could not be updated.</value></data>
   <data name="BoardMeetingReminder" xml:space="preserve"><value>Board meeting reminder</value></data>
   <data name="BoardMeetingRescheduled" xml:space="preserve"><value>Board meeting rescheduled</value></data>
   <data name="BoardMemberUnauthorized" xml:space="preserve"><value>Your linked account is not currently authorized as a board member.</value></data>

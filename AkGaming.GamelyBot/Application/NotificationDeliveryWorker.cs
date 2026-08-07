@@ -99,7 +99,8 @@ public sealed class NotificationDeliveryWorker(IServiceScopeFactory scopeFactory
 
             if (rendered.ChannelMessage is not null)
             {
-                var delivery = GetOrCreateDelivery(dbContext, notification, DeliveryKinds.Channel, "administration", rendered.ChannelMessage);
+                var delivery = GetOrCreateDelivery(dbContext, notification, DeliveryKinds.Channel,
+                    rendered.ChannelMessage.ChannelId ?? "administration", rendered.ChannelMessage);
                 if (delivery.Status != NotificationStatuses.Delivered)
                 {
                     var previousMessageId = notification.Type switch
@@ -110,6 +111,8 @@ public sealed class NotificationDeliveryWorker(IServiceScopeFactory scopeFactory
                             await FindLatestMeetingMessageIdAsync(dbContext, notification, cancellationToken),
                         NotificationEventTypes.BoardMeetingRescheduleProposed =>
                             await FindLatestProposalMessageIdAsync(dbContext, notification, cancellationToken),
+                        NotificationEventTypes.AllocationClaimChanged =>
+                            await FindLatestAllocationClaimMessageIdAsync(dbContext, notification, cancellationToken),
                         _ => null
                     };
                     var result = string.IsNullOrWhiteSpace(previousMessageId)
@@ -258,6 +261,26 @@ public sealed class NotificationDeliveryWorker(IServiceScopeFactory scopeFactory
             TryGetProposalId(item, out var candidateProposalId) && candidateProposalId == proposalId));
     }
 
+    private static async Task<string?> FindLatestAllocationClaimMessageIdAsync(
+        GamelyBotDbContext dbContext,
+        NotificationInboxItem current,
+        CancellationToken cancellationToken)
+    {
+        if (!TryGetAllocationApplicationId(current, out var applicationId))
+            return null;
+
+        var delivered = await dbContext.Notifications
+            .AsNoTracking()
+            .Include(item => item.Deliveries)
+            .Where(item => item.Type == NotificationEventTypes.AllocationClaimChanged
+                && item.Status == NotificationStatuses.Delivered
+                && item.Id != current.Id)
+            .ToListAsync(cancellationToken);
+
+        return LatestChannelMessageId(delivered.Where(item =>
+            TryGetAllocationApplicationId(item, out var candidateId) && candidateId == applicationId));
+    }
+
     private static string? LatestChannelMessageId(IEnumerable<NotificationInboxItem> notifications)
     {
         return notifications
@@ -301,6 +324,25 @@ public sealed class NotificationDeliveryWorker(IServiceScopeFactory scopeFactory
                 return false;
             proposalId = data.ProposalId;
             return proposalId != Guid.Empty;
+        }
+        catch (JsonException)
+        {
+            return false;
+        }
+    }
+
+    private static bool TryGetAllocationApplicationId(NotificationInboxItem notification, out Guid applicationId)
+    {
+        applicationId = Guid.Empty;
+        try
+        {
+            var data = JsonSerializer.Deserialize<AllocationClaimChangedNotification>(
+                notification.DataJson,
+                new JsonSerializerOptions(JsonSerializerDefaults.Web));
+            if (data is null)
+                return false;
+            applicationId = data.ApplicationId;
+            return applicationId != Guid.Empty;
         }
         catch (JsonException)
         {

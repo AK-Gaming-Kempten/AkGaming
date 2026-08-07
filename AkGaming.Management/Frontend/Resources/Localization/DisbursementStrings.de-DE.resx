@@ -36,6 +36,12 @@
   <data name="Allocation_ApproveQuestion" xml:space="preserve"><value>Stimmst du dieser Auszahlung zu?</value></data>
   <data name="Allocation_Approve" xml:space="preserve"><value>Zustimmen</value></data>
   <data name="Allocation_Object" xml:space="preserve"><value>Widersprechen</value></data>
+  <data name="Allocation_DiscordChannel" xml:space="preserve"><value>Discord-Kanal</value></data>
+  <data name="Allocation_SelectDiscordChannel" xml:space="preserve"><value>Discord-Kanal auswählen</value></data>
+  <data name="Allocation_DiscordRole" xml:space="preserve"><value>Zu benachrichtigende Discord-Rolle</value></data>
+  <data name="Allocation_DiscordOptional" xml:space="preserve"><value>Discord-Benachrichtigungen sind optional. Wähle zum Aktivieren einen Kanal und eine Rolle aus oder lasse beide Felder leer.</value></data>
+  <data name="Allocation_DiscordUnavailable" xml:space="preserve"><value>Discord-Kanäle und -Rollen konnten nicht geladen werden. Die Zuteilung kann trotzdem ohne Discord-Benachrichtigungen erstellt werden.</value></data>
+  <data name="Allocation_SelectDiscordRole" xml:space="preserve"><value>Discord-Rolle auswählen</value></data>
   <data name="Allocation_MyNone" xml:space="preserve"><value>Du hast noch mit keiner Zuteilung interagiert. Die Links werden direkt von den Veranstaltern geteilt.</value></data>
   <data name="Payment_Method" xml:space="preserve"><value>Auszahlungsweg</value></data>
   <data name="Payment_None" xml:space="preserve"><value>Kein Zahlungsweg verfügbar</value></data>
