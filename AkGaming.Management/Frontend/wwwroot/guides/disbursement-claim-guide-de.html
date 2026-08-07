@@ -1,0 +1,339 @@
+<!doctype html>
+<html lang="de">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Preisgeld auszahlen lassen</title>
+    <style>
+        :root {
+            --background: #151515;
+            --surface: #181818;
+            --surface-accent: #123021;
+            --text: #ffffff;
+            --muted: #b2bfb9;
+            --border: rgba(221, 221, 221, .28);
+            --highlight: #48cb4f;
+            --highlight-secondary: #286c3f;
+        }
+
+        * { box-sizing: border-box; }
+
+        html, body {
+            width: 1200px;
+            height: 1800px;
+            margin: 0;
+            overflow: hidden;
+            background: var(--background);
+        }
+
+        body {
+            color: var(--text);
+            font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            font-size: 20px;
+            line-height: 1.48;
+            text-rendering: geometricPrecision;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .poster {
+            width: 1200px;
+            height: 1800px;
+            padding: 58px 64px 52px;
+            background: var(--background);
+        }
+
+        .title {
+            margin: 0;
+            color: var(--text);
+            font-size: 58px;
+            font-weight: 850;
+            line-height: 1.05;
+            letter-spacing: .035em;
+            text-align: center;
+        }
+
+        .subtitle {
+            margin: 18px 0 0;
+            color: var(--muted);
+            font-size: 27px;
+            text-align: center;
+        }
+
+        .section-title {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            gap: 24px;
+            align-items: center;
+            margin: 38px 0 18px;
+            color: var(--highlight);
+            font-size: 28px;
+            font-weight: 800;
+            letter-spacing: .045em;
+            text-align: center;
+        }
+
+        .section-title::before,
+        .section-title::after {
+            height: 2px;
+            content: "";
+            background: var(--highlight-secondary);
+        }
+
+        .models {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+        }
+
+        .model-card {
+            min-height: 488px;
+            padding: 28px 30px 30px;
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            background: var(--surface);
+            text-align: center;
+        }
+
+        .model-icon {
+            display: grid;
+            width: 168px;
+            height: 168px;
+            margin: 0 auto 18px;
+            place-items: center;
+            border: 1px solid rgba(72, 203, 79, .55);
+            border-radius: 50%;
+            background: var(--surface-accent);
+            color: var(--highlight);
+        }
+
+        .model-icon svg { width: 112px; height: 112px; }
+
+        .model-card h2 {
+            margin: 0 0 12px;
+            font-size: 30px;
+            line-height: 1.2;
+        }
+
+        .model-card p {
+            margin: 0;
+            color: var(--muted);
+            font-size: 19px;
+            line-height: 1.52;
+        }
+
+        .steps-title { margin-top: 30px; margin-bottom: 16px; }
+
+        .steps {
+            display: grid;
+            gap: 14px;
+            counter-reset: step;
+        }
+
+        .step {
+            position: relative;
+            display: grid;
+            grid-template-columns: 78px 1fr;
+            gap: 22px;
+            min-height: 186px;
+            padding: 26px 30px 25px 100px;
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            background: var(--surface);
+        }
+
+        .step-number {
+            position: absolute;
+            top: 50%;
+            left: -18px;
+            display: grid;
+            width: 76px;
+            height: 76px;
+            place-items: center;
+            transform: translateY(-50%);
+            border: 2px solid var(--highlight);
+            border-radius: 50%;
+            background: var(--surface-accent);
+            color: var(--text);
+            font-size: 34px;
+            font-weight: 800;
+        }
+
+        .step-icon {
+            display: grid;
+            place-items: center;
+            color: var(--highlight);
+        }
+
+        .step-icon svg { width: 72px; height: 72px; }
+
+        .step-copy { align-self: center; }
+
+        .step h3 {
+            margin: 0 0 7px;
+            font-size: 27px;
+            line-height: 1.2;
+        }
+
+        .step p {
+            margin: 0;
+            color: var(--muted);
+            font-size: 20px;
+            line-height: 1.46;
+        }
+
+        .notes {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 18px;
+            margin-top: 18px;
+        }
+
+        .note {
+            display: grid;
+            grid-template-columns: 44px 1fr;
+            gap: 14px;
+            min-height: 112px;
+            padding: 18px 20px;
+            border: 1px solid rgba(221, 221, 221, .18);
+            border-radius: 14px;
+            background: rgba(24, 24, 24, .72);
+        }
+
+        .note svg {
+            width: 38px;
+            height: 38px;
+            color: var(--highlight-secondary);
+        }
+
+        .note h3 {
+            margin: 0 0 3px;
+            color: var(--muted);
+            font-size: 18px;
+            line-height: 1.2;
+        }
+
+        .note p {
+            margin: 0;
+            color: rgba(178, 191, 185, .82);
+            font-size: 15px;
+            line-height: 1.38;
+        }
+
+        svg {
+            display: block;
+            fill: none;
+            stroke: currentColor;
+            stroke-width: 2.1;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+    </style>
+</head>
+<body>
+    <main class="poster">
+        <header>
+            <h1 class="title">PREISGELD AUSZAHLEN LASSEN</h1>
+            <p class="subtitle">So funktioniert die Auszahlung über unser Zuteilungssystem</p>
+        </header>
+
+        <div class="section-title">AUSZAHLUNGSMODELLE</div>
+        <section class="models" aria-label="Auszahlungsmodelle">
+            <article class="model-card">
+                <div class="model-icon" aria-hidden="true">
+                    <svg viewBox="0 0 96 96">
+                        <circle cx="48" cy="20" r="11" stroke="#fff"/>
+                        <path d="M30 48c0-11 8-18 18-18s18 7 18 18v4H30z" stroke="#fff"/>
+                        <path d="M48 56v12m-7-6 7 7 7-7"/>
+                        <rect x="24" y="72" width="48" height="17" rx="4" stroke="#fff"/>
+                        <path d="M30 78h36M32 84h8" stroke="#fff"/>
+                    </svg>
+                </div>
+                <h2>Eine Person erhält alles</h2>
+                <p>Eine Person beantragt über den Zuteilungslink den vollständigen Betrag. Danach öffnen alle anderen Teammitglieder denselben Link, prüfen den Antrag und stimmen zu. Nach der Auszahlung verteilt die empfangende Person das Geld selbst im Team.</p>
+            </article>
+
+            <article class="model-card">
+                <div class="model-icon" aria-hidden="true">
+                    <svg viewBox="0 0 96 96">
+                        <circle cx="48" cy="15" r="8" stroke="#fff"/>
+                        <path d="M36 35c0-8 5-13 12-13s12 5 12 13v3H36z" stroke="#fff"/>
+                        <path d="M48 42v12M24 54h48M24 54v8M48 54v8M72 54v8"/>
+                        <circle cx="24" cy="70" r="7" stroke="#fff"/>
+                        <circle cx="48" cy="70" r="7" stroke="#fff"/>
+                        <circle cx="72" cy="70" r="7" stroke="#fff"/>
+                        <path d="M14 88c0-7 4-11 10-11s10 4 10 11M38 88c0-7 4-11 10-11s10 4 10 11M62 88c0-7 4-11 10-11s10 4 10 11" stroke="#fff"/>
+                    </svg>
+                </div>
+                <h2>Alle erhalten ihren Anteil</h2>
+                <p>Jedes Teammitglied hinterlegt einen eigenen Zahlungsweg und beantragt über denselben Zuteilungslink den eigenen Anteil. Die übrigen Teammitglieder prüfen und bestätigen jeden Antrag. Wir zahlen die bestätigten Anteile direkt an die jeweiligen Personen aus.</p>
+            </article>
+        </section>
+
+        <div class="section-title steps-title">SO GEHT’S</div>
+        <section class="steps" aria-label="Ablauf">
+            <article class="step">
+                <div class="step-number">1</div>
+                <div class="step-icon" aria-hidden="true">
+                    <svg viewBox="0 0 72 72">
+                        <circle cx="22" cy="17" r="9" stroke="#fff"/>
+                        <path d="M8 45c0-11 6-18 14-18s14 7 14 18" stroke="#fff"/>
+                        <rect x="34" y="32" width="30" height="22" rx="3"/>
+                        <path d="M38 39h22M39 48h8"/>
+                        <path d="M47 61h20M51 61V49h12v12M49 49l8-6 8 6" stroke="#fff"/>
+                    </svg>
+                </div>
+                <div class="step-copy">
+                    <h3>Account und Zahlungsweg vorbereiten</h3>
+                    <p>Erstelle einen Ak Gaming Identity Account, falls du noch keines hast, und melde dich an. Hinterlege anschließend in deinem Profil PayPal oder deine Bankverbindung in deinem Profil.</p>
+                </div>
+            </article>
+
+            <article class="step">
+                <div class="step-number">2</div>
+                <div class="step-icon" aria-hidden="true">
+                    <svg viewBox="0 0 72 72">
+                        <path d="M18 7h25l12 12v46H18z" stroke="#fff"/>
+                        <path d="M43 7v13h12" stroke="#fff"/>
+                        <path d="M27 32h19M27 42h19M27 52h13"/>
+                    </svg>
+                </div>
+                <div class="step-copy">
+                    <h3>Anteil beantragen</h3>
+                    <p>Öffne den Zuteilungslink, trage den gewünschten Betrag ein, wähle deinen Zahlungsweg und sende den Antrag.</p>
+                </div>
+            </article>
+
+            <article class="step">
+                <div class="step-number">3</div>
+                <div class="step-icon" aria-hidden="true">
+                    <svg viewBox="0 0 72 72">
+                        <circle cx="18" cy="17" r="7" stroke="#fff"/>
+                        <circle cx="36" cy="14" r="8" stroke="#fff"/>
+                        <circle cx="54" cy="17" r="7" stroke="#fff"/>
+                        <path d="M7 38c0-8 5-13 11-13M65 38c0-8-5-13-11-13M22 38c0-10 6-16 14-16s14 6 14 16" stroke="#fff"/>
+                        <circle cx="25" cy="55" r="10"/>
+                        <path d="m20 55 3 3 7-7"/>
+                        <circle cx="50" cy="55" r="10" stroke="#b2bfb9"/>
+                        <path d="m46 51 8 8m0-8-8 8" stroke="#b2bfb9"/>
+                    </svg>
+                </div>
+                <div class="step-copy">
+                    <h3>Im Team prüfen</h3>
+                    <p>Sobald eine Person einen Antrag gesendet hat, öffnen die anderen Teammitglieder denselben Link. Prüft dort Name und Betrag und stimmt dem Antrag zu oder widersprecht.</p>
+                </div>
+            </article>
+        </section>
+
+        <footer class="notes">
+            <aside class="note">
+                <svg viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="15"/><path d="M20 11v10l7 4"/></svg>
+                <div><h3>Danach: Status abwarten</h3><p>Wir prüfen die bestätigten Anträge und informieren euch über Änderungen.</p></div>
+            </aside>
+            <aside class="note">
+                <svg viewBox="0 0 40 40" aria-hidden="true"><path d="M4 7h24v18H15l-7 6v-6H4z"/><path d="M17 15h19v15h-5v5l-6-5h-8z"/></svg>
+                <div><h3>Gemischte Auszahlung?</h3><p>Möglich – bitte stimmt die Aufteilung vorher mit uns über Discord ab.</p></div>
+            </aside>
+        </footer>
+    </main>
+</body>
+</html>
