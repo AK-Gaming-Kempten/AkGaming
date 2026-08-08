@@ -44,6 +44,8 @@
   <data name="Allocation_DiscordOptional" xml:space="preserve"><value>Discord notifications are optional. Select both a channel and a role to enable them, or leave both empty.</value></data>
   <data name="Allocation_DiscordLoading" xml:space="preserve"><value>Loading Discord channels and roles…</value></data>
   <data name="Allocation_VoiceChannelSuffix" xml:space="preserve"><value>(Voice)</value></data>
+  <data name="Allocation_SendNotification" xml:space="preserve"><value>Announce prize money</value></data>
+  <data name="Allocation_NotificationSent" xml:space="preserve"><value>The prize-money notification was queued for Discord.</value></data>
   <data name="Allocation_DiscordUnavailable" xml:space="preserve"><value>Discord channels and roles could not be loaded. You can still create the allocation without Discord notifications.</value></data>
   <data name="Allocation_SelectDiscordRole" xml:space="preserve"><value>Select a Discord role</value></data>
   <data name="Allocation_MyNone" xml:space="preserve"><value>You have not interacted with any allocations yet. Allocation links are shared directly by event organisers.</value></data>

@@ -47,6 +47,10 @@
   <data name="AllocationClaimDecisionObjected" xml:space="preserve"><value>Your objection was recorded.</value></data>
   <data name="InvalidAllocationClaimAction" xml:space="preserve"><value>This allocation claim action is invalid.</value></data>
   <data name="AllocationClaimUpdateFailed" xml:space="preserve"><value>The allocation claim could not be updated.</value></data>
+  <data name="AllocationAvailableTitle" xml:space="preserve"><value>Prize money available</value></data>
+  <data name="AllocationAvailableBody" xml:space="preserve"><value>Prize money is available for **{0}** at **{1}**.&#10;**Amount:** {2} EUR{3}&#10;&#10;The allocation can now be claimed.{4}</value></data>
+  <data name="AllocationAvailableDescriptionLine" xml:space="preserve"><value>&#10;**Details:** {0}</value></data>
+  <data name="AllocationAvailableClaimAction" xml:space="preserve"><value>&#10;[Open allocation and submit a claim]({0})</value></data>
   <data name="BoardMeetingReminder" xml:space="preserve"><value>Board meeting reminder</value></data>
   <data name="BoardMeetingRescheduled" xml:space="preserve"><value>Board meeting rescheduled</value></data>
   <data name="BoardMemberUnauthorized" xml:space="preserve"><value>Your linked account is not currently authorized as a board member.</value></data>

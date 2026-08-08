@@ -65,6 +65,25 @@ public sealed class DisbursementNotificationOutbox(
         Enqueue(NotificationEventTypes.AllocationClaimChanged, application.ApplicantUserId, data);
     }
 
+    public void EnqueueAllocationAvailable(Allocation allocation)
+    {
+        if (string.IsNullOrWhiteSpace(allocation.DiscordChannelId)
+            || string.IsNullOrWhiteSpace(allocation.DiscordRoleId))
+            throw new InvalidOperationException("Allocation announcements require a Discord channel and role.");
+
+        var data = new AllocationAvailableNotification(
+            allocation.Id,
+            allocation.Event?.Name ?? string.Empty,
+            allocation.Name,
+            allocation.Description,
+            allocation.Amount,
+            BuildAllocationUrl(allocation.ShareToken),
+            BuildGuideUrl(),
+            allocation.DiscordChannelId,
+            allocation.DiscordRoleId);
+        Enqueue(NotificationEventTypes.AllocationAvailable, null, data);
+    }
+
     private void Enqueue<T>(string type, Guid? subjectUserId, T data)
     {
         var eventId = Guid.NewGuid();
@@ -101,5 +120,14 @@ public sealed class DisbursementNotificationOutbox(
         return string.IsNullOrWhiteSpace(frontendBaseUrl)
             ? null
             : $"{frontendBaseUrl}/disbursements/claim/{shareToken}";
+    }
+
+    private string? BuildGuideUrl()
+    {
+        var frontendBaseUrl = NotificationUrlBuilder.ManagementFrontendBaseUrl(
+            _options.ManagementFrontendBaseUrl, _options.ManagementBaseUrl);
+        return string.IsNullOrWhiteSpace(frontendBaseUrl)
+            ? null
+            : $"{frontendBaseUrl}/guides/disbursement-claim-guide-de.png";
     }
 }

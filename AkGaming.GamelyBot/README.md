@@ -6,6 +6,7 @@ GamelyBot is the private Discord integration gateway for AK Gaming applications.
 
 - `reimbursement.submitted`: mentions the treasurer role in the administration channel and confirms submission by DM when the applicant linked Discord.
 - `reimbursement.status-changed`: sends the applicant a DM for review, approval, rejection, payment, or cancellation changes.
+- `allocation.available`: manually announces available prize money in the allocation's configured channel and mentions its configured role.
 - `allocation-claim.changed`: posts one message in the channel configured for the allocation, mentions its configured role on creation, and updates that message with the current approvals, objections, and status. Linked Discord users can approve or object through the message buttons.
 - Board meeting lifecycle, agenda, and reminder events: notify the board channel. Created, rescheduled, and reminder messages include availability and rescheduling controls. GamelyBot automatically queues one reminder when the next meeting enters the configured one-hour window.
 

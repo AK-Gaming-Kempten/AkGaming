@@ -7,6 +7,7 @@
 <div class="event-page ui-stack-md">
     <a class="back-link" href="disbursements/admin/events"><span class="bi bi-arrow-left"></span> @Text["Events_Title"]</a>
     @if (!string.IsNullOrWhiteSpace(_error)) { <p class="error">@_error</p> }
+    @if (!string.IsNullOrWhiteSpace(_notice)) { <p class="success">@_notice</p> }
     @if (_event is null) { <p>@SharedText["State_Loading"]</p> }
     else
     {
@@ -22,6 +23,7 @@
                         <AuthorizeView Policy="management.disbursements.manage">
                             <ContextMenu AriaLabel="@($"{SharedText["Action_Edit"]} {allocation.Name}")">
                                 <ContextMenuItem IconClass="bi-pencil" Text="@SharedText["Action_Edit"]" OnClick="() => OpenEditDialogAsync(allocation)" />
+                                <ContextMenuItem IconClass="bi-megaphone" Text="@Text["Allocation_SendNotification"]" IsDisabled="@(_busy || !HasDiscordRouting(allocation))" OnClick="() => SendAllocationNotificationAsync(allocation)" />
                             </ContextMenu>
                         </AuthorizeView>
                     </div>

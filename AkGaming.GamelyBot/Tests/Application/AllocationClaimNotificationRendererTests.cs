@@ -70,6 +70,46 @@ public sealed class AllocationClaimNotificationRendererTests
         Assert.That(rendered.ChannelMessage?.Buttons, Is.Null);
     }
 
+    [Test]
+    [Description("Renders an available-prize announcement in the allocation channel with its role mention and claim link.")]
+    public void Render_WhenAllocationIsAvailable_IncludesPrizeDetailsAndRouting()
+    {
+        // Arrange
+        var data = new AllocationAvailableNotification(
+            Guid.NewGuid(),
+            "Summer cup",
+            "Team prize",
+            "First place prize",
+            200m,
+            "https://management.test/claim",
+            "https://management.test/guides/disbursement-claim-guide-de.png",
+            "channel-123",
+            "role-456");
+        var notification = new NotificationInboxItem
+        {
+            Type = NotificationEventTypes.AllocationAvailable,
+            DataJson = JsonSerializer.Serialize(data, new JsonSerializerOptions(JsonSerializerDefaults.Web))
+        };
+
+        // Act
+        var rendered = _renderer.Render(notification);
+
+        // Assert
+        Assert.Multiple(() =>
+        {
+            Assert.That(rendered.ChannelMessage?.ChannelId, Is.EqualTo("channel-123"));
+            Assert.That(rendered.ChannelMessage?.RoleId, Is.EqualTo("role-456"));
+            Assert.That(rendered.ChannelMessage?.Body, Does.Contain("Team prize"));
+            Assert.That(rendered.ChannelMessage?.Body, Does.Contain("200.00 EUR"));
+            Assert.That(rendered.ChannelMessage?.Body, Does.Contain("https://management.test/claim"));
+            Assert.That(rendered.ChannelMessage?.Attachment?.Url,
+                Is.EqualTo("https://management.test/guides/disbursement-claim-guide-de.png"));
+            Assert.That(rendered.ChannelMessage?.Attachment?.FileName,
+                Is.EqualTo("disbursement-claim-guide-de.png"));
+            Assert.That(rendered.DirectMessage, Is.Null);
+        });
+    }
+
     private static NotificationInboxItem Notification(AllocationClaimChangedNotification data)
     {
         return new NotificationInboxItem

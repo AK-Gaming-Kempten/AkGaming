@@ -32,6 +32,7 @@ public sealed class NotificationRenderer(
         {
             NotificationEventTypes.ReimbursementSubmitted => RenderSubmitted(notification),
             NotificationEventTypes.ReimbursementStatusChanged => RenderStatusChanged(notification),
+            NotificationEventTypes.AllocationAvailable => RenderAllocationAvailable(notification),
             NotificationEventTypes.AllocationClaimChanged => RenderAllocationClaim(notification),
             NotificationEventTypes.MembershipApplicationCreated => RenderMembershipApplicationCreated(notification),
             NotificationEventTypes.MembershipApplicationStatusChanged => RenderMembershipApplicationStatusChanged(notification),
@@ -102,6 +103,27 @@ public sealed class NotificationRenderer(
             };
         var channel = new RenderedMessage(text["AllocationClaimTitle"], body, data.ManagementUrl,
             data.RoleId, data.ChannelId, buttons);
+        return new RenderedNotification(channel, null);
+    }
+
+    private RenderedNotification RenderAllocationAvailable(NotificationInboxItem notification)
+    {
+        var data = JsonSerializer.Deserialize<AllocationAvailableNotification>(notification.DataJson, JsonOptions())
+            ?? throw new InvalidOperationException("The allocation announcement payload is invalid.");
+        var amount = data.Amount.ToString("N2", text.Culture);
+        var description = string.IsNullOrWhiteSpace(data.Description)
+            ? string.Empty
+            : text.Format("AllocationAvailableDescriptionLine", data.Description);
+        var claimAction = string.IsNullOrWhiteSpace(data.ClaimUrl)
+            ? string.Empty
+            : text.Format("AllocationAvailableClaimAction", data.ClaimUrl);
+        var body = text.Format("AllocationAvailableBody", data.AllocationName, data.EventName, amount,
+            description, claimAction);
+        var attachment = string.IsNullOrWhiteSpace(data.GuideUrl)
+            ? null
+            : new RenderedAttachment(data.GuideUrl, "disbursement-claim-guide-de.png", "image/png");
+        var channel = new RenderedMessage(text["AllocationAvailableTitle"], body, data.ClaimUrl,
+            data.RoleId, data.ChannelId, Attachment: attachment);
         return new RenderedNotification(channel, null);
     }
 

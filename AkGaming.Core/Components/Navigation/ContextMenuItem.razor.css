@@ -21,3 +21,12 @@
 .context-menu-item-destructive {
     color: var(--color-error, #dc3545);
 }
+
+.context-menu-item:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.context-menu-item:disabled:hover {
+    background: transparent;
+}

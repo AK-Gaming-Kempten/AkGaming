@@ -47,6 +47,10 @@
   <data name="AllocationClaimDecisionObjected" xml:space="preserve"><value>Dein Widerspruch wurde gespeichert.</value></data>
   <data name="InvalidAllocationClaimAction" xml:space="preserve"><value>Diese Aktion für den Auszahlungsantrag ist ungültig.</value></data>
   <data name="AllocationClaimUpdateFailed" xml:space="preserve"><value>Der Auszahlungsantrag konnte nicht aktualisiert werden.</value></data>
+  <data name="AllocationAvailableTitle" xml:space="preserve"><value>Preisgeld verfügbar</value></data>
+  <data name="AllocationAvailableBody" xml:space="preserve"><value>Für **{0}** bei **{1}** steht Preisgeld zur Verfügung.&#10;**Betrag:** {2} EUR{3}&#10;&#10;Die Zuteilung kann jetzt beansprucht werden.{4}</value></data>
+  <data name="AllocationAvailableDescriptionLine" xml:space="preserve"><value>&#10;**Details:** {0}</value></data>
+  <data name="AllocationAvailableClaimAction" xml:space="preserve"><value>&#10;[Zuteilung öffnen und Antrag stellen]({0})</value></data>
   <data name="BoardMeetingReminder" xml:space="preserve"><value>Erinnerung an Vorstandssitzung</value></data>
   <data name="BoardMeetingRescheduled" xml:space="preserve"><value>Vorstandssitzung verschoben</value></data>
   <data name="BoardMemberUnauthorized" xml:space="preserve"><value>Dein verknüpftes Konto ist derzeit nicht als Vorstandsmitglied berechtigt.</value></data>

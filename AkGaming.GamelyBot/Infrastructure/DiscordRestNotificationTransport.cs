@@ -1,6 +1,7 @@
 using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
+using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using AkGaming.GamelyBot.Application;
@@ -17,20 +18,21 @@ public sealed class DiscordRestNotificationTransport(IHttpClientFactory httpClie
         ValidateConfiguration();
         var content = string.IsNullOrWhiteSpace(message.RoleId) ? null : $"<@&{message.RoleId}>";
         var allowedRoleIds = string.IsNullOrWhiteSpace(message.RoleId) ? Array.Empty<string>() : new[] { message.RoleId };
-        var payload = BuildPayload(content, allowedRoleIds, message);
         var channelId = string.IsNullOrWhiteSpace(message.ChannelId) ? _options.AdministrationChannelId : message.ChannelId;
-        return SendMessageAsync($"channels/{channelId}/messages", payload, cancellationToken);
+        return SendMessageAsync($"channels/{channelId}/messages", content, allowedRoleIds, message,
+            cancellationToken);
     }
 
     public async Task<TransportResult> UpdateChannelAsync(string externalMessageId, RenderedMessage message, CancellationToken cancellationToken)
     {
         ValidateConfiguration();
         var channelId = string.IsNullOrWhiteSpace(message.ChannelId) ? _options.AdministrationChannelId : message.ChannelId;
-        var payload = BuildPayload(null, [], message);
+        var payload = BuildPayload(null, [], message, null);
         var result = await SendAsync(HttpMethod.Patch, $"channels/{channelId}/messages/{externalMessageId}", payload, cancellationToken);
         if (result.Response.StatusCode == HttpStatusCode.NotFound)
         {
-            return await SendMessageAsync($"channels/{channelId}/messages", payload, cancellationToken);
+            return await SendMessageAsync($"channels/{channelId}/messages", null, [], message,
+                cancellationToken);
         }
         if (!result.Response.IsSuccessStatusCode)
         {
@@ -53,16 +55,61 @@ public sealed class DiscordRestNotificationTransport(IHttpClientFactory httpClie
         var channel = JsonSerializer.Deserialize<DiscordIdResponse>(dmResult.Body, JsonOptions());
         if (string.IsNullOrWhiteSpace(channel?.Id))
             return TransportResult.TemporaryFailure("Discord did not return a DM channel ID.");
-        return await SendMessageAsync($"channels/{channel.Id}/messages", BuildPayload(null, [], message), cancellationToken);
+        return await SendMessageAsync($"channels/{channel.Id}/messages", null, [], message, cancellationToken);
     }
 
-    private async Task<TransportResult> SendMessageAsync(string path, object payload, CancellationToken cancellationToken)
+    private async Task<TransportResult> SendMessageAsync(
+        string path,
+        string? content,
+        IReadOnlyCollection<string> allowedRoleIds,
+        RenderedMessage message,
+        CancellationToken cancellationToken)
     {
-        var result = await SendAsync(HttpMethod.Post, path, payload, cancellationToken);
+        var payload = BuildPayload(content, allowedRoleIds, message, message.Attachment?.FileName);
+        var result = message.Attachment is null
+            ? await SendAsync(HttpMethod.Post, path, payload, cancellationToken)
+            : await SendWithAttachmentAsync(path, payload, message.Attachment, cancellationToken);
         if (!result.Response.IsSuccessStatusCode)
             return ToFailure(result.Response.StatusCode, result.Body);
-        var message = JsonSerializer.Deserialize<DiscordIdResponse>(result.Body, JsonOptions());
-        return TransportResult.Success(message?.Id);
+        var responseMessage = JsonSerializer.Deserialize<DiscordIdResponse>(result.Body, JsonOptions());
+        return TransportResult.Success(responseMessage?.Id);
+    }
+
+    private async Task<(HttpResponseMessage Response, string Body)> SendWithAttachmentAsync(
+        string path,
+        object payload,
+        RenderedAttachment attachment,
+        CancellationToken cancellationToken)
+    {
+        if (!Uri.TryCreate(attachment.Url, UriKind.Absolute, out var attachmentUri))
+        {
+            return (new HttpResponseMessage(HttpStatusCode.BadRequest),
+                $"The attachment URL '{attachment.Url}' is not absolute.");
+        }
+
+        var downloadClient = httpClientFactory.CreateClient(nameof(DiscordRestNotificationTransport));
+        using var downloadResponse = await downloadClient.GetAsync(attachmentUri, cancellationToken);
+        if (!downloadResponse.IsSuccessStatusCode)
+        {
+            return (new HttpResponseMessage(HttpStatusCode.ServiceUnavailable),
+                $"The attachment could not be downloaded from '{attachment.Url}': {(int)downloadResponse.StatusCode}.");
+        }
+
+        var attachmentBytes = await downloadResponse.Content.ReadAsByteArrayAsync(cancellationToken);
+        var client = httpClientFactory.CreateClient(nameof(DiscordRestNotificationTransport));
+        client.BaseAddress = new Uri("https://discord.com/api/v10/");
+        using var request = new HttpRequestMessage(HttpMethod.Post, path);
+        request.Headers.Authorization = new AuthenticationHeaderValue("Bot", _options.Token);
+        using var multipart = new MultipartFormDataContent();
+        multipart.Add(new StringContent(JsonSerializer.Serialize(payload, JsonOptions()), Encoding.UTF8,
+            "application/json"), "payload_json");
+        var fileContent = new ByteArrayContent(attachmentBytes);
+        fileContent.Headers.ContentType = new MediaTypeHeaderValue(attachment.ContentType);
+        multipart.Add(fileContent, "files[0]", attachment.FileName);
+        request.Content = multipart;
+        var response = await client.SendAsync(request, cancellationToken);
+        var body = await response.Content.ReadAsStringAsync(cancellationToken);
+        return (response, body);
     }
 
     private async Task<(HttpResponseMessage Response, string Body)> SendAsync(HttpMethod method, string path, object payload, CancellationToken cancellationToken)
@@ -88,11 +135,18 @@ public sealed class DiscordRestNotificationTransport(IHttpClientFactory httpClie
         return (response, body);
     }
 
-    private static object BuildPayload(string? content, IReadOnlyCollection<string> allowedRoleIds, RenderedMessage message)
+    private static object BuildPayload(
+        string? content,
+        IReadOnlyCollection<string> allowedRoleIds,
+        RenderedMessage message,
+        string? attachmentFileName)
     {
         var components = message.Buttons is null || message.Buttons.Count == 0
             ? Array.Empty<object>()
             : new object[] { new { type = 1, components = message.Buttons.Select(button => new { type = 2, style = button.Style, label = button.Label, custom_id = button.CustomId }).ToArray() } };
+        var attachments = string.IsNullOrWhiteSpace(attachmentFileName)
+            ? Array.Empty<object>()
+            : new object[] { new { id = 0, filename = attachmentFileName } };
         return new
         {
             content,
@@ -101,7 +155,8 @@ public sealed class DiscordRestNotificationTransport(IHttpClientFactory httpClie
             {
                 new { title = message.Title, description = message.Body, url = message.Url, color = 0x5865F2 }
             },
-            components
+            components,
+            attachments
         };
     }
 

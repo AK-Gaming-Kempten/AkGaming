@@ -11,10 +11,13 @@ public partial class ContextMenuItem : ComponentBase
     [Parameter] public string? Href { get; set; }
     [Parameter] public bool OpenInNewTab { get; set; }
     [Parameter] public bool IsDestructive { get; set; }
+    [Parameter] public bool IsDisabled { get; set; }
     [Parameter] public EventCallback OnClick { get; set; }
 
     private async Task SelectAsync()
     {
+        if (IsDisabled)
+            return;
         await OnClick.InvokeAsync();
         ContextMenu?.Close();
     }

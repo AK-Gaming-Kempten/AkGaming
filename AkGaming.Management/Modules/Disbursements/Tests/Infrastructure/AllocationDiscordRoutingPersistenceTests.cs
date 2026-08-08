@@ -84,6 +84,40 @@ public sealed class AllocationDiscordRoutingPersistenceTests
         Assert.That(context.NotificationOutbox.Local, Is.Empty);
     }
 
+    [Test]
+    [Description("Persists a manual allocation announcement with its claim link, channel, and role.")]
+    public async Task AllocationAnnouncement_WhenQueued_PersistsDiscordRoutingAndClaimLink()
+    {
+        // Arrange
+        await using var connection = new SqliteConnection("Data Source=:memory:");
+        await connection.OpenAsync();
+        var options = new DbContextOptionsBuilder<DisbursementsDbContext>()
+            .UseSqlite(connection)
+            .Options;
+        await using var context = new DisbursementsDbContext(options);
+        await context.Database.EnsureCreatedAsync();
+        var allocation = CreateAllocation();
+        var outbox = new DisbursementNotificationOutbox(context, Options.Create(new DisbursementNotificationOptions
+        {
+            ManagementFrontendBaseUrl = "https://management.test.akgaming.de"
+        }));
+        outbox.EnqueueAllocationAvailable(allocation);
+
+        // Act
+        await context.SaveChangesAsync();
+
+        // Assert
+        var message = await context.NotificationOutbox.SingleAsync();
+        Assert.Multiple(() =>
+        {
+            Assert.That(message.Type, Is.EqualTo(NotificationEventTypes.AllocationAvailable));
+            Assert.That(message.PayloadJson, Does.Contain("channel-123"));
+            Assert.That(message.PayloadJson, Does.Contain("role-456"));
+            Assert.That(message.PayloadJson, Does.Contain($"/disbursements/claim/{allocation.ShareToken}"));
+            Assert.That(message.PayloadJson, Does.Contain("/guides/disbursement-claim-guide-de.png"));
+        });
+    }
+
     private static Allocation CreateAllocation()
     {
         var allocation = new Allocation

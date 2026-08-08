@@ -1,6 +1,16 @@
 @namespace AkGaming.Core.Components.Navigation
 
-@if (!string.IsNullOrWhiteSpace(Href))
+@if (IsDisabled)
+{
+    <button type="button"
+            class="context-menu-item"
+            role="menuitem"
+            disabled>
+        <span class="bi @IconClass" aria-hidden="true"></span>
+        <span>@Text</span>
+    </button>
+}
+else if (!string.IsNullOrWhiteSpace(Href))
 {
     <a class="context-menu-item @(IsDestructive ? "context-menu-item-destructive" : string.Empty)"
        href="@Href"

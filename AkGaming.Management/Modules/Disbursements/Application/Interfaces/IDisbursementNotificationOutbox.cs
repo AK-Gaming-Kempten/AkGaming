@@ -7,5 +7,6 @@ public interface IDisbursementNotificationOutbox
 {
     void EnqueueSubmitted(Reimbursement reimbursement);
     void EnqueueStatusChanged(Reimbursement reimbursement, DisbursementStatus previousStatus);
+    void EnqueueAllocationAvailable(Allocation allocation);
     void EnqueueAllocationClaimChanged(AllocationApplication application);
 }

@@ -19,6 +19,7 @@ public partial class DisbursementEventPage : ComponentBase
     private bool _discordCatalogReady;
     private bool _busy;
     private string? _error;
+    private string? _notice;
     private string? _dialogError;
     protected override async Task OnParametersSetAsync() => await LoadAsync();
     private async Task LoadAsync() { var result = await Api.GetEventAsync(EventId); if (result.IsSuccess) _event = result.Value; else _error = result.Error; }
@@ -71,11 +72,28 @@ public partial class DisbursementEventPage : ComponentBase
         _discordCatalogReady = false;
         await LoadAsync();
     }
+
+    private async Task SendAllocationNotificationAsync(AllocationDto allocation)
+    {
+        _busy = true;
+        _error = null;
+        _notice = null;
+        var result = await Api.SendAllocationNotificationAsync(allocation.Id);
+        _busy = false;
+        if (result.IsSuccess)
+            _notice = Text["Allocation_NotificationSent"];
+        else
+            _error = result.Error;
+    }
+
     private async Task SetStatusAsync(AllocationApplicationDto application, AllocationApplicationStatus status) { _busy = true; var result = await Api.UpdateApplicationStatusAsync(application.Id, new UpdateAllocationApplicationStatusRequest { Status = status }); _busy = false; if (!result.IsSuccess) _error = result.Error; else await LoadAsync(); }
     private string ShareUrl(AllocationDto allocation) => Navigation.ToAbsoluteUri($"disbursements/claim/{allocation.ShareToken}").ToString();
     private Task CopyAsync(string value) => Js.InvokeVoidAsync("navigator.clipboard.writeText", value).AsTask();
     private static decimal Progress(AllocationDto allocation) => allocation.Amount <= 0 ? 0 : Math.Min(100, allocation.AppliedAmount / allocation.Amount * 100);
     private static decimal AvailableAmount(AllocationDto allocation) => Math.Max(0, allocation.Amount - allocation.AppliedAmount);
+    private static bool HasDiscordRouting(AllocationDto allocation) =>
+        !string.IsNullOrWhiteSpace(allocation.DiscordChannelId)
+        && !string.IsNullOrWhiteSpace(allocation.DiscordRoleId);
     private void ShowPaymentDetails(PaymentMethodSnapshotDto paymentMethod) => _selectedPaymentMethod = paymentMethod;
     private void HidePaymentDetails() => _selectedPaymentMethod = null;
     private void CloseAllocationDialog()

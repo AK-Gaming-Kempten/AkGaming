@@ -156,4 +156,50 @@ public sealed class AllocationCreationTests
         Assert.That(result.Error, Does.Contain("already claimed"));
         _notificationOutbox.VerifyNoOtherCalls();
     }
+
+    [Test]
+    [Description("Queues a role-pinging allocation announcement when Discord routing is configured.")]
+    public async Task SendAllocationNotification_WhenRoutingExists_QueuesAnnouncement()
+    {
+        // Arrange
+        var allocation = new Allocation
+        {
+            Name = "Team prize",
+            Amount = 200m,
+            DiscordChannelId = "channel-123",
+            DiscordRoleId = "role-456",
+            Event = new DisbursementEvent { Name = "Summer cup" }
+        };
+        _repository.Setup(repository => repository.GetAllocationAsync(allocation.Id, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(allocation);
+        _repository.Setup(repository => repository.SaveChangesAsync(It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+        _notificationOutbox.Setup(outbox => outbox.EnqueueAllocationAvailable(allocation));
+
+        // Act
+        var result = await _service.SendAllocationNotificationAsync(allocation.Id);
+
+        // Assert
+        Assert.That(result.IsSuccess, Is.True);
+        _notificationOutbox.Verify(outbox => outbox.EnqueueAllocationAvailable(allocation), Times.Once);
+        _repository.Verify(repository => repository.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Test]
+    [Description("Rejects a manual allocation announcement when no Discord destination is configured.")]
+    public async Task SendAllocationNotification_WhenRoutingIsMissing_ReturnsFailure()
+    {
+        // Arrange
+        var allocation = new Allocation { Name = "Team prize", Amount = 200m };
+        _repository.Setup(repository => repository.GetAllocationAsync(allocation.Id, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(allocation);
+
+        // Act
+        var result = await _service.SendAllocationNotificationAsync(allocation.Id);
+
+        // Assert
+        Assert.That(result.IsSuccess, Is.False);
+        Assert.That(result.Error, Does.Contain("Discord channel and role"));
+        _notificationOutbox.VerifyNoOtherCalls();
+    }
 }

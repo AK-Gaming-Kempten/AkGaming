@@ -218,6 +218,20 @@ public sealed class DisbursementService(
         return Result<AllocationDto>.Success(ToDto(allocation, true));
     }
 
+    public async Task<Result> SendAllocationNotificationAsync(Guid allocationId, CancellationToken cancellationToken = default)
+    {
+        var allocation = await repository.GetAllocationAsync(allocationId, cancellationToken);
+        if (allocation is null)
+            return Result.Failure("Allocation not found.");
+        if (string.IsNullOrWhiteSpace(allocation.DiscordChannelId)
+            || string.IsNullOrWhiteSpace(allocation.DiscordRoleId))
+            return Result.Failure("Configure a Discord channel and role before sending the notification.");
+
+        notificationOutbox.EnqueueAllocationAvailable(allocation);
+        await repository.SaveChangesAsync(cancellationToken);
+        return Result.Success();
+    }
+
     public async Task<Result<AllocationDto>> GetAllocationByTokenAsync(Guid token, CancellationToken cancellationToken = default)
     {
         var allocation = await repository.GetAllocationByTokenAsync(token, cancellationToken);

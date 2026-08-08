@@ -2,3 +2,4 @@
 .payment-details-button{justify-self:start;padding:.15rem 0;color:var(--color-text-secondary);background:transparent;border:0;text-align:left}.payment-details-button:hover{color:var(--color-highlight-primary);text-decoration:underline}.payment-details-button .bi:first-child{margin-right:.2rem}.payment-details-button .bi:last-child{margin-left:.2rem;font-size:.75em}
 .discord-route{display:flex;gap:.35rem;align-items:center;color:var(--color-text-secondary)}
 .allocation-actions{display:flex;align-items:center;gap:.4rem}
+.success{color:var(--color-success,#35a06f)}
