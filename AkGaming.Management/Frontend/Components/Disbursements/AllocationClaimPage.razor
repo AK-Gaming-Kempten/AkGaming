@@ -66,7 +66,7 @@
                                      AllowPaymentMethodSelection="true"
                                      PaymentMethods="_paymentMethods"
                                      Busy="_busy"
-                                     Error="_dialogError"
+                                     Error="@_dialogError"
                                      OnRefreshPaymentMethods="LoadPaymentMethodsAsync"
                                      OnSubmit="UpdateApplicationAsync"
                                      OnClose="CloseDialogs" />
@@ -76,7 +76,7 @@
 {
     <AllocationApplicationCancelDialog Application="_cancellingApplication"
                                        Busy="_busy"
-                                       Error="_dialogError"
+                                       Error="@_dialogError"
                                        OnConfirm="CancelApplicationAsync"
                                        OnClose="CloseDialogs" />
 }

@@ -89,6 +89,7 @@
   <data name="InteractionFailed" xml:space="preserve"><value>Diese Aktion konnte gerade nicht abgeschlossen werden. Bitte versuche es erneut oder verwende das Management Tool.</value></data>
   <data name="InteractionTimedOut" xml:space="preserve"><value>Die Vereinsdienste haben nicht rechtzeitig geantwortet. Bitte versuche es erneut oder verwende das Management Tool.</value></data>
   <data name="InvalidMeetingAction" xml:space="preserve"><value>Diese Sitzungsaktion ist ungültig.</value></data>
+  <data name="InvalidButtonAction" xml:space="preserve"><value>Diese Schaltfläche ist nicht mehr gültig. Verwende die neueste Benachrichtigung oder öffne das Management Tool.</value></data>
   <data name="InvalidMeetingResponse" xml:space="preserve"><value>Das Management Tool hat eine ungültige Sitzung zurückgegeben.</value></data>
   <data name="LinkedAccountLookupFailed" xml:space="preserve"><value>Dein verknüpftes Konto konnte gerade nicht abgerufen werden. Bitte versuche es später erneut.</value></data>
   <data name="LocationPending" xml:space="preserve"><value>Ort noch offen</value></data>

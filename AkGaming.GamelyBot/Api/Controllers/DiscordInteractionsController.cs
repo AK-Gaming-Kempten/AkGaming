@@ -135,7 +135,7 @@ public sealed class DiscordInteractionsController(DiscordInteractionService inte
             return RescheduleModal(rescheduleMeetingId, rescheduleVersion);
         }
         if (parts is not { Length: 4 } || parts[0] != "board-availability" || !Guid.TryParse(parts[1], out var meetingId) || !int.TryParse(parts[2], out var version))
-            return Ephemeral(text["InvalidMeetingAction"]);
+            return Ephemeral(text["InvalidButtonAction"]);
         var status = parts[3] == "available" ? "Available" : "Unavailable";
         var message = await interactions.SetAvailabilityAsync(discordUserId, meetingId, version, status, cancellationToken);
         return Ephemeral(message);

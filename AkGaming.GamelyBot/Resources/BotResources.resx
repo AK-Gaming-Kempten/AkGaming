@@ -89,6 +89,7 @@
   <data name="InteractionFailed" xml:space="preserve"><value>I could not complete that action right now. Please try again or use the management tool.</value></data>
   <data name="InteractionTimedOut" xml:space="preserve"><value>The club services did not respond in time. Please try again or use the management tool.</value></data>
   <data name="InvalidMeetingAction" xml:space="preserve"><value>This meeting action is invalid.</value></data>
+  <data name="InvalidButtonAction" xml:space="preserve"><value>This button is no longer valid. Use the newest notification or open the management tool.</value></data>
   <data name="InvalidMeetingResponse" xml:space="preserve"><value>The management tool returned an invalid meeting.</value></data>
   <data name="LinkedAccountLookupFailed" xml:space="preserve"><value>I could not look up your linked account right now. Please try again later.</value></data>
   <data name="LocationPending" xml:space="preserve"><value>Location pending</value></data>

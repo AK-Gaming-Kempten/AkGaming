@@ -20,24 +20,7 @@ public sealed class DiscordAllocationClaimInteractionTests
         var applicationId = Guid.NewGuid();
         var userId = Guid.NewGuid();
         var handler = new RecordingHandler(userId);
-        var clients = new Mock<IHttpClientFactory>(MockBehavior.Strict);
-        clients.Setup(factory => factory.CreateClient(nameof(DiscordInteractionService)))
-            .Returns(() => new HttpClient(handler, disposeHandler: false));
-        var identityOptions = Options.Create(new IdentityClientOptions
-        {
-            BaseUrl = "https://identity.test/",
-            UseAuthentication = false
-        });
-        var tokens = new ClientCredentialsTokenProvider(clients.Object, identityOptions);
-        var text = new BotText(new BotLocalizationOptions { Culture = "en-GB" });
-        var service = new DiscordInteractionService(
-            clients.Object,
-            tokens,
-            identityOptions,
-            Options.Create(new ManagementClientOptions { BaseUrl = "https://management.test/api/" }),
-            Options.Create(new DiscordInteractionOptions()),
-            Mock.Of<INotificationInbox>(),
-            text);
+        var service = CreateService(handler, out var text);
 
         // Act
         var result = await service.SetAllocationClaimDecisionAsync(
@@ -58,7 +41,49 @@ public sealed class DiscordAllocationClaimInteractionTests
         });
     }
 
-    private sealed class RecordingHandler(Guid userId) : HttpMessageHandler
+    [Test]
+    [Description("Tells an unlinked Discord user how to link their account when they try to review an allocation claim.")]
+    public async Task SetDecision_WhenDiscordAccountIsNotLinked_ReturnsLinkingInstructions()
+    {
+        // Arrange
+        var handler = new RecordingHandler(Guid.NewGuid(), isLinked: false);
+        var service = CreateService(handler, out var text);
+
+        // Act
+        var result = await service.SetAllocationClaimDecisionAsync(
+            "unlinked-discord-user",
+            Guid.NewGuid(),
+            true,
+            CancellationToken.None);
+
+        // Assert
+        Assert.That(result, Is.EqualTo(text["DiscordAccountNotLinkedWithHelp"]));
+        Assert.That(handler.ManagementPath, Is.Null);
+    }
+
+    private static DiscordInteractionService CreateService(RecordingHandler handler, out BotText text)
+    {
+        var clients = new Mock<IHttpClientFactory>(MockBehavior.Strict);
+        clients.Setup(factory => factory.CreateClient(nameof(DiscordInteractionService)))
+            .Returns(() => new HttpClient(handler, disposeHandler: false));
+        var identityOptions = Options.Create(new IdentityClientOptions
+        {
+            BaseUrl = "https://identity.test/",
+            UseAuthentication = false
+        });
+        var tokens = new ClientCredentialsTokenProvider(clients.Object, identityOptions);
+        text = new BotText(new BotLocalizationOptions { Culture = "en-GB" });
+        return new DiscordInteractionService(
+            clients.Object,
+            tokens,
+            identityOptions,
+            Options.Create(new ManagementClientOptions { BaseUrl = "https://management.test/api/" }),
+            Options.Create(new DiscordInteractionOptions()),
+            Mock.Of<INotificationInbox>(),
+            text);
+    }
+
+    private sealed class RecordingHandler(Guid userId, bool isLinked = true) : HttpMessageHandler
     {
         public string? ManagementPath { get; private set; }
         public JsonElement ManagementBody { get; private set; }
@@ -69,6 +94,8 @@ public sealed class DiscordAllocationClaimInteractionTests
         {
             if (request.RequestUri?.Host == "identity.test")
             {
+                if (!isLinked)
+                    return new HttpResponseMessage(HttpStatusCode.NotFound);
                 var link = new DiscordUserLinkResponse(
                     userId,
                     "Linked user",

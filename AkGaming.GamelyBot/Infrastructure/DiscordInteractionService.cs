@@ -237,7 +237,8 @@ public sealed class DiscordInteractionService(IHttpClientFactory clients, Client
         if (!identityResponse.IsSuccessStatusCode)
             return InteractionContext.Failure(text["LinkedAccountLookupFailed"]);
         var link = await identityResponse.Content.ReadFromJsonAsync<DiscordUserLinkResponse>(cancellationToken);
-        if (link?.IsLinked != true) return InteractionContext.Failure(text["DiscordAccountNotLinked"]);
+        if (link?.IsLinked != true)
+            return InteractionContext.Failure(text["DiscordAccountNotLinkedWithHelp"]);
         if (requireBoardAccess && !link.CanAccessBoardMeetings)
             return InteractionContext.Failure(text["BoardMemberUnauthorized"]);
 
