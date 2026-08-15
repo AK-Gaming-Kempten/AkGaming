@@ -37,7 +37,32 @@
                 @if (allocation.Applications.Count == 0) { <p class="ui-text-muted">@Text["Event_NoApplications"]</p> }
                 @foreach (var application in allocation.Applications)
                 {
-                    <article class="application-row"><div><strong>@application.ApplicantName</strong><button type="button" class="payment-details-button" @onclick="() => ShowPaymentDetails(application.PaymentMethod)"><span class="bi bi-credit-card"></span> @application.PaymentMethod.DisplayName <span class="bi bi-box-arrow-up-right"></span></button><small>@application.Approvals.Count(a => a.IsApproved) approval(s), @application.Approvals.Count(a => !a.IsApproved) objection(s)</small></div><strong>@application.Amount.ToString("N2") EUR</strong><AuthorizeView Policy="management.disbursements.manage"><Authorized><InputSelect TValue="AllocationApplicationStatus" Value="application.Status" ValueChanged="status => SetStatusAsync(application, status)" ValueExpression="() => application.Status" disabled="@_busy">@foreach (var status in Enum.GetValues<AllocationApplicationStatus>()) { <option value="@status">@status.ToLocalizedString(SharedText)</option> }</InputSelect></Authorized><NotAuthorized><span>@application.Status.ToLocalizedString(SharedText)</span></NotAuthorized></AuthorizeView></article>
+                    <article class="application-row">
+                        <div>
+                            <strong>@application.ApplicantName</strong>
+                            <button type="button" class="payment-details-button" @onclick="() => ShowPaymentDetails(application.PaymentMethod)"><span class="bi bi-credit-card"></span> @application.PaymentMethod.DisplayName <span class="bi bi-box-arrow-up-right"></span></button>
+                            <small>@application.Approvals.Count(a => a.IsApproved) approval(s), @application.Approvals.Count(a => !a.IsApproved) objection(s)</small>
+                        </div>
+                        <strong>@application.Amount.ToString("N2") EUR</strong>
+                        <AuthorizeView Policy="management.disbursements.manage">
+                            <Authorized>
+                                <InputSelect TValue="AllocationApplicationStatus" Value="application.Status" ValueChanged="status => SetStatusAsync(application, status)" ValueExpression="() => application.Status" disabled="@_busy">
+                                    @foreach (var status in Enum.GetValues<AllocationApplicationStatus>())
+                                    {
+                                        <option value="@status">@status.ToLocalizedString(SharedText)</option>
+                                    }
+                                </InputSelect>
+                                @if (CanModify(application))
+                                {
+                                    <ContextMenu AriaLabel="@Text["Allocation_ClaimActions"]">
+                                        <ContextMenuItem IconClass="bi-pencil" Text="@SharedText["Action_Edit"]" OnClick="() => OpenApplicationEditDialog(application, allocation)" />
+                                        <ContextMenuItem IconClass="bi-x-circle" Text="@Text["Allocation_CancelClaim"]" IsDestructive="true" OnClick="() => OpenApplicationCancelDialog(application)" />
+                                    </ContextMenu>
+                                }
+                            </Authorized>
+                            <NotAuthorized><span>@application.Status.ToLocalizedString(SharedText)</span></NotAuthorized>
+                        </AuthorizeView>
+                    </article>
                 }
             </section>
         }
@@ -52,4 +77,24 @@
 @if (_selectedPaymentMethod is not null)
 {
     <PaymentMethodDetailsDialog PaymentMethod="_selectedPaymentMethod" OnClose="HidePaymentDetails" />
+}
+
+@if (_editingApplication is not null)
+{
+    <AllocationApplicationEditDialog @key="_editingApplication.Id"
+                                     Application="_editingApplication"
+                                     MaximumAmount="_editingApplicationMaximum"
+                                     Busy="_busy"
+                                     Error="_applicationDialogError"
+                                     OnSubmit="UpdateApplicationAsync"
+                                     OnClose="CloseApplicationDialogs" />
+}
+
+@if (_cancellingApplication is not null)
+{
+    <AllocationApplicationCancelDialog Application="_cancellingApplication"
+                                       Busy="_busy"
+                                       Error="_applicationDialogError"
+                                       OnConfirm="CancelApplicationAsync"
+                                       OnClose="CloseApplicationDialogs" />
 }

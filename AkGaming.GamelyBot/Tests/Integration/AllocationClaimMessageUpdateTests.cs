@@ -91,6 +91,51 @@ public sealed class AllocationClaimMessageUpdateTests
         }
     }
 
+    [Test]
+    [Description("Creates a new Discord claim message when an amount change starts a fresh approval review.")]
+    public async Task ClaimSnapshots_WhenNewReviewStarts_CreatesNewDiscordMessage()
+    {
+        // Arrange
+        var databasePath = Path.Combine(Path.GetTempPath(), $"akgaming-gamelybot-{Guid.NewGuid():N}.db");
+        try
+        {
+            await using var factory = CreateFactory(databasePath);
+            using var client = factory.CreateClient();
+            var applicationId = Guid.NewGuid();
+            var original = Envelope(applicationId, ["Anna"], []);
+            var amountChanged = Envelope(applicationId, [], [], startsNewReview: true);
+            var newApproval = Envelope(applicationId, ["Berta"], []);
+
+            // Act
+            await client.PostAsJsonAsync("/api/notifications", original);
+            var firstDelivery = await WaitForDeliveriesAsync(client, 1);
+            await client.PostAsJsonAsync("/api/notifications", amountChanged);
+            var newReviewDeliveries = await WaitForDeliveriesAsync(client, 2);
+            await client.PostAsJsonAsync("/api/notifications", newApproval);
+            var deliveries = await WaitForDeliveriesAsync(client, 3);
+
+            // Assert
+            var originalMessageId = firstDelivery[0].GetProperty("externalMessageId").GetString();
+            var newReviewMessageId = newReviewDeliveries.EnumerateArray()
+                .Select(item => item.GetProperty("externalMessageId").GetString())
+                .Single(id => id != originalMessageId);
+            var messageIds = deliveries.EnumerateArray()
+                .Select(item => item.GetProperty("externalMessageId").GetString())
+                .ToList();
+            Assert.Multiple(() =>
+            {
+                Assert.That(messageIds.Distinct().ToList(), Has.Count.EqualTo(2));
+                Assert.That(messageIds.Count(id => id == originalMessageId), Is.EqualTo(1));
+                Assert.That(messageIds.Count(id => id == newReviewMessageId), Is.EqualTo(2));
+            });
+        }
+        finally
+        {
+            if (File.Exists(databasePath))
+                File.Delete(databasePath);
+        }
+    }
+
     private static WebApplicationFactory<Program> CreateFactory(string databasePath)
     {
         return new WebApplicationFactory<Program>().WithWebHostBuilder(builder =>
@@ -113,7 +158,8 @@ public sealed class AllocationClaimMessageUpdateTests
         Guid applicationId,
         IReadOnlyList<string> approvals,
         IReadOnlyList<string> objections,
-        string channelId = "channel-123")
+        string channelId = "channel-123",
+        bool startsNewReview = false)
     {
         var data = new AllocationClaimChangedNotification(
             applicationId,
@@ -127,7 +173,8 @@ public sealed class AllocationClaimMessageUpdateTests
             objections,
             "https://management.test/claim",
             channelId,
-            "role-456");
+            "role-456",
+            startsNewReview);
         return new NotificationEnvelope(
             Guid.NewGuid(),
             NotificationEventTypes.AllocationClaimChanged,

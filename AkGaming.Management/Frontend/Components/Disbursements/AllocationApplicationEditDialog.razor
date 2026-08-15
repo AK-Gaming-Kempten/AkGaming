@@ -1,0 +1,48 @@
+@using AkGaming.Management.Frontend.Components.GeneralMeetings
+
+<GeneralMeetingFormDialog Eyebrow="@Text["Allocation_Application"]"
+                          Title="@Text["Allocation_EditClaim"]"
+                          Description="@Text["Allocation_EditClaimHelp"]"
+                          OnClose="OnClose">
+    <ChildContent>
+        <div class="claim-edit-fields">
+            @if (!string.IsNullOrWhiteSpace(Error))
+            {
+                <p class="claim-dialog-error" role="alert">@Error</p>
+            }
+            <label>
+                @SharedText["Field_Amount"] (EUR)
+                <InputNumber @bind-Value="_model.Amount"
+                             min="0.01"
+                             max="@MaximumAmount"
+                             step="0.01"
+                             disabled="@Busy" />
+            </label>
+            <label>
+                @SharedText["Field_Note"]
+                <InputTextArea @bind-Value="_model.Note" disabled="@Busy" />
+            </label>
+            @if (AllowPaymentMethodSelection)
+            {
+                <div class="payment-field">
+                    <strong>@Text["Payment_Method"]</strong>
+                    <PaymentMethodSelector Methods="PaymentMethods"
+                                           @bind-Value="PaymentInformationId"
+                                           OnRefresh="OnRefreshPaymentMethods"
+                                           Disabled="@Busy" />
+                </div>
+            }
+            @if (AmountChanged)
+            {
+                <p class="amount-warning" role="alert">
+                    <span class="bi bi-exclamation-triangle"></span>
+                    @Text["Allocation_AmountChangeWarning"]
+                </p>
+            }
+        </div>
+    </ChildContent>
+    <Footer>
+        <button type="button" class="dialog-cancel" disabled="@Busy" @onclick="OnClose">@SharedText["Action_Cancel"]</button>
+        <button type="button" class="claim-save" disabled="@(Busy || !CanSubmit)" @onclick="SubmitAsync">@Text["Allocation_SaveClaim"]</button>
+    </Footer>
+</GeneralMeetingFormDialog>

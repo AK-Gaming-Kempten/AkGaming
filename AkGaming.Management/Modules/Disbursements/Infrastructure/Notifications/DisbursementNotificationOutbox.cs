@@ -43,6 +43,11 @@ public sealed class DisbursementNotificationOutbox(
 
     public void EnqueueAllocationClaimChanged(AllocationApplication application)
     {
+        EnqueueAllocationClaimChanged(application, false);
+    }
+
+    public void EnqueueAllocationClaimChanged(AllocationApplication application, bool startsNewReview)
+    {
         var allocation = application.Allocation
             ?? throw new InvalidOperationException("Allocation claim notifications require the allocation.");
         if (string.IsNullOrWhiteSpace(allocation.DiscordChannelId)
@@ -61,7 +66,8 @@ public sealed class DisbursementNotificationOutbox(
             application.Approvals.Where(item => !item.IsApproved).Select(item => item.ApproverName).Order().ToList(),
             BuildAllocationUrl(allocation.ShareToken),
             allocation.DiscordChannelId,
-            allocation.DiscordRoleId);
+            allocation.DiscordRoleId,
+            startsNewReview);
         Enqueue(NotificationEventTypes.AllocationClaimChanged, application.ApplicantUserId, data);
     }
 

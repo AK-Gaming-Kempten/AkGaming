@@ -45,13 +45,20 @@ public sealed class EfDisbursementRepository(DisbursementsDbContext dbContext) :
     public Task<List<Allocation>> GetAllocationsForUserAsync(Guid userId, CancellationToken cancellationToken) =>
         AllocationsQuery().Where(item => item.Applications.Any(application => application.ApplicantUserId == userId || application.Approvals.Any(approval => approval.ApproverUserId == userId))).ToListAsync(cancellationToken);
 
-    public async Task<bool> TryAddAllocationApplicationAsync(AllocationApplication application, decimal allocationAmount, int rejectedStatus, CancellationToken cancellationToken)
+    public async Task<bool> TryAddAllocationApplicationAsync(
+        AllocationApplication application,
+        decimal allocationAmount,
+        int rejectedStatus,
+        int cancelledStatus,
+        CancellationToken cancellationToken)
     {
         await using var transaction = await dbContext.Database.BeginTransactionAsync(IsolationLevel.Serializable, cancellationToken);
         try
         {
             var committedAmount = await dbContext.AllocationApplications
-                .Where(item => item.AllocationId == application.AllocationId && item.Status != rejectedStatus)
+                .Where(item => item.AllocationId == application.AllocationId
+                    && item.Status != rejectedStatus
+                    && item.Status != cancelledStatus)
                 .SumAsync(item => (decimal?)item.Amount, cancellationToken) ?? 0m;
             if (committedAmount + application.Amount > allocationAmount)
             {
@@ -71,15 +78,47 @@ public sealed class EfDisbursementRepository(DisbursementsDbContext dbContext) :
         }
     }
 
-    public async Task<bool> TryUpdateAllocationApplicationStatusAsync(AllocationApplication application, int newStatus, decimal allocationAmount, int rejectedStatus, CancellationToken cancellationToken)
+    public Task<bool> TryUpdateAllocationApplicationAsync(
+        AllocationApplication application,
+        decimal allocationAmount,
+        int rejectedStatus,
+        int cancelledStatus,
+        CancellationToken cancellationToken)
+    {
+        return TrySaveAllocationApplicationAsync(application, application.Status, allocationAmount,
+            rejectedStatus, cancelledStatus, cancellationToken);
+    }
+
+    public Task<bool> TryUpdateAllocationApplicationStatusAsync(
+        AllocationApplication application,
+        int newStatus,
+        decimal allocationAmount,
+        int rejectedStatus,
+        int cancelledStatus,
+        CancellationToken cancellationToken)
+    {
+        return TrySaveAllocationApplicationAsync(application, newStatus, allocationAmount,
+            rejectedStatus, cancelledStatus, cancellationToken);
+    }
+
+    private async Task<bool> TrySaveAllocationApplicationAsync(
+        AllocationApplication application,
+        int newStatus,
+        decimal allocationAmount,
+        int rejectedStatus,
+        int cancelledStatus,
+        CancellationToken cancellationToken)
     {
         await using var transaction = await dbContext.Database.BeginTransactionAsync(IsolationLevel.Serializable, cancellationToken);
         try
         {
-            if (newStatus != rejectedStatus)
+            if (newStatus != rejectedStatus && newStatus != cancelledStatus)
             {
                 var otherCommittedAmount = await dbContext.AllocationApplications
-                    .Where(item => item.AllocationId == application.AllocationId && item.Id != application.Id && item.Status != rejectedStatus)
+                    .Where(item => item.AllocationId == application.AllocationId
+                        && item.Id != application.Id
+                        && item.Status != rejectedStatus
+                        && item.Status != cancelledStatus)
                     .SumAsync(item => (decimal?)item.Amount, cancellationToken) ?? 0m;
                 if (otherCommittedAmount + application.Amount > allocationAmount)
                 {
@@ -101,6 +140,7 @@ public sealed class EfDisbursementRepository(DisbursementsDbContext dbContext) :
     }
 
     public void Add<T>(T entity) where T : class => dbContext.Add(entity);
+    public void RemoveRange<T>(IEnumerable<T> entities) where T : class => dbContext.RemoveRange(entities);
     public Task SaveChangesAsync(CancellationToken cancellationToken) => dbContext.SaveChangesAsync(cancellationToken);
 
     private IQueryable<Reimbursement> ReimbursementsQuery() => dbContext.Reimbursements.Include(item => item.Expenses).ThenInclude(item => item.Receipts).AsSplitQuery();

@@ -206,7 +206,7 @@ public sealed class DisbursementService(
             return Result<AllocationDto>.Failure("Allocation not found.");
 
         var committedAmount = allocation.Applications
-            .Where(application => (AllocationApplicationStatus)application.Status != AllocationApplicationStatus.Rejected)
+            .Where(application => IsActive((AllocationApplicationStatus)application.Status))
             .Sum(application => application.Amount);
         if (request.Amount < committedAmount)
             return Result<AllocationDto>.Failure("The allocation amount cannot be lower than the amount already claimed.");
@@ -253,9 +253,12 @@ public sealed class DisbursementService(
             return Result<AllocationApplicationDto>.Failure("Allocation not found.");
         if (request.Amount <= 0 || request.Amount > allocation.Amount)
             return Result<AllocationApplicationDto>.Failure("The requested amount must be positive and cannot exceed the allocation amount.");
-        if (allocation.Applications.Any(item => item.ApplicantUserId == userId && (AllocationApplicationStatus)item.Status != AllocationApplicationStatus.Rejected))
+        if (allocation.Applications.Any(item => item.ApplicantUserId == userId
+            && IsActive((AllocationApplicationStatus)item.Status)))
             return Result<AllocationApplicationDto>.Failure("You already have an active application for this allocation.");
-        var committed = allocation.Applications.Where(item => (AllocationApplicationStatus)item.Status != AllocationApplicationStatus.Rejected).Sum(item => item.Amount);
+        var committed = allocation.Applications
+            .Where(item => IsActive((AllocationApplicationStatus)item.Status))
+            .Sum(item => item.Amount);
         if (committed + request.Amount > allocation.Amount)
             return Result<AllocationApplicationDto>.Failure("The requested amount exceeds the remaining allocation.");
 
@@ -270,10 +273,67 @@ public sealed class DisbursementService(
             CreatedAt = DateTimeOffset.UtcNow, PaymentMethod = Snapshot(paymentResult.Value!)
         };
         notificationOutbox.EnqueueAllocationClaimChanged(application);
-        var wasReserved = await repository.TryAddAllocationApplicationAsync(application, allocation.Amount, (int)AllocationApplicationStatus.Rejected, cancellationToken);
+        var wasReserved = await repository.TryAddAllocationApplicationAsync(
+            application,
+            allocation.Amount,
+            (int)AllocationApplicationStatus.Rejected,
+            (int)AllocationApplicationStatus.Cancelled,
+            cancellationToken);
         if (!wasReserved)
             return Result<AllocationApplicationDto>.Failure("The available amount changed while the application was submitted. Refresh the allocation and try again.");
         return Result<AllocationApplicationDto>.Success(ToDto(application));
+    }
+
+    public async Task<Result<AllocationApplicationDto>> UpdateOwnAllocationApplicationAsync(
+        Guid token,
+        Guid applicationId,
+        Guid userId,
+        UpdateAllocationApplicationRequest request,
+        CancellationToken cancellationToken = default)
+    {
+        var allocation = await repository.GetAllocationByTokenAsync(token, cancellationToken);
+        var application = allocation?.Applications.FirstOrDefault(item => item.Id == applicationId);
+        if (application is null || application.ApplicantUserId != userId)
+            return Result<AllocationApplicationDto>.Failure("Application not found.");
+
+        return await UpdateAllocationApplicationCoreAsync(application, request, cancellationToken);
+    }
+
+    public async Task<Result<AllocationApplicationDto>> UpdateAllocationApplicationAsync(
+        Guid applicationId,
+        UpdateAllocationApplicationRequest request,
+        CancellationToken cancellationToken = default)
+    {
+        var application = await repository.GetApplicationAsync(applicationId, cancellationToken);
+        if (application is null)
+            return Result<AllocationApplicationDto>.Failure("Application not found.");
+
+        return await UpdateAllocationApplicationCoreAsync(application, request, cancellationToken);
+    }
+
+    public async Task<Result<AllocationApplicationDto>> CancelOwnAllocationApplicationAsync(
+        Guid token,
+        Guid applicationId,
+        Guid userId,
+        CancellationToken cancellationToken = default)
+    {
+        var allocation = await repository.GetAllocationByTokenAsync(token, cancellationToken);
+        var application = allocation?.Applications.FirstOrDefault(item => item.Id == applicationId);
+        if (application is null || application.ApplicantUserId != userId)
+            return Result<AllocationApplicationDto>.Failure("Application not found.");
+
+        return await CancelAllocationApplicationCoreAsync(application, cancellationToken);
+    }
+
+    public async Task<Result<AllocationApplicationDto>> CancelAllocationApplicationAsync(
+        Guid applicationId,
+        CancellationToken cancellationToken = default)
+    {
+        var application = await repository.GetApplicationAsync(applicationId, cancellationToken);
+        if (application is null)
+            return Result<AllocationApplicationDto>.Failure("Application not found.");
+
+        return await CancelAllocationApplicationCoreAsync(application, cancellationToken);
     }
 
     public async Task<Result<AllocationApplicationDto>> DecideAsync(Guid token, Guid applicationId, Guid userId, string approverName, DecideAllocationApplicationRequest request, CancellationToken cancellationToken = default)
@@ -309,6 +369,9 @@ public sealed class DisbursementService(
         bool isApproved,
         CancellationToken cancellationToken)
     {
+        if (IsTerminal((AllocationApplicationStatus)application.Status))
+            return Result<AllocationApplicationDto>.Failure("This application can no longer be reviewed.");
+
         var decision = application.Approvals.FirstOrDefault(item => item.ApproverUserId == userId);
         if (decision is null)
         {
@@ -331,13 +394,100 @@ public sealed class DisbursementService(
             return Result<AllocationApplicationDto>.Failure("Application not found.");
         if (application.Allocation is null)
             return Result<AllocationApplicationDto>.Failure("Allocation not found.");
+        if (IsTerminal((AllocationApplicationStatus)application.Status)
+            && application.Status != (int)request.Status)
+            return Result<AllocationApplicationDto>.Failure("This application has reached a terminal status and can no longer be changed.");
         var statusChanged = application.Status != (int)request.Status;
         application.Status = (int)request.Status;
         if (statusChanged)
             notificationOutbox.EnqueueAllocationClaimChanged(application);
-        var wasUpdated = await repository.TryUpdateAllocationApplicationStatusAsync(application, (int)request.Status, application.Allocation.Amount, (int)AllocationApplicationStatus.Rejected, cancellationToken);
+        var wasUpdated = await repository.TryUpdateAllocationApplicationStatusAsync(
+            application,
+            (int)request.Status,
+            application.Allocation.Amount,
+            (int)AllocationApplicationStatus.Rejected,
+            (int)AllocationApplicationStatus.Cancelled,
+            cancellationToken);
         if (!wasUpdated)
             return Result<AllocationApplicationDto>.Failure("The status change would exceed the allocation amount. Refresh and try again.");
+        return Result<AllocationApplicationDto>.Success(ToDto(application));
+    }
+
+    private async Task<Result<AllocationApplicationDto>> UpdateAllocationApplicationCoreAsync(
+        AllocationApplication application,
+        UpdateAllocationApplicationRequest request,
+        CancellationToken cancellationToken)
+    {
+        if (application.Allocation is null)
+            return Result<AllocationApplicationDto>.Failure("Allocation not found.");
+        if (IsTerminal((AllocationApplicationStatus)application.Status))
+            return Result<AllocationApplicationDto>.Failure("This application can no longer be adjusted.");
+        if (request.Amount <= 0 || request.Amount > application.Allocation.Amount)
+            return Result<AllocationApplicationDto>.Failure("The requested amount must be positive and cannot exceed the allocation amount.");
+
+        PaymentInformationDto? paymentMethod = null;
+        if (request.PaymentInformationId.HasValue
+            && request.PaymentInformationId.Value != application.PaymentMethod.PaymentInformationId)
+        {
+            var paymentResult = await GetOwnedPaymentMethodAsync(
+                application.ApplicantUserId, request.PaymentInformationId.Value);
+            if (!paymentResult.IsSuccess)
+                return Result<AllocationApplicationDto>.Failure(paymentResult.Error!);
+            paymentMethod = paymentResult.Value;
+        }
+
+        var cleanedNote = Clean(request.Note);
+        var amountChanged = request.Amount != application.Amount;
+        var noteChanged = cleanedNote != application.Note;
+        if (!amountChanged && !noteChanged && paymentMethod is null)
+            return Result<AllocationApplicationDto>.Success(ToDto(application));
+
+        application.Amount = request.Amount;
+        application.Note = cleanedNote;
+        if (paymentMethod is not null)
+            application.PaymentMethod = Snapshot(paymentMethod);
+        if (amountChanged)
+        {
+            var approvals = application.Approvals.ToList();
+            repository.RemoveRange(approvals);
+            application.Approvals.Clear();
+            application.Status = (int)AllocationApplicationStatus.Submitted;
+        }
+
+        notificationOutbox.EnqueueAllocationClaimChanged(application, amountChanged);
+        var wasUpdated = await repository.TryUpdateAllocationApplicationAsync(
+            application,
+            application.Allocation.Amount,
+            (int)AllocationApplicationStatus.Rejected,
+            (int)AllocationApplicationStatus.Cancelled,
+            cancellationToken);
+        if (!wasUpdated)
+            return Result<AllocationApplicationDto>.Failure("The requested amount exceeds the remaining allocation. Refresh and try again.");
+
+        return Result<AllocationApplicationDto>.Success(ToDto(application));
+    }
+
+    private async Task<Result<AllocationApplicationDto>> CancelAllocationApplicationCoreAsync(
+        AllocationApplication application,
+        CancellationToken cancellationToken)
+    {
+        if (application.Allocation is null)
+            return Result<AllocationApplicationDto>.Failure("Allocation not found.");
+        if (IsTerminal((AllocationApplicationStatus)application.Status))
+            return Result<AllocationApplicationDto>.Failure("This application can no longer be cancelled.");
+
+        application.Status = (int)AllocationApplicationStatus.Cancelled;
+        notificationOutbox.EnqueueAllocationClaimChanged(application);
+        var wasUpdated = await repository.TryUpdateAllocationApplicationStatusAsync(
+            application,
+            (int)AllocationApplicationStatus.Cancelled,
+            application.Allocation.Amount,
+            (int)AllocationApplicationStatus.Rejected,
+            (int)AllocationApplicationStatus.Cancelled,
+            cancellationToken);
+        if (!wasUpdated)
+            return Result<AllocationApplicationDto>.Failure("The application could not be cancelled. Refresh and try again.");
+
         return Result<AllocationApplicationDto>.Success(ToDto(application));
     }
 
@@ -414,6 +564,11 @@ public sealed class DisbursementService(
 
     private static string LastFour(string? value) => string.IsNullOrWhiteSpace(value) ? string.Empty : value.Length <= 4 ? value : value[^4..];
     private static string? Clean(string? value) => string.IsNullOrWhiteSpace(value) ? null : value.Trim();
+    private static bool IsActive(AllocationApplicationStatus status) =>
+        status is not AllocationApplicationStatus.Rejected and not AllocationApplicationStatus.Cancelled;
+    private static bool IsTerminal(AllocationApplicationStatus status) =>
+        status is AllocationApplicationStatus.Paid or AllocationApplicationStatus.Rejected
+            or AllocationApplicationStatus.Cancelled;
 
     private static ReimbursementDto ToDto(Reimbursement item) => new()
     {

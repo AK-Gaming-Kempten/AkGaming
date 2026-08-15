@@ -50,4 +50,51 @@ public sealed class DisbursementAdministrationControllerTests
         Assert.That(response, Is.TypeOf<NoContentResult>());
         service.Verify(item => item.SendAllocationNotificationAsync(allocationId, CancellationToken.None), Times.Once);
     }
+
+    [Test]
+    [Description("Passes an administrator's claim adjustment to the disbursement service.")]
+    public async Task UpdateApplication_WhenRequestIsValid_ReturnsUpdatedClaim()
+    {
+        // Arrange
+        var applicationId = Guid.NewGuid();
+        var request = new UpdateAllocationApplicationRequest { Amount = 175m, Note = "Adjusted" };
+        var application = new AllocationApplicationDto { Id = applicationId, Amount = request.Amount };
+        var service = new Mock<IDisbursementService>(MockBehavior.Strict);
+        service.Setup(item => item.UpdateAllocationApplicationAsync(
+                applicationId, request, CancellationToken.None))
+            .ReturnsAsync(Result<AllocationApplicationDto>.Success(application));
+        var controller = new DisbursementAdministrationController(service.Object);
+
+        // Act
+        var response = await controller.UpdateApplication(
+            applicationId, request, CancellationToken.None);
+
+        // Assert
+        var ok = response.Result as OkObjectResult;
+        Assert.That(ok?.Value, Is.SameAs(application));
+        service.Verify(item => item.UpdateAllocationApplicationAsync(
+            applicationId, request, CancellationToken.None), Times.Once);
+    }
+
+    [Test]
+    [Description("Passes an administrator's claim cancellation to the disbursement service.")]
+    public async Task CancelApplication_WhenClaimIsActive_ReturnsCancelledClaim()
+    {
+        // Arrange
+        var applicationId = Guid.NewGuid();
+        var application = new AllocationApplicationDto { Id = applicationId };
+        var service = new Mock<IDisbursementService>(MockBehavior.Strict);
+        service.Setup(item => item.CancelAllocationApplicationAsync(applicationId, CancellationToken.None))
+            .ReturnsAsync(Result<AllocationApplicationDto>.Success(application));
+        var controller = new DisbursementAdministrationController(service.Object);
+
+        // Act
+        var response = await controller.CancelApplication(applicationId, CancellationToken.None);
+
+        // Assert
+        var ok = response.Result as OkObjectResult;
+        Assert.That(ok?.Value, Is.SameAs(application));
+        service.Verify(item => item.CancelAllocationApplicationAsync(
+            applicationId, CancellationToken.None), Times.Once);
+    }
 }

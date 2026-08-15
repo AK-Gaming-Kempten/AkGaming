@@ -17,12 +17,17 @@ public partial class AllocationClaimPage : ComponentBase
     private AllocationDto? _allocation;
     private List<PaymentInformationDto> _paymentMethods = [];
     private CreateAllocationApplicationRequest _application = new();
+    private AllocationApplicationDto? _editingApplication;
+    private AllocationApplicationDto? _cancellingApplication;
     private Guid _userId;
     private bool _busy;
     private string? _error;
     private string? _message;
+    private string? _dialogError;
     private decimal Remaining => _allocation is null ? 0 : _allocation.Amount - _allocation.AppliedAmount;
-    private bool HasOwnApplication => _allocation?.Applications.Any(item => item.ApplicantUserId == _userId && item.Status != AllocationApplicationStatus.Rejected) ?? false;
+    private bool HasOwnApplication => _allocation?.Applications.Any(item => item.ApplicantUserId == _userId
+        && item.Status is not AllocationApplicationStatus.Rejected
+            and not AllocationApplicationStatus.Cancelled) ?? false;
 
     protected override async Task OnParametersSetAsync()
     {
@@ -55,5 +60,85 @@ public partial class AllocationClaimPage : ComponentBase
         _busy = true; _error = null; var result = await Api.DecideAsync(Token, applicationId, new DecideAllocationApplicationRequest { IsApproved = isApproved }); _busy = false;
         if (!result.IsSuccess) { _error = result.Error; return; }
         _message = isApproved ? "Approval recorded." : "Objection recorded."; await LoadAsync();
+    }
+
+    private void OpenEditDialog(AllocationApplicationDto application)
+    {
+        _editingApplication = application;
+        _cancellingApplication = null;
+        _dialogError = null;
+    }
+
+    private void OpenCancelDialog(AllocationApplicationDto application)
+    {
+        _cancellingApplication = application;
+        _editingApplication = null;
+        _dialogError = null;
+    }
+
+    private async Task UpdateApplicationAsync(UpdateAllocationApplicationRequest request)
+    {
+        if (_editingApplication is null)
+            return;
+
+        _busy = true;
+        _dialogError = null;
+        var result = await Api.UpdateMyApplicationAsync(Token, _editingApplication.Id, request);
+        _busy = false;
+        if (!result.IsSuccess)
+        {
+            _dialogError = result.Error;
+            return;
+        }
+
+        _message = Text["Allocation_ClaimUpdated"];
+        CloseDialogs();
+        await LoadAsync();
+    }
+
+    private async Task CancelApplicationAsync()
+    {
+        if (_cancellingApplication is null)
+            return;
+
+        _busy = true;
+        _dialogError = null;
+        var result = await Api.CancelMyApplicationAsync(Token, _cancellingApplication.Id);
+        _busy = false;
+        if (!result.IsSuccess)
+        {
+            _dialogError = result.Error;
+            return;
+        }
+
+        _message = Text["Allocation_ClaimCancelled"];
+        CloseDialogs();
+        await LoadAsync();
+    }
+
+    private void CloseDialogs()
+    {
+        if (_busy)
+            return;
+        _editingApplication = null;
+        _cancellingApplication = null;
+        _dialogError = null;
+    }
+
+    private decimal MaximumEditableAmount(AllocationApplicationDto application)
+    {
+        return Remaining + application.Amount;
+    }
+
+    private static bool CanModify(AllocationApplicationDto application)
+    {
+        return application.Status is not AllocationApplicationStatus.Paid
+            and not AllocationApplicationStatus.Rejected
+            and not AllocationApplicationStatus.Cancelled;
+    }
+
+    private static bool CanReview(AllocationApplicationDto application)
+    {
+        return CanModify(application);
     }
 }

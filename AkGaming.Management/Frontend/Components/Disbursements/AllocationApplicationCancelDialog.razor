@@ -1,0 +1,21 @@
+@using AkGaming.Management.Frontend.Components.GeneralMeetings
+
+<GeneralMeetingFormDialog Eyebrow="@Text["Allocation_Application"]"
+                          Title="@Text["Allocation_CancelClaim"]"
+                          Description="@Text["Allocation_CancelClaimHelp"]"
+                          OnClose="OnClose">
+    <ChildContent>
+        <div class="claim-cancel-summary">
+            <strong>@Application.ApplicantName</strong>
+            <span>@Application.Amount.ToString("N2") EUR</span>
+            @if (!string.IsNullOrWhiteSpace(Error))
+            {
+                <p class="claim-dialog-error" role="alert">@Error</p>
+            }
+        </div>
+    </ChildContent>
+    <Footer>
+        <button type="button" class="dialog-cancel" disabled="@Busy" @onclick="OnClose">@SharedText["Action_Cancel"]</button>
+        <button type="button" class="claim-cancel" disabled="@Busy" @onclick="OnConfirm">@Text["Allocation_ConfirmCancelClaim"]</button>
+    </Footer>
+</GeneralMeetingFormDialog>

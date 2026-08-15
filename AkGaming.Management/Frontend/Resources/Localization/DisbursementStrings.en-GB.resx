@@ -49,6 +49,17 @@
   <data name="Allocation_DiscordUnavailable" xml:space="preserve"><value>Discord channels and roles could not be loaded. You can still create the allocation without Discord notifications.</value></data>
   <data name="Allocation_SelectDiscordRole" xml:space="preserve"><value>Select a Discord role</value></data>
   <data name="Allocation_MyNone" xml:space="preserve"><value>You have not interacted with any allocations yet. Allocation links are shared directly by event organisers.</value></data>
+  <data name="Allocation_Application" xml:space="preserve"><value>Allocation claim</value></data>
+  <data name="Allocation_ClaimActions" xml:space="preserve"><value>Claim actions</value></data>
+  <data name="Allocation_EditClaim" xml:space="preserve"><value>Adjust claim</value></data>
+  <data name="Allocation_EditClaimHelp" xml:space="preserve"><value>Update the requested amount, note, or payout method while the claim is still active.</value></data>
+  <data name="Allocation_AmountChangeWarning" xml:space="preserve"><value>Changing the amount resets all approvals and objections. A new Discord review notification will be sent when Discord is configured.</value></data>
+  <data name="Allocation_SaveClaim" xml:space="preserve"><value>Save claim</value></data>
+  <data name="Allocation_ClaimUpdated" xml:space="preserve"><value>The claim was updated.</value></data>
+  <data name="Allocation_CancelClaim" xml:space="preserve"><value>Cancel claim</value></data>
+  <data name="Allocation_CancelClaimHelp" xml:space="preserve"><value>This releases the reserved amount and closes the claim. The claim cannot be edited or reviewed afterwards.</value></data>
+  <data name="Allocation_ConfirmCancelClaim" xml:space="preserve"><value>Cancel claim</value></data>
+  <data name="Allocation_ClaimCancelled" xml:space="preserve"><value>The claim was cancelled.</value></data>
   <data name="Payment_Method" xml:space="preserve"><value>Payout method</value></data>
   <data name="Payment_None" xml:space="preserve"><value>No payment method available</value></data>
   <data name="Payment_NoneHelp" xml:space="preserve"><value>Add one on your profile in a separate tab, then refresh this list. Your form entries will stay here.</value></data>

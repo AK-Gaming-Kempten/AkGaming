@@ -94,7 +94,7 @@ public sealed class NotificationRenderer(
         var objections = RenderNames(data.Objections);
         var body = text.Format("AllocationClaimBody", data.EventName, data.AllocationName, data.ApplicantName,
             amount, FormatStatus(data.Status), note, data.Approvals.Count, approvals, data.Objections.Count, objections);
-        var buttons = data.Status is "Paid" or "Rejected"
+        var buttons = data.Status is "Paid" or "Rejected" or "Cancelled"
             ? null
             : new[]
             {

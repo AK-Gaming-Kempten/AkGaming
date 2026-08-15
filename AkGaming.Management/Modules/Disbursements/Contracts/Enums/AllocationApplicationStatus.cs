@@ -5,5 +5,6 @@ public enum AllocationApplicationStatus
     Submitted,
     Approved,
     Rejected,
-    Paid
+    Paid,
+    Cancelled
 }

@@ -71,6 +71,23 @@ public sealed class AllocationClaimNotificationRendererTests
     }
 
     [Test]
+    [Description("Removes allocation decision buttons when the claimant or an administrator cancels the claim.")]
+    public void Render_WhenClaimIsCancelled_RemovesDecisionButtons()
+    {
+        // Arrange
+        var notification = Notification(new AllocationClaimChangedNotification(
+            Guid.NewGuid(), "Summer cup", "Team prize", "Chris", 200m, null, "Cancelled",
+            ["Anna"], [], null, "channel-123", "role-456"));
+
+        // Act
+        var rendered = _renderer.Render(notification);
+
+        // Assert
+        Assert.That(rendered.ChannelMessage?.Buttons, Is.Null);
+        Assert.That(rendered.ChannelMessage?.Body, Does.Contain("cancelled"));
+    }
+
+    [Test]
     [Description("Renders an available-prize announcement in the allocation channel with its role mention and claim link.")]
     public void Render_WhenAllocationIsAvailable_IncludesPrizeDetailsAndRouting()
     {

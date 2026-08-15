@@ -81,7 +81,8 @@ public sealed record AllocationClaimChangedNotification(
     IReadOnlyList<string> Objections,
     string? ManagementUrl,
     string ChannelId,
-    string RoleId);
+    string RoleId,
+    bool StartsNewReview = false);
 
 public sealed record AllocationAvailableNotification(
     Guid AllocationId,

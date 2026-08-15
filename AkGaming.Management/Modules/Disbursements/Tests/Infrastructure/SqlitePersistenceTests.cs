@@ -1,10 +1,14 @@
+using AkGaming.Core.Common.Generics;
 using AkGaming.Management.Modules.Disbursements.Application.Interfaces;
 using AkGaming.Management.Modules.Disbursements.Application.Services;
 using AkGaming.Management.Modules.Disbursements.Contracts.DTO;
+using AkGaming.Management.Modules.Disbursements.Contracts.Enums;
 using AkGaming.Management.Modules.Disbursements.Domain.Entities;
 using AkGaming.Management.Modules.Disbursements.Infrastructure.Persistence;
 using AkGaming.Management.Modules.Disbursements.Infrastructure.Notifications;
 using AkGaming.Management.Modules.MemberManagement.Contracts.Services;
+using AkGaming.Management.Modules.MemberManagement.Contracts.DTO;
+using AkGaming.Management.Modules.MemberManagement.Contracts.Enums;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Moq;
@@ -165,5 +169,161 @@ public sealed class SqlitePersistenceTests
         var storedApproval = await context.AllocationApprovals.SingleAsync();
         Assert.That(storedApproval.ApproverUserId, Is.EqualTo(approverUserId));
         Assert.That(storedApproval.IsApproved, Is.True);
+    }
+
+    [Test]
+    [Description("Persists an adjusted SQLite claim, removes its approvals, and records that Discord must start a new review.")]
+    public async Task Service_WhenAmountChanges_PersistsResetAndNewReviewNotification()
+    {
+        // Arrange
+        await using var connection = new SqliteConnection("Data Source=:memory:");
+        await connection.OpenAsync();
+        var options = new DbContextOptionsBuilder<DisbursementsDbContext>()
+            .UseSqlite(connection, database => database.MigrationsAssembly("AkGaming.Management.Modules.Disbursements.Migrations.Sqlite"))
+            .Options;
+        await using var context = new DisbursementsDbContext(options);
+        await context.Database.MigrateAsync();
+        var application = new AllocationApplication
+        {
+            ApplicantUserId = Guid.NewGuid(),
+            ApplicantName = "Applicant",
+            Amount = 100m,
+            Status = (int)AllocationApplicationStatus.Approved,
+            CreatedAt = DateTimeOffset.UtcNow,
+            Approvals =
+            [
+                new AllocationApproval
+                {
+                    ApproverUserId = Guid.NewGuid(),
+                    ApproverName = "Teammate",
+                    IsApproved = true,
+                    CreatedAt = DateTimeOffset.UtcNow
+                }
+            ]
+        };
+        var allocation = new Allocation
+        {
+            Name = "Team prize",
+            Amount = 300m,
+            DiscordChannelId = "channel-123",
+            DiscordRoleId = "role-456",
+            Event = new DisbursementEvent { Name = "Summer cup", CreatedAt = DateTimeOffset.UtcNow },
+            Applications = [application]
+        };
+        context.Add(allocation);
+        await context.SaveChangesAsync();
+        context.ChangeTracker.Clear();
+        var repository = new EfDisbursementRepository(context);
+        var outbox = new DisbursementNotificationOutbox(context,
+            Options.Create(new DisbursementNotificationOptions
+            {
+                ManagementFrontendBaseUrl = "https://management.test.akgaming.de"
+            }));
+        var service = new DisbursementService(
+            repository,
+            Mock.Of<IReceiptFileStorage>(),
+            Mock.Of<IPaymentInformationService>(),
+            outbox);
+
+        // Act
+        var result = await service.UpdateAllocationApplicationAsync(
+            application.Id,
+            new UpdateAllocationApplicationRequest { Amount = 150m, Note = "Updated" });
+
+        // Assert
+        Assert.That(result.IsSuccess, Is.True);
+        context.ChangeTracker.Clear();
+        var stored = await context.AllocationApplications
+            .Include(item => item.Approvals)
+            .SingleAsync(item => item.Id == application.Id);
+        var notification = await context.NotificationOutbox.SingleAsync();
+        Assert.Multiple(() =>
+        {
+            Assert.That(stored.Amount, Is.EqualTo(150m));
+            Assert.That(stored.Status, Is.EqualTo((int)AllocationApplicationStatus.Submitted));
+            Assert.That(stored.Approvals, Is.Empty);
+            Assert.That(notification.PayloadJson, Does.Contain("\"startsNewReview\":true"));
+        });
+    }
+
+    [Test]
+    [Description("Releases a cancelled SQLite claim so another applicant can reserve the same allocation amount.")]
+    public async Task Service_WhenClaimIsCancelled_ReleasesAmountForAnotherClaim()
+    {
+        // Arrange
+        await using var connection = new SqliteConnection("Data Source=:memory:");
+        await connection.OpenAsync();
+        var options = new DbContextOptionsBuilder<DisbursementsDbContext>()
+            .UseSqlite(connection, database => database.MigrationsAssembly("AkGaming.Management.Modules.Disbursements.Migrations.Sqlite"))
+            .Options;
+        await using var context = new DisbursementsDbContext(options);
+        await context.Database.MigrateAsync();
+        var existingApplication = new AllocationApplication
+        {
+            ApplicantUserId = Guid.NewGuid(),
+            ApplicantName = "First applicant",
+            Amount = 100m,
+            Status = (int)AllocationApplicationStatus.Submitted,
+            CreatedAt = DateTimeOffset.UtcNow
+        };
+        var allocation = new Allocation
+        {
+            Name = "Team prize",
+            Amount = 100m,
+            Event = new DisbursementEvent { Name = "Summer cup", CreatedAt = DateTimeOffset.UtcNow },
+            Applications = [existingApplication]
+        };
+        context.Add(allocation);
+        await context.SaveChangesAsync();
+        context.ChangeTracker.Clear();
+        var newApplicantId = Guid.NewGuid();
+        var paymentMethodId = Guid.NewGuid();
+        var payments = new Mock<IPaymentInformationService>(MockBehavior.Strict);
+        payments.Setup(service => service.GetForUserAsync(newApplicantId))
+            .ReturnsAsync(Result<ICollection<PaymentInformationDto>>.Success(
+                [
+                    new PaymentInformationDto
+                    {
+                        Id = paymentMethodId,
+                        Type = PaymentInformationType.PayPal,
+                        PayPalEmail = "applicant@example.org"
+                    }
+                ]));
+        var repository = new EfDisbursementRepository(context);
+        var notifications = new Mock<IDisbursementNotificationOutbox>();
+        var service = new DisbursementService(
+            repository,
+            Mock.Of<IReceiptFileStorage>(),
+            payments.Object,
+            notifications.Object);
+
+        // Act
+        var cancellation = await service.CancelAllocationApplicationAsync(existingApplication.Id);
+        var replacement = await service.ApplyAsync(
+            allocation.ShareToken,
+            newApplicantId,
+            "Second applicant",
+            new CreateAllocationApplicationRequest
+            {
+                Amount = 100m,
+                PaymentInformationId = paymentMethodId
+            });
+
+        // Assert
+        Assert.Multiple(() =>
+        {
+            Assert.That(cancellation.IsSuccess, Is.True);
+            Assert.That(replacement.IsSuccess, Is.True);
+            Assert.That(replacement.Value!.Amount, Is.EqualTo(100m));
+        });
+        context.ChangeTracker.Clear();
+        var statuses = await context.AllocationApplications
+            .Select(item => item.Status)
+            .ToListAsync();
+        Assert.That(statuses, Is.EquivalentTo(new[]
+        {
+            (int)AllocationApplicationStatus.Cancelled,
+            (int)AllocationApplicationStatus.Submitted
+        }));
     }
 }

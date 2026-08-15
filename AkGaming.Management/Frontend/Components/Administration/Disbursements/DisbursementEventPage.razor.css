@@ -3,3 +3,5 @@
 .discord-route{display:flex;gap:.35rem;align-items:center;color:var(--color-text-secondary)}
 .allocation-actions{display:flex;align-items:center;gap:.4rem}
 .success{color:var(--color-success,#35a06f)}
+.application-row{grid-template-columns:minmax(0,1fr) auto minmax(130px,auto) auto}
+@media(max-width:700px){.application-row{grid-template-columns:1fr}}

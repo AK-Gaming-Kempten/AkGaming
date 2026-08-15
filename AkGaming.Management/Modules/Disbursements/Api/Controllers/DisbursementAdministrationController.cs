@@ -100,4 +100,31 @@ public sealed class DisbursementAdministrationController(IDisbursementService se
         var result = await service.UpdateApplicationStatusAsync(applicationId, request, cancellationToken);
         return result.IsSuccess ? Ok(result.Value) : NotFound(result.Error);
     }
+
+    [HttpPut("applications/{applicationId:guid}")]
+    [Authorize(Policy = "management.disbursements.manage")]
+    public async Task<ActionResult<AllocationApplicationDto>> UpdateApplication(
+        Guid applicationId,
+        [FromBody] UpdateAllocationApplicationRequest request,
+        CancellationToken cancellationToken)
+    {
+        var result = await service.UpdateAllocationApplicationAsync(applicationId, request, cancellationToken);
+        if (!result.IsSuccess)
+            return BadRequest(result.Error);
+
+        return Ok(result.Value);
+    }
+
+    [HttpPost("applications/{applicationId:guid}/cancel")]
+    [Authorize(Policy = "management.disbursements.manage")]
+    public async Task<ActionResult<AllocationApplicationDto>> CancelApplication(
+        Guid applicationId,
+        CancellationToken cancellationToken)
+    {
+        var result = await service.CancelAllocationApplicationAsync(applicationId, cancellationToken);
+        if (!result.IsSuccess)
+            return BadRequest(result.Error);
+
+        return Ok(result.Value);
+    }
 }

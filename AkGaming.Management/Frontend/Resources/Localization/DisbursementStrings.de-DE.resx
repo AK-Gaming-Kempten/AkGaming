@@ -49,6 +49,17 @@
   <data name="Allocation_DiscordUnavailable" xml:space="preserve"><value>Discord-Kanäle und -Rollen konnten nicht geladen werden. Die Zuteilung kann trotzdem ohne Discord-Benachrichtigungen erstellt werden.</value></data>
   <data name="Allocation_SelectDiscordRole" xml:space="preserve"><value>Discord-Rolle auswählen</value></data>
   <data name="Allocation_MyNone" xml:space="preserve"><value>Du hast noch mit keiner Zuteilung interagiert. Die Links werden direkt von den Veranstaltern geteilt.</value></data>
+  <data name="Allocation_Application" xml:space="preserve"><value>Zuteilungsantrag</value></data>
+  <data name="Allocation_ClaimActions" xml:space="preserve"><value>Aktionen für den Antrag</value></data>
+  <data name="Allocation_EditClaim" xml:space="preserve"><value>Antrag anpassen</value></data>
+  <data name="Allocation_EditClaimHelp" xml:space="preserve"><value>Ändere den beantragten Betrag, die Notiz oder den Auszahlungsweg, solange der Antrag aktiv ist.</value></data>
+  <data name="Allocation_AmountChangeWarning" xml:space="preserve"><value>Eine Änderung des Betrags setzt alle Zustimmungen und Widersprüche zurück. Wenn Discord eingerichtet ist, wird eine neue Benachrichtigung zur Prüfung gesendet.</value></data>
+  <data name="Allocation_SaveClaim" xml:space="preserve"><value>Antrag speichern</value></data>
+  <data name="Allocation_ClaimUpdated" xml:space="preserve"><value>Der Antrag wurde aktualisiert.</value></data>
+  <data name="Allocation_CancelClaim" xml:space="preserve"><value>Antrag stornieren</value></data>
+  <data name="Allocation_CancelClaimHelp" xml:space="preserve"><value>Dadurch wird der reservierte Betrag freigegeben und der Antrag geschlossen. Anschließend kann er nicht mehr bearbeitet oder geprüft werden.</value></data>
+  <data name="Allocation_ConfirmCancelClaim" xml:space="preserve"><value>Antrag stornieren</value></data>
+  <data name="Allocation_ClaimCancelled" xml:space="preserve"><value>Der Antrag wurde storniert.</value></data>
   <data name="Payment_Method" xml:space="preserve"><value>Auszahlungsweg</value></data>
   <data name="Payment_None" xml:space="preserve"><value>Kein Zahlungsweg verfügbar</value></data>
   <data name="Payment_NoneHelp" xml:space="preserve"><value>Füge in einem separaten Tab einen Zahlungsweg zu deinem Profil hinzu und aktualisiere anschließend diese Liste. Deine Eingaben bleiben erhalten.</value></data>

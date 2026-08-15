@@ -16,11 +16,15 @@ public partial class DisbursementEventPage : ComponentBase
     private PaymentMethodSnapshotDto? _selectedPaymentMethod;
     private DiscordGuildCatalogDto? _discordCatalog;
     private AllocationDto? _editingAllocation;
+    private AllocationApplicationDto? _editingApplication;
+    private AllocationApplicationDto? _cancellingApplication;
+    private decimal _editingApplicationMaximum;
     private bool _discordCatalogReady;
     private bool _busy;
     private string? _error;
     private string? _notice;
     private string? _dialogError;
+    private string? _applicationDialogError;
     protected override async Task OnParametersSetAsync() => await LoadAsync();
     private async Task LoadAsync() { var result = await Api.GetEventAsync(EventId); if (result.IsSuccess) _event = result.Value; else _error = result.Error; }
     private Task OpenCreateDialogAsync()
@@ -87,6 +91,60 @@ public partial class DisbursementEventPage : ComponentBase
     }
 
     private async Task SetStatusAsync(AllocationApplicationDto application, AllocationApplicationStatus status) { _busy = true; var result = await Api.UpdateApplicationStatusAsync(application.Id, new UpdateAllocationApplicationStatusRequest { Status = status }); _busy = false; if (!result.IsSuccess) _error = result.Error; else await LoadAsync(); }
+    private void OpenApplicationEditDialog(AllocationApplicationDto application, AllocationDto allocation)
+    {
+        _editingApplication = application;
+        _cancellingApplication = null;
+        _editingApplicationMaximum = AvailableAmount(allocation) + application.Amount;
+        _applicationDialogError = null;
+    }
+
+    private void OpenApplicationCancelDialog(AllocationApplicationDto application)
+    {
+        _cancellingApplication = application;
+        _editingApplication = null;
+        _applicationDialogError = null;
+    }
+
+    private async Task UpdateApplicationAsync(UpdateAllocationApplicationRequest request)
+    {
+        if (_editingApplication is null)
+            return;
+
+        _busy = true;
+        _applicationDialogError = null;
+        var result = await Api.UpdateApplicationAsync(_editingApplication.Id, request);
+        _busy = false;
+        if (!result.IsSuccess)
+        {
+            _applicationDialogError = result.Error;
+            return;
+        }
+
+        _notice = Text["Allocation_ClaimUpdated"];
+        CloseApplicationDialogs();
+        await LoadAsync();
+    }
+
+    private async Task CancelApplicationAsync()
+    {
+        if (_cancellingApplication is null)
+            return;
+
+        _busy = true;
+        _applicationDialogError = null;
+        var result = await Api.CancelApplicationAsync(_cancellingApplication.Id);
+        _busy = false;
+        if (!result.IsSuccess)
+        {
+            _applicationDialogError = result.Error;
+            return;
+        }
+
+        _notice = Text["Allocation_ClaimCancelled"];
+        CloseApplicationDialogs();
+        await LoadAsync();
+    }
     private string ShareUrl(AllocationDto allocation) => Navigation.ToAbsoluteUri($"disbursements/claim/{allocation.ShareToken}").ToString();
     private Task CopyAsync(string value) => Js.InvokeVoidAsync("navigator.clipboard.writeText", value).AsTask();
     private static decimal Progress(AllocationDto allocation) => allocation.Amount <= 0 ? 0 : Math.Min(100, allocation.AppliedAmount / allocation.Amount * 100);
@@ -96,6 +154,14 @@ public partial class DisbursementEventPage : ComponentBase
         && !string.IsNullOrWhiteSpace(allocation.DiscordRoleId);
     private void ShowPaymentDetails(PaymentMethodSnapshotDto paymentMethod) => _selectedPaymentMethod = paymentMethod;
     private void HidePaymentDetails() => _selectedPaymentMethod = null;
+    private void CloseApplicationDialogs()
+    {
+        if (_busy)
+            return;
+        _editingApplication = null;
+        _cancellingApplication = null;
+        _applicationDialogError = null;
+    }
     private void CloseAllocationDialog()
     {
         if (_busy)
@@ -130,5 +196,12 @@ public partial class DisbursementEventPage : ComponentBase
             });
         }
         return catalog;
+    }
+
+    private static bool CanModify(AllocationApplicationDto application)
+    {
+        return application.Status is not AllocationApplicationStatus.Paid
+            and not AllocationApplicationStatus.Rejected
+            and not AllocationApplicationStatus.Cancelled;
     }
 }

@@ -9,4 +9,5 @@ public interface IDisbursementNotificationOutbox
     void EnqueueStatusChanged(Reimbursement reimbursement, DisbursementStatus previousStatus);
     void EnqueueAllocationAvailable(Allocation allocation);
     void EnqueueAllocationClaimChanged(AllocationApplication application);
+    void EnqueueAllocationClaimChanged(AllocationApplication application, bool startsNewReview);
 }

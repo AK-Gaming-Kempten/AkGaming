@@ -13,7 +13,10 @@ public sealed class AllocationDto
     public string DiscordChannelName { get; set; } = string.Empty;
     public string DiscordRoleId { get; set; } = string.Empty;
     public string DiscordRoleName { get; set; } = string.Empty;
-    public decimal AppliedAmount => Applications.Where(x => x.Status != Enums.AllocationApplicationStatus.Rejected).Sum(x => x.Amount);
+    public decimal AppliedAmount => Applications
+        .Where(application => application.Status is not Enums.AllocationApplicationStatus.Rejected
+            and not Enums.AllocationApplicationStatus.Cancelled)
+        .Sum(application => application.Amount);
     public List<AllocationApplicationDto> Applications { get; set; } = [];
 }
 

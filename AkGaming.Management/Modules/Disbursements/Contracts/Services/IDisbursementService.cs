@@ -20,6 +20,10 @@ public interface IDisbursementService
     Task<Result<AllocationDto>> GetAllocationByTokenAsync(Guid token, CancellationToken cancellationToken = default);
     Task<Result<IReadOnlyList<AllocationDto>>> GetAllocationsForUserAsync(Guid userId, CancellationToken cancellationToken = default);
     Task<Result<AllocationApplicationDto>> ApplyAsync(Guid token, Guid userId, string applicantName, CreateAllocationApplicationRequest request, CancellationToken cancellationToken = default);
+    Task<Result<AllocationApplicationDto>> UpdateOwnAllocationApplicationAsync(Guid token, Guid applicationId, Guid userId, UpdateAllocationApplicationRequest request, CancellationToken cancellationToken = default);
+    Task<Result<AllocationApplicationDto>> UpdateAllocationApplicationAsync(Guid applicationId, UpdateAllocationApplicationRequest request, CancellationToken cancellationToken = default);
+    Task<Result<AllocationApplicationDto>> CancelOwnAllocationApplicationAsync(Guid token, Guid applicationId, Guid userId, CancellationToken cancellationToken = default);
+    Task<Result<AllocationApplicationDto>> CancelAllocationApplicationAsync(Guid applicationId, CancellationToken cancellationToken = default);
     Task<Result<AllocationApplicationDto>> DecideAsync(Guid token, Guid applicationId, Guid userId, string approverName, DecideAllocationApplicationRequest request, CancellationToken cancellationToken = default);
     Task<Result<AllocationApplicationDto>> DecideFromDiscordAsync(Guid applicationId, DiscordAllocationDecisionRequest request, CancellationToken cancellationToken = default);
     Task<Result<AllocationApplicationDto>> UpdateApplicationStatusAsync(Guid applicationId, UpdateAllocationApplicationStatusRequest request, CancellationToken cancellationToken = default);

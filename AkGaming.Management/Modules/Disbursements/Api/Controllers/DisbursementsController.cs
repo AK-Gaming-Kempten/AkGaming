@@ -126,6 +126,41 @@ public sealed class DisbursementsController(IDisbursementService service) : Cont
         return result.IsSuccess ? Created(string.Empty, result.Value) : BadRequest(result.Error);
     }
 
+    [HttpPut("allocations/share/{token:guid}/applications/{applicationId:guid}")]
+    public async Task<ActionResult<AllocationApplicationDto>> UpdateMyApplication(
+        Guid token,
+        Guid applicationId,
+        [FromBody] UpdateAllocationApplicationRequest request,
+        CancellationToken cancellationToken)
+    {
+        if (!ControllerIdentity.TryGetUserId(User, out var userId))
+            return Forbid();
+
+        var result = await service.UpdateOwnAllocationApplicationAsync(
+            token, applicationId, userId, request, cancellationToken);
+        if (!result.IsSuccess)
+            return BadRequest(result.Error);
+
+        return Ok(result.Value);
+    }
+
+    [HttpPost("allocations/share/{token:guid}/applications/{applicationId:guid}/cancel")]
+    public async Task<ActionResult<AllocationApplicationDto>> CancelMyApplication(
+        Guid token,
+        Guid applicationId,
+        CancellationToken cancellationToken)
+    {
+        if (!ControllerIdentity.TryGetUserId(User, out var userId))
+            return Forbid();
+
+        var result = await service.CancelOwnAllocationApplicationAsync(
+            token, applicationId, userId, cancellationToken);
+        if (!result.IsSuccess)
+            return BadRequest(result.Error);
+
+        return Ok(result.Value);
+    }
+
     [HttpPut("allocations/share/{token:guid}/applications/{applicationId:guid}/decision")]
     public async Task<ActionResult<AllocationApplicationDto>> Decide(Guid token, Guid applicationId, [FromBody] DecideAllocationApplicationRequest request, CancellationToken cancellationToken)
     {

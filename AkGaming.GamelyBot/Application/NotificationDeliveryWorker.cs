@@ -112,8 +112,10 @@ public sealed class NotificationDeliveryWorker(IServiceScopeFactory scopeFactory
                         NotificationEventTypes.BoardMeetingRescheduleProposed =>
                             await FindLatestProposalMessageIdAsync(dbContext, notification, cancellationToken),
                         NotificationEventTypes.AllocationClaimChanged =>
-                            await FindLatestAllocationClaimMessageIdAsync(dbContext, notification,
-                                rendered.ChannelMessage.ChannelId, cancellationToken),
+                            StartsNewAllocationReview(notification)
+                                ? null
+                                : await FindLatestAllocationClaimMessageIdAsync(dbContext, notification,
+                                    rendered.ChannelMessage.ChannelId, cancellationToken),
                         _ => null
                     };
                     var result = string.IsNullOrWhiteSpace(previousMessageId)
@@ -349,6 +351,21 @@ public sealed class NotificationDeliveryWorker(IServiceScopeFactory scopeFactory
                 return false;
             applicationId = data.ApplicationId;
             return applicationId != Guid.Empty;
+        }
+        catch (JsonException)
+        {
+            return false;
+        }
+    }
+
+    private static bool StartsNewAllocationReview(NotificationInboxItem notification)
+    {
+        try
+        {
+            var data = JsonSerializer.Deserialize<AllocationClaimChangedNotification>(
+                notification.DataJson,
+                new JsonSerializerOptions(JsonSerializerDefaults.Web));
+            return data?.StartsNewReview == true;
         }
         catch (JsonException)
         {

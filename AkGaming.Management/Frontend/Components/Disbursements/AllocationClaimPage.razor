@@ -32,11 +32,23 @@
             @foreach (var application in _allocation.Applications)
             {
                 <article class="panel application-card">
-                    <header><div><h4>@application.ApplicantName</h4><small>@application.CreatedAt.LocalDateTime.ToString("g") · @application.Status.ToLocalizedString(SharedText)</small></div><strong>@application.Amount.ToString("N2") EUR</strong></header>
+                    <header>
+                        <div><h4>@application.ApplicantName</h4><small>@application.CreatedAt.LocalDateTime.ToString("g") · @application.Status.ToLocalizedString(SharedText)</small></div>
+                        <div class="claim-card-actions">
+                            <strong>@application.Amount.ToString("N2") EUR</strong>
+                            @if (application.ApplicantUserId == _userId && CanModify(application))
+                            {
+                                <ContextMenu AriaLabel="@Text["Allocation_ClaimActions"]">
+                                    <ContextMenuItem IconClass="bi-pencil" Text="@SharedText["Action_Edit"]" OnClick="() => OpenEditDialog(application)" />
+                                    <ContextMenuItem IconClass="bi-x-circle" Text="@Text["Allocation_CancelClaim"]" IsDestructive="true" OnClick="() => OpenCancelDialog(application)" />
+                                </ContextMenu>
+                            }
+                        </div>
+                    </header>
                     @if (!string.IsNullOrWhiteSpace(application.Note)) { <p>@application.Note</p> }
                     <div class="approval-summary"><span class="approved"><span class="bi bi-check-circle"></span> @application.Approvals.Count(item => item.IsApproved) approvals</span><span class="objected"><span class="bi bi-x-circle"></span> @application.Approvals.Count(item => !item.IsApproved) objections</span></div>
                     <AllocationApprovalList Approvals="application.Approvals" />
-                    @if (application.ApplicantUserId != _userId)
+                    @if (application.ApplicantUserId != _userId && CanReview(application))
                     {
                         <div class="decision-actions"><span>@Text["Allocation_ApproveQuestion"]</span><button type="button" class="approve" @onclick="() => DecideAsync(application.Id, true)" disabled="@_busy"><span class="bi bi-check-lg"></span> @Text["Allocation_Approve"]</button><button type="button" class="object" @onclick="() => DecideAsync(application.Id, false)" disabled="@_busy"><span class="bi bi-x-lg"></span> @Text["Allocation_Object"]</button></div>
                     }
@@ -45,3 +57,26 @@
         </section>
     }
 </div>
+
+@if (_editingApplication is not null)
+{
+    <AllocationApplicationEditDialog @key="_editingApplication.Id"
+                                     Application="_editingApplication"
+                                     MaximumAmount="@MaximumEditableAmount(_editingApplication)"
+                                     AllowPaymentMethodSelection="true"
+                                     PaymentMethods="_paymentMethods"
+                                     Busy="_busy"
+                                     Error="_dialogError"
+                                     OnRefreshPaymentMethods="LoadPaymentMethodsAsync"
+                                     OnSubmit="UpdateApplicationAsync"
+                                     OnClose="CloseDialogs" />
+}
+
+@if (_cancellingApplication is not null)
+{
+    <AllocationApplicationCancelDialog Application="_cancellingApplication"
+                                       Busy="_busy"
+                                       Error="_dialogError"
+                                       OnConfirm="CancelApplicationAsync"
+                                       OnClose="CloseDialogs" />
+}

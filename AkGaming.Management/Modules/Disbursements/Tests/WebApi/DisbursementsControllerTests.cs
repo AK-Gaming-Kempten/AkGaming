@@ -89,5 +89,54 @@ public sealed class DisbursementsControllerTests
         _service.VerifyNoOtherCalls();
     }
 
+    [Test]
+    [Description("Passes the authenticated claimant identity when adjusting an allocation claim.")]
+    public async Task UpdateMyApplication_WhenAuthenticated_UpdatesOwnedClaim()
+    {
+        // Arrange
+        var token = Guid.NewGuid();
+        var applicationId = Guid.NewGuid();
+        var userId = Guid.NewGuid();
+        var request = new UpdateAllocationApplicationRequest { Amount = 125m, Note = "Updated" };
+        var application = new AllocationApplicationDto { Id = applicationId, Amount = request.Amount };
+        _controller.HttpContext.User = Principal(userId);
+        _service.Setup(service => service.UpdateOwnAllocationApplicationAsync(
+                token, applicationId, userId, request, CancellationToken.None))
+            .ReturnsAsync(Result<AllocationApplicationDto>.Success(application));
+
+        // Act
+        var response = await _controller.UpdateMyApplication(
+            token, applicationId, request, CancellationToken.None);
+
+        // Assert
+        Assert.That(response.Result, Is.TypeOf<OkObjectResult>());
+        _service.Verify(service => service.UpdateOwnAllocationApplicationAsync(
+            token, applicationId, userId, request, CancellationToken.None), Times.Once);
+    }
+
+    [Test]
+    [Description("Passes the authenticated claimant identity when cancelling an allocation claim.")]
+    public async Task CancelMyApplication_WhenAuthenticated_CancelsOwnedClaim()
+    {
+        // Arrange
+        var token = Guid.NewGuid();
+        var applicationId = Guid.NewGuid();
+        var userId = Guid.NewGuid();
+        var application = new AllocationApplicationDto { Id = applicationId };
+        _controller.HttpContext.User = Principal(userId);
+        _service.Setup(service => service.CancelOwnAllocationApplicationAsync(
+                token, applicationId, userId, CancellationToken.None))
+            .ReturnsAsync(Result<AllocationApplicationDto>.Success(application));
+
+        // Act
+        var response = await _controller.CancelMyApplication(
+            token, applicationId, CancellationToken.None);
+
+        // Assert
+        Assert.That(response.Result, Is.TypeOf<OkObjectResult>());
+        _service.Verify(service => service.CancelOwnAllocationApplicationAsync(
+            token, applicationId, userId, CancellationToken.None), Times.Once);
+    }
+
     private static ClaimsPrincipal Principal(Guid userId) => new(new ClaimsIdentity([new Claim(ClaimTypes.NameIdentifier, userId.ToString())], "test"));
 }
