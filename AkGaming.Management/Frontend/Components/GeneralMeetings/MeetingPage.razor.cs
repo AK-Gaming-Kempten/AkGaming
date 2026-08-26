@@ -41,6 +41,7 @@ public partial class MeetingPage : ComponentBase, IAsyncDisposable
     private string? _ballotOptions;
     private int _maximumSelections = 1;
     private bool _showLiveResults;
+    private bool? _invitationIsReminder;
     private string? _error;
     private string? _success;
     private IEnumerable<AgendaItemDto> OrderedAgenda => _meeting is null ? [] : _meeting.AgendaItems.OrderBy(x => x.ParentId.HasValue).ThenBy(x => x.Order);
@@ -105,8 +106,9 @@ public partial class MeetingPage : ComponentBase, IAsyncDisposable
     }
 
     private async Task CheckInAsync() { var result = await Api.CheckInAsync(MeetingId); await Finish(result.IsSuccess, result.Error, "Checked in."); }
-    private async Task SendInvitationAsync() { if (!await Confirm("Send an invitation email to every currently eligible member?")) return; var result = await Api.DispatchInvitationsAsync(MeetingId, false, null); await Finish(result.IsSuccess, result.Error, "Invitations dispatched."); }
-    private async Task SendReminderAsync() { if (!await Confirm("Send a meeting reminder to every currently eligible member?")) return; var result = await Api.DispatchInvitationsAsync(MeetingId, true, null); await Finish(result.IsSuccess, result.Error, "Reminders dispatched."); }
+    private void OpenInvitationDialog(bool isReminder) { _error = null; _invitationIsReminder = isReminder; }
+    private void CloseInvitationDialog() { _invitationIsReminder = null; }
+    private async Task InvitationDispatchedAsync() { var isReminder = _invitationIsReminder == true; CloseInvitationDialog(); await Finish(true, null, isReminder ? "Reminders dispatched." : "Invitations dispatched."); }
     private async Task ChangeStatusAsync(MeetingStatusDto status) { if (!await Confirm($"Change the meeting state to {status}?")) return; var result = await Api.ChangeStatusAsync(MeetingId, status); await Finish(result.IsSuccess, result.Error, $"Meeting is now {status}."); }
     private async Task FinalizeAsync() { if (!await Confirm("Finalize this protocol? The meeting, agenda and minutes will become read-only.")) return; var result = await Api.FinalizeAsync(MeetingId); await Finish(result.IsSuccess, result.Error, "Protocol finalized."); }
     private void StartAgendaDraft() { _error = null; _editingAgendaItemId = null; _agendaHeading = string.Empty; _agendaDescription = null; _agendaParent = null; _agendaOrder = 0; _showAgendaForm = true; }

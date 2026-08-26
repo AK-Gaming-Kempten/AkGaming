@@ -54,4 +54,29 @@ public sealed class GeneralMeetingsControllerTests
             It.Is<object?[]>(arguments => arguments.Length == 1 && Equals(arguments[0], meetingId)),
             It.IsAny<CancellationToken>()), Times.Once);
     }
+
+    [Test]
+    [Description("Returns the service-generated invitation preview without dispatching any email.")]
+    public async Task PreviewInvitation_AfterSuccessfulComposition_ReturnsPreview()
+    {
+        // Arrange
+        var meetingId = Guid.NewGuid();
+        var request = new DispatchInvitationRequest(false, "Custom text");
+        var preview = new InvitationPreviewDto("Subject", "Text", "<p>HTML</p>", []);
+        _service.Setup(service => service.PreviewInvitationAsync(meetingId, request, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Result<InvitationPreviewDto>.Success(preview));
+
+        // Act
+        var result = await _controller.PreviewInvitation(meetingId, request, CancellationToken.None);
+
+        // Assert
+        var ok = result.Result as OkObjectResult;
+        Assert.That(ok, Is.Not.Null);
+        Assert.That(ok!.Value, Is.SameAs(preview));
+        _service.Verify(service => service.DispatchInvitationsAsync(
+            It.IsAny<Guid>(),
+            It.IsAny<DispatchInvitationRequest>(),
+            It.IsAny<Guid>(),
+            It.IsAny<CancellationToken>()), Times.Never);
+    }
 }

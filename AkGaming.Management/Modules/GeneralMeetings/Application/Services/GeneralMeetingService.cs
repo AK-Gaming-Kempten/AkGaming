@@ -228,12 +228,12 @@ public sealed class GeneralMeetingService(
         var meeting = await repository.GetAsync(meetingId, ct); if (meeting is null) return Result.Failure("General meeting not found.");
         var memberResult = await members.GetAllMembersAsync(); if (!memberResult.IsSuccess) return Result.Failure(memberResult.Error!);
         var recipients = memberResult.Value!.Where(x => VotingStatuses.Contains(x.Status) && !string.IsNullOrWhiteSpace(x.Email)).ToList();
+        var email = GeneralMeetingInvitationEmailComposer.Compose(meeting, request.IsReminder, request.AdditionalMessage);
         foreach (var member in recipients)
         {
-            var name = DisplayName(member); var subject = $"{(request.IsReminder ? "Reminder: " : string.Empty)}{meeting.Title}";
-            var body = $"Hello {name},\n\n{(request.IsReminder ? "This is a reminder for" : "You are invited to")} {meeting.Title}.\nDate: {meeting.ScheduledAt:yyyy-MM-dd HH:mm zzz}\nLocation: {meeting.Location ?? "To be announced"}\n\n{request.AdditionalMessage}".TrimEnd();
+            var name = DisplayName(member);
             var dispatch = new InvitationDispatch { MeetingId = meeting.Id, Kind = request.IsReminder ? "Reminder" : "Invitation", RecipientEmail = member.Email!, RecipientName = name, DispatchedAt = DateTimeOffset.UtcNow };
-            try { await emailSender.SendAsync(member.Email!, subject, body, null, ct); dispatch.Succeeded = true; }
+            try { await emailSender.SendAsync(member.Email!, email.Subject, email.TextBody, email.HtmlBody, ct); dispatch.Succeeded = true; }
             catch (Exception exception) { dispatch.Error = exception.Message; }
             meeting.InvitationDispatches.Add(dispatch);
             repository.Add(dispatch);
@@ -241,6 +241,23 @@ public sealed class GeneralMeetingService(
         if (!request.IsReminder && meeting.Status == MeetingStatus.Draft) meeting.Status = MeetingStatus.InvitationsSent;
         Touch(meeting); Audit(meeting, request.IsReminder ? "reminder.dispatched" : "invitation.dispatched", $"recipients:{recipients.Count}", actor);
         await repository.SaveChangesAsync(ct); return Result.Success();
+    }
+
+    public async Task<Result<InvitationPreviewDto>> PreviewInvitationAsync(Guid meetingId, DispatchInvitationRequest request, CancellationToken ct)
+    {
+        var meeting = await repository.GetAsync(meetingId, ct);
+        if (meeting is null) return Result<InvitationPreviewDto>.Failure("General meeting not found.");
+
+        var memberResult = await members.GetAllMembersAsync();
+        if (!memberResult.IsSuccess) return Result<InvitationPreviewDto>.Failure(memberResult.Error!);
+
+        var recipients = memberResult.Value!
+            .Where(member => member.Status != MembershipStatus.None)
+            .OrderBy(member => DisplayName(member))
+            .Select(MapInvitationRecipient)
+            .ToList();
+        var email = GeneralMeetingInvitationEmailComposer.Compose(meeting, request.IsReminder, request.AdditionalMessage);
+        return Result<InvitationPreviewDto>.Success(new InvitationPreviewDto(email.Subject, email.TextBody, email.HtmlBody, recipients));
     }
 
     public async Task<Result<ProtocolDto>> FinalizeAsync(Guid meetingId, Guid actor, CancellationToken ct)
@@ -285,6 +302,15 @@ public sealed class GeneralMeetingService(
     private static int GetDepth(AgendaItem item, ICollection<AgendaItem> all) { var depth = 0; var parent = item.ParentId; while (parent.HasValue && depth < 4) { depth++; parent = all.SingleOrDefault(x => x.Id == parent)?.ParentId; } return depth; }
     private Attendance AddAttendance(GeneralMeeting meeting, MemberDto member) { var item = new Attendance { MeetingId = meeting.Id, MemberId = member.Id, UserId = member.UserId, DisplayName = DisplayName(member), MembershipStatus = member.Status.ToString() }; meeting.Attendees.Add(item); repository.Add(item); return item; }
     private static string DisplayName(MemberDto member) => string.Join(' ', new[] { member.FirstName, member.LastName }.Where(x => !string.IsNullOrWhiteSpace(x))).Trim() is { Length: > 0 } name ? name : member.Email ?? member.Id.ToString();
+    private static InvitationRecipientDto MapInvitationRecipient(MemberDto member)
+    {
+        var hasEligibleStatus = VotingStatuses.Contains(member.Status);
+        var hasEmail = !string.IsNullOrWhiteSpace(member.Email);
+        var reason = !hasEligibleStatus
+            ? $"Mitgliedsstatus {member.Status} ist nicht empfangsberechtigt."
+            : !hasEmail ? "Keine E-Mail-Adresse hinterlegt." : null;
+        return new InvitationRecipientDto(member.Id, DisplayName(member), member.Email, member.Status.ToString(), hasEligibleStatus && hasEmail, reason);
+    }
     private static void Touch(GeneralMeeting meeting) { meeting.Version++; meeting.UpdatedAt = DateTimeOffset.UtcNow; }
     private void Audit(GeneralMeeting meeting, string action, string details, Guid? actor) { var auditEvent = new MeetingAuditEvent { MeetingId = meeting.Id, Action = action, Details = details, ActorUserId = actor, OccurredAt = DateTimeOffset.UtcNow }; meeting.AuditEvents.Add(auditEvent); repository.Add(auditEvent); }
     private static string? Clean(string? value) => string.IsNullOrWhiteSpace(value) ? null : value.Trim();

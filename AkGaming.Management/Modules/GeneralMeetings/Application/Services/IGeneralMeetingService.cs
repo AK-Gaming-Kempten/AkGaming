@@ -23,6 +23,7 @@ public interface IGeneralMeetingService
     Task<Result<IssuedCredentialDto>> IssueCredentialAsync(Guid ballotId, Guid memberId, CancellationToken ct);
     Task<Result<IssuedCredentialDto>> IssueCredentialForUserAsync(Guid ballotId, Guid userId, CancellationToken ct);
     Task<Result<Guid>> CastVoteAsync(Guid ballotId, CastVoteRequest request, CancellationToken ct);
+    Task<Result<InvitationPreviewDto>> PreviewInvitationAsync(Guid meetingId, DispatchInvitationRequest request, CancellationToken ct);
     Task<Result> DispatchInvitationsAsync(Guid meetingId, DispatchInvitationRequest request, Guid actor, CancellationToken ct);
     Task<Result<ProtocolDto>> FinalizeAsync(Guid meetingId, Guid actor, CancellationToken ct);
 }

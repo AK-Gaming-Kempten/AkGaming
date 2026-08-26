@@ -28,5 +28,6 @@ public sealed class GeneralMeetingsApiClient(HttpClient http, HttpClient anonymo
         return await ToResult(response, ct);
     }
     public Task<Result> DispatchInvitationsAsync(Guid meetingId, bool reminder, string? message, CancellationToken ct = default) => PostJsonAsync($"general-meetings/{meetingId}/invitations", new DispatchInvitationRequest(reminder, message), ct);
+    public Task<Result<InvitationPreviewDto>> PreviewInvitationAsync(Guid meetingId, bool reminder, string? message, CancellationToken ct = default) => PostJsonAsync<DispatchInvitationRequest, InvitationPreviewDto>($"general-meetings/{meetingId}/invitations/preview", new DispatchInvitationRequest(reminder, message), ct);
     public Task<Result<ProtocolDto>> FinalizeAsync(Guid meetingId, CancellationToken ct = default) => PostJsonAsync<object, ProtocolDto>($"general-meetings/{meetingId}/finalize", new { }, ct);
 }

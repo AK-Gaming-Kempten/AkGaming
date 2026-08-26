@@ -219,6 +219,15 @@ public sealed class GeneralMeetingsController(IGeneralMeetingService service, IM
         await Changed(meetingId, "MeetingChanged"); return NoContent();
     }
 
+    [HttpPost("{meetingId:guid}/invitations/preview")]
+    [Authorize(Policy = "management.general-meetings.manage")]
+    public async Task<ActionResult<InvitationPreviewDto>> PreviewInvitation(Guid meetingId, [FromBody] DispatchInvitationRequest request, CancellationToken cancellationToken)
+    {
+        var result = await service.PreviewInvitationAsync(meetingId, request, cancellationToken);
+        if (!result.IsSuccess) return BadRequest(result.Error);
+        return Ok(result.Value);
+    }
+
     [HttpPost("{meetingId:guid}/finalize")]
     [Authorize(Policy = "management.general-meetings.manage")]
     public async Task<ActionResult<ProtocolDto>> FinalizeMeeting(Guid meetingId, CancellationToken cancellationToken)

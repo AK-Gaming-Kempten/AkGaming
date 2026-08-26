@@ -1,0 +1,62 @@
+<GeneralMeetingFormDialog Eyebrow="E-Mail"
+                          Title="@(IsReminder ? "Erinnerung versenden" : "Einladung versenden")"
+                          Description="Prüfe Inhalt und Empfängerliste, bevor die E-Mails versendet werden."
+                          OnClose="CloseAsync">
+    <ChildContent>
+        <div class="invitation-editor">
+            <label>
+                Eigener Text
+                <textarea placeholder="Optionale persönliche Nachricht an alle Empfänger"
+                          @bind="_additionalMessage"
+                          @bind:event="oninput"
+                          @bind:after="MarkPreviewDirty"></textarea>
+            </label>
+            <button type="button" class="dialog-refresh" @onclick="LoadPreviewAsync" disabled="@_loading">Vorschau aktualisieren</button>
+
+            @if (_previewDirty)
+            {
+                <p class="preview-dirty"><span class="bi bi-info-circle"></span> Der eigene Text wurde geändert. Aktualisiere die Vorschau vor dem Versand.</p>
+            }
+
+            @if (_loading)
+            {
+                <p>Vorschau wird geladen …</p>
+            }
+            else if (!string.IsNullOrWhiteSpace(_error))
+            {
+                <p class="error">@_error</p>
+            }
+            else if (_preview is not null)
+            {
+                <section class="invitation-recipients">
+                    <div class="invitation-section-heading">
+                        <h4>Empfänger</h4>
+                        <span>@EligibleRecipientCount von @_preview.Recipients.Count erhalten eine E-Mail</span>
+                    </div>
+                    <ul>
+                        @foreach (var recipient in _preview.Recipients)
+                        {
+                            <li class="@(recipient.WillReceive ? "eligible" : "excluded")">
+                                <span class="bi @(recipient.WillReceive ? "bi-check-circle-fill" : "bi-exclamation-circle-fill")"></span>
+                                <span><strong>@recipient.DisplayName</strong><small>@(recipient.Email ?? "Keine E-Mail-Adresse") · @recipient.MembershipStatus</small></span>
+                                @if (!recipient.WillReceive) { <span class="recipient-reason">@recipient.ExclusionReason</span> }
+                            </li>
+                        }
+                    </ul>
+                </section>
+
+                <section class="invitation-preview">
+                    <h4>E-Mail-Vorschau</h4>
+                    <div class="invitation-subject"><strong>Betreff:</strong> @_preview.Subject</div>
+                    <iframe title="E-Mail-Vorschau" srcdoc="@_preview.HtmlBody"></iframe>
+                </section>
+            }
+        </div>
+    </ChildContent>
+    <Footer>
+        <button type="button" class="dialog-cancel" @onclick="CloseAsync" disabled="@_sending">Abbrechen</button>
+        <button type="button" class="dialog-primary" @onclick="DispatchAsync" disabled="@(!CanDispatch)">
+            @(_sending ? "Wird versendet …" : $"An {EligibleRecipientCount} Empfänger senden")
+        </button>
+    </Footer>
+</GeneralMeetingFormDialog>

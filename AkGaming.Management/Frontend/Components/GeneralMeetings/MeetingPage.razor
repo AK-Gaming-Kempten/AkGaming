@@ -22,8 +22,8 @@ else
     <section class="panel actions">
         <button type="button" @onclick="CheckInAsync">@Text["General_CheckIn"]</button>
         <AuthorizeView Policy="management.general-meetings.manage">
-            <button type="button" @onclick="SendInvitationAsync">@Text["General_SendInvitations"]</button>
-            <button type="button" @onclick="SendReminderAsync">@Text["General_SendReminder"]</button>
+            <button type="button" @onclick="() => OpenInvitationDialog(false)">@Text["General_SendInvitations"]</button>
+            <button type="button" @onclick="() => OpenInvitationDialog(true)">@Text["General_SendReminder"]</button>
             @foreach (var status in _nextStatuses) { <button type="button" @onclick="() => ChangeStatusAsync(status)">Set @status</button> }
             @if (_meeting.Status == MeetingStatusDto.Closed) { <button class="danger-action" type="button" @onclick="FinalizeAsync">@Text["General_Finalize"]</button> }
         </AuthorizeView>
@@ -76,6 +76,14 @@ else
             <button type="button" class="dialog-primary" @onclick="CreateAgendaAsync">@(_editingAgendaItemId.HasValue ? "Save changes" : "Add agenda item")</button>
         </Footer>
     </GeneralMeetingFormDialog>
+}
+
+@if (_invitationIsReminder.HasValue)
+{
+    <MeetingInvitationDialog MeetingId="MeetingId"
+                             IsReminder="@_invitationIsReminder.Value"
+                             OnClose="CloseInvitationDialog"
+                             OnDispatched="InvitationDispatchedAsync" />
 }
 
 @if (_ballotAgendaItemId.HasValue)
