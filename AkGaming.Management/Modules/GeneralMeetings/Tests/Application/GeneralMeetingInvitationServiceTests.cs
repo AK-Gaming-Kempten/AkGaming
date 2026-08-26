@@ -39,6 +39,7 @@ public sealed class GeneralMeetingInvitationServiceTests
         _memberRecords =
         [
             Member("Anna", MembershipStatus.Member, "anna@example.test"),
+            Member("Theo", MembershipStatus.InTrial, "theo@example.test"),
             Member("Berta", MembershipStatus.SupportingMember, null),
             Member("Carla", MembershipStatus.Applicant, "carla@example.test"),
             Member("Ignored", MembershipStatus.None, "ignored@example.test")
@@ -52,7 +53,7 @@ public sealed class GeneralMeetingInvitationServiceTests
     }
 
     [Test]
-    [Description("Builds a branded invitation preview with custom text, nested agenda items, and all non-None members plus delivery reasons.")]
+    [Description("Builds a branded invitation preview with editable intro text, nested agenda items, and all non-None members plus delivery reasons.")]
     public async Task PreviewInvitationAsync_ReturnsFormattedMailAndCompleteRecipientAssessment()
     {
         // Arrange
@@ -64,13 +65,18 @@ public sealed class GeneralMeetingInvitationServiceTests
         // Assert
         Assert.That(result.IsSuccess, Is.True);
         Assert.That(result.Value!.HtmlBody, Does.Contain("linear-gradient(145deg,#0f221e,#163328)"));
+        Assert.That(result.Value.HtmlBody, Does.Contain("background-color:#0f221e"));
         Assert.That(result.Value.HtmlBody, Does.Contain(ClubConstants.Urls.LogoAsset));
+        Assert.That(result.Value.HtmlBody, Does.Contain("Einladung zur Mitgliederversammlung"));
         Assert.That(result.Value.HtmlBody, Does.Contain("Tagesordnung"));
         Assert.That(result.Value.TextBody, Does.Contain("Feststellung der Beschlussfähigkeit"));
         Assert.That(result.Value.HtmlBody, Does.Contain("Bitte bringt &lt;Ausweise&gt; mit."));
+        Assert.That(result.Value.HtmlBody, Does.Not.Contain("Persönliche Nachricht"));
+        Assert.That(result.Value.InvitationText, Is.EqualTo("Bitte bringt <Ausweise> mit."));
         Assert.That(result.Value.TextBody, Does.Contain("Mittwoch, 26. August 2026 um 21:00 Uhr"));
-        Assert.That(result.Value.Recipients, Has.Count.EqualTo(3));
+        Assert.That(result.Value.Recipients, Has.Count.EqualTo(4));
         Assert.That(result.Value.Recipients.Single(recipient => recipient.DisplayName == "Anna").WillReceive, Is.True);
+        Assert.That(result.Value.Recipients.Single(recipient => recipient.DisplayName == "Theo").WillReceive, Is.True);
         Assert.That(result.Value.Recipients.Single(recipient => recipient.DisplayName == "Berta").ExclusionReason, Does.Contain("Keine E-Mail-Adresse"));
         Assert.That(result.Value.Recipients.Single(recipient => recipient.DisplayName == "Carla").ExclusionReason, Does.Contain("Applicant"));
         Assert.That(result.Value.Recipients.Any(recipient => recipient.DisplayName == "Ignored"), Is.False);
@@ -84,9 +90,11 @@ public sealed class GeneralMeetingInvitationServiceTests
         string? capturedSubject = null;
         string? capturedText = null;
         string? capturedHtml = null;
-        _email.Setup(sender => sender.SendAsync("anna@example.test", It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string?>(), It.IsAny<CancellationToken>()))
-            .Callback<string, string, string, string?, CancellationToken>((_, subject, text, html, _) =>
+        var recipientEmails = new List<string>();
+        _email.Setup(sender => sender.SendAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string?>(), It.IsAny<CancellationToken>()))
+            .Callback<string, string, string, string?, CancellationToken>((recipient, subject, text, html, _) =>
             {
+                recipientEmails.Add(recipient);
                 capturedSubject = subject;
                 capturedText = text;
                 capturedHtml = html;
@@ -103,8 +111,8 @@ public sealed class GeneralMeetingInvitationServiceTests
         Assert.That(capturedText, Does.Contain("Eigener Einladungstext"));
         Assert.That(capturedHtml, Does.Contain("Tagesordnung"));
         Assert.That(capturedHtml, Does.Contain("Eigener Einladungstext"));
-        _email.Verify(sender => sender.SendAsync("anna@example.test", It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string?>(), It.IsAny<CancellationToken>()), Times.Once);
-        _email.VerifyNoOtherCalls();
+        Assert.That(recipientEmails, Is.EquivalentTo(new[] { "anna@example.test", "theo@example.test" }));
+        _email.Verify(sender => sender.SendAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string?>(), It.IsAny<CancellationToken>()), Times.Exactly(2));
     }
 
     private static MemberDto Member(string name, MembershipStatus status, string? email)

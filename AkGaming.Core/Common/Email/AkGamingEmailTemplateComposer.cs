@@ -25,7 +25,7 @@ public static class AkGamingEmailTemplateComposer
 
         html.Append("<div style=\"margin:0;padding:24px 0;background:#f5f8f6;font-family:Arial,Helvetica,sans-serif;color:#1a1a1a;line-height:1.6;\">");
         html.Append("<div style=\"max-width:700px;margin:0 auto;padding:0 16px;\">");
-        html.Append("<div style=\"overflow:hidden;border-radius:20px;background:linear-gradient(145deg,#0f221e,#163328);border:1px solid #48cb4f;box-shadow:0 20px 36px rgba(0,0,0,0.18);\">");
+        html.Append("<div style=\"overflow:hidden;border-radius:20px;background-color:#0f221e;background-image:linear-gradient(145deg,#0f221e,#163328);border:1px solid #48cb4f;box-shadow:0 20px 36px rgba(0,0,0,0.18);\">");
         html.Append("<div style=\"padding:28px 28px 24px;color:#ffffff;\">");
         html.Append("<div style=\"display:flex;align-items:center;gap:14px;\">");
         html.Append($"<img src=\"{ClubConstants.Urls.LogoAsset}\" alt=\"{H(ClubConstants.Organization.ShortName)} Logo\" width=\"56\" height=\"56\" style=\"display:block;width:56px;height:56px;border-radius:14px;background:rgba(255,255,255,0.12);padding:6px;\" />");
@@ -38,7 +38,7 @@ public static class AkGamingEmailTemplateComposer
         var summaryList = summaryItems?.ToList() ?? [];
         if (summaryList.Count > 0)
         {
-            html.Append("<div style=\"margin-top:18px;padding:16px 18px;border-radius:14px;background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.18);\">");
+            html.Append("<div style=\"margin-top:18px;padding:16px 18px;border-radius:14px;background-color:#24453a;background-image:linear-gradient(rgba(255,255,255,0.12),rgba(255,255,255,0.12));border:1px solid #4a675d;\">");
             html.Append("<table role=\"presentation\" style=\"width:100%;border-collapse:collapse;color:#ffffff;\">");
             foreach (var item in summaryList) AppendMetaRow(html, item.Label, item.Value);
             html.Append("</table></div>");

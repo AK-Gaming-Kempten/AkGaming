@@ -10,9 +10,10 @@ internal static class GeneralMeetingInvitationEmailComposer
 {
     private static readonly CultureInfo GermanCulture = CultureInfo.GetCultureInfo("de-DE");
 
-    public static ComposedEmailMessage Compose(GeneralMeeting meeting, bool isReminder, string? additionalMessage)
+    public static ComposedEmailMessage Compose(GeneralMeeting meeting, bool isReminder, string? invitationText)
     {
-        var invitationLabel = isReminder ? "Erinnerung zur Vereinssitzung" : "Einladung zur Vereinssitzung";
+        invitationText = ResolveInvitationText(meeting, isReminder, invitationText);
+        var invitationLabel = isReminder ? "Erinnerung zur Mitgliederversammlung" : "Einladung zur Mitgliederversammlung";
         var subject = $"{ClubConstants.Organization.LegalName} | {(isReminder ? "Erinnerung" : "Einladung")}: {meeting.Title}";
         var scheduledAt = FormatScheduledAt(meeting.ScheduledAt);
         var location = string.IsNullOrWhiteSpace(meeting.Location) ? "Wird noch bekannt gegeben" : meeting.Location;
@@ -20,13 +21,10 @@ internal static class GeneralMeetingInvitationEmailComposer
         var text = new StringBuilder();
         text.AppendLine("Liebe Mitglieder,");
         text.AppendLine();
-        text.AppendLine(isReminder
-            ? $"hiermit erinnern wir euch an die bevorstehende Vereinssitzung „{meeting.Title}“ des {ClubConstants.Organization.LegalName}."
-            : $"hiermit laden wir euch herzlich zur Vereinssitzung „{meeting.Title}“ des {ClubConstants.Organization.LegalName} ein.");
+        text.AppendLine(invitationText);
         text.AppendLine();
         text.AppendLine($"Datum: {scheduledAt}");
         text.AppendLine($"Ort: {location}");
-        AppendCustomText(text, additionalMessage);
         text.AppendLine();
         text.AppendLine("Tagesordnung");
         AppendAgendaText(text, meeting);
@@ -38,18 +36,9 @@ internal static class GeneralMeetingInvitationEmailComposer
         text.AppendLine("Mit freundlichen Grüßen");
         text.AppendLine($"Der Vorstand des {ClubConstants.Organization.LegalName}");
 
-        var introHtml = isReminder
-            ? $"<p style=\"margin:0 0 12px;font-size:18px;font-weight:700;color:#ffffff;\">Liebe Mitglieder,</p><p style=\"margin:0;\">wir erinnern euch an die bevorstehende Vereinssitzung <strong>„{AkGamingEmailTemplateComposer.H(meeting.Title)}“</strong>.</p>"
-            : $"<p style=\"margin:0 0 12px;font-size:18px;font-weight:700;color:#ffffff;\">Liebe Mitglieder,</p><p style=\"margin:0;\">wir laden euch herzlich zur Vereinssitzung <strong>„{AkGamingEmailTemplateComposer.H(meeting.Title)}“</strong> ein.</p>";
+        var introHtml = $"<p style=\"margin:0 0 12px;font-size:18px;font-weight:700;color:#ffffff;\">Liebe Mitglieder,</p><p style=\"margin:0;color:#eef7f0;\">{ToHtmlLines(invitationText)}</p>";
 
         var bodyHtml = new StringBuilder();
-        if (!string.IsNullOrWhiteSpace(additionalMessage))
-        {
-            bodyHtml.Append(AkGamingEmailTemplateComposer.BuildHighlightCard(
-                "Persönliche Nachricht",
-                $"<p style=\"margin:0;\">{ToHtmlLines(additionalMessage)}</p>"));
-        }
-
         bodyHtml.Append(AkGamingEmailTemplateComposer.BuildSectionCard("Tagesordnung", BuildAgendaHtml(meeting)));
         bodyHtml.Append(AkGamingEmailTemplateComposer.BuildSectionCard(
             "Anmerkungen",
@@ -72,6 +61,14 @@ internal static class GeneralMeetingInvitationEmailComposer
         return new ComposedEmailMessage(subject, text.ToString().TrimEnd(), html);
     }
 
+    public static string ResolveInvitationText(GeneralMeeting meeting, bool isReminder, string? invitationText)
+    {
+        if (!string.IsNullOrWhiteSpace(invitationText)) return invitationText.Trim();
+        return isReminder
+            ? $"hiermit erinnern wir euch an die bevorstehende Mitgliederversammlung „{meeting.Title}“ des {ClubConstants.Organization.LegalName}."
+            : $"hiermit laden wir euch herzlich zur Mitgliederversammlung „{meeting.Title}“ des {ClubConstants.Organization.LegalName} ein.";
+    }
+
     private static string FormatScheduledAt(DateTimeOffset value)
     {
         TimeZoneInfo timeZone;
@@ -86,13 +83,6 @@ internal static class GeneralMeetingInvitationEmailComposer
 
         var local = TimeZoneInfo.ConvertTime(value, timeZone);
         return local.ToString("dddd, dd. MMMM yyyy 'um' HH:mm 'Uhr'", GermanCulture);
-    }
-
-    private static void AppendCustomText(StringBuilder text, string? additionalMessage)
-    {
-        if (string.IsNullOrWhiteSpace(additionalMessage)) return;
-        text.AppendLine();
-        text.AppendLine(additionalMessage.Trim());
     }
 
     private static void AppendAgendaText(StringBuilder text, GeneralMeeting meeting)

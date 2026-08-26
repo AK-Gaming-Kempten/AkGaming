@@ -5,9 +5,9 @@
     <ChildContent>
         <div class="invitation-editor">
             <label>
-                Eigener Text
-                <textarea placeholder="Optionale persönliche Nachricht an alle Empfänger"
-                          @bind="_additionalMessage"
+                Einladungstext
+                <textarea placeholder="Einladungstext an alle Empfänger"
+                          @bind="_invitationText"
                           @bind:event="oninput"
                           @bind:after="MarkPreviewDirty"></textarea>
             </label>
@@ -15,7 +15,7 @@
 
             @if (_previewDirty)
             {
-                <p class="preview-dirty"><span class="bi bi-info-circle"></span> Der eigene Text wurde geändert. Aktualisiere die Vorschau vor dem Versand.</p>
+                <p class="preview-dirty"><span class="bi bi-info-circle"></span> Der Einladungstext wurde geändert. Aktualisiere die Vorschau vor dem Versand.</p>
             }
 
             @if (_loading)

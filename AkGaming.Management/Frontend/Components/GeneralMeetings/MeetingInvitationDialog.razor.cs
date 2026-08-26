@@ -13,7 +13,7 @@ public partial class MeetingInvitationDialog : ComponentBase
     [Inject] private GeneralMeetingsApiClient Api { get; set; } = null!;
 
     private InvitationPreviewDto? _preview;
-    private string? _additionalMessage;
+    private string? _invitationText;
     private string? _error;
     private bool _loading;
     private bool _sending;
@@ -30,9 +30,10 @@ public partial class MeetingInvitationDialog : ComponentBase
     {
         _loading = true;
         _error = null;
-        var result = await Api.PreviewInvitationAsync(MeetingId, IsReminder, _additionalMessage);
+        var result = await Api.PreviewInvitationAsync(MeetingId, IsReminder, _invitationText);
         _preview = result.IsSuccess ? result.Value : null;
         _error = result.IsSuccess ? null : result.Error;
+        if (result.IsSuccess) _invitationText = result.Value!.InvitationText;
         _previewDirty = false;
         _loading = false;
     }
@@ -47,7 +48,7 @@ public partial class MeetingInvitationDialog : ComponentBase
         if (!CanDispatch) return;
         _sending = true;
         _error = null;
-        var result = await Api.DispatchInvitationsAsync(MeetingId, IsReminder, _additionalMessage);
+        var result = await Api.DispatchInvitationsAsync(MeetingId, IsReminder, _invitationText);
         _sending = false;
         if (!result.IsSuccess)
         {

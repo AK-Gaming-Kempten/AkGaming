@@ -20,6 +20,8 @@ public sealed class GeneralMeetingService(
 {
     private static readonly HashSet<MembershipStatus> VotingStatuses =
         [MembershipStatus.Member, MembershipStatus.HonoraryMember, MembershipStatus.SupportingMember, MembershipStatus.Suspended];
+    private static readonly HashSet<MembershipStatus> InvitationStatuses =
+        [MembershipStatus.InTrial, MembershipStatus.Member, MembershipStatus.HonoraryMember, MembershipStatus.SupportingMember, MembershipStatus.Suspended];
 
     public async Task<Result<IReadOnlyList<GeneralMeetingSummaryDto>>> GetMeetingsAsync(CancellationToken ct)
     {
@@ -227,8 +229,8 @@ public sealed class GeneralMeetingService(
     {
         var meeting = await repository.GetAsync(meetingId, ct); if (meeting is null) return Result.Failure("General meeting not found.");
         var memberResult = await members.GetAllMembersAsync(); if (!memberResult.IsSuccess) return Result.Failure(memberResult.Error!);
-        var recipients = memberResult.Value!.Where(x => VotingStatuses.Contains(x.Status) && !string.IsNullOrWhiteSpace(x.Email)).ToList();
-        var email = GeneralMeetingInvitationEmailComposer.Compose(meeting, request.IsReminder, request.AdditionalMessage);
+        var recipients = memberResult.Value!.Where(x => InvitationStatuses.Contains(x.Status) && !string.IsNullOrWhiteSpace(x.Email)).ToList();
+        var email = GeneralMeetingInvitationEmailComposer.Compose(meeting, request.IsReminder, request.InvitationText);
         foreach (var member in recipients)
         {
             var name = DisplayName(member);
@@ -256,8 +258,9 @@ public sealed class GeneralMeetingService(
             .OrderBy(member => DisplayName(member))
             .Select(MapInvitationRecipient)
             .ToList();
-        var email = GeneralMeetingInvitationEmailComposer.Compose(meeting, request.IsReminder, request.AdditionalMessage);
-        return Result<InvitationPreviewDto>.Success(new InvitationPreviewDto(email.Subject, email.TextBody, email.HtmlBody, recipients));
+        var invitationText = GeneralMeetingInvitationEmailComposer.ResolveInvitationText(meeting, request.IsReminder, request.InvitationText);
+        var email = GeneralMeetingInvitationEmailComposer.Compose(meeting, request.IsReminder, invitationText);
+        return Result<InvitationPreviewDto>.Success(new InvitationPreviewDto(email.Subject, email.TextBody, email.HtmlBody, invitationText, recipients));
     }
 
     public async Task<Result<ProtocolDto>> FinalizeAsync(Guid meetingId, Guid actor, CancellationToken ct)
@@ -304,7 +307,7 @@ public sealed class GeneralMeetingService(
     private static string DisplayName(MemberDto member) => string.Join(' ', new[] { member.FirstName, member.LastName }.Where(x => !string.IsNullOrWhiteSpace(x))).Trim() is { Length: > 0 } name ? name : member.Email ?? member.Id.ToString();
     private static InvitationRecipientDto MapInvitationRecipient(MemberDto member)
     {
-        var hasEligibleStatus = VotingStatuses.Contains(member.Status);
+        var hasEligibleStatus = InvitationStatuses.Contains(member.Status);
         var hasEmail = !string.IsNullOrWhiteSpace(member.Email);
         var reason = !hasEligibleStatus
             ? $"Mitgliedsstatus {member.Status} ist nicht empfangsberechtigt."

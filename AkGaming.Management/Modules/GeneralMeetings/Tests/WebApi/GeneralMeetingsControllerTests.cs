@@ -62,7 +62,7 @@ public sealed class GeneralMeetingsControllerTests
         // Arrange
         var meetingId = Guid.NewGuid();
         var request = new DispatchInvitationRequest(false, "Custom text");
-        var preview = new InvitationPreviewDto("Subject", "Text", "<p>HTML</p>", []);
+        var preview = new InvitationPreviewDto("Subject", "Text", "<p>HTML</p>", "Custom text", []);
         _service.Setup(service => service.PreviewInvitationAsync(meetingId, request, It.IsAny<CancellationToken>()))
             .ReturnsAsync(Result<InvitationPreviewDto>.Success(preview));
 
