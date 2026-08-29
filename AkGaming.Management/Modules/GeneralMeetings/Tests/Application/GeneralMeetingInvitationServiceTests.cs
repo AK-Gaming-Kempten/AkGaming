@@ -69,7 +69,11 @@ public sealed class GeneralMeetingInvitationServiceTests
         Assert.That(result.Value.HtmlBody, Does.Contain(ClubConstants.Urls.LogoAsset));
         Assert.That(result.Value.HtmlBody, Does.Contain("Einladung zur Mitgliederversammlung"));
         Assert.That(result.Value.HtmlBody, Does.Contain("Tagesordnung"));
+        Assert.That(result.Value.HtmlBody, Does.Contain("Wichtiger Hinweis zum Abstimmungssystem"));
+        Assert.That(result.Value.HtmlBody, Does.Contain(ClubConstants.Urls.ManagementMembership));
         Assert.That(result.Value.TextBody, Does.Contain("Feststellung der Beschlussfähigkeit"));
+        Assert.That(result.Value.TextBody, Does.Contain("Nur so könnt ihr das neue Abstimmungssystem während der Versammlung nutzen"));
+        Assert.That(result.Value.TextBody, Does.Contain("bis spätestens eine Woche vor der Versammlung einzureichen"));
         Assert.That(result.Value.HtmlBody, Does.Contain("Bitte bringt &lt;Ausweise&gt; mit."));
         Assert.That(result.Value.HtmlBody, Does.Not.Contain("Persönliche Nachricht"));
         Assert.That(result.Value.InvitationText, Is.EqualTo("Bitte bringt <Ausweise> mit."));

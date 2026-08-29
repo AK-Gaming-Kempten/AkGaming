@@ -26,10 +26,13 @@ internal static class GeneralMeetingInvitationEmailComposer
         text.AppendLine($"Datum: {scheduledAt}");
         text.AppendLine($"Ort: {location}");
         text.AppendLine();
+        text.AppendLine("Wichtiger Hinweis");
+        text.AppendLine($"Bitte stellt vor der Mitgliederversammlung sicher, dass ihr ein Konto im AK Gaming Management habt und eure Mitgliedschaft damit verknüpft ist: {ClubConstants.Urls.ManagementMembership}");
+        text.AppendLine();
         text.AppendLine("Tagesordnung");
         AppendAgendaText(text, meeting);
         text.AppendLine();
-        text.AppendLine("Anträge auf Ergänzung der Tagesordnung richtet ihr bitte rechtzeitig an den Vorstand.");
+        text.AppendLine("Anträge auf Ergänzung der Tagesordnung sind bis spätestens eine Woche vor der Versammlung einzureichen.");
         text.AppendLine();
         text.AppendLine("Wir freuen uns auf euer zahlreiches Erscheinen.");
         text.AppendLine();
@@ -39,10 +42,13 @@ internal static class GeneralMeetingInvitationEmailComposer
         var introHtml = $"<p style=\"margin:0 0 12px;font-size:18px;font-weight:700;color:#ffffff;\">Liebe Mitglieder,</p><p style=\"margin:0;color:#eef7f0;\">{ToHtmlLines(invitationText)}</p>";
 
         var bodyHtml = new StringBuilder();
+        bodyHtml.Append(AkGamingEmailTemplateComposer.BuildWarningCard(
+            "Wichtiger Hinweis zum Abstimmungssystem",
+            $"<p style=\"margin:0;\">Bitte stellt vor der Mitgliederversammlung sicher, dass ihr ein Konto im AK Gaming Management habt und eure Mitgliedschaft damit verknüpft ist. Nur so könnt ihr das neue Abstimmungssystem während der Versammlung nutzen.</p><p style=\"margin:10px 0 0;\"><a href=\"{ClubConstants.Urls.ManagementMembership}\" style=\"color:#9a3412;font-weight:700;\">Konto und Mitgliedschaft prüfen</a></p>"));
         bodyHtml.Append(AkGamingEmailTemplateComposer.BuildSectionCard("Tagesordnung", BuildAgendaHtml(meeting)));
         bodyHtml.Append(AkGamingEmailTemplateComposer.BuildSectionCard(
             "Anmerkungen",
-            "<p style=\"margin:0;\">Anträge auf Ergänzung der Tagesordnung richtet ihr bitte rechtzeitig an den Vorstand.</p>"));
+            "<p style=\"margin:0;\">Anträge auf Ergänzung der Tagesordnung sind bis spätestens eine Woche vor der Versammlung einzureichen.</p>"));
         bodyHtml.Append("<p style=\"margin:18px 0 0;\">Wir freuen uns auf euer zahlreiches Erscheinen.</p>");
 
         var html = AkGamingEmailTemplateComposer.ComposeHtml(
