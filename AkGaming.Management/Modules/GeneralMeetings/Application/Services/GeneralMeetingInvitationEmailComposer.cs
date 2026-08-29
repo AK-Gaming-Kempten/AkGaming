@@ -27,7 +27,7 @@ internal static class GeneralMeetingInvitationEmailComposer
         text.AppendLine($"Ort: {location}");
         text.AppendLine();
         text.AppendLine("Wichtiger Hinweis");
-        text.AppendLine($"Bitte stellt vor der Mitgliederversammlung sicher, dass ihr ein Konto im AK Gaming Management habt und eure Mitgliedschaft damit verknüpft ist: {ClubConstants.Urls.ManagementMembership}");
+        text.AppendLine($"Bitte stellt vor der Mitgliederversammlung sicher, dass ihr ein Konto im AK Gaming Management Tool habt und eure Mitgliedschaft damit verknüpft ist: {ClubConstants.Urls.ManagementMembership}");
         text.AppendLine();
         text.AppendLine("Tagesordnung");
         AppendAgendaText(text, meeting);
@@ -44,7 +44,7 @@ internal static class GeneralMeetingInvitationEmailComposer
         var bodyHtml = new StringBuilder();
         bodyHtml.Append(AkGamingEmailTemplateComposer.BuildWarningCard(
             "Wichtiger Hinweis",
-            $"<p style=\"margin:0;\">Bitte stellt vor der Mitgliederversammlung sicher, dass ihr ein Konto im AK Gaming Management habt und eure Mitgliedschaft damit verknüpft ist.</p><p style=\"margin:10px 0 0;\"><a href=\"{ClubConstants.Urls.ManagementMembership}\" style=\"color:#9a3412;font-weight:700;\">Konto und Mitgliedschaft prüfen</a></p>"));
+            $"<p style=\"margin:0;\">Bitte stellt vor der Mitgliederversammlung sicher, dass ihr ein Konto im AK Gaming Management Tool habt und eure Mitgliedschaft damit verknüpft ist.</p><p style=\"margin:10px 0 0;\"><a href=\"{ClubConstants.Urls.ManagementMembership}\" style=\"color:#9a3412;font-weight:700;\">Konto und Mitgliedschaft prüfen</a></p>"));
         bodyHtml.Append(AkGamingEmailTemplateComposer.BuildSectionCard("Tagesordnung", BuildAgendaHtml(meeting)));
         bodyHtml.Append(AkGamingEmailTemplateComposer.BuildSectionCard(
             "Anmerkungen",
