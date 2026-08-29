@@ -43,8 +43,8 @@ internal static class GeneralMeetingInvitationEmailComposer
 
         var bodyHtml = new StringBuilder();
         bodyHtml.Append(AkGamingEmailTemplateComposer.BuildWarningCard(
-            "Wichtiger Hinweis zum Abstimmungssystem",
-            $"<p style=\"margin:0;\">Bitte stellt vor der Mitgliederversammlung sicher, dass ihr ein Konto im AK Gaming Management habt und eure Mitgliedschaft damit verknüpft ist. Nur so könnt ihr das neue Abstimmungssystem während der Versammlung nutzen.</p><p style=\"margin:10px 0 0;\"><a href=\"{ClubConstants.Urls.ManagementMembership}\" style=\"color:#9a3412;font-weight:700;\">Konto und Mitgliedschaft prüfen</a></p>"));
+            "Wichtiger Hinweis",
+            $"<p style=\"margin:0;\">Bitte stellt vor der Mitgliederversammlung sicher, dass ihr ein Konto im AK Gaming Management habt und eure Mitgliedschaft damit verknüpft ist.</p><p style=\"margin:10px 0 0;\"><a href=\"{ClubConstants.Urls.ManagementMembership}\" style=\"color:#9a3412;font-weight:700;\">Konto und Mitgliedschaft prüfen</a></p>"));
         bodyHtml.Append(AkGamingEmailTemplateComposer.BuildSectionCard("Tagesordnung", BuildAgendaHtml(meeting)));
         bodyHtml.Append(AkGamingEmailTemplateComposer.BuildSectionCard(
             "Anmerkungen",
