@@ -1,0 +1,4 @@
+@page "/logout"
+@using Microsoft.AspNetCore.Components.Forms
+<h1>Abmelden</h1>
+<form action="/authentication/logout" method="post"><AntiforgeryToken /><button type="submit">Abmelden bestätigen</button></form>

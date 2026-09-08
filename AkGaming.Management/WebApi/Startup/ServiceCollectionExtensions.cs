@@ -87,6 +87,11 @@ public static class ServiceCollectionExtensions {
                 policy.RequireAuthenticatedUser();
                 policy.RequireAssertion(context => HasScope(context.User, "management_disbursement_interactions"));
             });
+            options.AddPolicy("management.gamenight-membership", policy => {
+                policy.AddAuthenticationSchemes(OpenIddictValidationAspNetCoreDefaults.AuthenticationScheme);
+                policy.RequireAuthenticatedUser();
+                policy.RequireAssertion(context => HasScope(context.User, "management_gamenight_membership"));
+            });
             options.AddPolicy("management.audit-summaries", policy => {
                 policy.AddAuthenticationSchemes(OpenIddictValidationAspNetCoreDefaults.AuthenticationScheme);
                 policy.RequireAuthenticatedUser();

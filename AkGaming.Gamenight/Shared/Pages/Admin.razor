@@ -1,0 +1,55 @@
+@page "/admin"
+<p class="eyebrow">VERANSTALTUNGSVERWALTUNG</p><h1>Game Nights</h1>
+@if (_error is not null) { <p role="alert" class="error">@_error</p> }
+@if (_allowed)
+{
+    <section class="card">
+        <div class="section-heading"><div><h2>@(_active?.Event?.Name ?? "Keine aktive Game Night")</h2><p>Diese Auswahl gilt für alle Besucher, Anmeldungen und den Front Desk.</p></div><button @onclick="Create">Game Night erstellen</button></div>
+        <label>Veranstaltung auswählen<select @bind="_selected"><option value="">Bitte auswählen</option>@foreach (var e in _events) { <option value="@e.Id">@e.Name</option> }</select></label>
+        @if (_events.FirstOrDefault(e => e.Id == _selected) is { } selected)
+        {
+            <div class="section-heading"><div><h3>@selected.Name</h3><p>@selected.StartsAt.ToLocalTime().ToString("dd.MM.yyyy HH:mm") · @selected.Location</p></div><ContextMenu AriaLabel="Veranstaltung verwalten"><ContextMenuItem Text="Bearbeiten" OnClick="() => Edit(selected)" /><ContextMenuItem Text="Global aktivieren" OnClick="() => _activate = true" IsDisabled="@(_active?.Event?.Id == selected.Id)" /></ContextMenu></div>
+        }
+    </section>
+}
+@if (_draft is not null)
+{
+    <FormDialog Title="Game Night konfigurieren" OnClose="Close">
+        <ChildContent>
+            <EditForm Model="_draft" OnValidSubmit="Save" id="event-form"><DataAnnotationsValidator /><ValidationSummary />
+                <label>Name<InputText @bind-Value="_draft.Name" /></label>
+                <label>Ort<InputText @bind-Value="_draft.Location" /></label>
+                <label>Informationen für Besucher<InputTextArea @bind-Value="_draft.Information" rows="5" /></label>
+                <p class="muted">Alle Uhrzeiten hier in Europe/Berlin.</p>
+                <div class="form-grid">
+                    <label>Beginn<input type="datetime-local" value="@Local(_draft.StartsAt)" @onchange="e => SetDate(nameof(EventSettings.StartsAt), e)" /></label>
+                    <label>Ende<input type="datetime-local" value="@Local(_draft.EndsAt)" @onchange="e => SetDate(nameof(EventSettings.EndsAt), e)" /></label>
+                    <label>Anmeldefrist<input type="datetime-local" value="@Local(_draft.SignupDeadline)" @onchange="e => SetDate(nameof(EventSettings.SignupDeadline), e)" /></label>
+                    <label>Änderungsfrist<input type="datetime-local" value="@Local(_draft.EditDeadline)" @onchange="e => SetDate(nameof(EventSettings.EditDeadline), e)" /></label>
+                    <label>Frühbucherfrist<input type="datetime-local" value="@Local(_draft.EarlyBirdDeadline)" @onchange="e => SetDate(nameof(EventSettings.EarlyBirdDeadline), e)" /></label>
+                    <label>Frist für Essenswünsche<input type="datetime-local" value="@Local(_draft.FoodDeadline)" @onchange="e => SetDate(nameof(EventSettings.FoodDeadline), e)" /></label>
+                </div>
+                <h3>Eintrittspreise in Cent</h3><div class="form-grid">
+                    <label>Frühbucher<InputNumber @bind-Value="_draft.EarlyPriceCents" min="0" /></label>
+                    <label>Frühbucher mit Setup<InputNumber @bind-Value="_draft.EarlySetupPriceCents" min="0" /></label>
+                    <label>Regulär<InputNumber @bind-Value="_draft.RegularPriceCents" min="0" /></label>
+                    <label>Regulär mit Setup<InputNumber @bind-Value="_draft.RegularSetupPriceCents" min="0" /></label>
+                    <label>Mitglied Frühbucher<InputNumber @bind-Value="_draft.MemberEarlyPriceCents" min="0" /></label>
+                    <label>Mitglied regulär<InputNumber @bind-Value="_draft.MemberRegularPriceCents" min="0" /></label>
+                </div>
+                <label>Beitragszeitraum für Mitgliedspreis<InputSelect @bind-Value="_draft.MembershipPaymentPeriodId"><option value="">Bitte auswählen</option>@foreach (var period in _periods) { <option value="@period.Id">@period.Name</option> }</InputSelect></label>
+                <p class="muted">Nur ein in Management bezahlter Beitrag für diesen Zeitraum berechtigt zum Mitgliedspreis.</p>
+            </EditForm>
+            @if (_error is not null) { <p role="alert" class="error">@_error</p> }
+        </ChildContent>
+        <Footer><button class="secondary" disabled="@_busy" @onclick="Close">Abbrechen</button><button type="submit" form="event-form" disabled="@_busy">Speichern</button></Footer>
+    </FormDialog>
+}
+@if (_activate)
+{
+    <FormDialog Title="Aktive Game Night wechseln" OnClose="Close">
+        <ChildContent><p>Alle operativen Ansichten wechseln zur ausgewählten Veranstaltung. Alte Anmeldungen bleiben gespeichert. Bereits geöffnete Formulare werden beim Absenden auf die Änderung hingewiesen.</p>@if (_error is not null) { <p role="alert">@_error</p> }</ChildContent>
+        <Footer><button class="secondary" disabled="@_busy" @onclick="Close">Abbrechen</button><button disabled="@_busy" @onclick="Activate">Global aktivieren</button></Footer>
+    </FormDialog>
+}
+
