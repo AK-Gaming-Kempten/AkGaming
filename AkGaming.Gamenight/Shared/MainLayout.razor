@@ -1,0 +1,14 @@
+@inherits LayoutComponentBase
+<header class="site-header">
+    <a class="brand" href="/">AK GAMING <span>GAME NIGHT</span></a>
+    <nav aria-label="Hauptnavigation">
+        <NavLink href="/" Match="NavLinkMatch.All">Anmeldung</NavLink>
+        <NavLink href="/mine">Meine Anmeldung</NavLink>
+        @if (Has(Permissions.Read)) { <NavLink href="/frontdesk">Front Desk</NavLink> }
+        @if (Has(Permissions.Events)) { <NavLink href="/admin">Verwaltung</NavLink> }
+        <button class="secondary" @onclick="ToggleLogin">@(_signedIn ? "Abmelden" : "Anmelden / Konto erstellen")</button>
+    </nav>
+</header>
+<main class="page">@Body</main>
+<footer class="site-footer"><a href="https://akgaming.de">AK Gaming e.V.</a> · <a href="https://akgaming.de/impressum">Impressum</a> · <a href="https://akgaming.de/datenschutz">Datenschutz</a></footer>
+

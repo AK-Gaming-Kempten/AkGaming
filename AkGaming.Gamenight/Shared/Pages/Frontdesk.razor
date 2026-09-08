@@ -1,0 +1,22 @@
+@page "/frontdesk"
+<p class="eyebrow">AK GAMING · EINLASS</p><h1>Front Desk</h1>
+@if (_error is not null) { <p class="error" role="alert">@_error</p> }
+@if (_allowed)
+{
+    <div class="metrics"><div class="card"><strong>@_rows.Count(r => !r.Cancelled)</strong> angemeldet</div><div class="card"><strong>@_rows.Count(r => r.CheckedIn)</strong> eingecheckt</div><div class="card"><strong>@_rows.Count(r => r.StaffApproved && !r.Cancelled)</strong> Personal</div></div>
+    <div class="toolbar"><label>Besucher suchen<input type="search" @bind="_search" @bind:event="oninput" placeholder="Name oder E-Mail" /></label><label>Status<select @bind="_filter"><option value="">Alle</option><option value="waiting">Noch nicht eingecheckt</option><option value="checked">Eingecheckt</option><option value="unpaid">Zahlung offen</option><option value="staff">Personal</option><option value="cancelled">Storniert</option></select></label><button class="secondary" @onclick="Load">Aktualisieren</button>
+    @if (_permissions.Contains(Permissions.Export)) { <button class="secondary" @onclick="Export">CSV exportieren</button> }
+    </div>
+    <div class="desk-layout"><section class="card visitor-list" aria-label="Besucherliste">
+        @foreach (var r in Filtered)
+        {
+            <button class="visitor-row @(r.Id == _selected ? "selected" : "")" @onclick="() => _selected = r.Id"><strong>@r.Form.LastName, @r.Form.FirstName</strong><span>@r.Form.Email</span><small>@(r.Cancelled ? "Storniert" : r.CheckedIn ? "Eingecheckt" : "Erwartet") · @(r.StaffApproved ? "Personal" : r.Admission)</small></button>
+        }
+        @if (!Filtered.Any()) { <p>Keine passenden Anmeldungen.</p> }
+    </section><div>
+        @if (_rows.FirstOrDefault(r => r.Id == _selected) is { } selected) { <RegistrationDetails @key="selected.Version" Registration="selected" Granted="_permissions" Changed="Load" /> }
+        @if (_selected is null) { <section class="card"><h2>Willkommen am Einlass</h2><p>Wähle eine Anmeldung aus. Tarif, Zahlung und Check-in findest du in den Besucherdetails.</p></section> }
+    </div></div>
+    <section class="card"><h2>Planungsübersicht</h2><p>@_rows.Count(r => !r.Cancelled && r.Form.Sockets > 0) Setups · Pizza: @TotalMeals("Pizza") · Döner: @TotalMeals("Döner") · Eis: @_rows.Where(r => !r.Cancelled).Sum(r => r.Form.Scoops ?? 0) Kugeln</p><p class="muted">Mengen ohne Angabe zählen nicht zu den Summen. Dies sind Interessen aus der Anmeldung, keine verbindlichen Essensbestellungen.</p></section>
+}
+

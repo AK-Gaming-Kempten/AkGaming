@@ -50,6 +50,11 @@ internal static class OidcPrincipalFactory
             resources.Add("management_api");
         }
 
+        if (scopeSet.Contains("gamenight_api"))
+        {
+            resources.Add("gamenight_api");
+        }
+
         if (resources.Count > 0)
         {
             principal.SetResources(resources);

@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk.Razor">
+  <PropertyGroup><TargetFramework>net10.0</TargetFramework><ImplicitUsings>enable</ImplicitUsings><Nullable>enable</Nullable></PropertyGroup>
+  <ItemGroup>
+    <SupportedPlatform Include="browser" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="10.0.3" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.Authorization" Version="10.0.3" />
+    <ProjectReference Include="../Contracts/AkGaming.Gamenight.Contracts.csproj" />
+    <ProjectReference Include="../../AkGaming.Core/Components/AkGaming.Core.Components.csproj" />
+    <Content Remove="wwwroot/theme/*.css" />
+    <Content Include="wwwroot/theme/akgaming-base-theme.css" />
+  </ItemGroup>
+  <Target Name="SyncCoreTheme" BeforeTargets="PrepareForBuild;ResolveStaticWebAssetsInputs">
+    <Copy SourceFiles="../../AkGaming.Core/Theme/wwwroot/theme/akgaming-base-theme.css"
+          DestinationFiles="wwwroot/theme/akgaming-base-theme.css" SkipUnchangedFiles="true" />
+  </Target>
+</Project>

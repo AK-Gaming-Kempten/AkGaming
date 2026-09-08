@@ -1,0 +1,26 @@
+<label>Wie viele Steckdosen wirst du wahrscheinlich benötigen? *
+    <InputSelect @bind-Value="Form.Sockets"><option value="">Bitte auswählen</option><option value="0">0 – Kein Setup dabei</option><option value="1">1 – Laptop</option><option value="2">2 – Tower mit einem Monitor</option><option value="4">3–4 – Tower mit mehr Equipment</option></InputSelect>
+</label>
+<p class="muted">Unverbindliche Angabe für unsere Planung. Bitte bring für ein eigenes Setup ein mindestens 5 m langes LAN-Kabel mit.</p>
+<label>Was würdest du zu Essen bestellen? *
+    <InputSelect @bind-Value="Form.Meal"><option value="">Bitte auswählen</option><option>Döner</option><option>Pizza</option><option>Nichts</option></InputSelect>
+</label>
+<p class="muted">Für die gemeinsame Essensbestellung bitte Bargeld mitbringen. Eine mögliche Vergünstigung gilt für eine Mahlzeit pro Person bei rechtzeitiger Anmeldung. Die konkrete Bestellung erfolgt später.</p>
+@if (Form.Meal is "Pizza" or "Döner")
+{
+    <label>Wenn etwas, wie viele?<InputSelect @bind-Value="Form.MealQuantity"><option value="">Keine Angabe</option>@for (var i = 1; i <= 5; i++) { <option value="@i">@i</option> }</InputSelect></label>
+}
+<label>Wir planen auch einen Eisverkauf, hättest du Interesse daran?
+    <InputSelect @bind-Value="Form.IceCream"><option value="">Keine Angabe</option><option>Ja</option><option>Nein</option><option>Nur Laktosefreies Eis</option></InputSelect>
+</label>
+<p class="muted">Eigene saubere Schüsseln, Becher und Löffel sind ausdrücklich willkommen, um Müll zu vermeiden. Pappbecher und Holzlöffel stehen ebenfalls bereit.</p>
+@if (Form.IceCream is "Ja" or "Nur Laktosefreies Eis")
+{
+    <label>Wenn ja, wie viele Kugeln?<InputSelect @bind-Value="Form.Scoops"><option value="">Keine Angabe</option>@for (var i = 1; i <= 10; i++) { <option value="@i">@i</option> }</InputSelect></label>
+}
+<label>Hast du vor, an einer Pen-&amp;-Paper-Runde teilzunehmen? (unverbindlich) *
+    <InputSelect @bind-Value="Form.PenAndPaper"><option value="">Bitte auswählen</option><option value="true">Ja</option><option value="false">Nein</option></InputSelect>
+</label>
+<p>Pizzakartons und Reste sind zum von der Eventorganisation ausgewiesenen Müllplatz zu bringen. Bei Nichteinhaltung können Verwarnungen oder ein Verweis von der Veranstaltung folgen.</p>
+<label class="check"><InputCheckbox @bind-Value="Form.GameNightRules" />Ich habe die Game-Night-spezifischen Benimmregeln gelesen und werde diese einhalten. *</label>
+

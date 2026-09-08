@@ -69,7 +69,9 @@ public sealed class OidcAdminService : IOidcAdminService
             ManagementBoardInteractionsScope,
             ManagementDisbursementInteractionsScope,
             IdentityAuditSummariesScope,
-            ManagementAuditSummariesScope
+            ManagementAuditSummariesScope,
+            "gamenight_api",
+            "management_gamenight_membership"
         };
         var protectedClientIds = seedOptions.Value.Applications
             .Where(application => application.Scopes.Any(protectedScopeNames.Contains))

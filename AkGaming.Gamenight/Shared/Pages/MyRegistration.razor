@@ -1,0 +1,9 @@
+@page "/mine"
+@page "/registration/{Id:guid}"
+<h1>Meine Anmeldung</h1>
+@if (_error is not null) { <p role="alert" class="error">@_error</p> }
+@if (_loading) { <p role="status">Anmeldung wird geladen …</p> }
+@if (!_loading && _rows.Count == 0) { <p>Keine Anmeldung für die aktuelle Game Night gefunden. Nutze dieselbe verifizierte E-Mail wie bei deiner Gastanmeldung.</p> }
+@if (!_signedIn) { <div class="callout"><p>Mit einem Konto kannst du deine Anmeldung verwalten und deinen Mitgliedstarif prüfen lassen.</p><button @onclick="Login">Anmelden / Konto erstellen</button></div> }
+@foreach (var registration in _rows) { <RegistrationDetails @key="registration.Version" Registration="registration" Changed="Load" /> }
+

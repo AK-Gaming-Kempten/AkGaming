@@ -3,6 +3,9 @@
   <Folder Name="/AkGaming.Core/Notifications/">
     <Project Path="AkGaming.Core/Notifications/AkGaming.Core.Notifications.csproj" />
   </Folder>
+  <Folder Name="/AkGaming.Core/Authentication/">
+    <Project Path="AkGaming.Core/Authentication/AkGaming.Core.Authentication.csproj" />
+  </Folder>
   <Folder Name="/AkGaming.Core/Common/">
     <Project Path="AkGaming.Core/Common/AkGaming.Core.Common.csproj" />
   </Folder>
@@ -26,6 +29,38 @@
   </Folder>
   <Folder Name="/AkGaming.GamelyBot/Migrations/Sqlite/">
     <Project Path="AkGaming.GamelyBot/Migrations/Sqlite/AkGaming.GamelyBot.Migrations.Sqlite.csproj" />
+  </Folder>
+  <Folder Name="/AkGaming.Gamenight/" />
+  <Folder Name="/AkGaming.Gamenight/Application/">
+    <Project Path="AkGaming.Gamenight/Application/AkGaming.Gamenight.Application.csproj" />
+  </Folder>
+  <Folder Name="/AkGaming.Gamenight/Contracts/">
+    <Project Path="AkGaming.Gamenight/Contracts/AkGaming.Gamenight.Contracts.csproj" />
+  </Folder>
+  <Folder Name="/AkGaming.Gamenight/Domain/">
+    <Project Path="AkGaming.Gamenight/Domain/AkGaming.Gamenight.Domain.csproj" />
+  </Folder>
+  <Folder Name="/AkGaming.Gamenight/Frontend/">
+    <Project Path="AkGaming.Gamenight/Frontend/AkGaming.Gamenight.Frontend.csproj" />
+  </Folder>
+  <Folder Name="/AkGaming.Gamenight/Infrastructure/">
+    <Project Path="AkGaming.Gamenight/Infrastructure/AkGaming.Gamenight.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/AkGaming.Gamenight/Migrations/" />
+  <Folder Name="/AkGaming.Gamenight/Migrations/Postgres/">
+    <Project Path="AkGaming.Gamenight/Migrations/Postgres/AkGaming.Gamenight.Migrations.Postgres.csproj" />
+  </Folder>
+  <Folder Name="/AkGaming.Gamenight/Migrations/Sqlite/">
+    <Project Path="AkGaming.Gamenight/Migrations/Sqlite/AkGaming.Gamenight.Migrations.Sqlite.csproj" />
+  </Folder>
+  <Folder Name="/AkGaming.Gamenight/Shared/">
+    <Project Path="AkGaming.Gamenight/Shared/AkGaming.Gamenight.Shared.csproj" />
+  </Folder>
+  <Folder Name="/AkGaming.Gamenight/Tests/">
+    <Project Path="AkGaming.Gamenight/Tests/AkGaming.Gamenight.Tests.csproj" />
+  </Folder>
+  <Folder Name="/AkGaming.Gamenight/WebApi/">
+    <Project Path="AkGaming.Gamenight/WebApi/AkGaming.Gamenight.WebApi.csproj" />
   </Folder>
   <Folder Name="/AkGaming.Identity/" />
   <Folder Name="/AkGaming.Identity/Api/">

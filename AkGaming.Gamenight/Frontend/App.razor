@@ -1,0 +1,11 @@
+@using Microsoft.AspNetCore.Components.Web
+@using AkGaming.Gamenight.Shared
+<!DOCTYPE html>
+<html lang="de"><head><meta charset="utf-8" /><meta name="viewport" content="width=device-width,initial-scale=1" /><base href="/" />
+<link rel="stylesheet" href="_content/AkGaming.Gamenight.Shared/theme/akgaming-base-theme.css" />
+<link rel="stylesheet" href="_content/AkGaming.Gamenight.Shared/gamenight.css" />
+<link rel="stylesheet" href="AkGaming.Gamenight.Frontend.styles.css" />
+<HeadOutlet @rendermode="new InteractiveServerRenderMode(prerender: false)" /></head>
+<body><Routes @rendermode="new InteractiveServerRenderMode(prerender: false)" />
+<script src="_content/AkGaming.Gamenight.Shared/gamenight.js"></script><script src="_framework/blazor.web.js"></script></body></html>
+
