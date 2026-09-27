@@ -108,7 +108,7 @@ public sealed class GamenightService(IGamenightStore store, IMembershipClient me
         var token = Convert.ToHexString(RandomNumberGenerator.GetBytes(32));
         var form = Clean(request.Form);
         if (Now > settings.FoodDeadline)
-            Require(form.Attendance == "Karaoke" || form.Meal == "Nichts", 409, "Die Frist für Essenswünsche ist abgelaufen.");
+            Require(form.Attendance == "Karaoke" || !HasFoodOrder(form), 409, "Die Frist für Essenswünsche ist abgelaufen.");
         var registration = new Registration
         {
             EventId = request.EventId, NormalizedEmail = normalized,
@@ -171,10 +171,17 @@ public sealed class GamenightService(IGamenightStore store, IMembershipClient me
         Require(actor.Has(Permissions.Manage) || CanEdit(r, settings, actor), 403, "Änderungen sind nur durch das Personal möglich.");
         Require(!r.Cancelled, 409, "Diese Anmeldung ist storniert.");
         Require(Normalize(request.Form.Email) == r.NormalizedEmail, 400, "Die Anmelde-E-Mail kann nicht geändert werden.");
-        var old = Answers(r);
+        var old = Clean(Answers(r));
         var form = Clean(request.Form);
         if (!actor.Has(Permissions.Manage) && Now > settings.FoodDeadline)
-            Require(old.Meal == form.Meal && old.MealQuantity == form.MealQuantity && old.IceCream == form.IceCream && old.Scoops == form.Scoops, 409, "Die Frist für Essenswünsche ist abgelaufen.");
+            Require(old.WantsToOrder == form.WantsToOrder
+                && old.DonerQuantity == form.DonerQuantity
+                && old.PizzaQuantity == form.PizzaQuantity
+                && old.IceCreamQuantity == form.IceCreamQuantity
+                && old.Meal == form.Meal
+                && old.MealQuantity == form.MealQuantity
+                && old.IceCream == form.IceCream
+                && old.Scoops == form.Scoops, 409, "Die Frist für Essenswünsche ist abgelaufen.");
         Require((!r.Paid && !r.CheckedIn) || (old.Attendance == form.Attendance && old.Sockets == form.Sockets), 409, "Vor einer Tarifänderung bitte Zahlung und Check-in zurücknehmen.");
         r.AnswersJson = JsonSerializer.Serialize(form);
         r.Version = Guid.NewGuid();
@@ -267,9 +274,49 @@ public sealed class GamenightService(IGamenightStore store, IMembershipClient me
     private static SignupForm Clean(SignupForm form)
     {
         form.Email = form.Email.Trim(); form.FirstName = form.FirstName.Trim(); form.LastName = form.LastName.Trim();
-        if (form.Attendance == "Karaoke") { form.Sockets = null; form.Meal = null; form.MealQuantity = null; form.IceCream = null; form.Scoops = null; form.PenAndPaper = null; form.GameNightRules = false; }
-        if (form.Meal == "Nichts") form.MealQuantity = null;
-        if (string.IsNullOrEmpty(form.IceCream) || form.IceCream == "Nein") form.Scoops = null;
+        if (form.Attendance == "Karaoke")
+        {
+            form.Sockets = null; form.WantsToOrder = null; form.DonerQuantity = null; form.PizzaQuantity = null; form.IceCreamQuantity = null;
+            form.Meal = null; form.MealQuantity = null; form.IceCream = null; form.Scoops = null;
+            form.PenAndPaper = null; form.GameNightRules = false;
+            return form;
+        }
+
+        if (form.WantsToOrder is null && (form.Meal is "Döner" or "Pizza" or "Nichts"))
+        {
+            form.WantsToOrder = form.Meal != "Nichts" || (form.IceCream is "Ja" or "Nur Laktosefreies Eis");
+            form.DonerQuantity ??= form.Meal == "Döner" ? form.MealQuantity ?? 0 : 0;
+            form.PizzaQuantity ??= form.Meal == "Pizza" ? form.MealQuantity ?? 0 : 0;
+            form.IceCreamQuantity ??= (form.IceCream is "Ja" or "Nur Laktosefreies Eis") ? form.Scoops ?? 0 : 0;
+        }
+
+        if (form.WantsToOrder == false)
+        {
+            form.DonerQuantity = 0; form.PizzaQuantity = 0; form.IceCreamQuantity = 0;
+            form.Meal = "Nichts"; form.MealQuantity = null; form.IceCream = "Nein"; form.Scoops = null;
+            return form;
+        }
+
+        if (form.WantsToOrder == true)
+        {
+            form.DonerQuantity ??= 0; form.PizzaQuantity ??= 0; form.IceCreamQuantity ??= 0;
+            form.Meal = form.DonerQuantity > 0 && form.PizzaQuantity > 0 ? "Döner, Pizza"
+                : form.DonerQuantity > 0 ? "Döner"
+                : form.PizzaQuantity > 0 ? "Pizza"
+                : "Nichts";
+            var mealCount = (form.DonerQuantity ?? 0) + (form.PizzaQuantity ?? 0);
+            form.MealQuantity = mealCount > 0 ? mealCount : null;
+            form.Scoops = form.IceCreamQuantity > 0 ? form.IceCreamQuantity : null;
+            if (form.IceCreamQuantity == 0) form.IceCream = "Nein";
+            else if (string.IsNullOrEmpty(form.IceCream) || form.IceCream == "Nein") form.IceCream = "Ja";
+        }
         return form;
+    }
+
+    private static bool HasFoodOrder(SignupForm form)
+    {
+        if (form.WantsToOrder is not null)
+            return form.WantsToOrder == true && ((form.DonerQuantity ?? 0) > 0 || (form.PizzaQuantity ?? 0) > 0 || (form.IceCreamQuantity ?? 0) > 0);
+        return form.Meal is not (null or "" or "Nichts") || form.IceCream is "Ja" or "Nur Laktosefreies Eis";
     }
 }

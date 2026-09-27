@@ -15,7 +15,10 @@
             <dl><dt>Frühbucher / mit Setup</dt><dd>@Money(gameNight.EarlyPriceCents) / @Money(gameNight.EarlySetupPriceCents)</dd><dt>Regulär / mit Setup</dt><dd>@Money(gameNight.RegularPriceCents) / @Money(gameNight.RegularSetupPriceCents)</dd><dt>Mitglieder: Frühbucher / regulär</dt><dd>@Money(gameNight.MemberEarlyPriceCents) / @Money(gameNight.MemberRegularPriceCents)</dd></dl>
             <p>Frühbucher bis @BerlinTime(gameNight.EarlyBirdDeadline). Essenswünsche bis @BerlinTime(gameNight.FoodDeadline).</p>
             <p>Anmeldung bis @BerlinTime(gameNight.SignupDeadline). Änderungen bis @BerlinTime(gameNight.EditDeadline), spätestens bis zum Check-in.</p>
-            <div class="callout"><strong>Mit deinem Konto hast du mehr davon.</strong><p>Anmeldung bearbeiten oder stornieren und als Mitglied automatisch den Mitgliedstarif erhalten: Wir prüfen dein verknüpftes Mitgliedsprofil und den bezahlten Beitrag in Management. Auch eine Gastanmeldung kannst du später mit derselben verifizierten E-Mail übernehmen.</p><button class="secondary" @onclick="Login">Anmelden / Konto erstellen</button></div>
+            @if (!_signedIn)
+            {
+                <div class="callout"><strong>Mit deinem Konto hast du mehr davon.</strong><p>Anmeldung bearbeiten oder stornieren und als Mitglied automatisch den Mitgliedstarif erhalten: Wir prüfen dein verknüpftes Mitgliedsprofil und den bezahlten Beitrag in Management. Auch eine Gastanmeldung kannst du später mit derselben verifizierten E-Mail übernehmen.</p><button class="secondary" @onclick="Login">Anmelden / Konto erstellen</button></div>
+            }
         </aside>
         <section class="card">
         @if (_receipt is not null) { <h2>Danke!</h2><p role="status">@_receipt</p><a href="/mine">Meine Anmeldung</a> }

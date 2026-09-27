@@ -23,7 +23,10 @@ public partial class Frontdesk
         (r.Form.FirstName + " " + r.Form.LastName + " " + r.Form.Email).Contains(_search, StringComparison.OrdinalIgnoreCase))
         .Where(r => _filter switch { "waiting" => !r.CheckedIn && !r.Cancelled, "checked" => r.CheckedIn, "unpaid" => !r.Paid && r.PriceCents != 0 && !r.Cancelled, "staff" => r.StaffApproved && !r.Cancelled, "cancelled" => r.Cancelled, _ => true })
         .OrderBy(r => r.Form.LastName).ThenBy(r => r.Form.FirstName);
-    private int TotalMeals(string meal) => _rows.Where(r => !r.Cancelled && r.Form.Meal == meal).Sum(r => r.Form.MealQuantity ?? 0);
+    private int TotalMeals(string meal) => _rows.Where(r => !r.Cancelled).Sum(r => r.Form.WantsToOrder is null
+        ? r.Form.Meal == meal ? r.Form.MealQuantity ?? 0 : 0
+        : meal == "Döner" ? r.Form.DonerQuantity ?? 0 : r.Form.PizzaQuantity ?? 0);
+    private int TotalIceCream => _rows.Where(r => !r.Cancelled).Sum(r => r.Form.IceCreamQuantity ?? r.Form.Scoops ?? 0);
     private async Task Load()
     {
         _error = null;

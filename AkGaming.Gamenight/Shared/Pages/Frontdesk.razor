@@ -17,6 +17,5 @@
         @if (_rows.FirstOrDefault(r => r.Id == _selected) is { } selected) { <RegistrationDetails @key="selected.Version" Registration="selected" Granted="_permissions" Changed="Load" /> }
         @if (_selected is null) { <section class="card"><h2>Willkommen am Einlass</h2><p>Wähle eine Anmeldung aus. Tarif, Zahlung und Check-in findest du in den Besucherdetails.</p></section> }
     </div></div>
-    <section class="card"><h2>Planungsübersicht</h2><p>@_rows.Count(r => !r.Cancelled && r.Form.Sockets > 0) Setups · Pizza: @TotalMeals("Pizza") · Döner: @TotalMeals("Döner") · Eis: @_rows.Where(r => !r.Cancelled).Sum(r => r.Form.Scoops ?? 0) Kugeln</p><p class="muted">Mengen ohne Angabe zählen nicht zu den Summen. Dies sind Interessen aus der Anmeldung, keine verbindlichen Essensbestellungen.</p></section>
+    <section class="card"><h2>Planungsübersicht</h2><p>@_rows.Count(r => !r.Cancelled && r.Form.Sockets > 0) Setups · Pizza: @TotalMeals("Pizza") · Döner: @TotalMeals("Döner") · Eis: @TotalIceCream Kugeln</p><p class="muted">Dies sind unverbindliche Interessen aus den Anmeldungen, keine verbindlichen Bestellungen.</p></section>
 }
-

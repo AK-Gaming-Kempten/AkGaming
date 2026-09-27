@@ -1,7 +1,13 @@
 <EditForm Model="Form" OnValidSubmit="Submit">
-    <DataAnnotationsValidator /><ValidationSummary />
-    <p class="muted">* Pflichtangabe · Schritt @(_step + 1) von 3</p>
-    <fieldset disabled="@Busy">
+    <DataAnnotationsValidator />
+    <p class="muted">* Pflichtangabe · Schritt @StepNumber von @StepCount</p>
+    <fieldset disabled="@Busy" @onchange="ClearStepErrors">
+    @if (_stepErrors.Count > 0)
+    {
+        <div class="validation-errors" role="alert">
+            <ul>@foreach (var error in _stepErrors) { <li>@error</li> }</ul>
+        </div>
+    }
     @if (_step == 0)
     {
         <h2>Du bist dabei</h2>
@@ -11,15 +17,19 @@
             <label>Nachname *<InputText @bind-Value="Form.LastName" autocomplete="family-name" /></label>
         </div>
         <label>Wofür möchtest du dich anmelden? *
-            <InputSelect @bind-Value="Form.Attendance"><option value="GameNight">Game Night und Karaoke</option><option value="Karaoke">NUR Karaoke</option></InputSelect>
+            <InputSelect @bind-Value="Form.Attendance"><option value="">Bitte auswählen</option><option value="GameNight">Game Night und Karaoke</option><option value="Karaoke">NUR Karaoke</option></InputSelect>
         </label>
         <p>Die Game-Night-Anmeldung beinhaltet Karaoke. Nur Karaoke ist kostenlos und erlaubt den Zutritt zu den dafür vorgesehenen Räumen. Für Game-Night-Angebote wie Essensbestellung und Brettspielraum ist die Game-Night-Anmeldung mit Eintritt erforderlich.</p>
     }
     @if (_step == 1)
     {
         <h2>Dein Abend</h2>
-        @if (Form.Attendance == "GameNight") { <GameNightFields Form="Form" /> }
-        @if (Form.Attendance == "Karaoke") { <p>Für Karaoke benötigst du keine Angaben zu Setup oder Essen.</p> }
+        <GameNightFields Form="Form" />
+    }
+    @if (_step == 2)
+    {
+        <h2>Zum Schluss</h2>
+        <h3>Weitere Angaben</h3>
         <label>Weitere Anmerkungen<InputTextArea @bind-Value="Form.Notes" rows="3" /></label>
         <fieldset><legend>Wie hast du von unserem Event erfahren?</legend>
         @foreach (var source in SignupForm.Sources)
@@ -28,20 +38,29 @@
         }
         @if (Form.DiscoverySources.Contains("Sonstiges")) { <label>Sonstiges<InputText @bind-Value="Form.DiscoveryOther" /></label> }
         </fieldset>
-        <label>Bist du Teil der Orga dieses Events? *<InputSelect @bind-Value="Form.OrganizerDeclaration"><option value="">Bitte auswählen</option><option value="true">Ja</option><option value="false">Nein</option></InputSelect></label>
+        <fieldset class="choice-fieldset"><legend>Bist du Teil der Orga dieses Events? *</legend>
+            <InputRadioGroup TValue="bool?" @bind-Value="Form.OrganizerDeclaration">
+                <div class="choice-grid yes-no-choice">
+                    <label class="choice-card"><InputRadio TValue="bool?" Value="true" /><span><strong>Ja</strong></span></label>
+                    <label class="choice-card"><InputRadio TValue="bool?" Value="false" /><span><strong>Nein</strong></span></label>
+                </div>
+            </InputRadioGroup>
+        </fieldset>
         <p class="muted">Freier Personaleintritt wird durch die Administration bestätigt.</p>
-    }
-    @if (_step == 2)
-    {
-        <h2>Gemeinsam einen guten Abend haben</h2>
+        <h3>Gemeinsam einen guten Abend haben</h3>
         <p>Teilnahme ab 18 Jahren. Bitte bring einen gültigen Lichtbildausweis mit.</p>
         <label class="check"><InputCheckbox @bind-Value="Form.Liability" /><span>Ich habe den <a href="https://akgaming.de/haftung" target="_blank" rel="noopener">Haftungsausschluss</a> gelesen und akzeptiere ihn. *</span></label>
         <ol><li>Geht respektvoll mit den Anderen um!</li><li>Gesponserte Konsumgüter wie Getränke und Snacks sind in angemessenen Mengen zu konsumieren. Ihr seid nicht alleine!</li><li>Räumt euren Müll wieder weg, verlasst euren Platz und euer Umfeld möglichst so, wie ihr es vorgefunden habt!</li><li>Passt auf eure offenen Getränke auf!</li><li>Fremdes Eigentum, inklusive Stecker, Schalter, Konsolen, Fernseher, ist nur mit der Erlaubnis des Besitzers zu bedienen.</li><li>Achtet darauf, euren Alkoholkonsum in Maßen zu halten, damit ihr alle Regeln einhalten könnt.</li></ol>
         <p>Bei Nichteinhaltung machen wir von unserem Hausrecht Gebrauch und können euch verwarnen oder von der Veranstaltung verweisen.</p>
+        @if (Form.Attendance == "GameNight")
+        {
+            <label class="check"><InputCheckbox @bind-Value="Form.GameNightRules" />Ich habe die Game-Night-spezifischen Benimmregeln gelesen und werde diese einhalten. *</label>
+        }
         <label class="check"><InputCheckbox @bind-Value="Form.GeneralRules" />Ich habe die generellen Benimmregeln gelesen und werde diese einhalten. *</label>
         <label class="check"><InputCheckbox @bind-Value="Form.PhotoConsent" />Ich bin damit einverstanden, dass Bild- und Video-Aufnahmen von mir gemacht werden. Ich stimme zu, dass diese Bilder aus Werbezwecken auf Plakaten, der akgaming.de Website, auf Social Media sowie auf den Seiten unserer Partner veröffentlicht werden. *</label>
         <label class="check"><InputCheckbox @bind-Value="Form.HardwareResponsibility" />Hiermit versichere ich, dass meine mitgebrachte Hardware (falls vorhanden), insbesondere in brandschutztechnischer Hinsicht, keine Gefahrenquelle darstellt. Für meine Aktivitäten im Netz während des Events übernehme ich selbst Verantwortung. *</label>
         <p class="muted">Du meldest @Form.FirstName @Form.LastName für @(Form.Attendance == "GameNight" ? "Game Night und Karaoke" : "Karaoke") an.</p>
+        <ValidationSummary />
     }
     <div class="actions">
         @if (_step > 0) { <button type="button" class="secondary" @onclick="Back">Zurück</button> }
@@ -50,4 +69,3 @@
     </div>
     </fieldset>
 </EditForm>
-

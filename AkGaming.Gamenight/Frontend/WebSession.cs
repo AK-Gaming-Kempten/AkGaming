@@ -16,7 +16,12 @@ public sealed class WebSession(IHttpContextAccessor accessor, AuthenticationStat
     private DateTimeOffset _expires;
     private bool _initialized;
     public async Task<ClaimsPrincipal> UserAsync() => (await state.GetAuthenticationStateAsync()).User;
-    public Task LoginAsync() { navigation.NavigateTo("/authentication/login", forceLoad: true); return Task.CompletedTask; }
+    public Task LoginAsync()
+    {
+        var returnPath = new Uri(navigation.Uri).AbsolutePath;
+        navigation.NavigateTo($"/authentication/login?returnUrl={Uri.EscapeDataString(returnPath)}", forceLoad: true);
+        return Task.CompletedTask;
+    }
     public Task LogoutAsync() { navigation.NavigateTo("/logout", forceLoad: true); return Task.CompletedTask; }
     public async Task<string?> TokenAsync()
     {

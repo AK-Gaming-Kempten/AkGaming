@@ -1,26 +1,66 @@
-<label>Wie viele Steckdosen wirst du wahrscheinlich benötigen? *
-    <InputSelect @bind-Value="Form.Sockets"><option value="">Bitte auswählen</option><option value="0">0 – Kein Setup dabei</option><option value="1">1 – Laptop</option><option value="2">2 – Tower mit einem Monitor</option><option value="4">3–4 – Tower mit mehr Equipment</option></InputSelect>
-</label>
+<fieldset class="choice-fieldset">
+    <legend>Wie viele Steckdosen wirst du wahrscheinlich benötigen? *</legend>
+    <InputRadioGroup TValue="int?" @bind-Value="Form.Sockets">
+        <div class="choice-grid power-grid">
+            <label class="choice-card power-card">
+            <InputRadio TValue="int?" Value="0" />
+            <svg class="power-icon" viewBox="0 0 32 32" aria-hidden="true"><path d="M10 4v8m12-8v8M7 12h18v4a9 9 0 0 1-9 9h0a9 9 0 0 1-9-9zM16 25v4M5 5l22 22" /></svg>
+            <span><strong>0</strong><small class="visually-hidden">Kein Setup, keine Steckdosen</small></span>
+            </label>
+            <label class="choice-card power-card">
+            <InputRadio TValue="int?" Value="1" />
+            <svg class="power-icon" viewBox="0 0 32 32" aria-hidden="true"><rect x="6" y="5" width="20" height="17" rx="2" /><path d="M3 27h26l-3-5H6z" /></svg>
+            <span><strong>1</strong><small class="visually-hidden">Laptop, eine Steckdose</small></span>
+            </label>
+            <label class="choice-card power-card">
+            <InputRadio TValue="int?" Value="2" />
+            <svg class="power-icon" viewBox="0 0 32 32" aria-hidden="true"><rect x="3" y="4" width="20" height="15" rx="2" /><path d="M13 19v5m-5 3h11m-8-3h5M25 11h5v15h-5z" /></svg>
+            <span><strong>2</strong><small class="visually-hidden">PC und Monitor, zwei Steckdosen</small></span>
+            </label>
+            <label class="choice-card power-card">
+            <InputRadio TValue="int?" Value="4" />
+            <svg class="power-icon" viewBox="0 0 32 32" aria-hidden="true"><rect x="2" y="4" width="17" height="13" rx="2" /><path d="M10 17v4m-4 2h12m5-16h6v21h-6zM24 11h2m-2 5h2m-2 5h2" /></svg>
+            <span><strong>3–4</strong><small class="visually-hidden">Mehr Equipment, drei bis vier Steckdosen</small></span>
+            </label>
+        </div>
+    </InputRadioGroup>
+</fieldset>
 <p class="muted">Unverbindliche Angabe für unsere Planung. Bitte bring für ein eigenes Setup ein mindestens 5 m langes LAN-Kabel mit.</p>
-<label>Was würdest du zu Essen bestellen? *
-    <InputSelect @bind-Value="Form.Meal"><option value="">Bitte auswählen</option><option>Döner</option><option>Pizza</option><option>Nichts</option></InputSelect>
-</label>
-<p class="muted">Für die gemeinsame Essensbestellung bitte Bargeld mitbringen. Eine mögliche Vergünstigung gilt für eine Mahlzeit pro Person bei rechtzeitiger Anmeldung. Die konkrete Bestellung erfolgt später.</p>
-@if (Form.Meal is "Pizza" or "Döner")
-{
-    <label>Wenn etwas, wie viele?<InputSelect @bind-Value="Form.MealQuantity"><option value="">Keine Angabe</option>@for (var i = 1; i <= 5; i++) { <option value="@i">@i</option> }</InputSelect></label>
-}
-<label>Wir planen auch einen Eisverkauf, hättest du Interesse daran?
-    <InputSelect @bind-Value="Form.IceCream"><option value="">Keine Angabe</option><option>Ja</option><option>Nein</option><option>Nur Laktosefreies Eis</option></InputSelect>
-</label>
-<p class="muted">Eigene saubere Schüsseln, Becher und Löffel sind ausdrücklich willkommen, um Müll zu vermeiden. Pappbecher und Holzlöffel stehen ebenfalls bereit.</p>
-@if (Form.IceCream is "Ja" or "Nur Laktosefreies Eis")
-{
-    <label>Wenn ja, wie viele Kugeln?<InputSelect @bind-Value="Form.Scoops"><option value="">Keine Angabe</option>@for (var i = 1; i <= 10; i++) { <option value="@i">@i</option> }</InputSelect></label>
-}
-<label>Hast du vor, an einer Pen-&amp;-Paper-Runde teilzunehmen? (unverbindlich) *
-    <InputSelect @bind-Value="Form.PenAndPaper"><option value="">Bitte auswählen</option><option value="true">Ja</option><option value="false">Nein</option></InputSelect>
-</label>
-<p>Pizzakartons und Reste sind zum von der Eventorganisation ausgewiesenen Müllplatz zu bringen. Bei Nichteinhaltung können Verwarnungen oder ein Verweis von der Veranstaltung folgen.</p>
-<label class="check"><InputCheckbox @bind-Value="Form.GameNightRules" />Ich habe die Game-Night-spezifischen Benimmregeln gelesen und werde diese einhalten. *</label>
 
+<section class="food-order" aria-labelledby="food-order-title">
+    <h3 id="food-order-title">Essen &amp; Eis</h3>
+    <fieldset class="choice-fieldset">
+        <legend>Möchtest du etwas bestellen? *</legend>
+        <InputRadioGroup TValue="bool?" @bind-Value="Form.WantsToOrder" @bind-Value:after="OrderChoiceChanged">
+            <div class="choice-grid order-choice">
+                <label class="choice-card"><InputRadio TValue="bool?" Value="true" /><span><strong>Ja, gerne</strong><small>Ich wähle meine Mengen aus</small></span></label>
+                <label class="choice-card"><InputRadio TValue="bool?" Value="false" /><span><strong>Nein, danke</strong><small>Ich möchte nichts bestellen</small></span></label>
+            </div>
+        </InputRadioGroup>
+    </fieldset>
+    @if (Form.WantsToOrder == true)
+    {
+        <p class="muted">Wähle unverbindlich aus, was für dich mitbestellt werden könnte. Du kannst mehrere Optionen kombinieren.</p>
+        <div class="food-counters">
+            <div class="food-counter"><div><strong>Döner</strong><span class="muted">Anzahl</span></div><div class="counter-controls"><button type="button" class="secondary" aria-label="Döner Anzahl verringern" disabled="@((Form.DonerQuantity ?? 0) == 0)" @onclick="() => ChangeDoner(-1)">−</button><output aria-live="polite">@(Form.DonerQuantity ?? 0)</output><button type="button" class="secondary" aria-label="Döner Anzahl erhöhen" disabled="@((Form.DonerQuantity ?? 0) >= 5)" @onclick="() => ChangeDoner(1)">+</button></div></div>
+            <div class="food-counter"><div><strong>Pizza</strong><span class="muted">Anzahl</span></div><div class="counter-controls"><button type="button" class="secondary" aria-label="Pizza Anzahl verringern" disabled="@((Form.PizzaQuantity ?? 0) == 0)" @onclick="() => ChangePizza(-1)">−</button><output aria-live="polite">@(Form.PizzaQuantity ?? 0)</output><button type="button" class="secondary" aria-label="Pizza Anzahl erhöhen" disabled="@((Form.PizzaQuantity ?? 0) >= 5)" @onclick="() => ChangePizza(1)">+</button></div></div>
+            <div class="food-counter"><div><strong>Eis</strong><span class="muted">Kugeln</span></div><div class="counter-controls"><button type="button" class="secondary" aria-label="Eiskugeln verringern" disabled="@((Form.IceCreamQuantity ?? 0) == 0)" @onclick="() => ChangeIceCream(-1)">−</button><output aria-live="polite">@(Form.IceCreamQuantity ?? 0)</output><button type="button" class="secondary" aria-label="Eiskugeln erhöhen" disabled="@((Form.IceCreamQuantity ?? 0) >= 10)" @onclick="() => ChangeIceCream(1)">+</button></div></div>
+        </div>
+        @if ((Form.IceCreamQuantity ?? 0) > 0)
+        {
+            <label>Eiswunsch
+                <InputSelect @bind-Value="Form.IceCream"><option value="Ja">Normales Eis</option><option value="Nur Laktosefreies Eis">Nur laktosefreies Eis</option></InputSelect>
+            </label>
+        }
+        <p class="muted">Die Mengen sind unverbindlich. Bitte bring Bargeld für deine Bestellung mit. Eigene saubere Schüsseln, Becher und Löffel für Eis sind willkommen. Pizzakartons und Reste gehören zum ausgewiesenen Müllplatz; bei Nichteinhaltung können Verwarnungen oder ein Verweis folgen.</p>
+    }
+</section>
+
+<fieldset class="choice-fieldset"><legend>Hast du vor, an einer Pen-&amp;-Paper-Runde teilzunehmen? (unverbindlich) *</legend>
+    <InputRadioGroup TValue="bool?" @bind-Value="Form.PenAndPaper">
+        <div class="choice-grid yes-no-choice">
+            <label class="choice-card"><InputRadio TValue="bool?" Value="true" /><span><strong>Ja</strong></span></label>
+            <label class="choice-card"><InputRadio TValue="bool?" Value="false" /><span><strong>Nein</strong></span></label>
+        </div>
+    </InputRadioGroup>
+</fieldset>
