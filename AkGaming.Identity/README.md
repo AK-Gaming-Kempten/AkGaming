@@ -124,6 +124,7 @@ Configuration notes:
 
 - base config in [appsettings.json](/home/hexasiel/Programming/AkGaming/AkGaming.Identity/Api/appsettings.json) uses `https://localhost:5001`
 - current development override in [appsettings.Development.json](/home/hexasiel/Programming/AkGaming/AkGaming.Identity/Api/appsettings.Development.json) uses `https://localhost:7288`
+- the Development SQLite database is seeded on startup with `admin@localhost` / `12345678`; override `DevelopmentAdmin:Password` through user secrets or an environment variable if needed
 
 What actually matters is that:
 

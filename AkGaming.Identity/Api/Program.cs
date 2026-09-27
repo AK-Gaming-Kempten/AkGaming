@@ -179,6 +179,13 @@ using (var scope = app.Services.CreateScope())
     await dbContext.Database.MigrateAsync();
     var authorizationSeeder = scope.ServiceProvider.GetRequiredService<AuthorizationSeeder>();
     await authorizationSeeder.SeedAsync(CancellationToken.None);
+    if (app.Environment.IsDevelopment()
+        && string.Equals(builder.Configuration["Database:Provider"]?.Trim(), "Sqlite", StringComparison.OrdinalIgnoreCase))
+    {
+        var developmentAdminSeeder = scope.ServiceProvider.GetRequiredService<DevelopmentAdminSeeder>();
+        await developmentAdminSeeder.SeedAsync(CancellationToken.None);
+    }
+
     var openIddictSeeder = scope.ServiceProvider.GetRequiredService<OpenIddictSeeder>();
     await openIddictSeeder.SeedAsync(CancellationToken.None);
 }

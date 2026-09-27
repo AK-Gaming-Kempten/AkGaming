@@ -24,6 +24,7 @@ public static class DependencyInjection
         services.Configure<AppUrlOptions>(configuration.GetSection(AppUrlOptions.SectionName));
         services.Configure<OpenIddictSeedOptions>(configuration.GetSection(OpenIddictSeedOptions.SectionName));
         services.Configure<OpenIddictCredentialOptions>(configuration.GetSection(OpenIddictCredentialOptions.SectionName));
+        services.Configure<DevelopmentAdminSeedOptions>(configuration.GetSection(DevelopmentAdminSeedOptions.SectionName));
 
         var provider = configuration["Database:Provider"]?.Trim().ToLowerInvariant() ?? "sqlite";
         var connectionString = configuration.GetConnectionString("IdentityDb");
@@ -65,6 +66,7 @@ public static class DependencyInjection
         services.AddSingleton<IAppUrlSettings>(sp => sp.GetRequiredService<Microsoft.Extensions.Options.IOptions<AppUrlOptions>>().Value);
         services.AddScoped<OpenIddictSeeder>();
         services.AddScoped<AuthorizationSeeder>();
+        services.AddScoped<DevelopmentAdminSeeder>();
         services.AddScoped<IOidcAdminService, OidcAdminService>();
 
         return services;

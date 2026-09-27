@@ -88,9 +88,9 @@ public sealed class GamenightController(IGamenightService service, IMembershipCl
     public async Task<IActionResult> Export(CancellationToken ct)
     {
         var rows = await service.DeskAsync(Actor, ct);
-        var csv = new StringBuilder("Vorname;Nachname;E-Mail;Teilnahme;Personal;Storniert;Check-in;Bezahlt;Preis (Cent);Tarif;Steckdosen;Essen;Anzahl;Eis;Kugeln;Pen & Paper;Orga-Angabe;Anmerkungen;Quellen;Sonstiges;Haftung;Regeln;Fotos;Hardware;Game-Night-Regeln\r\n");
+        var csv = new StringBuilder("Vorname;Nachname;E-Mail;Teilnahme;Personal;Storniert;Check-in;Bezahlt;Preis (Cent);Tarif;Steckdosen;Möchte bestellen;Döner;Pizza;Eiskugeln;Eiswunsch;Pen & Paper;Orga-Angabe;Anmerkungen;Quellen;Sonstiges;Haftung;Regeln;Fotos;Hardware;Game-Night-Regeln\r\n");
         foreach (var r in rows)
-            csv.AppendLine(string.Join(";", new object?[] { r.Form.FirstName, r.Form.LastName, r.Form.Email, r.Form.Attendance, r.StaffApproved, r.Cancelled, r.CheckedIn, r.Paid, r.PriceCents, r.Admission, r.Form.Sockets, r.Form.Meal, r.Form.MealQuantity, r.Form.IceCream, r.Form.Scoops, r.Form.PenAndPaper, r.Form.OrganizerDeclaration, r.Form.Notes, string.Join(", ", r.Form.DiscoverySources), r.Form.DiscoveryOther, r.Form.Liability, r.Form.GeneralRules, r.Form.PhotoConsent, r.Form.HardwareResponsibility, r.Form.GameNightRules }.Select(Cell)));
+            csv.AppendLine(string.Join(";", new object?[] { r.Form.FirstName, r.Form.LastName, r.Form.Email, r.Form.Attendance, r.StaffApproved, r.Cancelled, r.CheckedIn, r.Paid, r.PriceCents, r.Admission, r.Form.Sockets, r.Form.WantsToOrder, r.Form.DonerQuantity ?? (r.Form.Meal is "Döner" or "Döner, Pizza" ? r.Form.MealQuantity : 0), r.Form.PizzaQuantity ?? (r.Form.Meal is "Pizza" or "Döner, Pizza" ? r.Form.MealQuantity : 0), r.Form.IceCreamQuantity ?? r.Form.Scoops, r.Form.IceCream, r.Form.PenAndPaper, r.Form.OrganizerDeclaration, r.Form.Notes, string.Join(", ", r.Form.DiscoverySources), r.Form.DiscoveryOther, r.Form.Liability, r.Form.GeneralRules, r.Form.PhotoConsent, r.Form.HardwareResponsibility, r.Form.GameNightRules }.Select(Cell)));
         Response.Headers.CacheControl = "no-store";
         return File(Encoding.UTF8.GetPreamble().Concat(Encoding.UTF8.GetBytes(csv.ToString())).ToArray(), "text/csv; charset=utf-8", "gamenight-anmeldungen.csv");
     }

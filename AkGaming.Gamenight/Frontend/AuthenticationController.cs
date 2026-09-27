@@ -8,9 +8,10 @@ namespace AkGaming.Gamenight.Frontend;
 public sealed class AuthenticationController : Controller
 {
     [HttpGet("/authentication/login")]
-    public IActionResult Login()
+    public IActionResult Login([FromQuery] string? returnUrl)
     {
-        var properties = new AuthenticationProperties { RedirectUri = "/mine" };
+        var destination = Url.IsLocalUrl(returnUrl) ? returnUrl : "/";
+        var properties = new AuthenticationProperties { RedirectUri = destination };
         return Challenge(properties, OpenIdConnectDefaults.AuthenticationScheme);
     }
     [HttpGet("/authentication/logout")]
@@ -30,4 +31,3 @@ public sealed class AuthenticationController : Controller
         return Problem("Die Seite konnte nicht geladen werden. Bitte erneut versuchen.");
     }
 }
-

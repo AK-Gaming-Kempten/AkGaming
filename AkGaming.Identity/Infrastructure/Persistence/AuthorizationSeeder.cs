@@ -64,27 +64,30 @@ public sealed class AuthorizationSeeder
             .Include(x => x.RolePermissions)
             .Include(x => x.RoleOpenCloudRoles)
             .SingleOrDefaultAsync(x => x.Name == RoleNames.Admin, cancellationToken);
-        if (adminRole is not null)
+        if (adminRole is null)
         {
-            var assignedPermissionIds = adminRole.RolePermissions.Select(x => x.PermissionId).ToHashSet();
-            foreach (var permission in permissionsByKey.Values.Where(x => !assignedPermissionIds.Contains(x.Id)))
-            {
-                adminRole.RolePermissions.Add(new RolePermission
-                {
-                    Role = adminRole,
-                    Permission = permission
-                });
-            }
+            adminRole = new Role { Name = RoleNames.Admin };
+            _dbContext.Roles.Add(adminRole);
+        }
 
-            var assignedOpenCloudRoleIds = adminRole.RoleOpenCloudRoles.Select(x => x.OpenCloudRoleId).ToHashSet();
-            foreach (var openCloudRole in openCloudRolesByKey.Values.Where(x => !assignedOpenCloudRoleIds.Contains(x.Id)))
+        var assignedPermissionIds = adminRole.RolePermissions.Select(x => x.PermissionId).ToHashSet();
+        foreach (var permission in permissionsByKey.Values.Where(x => !assignedPermissionIds.Contains(x.Id)))
+        {
+            adminRole.RolePermissions.Add(new RolePermission
             {
-                adminRole.RoleOpenCloudRoles.Add(new RoleOpenCloudRole
-                {
-                    Role = adminRole,
-                    OpenCloudRole = openCloudRole
-                });
-            }
+                Role = adminRole,
+                Permission = permission
+            });
+        }
+
+        var assignedOpenCloudRoleIds = adminRole.RoleOpenCloudRoles.Select(x => x.OpenCloudRoleId).ToHashSet();
+        foreach (var openCloudRole in openCloudRolesByKey.Values.Where(x => !assignedOpenCloudRoleIds.Contains(x.Id)))
+        {
+            adminRole.RoleOpenCloudRoles.Add(new RoleOpenCloudRole
+            {
+                Role = adminRole,
+                OpenCloudRole = openCloudRole
+            });
         }
 
         await _dbContext.SaveChangesAsync(cancellationToken);

@@ -23,7 +23,7 @@
     </div>
     <div class="badges"><span>@(Registration.Cancelled ? "Storniert" : "Angemeldet")</span><span>@(Registration.CheckedIn ? "Eingecheckt" : "Noch nicht eingecheckt")</span><span>@(Registration.PriceCents == 0 ? "Keine Zahlung nötig" : Registration.Paid ? "Bezahlt" : "Zahlung offen")</span></div>
     <h3>@Registration.Admission</h3><p class="price">@(Registration.PriceCents is { } cents ? (cents / 100m).ToString("0.00") + " €" : "Preisprüfung ausstehend")</p>
-    <dl class="details"><dt>Teilnahme</dt><dd>@(Registration.Form.Attendance == "Karaoke" ? "Nur Karaoke" : "Game Night und Karaoke")</dd><dt>Steckdosenbedarf</dt><dd>@(Registration.Form.Sockets == 4 ? "3–4" : Registration.Form.Sockets?.ToString() ?? "—")</dd><dt>Essenswunsch</dt><dd>@Registration.Form.Meal · @(Registration.Form.MealQuantity?.ToString() ?? "keine Mengenangabe")</dd><dt>Eisinteresse</dt><dd>@Registration.Form.IceCream · @(Registration.Form.Scoops?.ToString() ?? "keine Mengenangabe") Kugeln</dd><dt>Pen &amp; Paper</dt><dd>@YesNo(Registration.Form.PenAndPaper)</dd><dt>Orga-Selbstauskunft</dt><dd>@YesNo(Registration.Form.OrganizerDeclaration)</dd><dt>Anmerkungen</dt><dd class="preserve">@Registration.Form.Notes</dd><dt>Vom Event erfahren durch</dt><dd>@string.Join(", ", Registration.Form.DiscoverySources) @Registration.Form.DiscoveryOther</dd></dl>
+    <dl class="details"><dt>Teilnahme</dt><dd>@(Registration.Form.Attendance == "Karaoke" ? "Nur Karaoke" : "Game Night und Karaoke")</dd><dt>Steckdosenbedarf</dt><dd>@(Registration.Form.Sockets == 4 ? "3–4" : Registration.Form.Sockets?.ToString() ?? "—")</dd><dt>Essenswunsch</dt><dd>@FoodSummary()</dd><dt>Pen &amp; Paper</dt><dd>@YesNo(Registration.Form.PenAndPaper)</dd><dt>Orga-Selbstauskunft</dt><dd>@YesNo(Registration.Form.OrganizerDeclaration)</dd><dt>Anmerkungen</dt><dd class="preserve">@Registration.Form.Notes</dd><dt>Vom Event erfahren durch</dt><dd>@string.Join(", ", Registration.Form.DiscoverySources) @Registration.Form.DiscoveryOther</dd></dl>
     <p class="muted">@(Registration.CheckedIn ? "Die Anmeldung ist nach dem Check-in für Besucher gesperrt." : "Änderungen sind mit dem zugeordneten Konto bis zur Änderungsfrist möglich.")</p>
     @if (_error is not null) { <p class="error" role="alert">@_error</p> }
 </section>
@@ -41,4 +41,3 @@
         <Footer><button class="secondary" disabled="@_busy" @onclick="Close">Abbrechen</button><button disabled="@_busy" @onclick="Apply">Bestätigen</button></Footer>
     </FormDialog>
 }
-

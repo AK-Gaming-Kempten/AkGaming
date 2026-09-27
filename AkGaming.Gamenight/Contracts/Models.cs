@@ -46,10 +46,15 @@ public sealed class SignupForm : IValidatableObject
     [Required, EmailAddress, StringLength(254)] public string Email { get; set; } = "";
     [Required, StringLength(100)] public string FirstName { get; set; } = "";
     [Required, StringLength(100)] public string LastName { get; set; } = "";
-    [Required, RegularExpression("GameNight|Karaoke")] public string Attendance { get; set; } = "GameNight";
+    [Required, RegularExpression("GameNight|Karaoke")] public string Attendance { get; set; } = "";
     public int? Sockets { get; set; }
+    public bool? WantsToOrder { get; set; }
+    [Range(0, 5)] public int? DonerQuantity { get; set; }
+    [Range(0, 5)] public int? PizzaQuantity { get; set; }
+    [Range(0, 10)] public int? IceCreamQuantity { get; set; }
+    // Kept for existing registrations and older clients while their data is migrated naturally.
     public string? Meal { get; set; }
-    [Range(1, 5)] public int? MealQuantity { get; set; }
+    [Range(1, 10)] public int? MealQuantity { get; set; }
     public string? IceCream { get; set; }
     [Range(1, 10)] public int? Scoops { get; set; }
     public bool? PenAndPaper { get; set; }
@@ -70,7 +75,12 @@ public sealed class SignupForm : IValidatableObject
         if (Attendance == "GameNight")
         {
             if (Sockets is not (0 or 1 or 2 or 4)) yield return new("Bitte den Steckdosenbedarf auswählen.");
-            if (Meal is not ("Döner" or "Pizza" or "Nichts")) yield return new("Bitte den Essenswunsch auswählen.");
+            if (WantsToOrder is null && Meal is not ("Döner" or "Pizza" or "Nichts"))
+                yield return new("Bitte angeben, ob du etwas bestellen möchtest.");
+            if (WantsToOrder == true && (DonerQuantity is null || PizzaQuantity is null || IceCreamQuantity is null))
+                yield return new("Bitte die gewünschten Mengen für Döner, Pizza und Eis auswählen.");
+            if (WantsToOrder == true && (DonerQuantity ?? 0) + (PizzaQuantity ?? 0) + (IceCreamQuantity ?? 0) == 0)
+                yield return new("Bitte wähle mindestens eine Portion aus.");
             if (PenAndPaper is null || !GameNightRules) yield return new("Bitte Pen & Paper beantworten und die Game-Night-Regeln bestätigen.");
             if (IceCream is not (null or "" or "Ja" or "Nein" or "Nur Laktosefreies Eis")) yield return new("Ungültige Eisauswahl.");
         }
@@ -89,4 +99,3 @@ public sealed record RegistrationView(Guid Id, Guid EventId, SignupForm Form, Gu
     DateTime CreatedAt, bool CanEdit, bool MemberEligible);
 public sealed record MembershipEligibility(bool Eligible, string Reason);
 public sealed record PaymentPeriodOption(int Id, string Name);
-

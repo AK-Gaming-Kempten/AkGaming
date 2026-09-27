@@ -8,10 +8,10 @@ public partial class Home
     private ActiveEvent? _active;
     private SignupForm _form = new();
     private string? _error, _receipt;
-    private bool _busy;
+    private bool _busy, _signedIn;
     protected override async Task OnInitializedAsync()
     {
-        try { _active = await Client.SendAsync<ActiveEvent>(HttpMethod.Get, "api/events/active"); var user = await Session.UserAsync(); _form.Email = user.FindFirst("email")?.Value ?? ""; }
+        try { var user = await Session.UserAsync(); _signedIn = user.Identity?.IsAuthenticated == true; _form.Email = user.FindFirst("email")?.Value ?? ""; _active = await Client.SendAsync<ActiveEvent>(HttpMethod.Get, "api/events/active"); }
         catch (HttpRequestException ex) { _error = ex.Message; }
     }
     private async Task Submit()
