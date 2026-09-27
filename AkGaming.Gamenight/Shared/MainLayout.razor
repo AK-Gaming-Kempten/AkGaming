@@ -1,7 +1,14 @@
 @inherits LayoutComponentBase
-<header class="site-header">
-    <a class="brand" href="/">AK GAMING <span>GAME NIGHT</span></a>
-    <nav aria-label="Hauptnavigation">
+<header class="site-header" @onkeydown="HandleHeaderKeyDown">
+    <a class="brand" href="/" aria-label="AK Gaming Game Night – Anmeldung" @onclick="CloseMenu">
+        <img src="_content/AkGaming.Gamenight.Shared/images/akgaming-logo.png" alt="" />
+        <span class="brand-name"><strong>AK Gaming</strong><small>Game Night</small></span>
+    </a>
+    <button type="button" class="menu-toggle" aria-label="@(_menuOpen ? "Menü schließen" : "Menü öffnen")" aria-expanded="@(_menuOpen ? "true" : "false")" aria-controls="primary-nav" @onclick="ToggleMenu">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16" /></svg>
+        <span>Menü</span>
+    </button>
+    <nav id="primary-nav" class="@(_menuOpen ? "is-open" : "")" aria-label="Hauptnavigation" @onclick="CloseMenu">
         <NavLink href="/" Match="NavLinkMatch.All">Anmeldung</NavLink>
         <NavLink href="/mine">Meine Anmeldung</NavLink>
         @if (Has(Permissions.Read)) { <NavLink href="/frontdesk">Front Desk</NavLink> }
@@ -9,6 +16,6 @@
         <button class="secondary" @onclick="ToggleLogin">@(_signedIn ? "Abmelden" : "Anmelden / Konto erstellen")</button>
     </nav>
 </header>
+@if (_menuOpen) { <button type="button" class="menu-backdrop" aria-label="Menü schließen" @onclick="CloseMenu"></button> }
 <main class="page">@Body</main>
 <footer class="site-footer"><a href="https://akgaming.de">AK Gaming e.V.</a> · <a href="https://akgaming.de/impressum">Impressum</a> · <a href="https://akgaming.de/datenschutz">Datenschutz</a></footer>
-

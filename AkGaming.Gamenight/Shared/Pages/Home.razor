@@ -1,6 +1,6 @@
 @page "/"
 <PageTitle>Game Night · AK Gaming</PageTitle>
-<p class="eyebrow">GAMING · KARAOKE · COMMUNITY</p>
+<p class="eyebrow">AK GAMING E.V. · ANMELDUNG</p>
 <h1>@(_active?.Event?.Name ?? "Deine nächste Game Night")</h1>
 @if (_error is not null) { <p role="alert" class="error">@_error</p> }
 @if (_active is null) { <p role="status">Game Night wird geladen …</p> }
@@ -9,15 +9,45 @@
 {
     <div class="signup-layout">
         <aside class="card event-info">
-            <h2>Ein Abend. Deine Community.</h2>
-            <p>@BerlinTime(gameNight.StartsAt) · @gameNight.Location</p>
-            <p class="preserve">@gameNight.Information</p>
-            <dl><dt>Frühbucher / mit Setup</dt><dd>@Money(gameNight.EarlyPriceCents) / @Money(gameNight.EarlySetupPriceCents)</dd><dt>Regulär / mit Setup</dt><dd>@Money(gameNight.RegularPriceCents) / @Money(gameNight.RegularSetupPriceCents)</dd><dt>Mitglieder: Frühbucher / regulär</dt><dd>@Money(gameNight.MemberEarlyPriceCents) / @Money(gameNight.MemberRegularPriceCents)</dd></dl>
-            <p>Frühbucher bis @BerlinTime(gameNight.EarlyBirdDeadline). Essenswünsche bis @BerlinTime(gameNight.FoodDeadline).</p>
-            <p>Anmeldung bis @BerlinTime(gameNight.SignupDeadline). Änderungen bis @BerlinTime(gameNight.EditDeadline), spätestens bis zum Check-in.</p>
+            <div class="event-info-intro">
+                <p class="eyebrow">AUF EINEN BLICK</p>
+                <h2>Die Veranstaltung</h2>
+                <div class="event-facts">
+                    <div class="event-fact"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2" /><path d="M7 3v4m10-4v4M3 10h18" /></svg><div><span>Beginn</span><strong>@BerlinTime(gameNight.StartsAt)</strong></div></div>
+                    <div class="event-fact"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 2" /></svg><div><span>Ende</span><strong>@BerlinTime(gameNight.EndsAt)</strong></div></div>
+                    <div class="event-fact"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0Z" /><circle cx="12" cy="10" r="2.5" /></svg><div><span>Ort</span><strong>@gameNight.Location</strong></div></div>
+                </div>
+                @if (!string.IsNullOrWhiteSpace(gameNight.Information))
+                {
+                    <p class="event-description preserve">@gameNight.Information</p>
+                }
+            </div>
+            <section class="event-info-section" aria-labelledby="event-prices-title">
+                <h3 id="event-prices-title">Eintritt</h3>
+                <dl class="event-prices">
+                    <div><dt>Frühbucher</dt><dd><div><span>Ohne Setup</span><strong>@Money(gameNight.EarlyPriceCents)</strong></div><div><span>Mit Setup</span><strong>@Money(gameNight.EarlySetupPriceCents)</strong></div></dd></div>
+                    <div><dt>Regulär</dt><dd><div><span>Ohne Setup</span><strong>@Money(gameNight.RegularPriceCents)</strong></div><div><span>Mit Setup</span><strong>@Money(gameNight.RegularSetupPriceCents)</strong></div></dd></div>
+                    <div><dt>Mitglieder</dt><dd><div><span>Frühbucher</span><strong>@Money(gameNight.MemberEarlyPriceCents)</strong></div><div><span>Regulär</span><strong>@Money(gameNight.MemberRegularPriceCents)</strong></div></dd></div>
+                </dl>
+            </section>
+            <section class="event-info-section" aria-labelledby="event-deadlines-title">
+                <h3 id="event-deadlines-title">Wichtige Termine</h3>
+                <dl class="event-deadlines">
+                    <div><dt>Frühbucherpreis bis</dt><dd>@BerlinTime(gameNight.EarlyBirdDeadline)</dd></div>
+                    <div><dt>Essenswünsche bis</dt><dd>@BerlinTime(gameNight.FoodDeadline)</dd></div>
+                    <div><dt>Anmeldung bis</dt><dd>@BerlinTime(gameNight.SignupDeadline)</dd></div>
+                    <div><dt>Änderungen bis</dt><dd>@BerlinTime(gameNight.EditDeadline)</dd></div>
+                </dl>
+                <p class="muted">Nach dem Check-in sind keine Änderungen mehr möglich.</p>
+            </section>
             @if (!_signedIn)
             {
-                <div class="callout"><strong>Mit deinem Konto hast du mehr davon.</strong><p>Anmeldung bearbeiten oder stornieren und als Mitglied automatisch den Mitgliedstarif erhalten: Wir prüfen dein verknüpftes Mitgliedsprofil und den bezahlten Beitrag in Management. Auch eine Gastanmeldung kannst du später mit derselben verifizierten E-Mail übernehmen.</p><button class="secondary" @onclick="Login">Anmelden / Konto erstellen</button></div>
+                <section class="event-account">
+                    <h3>Mit Konto anmelden</h3>
+                    <p>Mit einem Konto kannst du deine Anmeldung später bearbeiten oder stornieren. Bei verknüpfter Mitgliedschaft und bezahltem Beitrag prüfen wir den Mitgliedspreis automatisch.</p>
+                    <p class="muted">Eine Gastanmeldung kannst du später mit derselben verifizierten E-Mail übernehmen.</p>
+                    <button class="secondary" @onclick="Login">Anmelden oder Konto erstellen</button>
+                </section>
             }
         </aside>
         <section class="card">
