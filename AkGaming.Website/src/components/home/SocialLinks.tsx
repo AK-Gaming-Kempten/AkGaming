@@ -7,7 +7,7 @@ export default function SocialLinks() {
         {
             color: "#5865F2",
             icon: FaDiscord,
-            url: "https://discord.gg/5J5uJKJAhT",
+            url: "https://discord.gg/b4Rvc75XjW",
             label: "Discord",
         },
         {
