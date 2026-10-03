@@ -8,6 +8,7 @@ import "../views/PostPage.css";
 export const metadata: Metadata = {
     title: "AK Gaming e.V.",
     description: "AK Gaming e.V. Kempten",
+    icons: { icon: { url: "/assets/akgaming_logo.png", type: "image/png" }, apple: "/assets/akgaming_logo.png" },
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {

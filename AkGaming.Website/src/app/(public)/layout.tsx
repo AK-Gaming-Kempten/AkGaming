@@ -5,8 +5,8 @@ export default function PublicLayout({ children }: Readonly<{ children: React.Re
     return (
         <div className="site-shell">
             <TopChrome />
-            <main>
-                <div className="container">{children}</div>
+            <main className="public-main">
+                {children}
             </main>
             <Footer />
         </div>

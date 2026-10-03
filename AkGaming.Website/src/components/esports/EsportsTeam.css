@@ -8,7 +8,7 @@
             color-mix(in srgb, var(--color-background-primary) 98%, transparent)
     );
 
-    border-radius: 10px;
+    border-radius: var(--radius-panel);
     padding: 1rem;
     gap: 1.2rem;
 }

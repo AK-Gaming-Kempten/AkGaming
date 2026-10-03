@@ -46,7 +46,7 @@
 .mdx-content img {
     width: 100%;
     display: block;
-    border-radius: 14px;
+    border-radius: var(--radius-panel);
     border: 1px solid color-mix(in srgb, var(--color-highlight-secondary) 30%, transparent);
 }
 
@@ -110,7 +110,7 @@
     align-items: center;
     justify-content: center;
     gap: 0.5rem;
-    border-radius: 999px;
+    border-radius: var(--radius-panel);
     padding: 0.58rem 1rem;
     font-weight: 700;
     border: 1px solid transparent;
@@ -204,7 +204,7 @@
 
 .mdx-callout,
 .mdx-card {
-    border-radius: 14px;
+    border-radius: var(--radius-panel);
     padding: 1rem 1.05rem;
     background: color-mix(in srgb, var(--color-background-primary) 96%, transparent);
     border: 1px solid color-mix(in srgb, var(--color-highlight-secondary) 35%, transparent);
@@ -266,7 +266,7 @@
     position: relative;
     width: 100%;
     overflow: hidden;
-    border-radius: 14px;
+    border-radius: var(--radius-panel);
     border: 1px solid color-mix(in srgb, var(--color-highlight-secondary) 30%, transparent);
     background: color-mix(in srgb, var(--color-background-primary) 92%, black 8%);
     aspect-ratio: 16 / 9;
@@ -274,7 +274,7 @@
 
 .mdx-table-wrap {
     overflow-x: auto;
-    border-radius: 14px;
+    border-radius: var(--radius-panel);
     border: 1px solid color-mix(in srgb, var(--color-highlight-secondary) 28%, transparent);
     background: color-mix(in srgb, var(--color-background-primary) 96%, transparent);
 }
@@ -322,7 +322,7 @@
 
 .mdx-content pre {
     overflow-x: auto;
-    border-radius: 14px;
+    border-radius: var(--radius-panel);
     padding: 0.95rem 1rem;
     background: color-mix(in srgb, var(--color-background-primary) 90%, black 10%);
     border: 1px solid color-mix(in srgb, var(--color-highlight-secondary) 24%, transparent);

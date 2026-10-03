@@ -1,3 +1,4 @@
+import { EventType } from "./eventTypes";
 import { Event, Post } from "./types";
 
 type ContentPost = {
@@ -5,6 +6,7 @@ type ContentPost = {
     id: string;
     title: string;
     shortDescription: string;
+    eventType?: EventType;
     startDate?: string;
     endDate?: string;
     location?: string;
@@ -24,6 +26,7 @@ export async function loadPosts(): Promise<(Post | Event)[]> {
                     id: post.id,
                     title: post.title,
                     shortDescription: post.shortDescription,
+                    eventType: post.eventType,
                     startDate: post.startDate ?? "",
                     endDate: post.endDate,
                     location: post.location ?? "",

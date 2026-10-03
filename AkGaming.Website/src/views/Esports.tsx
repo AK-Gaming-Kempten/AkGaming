@@ -20,19 +20,30 @@ export default function Esports() {
     }, []);
 
     return (
-        <main className="esports">
+        <div className="esports">
             <section className="esports-hero">
-                <p className="esports-eyebrow">AK Gaming e.V.</p>
-                <h1>Esports</h1>
-                <p className="esports-hero-copy">
-                    Wettbewerb, Teamgeist und regionale Talentförderung: Unsere Teams treten
-                    in verschiedenen Titeln, Ligen und Turnieren an und entwickeln sich gemeinsam.
-                </p>
-                <div className="esports-hero-actions">
-                    <a href="#esports-teams" className="esports-btn esports-btn-primary">Teams ansehen</a>
-                    <a href="https://discord.gg/5J5uJKJAhT" target="_blank" rel="noreferrer" className="esports-btn esports-btn-secondary">
-                        Auf Discord bewerben
-                    </a>
+                <div className="esports-hero-content">
+                    <div>
+                        <p className="esports-eyebrow">AK Gaming e.V.</p>
+                        <h1>Esports</h1>
+                        <p className="esports-hero-copy">
+                            Wettbewerb, Teamgeist und regionale Talentförderung: Unsere Teams treten
+                            in verschiedenen Titeln, Ligen und Turnieren an und entwickeln sich gemeinsam.
+                        </p>
+                        <div className="esports-hero-actions">
+                            <a href="#esports-teams" className="esports-btn esports-btn-primary">Teams ansehen</a>
+                            <a href="https://discord.gg/5J5uJKJAhT" target="_blank" rel="noreferrer" className="esports-btn esports-btn-secondary">
+                                Auf Discord bewerben
+                            </a>
+                        </div>
+                    </div>
+                    <img
+                        src="/media/esports/phoenix-team.webp"
+                        alt="Die fünf Mitglieder des AK Gaming Teams Phoenix im Teamtrikot"
+                        className="esports-hero-image"
+                        width={1400}
+                        height={932}
+                    />
                 </div>
             </section>
 
@@ -90,6 +101,6 @@ export default function Esports() {
                     );
                 })}
             </section>
-        </main>
+        </div>
     );
 }

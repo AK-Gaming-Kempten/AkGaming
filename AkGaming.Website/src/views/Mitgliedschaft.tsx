@@ -2,7 +2,7 @@ import "./Mitgliedschaft.css";
 
 export default function Mitgliedschaft() {
     return (
-        <main className="mitgliedschaft-page">
+        <div className="mitgliedschaft-page">
             <section className="mitgliedschaft-hero">
                 <p className="mitgliedschaft-eyebrow">AK Gaming e.V.</p>
                 <h1>Mitgliedschaft</h1>
@@ -67,7 +67,6 @@ export default function Mitgliedschaft() {
                         <li>In der Probezeit besteht keine Beitragspflicht.</li>
                         <li>Ermäßigung/Befreiung in sozialen oder finanziellen Härtefällen oder in Form einer Fördermitgliedschaft möglich.</li>
                     </ul>
-                    <br />
                     <a href="/mitgliedschaft/mitgliedsbeitrag" className="mitgliedschaft-btn mitgliedschaft-btn-secondary">
                         Details zum Beitrag
                     </a>
@@ -76,15 +75,13 @@ export default function Mitgliedschaft() {
                 <article className="mitgliedschaft-card">
                     <h2>Verbindliche Dokumente</h2>
                     <p>Maßgeblich sind ausschließlich die jeweils gültigen Originalfassungen:</p>
-                    <br />
-                    <p>
-                        <a href="/Vereinssatzung-AK-Gaming-e.V..pdf" target="_blank" rel="noreferrer">Satzung (PDF)</a><br />
-                        <br />
-                        <a href="/Beitragsordnung-AK-Gaming-e.V..pdf" target="_blank" rel="noreferrer">Beitragsordnung (PDF)</a><br />
-                    </p>
+                    <ul className="mitgliedschaft-documents">
+                        <li><a href="/Vereinssatzung-AK-Gaming-e.V..pdf" target="_blank" rel="noreferrer">Satzung (PDF)</a></li>
+                        <li><a href="/Beitragsordnung-AK-Gaming-e.V..pdf" target="_blank" rel="noreferrer">Beitragsordnung (PDF)</a></li>
+                    </ul>
                 </article>
             </section>
-        </main>
+        </div>
     );
 }
 

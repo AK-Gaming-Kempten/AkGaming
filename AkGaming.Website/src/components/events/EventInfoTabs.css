@@ -15,7 +15,7 @@
     background: color-mix(in srgb, var(--color-background-primary) 94%, transparent);
     color: var(--color-text-primary);
     border: 1px solid color-mix(in srgb, var(--color-highlight-secondary) 50%, transparent);
-    border-radius: 999px;
+    border-radius: var(--radius-panel);
     padding: 0.45rem 0.9rem;
     cursor: pointer;
     font-weight: 600;
@@ -38,7 +38,7 @@
     text-align: left;
     background: color-mix(in srgb, var(--color-background-primary) 96%, transparent);
     padding: 1rem 1.1rem;
-    border-radius: 8px;
+    border-radius: var(--radius-panel);
     border: 1px solid color-mix(in srgb, var(--color-highlight-secondary) 35%, transparent);
 }
 

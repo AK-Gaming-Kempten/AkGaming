@@ -2,6 +2,7 @@
 
 import "./Home.css";
 
+import HeroPhotoRotator from "../components/home/HeroPhotoRotator";
 import HighlightCard from "../components/home/HighlightCard";
 import SponsorCard from "../components/home/SponsorCard";
 import SocialLinks from "../components/home/SocialLinks";
@@ -69,6 +70,10 @@ export default function Home() {
             return;
         }
 
+        if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+            return;
+        }
+
         const intervalId = window.setInterval(() => {
             setIsCarouselAnimating(true);
             setCarouselIndex((prev) => prev + 1);
@@ -109,12 +114,12 @@ export default function Home() {
     };
 
     return (
-        <main className="home-page">
+        <div className="home-page">
             <section className="home-hero">
                 <div className="home-hero-main">
                     <div>
                         <p className="home-hero-eyebrow">AK Gaming e.V. Kempten</p>
-                        <h1>Gaming at its best</h1>
+                        <h1>Gaming<br />at its best<span className="home-hero-period">.</span></h1>
                         <p className="home-hero-copy">
                             Wir verbinden Community, Events und E-Sports zu einem Vereinsleben, in dem
                             Fairness, Teamgeist und Spaß im Mittelpunkt stehen.
@@ -124,9 +129,11 @@ export default function Home() {
                             <Link href="/esports" className="home-btn home-btn-secondary">E-Sports Teams</Link>
                         </div>
                     </div>
-                    <div className="home-hero-logo-wrap">
-                        <img src="/assets/akgaming_logo.png" alt="AK Gaming Logo" className="home-hero-logo" />
-                    </div>
+                    <HeroPhotoRotator photos={[
+                        { src: "/media/home/community.webp", alt: "Gemeinsamer Spieleabend bei der Game Night 7" },
+                        { src: "/media/home/centauri.webp", alt: "Das Esports-Team HSK Centauri auf dem Campus" },
+                        { src: "/media/home/boardgames.webp", alt: "Brettspielauswahl bei der Game Night 7" },
+                    ]} />
                 </div>
             </section>
 
@@ -254,6 +261,6 @@ export default function Home() {
                     </div>
                 </div>
             </section>
-        </main>
+        </div>
     );
 }

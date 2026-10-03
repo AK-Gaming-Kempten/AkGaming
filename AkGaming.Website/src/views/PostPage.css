@@ -23,7 +23,7 @@
 .post-meta {
     margin: 0;
     padding: 0.9rem 1rem;
-    border-radius: 14px;
+    border-radius: var(--radius-panel);
     background: color-mix(in srgb, var(--color-background-primary) 96%, transparent);
     border: 1px solid color-mix(in srgb, var(--color-highlight-secondary) 30%, transparent);
     color: var(--color-text-secondary);

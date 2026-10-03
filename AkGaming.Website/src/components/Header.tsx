@@ -27,17 +27,17 @@ export default function Header({ menuOpen, onToggleMenu }: HeaderProps) {
     return (
         <header className="header">
             <Link href="/cms" className="cms-entry-link" title="Open CMS" aria-label="Open CMS"><LuPencil /></Link>
-            <button className="mobile-menu-toggle" type="button" onClick={onToggleMenu} title={menuOpen ? "Close navigation menu" : "Open navigation menu"} aria-label={menuOpen ? "Close navigation menu" : "Open navigation menu"}>
+            <button className="mobile-menu-toggle" type="button" onClick={onToggleMenu} title={menuOpen ? "Close navigation menu" : "Open navigation menu"} aria-label={menuOpen ? "Close navigation menu" : "Open navigation menu"} aria-expanded={menuOpen} aria-controls="primary-navigation">
                 {menuOpen ? <LuX /> : <LuMenu />}
             </button>
-            <button className="theme-toggle" onClick={toggleTheme} title={`Theme: ${theme}`}>
+            <button className="theme-toggle" onClick={toggleTheme} title={`Theme: ${theme}`} aria-label={`Change theme, current: ${theme}`}>
                 {getIcon()}
             </button>
 
-            <div className="header-content">
+            <Link href="/" className="header-content" aria-label="AK Gaming – Home">
                 <img src="/assets/akgaming_logo.png" alt="AK Gaming e.V. Logo" className="header-logo" />
-                <h1 className="header-title">AK Gaming e.V.</h1>
-            </div>
+                <span className="header-title">AK Gaming<span className="header-suffix"> e.V.</span></span>
+            </Link>
         </header>
     );
 }

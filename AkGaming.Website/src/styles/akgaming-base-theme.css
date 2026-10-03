@@ -5,7 +5,7 @@
 
     color-scheme: light dark;
     color: rgba(255, 255, 255, 0.87);
-    background-color: #141414;
+    background-color: #151515;
 
     font-synthesis: none;
     text-rendering: optimizeLegibility;
@@ -14,7 +14,7 @@
 
     --color-light-gray: #dddddd;
     --color-gray: #b2bfb9;
-    --color-dark-grey: #141414;
+    --color-dark-grey: #151515;
     --color-light-surface: #f8f8f8;
     --color-dark-surface: #181818;
     --color-light-green-grey: #d9f6e5;
@@ -23,9 +23,11 @@
     --color-light-green: #48cb4f;
     --color-white: #ffffff;
     --color-black: #000000;
+
     --color-red: #ff3333;
     --color-red-light: #ff7777;
 
+    /* === TEXT COLORS === */
     --color-text-primary: var(--color-black);
     --color-text-secondary: var(--color-dark-grey);
     --color-text-tertiary: var(--color-gray);
@@ -40,30 +42,38 @@
     --color-background-quartiary: var(--color-dark-grey);
     --color-background-special: var(--color-dark-green);
 
+    /* === BUTTON COLORS === */
     --color-button-primary-bg: var(--color-highlight-secondary);
     --color-button-primary-text: var(--color-text-special);
     --color-button-primary-hover-bg: var(--color-highlight-primary);
+
     --color-button-success-bg: var(--color-green);
     --color-button-success-text: var(--color-text-special);
     --color-button-success-hover-bg: var(--color-light-green);
+
     --color-button-secondary-bg: var(--color-gray);
     --color-button-secondary-text: var(--color-black);
     --color-button-secondary-hover-bg: var(--color-light-gray);
+
     --color-button-danger-bg: var(--color-red-light);
     --color-button-danger-text: var(--color-text-special);
     --color-button-danger-hover-bg: var(--color-red);
+
     --color-button-disabled-bg: var(--color-dark-grey);
     --color-button-disabled-text: var(--color-text-special);
 
+    /* === FORM COLORS === */
     --color-input-primary-bg: var(--color-background-secondary);
     --color-input-primary-text: var(--color-text-primary);
     --color-input-primary-border: var(--color-text-secondary);
     --color-input-primary-focus-border: var(--color-highlight-primary);
+
     --color-input-secondary-bg: var(--color-background-primary);
     --color-input-secondary-text: var(--color-text-primary);
     --color-input-secondary-border: var(--color-background-tertiary);
     --color-input-secondary-focus-border: var(--color-highlight-primary);
 
+    /* === CARD & PANEL COLORS === */
     --color-card-bg: var(--color-background-primary);
     --color-card-border: var(--color-background-tertiary);
     --color-card-shadow: rgba(0, 0, 0, 0.2);
@@ -71,6 +81,7 @@
     --color-card-text: var(--color-text-primary);
     --color-card-highlight: var(--color-highlight-primary);
 
+    /* === STATUS LIST === */
     --color-status-bg: var(--color-background-secondary);
     --color-status-border: var(--color-text-secondary);
     --color-status-open: #d97706;
@@ -98,6 +109,7 @@
 }
 
 :root[data-theme="light"] {
+    color-scheme: light;
     --color-text-primary: var(--color-black);
     --color-text-secondary: var(--color-dark-grey);
     --color-text-tertiary: var(--color-gray);
@@ -113,6 +125,7 @@
 }
 
 :root[data-theme="dark"] {
+    color-scheme: dark;
     --color-text-primary: var(--color-white);
     --color-text-secondary: var(--color-gray);
     --color-text-tertiary: var(--color-dark-grey);
@@ -129,4 +142,32 @@
 
 * {
     transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+/* Shared visual foundations for websites and application frontends. */
+:root {
+    --radius-control: 0;
+    --radius-panel: 0;
+    --layout-content-width: 1200px;
+    --layout-gutter: clamp(1.25rem, 4vw, 4rem);
+    --color-border-subtle: color-mix(in srgb, var(--color-text-primary) 18%, transparent);
+    --color-link: var(--color-green);
+    --color-button-primary-hover-bg: #205832;
+    --color-button-success-hover-bg: #205832;
+    --background-brand-gradient:
+        radial-gradient(ellipse at 15% 10%, color-mix(in srgb, var(--color-light-green) 24%, transparent), transparent 55%),
+        radial-gradient(ellipse at 90% 100%, color-mix(in srgb, var(--color-green) 28%, transparent), transparent 52%),
+        linear-gradient(145deg, color-mix(in srgb, var(--color-dark-green) 84%, black 16%), color-mix(in srgb, var(--color-dark-green) 66%, #00150f 34%));
+    --font-heading: system-ui, Avenir, Helvetica, Arial, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) { --color-link: var(--color-light-green); }
+}
+:root[data-theme="dark"] {
+    color-scheme: dark; --color-link: var(--color-light-green); }
+.ak-section { padding: clamp(3rem, 6vw, 6rem) var(--layout-gutter); }
+.ak-content { width: 100%; max-width: var(--layout-content-width); margin-inline: auto; }
+.ak-surface { background: var(--color-background-secondary); color: var(--color-text-primary); border: 1px solid var(--color-border-subtle); border-radius: var(--radius-panel); }
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { transition: none !important; animation: none !important; scroll-behavior: auto !important; }
 }

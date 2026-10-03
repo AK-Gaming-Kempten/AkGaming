@@ -1,103 +1,26 @@
-.mitgliedschaft-page {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-    max-width: 1100px;
-    margin: 0 auto;
-}
-
+.mitgliedschaft-page { display: flex; flex-direction: column; gap: 2rem; color: var(--color-text-primary); }
 .mitgliedschaft-hero {
-    border-radius: 14px;
-    padding: 1.6rem 1.3rem;
-    background: linear-gradient(
-        180deg,
-        color-mix(in srgb, var(--color-background-secondary) 94%, transparent),
-        color-mix(in srgb, var(--color-background-primary) 98%, transparent)
-    );
-    border: 1px solid color-mix(in srgb, var(--color-highlight-secondary) 38%, transparent);
+    padding: clamp(1.5rem, 4vw, 3rem);
+    border-left: 4px solid var(--color-link);
+    background: var(--color-background-secondary);
 }
-
-.mitgliedschaft-eyebrow {
-    margin: 0 0 0.35rem;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    font-size: 0.85rem;
-    color: var(--color-text-secondary);
-    font-weight: 700;
-}
-
-.mitgliedschaft-hero h1 {
-    margin: 0;
-}
-
-.mitgliedschaft-hero p {
-    margin: 0.65rem 0 0;
-    color: var(--color-text-secondary);
-    line-height: 1.55;
-    max-width: 760px;
-}
-
-.mitgliedschaft-hero-actions {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.65rem;
-    margin-top: 1rem;
-}
-
-.mitgliedschaft-btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 999px;
-    padding: 0.58rem 1rem;
-    font-weight: 700;
-    border: 1px solid transparent;
-}
-
-.mitgliedschaft-btn-primary {
-    color: var(--color-text-special);
-    background: linear-gradient(135deg, var(--color-highlight-primary), var(--color-highlight-secondary));
-}
-
-.mitgliedschaft-btn-secondary {
-    color: var(--color-text-primary);
-    background: color-mix(in srgb, var(--color-background-primary) 96%, transparent);
-    border-color: color-mix(in srgb, var(--color-highlight-secondary) 50%, transparent);
-}
-
-.mitgliedschaft-grid {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 0.8rem;
-}
-
-.mitgliedschaft-card {
-    border-radius: 12px;
-    padding: 1rem;
-    background: color-mix(in srgb, var(--color-background-primary) 96%, transparent);
-    border: 1px solid color-mix(in srgb, var(--color-highlight-secondary) 35%, transparent);
-}
-
-.mitgliedschaft-card h2 {
-    margin: 0 0 0.65rem;
-    font-size: 1.1rem;
-}
-
-.mitgliedschaft-card p {
-    margin: 0.4rem 0;
-    line-height: 1.5;
-}
-
-.mitgliedschaft-card ul {
-    margin: 0;
-    padding-left: 1.15rem;
-    display: flex;
-    flex-direction: column;
-    gap: 0.35rem;
-}
-
-@media (max-width: 900px) {
-    .mitgliedschaft-grid {
-        grid-template-columns: 1fr;
-    }
-}
+.mitgliedschaft-hero .mitgliedschaft-eyebrow { margin: 0 0 1rem; color: var(--color-link); text-transform: uppercase; letter-spacing: .1em; font-size: .8rem; font-weight: 750; }
+.mitgliedschaft-hero h1 { margin: 0; font-size: clamp(2rem, 4vw, 3.5rem); letter-spacing: -.045em; line-height: 1.15; }
+.mitgliedschaft-hero p { max-width: 65ch; margin: 1.25rem 0 0; font-size: 1.05rem; line-height: 1.75; }
+.mitgliedschaft-hero-actions { display: flex; flex-wrap: wrap; margin-top: 1.75rem; }
+.mitgliedschaft-btn { display: inline-flex; align-items: center; justify-content: center; border-radius: var(--radius-control); padding: .85rem 1.2rem; font-weight: 700; line-height: 1.5; border: 1px solid transparent; }
+.mitgliedschaft-btn-primary { color: var(--color-button-primary-text); background: var(--color-button-primary-bg); }
+.mitgliedschaft-btn-primary:hover { background: var(--color-button-primary-hover-bg); }
+.mitgliedschaft-btn-secondary { color: var(--color-link); background: var(--color-background-secondary); border-color: var(--color-link); margin-top: 1.5rem; }
+.mitgliedschaft-btn-secondary:hover { background: var(--color-background-primary); }
+.mitgliedschaft-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.5rem; align-items: stretch; }
+.mitgliedschaft-card { padding: clamp(1.5rem, 3vw, 2rem); border: 1px solid var(--color-border-subtle); background: var(--color-background-secondary); min-width: 0; }
+.mitgliedschaft-card h2 { margin: 0 0 1.25rem; font-size: clamp(1.2rem, 2vw, 1.5rem); line-height: 1.35; letter-spacing: -.02em; }
+.mitgliedschaft-card p { margin: 0 0 1rem; line-height: 1.75; }
+.mitgliedschaft-card ul { margin: 0; padding-left: 1.25rem; display: flex; flex-direction: column; gap: .85rem; line-height: 1.75; }
+.mitgliedschaft-card li { padding-left: .25rem; }
+.mitgliedschaft-card li::marker { color: var(--color-link); }
+.mitgliedschaft-card .mitgliedschaft-documents { list-style: none; padding: 0; gap: .75rem; }
+.mitgliedschaft-documents li { padding: 0; }
+.mitgliedschaft-documents a { display: inline-block; padding-block: .4rem; color: var(--color-link); text-decoration: underline; text-underline-offset: .2em; }
+@media (max-width: 900px) { .mitgliedschaft-grid { grid-template-columns: 1fr; } }

@@ -4,6 +4,8 @@ import { promises as fs } from "node:fs";
 import path from "node:path";
 import frontMatter from "front-matter";
 
+import { EventType, isEventType } from "../data/eventTypes";
+
 export type ContentKind = "post" | "event";
 
 export type PostFrontMatter = {
@@ -11,6 +13,7 @@ export type PostFrontMatter = {
     id: string;
     title: string;
     shortDescription: string;
+    eventType?: EventType;
     startDate?: string;
     endDate?: string;
     location?: string;
@@ -234,6 +237,7 @@ async function readPost(filePath: string, isDraft: boolean): Promise<ContentPost
     return {
         ...attributes,
         type: attributes.type ?? "post",
+        ...(attributes.type === "event" ? { eventType: attributes.eventType ?? EventType.Other } : {}),
         body: parsed.body.trim(),
         isDraft,
         updatedAt: statistics.mtime.toISOString(),
@@ -247,6 +251,7 @@ function serializePost(post: Omit<ContentPost, "isDraft" | "updatedAt">): string
         title: post.title,
         shortDescription: post.shortDescription,
         ...(post.type === "event" ? {
+            eventType: post.eventType ?? EventType.Other,
             startDate: post.startDate,
             ...(post.endDate ? { endDate: post.endDate } : {}),
             location: post.location,
@@ -288,6 +293,8 @@ function validatePost(post: Omit<ContentPost, "isDraft" | "updatedAt">): void {
         throw new Error("Post type must be either 'post' or 'event'.");
     if (post.type === "event" && (!post.startDate || !post.location))
         throw new Error("Events require a start date and location.");
+    if (post.type === "event" && post.eventType !== undefined && !isEventType(post.eventType))
+        throw new Error("Invalid event type. Choose gamenight, gamejam, boardgames, or other.");
     if (post.folderId !== undefined)
         validateFolderId(post.folderId);
 }

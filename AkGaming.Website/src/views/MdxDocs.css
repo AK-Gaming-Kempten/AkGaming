@@ -31,7 +31,7 @@
 }
 
 .mdx-docs-hero {
-    border-radius: 20px;
+    border-radius: var(--radius-panel);
     padding: 1.6rem 1.5rem;
     background:
         radial-gradient(120% 140% at 0% 0%, color-mix(in srgb, var(--color-highlight-primary) 12%, transparent), transparent 52%),
@@ -65,7 +65,7 @@
 }
 
 .mdx-docs-entry {
-    border-radius: 16px;
+    border-radius: var(--radius-panel);
     padding: 1.35rem;
     background: color-mix(in srgb, var(--color-background-primary) 96%, transparent);
     border: 1px solid color-mix(in srgb, var(--color-highlight-secondary) 30%, transparent);
@@ -106,7 +106,7 @@
     justify-content: center;
     width: 3rem;
     height: 3rem;
-    border-radius: 16px;
+    border-radius: var(--radius-panel);
     background: linear-gradient(
         135deg,
         color-mix(in srgb, var(--color-highlight-primary) 28%, transparent),
@@ -161,7 +161,7 @@
 
 .mdx-docs-index-card {
     display: block;
-    border-radius: 14px;
+    border-radius: var(--radius-panel);
     padding: 1rem;
     background: color-mix(in srgb, var(--color-background-primary) 98%, transparent);
     border: 1px solid color-mix(in srgb, var(--color-highlight-secondary) 20%, transparent);
@@ -208,7 +208,7 @@
 
 .mdx-docs-entry-head code {
     padding: 0.3rem 0.5rem;
-    border-radius: 999px;
+    border-radius: var(--radius-panel);
     background: color-mix(in srgb, var(--color-background-secondary) 90%, transparent);
 }
 
@@ -222,7 +222,7 @@
 .mdx-docs-panel,
 .mdx-docs-preview {
     margin-top: 1rem;
-    border-radius: 14px;
+    border-radius: var(--radius-panel);
     padding: 1rem;
     background: color-mix(in srgb, var(--color-background-primary) 98%, transparent);
     border: 1px solid color-mix(in srgb, var(--color-highlight-secondary) 20%, transparent);
@@ -252,7 +252,7 @@
 }
 
 .mdx-docs-prop-card {
-    border-radius: 12px;
+    border-radius: var(--radius-panel);
     padding: 1rem 1.05rem;
     background: color-mix(in srgb, var(--color-background-primary) 96%, transparent);
     border: 1px solid color-mix(in srgb, var(--color-highlight-secondary) 24%, transparent);
@@ -284,7 +284,7 @@
     color: var(--color-highlight-primary);
     background: color-mix(in srgb, var(--color-background-secondary) 94%, transparent);
     border: 1px solid color-mix(in srgb, var(--color-highlight-secondary) 22%, transparent);
-    border-radius: 999px;
+    border-radius: var(--radius-panel);
     padding: 0.25rem 0.55rem;
 }
 
@@ -294,7 +294,7 @@
     justify-content: center;
     width: 1.35rem;
     height: 1.35rem;
-    border-radius: 999px;
+    border-radius: var(--radius-panel);
     font-weight: 800;
     font-size: 0.78rem;
 }
@@ -331,7 +331,7 @@
 .mdx-docs-panel pre {
     margin: 0;
     overflow-x: auto;
-    border-radius: 12px;
+    border-radius: var(--radius-panel);
     padding: 0.9rem;
     background: color-mix(in srgb, var(--color-background-primary) 90%, black 10%);
 }

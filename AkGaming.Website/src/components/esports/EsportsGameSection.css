@@ -1,7 +1,7 @@
 .game-section {
     margin: 1rem 0 1.5rem;
     padding: 0.9rem;
-    border-radius: 12px;
+    border-radius: var(--radius-panel);
     background: color-mix(in srgb, var(--color-background-primary) 90%, transparent);
 }
 

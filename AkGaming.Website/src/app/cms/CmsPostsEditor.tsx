@@ -29,6 +29,7 @@ import CmsHighlightsManager from "./CmsHighlightsManager";
 import MdxEditor from "./MdxEditor";
 import CmsEsportsManager from "./CmsEsportsManager";
 import { CmsToastProvider, useCmsToast } from "./CmsToastProvider";
+import { EventType, eventTypeOptions } from "../../data/eventTypes";
 import { CmsPermissions } from "../../content/cmsPermissions";
 
 type Section = "posts" | "files" | "highlights" | "teams";
@@ -48,6 +49,7 @@ type CmsPost = {
     title: string;
     shortDescription: string;
     body: string;
+    eventType?: EventType;
     startDate?: string;
     endDate?: string;
     location?: string;
@@ -69,6 +71,7 @@ type CmsPostsEditorProps = {
 
 const emptyPost = (): CmsPost => ({
     type: "post",
+    eventType: EventType.Other,
     id: "",
     title: "",
     shortDescription: "",
@@ -390,7 +393,13 @@ function CmsPostsEditorContent({ email, permissions, signOutAction }: CmsPostsEd
                                         <label className="wide">Title<input value={selected.title} onChange={event => update("title", event.target.value)} /></label>
                                         <label className="wide">Short description<textarea value={selected.shortDescription} onChange={event => update("shortDescription", event.target.value)} /></label>
                                         {selected.type === "event" && <>
+                                            <label>Event type
+                                                <select value={selected.eventType ?? EventType.Other} onChange={event => update("eventType", event.target.value)}>
+                                                    {eventTypeOptions.map(option => <option key={option.value} value={option.value}>{option.label}</option>)}
+                                                </select>
+                                            </label>
                                             <label>Start date<input value={selected.startDate ?? ""} onChange={event => update("startDate", event.target.value)} /></label>
+                                            <label>End date (optional)<input value={selected.endDate ?? ""} onChange={event => update("endDate", event.target.value)} /></label>
                                             <label>Location<input value={selected.location ?? ""} onChange={event => update("location", event.target.value)} /></label>
                                         </>}
                                     </div>

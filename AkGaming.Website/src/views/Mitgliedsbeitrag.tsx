@@ -52,7 +52,7 @@ const faqs = [
 
 export default function Mitgliedsbeitrag() {
     return (
-        <main className="mitgliedsbeitrag">
+        <div className="mitgliedsbeitrag">
             <div className="mitgliedsbeitrag-content">
                 <h1>Mitgliedsbeitrag</h1>
                 <p>
@@ -70,11 +70,11 @@ export default function Mitgliedsbeitrag() {
                     {faqs.map((faq) => (
                         <details className="mitgliedsbeitrag-faq" key={faq.question}>
                             <summary>{faq.question}</summary>
-                            <p dangerouslySetInnerHTML={{ __html: faq.answer }} />
+                            <div className="mitgliedsbeitrag-faq-answer" dangerouslySetInnerHTML={{ __html: faq.answer }} />
                         </details>
                     ))}
                 </section>
             </div>
-        </main>
+        </div>
     );
 }

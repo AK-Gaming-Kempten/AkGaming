@@ -4,7 +4,7 @@
     background: color-mix(in srgb, var(--color-background-primary) 96%, transparent);
     border: 2px color-mix(in srgb, var(--color-highlight-secondary) 38%, transparent);
     border-style: solid none none  none;
-    border-radius: 10px;
+    border-radius: var(--radius-panel);
     padding: 0.85rem 0.95rem;
     transition: transform 0.2s ease, box-shadow 0.2s ease;
     color: var(--color-text-primary);

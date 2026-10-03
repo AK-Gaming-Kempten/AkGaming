@@ -22,16 +22,14 @@ header, nav, footer {
     position: sticky;
     top: 0;
     z-index: 2200;
-    backdrop-filter: blur(10px);
-    background:
-        radial-gradient(130% 120% at 8% 10%, color-mix(in srgb, var(--color-green) 42%, transparent), transparent 56%),
-        radial-gradient(110% 140% at 90% 100%, color-mix(in srgb, var(--color-light-green) 26%, transparent), transparent 58%),
-        linear-gradient(
-            135deg,
-            color-mix(in srgb, var(--color-dark-green) 92%, black 8%),
-            color-mix(in srgb, var(--color-dark-green) 75%, #00150f 25%)
-        );
-    border-bottom: 1px solid color-mix(in srgb, var(--color-light-green) 35%, transparent);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    min-height: 64px;
+    padding-inline: var(--layout-gutter);
+    background: var(--color-background-secondary);
+    border-bottom: 1px solid var(--color-border-subtle);
 }
 
 body {
@@ -80,3 +78,24 @@ a {
         user-select: none;
     }
 }
+
+* { box-sizing: border-box; }
+a { color: var(--color-link); }
+:where(a, button, input, select, textarea):focus-visible { outline: 2px solid var(--color-link); outline-offset: 4px; }
+.public-main { display: block; margin: 0; }
+.public-main > :not(.home-page) { width: min(var(--layout-content-width), calc(100% - 2 * var(--layout-gutter))); margin: 2rem auto 4rem; }
+
+.public-main > :is(.events-page, .esports) { width: 100%; max-width: none; margin: 0; gap: 0; }
+.public-main :is(.events-hero, .esports-hero) {
+    padding: clamp(3rem, 6vw, 6rem) max(var(--layout-gutter), calc((100% - var(--layout-content-width)) / 2));
+    background: var(--background-brand-gradient);
+    border: 0;
+    box-shadow: none;
+}
+.public-main :is(.events-layout, .esports-info-grid, .esports-teams-section) {
+    padding: clamp(2rem, 4vw, 4rem) max(var(--layout-gutter), calc((100% - var(--layout-content-width)) / 2));
+    background: var(--color-background-secondary);
+    border: 0;
+    border-bottom: 1px solid var(--color-border-subtle);
+}
+.public-main .esports-teams-section { background: var(--color-background-primary); }

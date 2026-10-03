@@ -8,7 +8,7 @@
 
 .events-hero {
     color: var(--color-text-special);
-    border-radius: 20px;
+    border-radius: var(--radius-panel);
     padding: 2.4rem 1.8rem;
     background:
         radial-gradient(ellipse at 15% 8%, color-mix(in srgb, var(--color-light-green) 24%, transparent), transparent 55%),
@@ -50,7 +50,7 @@
 }
 
 .events-hero-stats span {
-    border-radius: 999px;
+    border-radius: var(--radius-panel);
     padding: 0.35rem 0.7rem;
     font-weight: 700;
     font-size: 0.9rem;
@@ -67,7 +67,7 @@
 
 .events-intro,
 .events-feed {
-    border-radius: 14px;
+    border-radius: var(--radius-panel);
     padding: 1rem;
     background: linear-gradient(
         180deg,
@@ -105,12 +105,22 @@
 
     .events-hero {
         padding: 2.1rem 1.2rem;
-        border-radius: 14px;
+        border-radius: var(--radius-panel);
     }
 
     .events-intro,
     .events-feed {
-        border-radius: 12px;
+        border-radius: var(--radius-panel);
         padding: 0.85rem;
     }
 }
+
+.events-calendar-section {
+    padding: clamp(3rem, 6vw, 6rem) max(var(--layout-gutter), calc((100% - var(--layout-content-width)) / 2));
+    background: var(--color-background-primary);
+    border-bottom: 1px solid var(--color-border-subtle);
+}
+.events-calendar-section h2 { margin: 0 0 2rem; font-size: clamp(2rem, 3vw, 3rem); font-weight: 850; letter-spacing: -.045em; }
+.events-calendar-section .events-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.events-calendar-empty { color: var(--color-text-secondary); }
+@media (max-width: 820px) { .events-calendar-section .events-list { grid-template-columns: 1fr; } }

@@ -1,3 +1,5 @@
+import { EventType } from "./eventTypes";
+
 export class Post {
     id: string;
     title: string;
@@ -11,6 +13,7 @@ export class Post {
 }
 
 export class Event extends Post {
+    eventType: EventType;
     startDate: string;
     endDate?: string;
     location: string;
@@ -20,12 +23,14 @@ export class Event extends Post {
         id: string;
         title: string;
         shortDescription: string;
+        eventType?: EventType;
         startDate: string;
         endDate?: string;
         location: string;
         locationUrl?: string;
     }) {
         super(params);
+        this.eventType = params.eventType ?? EventType.Other;
         this.startDate = params.startDate;
         this.endDate = params.endDate;
         this.location = params.location;

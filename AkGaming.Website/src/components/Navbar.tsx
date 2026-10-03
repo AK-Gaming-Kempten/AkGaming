@@ -11,9 +11,9 @@ type NavbarProps = {
 export default function Navbar({ menuOpen, onCloseMenu }: NavbarProps) {
 
     return (
-        <nav className="navbar">
+        <nav className="navbar" aria-label="Hauptnavigation">
             <div className="container navbar-content">
-                <ul className={`nav-links ${menuOpen ? "active" : ""}`}>
+                <ul id="primary-navigation" className={`nav-links ${menuOpen ? "active" : ""}`}>
                     <li><ActiveLink href="/" exact onClick={onCloseMenu}>Home</ActiveLink></li>
                     <li><ActiveLink href="/events" onClick={onCloseMenu}>Events</ActiveLink></li>
                     <li><ActiveLink href="/esports" onClick={onCloseMenu}>Esports</ActiveLink></li>

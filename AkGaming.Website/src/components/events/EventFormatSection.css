@@ -1,0 +1,20 @@
+.event-format-section {
+    padding: clamp(3rem, 6vw, 6rem) var(--layout-gutter);
+    background: var(--color-background-secondary);
+    color: var(--color-text-primary);
+    border-bottom: 1px solid var(--color-border-subtle);
+}
+.event-format-section:nth-of-type(odd) { background: var(--color-background-primary); }
+.event-format-content { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: center; gap: clamp(2rem, 5vw, 5rem); }
+.event-format-section:nth-of-type(odd) .event-format-image { grid-column: 1; grid-row: 1; }
+.event-format-section:nth-of-type(odd) .event-format-copy { grid-column: 2; }
+.event-format-copy h2 { margin: 0 0 1.5rem; font-size: clamp(2rem, 3vw, 3rem); font-weight: 850; letter-spacing: -.045em; }
+.event-format-copy p { margin: 0; line-height: 1.75; color: var(--color-text-secondary); }
+.event-format-image { display: block; width: 100%; aspect-ratio: 3 / 2; object-fit: cover; border-bottom: 4px solid var(--color-link); }
+@media (max-width: 820px) {
+    .event-format-content { grid-template-columns: 1fr; }
+    .event-format-section:nth-of-type(odd) .event-format-image, .event-format-section:nth-of-type(odd) .event-format-copy { grid-column: auto; grid-row: auto; }
+}
+
+.event-format-dates { margin-top: 2rem; }
+.event-format-dates h3 { margin: 0 0 1rem; font-size: 1.1rem; }

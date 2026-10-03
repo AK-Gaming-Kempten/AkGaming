@@ -7,7 +7,7 @@
 }
 
 .impressum-hero {
-    border-radius: 14px;
+    border-radius: var(--radius-panel);
     padding: 1.4rem 1.2rem;
     background: linear-gradient(
         180deg,
@@ -33,7 +33,7 @@
 }
 
 .impressum-card {
-    border-radius: 12px;
+    border-radius: var(--radius-panel);
     padding: 1rem;
     background: color-mix(in srgb, var(--color-background-primary) 96%, transparent);
     border: 1px solid color-mix(in srgb, var(--color-highlight-secondary) 35%, transparent);

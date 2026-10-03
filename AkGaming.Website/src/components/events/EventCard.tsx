@@ -11,14 +11,6 @@ type EventCardProps = {
 const EventCard: FC<EventCardProps> = ({ event }) => {
     const formattedDate = formatDateRange(event.startDate, event.endDate);
 
-    const locationElement = event.location.startsWith("http") ? (
-        <a href={event.location} target="_blank" rel="noopener noreferrer">
-            {event.location}
-        </a>
-    ) : (
-        <span>{event.location}</span>
-    );
-
     return (
         <Link href={`/events/${event.id}`} className="event-card">
             <div className="event-card-header">
@@ -29,7 +21,7 @@ const EventCard: FC<EventCardProps> = ({ event }) => {
             <p className="event-description">{event.shortDescription}</p>
 
             <div className="event-location">
-                <span>📍 {locationElement}</span>
+                <span>📍 {event.location}</span>
             </div>
         </Link>
     );
