@@ -55,3 +55,30 @@ If the container reports healthy but the domain returns 404, compare the deploye
 commit/image and reverse-proxy target. A failed rollout may leave the previous
 container serving traffic. Inspect the new container's startup logs and healthcheck
 output before changing the endpoint.
+
+## Persistent CMS storage (required in production)
+
+In Coolify, add a persistent **named volume or host directory** mounted at
+`/var/lib/akgaming-website`. Reuse the same volume across deployments; production
+and test must use separate volumes. The Dockerfile's `VOLUME` declaration alone
+does not guarantee that Coolify reattaches the same storage on replacement.
+
+The container sets `AKG_WEBSITE_CONTENT_ROOT` to the `content` subdirectory and
+`AKG_WEBSITE_MEDIA_ROOT` to `media`. Together these hold posts, drafts, folders,
+highlights, esports catalogs/teams, and uploads. Back up the entire mount.
+
+Startup seeds each directory from bundled content only when it is completely
+empty. Existing directories are kept intact; deployments never sync repository
+content over CMS files. New repository content/media is therefore not automatically
+merged into an existing CMS store: import it deliberately through the CMS.
+
+Before the first deployment with persistent storage, export the previous
+container's `/app/src/data` and `/app/public/media` (or its configured roots).
+Restore them into the volume's `content` and `media` directories before startup.
+Keep a separate backup of those exports. If the previous container has already
+been removed, recovery requires a backup or an existing host mount/volume; its
+image contains the bundled defaults, not subsequent CMS edits.
+
+Do not redeploy again until any retained old container has been copied. Inspect
+Coolify's previous deployment containers and Docker mounts; `docker cp` works
+with stopped containers too.

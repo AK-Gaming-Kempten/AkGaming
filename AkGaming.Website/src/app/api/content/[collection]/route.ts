@@ -7,7 +7,7 @@ import { listHighlights } from "../../../../content/highlightStore";
 import { listPublishedPosts } from "../../../../content/postStore";
 import { listPublicTeams } from "../../../../content/teamStore";
 
-const mediaDirectory = path.join(process.cwd(), "public", "media");
+import { getMediaRoot } from "../../../../content/mediaStore";
 const supportedImageExtensions = new Set([".jpg", ".jpeg", ".png", ".webp", ".avif", ".gif"]);
 
 type ContentRouteContext = {
@@ -35,6 +35,7 @@ export async function GET(request: NextRequest, context: ContentRouteContext) {
 
 async function readImages(request: NextRequest): Promise<string[]> {
     const folder = request.nextUrl.searchParams.get("folder")?.trim() ?? "";
+    const mediaDirectory = getMediaRoot();
     const requestedDirectory = path.resolve(mediaDirectory, folder);
     const allowedPrefix = `${mediaDirectory}${path.sep}`;
 

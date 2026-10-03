@@ -166,8 +166,9 @@ export async function renameMediaFile(filePath: string, name: string): Promise<C
     return { name: targetName, path: targetPath, url: `/media/${targetPath}`, size: statistics.size };
 }
 
-function getMediaRoot(): string {
-    return path.join(process.cwd(), "public", "media");
+export function getMediaRoot(): string {
+    const configuredRoot = process.env.AKG_WEBSITE_MEDIA_ROOT;
+    return configuredRoot ? path.resolve(configuredRoot) : path.join(process.cwd(), "public", "media");
 }
 
 function resolveMediaPath(relativePath: string): string {
