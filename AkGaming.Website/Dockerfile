@@ -21,10 +21,11 @@ ENV HOSTNAME=0.0.0.0
 COPY --from=build /app/AkGaming.Website/.next/standalone ./
 COPY --from=build /app/AkGaming.Website/.next/static ./.next/static
 COPY --from=build /app/AkGaming.Website/public ./public
+COPY --from=build /app/AkGaming.Website/scripts/healthcheck.cjs ./healthcheck.cjs
 
 EXPOSE 3000
 
 HEALTHCHECK --interval=30s --timeout=5s --start-period=30s --retries=3 \
-    CMD node -e "fetch('http://127.0.0.1:3000/health').then(response => process.exit(response.ok ? 0 : 1)).catch(() => process.exit(1))"
+    CMD ["node", "healthcheck.cjs"]
 
 CMD ["node", "server.js"]

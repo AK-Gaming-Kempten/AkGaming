@@ -43,3 +43,15 @@ Existing posts continue to be authored as MD/MDX files in `src/data/posts`. Game
 highlight, and gallery data is exposed through internal content routes under `/api/content/*`.
 This is a transitional boundary: the next CMS step can move these reads to a mounted content
 store without changing the public page routes.
+
+## Deployment healthcheck
+
+The Docker image probes `http://127.0.0.1:${PORT}/health` (port 3000 by default).
+It expects HTTP 200 and the body `Healthy`; failures include the URL and status or
+connection error in Docker's healthcheck output. Coolify's separate HTTP probe
+should use `/health` on the application's configured port.
+
+If the container reports healthy but the domain returns 404, compare the deployed
+commit/image and reverse-proxy target. A failed rollout may leave the previous
+container serving traffic. Inspect the new container's startup logs and healthcheck
+output before changing the endpoint.
