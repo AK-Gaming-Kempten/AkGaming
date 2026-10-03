@@ -85,3 +85,7 @@ These should be the default entry point for feature work.
 - Put dense information inside panels or tables from `baseStyles.css` instead of ad hoc flex rows.
 - When a page needs an inverse or dark section, switch both the background token and the text token family together.
 - If a new component needs a color that does not fit these rules, add or derive a semantic token here first instead of bypassing the system in app code.
+
+## Visual foundations
+
+The canonical theme also supplies square `--radius-control` / `--radius-panel`, `--layout-content-width`, responsive `--layout-gutter`, `--color-border-subtle`, and theme-aware `--color-link`. Use these tokens for new application components. `ak-section`, `ak-content`, and `ak-surface` provide framework-independent section, content, and panel primitives. Keep full-width section backgrounds separate from constrained inner content. The website's theme copy must match this canonical file; Management, Identity, and Tournaments copy the shared assets during their builds.

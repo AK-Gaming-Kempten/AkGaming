@@ -10,7 +10,7 @@ textarea {
     width: 100%;
     box-sizing: border-box;
     border: 1px solid var(--color-text-secondary);
-    border-radius: 4px;
+    border-radius: var(--radius-control);
     background-color: var(--color-background-primary);
     color: var(--color-text-primary);
     padding: 0.4rem 0.6rem;
@@ -62,7 +62,7 @@ label {
 
 button, .btn {
     border: none;
-    border-radius: 4px;
+    border-radius: var(--radius-control);
     padding: 0.4rem 0.8rem;
     font-size: 0.9rem;
     font-weight: 600;
@@ -129,7 +129,7 @@ button.btn-sm, .btn.btn-sm {
     background-color: var(--color-background-primary);
     color: var(--color-text-primary);
     border: 1px solid var(--color-text-secondary);
-    border-radius: 4px;
+    border-radius: var(--radius-control);
     padding: 1rem;
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
     transition: background-color 0.2s ease, transform 0.15s ease;
@@ -234,7 +234,7 @@ button.btn-sm, .btn.btn-sm {
 .table-wrapper {
     overflow: auto;
     border: 1px solid var(--color-text-secondary);
-    border-radius: 4px;
+    border-radius: var(--radius-control);
     background: var(--color-background-primary);
 }
 
@@ -329,7 +329,7 @@ button.btn-sm, .btn.btn-sm {
 
 .scrollable::-webkit-scrollbar-thumb {
     background-color: var(--color-text-secondary);
-    border-radius: 4px;
+    border-radius: var(--radius-control);
 }
 
 .scrollable::-webkit-scrollbar-thumb:hover {
