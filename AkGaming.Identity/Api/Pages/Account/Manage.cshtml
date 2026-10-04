@@ -29,6 +29,11 @@
       <div class="status ok">@Model.StatusMessage</div>
     }
 
+    @if (!string.IsNullOrWhiteSpace(Model.ErrorMessage))
+    {
+      <div class="status error" role="alert">@Model.ErrorMessage</div>
+    }
+
     @if (Model.Profile is not null)
     {
       <div class="ui-grid-2">
@@ -36,6 +41,20 @@
           <h2>General Info</h2>
           <div class="row"><span class="k">User Id</span><span class="v">@Model.Profile.UserId</span></div>
           <div class="row"><span class="k">Email</span><span class="v">@Model.Profile.Email</span></div>
+          <div class="method-actions">
+            <button class="secondary" type="button" onclick="document.getElementById('email-change-dialog').showModal()">Change Email</button>
+          </div>
+          @if (Model.PendingEmailChange is not null)
+          {
+            <p>Awaiting confirmation: <strong>@Model.PendingEmailChange.NewEmail</strong></p>
+            <p class="sub">Expires @Model.PendingEmailChange.ExpiresAtUtc.ToString("u"). Your current email remains active.</p>
+            <div class="method-actions">
+              <button class="secondary" type="button" onclick="document.getElementById('email-change-dialog').showModal()">Resend Confirmation</button>
+              <form method="post" asp-page-handler="CancelEmailChange">
+                <button class="secondary" type="submit">Cancel Email Change</button>
+              </form>
+            </div>
+          }
           <div class="row"><span class="k">Username</span><span class="v">@Model.Profile.Username</span></div>
           <div class="row"><span class="k">Roles</span><span class="v">@string.Join(", ", Model.Profile.Roles)</span></div>
         </section>
@@ -88,6 +107,30 @@
           </div>
         </section>
       </div>
+
+      <dialog id="email-change-dialog" class="shell email-change-dialog" aria-labelledby="email-change-title">
+        <h2 id="email-change-title">Change Email</h2>
+        <p class="sub">Confirm your identity, then verify the new address using the email we send. Your current address stays active until confirmation.</p>
+        <form method="post" asp-page-handler="RequestEmailChange" class="identity-form">
+          <div class="ui-field">
+            <label asp-for="NewEmail">New Email Address</label>
+            <input asp-for="NewEmail" type="email" value="@(Model.PendingEmailChange?.NewEmail ?? Model.NewEmail)" autocomplete="email" maxlength="320" required />
+          </div>
+          <div class="ui-field">
+            <label asp-for="CurrentPassword">Current Password</label>
+            <input asp-for="CurrentPassword" type="password" autocomplete="current-password" />
+          </div>
+          <div class="method-actions">
+            <button class="primary" type="submit">Send Confirmation Email</button>
+            @if (Model.Profile.Discord is not null)
+            {
+              <button class="secondary" type="submit" asp-page-handler="StartDiscordEmailChange">Confirm Identity with Discord</button>
+            }
+            <button class="secondary" type="button" onclick="document.getElementById('email-change-dialog').close()">Close</button>
+          </div>
+        </form>
+        <p class="sub">After confirmation, sign in again in your connected applications.</p>
+      </dialog>
 
       <div class="actions">
         <form method="post" asp-page-handler="Logout">

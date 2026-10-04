@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using AkGaming.Identity.Application.Abstractions;
 using AkGaming.Identity.Contracts.Auth;
 using AkGaming.Identity.Infrastructure.Security;
 using Microsoft.AspNetCore.Authentication;
@@ -12,10 +13,13 @@ internal static class LocalSessionManager
 {
     internal static async Task SignInAsync(HttpContext context, CurrentUserResponse user)
     {
+        var account = await context.RequestServices.GetRequiredService<IIdentityRepository>()
+            .GetUserByIdAsync(user.UserId, context.RequestAborted);
         var claims = new List<Claim>
         {
             new(ClaimTypes.NameIdentifier, user.UserId.ToString()),
             new("sub", user.UserId.ToString()),
+            new("security_version", account!.SecurityVersion.ToString()),
             new(ClaimTypes.Name, user.Username),
             new(ClaimTypes.Email, user.Email),
             new("preferred_username", user.Username),

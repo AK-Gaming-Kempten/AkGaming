@@ -1,6 +1,8 @@
 using System.Text;
 using System.Threading.RateLimiting;
 using AkGaming.Identity.Application;
+using AkGaming.Identity.Application.Abstractions;
+using Microsoft.AspNetCore.Authentication;
 using AkGaming.Identity.Api.Endpoints;
 using AkGaming.Identity.Api.OpenIddict;
 using AkGaming.Identity.Infrastructure;
@@ -76,6 +78,20 @@ builder.Services
         options.Cookie.Name = "akgaming.identity";
         options.ExpireTimeSpan = TimeSpan.FromDays(jwtOptions.RefreshTokenDays);
         options.SlidingExpiration = true;
+        options.Events.OnValidatePrincipal = async context =>
+        {
+            var rawId = context.Principal?.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            var stamp = context.Principal?.FindFirst("security_version")?.Value;
+            var repository = context.HttpContext.RequestServices.GetRequiredService<IIdentityRepository>();
+            var user = Guid.TryParse(rawId, out var userId)
+                ? await repository.GetUserByIdAsync(userId, context.HttpContext.RequestAborted)
+                : null;
+            if (user is null || !Guid.TryParse(stamp, out var version) || version != user.SecurityVersion)
+            {
+                context.RejectPrincipal();
+                await context.HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+            }
+        };
     });
 
 builder.Services.AddOpenIddict()

@@ -126,6 +126,7 @@ public sealed class AuthService : IAuthService
         };
 
         user.PasswordHash = _passwordHasher.HashPassword(user, request.Password);
+        user.SecurityVersion = Guid.NewGuid();
         user.UserRoles.Add(new UserRole { User = user, Role = role });
 
         await _repository.AddUserAsync(user, cancellationToken);
@@ -868,6 +869,7 @@ public sealed class AuthService : IAuthService
         var user = passwordResetToken.User;
         passwordResetToken.ConsumedAtUtc = DateTime.UtcNow;
         user.PasswordHash = _passwordHasher.HashPassword(user, request.Password);
+        user.SecurityVersion = Guid.NewGuid();
         user.AccessFailedCount = 0;
         user.LockoutEndUtc = null;
 
@@ -901,6 +903,7 @@ public sealed class AuthService : IAuthService
 
         var previousEmail = user.Email;
         user.Email = normalizedEmail;
+        user.SecurityVersion = Guid.NewGuid();
         user.IsEmailVerified = false;
 
         await InvalidateActiveEmailVerificationTokensAsync(user.Id, cancellationToken);

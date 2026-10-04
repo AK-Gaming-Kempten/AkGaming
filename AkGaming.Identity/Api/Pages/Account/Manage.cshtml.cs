@@ -7,20 +7,33 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace AkGaming.Identity.Api.Pages.Account;
 
+[EnableRateLimiting("auth")]
 [Authorize(AuthenticationSchemes = CookieAuthenticationDefaults.AuthenticationScheme)]
 public sealed class ManageModel : PageModel
 {
     private readonly IAuthService _authService;
     private readonly IAuthHardeningSettings _hardeningSettings;
+    private readonly IEmailChangeService _emailChangeService;
 
-    public ManageModel(IAuthService authService, IAuthHardeningSettings hardeningSettings)
+    public ManageModel(IAuthService authService, IAuthHardeningSettings hardeningSettings, IEmailChangeService emailChangeService)
     {
         _authService = authService;
+        _emailChangeService = emailChangeService;
         _hardeningSettings = hardeningSettings;
     }
+
+    public EmailChangeResponse? PendingEmailChange { get; private set; }
+    public string? ErrorMessage { get; private set; }
+
+    [BindProperty]
+    public string NewEmail { get; set; } = string.Empty;
+
+    [BindProperty]
+    public string CurrentPassword { get; set; } = string.Empty;
 
     public CurrentUserResponse? Profile { get; private set; }
 
@@ -84,6 +97,53 @@ public sealed class ManageModel : PageModel
         }
     }
 
+    public async Task<IActionResult> OnPostRequestEmailChangeAsync(CancellationToken cancellationToken)
+    {
+        try
+        {
+            await _emailChangeService.RequestAsync(GetUserId(), NewEmail, CurrentPassword,
+                HttpContext.Connection.RemoteIpAddress?.ToString(), cancellationToken);
+            StatusMessage = "Confirmation email sent. Your current email stays active until you confirm the new address.";
+            return RedirectToPage();
+        }
+        catch (AuthException exception)
+        {
+            ErrorMessage = exception.Message;
+            CurrentPassword = string.Empty;
+            ModelState.Remove(nameof(CurrentPassword));
+            await LoadProfileAsync(cancellationToken);
+            return Page();
+        }
+    }
+
+    public async Task<IActionResult> OnPostStartDiscordEmailChangeAsync(CancellationToken cancellationToken)
+    {
+        try
+        {
+            var url = await _emailChangeService.StartDiscordAsync(GetUserId(), NewEmail, cancellationToken);
+            var state = Microsoft.AspNetCore.WebUtilities.QueryHelpers.ParseQuery(new Uri(url).Query)["state"].ToString();
+            Response.Cookies.Append("akgaming.email-change-state", state, new CookieOptions
+            {
+                HttpOnly = true, Secure = Request.IsHttps, SameSite = SameSiteMode.Lax,
+                Path = "/auth/discord/callback", MaxAge = TimeSpan.FromMinutes(10), IsEssential = true
+            });
+            return Redirect(url);
+        }
+        catch (AuthException exception)
+        {
+            ErrorMessage = exception.Message;
+            await LoadProfileAsync(cancellationToken);
+            return Page();
+        }
+    }
+
+    public async Task<IActionResult> OnPostCancelEmailChangeAsync(CancellationToken cancellationToken)
+    {
+        await _emailChangeService.CancelAsync(GetUserId(), HttpContext.Connection.RemoteIpAddress?.ToString(), cancellationToken);
+        StatusMessage = "Pending email change cancelled.";
+        return RedirectToPage();
+    }
+
     public async Task<IActionResult> OnPostLogoutAsync()
     {
         await LocalSessionManager.SignOutAsync(HttpContext);
@@ -94,6 +154,7 @@ public sealed class ManageModel : PageModel
     {
         Profile = await _authService.GetCurrentUserAsync(GetUserId(), cancellationToken);
         Username = Profile.Username;
+        PendingEmailChange = await _emailChangeService.GetPendingAsync(GetUserId(), cancellationToken);
     }
 
     private Guid GetUserId()

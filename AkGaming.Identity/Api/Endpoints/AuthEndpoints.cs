@@ -5,6 +5,8 @@ using AkGaming.Identity.Application.Common;
 using AkGaming.Identity.Application.ExternalAuth;
 using AkGaming.Identity.Contracts.Auth;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using OpenIddict.Validation.AspNetCore;
 
 namespace AkGaming.Identity.Api.Endpoints;
@@ -256,8 +258,30 @@ internal static class AuthEndpoints
             return Results.Redirect(response.AuthorizationUrl);
         });
 
-        auth.MapGet("/discord/callback", async (string code, string state, IAuthService authService, IDiscordStateService discordStateService, IAuthHardeningSettings hardeningSettings, HttpContext httpContext, CancellationToken cancellationToken) =>
+        auth.MapGet("/discord/callback", async (string code, string state, IAuthService authService, IDiscordStateService discordStateService, IEmailChangeService emailChangeService, IAuthHardeningSettings hardeningSettings, HttpContext httpContext, CancellationToken cancellationToken) =>
         {
+            if (discordStateService.ReadState(state)?.Purpose == "email_change")
+            {
+                var browserState = httpContext.Request.Cookies["akgaming.email-change-state"];
+                httpContext.Response.Cookies.Delete("akgaming.email-change-state", new CookieOptions { Path = "/auth/discord/callback" });
+                var session = await httpContext.AuthenticateAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+                if (!session.Succeeded || session.Principal is null
+                    || !EndpointUtilities.TryGetUserId(session.Principal, out var userId)
+                    || !string.Equals(browserState, state, StringComparison.Ordinal))
+                {
+                    return Results.Redirect("/account/login?error=Email%20change%20confirmation%20expired.%20Please%20try%20again.");
+                }
+                try
+                {
+                    await emailChangeService.RequestWithDiscordAsync(userId, code, state, EndpointUtilities.GetIp(httpContext), cancellationToken);
+                    return Results.Redirect("/account/manage?status=Confirmation%20email%20sent.%20Your%20current%20email%20is%20unchanged.");
+                }
+                catch (AuthException exception)
+                {
+                    return Results.Redirect($"/account/manage{QueryString.Create("status", exception.Message)}");
+                }
+            }
+
             try
             {
                 var response = await authService.HandleDiscordCallbackAsync(code, state, EndpointUtilities.GetIp(httpContext), cancellationToken);

@@ -105,6 +105,29 @@ The Web API validates tokens against the issuer and requires the `management_api
 
 If a client does not request `management_api`, the management Web API should reject the token.
 
+## Changing An Account Email
+
+On `/account/manage`, choose **Change Email**, enter the new address, and confirm your identity with your current password or already-linked Discord account. Discord confirmation is bound to the initiating browser session and checks the linked Discord ID; it does not link a different Discord account.
+
+The current address remains active for login and recovery until the new mailbox is verified. Confirmation links expire after one hour. Opening a link only displays a review page; completing the change requires an explicit, antiforgery-protected POST. Account management shows the pending address and offers resend and cancellation. Resending requires reauthentication, replaces the previous token, and is limited to once per minute per account.
+
+The API also supports password-authorized changes:
+
+| Method | Endpoint | Behavior |
+| --- | --- | --- |
+| GET | `/auth/email/change` | Returns the pending address and expiry, or null; requires a user bearer token. |
+| POST | `/auth/email/change` | Accepts `newEmail` and `currentPassword`; requires a user bearer token and sends confirmation mail. |
+| POST | `/auth/email/change/cancel` | Cancels the authenticated user's pending change. |
+| POST | `/auth/email/change/confirm` | Accepts `token` and completes the change; mailbox-token possession is sufficient. |
+
+Email changes use hashed, single-use tokens and check address uniqueness again at confirmation. Confirmation updates the email and verification status, consumes old password-reset and verification links, revokes legacy refresh tokens and OpenID Connect credentials/authorizations, and changes the account security version in one transaction. User IDs, roles, and external account links remain stable. Membership and other applications' separate contact records are not automatically updated.
+
+Local cookies and OpenID Connect authorization codes/refresh tokens include an internal security version. A changed version requires a new sign-in. Deploying this feature also requires users with older cookies or OpenID Connect refresh credentials to sign in again, because those credentials lack the version. Already-issued access tokens may retain their original email claims until expiry.
+
+Both SQLite and PostgreSQL have an `AddEmailChanges` migration, applied through the existing startup migration flow. SQLite provider tests cover confirmation, cancellation, expiry, replay, uniqueness, rollback, and concurrent completion.
+
+The old mailbox receives a security notification after completion. Delivery failures are logged and audited; notification delivery has no automatic retry. If sending the new-address confirmation fails, the original address remains active and the pending request can be resent after the cooldown.
+
 ## Local Development
 
 Prerequisites:

@@ -430,3 +430,6 @@ a.switch:hover {
     width: 100%;
   }
 }
+
+.email-change-dialog { max-width: 560px; width: calc(100% - 2rem); max-height: calc(100vh - 2rem); overflow-y: auto; margin: auto; }
+.email-change-dialog::backdrop { background: rgba(0, 0, 0, 0.65); }

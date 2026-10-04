@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using AkGaming.Identity.Application.Abstractions;
+using AkGaming.Identity.Application.Common;
 using AkGaming.Identity.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 
@@ -327,8 +328,15 @@ public sealed class IdentityRepository : IIdentityRepository
         await _dbContext.RefreshTokens.AddAsync(refreshToken, cancellationToken);
     }
 
-    public Task SaveChangesAsync(CancellationToken cancellationToken)
+    public async Task SaveChangesAsync(CancellationToken cancellationToken)
     {
-        return _dbContext.SaveChangesAsync(cancellationToken);
+        try
+        {
+            await _dbContext.SaveChangesAsync(cancellationToken);
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            throw new AuthException(409, "Your account or credentials changed. Sign in again and retry.");
+        }
     }
 }

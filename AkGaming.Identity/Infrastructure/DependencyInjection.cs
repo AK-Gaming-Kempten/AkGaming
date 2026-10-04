@@ -53,6 +53,7 @@ public static class DependencyInjection
         });
 
         services.AddScoped<IIdentityRepository, IdentityRepository>();
+        services.AddScoped<IEmailChangeStore, EmailChangeStore>();
         services.AddSingleton<IEmailSender, SmtpEmailSender>();
         services.AddScoped<IPasswordHasherService, PasswordHasherService>();
         services.AddScoped<IJwtTokenService, JwtTokenService>();

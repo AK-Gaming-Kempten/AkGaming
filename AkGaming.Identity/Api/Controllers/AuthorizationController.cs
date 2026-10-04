@@ -19,17 +19,20 @@ namespace AkGaming.Identity.Api.Controllers;
 public sealed class AuthorizationController : Controller
 {
     private readonly IAuthService _authService;
+    private readonly IIdentityRepository _repository;
     private readonly IAuthHardeningSettings _hardeningSettings;
     private readonly IOpenIddictApplicationManager _applicationManager;
     private readonly IOpenIddictAuthorizationManager _authorizationManager;
 
     public AuthorizationController(
         IAuthService authService,
+        IIdentityRepository repository,
         IAuthHardeningSettings hardeningSettings,
         IOpenIddictApplicationManager applicationManager,
         IOpenIddictAuthorizationManager authorizationManager)
     {
         _authService = authService;
+        _repository = repository;
         _hardeningSettings = hardeningSettings;
         _applicationManager = applicationManager;
         _authorizationManager = authorizationManager;
@@ -161,6 +164,8 @@ public sealed class AuthorizationController : Controller
         }
 
         var principal = OidcPrincipalFactory.Create(user, scopes);
+        // Kept inside encrypted authorization codes and refresh tokens, without public destinations.
+        principal.SetClaim("security_version", authenticationResult.Principal!.FindFirstValue("security_version"));
         principal.SetPresenters(clientId);
 
         if (existingAuthorizations.Count > 0)
@@ -253,6 +258,15 @@ public sealed class AuthorizationController : Controller
                 OpenIddictServerAspNetCoreDefaults.AuthenticationScheme);
         }
 
+        var account = await _repository.GetUserByIdAsync(userId, cancellationToken);
+        var stamp = authenticationResult.Principal.FindFirstValue("security_version");
+        if (account is null || !Guid.TryParse(stamp, out var version) || version != account.SecurityVersion)
+        {
+            return Forbid(
+                BuildOpenIddictError(OpenIddictConstants.Errors.InvalidGrant, "The account changed. Sign in again."),
+                OpenIddictServerAspNetCoreDefaults.AuthenticationScheme);
+        }
+
         var user = await _authService.GetCurrentUserAsync(userId, cancellationToken);
         if (_hardeningSettings.RequireVerifiedEmailForLogin && !user.IsEmailVerified)
         {
@@ -262,6 +276,7 @@ public sealed class AuthorizationController : Controller
         }
 
         var principal = OidcPrincipalFactory.Create(user, authenticationResult.Principal.GetScopes());
+        principal.SetClaim("security_version", account.SecurityVersion.ToString());
 
         var resources = authenticationResult.Principal.GetResources();
         if (resources.Any())
