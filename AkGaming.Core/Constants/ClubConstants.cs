@@ -43,6 +43,9 @@ public static class ClubConstants
         public const string ManagementMembership = ManagementBase + "/membership/";
         public const string ManagementMemberRequests = ManagementBase + "/member-management/requests";
 
+        public const string TournamentsBase = "https://tournaments.akgaming.de";
+        public const string CloudBase = "https://cloud.akgaming.de";
+
         public const string IdentityBase = "https://identity.akgaming.de";
     }
 

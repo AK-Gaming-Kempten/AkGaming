@@ -12,8 +12,9 @@
   <link rel="stylesheet" href="/ui/styles.css" />
   <script src="/ui/common.js" defer></script>
 </head>
-<body>
-  <main class="shell shell-wide">
+<body class="with-quick-links">
+  <partial name="_QuickLinks" />
+  <main class="shell shell-wide account-page">
     <div class="topbar">
       <partial name="_ThemeSlider" />
     </div>
@@ -22,11 +23,11 @@
       <div class="brand-title">@ClubConstants.Organization.ShortName <span class="identity">Identity</span></div>
     </div>
     <h1>Account</h1>
-    <p class="sub">Your local session is active on the Identity server.</p>
+    <p class="sub">Update your username and manage how you sign in.</p>
 
     @if (!string.IsNullOrWhiteSpace(Model.StatusMessage))
     {
-      <div class="status ok">@Model.StatusMessage</div>
+      <div class="status ok" role="status">@Model.StatusMessage</div>
     }
 
     @if (!string.IsNullOrWhiteSpace(Model.ErrorMessage))
@@ -36,14 +37,37 @@
 
     @if (Model.Profile is not null)
     {
-      <div class="ui-grid-2">
-        <section class="panel">
-          <h2>General Info</h2>
-          <div class="row"><span class="k">User Id</span><span class="v">@Model.Profile.UserId</span></div>
-          <div class="row"><span class="k">Email</span><span class="v">@Model.Profile.Email</span></div>
-          <div class="method-actions">
-            <button class="secondary" type="button" onclick="document.getElementById('email-change-dialog').showModal()">Change Email</button>
+      <div class="account-summary">
+        <p>Signed in as <strong>@Model.Profile.Username</strong></p>
+        <button class="account-edit-button" type="button" aria-label="Change username" title="Change username" onclick="document.getElementById('username-change-dialog').showModal()"><span class="bi bi-pencil" aria-hidden="true"></span></button>
+      </div>
+
+      <dialog id="username-change-dialog" class="shell username-change-dialog" aria-labelledby="username-change-title">
+        <h2 id="username-change-title">Change username</h2>
+        <form method="post" asp-page-handler="UpdateUsername" class="identity-form">
+          <div class="ui-field">
+            <label asp-for="Username">Username</label>
+            <input asp-for="Username" type="text" autocomplete="username" maxlength="100" required />
           </div>
+          <button class="primary" type="submit">Save username</button>
+          <button class="secondary" type="button" onclick="document.getElementById('username-change-dialog').close()">Cancel</button>
+        </form>
+      </dialog>
+
+      <section class="panel sign-in-panel" aria-labelledby="sign-in-title">
+        <h2 id="sign-in-title">Sign-in methods</h2>
+        <p class="panel-subtitle">Manage your email address and connected Discord account.</p>
+        <div class="account-methods">
+          <div class="method-block">
+            <h3 class="method-title">Email and password</h3>
+            <div class="account-email">
+              <span class="bi bi-envelope" role="img" aria-label="Email" title="Email"></span>
+              <span class="email-address">@Model.Profile.Email</span>
+              <span class="bi @(Model.Profile.IsEmailVerified ? "bi-check-circle-fill verified" : "bi-x-circle-fill unverified")"
+                    role="img" aria-label="@(Model.Profile.IsEmailVerified ? "Email verified" : "Email not verified")"
+                    title="@(Model.Profile.IsEmailVerified ? "Email verified" : "Email not verified")" tabindex="0"></span>
+              <button class="account-edit-button" type="button" aria-label="Change email" title="Change email" onclick="document.getElementById('email-change-dialog').showModal()"><span class="bi bi-pencil" aria-hidden="true"></span></button>
+            </div>
           @if (Model.PendingEmailChange is not null)
           {
             <p>Awaiting confirmation: <strong>@Model.PendingEmailChange.NewEmail</strong></p>
@@ -55,27 +79,7 @@
               </form>
             </div>
           }
-          <div class="row"><span class="k">Username</span><span class="v">@Model.Profile.Username</span></div>
-          <div class="row"><span class="k">Roles</span><span class="v">@string.Join(", ", Model.Profile.Roles)</span></div>
-        </section>
 
-        <section class="panel">
-          <h2>Profile</h2>
-          <form method="post" asp-page-handler="UpdateUsername" class="identity-form">
-            <div class="ui-field">
-              <label asp-for="Username">Username</label>
-              <input asp-for="Username" type="text" autocomplete="username" maxlength="100" required />
-            </div>
-            <button class="secondary" type="submit">Update Username</button>
-          </form>
-        </section>
-
-        <section class="panel">
-          <h2>Login Methods</h2>
-
-          <div class="method-block">
-            <div class="method-title">Email / Password</div>
-            <div class="row"><span class="k">Email Verified</span><span class="v @(Model.Profile.IsEmailVerified ? "ok" : "warn")">@(Model.Profile.IsEmailVerified ? "Yes" : "No")</span></div>
 
             @if (!Model.Profile.IsEmailVerified)
             {
@@ -85,28 +89,43 @@
             }
           </div>
 
-          <div class="method-block">
-            <div class="method-title">Discord</div>
+          <section class="method-block linked-accounts" aria-labelledby="linked-accounts-title">
+            <h3 id="linked-accounts-title" class="method-title">Linked accounts</h3>
+            <ul class="provider-list">
+              <li class="provider-row">
+                <img class="provider-icon" src="/ui/Discord-Symbol-Blurple.svg" alt="" />
+                <div class="provider-info">
+                  <div class="provider-name">
+                    <strong>Discord</strong>
+                    <span class="bi @(Model.Profile.Discord is null ? "bi-link provider-disconnected" : "bi-link provider-connected")"
+                          role="img" aria-label="@(Model.Profile.Discord is null ? "Discord not linked" : "Discord linked")"
+                          title="@(Model.Profile.Discord is null ? "Discord not linked" : "Discord linked")" tabindex="0">
+                    </span>
+                  </div>
+                  @if (Model.Profile.Discord is not null)
+                  {
+                    <span>@(Model.Profile.Discord.ProviderUsername ?? "Discord user")</span>
+                  }
+                </div>
+                <form method="post" asp-page-handler="StartDiscordLink">
+                  <button class="secondary" type="submit">@(Model.Profile.Discord is null ? "Link" : "Reconnect")</button>
+                </form>
+              </li>
+            </ul>
+          </section>
+        </div>
+      </section>
 
-            @if (Model.Profile.Discord is null)
-            {
-              <div class="row"><span class="k">Status</span><span class="v">Not linked</span></div>
-            }
-            else
-            {
-              <div class="row"><span class="k">Account</span><span class="v">@(Model.Profile.Discord.ProviderUsername ?? "Discord User")</span></div>
-              <div class="row"><span class="k">Discord Id</span><span class="v">@Model.Profile.Discord.ProviderUserId</span></div>
-              <div class="row"><span class="k">Linked At</span><span class="v">@Model.Profile.Discord.LinkedAtUtc.ToString("u")</span></div>
-            }
-
-            <div class="method-actions">
-              <form method="post" asp-page-handler="StartDiscordLink">
-                <button class="secondary" type="submit">Link Discord</button>
-              </form>
-            </div>
-          </div>
-        </section>
-      </div>
+      <details class="account-technical">
+        <summary>Account details</summary>
+        <div class="row"><span class="k">User ID</span><span class="v">@Model.Profile.UserId</span></div>
+        <div class="row"><span class="k">Roles</span><span class="v">@string.Join(", ", Model.Profile.Roles)</span></div>
+        @if (Model.Profile.Discord is not null)
+        {
+          <div class="row"><span class="k">Discord ID</span><span class="v">@Model.Profile.Discord.ProviderUserId</span></div>
+          <div class="row"><span class="k">Discord linked</span><span class="v">@Model.Profile.Discord.LinkedAtUtc.ToString("u")</span></div>
+        }
+      </details>
 
       <dialog id="email-change-dialog" class="shell email-change-dialog" aria-labelledby="email-change-title">
         <h2 id="email-change-title">Change Email</h2>
@@ -132,9 +151,9 @@
         <p class="sub">After confirmation, sign in again in your connected applications.</p>
       </dialog>
 
-      <div class="actions">
+      <div class="actions account-session">
         <form method="post" asp-page-handler="Logout">
-          <button class="primary" type="submit">Logout</button>
+          <button class="secondary" type="submit">Sign out</button>
         </form>
       </div>
     }
