@@ -237,4 +237,10 @@
   <data name="Message_SelectPaymentPeriod" xml:space="preserve"><value>Wähle einen Beitragszeitraum aus, um seine Beiträge anzuzeigen und zu verwalten.</value></data>
   <data name="Message_CreatePaymentPeriod" xml:space="preserve"><value>Beim Erstellen eines Beitragszeitraums werden Beiträge für alle berechtigten Mitglieder erzeugt.</value></data>
   <data name="Placeholder_SearchMember" xml:space="preserve"><value>Mitglied suchen</value></data>
+  <data name="Members_Name" xml:space="preserve"><value>Name</value></data>
+  <data name="Members_Status" xml:space="preserve"><value>Mitgliedschaftsstatus</value></data>
+  <data name="Members_ResetFilters" xml:space="preserve"><value>Filter zurücksetzen</value></data>
+  <data name="Members_Count" xml:space="preserve"><value>{0} von {1} Mitgliedern</value></data>
+  <data name="Members_NoMatches" xml:space="preserve"><value>Keine Mitglieder entsprechen diesen Filtern.</value></data>
+  <data name="Members_Close" xml:space="preserve"><value>Schließen</value></data>
 </root>

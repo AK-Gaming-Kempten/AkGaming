@@ -1,51 +1,80 @@
 @page "/member-management/members"
-<PageTitle>@PageText["Page_Members_Title"]</PageTitle>
 @using Microsoft.AspNetCore.Authorization
+@using AkGaming.Management.Frontend.Components.GeneralMeetings
 @attribute [Authorize(Policy = "management.members.read")]
-@inject HttpClient Api
+<PageTitle>@PageText["Page_Members_Title"]</PageTitle>
 
-<div class="two-column-layout mobile-master-detail @(_isMobileDetailOpen ? "mobile-detail-open" : string.Empty)">
-    <div class="two-column-layout-left">
-        <div class="list-buttons">
-            <h4>@SharedText["Heading_ExistingMembers"]</h4>
-            <ActionButton Kind="ActionButtonKind.Filter" OnClick="OpenFilters" Disabled="true" Label="@SharedText["Action_Filter"]" />
-            @if (_canManageMemberDetails)
-            {
-                <ActionButton Kind="ActionButtonKind.Create" Variant="ActionButtonVariant.Primary" OnClick="CreateMember" Label="@SharedText["Action_Create"]" />
-            }
-        </div>
-        <div class="list-main">
-            @if (_members == null)
-            {
-                <p>@SharedText["State_Loading"]</p>
-            }
-            else if (!_members.Any())
-            {
-                <p>@SharedText["State_NoMembers"]</p>
-            }
-            else
-            {
-                <div class="list-scroll-container">
-                    <div class="preview-card-list">
-                        @foreach (var member in _members)
-                        {
-                            <MemberPreviewCard Member="member" IsSelected="member == _selectedMember" OnSelect="SelectMember"/>
-                        }
-                    </div>
-                </div>
-            }
-        </div>
+<div class="members-page">
+    <div class="members-toolbar">
+        <h4>@SharedText["Heading_ExistingMembers"]</h4>
+        <ActionButton Kind="ActionButtonKind.Filter" OnClick="ResetFilters" Label="@SharedText["Members_ResetFilters"]" />
+        @if (_canManageMemberDetails)
+        {
+            <ActionButton Kind="ActionButtonKind.Create" Variant="ActionButtonVariant.Primary" OnClick="CreateMember" Label="@SharedText["Action_Create"]" />
+        }
     </div>
-    <div class="two-column-layout-right">
-        <div class="mobile-detail-nav">
-            <ActionButton Kind="ActionButtonKind.Back" Variant="ActionButtonVariant.Outline" Size="ActionButtonSize.Small" OnClick="ShowListMobile" Label="@SharedText["Action_BackToList"]" />
-        </div>
-        <CascadingValue Value="MemberApi" Name="MemberManagementApi" IsFixed="true">
-            <MemberCard Member="_selectedMember" IsEditable="_canManageMemberDetails" IsStatusEditable="_canManageMemberStatus" OnMemberUpdated="Reload" />
-            @if (_createError != null)
-            {
-                <p class="text-danger">@_createError</p>
-            }
-        </CascadingValue>  
+    <div class="member-filters">
+        <label>@SharedText["Members_Name"]<input type="search" @bind="_nameFilter" @bind:event="oninput" /></label>
+        <label>@SharedText["Field_Email"]<input type="search" @bind="_emailFilter" @bind:event="oninput" /></label>
+        <label>@SharedText["Field_Discord"]<input type="search" @bind="_discordFilter" @bind:event="oninput" /></label>
+        <details class="status-filter">
+            <summary>@SharedText["Members_Status"] (@_statuses.Count)</summary>
+            <fieldset>
+                <legend class="visually-hidden">@SharedText["Members_Status"]</legend>
+                @foreach (var status in AllStatuses)
+                {
+                    <label><input type="checkbox" checked="@_statuses.Contains(status)" @onchange="() => ToggleStatus(status)" /><span>@status.ToLocalizedString(SharedText)</span></label>
+                }
+            </fieldset>
+        </details>
     </div>
+    @if (_createError is not null)
+    {
+        <p class="text-danger" role="alert">@_createError</p>
+    }
+    @if (_members is null)
+    {
+        <p>@SharedText["State_Loading"]</p>
+    }
+    else
+    {
+        var members = FilteredMembers;
+        <p class="member-count">@SharedText["Members_Count", members.Count, _members.Count]</p>
+        <div class="members-table-container">
+            <table class="members-table">
+                <thead><tr>
+                    @foreach (var column in Enum.GetValues<MemberColumn>())
+                    {
+                        <th scope="col" aria-sort="@SortAria(column)"><button type="button" @onclick="() => SortBy(column)">@ColumnLabel(column) <span aria-hidden="true">@SortIndicator(column)</span></button></th>
+                    }
+                </tr></thead>
+                <tbody>
+                    @foreach (var member in members)
+                    {
+                        <tr @key="member.Id" @onclick="() => SelectMember(member)">
+                            <td><button type="button" class="member-name" @onclick="() => SelectMember(member)" @onclick:stopPropagation="true">@DisplayName(member)</button></td>
+                            <td>@member.Email</td>
+                            <td>@member.DiscordUserName</td>
+                            <td>@member.Status.ToLocalizedString(SharedText)</td>
+                        </tr>
+                    }
+                    @if (members.Count == 0)
+                    {
+                        <tr><td colspan="4">@SharedText["Members_NoMatches"]</td></tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
 </div>
+@if (_selectedMember is not null)
+{
+    <GeneralMeetingFormDialog Eyebrow="@PageText["Page_Members_Title"]" Title="@DisplayName(_selectedMember)" OnClose="CloseDetails">
+        <ChildContent>
+            <CascadingValue Value="MemberApi" Name="MemberManagementApi" IsFixed="true">
+                <MemberCard @key="_selectedMember.Id" Member="_selectedMember" IsEditable="_canManageMemberDetails" IsStatusEditable="_canManageMemberStatus" OnMemberUpdated="Reload" />
+            </CascadingValue>
+        </ChildContent>
+        <Footer><ActionButton Kind="ActionButtonKind.Cancel" Variant="ActionButtonVariant.Outline" OnClick="CloseDetails" Label="@SharedText["Members_Close"]" /></Footer>
+    </GeneralMeetingFormDialog>
+}
