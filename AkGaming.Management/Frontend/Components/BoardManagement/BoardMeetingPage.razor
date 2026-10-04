@@ -76,7 +76,7 @@ else
 
 @if (_showAgendaDialog)
 {
-    <GeneralMeetingFormDialog Eyebrow="@Text["Board_Agenda"]"
+    <AppDialog Eyebrow="@Text["Board_Agenda"]"
                               Title="@(_editingAgendaItemId.HasValue ? Text["Board_EditAgendaItem"] : Text["Board_AddAgendaItem"])"
                               Description="@Text["Board_AgendaDialogDescription"]"
                               OnClose="CloseAgendaDialog">
@@ -94,7 +94,7 @@ else
             <button type="button" class="dialog-cancel" disabled="@_busy" @onclick="CloseAgendaDialog">@SharedText["Action_Cancel"]</button>
             <button type="button" class="dialog-primary" disabled="@_busy" @onclick="SaveAgendaAsync">@(_editingAgendaItemId.HasValue ? SharedText["Action_Save"] : Text["Board_AddItem"])</button>
         </Footer>
-    </GeneralMeetingFormDialog>
+    </AppDialog>
 }
 
 @if (_showBacklogDialog)

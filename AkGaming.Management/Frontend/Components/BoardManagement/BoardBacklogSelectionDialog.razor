@@ -1,7 +1,7 @@
 @using AkGaming.Management.Frontend.Components.GeneralMeetings
 @using AkGaming.Management.Modules.BoardManagement.Contracts
 
-<GeneralMeetingFormDialog Eyebrow="Board agenda"
+<AppDialog Eyebrow="Board agenda"
                           Title="Add from backlog"
                           Description="Select one or more backlog items. They will be appended to this meeting in the displayed order."
                           OnClose="OnClose">
@@ -37,4 +37,4 @@
         <button type="button" class="dialog-cancel" disabled="@IsBusy" @onclick="OnClose">@SharedText["Action_Cancel"]</button>
         <button type="button" class="dialog-primary" disabled="@(IsBusy || _selectedIds.Count == 0)" @onclick="SubmitAsync">@Text["Board_AddSelected"]</button>
     </Footer>
-</GeneralMeetingFormDialog>
+</AppDialog>

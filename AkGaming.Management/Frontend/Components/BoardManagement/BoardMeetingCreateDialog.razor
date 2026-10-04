@@ -1,6 +1,6 @@
 @using AkGaming.Management.Frontend.Components.GeneralMeetings
 
-<GeneralMeetingFormDialog Eyebrow="@Text["Board_Management"]"
+<AppDialog Eyebrow="@Text["Board_Management"]"
                           Title="@Text["Board_CreateTitle"]"
                           Description="@Text["Board_CreateDescription"]"
                           OnClose="OnClose">
@@ -75,7 +75,7 @@
         <button type="button" class="dialog-cancel" disabled="@IsBusy" @onclick="OnClose">@SharedText["Action_Cancel"]</button>
         <button type="button" class="dialog-primary" disabled="@IsBusy" @onclick="SubmitAsync">@(IsBusy ? Text["Board_Creating"] : Text["Board_Create"])</button>
     </Footer>
-</GeneralMeetingFormDialog>
+</AppDialog>
 
 @if (_showBacklogSelection)
 {

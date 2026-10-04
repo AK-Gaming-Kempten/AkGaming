@@ -1,4 +1,4 @@
-<GeneralMeetingFormDialog Eyebrow="E-Mail"
+<AppDialog Eyebrow="E-Mail"
                           Title="@(IsReminder ? "Erinnerung versenden" : "Einladung versenden")"
                           Description="Prüfe Inhalt und Empfängerliste, bevor die E-Mails versendet werden."
                           OnClose="CloseAsync">
@@ -59,4 +59,4 @@
             @(_sending ? "Wird versendet …" : $"An {EligibleRecipientCount} Empfänger senden")
         </button>
     </Footer>
-</GeneralMeetingFormDialog>
+</AppDialog>

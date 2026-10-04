@@ -2,7 +2,7 @@
 @using AkGaming.Management.Modules.MemberManagement.Contracts.DTO
 
 <EditForm Model="_request" OnValidSubmit="SubmitAsync">
-    <GeneralMeetingFormDialog Eyebrow="@SharedText["Field_PaymentPeriod"]"
+    <AppDialog Eyebrow="@SharedText["Field_PaymentPeriod"]"
                               Title="@SharedText["Action_CreatePeriod"]"
                               Description="@SharedText["Message_CreatePaymentPeriod"]"
                               OnClose="OnClose">
@@ -41,5 +41,5 @@
                           Disabled="IsBusy"
                           Label="@(IsBusy ? SharedText["State_Saving"] : SharedText["Action_Create"])" />
         </Footer>
-    </GeneralMeetingFormDialog>
+    </AppDialog>
 </EditForm>

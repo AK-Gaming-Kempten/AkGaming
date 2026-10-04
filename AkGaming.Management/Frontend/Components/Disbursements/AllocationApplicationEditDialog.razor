@@ -1,6 +1,6 @@
 @using AkGaming.Management.Frontend.Components.GeneralMeetings
 
-<GeneralMeetingFormDialog Eyebrow="@Text["Allocation_Application"]"
+<AppDialog Eyebrow="@Text["Allocation_Application"]"
                           Title="@Text["Allocation_EditClaim"]"
                           Description="@Text["Allocation_EditClaimHelp"]"
                           OnClose="OnClose">
@@ -45,4 +45,4 @@
         <button type="button" class="dialog-cancel" disabled="@Busy" @onclick="OnClose">@SharedText["Action_Cancel"]</button>
         <button type="button" class="claim-save" disabled="@(Busy || !CanSubmit)" @onclick="SubmitAsync">@Text["Allocation_SaveClaim"]</button>
     </Footer>
-</GeneralMeetingFormDialog>
+</AppDialog>

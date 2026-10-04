@@ -1,6 +1,5 @@
 @page "/member-management/members"
 @using Microsoft.AspNetCore.Authorization
-@using AkGaming.Management.Frontend.Components.GeneralMeetings
 @attribute [Authorize(Policy = "management.members.read")]
 <PageTitle>@PageText["Page_Members_Title"]</PageTitle>
 
@@ -69,12 +68,14 @@
 </div>
 @if (_selectedMember is not null)
 {
-    <GeneralMeetingFormDialog Eyebrow="@PageText["Page_Members_Title"]" Title="@DisplayName(_selectedMember)" OnClose="CloseDetails">
+    <div class="member-details-dialog">
+    <AppDialog Eyebrow="@PageText["Page_Members_Title"]" Title="@DisplayName(_selectedMember)" OnClose="CloseDetails">
         <ChildContent>
             <CascadingValue Value="MemberApi" Name="MemberManagementApi" IsFixed="true">
                 <MemberCard @key="_selectedMember.Id" Member="_selectedMember" IsEditable="_canManageMemberDetails" IsStatusEditable="_canManageMemberStatus" OnMemberUpdated="Reload" />
             </CascadingValue>
         </ChildContent>
         <Footer><ActionButton Kind="ActionButtonKind.Cancel" Variant="ActionButtonVariant.Outline" OnClick="CloseDetails" Label="@SharedText["Members_Close"]" /></Footer>
-    </GeneralMeetingFormDialog>
+    </AppDialog>
+    </div>
 }

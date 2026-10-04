@@ -26,7 +26,7 @@
 
 @if (_showVotingDialog)
 {
-    <GeneralMeetingFormDialog Eyebrow="Secret ballot"
+    <AppDialog Eyebrow="Secret ballot"
                               Title="@Ballot.Question"
                               Description="Your voting right is anonymous and can be used only once. Your selection cannot be changed after submission."
                               OnClose="CloseVotingDialog">
@@ -93,5 +93,5 @@
                 <button type="button" class="dialog-primary" disabled="@(_selected.Count == 0)" @onclick="VoteAsync">@SharedText["Action_SubmitSecretVote"]</button>
             }
         </Footer>
-    </GeneralMeetingFormDialog>
+    </AppDialog>
 }

@@ -1,7 +1,7 @@
 @using AkGaming.Management.Frontend.Components.GeneralMeetings
 @using AkGaming.Management.Modules.BoardManagement.Contracts
 
-<GeneralMeetingFormDialog Eyebrow="Board agenda"
+<AppDialog Eyebrow="Board agenda"
                           Title="Delete agenda item?"
                           Description="This permanently removes the agenda item. The board notification will show it as deleted."
                           OnClose="OnClose">
@@ -22,4 +22,4 @@
         <button type="button" class="dialog-cancel" disabled="@IsBusy" @onclick="OnClose">@SharedText["Action_Cancel"]</button>
         <button type="button" class="delete-action" disabled="@IsBusy" @onclick="OnConfirm">@(IsBusy ? "Deleting…" : "Delete item")</button>
     </Footer>
-</GeneralMeetingFormDialog>
+</AppDialog>

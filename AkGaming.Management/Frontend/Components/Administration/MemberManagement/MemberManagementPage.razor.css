@@ -28,3 +28,24 @@
     .members-table-container { flex: none; }
 }
 @media (max-width: 540px) { .member-filters { grid-template-columns: 1fr; } }
+
+/* The member history can be arbitrarily long; the body owns scrolling. */
+.member-details-dialog ::deep .app-dialog {
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+    max-height: calc(100dvh - 2rem);
+    min-height: 0;
+    overflow: hidden;
+}
+.member-details-dialog ::deep .app-dialog > header,
+.member-details-dialog ::deep .app-dialog > footer { flex: 0 0 auto; }
+.member-details-dialog ::deep .app-dialog-content {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior-y: contain;
+}
+@media (max-width: 600px) {
+    .member-details-dialog ::deep .app-dialog { height: 100dvh; max-height: 100dvh; }
+}

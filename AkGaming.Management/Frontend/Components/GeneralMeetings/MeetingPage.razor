@@ -56,7 +56,7 @@ else
 
 @if (_showAgendaForm)
 {
-    <GeneralMeetingFormDialog Title="@(_editingAgendaItemId.HasValue ? "Edit agenda item" : "Add agenda item")"
+    <AppDialog Title="@(_editingAgendaItemId.HasValue ? "Edit agenda item" : "Add agenda item")"
                               Description="Agenda items may be nested and reordered later. Descriptions support Markdown."
                               OnClose="CloseAgendaDialog">
         <ChildContent>
@@ -75,7 +75,7 @@ else
             <button type="button" class="dialog-cancel" @onclick="CloseAgendaDialog">@SharedText["Action_Cancel"]</button>
             <button type="button" class="dialog-primary" @onclick="CreateAgendaAsync">@(_editingAgendaItemId.HasValue ? "Save changes" : "Add agenda item")</button>
         </Footer>
-    </GeneralMeetingFormDialog>
+    </AppDialog>
 }
 
 @if (_invitationIsReminder.HasValue)
@@ -88,7 +88,7 @@ else
 
 @if (_ballotAgendaItemId.HasValue)
 {
-    <GeneralMeetingFormDialog Eyebrow="Secret ballot"
+    <AppDialog Eyebrow="Secret ballot"
                               Title="@(_editingBallotId.HasValue ? "Edit ballot" : "Add ballot")"
                               Description="Ballots are secret and single-use. The ballot remains editable until it is opened."
                               OnClose="CloseBallotDialog">
@@ -112,6 +112,6 @@ else
             <button type="button" class="dialog-cancel" @onclick="CloseBallotDialog">@SharedText["Action_Cancel"]</button>
             <button type="button" class="dialog-primary" @onclick="CreateBallotAsync">@(_editingBallotId.HasValue ? "Save changes" : "Add ballot")</button>
         </Footer>
-    </GeneralMeetingFormDialog>
+    </AppDialog>
 }
 }
