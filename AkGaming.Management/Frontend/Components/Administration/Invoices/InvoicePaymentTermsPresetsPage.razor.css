@@ -34,8 +34,8 @@
     text-align: left;
     color: var(--color-text-primary);
     background: var(--color-background-secondary);
-    border: 1px solid var(--color-text-secondary);
-    border-radius: 4px;
+    border: 1px solid var(--color-border-subtle);
+    border-radius: var(--radius-panel);
 }
 
 .invoice-payment-preset-entry span {

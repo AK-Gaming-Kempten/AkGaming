@@ -20,7 +20,7 @@
 #components-reconnect-modal::after {
     content: "";
     position: absolute;
-    border-radius: 999px;
+    border-radius: var(--radius-panel);
     filter: blur(72px);
     pointer-events: none;
     opacity: 0;
@@ -66,7 +66,7 @@
     width: min(100%, 34rem);
     position: relative;
     overflow: hidden;
-    border-radius: 22px;
+    border-radius: var(--radius-panel);
     border: 1px solid color-mix(in oklab, var(--color-highlight-primary) 42%, transparent);
     background: var(--color-background-primary);
     color: var(--color-text-primary);
@@ -94,7 +94,7 @@
     width: 3rem;
     height: 3rem;
     flex-shrink: 0;
-    border-radius: 14px;
+    border-radius: var(--radius-panel);
     padding: 0.35rem;
     background: color-mix(in oklab, white 14%, transparent);
 }
@@ -122,7 +122,7 @@
     width: 3rem;
     height: 3rem;
     flex-shrink: 0;
-    border-radius: 999px;
+    border-radius: var(--radius-panel);
     font-size: 1.35rem;
     background: color-mix(in oklab, white 12%, transparent);
     color: var(--color-text-special);
@@ -171,7 +171,7 @@
     gap: 0.45rem;
     margin-top: 1rem;
     padding: 0.95rem 1rem;
-    border-radius: 16px;
+    border-radius: var(--radius-panel);
     border: 1px solid color-mix(in oklab, var(--color-highlight-secondary) 20%, transparent);
     background: color-mix(in oklab, var(--color-background-secondary) 88%, transparent);
     color: var(--color-text-secondary);

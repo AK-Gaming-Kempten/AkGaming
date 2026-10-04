@@ -6,7 +6,7 @@
     padding: .9rem 1rem;
     background: var(--color-background-secondary);
     border: 1px solid color-mix(in srgb, var(--color-text-secondary) 30%, transparent);
-    border-radius: 6px;
+    border-radius: var(--radius-panel);
     transition: opacity .15s ease, border-color .15s ease, transform .15s ease;
 }
 

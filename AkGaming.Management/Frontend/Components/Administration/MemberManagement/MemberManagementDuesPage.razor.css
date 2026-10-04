@@ -70,7 +70,7 @@
     display: inline-block;
     width: fit-content;
     padding: 0.25rem 0.6rem;
-    border-radius: 999px;
+    border-radius: var(--radius-panel);
     font-weight: 600;
 }
 
@@ -186,7 +186,7 @@
 
 .dues-reminder-card {
     padding: 1rem;
-    border-radius: 12px;
+    border-radius: var(--radius-panel);
     border: 1px solid color-mix(in srgb, var(--color-highlight-secondary) 28%, transparent);
     background: color-mix(in srgb, var(--color-background-primary) 96%, transparent);
 }
@@ -206,7 +206,7 @@
     justify-content: space-between;
     gap: 0.85rem;
     padding: 0.85rem 0.95rem;
-    border-radius: 10px;
+    border-radius: var(--radius-panel);
     border: 1px solid color-mix(in srgb, var(--color-highlight-secondary) 22%, transparent);
     background: color-mix(in srgb, var(--color-background-secondary) 45%, var(--color-background-primary) 55%);
 }
@@ -226,7 +226,7 @@
     justify-content: center;
     min-width: 74px;
     padding: 0.28rem 0.6rem;
-    border-radius: 999px;
+    border-radius: var(--radius-panel);
     font-size: 0.8rem;
     font-weight: 700;
     white-space: nowrap;

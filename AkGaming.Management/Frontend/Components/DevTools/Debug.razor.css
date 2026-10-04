@@ -5,7 +5,7 @@
     margin: 0.5rem 0 1.25rem;
     padding: 1rem 1.1rem;
     border: 1px solid color-mix(in oklab, var(--color-red-light) 46%, var(--color-text-secondary));
-    border-radius: 0.9rem;
+    border-radius: var(--radius-panel);
     background: color-mix(in oklab, var(--color-red-light) 10%, var(--color-background-primary));
 }
 
@@ -23,7 +23,7 @@
 
 .claim-card {
     border: 1px solid var(--mud-palette-lines-default, #d7dce3);
-    border-radius: 0.75rem;
+    border-radius: var(--radius-panel);
     background: var(--mud-palette-surface, #fff);
     overflow: hidden;
 }

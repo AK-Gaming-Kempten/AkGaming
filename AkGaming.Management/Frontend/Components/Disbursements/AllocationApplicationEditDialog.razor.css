@@ -13,7 +13,7 @@
 .amount-warning {
     margin: 0;
     padding: .7rem;
-    border-radius: 4px;
+    border-radius: var(--radius-panel);
 }
 
 .claim-dialog-error {
@@ -34,13 +34,13 @@
 .dialog-cancel,
 .claim-save {
     padding: .5rem .8rem;
-    border-radius: 4px;
+    border-radius: var(--radius-panel);
 }
 
 .dialog-cancel {
     color: var(--color-text-primary);
     background: var(--color-background-secondary);
-    border: 1px solid var(--color-text-secondary);
+    border: 1px solid var(--color-border-subtle);
 }
 
 .claim-save {

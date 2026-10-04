@@ -107,7 +107,7 @@
     display: inline-flex;
     align-items: center;
     gap: 0.35rem;
-    border-radius: 999px;
+    border-radius: var(--radius-panel);
     padding: 0.2rem 0.55rem;
     font-size: 0.78rem;
     font-weight: 700;
@@ -181,7 +181,7 @@
 .member-personal-card ::deep input,
 .member-personal-card ::deep select,
 .member-personal-card ::deep textarea {
-    border: 1px solid var(--color-text-secondary);
+    border: 1px solid var(--color-border-subtle);
     background: var(--color-background-secondary);
     color: var(--color-text-secondary);
 }
@@ -281,7 +281,7 @@
     text-align: left;
     background: var(--color-background-secondary);
     color: var(--color-text-secondary);
-    border: 1px solid var(--color-text-secondary);
+    border: 1px solid var(--color-border-subtle);
 }
 
 .member-action-btn:hover {
@@ -346,7 +346,7 @@
 .member-read-grid div {
     padding: 0.15rem 0;
     border: 0;
-    border-radius: 0;
+    border-radius: var(--radius-panel);
     background: transparent;
 }
 

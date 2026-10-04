@@ -1,11 +1,10 @@
 @inject IStringLocalizer<NavigationStrings> Text
 
 <div class="sidebar">
-    <div class="sidebar-header">
-        <img src="images/icons/AKG_Logos/default.png" alt="AKGaming Logo" class="sidebar-logo">
-        <span class="sidebar-title">@Text["App_Name"]</span>
-    </div>
-
+    <a href="/" class="sidebar-brand" @onclick="NotifyNavigation">
+        <img src="images/icons/AKG_Logos/Default.png" alt="AK Gaming" />
+        <span>@Text["App_Name"]</span>
+    </a>
     <div class="sidebar-content">
         <nav class="sidebar-nav">
             <NavLink href="" Match="NavLinkMatch.All" class="nav-item level-1" @onclick="NotifyNavigation">

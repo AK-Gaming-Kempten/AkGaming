@@ -11,7 +11,7 @@
     padding: .85rem;
     background: var(--color-background-secondary);
     border: 1px solid color-mix(in srgb, var(--color-text-secondary) 30%, transparent);
-    border-radius: 6px;
+    border-radius: var(--radius-panel);
     cursor: pointer;
 }
 
@@ -49,13 +49,13 @@
 .dialog-cancel,
 .dialog-primary {
     padding: .55rem .9rem;
-    border-radius: 4px;
+    border-radius: var(--radius-panel);
 }
 
 .dialog-cancel {
     color: var(--color-text-primary);
     background: var(--color-background-secondary);
-    border: 1px solid var(--color-text-secondary);
+    border: 1px solid var(--color-border-subtle);
 }
 
 .dialog-primary {

@@ -26,7 +26,7 @@
     color: var(--color-highlight-primary);
     text-align: center;
     background: color-mix(in srgb, var(--color-highlight-primary) 9%, transparent);
-    border-radius: 4px;
+    border-radius: var(--radius-panel);
     font-size: .85rem;
     font-weight: 700;
 }
@@ -86,7 +86,7 @@
 
 .meeting-status {
     padding: .35rem .7rem;
-    border-radius: 999px;
+    border-radius: var(--radius-panel);
     font-size: .85rem;
     font-weight: 700;
     white-space: nowrap;

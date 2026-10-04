@@ -2,8 +2,8 @@
     margin-bottom: 1rem;
     padding: 1rem;
     background-color: var(--color-background-secondary);
-    border: 1px solid var(--color-text-secondary);
-    border-radius: 4px;
+    border: 1px solid var(--color-border-subtle);
+    border-radius: var(--radius-panel);
 }
 
 .pending-application-card h3 {

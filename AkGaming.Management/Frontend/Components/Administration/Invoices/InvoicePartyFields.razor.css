@@ -23,7 +23,7 @@
     width: 1.85rem;
     height: 1.85rem;
     place-items: center;
-    border-radius: 0.45rem;
+    border-radius: var(--radius-panel);
     color: var(--color-highlight-primary);
     background: color-mix(in srgb, var(--color-highlight-primary) 12%, transparent);
     font-size: 0.95rem;

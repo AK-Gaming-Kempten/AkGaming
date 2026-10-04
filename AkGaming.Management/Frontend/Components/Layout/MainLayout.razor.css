@@ -1,155 +1,36 @@
-.page {
-    display: flex;
-    flex-direction: column;
-    height: 100dvh;
-    min-height: 100dvh;
-    overflow: hidden;
-    background: var(--color-background-primary);
-    color: var(--color-text-primary);
+.page { display: flex; height: 100dvh; overflow: hidden; background: var(--color-background-primary); color: var(--color-text-primary); }
+.layout-shell { display: flex; flex: 1; min-height: 0; min-width: 0; overflow: hidden; }
+.sidebar-drawer { flex: 0 0 auto; z-index: 20; }
+main { flex: 1; min-height: 0; min-width: 0; overflow: hidden; background: var(--color-background-primary); color: var(--color-text-primary); }
+.content { display: flex; flex-direction: column; box-sizing: border-box; height: 100%; width: 100%; padding: clamp(1.25rem, 3vw, 3rem); max-width: 1440px; margin: 0 auto; }
+.content ::deep .page-banner { flex-shrink: 0; }
+.page-body { flex: 1; min-height: 0; min-width: 0; overflow: auto; }
+.content.content-fullbleed { max-width: none; padding: 0; }
+.mobile-menu-toggle { display: none; position: fixed; top: .75rem; right: .75rem; z-index: 1300; align-items: center; justify-content: center; width: 36px; height: 36px; padding: 0; border: 1px solid var(--color-border-subtle); border-radius: var(--radius-control); background: var(--color-background-secondary); color: var(--color-text-primary); font-size: 1.25rem; cursor: pointer; }
+.sidebar-backdrop { display: none; }
+@media (min-width: 901px) {
+    /* Split views fill the space left after the banner, rather than a fraction of the viewport. */
+    .page-body:has(.two-column-layout), .page-body:has(.identity-roles-page), .page-body:has(.identity-users-page) { display: flex; flex-direction: column; overflow: hidden; }
+    .page-body ::deep :is(.request-management-page, .status-forms, .invoice-page, .invoice-presets-page, .invoice-presets-workspace, .preset-tab-content, .invoice-payment-presets-page, .preset-panel) { display: flex; flex-direction: column; flex: 1; min-height: 0; }
+    .page-body ::deep :is(.tabs, .panel:not(.two-column-layout-left), .list-buttons, .invoice-page-toolbar) { flex-shrink: 0; }
+    .page-body ::deep .two-column-layout { flex: 1; height: auto; min-height: 0; overflow: hidden; align-items: stretch; }
+    .page-body ::deep :is(.two-column-layout-left, .two-column-layout-right) { min-height: 0; min-width: 0; max-height: none; overflow-y: auto; overscroll-behavior-y: contain; }
+    .page-body ::deep .two-column-layout-left:has(.list-scroll-container) { overflow: hidden; }
+    .page-body ::deep :is(.list-main, .list-scroll-container) { min-height: 0; }
+    .page-body ::deep .list-scroll-container { overscroll-behavior-y: contain; }
+    .page-body ::deep :is(.identity-roles-page, .identity-users-page) { flex: 1; height: auto; min-height: 0; overflow: hidden; align-items: stretch; }
+    .page-body ::deep :is(.roles-list-pane, .role-editor-pane, .users-list-pane, .user-detail-pane) { min-height: 0; overflow-y: auto; overscroll-behavior-y: contain; }
 }
-
-.layout-shell {
-    display: flex;
-    flex: 1;
-    height: 100%;
-    min-height: 0;
-    overflow: hidden;
-}
-
-.sidebar-drawer {
-    flex: 0 0 auto;
-    z-index: 20;
-}
-
-main {
-    flex: 1;
-    height: 100%;
-    min-height: 0;
-    min-width: 0;
-    overflow-y: auto;
-    background: var(--color-background-primary);
-    color: var(--color-text-primary);
-}
-
-.content {
-    padding: 2rem;
-    max-width: 1400px;
-    margin: 0 auto;
-}
-
-.content.content-fullbleed {
-    max-width: none;
-    width: 100%;
-    padding: 0;
-    margin: 0;
-}
-
-.mobile-header {
-    display: none;
-    position: sticky;
-    top: 0;
-    z-index: 1300;
-    height: 3.5rem;
-    padding: 0 0.75rem;
-    background: var(--color-background-special);
-    border-bottom: 1px solid color-mix(in oklab, var(--color-text-secondary) 55%, transparent);
-    color: var(--color-text-special);
-    box-sizing: border-box;
-    align-items: center;
-    gap: 0.75rem;
-}
-
-.mobile-menu-toggle {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 2.25rem;
-    height: 2.25rem;
-    border: 1px solid color-mix(in oklab, var(--color-text-secondary) 55%, transparent);
-    border-radius: 4px;
-    background: transparent;
-    color: var(--color-text-special);
-    font-size: 1.25rem;
-    line-height: 1;
-    padding: 0;
-    cursor: pointer;
-}
-
-.mobile-header-brand {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-weight: 700;
-}
-
-.mobile-header-logo {
-    width: 1.9rem;
-    height: 1.9rem;
-}
-
-.sidebar-backdrop {
-    display: none;
-}
-
 @media (max-width: 900px) {
-    .page {
-        height: auto;
-        min-height: 100dvh;
-        overflow: visible;
-    }
-
-    .mobile-header {
-        display: flex;
-    }
-
-    .layout-shell {
-        display: block;
-        flex: 0 1 auto;
-        height: auto;
-        overflow: visible;
-    }
-
-    .sidebar-drawer {
-        position: fixed;
-        inset: 3.5rem auto 0 0;
-        height: calc(100dvh - 3.5rem);
-        width: min(84vw, 320px);
-        transform: translateX(-100%);
-        transition: transform 0.22s ease;
-        z-index: 1250;
-    }
-
-    .sidebar-drawer.is-open {
-        transform: translateX(0);
-    }
-
-    .sidebar-drawer ::deep .sidebar {
-        width: 100%;
-        min-height: 100%;
-        box-shadow: 0 10px 28px color-mix(in oklab, black 38%, transparent);
-    }
-
-    .sidebar-backdrop {
-        display: block;
-        position: fixed;
-        inset: 3.5rem 0 0 0;
-        border: 0;
-        padding: 0;
-        background: color-mix(in oklab, black 38%, transparent);
-        z-index: 1200;
-        cursor: pointer;
-    }
-
-    main {
-        min-height: 0;
-        overflow-y: visible;
-    }
-
-    .content {
-        padding: 1rem;
-    }
-
-    .content.content-fullbleed {
-        padding: 0;
-    }
+    .page { height: auto; min-height: 100dvh; overflow: visible; }
+    .mobile-menu-toggle { display: inline-flex; }
+    .layout-shell { display: block; overflow: visible; }
+    .sidebar-drawer { position: fixed; inset: 0 auto 0 0; height: 100dvh; width: min(84vw, 320px); transform: translateX(-100%); transition: transform .22s ease; z-index: 1250; }
+    .sidebar-drawer.is-open { transform: translateX(0); }
+    .sidebar-drawer ::deep .sidebar { width: 100%; height: 100%; }
+    .sidebar-backdrop { display: block; position: fixed; inset: 0; border: 0; padding: 0; background: color-mix(in srgb, black 38%, transparent); z-index: 1200; cursor: pointer; }
+    main { overflow: visible; }
+    .content { height: auto; padding: 1.25rem; }
+    .page-body { overflow: visible; }
+    .content.content-fullbleed { padding: 0; }
 }

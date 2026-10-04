@@ -6,7 +6,7 @@
     min-width: 2.5rem;
     height: 2.5rem;
     padding: 0;
-    border-radius: 0.5rem;
+    border-radius: var(--radius-panel);
     line-height: 1;
 }
 

@@ -1,5 +1,5 @@
 html, body {
-    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
 }
 
 .content {
@@ -32,10 +32,20 @@ html, body {
 .preset-layout { display: grid; grid-template-columns: minmax(240px, 340px) minmax(0, 1fr); gap: 1rem; align-items: start; min-height: clamp(30rem, 72dvh, 56rem); }
 .preset-list-pane { display: flex; flex-direction: column; max-height: clamp(30rem, 72dvh, 56rem); }
 .preset-list { display: grid; gap: .5rem; }
-.preset-entry { display: grid; gap: .25rem; width: 100%; padding: .7rem; text-align: left; color: var(--color-text-primary); background: var(--color-background-secondary); border: 1px solid var(--color-text-secondary); border-radius: 4px; }
+.preset-entry { display: grid; gap: .25rem; width: 100%; padding: .7rem; text-align: left; color: var(--color-text-primary); background: var(--color-background-secondary); border: 1px solid var(--color-text-secondary); border-radius: var(--radius-control); }
 .preset-entry span { color: var(--color-text-secondary); }
 .preset-entry.active, .preset-entry:hover { border-color: var(--color-highlight-primary); }
 @media (max-width: 900px) {
     .preset-layout { display: block; grid-template-columns: minmax(0, 1fr); }
     .preset-list-pane, .preset-detail-pane { width: 100%; max-height: none; }
 }
+
+/* Shared brand foundations, scaled for information-dense application pages. */
+h1, h2, h3, h4 { font-family: var(--font-heading); letter-spacing: -.025em; font-weight: 750; }
+h1 { font-size: clamp(1.7rem, 3vw, 2.5rem); line-height: 1.2; }
+p { line-height: 1.6; }
+a { color: var(--color-link); }
+:where(a, button, input, select, textarea, summary):focus-visible { outline: 2px solid var(--color-link); outline-offset: 3px; }
+.card, .panel { border-color: var(--color-border-subtle); background: var(--color-background-secondary); box-shadow: none; }
+.table-wrapper { border-color: var(--color-border-subtle); }
+.audit-table th, .audit-table td { border-bottom-color: var(--color-border-subtle); }

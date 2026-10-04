@@ -18,7 +18,7 @@
     display: inline-block;
     width: fit-content;
     padding: 0.2rem 0.55rem;
-    border-radius: 999px;
+    border-radius: var(--radius-panel);
 }
 
 .due-entry-reminder {
@@ -26,7 +26,7 @@
     display: inline-block;
     width: fit-content;
     padding: 0.2rem 0.55rem;
-    border-radius: 999px;
+    border-radius: var(--radius-panel);
 }
 
 .due-status-open {
@@ -96,8 +96,8 @@
 .due-email-preview-value {
     margin-top: 0.2rem;
     padding: 0.65rem 0.75rem;
-    border-radius: 8px;
-    border: 1px solid var(--color-text-secondary);
+    border-radius: var(--radius-panel);
+    border: 1px solid var(--color-border-subtle);
     background: var(--color-background-primary);
     word-break: break-word;
 }
@@ -121,8 +121,8 @@
 
 .due-email-preview-render {
     padding: 0.75rem;
-    border-radius: 10px;
-    border: 1px solid var(--color-text-secondary);
+    border-radius: var(--radius-panel);
+    border: 1px solid var(--color-border-subtle);
     background: #f5f8f6;
     overflow: auto;
 }
@@ -151,7 +151,7 @@
     background: color-mix(in srgb, var(--color-background-secondary) 88%, var(--color-highlight-secondary) 12%);
     color: var(--color-text-primary);
 
-    border-radius: 7px;
+    border-radius: var(--radius-panel);
     font-weight: 700;
     line-height: 1;
 }
@@ -171,7 +171,7 @@
     min-width: 210px;
     padding: 0.35rem;
     border: 1px solid color-mix(in srgb, var(--color-text-secondary) 35%, transparent);
-    border-radius: 10px;
+    border-radius: var(--radius-panel);
     background: var(--color-background-secondary);
     box-shadow: 0 14px 28px color-mix(in srgb, black 35%, transparent);
 }
@@ -181,7 +181,7 @@
     display: block;
     padding: 0.45rem 0.65rem;
     border: 0;
-    border-radius: 7px;
+    border-radius: var(--radius-panel);
     background: transparent;
     color: var(--color-text-primary);
     text-align: left;

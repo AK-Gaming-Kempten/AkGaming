@@ -1,8 +1,8 @@
 .user-box {
-    --user-box-bg: var(--color-background-special);
-    --user-box-border: rgba(255, 255, 255, 0.1);
-    --user-text: var(--color-highlight-primary);
-    --user-name: var(--color-text-special);
+    --user-box-bg: var(--color-chrome-background, var(--color-background-special));
+    --user-box-border: var(--color-chrome-border, rgba(255, 255, 255, 0.1));
+    --user-text: var(--color-chrome-muted, var(--color-highlight-primary));
+    --user-name: var(--color-chrome-text, var(--color-text-special));
 
     display: flex;
     justify-content: space-between;

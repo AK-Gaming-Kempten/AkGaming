@@ -10,7 +10,7 @@
 
 .error-card {
     overflow: hidden;
-    border-radius: 22px;
+    border-radius: var(--radius-panel);
     border: 1px solid color-mix(in oklab, var(--color-red-light) 55%, var(--color-highlight-primary));
     background: var(--color-background-primary);
     color: var(--color-text-primary);
@@ -43,7 +43,7 @@
     width: 2.9rem;
     height: 2.9rem;
     flex-shrink: 0;
-    border-radius: 999px;
+    border-radius: var(--radius-panel);
     background: color-mix(in oklab, var(--color-red-light) 26%, white 12%);
     color: #fff5f5;
     font-size: 1.25rem;
@@ -73,7 +73,7 @@
     height: 2.2rem;
     flex-shrink: 0;
     border: 1px solid color-mix(in oklab, white 22%, transparent);
-    border-radius: 999px;
+    border-radius: var(--radius-panel);
     background: color-mix(in oklab, white 12%, transparent);
     color: var(--color-text-special);
     cursor: pointer;

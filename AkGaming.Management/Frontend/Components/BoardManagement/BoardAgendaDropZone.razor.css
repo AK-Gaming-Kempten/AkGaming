@@ -14,7 +14,7 @@
     right: .35rem;
     left: .35rem;
     height: 3px;
-    border-radius: 999px;
+    border-radius: var(--radius-panel);
     background: var(--color-highlight-primary);
     opacity: 0;
     pointer-events: none;

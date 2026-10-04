@@ -6,7 +6,7 @@
     overflow: hidden;
     width: min(calc(100vw - 2rem), 32rem);
     border: 1px solid color-mix(in oklab, var(--toast-accent) 55%, var(--color-highlight-primary));
-    border-radius: 22px;
+    border-radius: var(--radius-panel);
     background: var(--color-background-primary);
     color: var(--color-text-primary);
     box-shadow: 0 26px 56px color-mix(in oklab, black 32%, transparent);
@@ -41,7 +41,7 @@
     width: 2.7rem;
     height: 2.7rem;
     flex-shrink: 0;
-    border-radius: 999px;
+    border-radius: var(--radius-panel);
     background: color-mix(in oklab, var(--toast-accent) 28%, white 10%);
     color: white;
     font-size: 1.15rem;
@@ -72,7 +72,7 @@
     flex-shrink: 0;
     padding: 0;
     border: 1px solid color-mix(in oklab, white 22%, transparent);
-    border-radius: 999px;
+    border-radius: var(--radius-panel);
     background: color-mix(in oklab, white 12%, transparent);
     color: var(--color-text-special);
     cursor: pointer;

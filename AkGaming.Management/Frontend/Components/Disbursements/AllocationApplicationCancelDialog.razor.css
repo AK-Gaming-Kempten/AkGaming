@@ -12,19 +12,19 @@
     padding: .7rem;
     color: var(--color-error, #d9534f);
     border: 1px solid currentColor;
-    border-radius: 4px;
+    border-radius: var(--radius-panel);
 }
 
 .dialog-cancel,
 .claim-cancel {
     padding: .5rem .8rem;
-    border-radius: 4px;
+    border-radius: var(--radius-panel);
 }
 
 .dialog-cancel {
     color: var(--color-text-primary);
     background: var(--color-background-secondary);
-    border: 1px solid var(--color-text-secondary);
+    border: 1px solid var(--color-border-subtle);
 }
 
 .claim-cancel {

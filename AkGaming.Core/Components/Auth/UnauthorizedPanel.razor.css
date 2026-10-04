@@ -33,7 +33,7 @@
 
 .unauthorized-button {
     padding: 0.65rem 1.5rem;
-    border-radius: 0.9rem;
+    border-radius: var(--radius-panel);
     font-size: 1rem;
     border: none;
     cursor: pointer;

@@ -10,7 +10,7 @@
     gap: 1rem;
     padding: 0.85rem 1rem;
     border: 1px solid var(--ak-border-color);
-    border-radius: 0.65rem;
+    border-radius: var(--radius-panel);
 }
 
 .request-status-entry > div {
@@ -20,7 +20,7 @@
 
 .request-status {
     padding: 0.25rem 0.65rem;
-    border-radius: 999px;
+    border-radius: var(--radius-panel);
     font-size: 0.85rem;
     font-weight: 600;
 }

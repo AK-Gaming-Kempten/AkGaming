@@ -23,7 +23,7 @@
 
 .identity-scope-entry-chip {
     padding: 0.25rem 0.6rem;
-    border-radius: 999px;
+    border-radius: var(--radius-panel);
     background: color-mix(in srgb, var(--color-highlight-secondary) 10%, transparent);
     color: var(--color-text-secondary);
     font-size: 0.85rem;

@@ -1,10 +1,10 @@
 .language-switcher-box {
     display: flex;
     align-items: center;
-    background-color: var(--color-background-special);
+    background-color: var(--color-chrome-background, var(--color-background-special));
     min-height: 44px;
     padding: 0 0.75rem;
-    color: var(--color-text-special);
+    color: var(--color-chrome-text, var(--color-text-special));
     box-sizing: border-box;
 }
 
@@ -16,9 +16,9 @@
     width: 100%;
     padding: 0.2rem;
     overflow: hidden;
-    border: 1px solid color-mix(in oklab, var(--color-text-special) 26%, transparent);
-    border-radius: 0.55rem;
-    background: color-mix(in oklab, var(--color-background-special) 85%, var(--color-text-special) 15%);
+    border: 1px solid color-mix(in oklab, var(--color-chrome-text, var(--color-text-special)) 26%, transparent);
+    border-radius: var(--radius-panel);
+    background: color-mix(in oklab, var(--color-chrome-background, var(--color-background-special)) 85%, var(--color-chrome-text, var(--color-text-special)) 15%);
 }
 
 .language-switcher-thumb {
@@ -28,7 +28,7 @@
     bottom: 0.2rem;
     left: 0.2rem;
     width: calc((100% - 0.4rem) / 2);
-    border-radius: 0.35rem;
+    border-radius: var(--radius-panel);
     background: var(--color-highlight-secondary);
     box-shadow: 0 1px 3px color-mix(in oklab, var(--color-black) 35%, transparent);
     transition: transform 180ms ease;
@@ -49,9 +49,9 @@
     margin: 0;
     padding: 0.3rem 0.45rem;
     border: 0;
-    border-radius: 0.35rem;
+    border-radius: var(--radius-panel);
     background: transparent;
-    color: var(--color-text-special-secondary);
+    color: var(--color-chrome-muted, var(--color-text-special-secondary));
     cursor: pointer;
     font-size: 0.75rem;
     font-weight: 700;
@@ -59,10 +59,14 @@
 
 .language-switcher-control button[aria-checked="true"],
 .language-switcher-control button:hover {
-    color: var(--color-text-special);
+    color: var(--color-chrome-text, var(--color-text-special));
 }
 
 .language-switcher-control button:focus-visible {
     outline: 2px solid var(--color-highlight-primary);
     outline-offset: -2px;
+}
+
+[class$="switcher-control"] button[aria-checked="true"] {
+    color: var(--color-button-primary-text);
 }

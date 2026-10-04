@@ -41,7 +41,7 @@
     padding: 1rem;
     background: var(--color-background-secondary);
     border: 1px solid color-mix(in srgb, var(--color-text-secondary) 30%, transparent);
-    border-radius: 6px;
+    border-radius: var(--radius-panel);
 }
 
 .backlog-create-form label {
@@ -58,7 +58,7 @@
     color: var(--color-text-primary);
     background: var(--color-background-primary);
     border: 1px solid color-mix(in srgb, var(--color-text-secondary) 55%, transparent);
-    border-radius: 4px;
+    border-radius: var(--radius-panel);
 }
 
 .backlog-create-form textarea {

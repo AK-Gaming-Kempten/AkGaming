@@ -6,7 +6,7 @@
     padding: .9rem;
     background: var(--color-background-secondary);
     border: 1px solid color-mix(in srgb, var(--color-text-secondary) 30%, transparent);
-    border-radius: 6px;
+    border-radius: var(--radius-panel);
     transition: border-color .15s ease, opacity .15s ease, transform .15s ease;
 }
 
@@ -57,7 +57,7 @@
     padding: .2rem .5rem;
     color: var(--color-text-secondary);
     background: color-mix(in srgb, var(--color-text-secondary) 12%, transparent);
-    border-radius: 999px;
+    border-radius: var(--radius-panel);
     font-size: .75rem;
     font-weight: 700;
 }
