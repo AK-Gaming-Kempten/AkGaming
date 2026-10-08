@@ -29,11 +29,6 @@ public sealed class DiscordRestNotificationTransport(IHttpClientFactory httpClie
         var channelId = string.IsNullOrWhiteSpace(message.ChannelId) ? _options.AdministrationChannelId : message.ChannelId;
         var payload = BuildPayload(null, [], message, null);
         var result = await SendAsync(HttpMethod.Patch, $"channels/{channelId}/messages/{externalMessageId}", payload, cancellationToken);
-        if (result.Response.StatusCode == HttpStatusCode.NotFound)
-        {
-            return await SendMessageAsync($"channels/{channelId}/messages", null, [], message,
-                cancellationToken);
-        }
         if (!result.Response.IsSuccessStatusCode)
         {
             return ToFailure(result.Response.StatusCode, result.Body);

@@ -32,9 +32,10 @@ public sealed class AllocationClaimDecisionTests
             _notificationOutbox.Object);
     }
 
-    [Test]
-    [Description("Records a linked Discord user's first allocation approval and queues a refreshed claim snapshot.")]
-    public async Task DecideFromDiscord_WhenFirstDecision_StoresDecisionAndQueuesSnapshot()
+    [TestCase(true)]
+    [TestCase(false)]
+    [Description("Records a linked Discord user's allocation decision and queues a snapshot to refresh the existing claim message.")]
+    public async Task DecideFromDiscord_WhenFirstDecision_StoresDecisionAndQueuesSnapshot(bool isApproved)
     {
         // Arrange
         var application = CreateApplication();
@@ -43,7 +44,7 @@ public sealed class AllocationClaimDecisionTests
         {
             UserId = userId,
             ApproverName = "  Teammate  ",
-            IsApproved = true
+            IsApproved = isApproved
         };
         _repository.Setup(repository => repository.GetApplicationAsync(application.Id, It.IsAny<CancellationToken>()))
             .ReturnsAsync(application);
@@ -61,7 +62,7 @@ public sealed class AllocationClaimDecisionTests
         {
             Assert.That(application.Approvals.Single().ApproverUserId, Is.EqualTo(userId));
             Assert.That(application.Approvals.Single().ApproverName, Is.EqualTo("Teammate"));
-            Assert.That(application.Approvals.Single().IsApproved, Is.True);
+            Assert.That(application.Approvals.Single().IsApproved, Is.EqualTo(isApproved));
         });
         _notificationOutbox.Verify(outbox => outbox.EnqueueAllocationClaimChanged(application), Times.Once);
         _repository.Verify(repository => repository.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
