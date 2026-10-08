@@ -7,7 +7,7 @@
 .tournament-info-field {
     padding: 1rem;
     border: 1px solid color-mix(in oklab, var(--color-text-secondary) 18%, transparent);
-    border-radius: 8px;
+    border-radius: var(--radius-panel);
     background: color-mix(in oklab, var(--color-background-secondary) 72%, transparent);
 }
 

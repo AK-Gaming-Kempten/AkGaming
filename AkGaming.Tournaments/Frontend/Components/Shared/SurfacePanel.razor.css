@@ -1,9 +1,9 @@
 .surface-panel {
     padding: 1rem;
-    border-radius: 1.2rem;
+    border-radius: var(--radius-panel);
     border: 1px solid color-mix(in oklab, var(--color-text-secondary) 22%, transparent);
-    background: linear-gradient(180deg, color-mix(in oklab, var(--color-background-secondary) 82%, transparent), color-mix(in oklab, var(--color-background-primary) 94%, transparent));
-    box-shadow: 0 20px 42px color-mix(in oklab, black 14%, transparent);
+    background: var(--color-background-secondary);
+    box-shadow: none;
 }
 
 .surface-panel-header {

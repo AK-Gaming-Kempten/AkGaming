@@ -15,14 +15,14 @@
 }
 
 .tournament-context-name {
-    color: var(--color-text-special);
+    color: var(--color-text-primary);
     font-size: 1rem;
     font-weight: 700;
     line-height: 1.2;
 }
 
 .tournament-context-subline {
-    color: var(--color-text-special-secondary);
+    color: var(--color-text-secondary);
     font-size: 0.82rem;
     font-weight: 600;
     letter-spacing: 0.04em;
@@ -34,9 +34,9 @@
     min-width: 0;
     border: 0;
     border-bottom: 1px solid color-mix(in oklab, var(--color-text-secondary) 32%, transparent);
-    border-radius: 0;
+    border-radius: var(--radius-panel);
     background: transparent;
-    color: var(--color-text-special);
+    color: var(--color-text-primary);
     padding: 0.45rem 0.2rem 0.55rem;
     font-weight: 600;
     box-shadow: none;

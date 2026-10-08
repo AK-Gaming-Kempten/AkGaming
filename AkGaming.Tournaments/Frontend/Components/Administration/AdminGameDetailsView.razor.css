@@ -38,7 +38,7 @@
     min-height: 2.6rem;
     padding: 0.65rem 0.9rem;
     border: 1px solid color-mix(in oklab, #ef4444 62%, transparent);
-    border-radius: 8px;
+    border-radius: var(--radius-panel);
     background: color-mix(in oklab, #ef4444 18%, transparent);
     color: var(--color-text-primary);
     cursor: pointer;

@@ -17,7 +17,7 @@
     max-height: min(92vh, 58rem);
     overflow: hidden;
     border: 1px solid color-mix(in oklab, var(--color-highlight-primary) 36%, transparent);
-    border-radius: 8px;
+    border-radius: var(--radius-panel);
     background: var(--color-background-primary);
     color: var(--color-text-primary);
     box-shadow: 0 26px 60px color-mix(in oklab, black 36%, transparent);
@@ -30,12 +30,12 @@
     justify-content: space-between;
     gap: 1rem;
     padding: 1rem;
-    background: color-mix(in oklab, var(--color-background-special) 92%, black 8%);
+    background: var(--color-background-secondary);
 }
 
 .registration-dialog-header h2 {
     margin: 0;
-    color: var(--color-text-special);
+    color: var(--color-text-primary);
 }
 
 .icon-button {
@@ -44,10 +44,10 @@
     justify-content: center;
     width: 2.5rem;
     height: 2.5rem;
-    border: 1px solid color-mix(in oklab, white 22%, transparent);
-    border-radius: 999px;
-    background: color-mix(in oklab, white 10%, transparent);
-    color: var(--color-text-special);
+    border: 1px solid var(--color-border-subtle);
+    border-radius: var(--radius-panel);
+    background: transparent;
+    color: var(--color-text-primary);
     cursor: pointer;
 }
 
@@ -70,7 +70,7 @@
     align-items: center;
     padding: 0.75rem;
     border: 1px solid color-mix(in oklab, var(--color-highlight-primary) 34%, transparent);
-    border-radius: 8px;
+    border-radius: var(--radius-panel);
     background: color-mix(in oklab, var(--color-highlight-primary) 14%, transparent);
 }
 

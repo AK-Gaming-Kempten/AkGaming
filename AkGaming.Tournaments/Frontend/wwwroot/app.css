@@ -1,6 +1,6 @@
 html,
 body {
-    font-family: "Segoe UI", sans-serif;
+    font-family: var(--font-heading);
 }
 
 body {
@@ -24,10 +24,7 @@ body {
     overflow: hidden;
     padding: clamp(2rem, 5vw, 4rem);
     border-bottom: 1px solid color-mix(in oklab, var(--color-text-secondary) 28%, transparent);
-    background:
-        radial-gradient(circle at top left, color-mix(in oklab, var(--color-highlight-primary) 28%, transparent), transparent 35%),
-        radial-gradient(circle at 85% 20%, color-mix(in oklab, var(--color-highlight-secondary) 34%, transparent), transparent 32%),
-        linear-gradient(155deg, color-mix(in oklab, var(--color-background-special) 96%, black 4%), var(--color-background-primary));
+    background: var(--background-brand-gradient);
 }
 
 .hero-section::after {
@@ -35,7 +32,7 @@ body {
     position: absolute;
     inset: auto -10% -25% 45%;
     height: 16rem;
-    border-radius: 999px;
+    border-radius: var(--radius-panel);
     background: color-mix(in oklab, var(--color-highlight-primary) 18%, transparent);
     filter: blur(42px);
     pointer-events: none;
@@ -63,7 +60,7 @@ body {
     gap: 0.45rem;
     width: fit-content;
     padding: 0.35rem 0.75rem;
-    border-radius: 999px;
+    border-radius: var(--radius-panel);
     background: color-mix(in oklab, var(--color-highlight-secondary) 34%, transparent);
     color: var(--color-text-special);
     font-size: 0.78rem;
@@ -145,7 +142,7 @@ body {
     align-items: center;
     gap: 0.35rem;
     padding: 0.35rem 0.7rem;
-    border-radius: 999px;
+    border-radius: var(--radius-panel);
     border: 1px solid color-mix(in oklab, var(--color-text-secondary) 24%, transparent);
     background: color-mix(in oklab, var(--color-background-secondary) 65%, transparent);
     color: var(--color-text-primary);
@@ -175,7 +172,7 @@ body {
     gap: 0.55rem;
     min-height: 2.7rem;
     padding: 0.7rem 1rem;
-    border-radius: 0.9rem;
+    border-radius: var(--radius-panel);
     font-weight: 700;
     text-decoration: none;
     transition: transform 0.16s ease, border-color 0.16s ease, background 0.16s ease;
@@ -209,7 +206,7 @@ body {
     align-items: center;
     gap: 0.45rem;
     padding: 0.35rem 0.65rem;
-    border-radius: 999px;
+    border-radius: var(--radius-panel);
     background: color-mix(in oklab, var(--color-background-secondary) 72%, transparent);
     color: var(--color-text-secondary);
     font-size: 0.8rem;
@@ -237,4 +234,20 @@ a {
     .hero-title {
         font-size: clamp(2.05rem, 11vw, 3rem);
     }
+}
+
+/* Shared brand foundations for public and administrative tournament views. */
+h1, h2, h3, h4 { font-family: var(--font-heading); font-weight: 750; letter-spacing: -.025em; }
+p { line-height: 1.6; }
+a { color: var(--color-link); }
+.hero-title { color: var(--color-text-special); font-weight: 900; letter-spacing: -.055em; line-height: 1.05; }
+.hero-text { color: var(--color-text-special-secondary); }
+.hero-section .eyebrow { padding: 0; background: transparent; color: var(--color-light-green); }
+.hero-section .ghost-button { color: var(--color-text-special); border-color: var(--color-text-special-secondary); background: transparent; }
+.solid-button { background: var(--color-button-primary-bg); color: var(--color-button-primary-text); }
+.solid-button:hover { background: var(--color-button-primary-hover-bg); }
+.card, .panel { border-color: var(--color-border-subtle); border-radius: var(--radius-panel); box-shadow: none; }
+:where(a, button, input, select, textarea, summary):focus-visible { outline: 2px solid var(--color-link); outline-offset: 3px; }
+@media (max-width: 540px) {
+  .stats-grid, .surface-grid, .home-tournament-grid { grid-template-columns: minmax(0, 1fr); }
 }

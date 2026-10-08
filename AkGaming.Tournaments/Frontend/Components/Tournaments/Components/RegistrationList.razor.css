@@ -10,7 +10,7 @@
     gap: 1rem;
     padding: 0.85rem;
     border: 1px solid var(--akg-border-subtle, rgba(255, 255, 255, 0.12));
-    border-radius: 8px;
+    border-radius: var(--radius-panel);
     background: var(--akg-surface-muted, rgba(255, 255, 255, 0.04));
 }
 

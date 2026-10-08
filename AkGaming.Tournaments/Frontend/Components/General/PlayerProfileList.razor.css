@@ -19,7 +19,7 @@
     gap: 0.75rem;
     padding: 0.8rem;
     border: 1px solid var(--akg-border-subtle, rgba(255, 255, 255, 0.12));
-    border-radius: 8px;
+    border-radius: var(--radius-panel);
     background: var(--akg-surface-muted, rgba(255, 255, 255, 0.04));
 }
 
@@ -65,7 +65,7 @@
     width: 2rem;
     height: 2rem;
     border: 1px solid color-mix(in oklab, var(--color-text-secondary) 22%, transparent);
-    border-radius: 999px;
+    border-radius: var(--radius-panel);
     background: transparent;
     color: var(--color-text-primary);
     cursor: pointer;
@@ -80,7 +80,7 @@
     min-width: 8rem;
     padding: 0.35rem;
     border: 1px solid color-mix(in oklab, var(--color-text-secondary) 24%, transparent);
-    border-radius: 8px;
+    border-radius: var(--radius-panel);
     background: var(--color-background-primary);
     box-shadow: 0 14px 28px color-mix(in oklab, black 24%, transparent);
 }
@@ -88,7 +88,7 @@
 .profile-menu-popover button {
     padding: 0.55rem 0.65rem;
     border: 0;
-    border-radius: 6px;
+    border-radius: var(--radius-panel);
     background: transparent;
     color: var(--color-text-primary);
     text-align: left;

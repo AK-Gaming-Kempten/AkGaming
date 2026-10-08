@@ -6,7 +6,7 @@
     gap: 0.75rem;
     padding: 0.8rem;
     border: 1px solid color-mix(in oklab, var(--color-highlight-primary) 24%, transparent);
-    border-radius: 8px;
+    border-radius: var(--radius-panel);
     background: color-mix(in oklab, var(--color-background-secondary) 76%, transparent);
 }
 
@@ -48,7 +48,7 @@
     width: 2.2rem;
     height: 2.2rem;
     border: 1px solid color-mix(in oklab, var(--color-text-secondary) 24%, transparent);
-    border-radius: 999px;
+    border-radius: var(--radius-panel);
     background: color-mix(in oklab, var(--color-background-primary) 85%, transparent);
     color: var(--color-text-primary);
     cursor: pointer;
@@ -61,14 +61,14 @@
     z-index: 40;
     padding: 0.35rem;
     border: 1px solid color-mix(in oklab, var(--color-text-secondary) 24%, transparent);
-    border-radius: 8px;
+    border-radius: var(--radius-panel);
     background: var(--color-background-primary);
 }
 
 .invite-item-menu-popover button {
     padding: 0.55rem 0.7rem;
     border: 0;
-    border-radius: 6px;
+    border-radius: var(--radius-panel);
     background: transparent;
     color: var(--color-text-primary);
     cursor: pointer;

@@ -12,7 +12,7 @@
     margin-bottom: 1rem;
     padding: 0.75rem 1rem;
     border: 1px solid color-mix(in oklab, #2f9e44 38%, transparent);
-    border-radius: 8px;
+    border-radius: var(--radius-panel);
     background: color-mix(in oklab, #2f9e44 16%, var(--color-background-secondary));
     color: var(--color-text-primary);
 }

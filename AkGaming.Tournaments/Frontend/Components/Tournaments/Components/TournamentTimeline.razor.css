@@ -36,7 +36,7 @@
     width: 1rem;
     height: 1rem;
     margin-top: 0.2rem;
-    border-radius: 999px;
+    border-radius: var(--radius-panel);
     background: var(--color-highlight-secondary);
     box-shadow: 0 0 0 4px color-mix(in oklab, var(--color-highlight-secondary) 20%, transparent);
 }

@@ -12,10 +12,10 @@
     max-width: 100%;
     padding: 0.75rem 1rem;
     border: 1px solid color-mix(in oklab, #2f9e44 38%, transparent);
-    border-radius: 8px;
+    border-radius: var(--radius-panel);
     background: color-mix(in oklab, #2f9e44 16%, var(--color-background-secondary));
     color: var(--color-text-primary);
-    box-shadow: 0 10px 22px color-mix(in oklab, black 10%, transparent);
+    box-shadow: none;
 }
 
 .admin-settings-toast .bi {
@@ -30,9 +30,9 @@
     max-width: 100%;
     padding: 0.3rem;
     border: 1px solid color-mix(in oklab, var(--color-highlight-primary) 26%, var(--color-text-secondary) 12%);
-    border-radius: 8px;
-    background: color-mix(in oklab, var(--color-background-special) 88%, var(--color-background-primary));
-    box-shadow: 0 10px 26px color-mix(in oklab, black 14%, transparent);
+    border-radius: var(--radius-panel);
+    background: var(--color-background-secondary);
+    box-shadow: none;
 }
 
 .admin-settings-tab {
@@ -42,9 +42,9 @@
     min-height: 2.35rem;
     padding: 0.48rem 0.8rem;
     border: 1px solid transparent;
-    border-radius: 6px;
+    border-radius: var(--radius-panel);
     background: transparent;
-    color: var(--color-text-special-secondary);
+    color: var(--color-text-secondary);
     font-family: inherit;
     font-weight: 700;
     line-height: 1;
@@ -56,8 +56,8 @@
 .admin-settings-tab:hover,
 .admin-settings-tab.is-active {
     border-color: color-mix(in oklab, var(--color-highlight-primary) 28%, transparent);
-    background: color-mix(in oklab, var(--color-highlight-secondary) 72%, transparent);
-    color: var(--color-text-special);
+    background: color-mix(in srgb, var(--color-link) 12%, var(--color-background-secondary));
+    color: var(--color-text-primary);
 }
 
 .admin-settings-tab:hover {
@@ -65,7 +65,7 @@
 }
 
 .admin-settings-tab.is-active {
-    box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--color-highlight-primary) 22%, transparent);
+    box-shadow: none;
 }
 
 .content-editor-grid {
@@ -104,7 +104,7 @@
     gap: 0.9rem;
     padding: 1rem;
     border: 1px solid color-mix(in oklab, var(--color-text-secondary) 18%, transparent);
-    border-radius: 8px;
+    border-radius: var(--radius-panel);
     background: color-mix(in oklab, var(--color-background-secondary) 45%, transparent);
 }
 

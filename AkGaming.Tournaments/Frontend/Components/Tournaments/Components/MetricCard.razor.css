@@ -1,9 +1,9 @@
 .metric-card {
     padding: 1.1rem 1rem;
-    border-radius: 1rem;
-    background: linear-gradient(180deg, color-mix(in oklab, var(--color-background-secondary) 75%, transparent), color-mix(in oklab, var(--color-background-primary) 86%, transparent));
+    border-radius: var(--radius-panel);
+    background: var(--color-background-secondary);
     border: 1px solid color-mix(in oklab, var(--color-text-secondary) 22%, transparent);
-    box-shadow: 0 18px 40px color-mix(in oklab, black 14%, transparent);
+    box-shadow: none;
 }
 
 .metric-label {

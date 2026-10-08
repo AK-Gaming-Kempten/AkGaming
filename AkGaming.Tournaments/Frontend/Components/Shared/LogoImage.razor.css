@@ -3,7 +3,7 @@
     place-items: center;
     overflow: hidden;
     border: 1px solid color-mix(in oklab, var(--color-text-secondary) 18%, transparent);
-    border-radius: 8px;
+    border-radius: var(--radius-panel);
     background: color-mix(in oklab, var(--color-highlight-primary) 20%, var(--color-background-primary));
     color: var(--color-text-primary);
     flex: 0 0 auto;

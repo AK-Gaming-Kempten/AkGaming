@@ -10,7 +10,7 @@
     justify-content: flex-start;
     min-height: clamp(12rem, 28vw, 22rem);
     overflow: hidden;
-    border-radius: 8px;
+    border-radius: var(--radius-panel);
     background-image:
         linear-gradient(90deg, var(--tournament-banner-left) 0%, color-mix(in oklab, var(--tournament-banner-base) 86%, transparent) 48%, transparent 75%),
         var(--tournament-banner-image);
@@ -24,7 +24,7 @@
     position: absolute;
     inset: 0;
     border: 1px solid color-mix(in oklab, var(--color-text-secondary) 18%, transparent);
-    border-radius: 8px;
+    border-radius: var(--radius-panel);
     pointer-events: none;
 }
 
@@ -55,7 +55,7 @@
     height: clamp(5.5rem, 12vw, 8rem);
     padding: 0.55rem;
     border: 1px solid color-mix(in oklab, var(--color-text-secondary) 24%, transparent);
-    border-radius: 8px;
+    border-radius: var(--radius-panel);
     background: var(--color-background-primary);
     box-shadow: 0 16px 34px color-mix(in oklab, black 28%, transparent);
 }
