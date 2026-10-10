@@ -1,5 +1,7 @@
 using AkGaming.Gamenight.Contracts;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Forms;
+using Microsoft.JSInterop;
 using System.ComponentModel.DataAnnotations;
 namespace AkGaming.Gamenight.Shared.Components;
 public partial class SignupEditor
@@ -8,6 +10,9 @@ public partial class SignupEditor
     [Parameter] public bool Editing { get; set; }
     [Parameter] public bool Busy { get; set; }
     [Parameter] public EventCallback Submit { get; set; }
+    [Inject] private IJSRuntime JS { get; set; } = default!;
+    private ElementReference _formTop;
+    private bool _scrollToForm;
     private int _step;
     private int StepCount => Form.Attendance == "Karaoke" ? 2 : 3;
     private int StepNumber => Form.Attendance == "Karaoke" && _step == 2 ? 2 : _step + 1;
@@ -16,7 +21,11 @@ public partial class SignupEditor
     private void Next()
     {
         _stepErrors = _step == 0 ? ValidateContact() : ValidateEvening();
-        if (_stepErrors.Count == 0) _step = _step == 0 && Form.Attendance == "Karaoke" ? 2 : _step + 1;
+        if (_stepErrors.Count == 0)
+        {
+            _step = _step == 0 && Form.Attendance == "Karaoke" ? 2 : _step + 1;
+            _scrollToForm = true;
+        }
     }
 
     private List<string> ValidateContact()
@@ -47,7 +56,31 @@ public partial class SignupEditor
         return errors;
     }
 
-    private void Back() { _stepErrors.Clear(); _step = _step == 2 && Form.Attendance == "Karaoke" ? 0 : _step - 1; }
+    private void Back()
+    {
+        _stepErrors.Clear();
+        _step = _step == 2 && Form.Attendance == "Karaoke" ? 0 : _step - 1;
+        _scrollToForm = true;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (_scrollToForm)
+        {
+            _scrollToForm = false;
+            await JS.InvokeVoidAsync("gamenight.scrollToSignup", _formTop);
+        }
+    }
+
+    private void ShowInvalidSubmit(EditContext context)
+    {
+        _stepErrors = context.GetValidationMessages().Distinct().ToList();
+    }
+
+    private void DismissErrors()
+    {
+        _stepErrors.Clear();
+    }
     private void ClearStepErrors(ChangeEventArgs _) => _stepErrors.Clear();
     private void ToggleSource(string source, ChangeEventArgs e)
     {

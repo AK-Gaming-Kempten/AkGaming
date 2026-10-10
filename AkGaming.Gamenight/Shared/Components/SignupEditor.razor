@@ -1,13 +1,8 @@
-<EditForm Model="Form" OnValidSubmit="Submit">
+<div class="signup-step-top" @ref="_formTop" tabindex="-1">
+<EditForm Model="Form" OnValidSubmit="Submit" OnInvalidSubmit="ShowInvalidSubmit">
     <DataAnnotationsValidator />
     <p class="muted">* Pflichtangabe · Schritt @StepNumber von @StepCount</p>
     <fieldset disabled="@Busy" @onchange="ClearStepErrors">
-    @if (_stepErrors.Count > 0)
-    {
-        <div class="validation-errors" role="alert">
-            <ul>@foreach (var error in _stepErrors) { <li>@error</li> }</ul>
-        </div>
-    }
     @if (_step == 0)
     {
         <h2>Du bist dabei</h2>
@@ -69,3 +64,6 @@
     </div>
     </fieldset>
 </EditForm>
+
+</div>
+<Toast Visible="@(_stepErrors.Count > 0)" Message="@string.Join("\n", _stepErrors)" AppName="AK Gaming · Game Night" Title="Bitte prüfe deine Angaben" Variant="ToastVariant.Error" AutoDismissMilliseconds="0" OnDismiss="DismissErrors" />

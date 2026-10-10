@@ -1,4 +1,5 @@
 @inherits LayoutComponentBase
+<div class="gamenight-shell">
 <header class="site-header" @onkeydown="HandleHeaderKeyDown">
     <a class="brand" href="/" aria-label="AK Gaming Game Night – Anmeldung" @onclick="CloseMenu">
         <img src="_content/AkGaming.Gamenight.Shared/images/akgaming-logo.png" alt="" />
@@ -19,3 +20,5 @@
 @if (_menuOpen) { <button type="button" class="menu-backdrop" aria-label="Menü schließen" @onclick="CloseMenu"></button> }
 <main class="page">@Body</main>
 <footer class="site-footer"><a href="https://akgaming.de">AK Gaming e.V.</a> · <a href="https://akgaming.de/impressum">Impressum</a> · <a href="https://akgaming.de/datenschutz">Datenschutz</a></footer>
+
+</div>
