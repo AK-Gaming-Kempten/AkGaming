@@ -35,6 +35,7 @@ public interface IGamenightService
     Task<List<EventSettings>> EventsAsync(Actor actor, CancellationToken ct);
     Task<EventSettings> SaveEventAsync(EventSettings settings, Actor actor, CancellationToken ct);
     Task ActivateAsync(ActivateEvent request, Actor actor, CancellationToken ct);
+    Task ValidateSignupEmailAsync(CheckSignupEmail request, CancellationToken ct);
     Task SubmitAsync(SubmitSignup request, Actor actor, CancellationToken ct);
     Task<List<RegistrationView>> MineAsync(Actor actor, CancellationToken ct);
     Task<RegistrationView> GuestAsync(Guid id, string token, CancellationToken ct);

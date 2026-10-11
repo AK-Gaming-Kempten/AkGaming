@@ -14,15 +14,19 @@ public partial class RegistrationDetails
     private bool _busy;
     private bool Has(string permission) => Granted.Contains(permission);
     private static string YesNo(bool? value) => value is null ? "—" : value.Value ? "Ja" : "Nein";
-    private string FoodSummary()
+    private static string Money(int? cents)
+    {
+        return cents is null ? "Preisprüfung ausstehend" : (cents.Value / 100m).ToString("C", System.Globalization.CultureInfo.GetCultureInfo("de-DE"));
+    }
+
+    private int FoodQuantity(string meal)
     {
         var form = Registration.Form;
-        if (form.WantsToOrder is null)
-            return $"{form.Meal ?? "—"} · {form.MealQuantity?.ToString() ?? "keine Mengenangabe"}; Eis: {form.IceCream ?? "—"} · {form.Scoops?.ToString() ?? "keine Mengenangabe"} Kugeln";
-        if (form.WantsToOrder == false) return "Möchte nichts bestellen";
-
-        return $"Döner: {form.DonerQuantity ?? 0} · Pizza: {form.PizzaQuantity ?? 0} · Eis: {form.IceCreamQuantity ?? 0} Kugeln ({form.IceCream ?? "keine Auswahl"})";
+        if (form.WantsToOrder == false) return 0;
+        if (form.WantsToOrder is null) return form.Meal == meal ? form.MealQuantity ?? 0 : 0;
+        return meal == "Döner" ? form.DonerQuantity ?? 0 : form.PizzaQuantity ?? 0;
     }
+
     private void Edit() { _error = null; _edit = JsonSerializer.Deserialize<SignupForm>(JsonSerializer.Serialize(Registration.Form)); }
     private void Confirm(string action, string title) { _error = null; _action = action; _title = title; }
     private void Close() { if (!_busy) { _edit = null; _action = null; _error = null; } }

@@ -2,18 +2,33 @@
 <EditForm Model="Form" OnValidSubmit="Submit" OnInvalidSubmit="ShowInvalidSubmit">
     <DataAnnotationsValidator />
     <p class="muted">* Pflichtangabe · Schritt @StepNumber von @StepCount</p>
-    <fieldset disabled="@Busy" @onchange="ClearStepErrors">
+    <fieldset disabled="@(Busy || _checkingEmail)" @onchange="ClearStepErrors">
     @if (_step == 0)
     {
         <h2>Du bist dabei</h2>
         <div class="form-grid">
-            <label>E-Mail-Adresse *<InputText type="email" @bind-Value="Form.Email" disabled="@Editing" autocomplete="email" /></label>
+            <label>E-Mail-Adresse *
+                <input type="email" @bind="Form.Email" @bind:event="oninput" @bind:after="CheckEnteredEmail" disabled="@Editing" autocomplete="email" aria-describedby="signup-email-notice" aria-invalid="@(_emailNotice is not null ? "true" : "false")" />
+                <span id="signup-email-notice" class="email-availability-notice" aria-live="polite">@_emailNotice</span>
+            </label>
             <label>Vorname *<InputText @bind-Value="Form.FirstName" autocomplete="given-name" /></label>
             <label>Nachname *<InputText @bind-Value="Form.LastName" autocomplete="family-name" /></label>
         </div>
-        <label>Wofür möchtest du dich anmelden? *
-            <InputSelect @bind-Value="Form.Attendance"><option value="">Bitte auswählen</option><option value="GameNight">Game Night und Karaoke</option><option value="Karaoke">NUR Karaoke</option></InputSelect>
-        </label>
+        <fieldset class="choice-fieldset">
+            <legend>Wofür möchtest du dich anmelden? *</legend>
+            <InputRadioGroup TValue="string" @bind-Value="Form.Attendance">
+                <div class="choice-grid attendance-choice">
+                    <label class="choice-card">
+                        <InputRadio TValue="string" Value='@("GameNight")' />
+                        <span><strong>Game Night + Karaoke</strong><small>Alle Angebote · mit Eintritt</small></span>
+                    </label>
+                    <label class="choice-card">
+                        <InputRadio TValue="string" Value='@("Karaoke")' />
+                        <span><strong>Nur Karaoke</strong><small>Karaoke-Bereich · kostenlos</small></span>
+                    </label>
+                </div>
+            </InputRadioGroup>
+        </fieldset>
         <p>Die Game-Night-Anmeldung beinhaltet Karaoke. Nur Karaoke ist kostenlos und erlaubt den Zutritt zu den dafür vorgesehenen Räumen. Für Game-Night-Angebote wie Essensbestellung und Brettspielraum ist die Game-Night-Anmeldung mit Eintritt erforderlich.</p>
     }
     @if (_step == 1)

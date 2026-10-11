@@ -158,3 +158,32 @@ button.secondary:hover { background:var(--color-background-secondary); }
 
 .gamenight-shell { display:flex; flex-direction:column; min-height:100dvh; }
 .gamenight-shell > .site-header,.gamenight-shell > .site-footer { flex-shrink:0; }
+
+.email-availability-notice { color:var(--color-button-danger-bg); font-weight:500; font-size:.85rem; line-height:1.5; }
+.email-availability-notice:empty { display:none; }
+
+.attendance-choice .choice-card { min-width:0; margin:0; }
+@container (max-width:400px) { .attendance-choice { grid-template-columns:1fr; } }
+.registration-overview .section-heading { align-items:center; }
+.registration-overview .section-heading h2 { margin:0 0 .35rem; }
+.registration-overview .section-heading p { margin:0; }
+.registration-overview .section-heading .eyebrow { margin-bottom:.4rem; }
+.registration-overview .badges { margin:.85rem 0 1rem; }
+.registration-overview-grid { display:grid; grid-template-columns:minmax(15rem,.8fr) minmax(0,1.5fr); gap:1.5rem; }
+.registration-price-summary h3 { margin:0 0 .75rem; }
+.registration-prices { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:.6rem; }
+.registration-rate { padding:.75rem; border:1px solid var(--color-border-subtle); }
+.registration-rate span { display:block; color:var(--color-text-secondary); font-size:.85rem; }
+.registration-rate strong { display:block; font-size:1.35rem; margin-top:.3rem; }
+.selected-rate { border-color:var(--color-link); background:color-mix(in srgb,var(--color-link) 8%,var(--color-background-primary)); }
+.registration-price-summary > p { margin:.65rem 0 0; }
+.registration-attendance { margin:0 0 .65rem; font-weight:700; }
+.registration-stat-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:.6rem; }
+.registration-stat { display:flex; align-items:center; gap:.65rem; padding:.7rem; border:1px solid var(--color-border-subtle); min-width:0; }
+.registration-stat-icon { width:1.6rem; height:1.6rem; flex-shrink:0; fill:none; stroke:var(--color-link); stroke-width:1.6; stroke-linecap:round; stroke-linejoin:round; }
+.registration-stat span { display:block; font-size:.8rem; color:var(--color-text-secondary); }
+.registration-stat strong { font-size:1rem; overflow-wrap:anywhere; }
+.registration-notes { margin-top:1rem; padding-top:.75rem; border-top:1px solid var(--color-border-subtle); }
+.registration-notes p { margin:.35rem 0 0; }
+@media(max-width:1000px) { .registration-overview-grid { grid-template-columns:1fr; } }
+@media(max-width:600px) { .registration-stat-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } }

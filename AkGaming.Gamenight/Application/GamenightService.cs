@@ -13,6 +13,19 @@ public sealed class GamenightService(IGamenightStore store, IMembershipClient me
     private static EventSettings Settings(GamenightEvent e)
     {
         var settings = JsonSerializer.Deserialize<EventSettings>(e.SettingsJson)!;
+        // Existing JSON settings used one fixed member price for each booking period.
+        using var document = JsonDocument.Parse(e.SettingsJson);
+        var json = document.RootElement;
+        if (!json.TryGetProperty(nameof(EventSettings.MemberEarlyDiscountCents), out _) && json.TryGetProperty("MemberEarlyPriceCents", out var earlyPrice))
+        {
+            settings.MemberEarlyDiscountCents = Math.Max(0, settings.EarlyPriceCents - earlyPrice.GetInt32());
+            settings.MemberEarlySetupDiscountCents = Math.Max(0, settings.EarlySetupPriceCents - earlyPrice.GetInt32());
+        }
+        if (!json.TryGetProperty(nameof(EventSettings.MemberRegularDiscountCents), out _) && json.TryGetProperty("MemberRegularPriceCents", out var regularPrice))
+        {
+            settings.MemberRegularDiscountCents = Math.Max(0, settings.RegularPriceCents - regularPrice.GetInt32());
+            settings.MemberRegularSetupDiscountCents = Math.Max(0, settings.RegularSetupPriceCents - regularPrice.GetInt32());
+        }
         settings.Version = e.Version;
         return settings;
     }
@@ -95,16 +108,23 @@ public sealed class GamenightService(IGamenightStore store, IMembershipClient me
         Audit(request.EventId, null, actor, "event.activated");
         await store.SaveAsync(ct);
     }
+    public async Task ValidateSignupEmailAsync(CheckSignupEmail request, CancellationToken ct)
+    {
+        Require(!string.IsNullOrWhiteSpace(request.Email) && new EmailAddressAttribute().IsValid(request.Email.Trim()), 400, "Bitte gib eine gültige E-Mail-Adresse an.");
+        await CurrentAsync(request.EventId, true, ct);
+        var normalized = Normalize(request.Email);
+        var exists = (await store.RegistrationsAsync(request.EventId, ct)).Any(registration => registration.NormalizedEmail == normalized);
+        Require(!exists, 409, "Für diese E-Mail-Adresse besteht bereits eine Anmeldung. Es wurde keine weitere Person angemeldet. Bitte verwalte die bestehende Anmeldung oder nutze für eine andere Person eine andere E-Mail-Adresse.");
+    }
+
     public async Task SubmitAsync(SubmitSignup request, Actor actor, CancellationToken ct)
     {
         request.Form.Email = request.Form.Email.Trim();
         Validate(request.Form);
         var settings = await CurrentAsync(request.EventId, true, ct);
         Require(Now <= settings.SignupDeadline, 409, "Die Anmeldung ist geschlossen.");
+        await ValidateSignupEmailAsync(new(request.EventId, request.Form.Email), ct);
         var normalized = Normalize(request.Form.Email);
-        var existing = (await store.RegistrationsAsync(request.EventId, ct)).FirstOrDefault(r => r.NormalizedEmail == normalized);
-        // Identical public response for new and existing emails; never reveal ownership.
-        if (existing is not null) return;
         var token = Convert.ToHexString(RandomNumberGenerator.GetBytes(32));
         var form = Clean(request.Form);
         if (Now > settings.FoodDeadline)
@@ -264,10 +284,17 @@ public sealed class GamenightService(IGamenightStore store, IMembershipClient me
             }
             member = eligibility?.Eligible == true;
             if (eligibility?.Reason == "unavailable") { price = null; admission = "Mitgliedsprüfung derzeit nicht verfügbar"; }
-            else if (member) { price = early ? e.MemberEarlyPriceCents : e.MemberRegularPriceCents; admission = "Mitglied – Beitrag in Management bezahlt"; }
+            else if (member) { price = e.MemberPrice(early, form.Sockets > 0); admission = "Mitglied – Beitrag in Management bezahlt"; }
             else { price = form.Sockets > 0 ? (early ? e.EarlySetupPriceCents : e.RegularSetupPriceCents) : (early ? e.EarlyPriceCents : e.RegularPriceCents); admission = early ? "Frühbucher" : "Regulär"; }
         }
-        return new(r.Id, r.EventId, form, r.Version, r.Cancelled, r.StaffApproved, r.CheckedIn, r.Paid, price, admission, r.CreatedAt, CanEdit(r, e, actor), member);
+        var sameRate = r.StaffApproved || form.Attendance == "Karaoke";
+        int? withoutSetup = price is null ? null : sameRate ? price : member ? e.MemberPrice(early, false) : early ? e.EarlyPriceCents : e.RegularPriceCents;
+        int? withSetup = price is null ? null : sameRate ? price : member ? e.MemberPrice(early, true) : early ? e.EarlySetupPriceCents : e.RegularSetupPriceCents;
+        return new RegistrationView(r.Id, r.EventId, form, r.Version, r.Cancelled, r.StaffApproved, r.CheckedIn, r.Paid, price, admission, r.CreatedAt, CanEdit(r, e, actor), member)
+        {
+            PriceWithoutSetupCents = withoutSetup,
+            PriceWithSetupCents = withSetup
+        };
     }
     private static string Hash(string token) => Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(token)));
     private static DateTime Utc(DateTime date) => date.Kind == DateTimeKind.Local ? date.ToUniversalTime() : DateTime.SpecifyKind(date, DateTimeKind.Utc);

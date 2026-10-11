@@ -41,13 +41,13 @@ public sealed class OwnershipTests : RegistrationFixture
         Assert.That(guest.Form.Email, Is.EqualTo("visitor@example.com"));
         Assert.ThrowsAsync<GamenightException>(() => Service.ActionAsync(r.Id, new(r.Version, "cancel"), Guest, default));
     }
-    [Test, Description("Case and whitespace variations of an existing email do not create duplicate registrations.")]
+    [Test, Description("Case and whitespace variations of an existing email are rejected without creating another registration.")]
     public async Task DuplicateEmailIsIdempotent()
     {
         // Arrange
         await Register();
         // Act
-        await Service.SubmitAsync(new(Event.Id, Form(" VISITOR@example.com ")), Guest, default);
+        var error = Assert.ThrowsAsync<GamenightException>(() => Service.SubmitAsync(new(Event.Id, Form(" VISITOR@example.com ")), Guest, default));
         // Assert
         Assert.That(Db.Registrations.Count(), Is.EqualTo(1));
     }
@@ -63,6 +63,48 @@ public sealed class OwnershipTests : RegistrationFixture
         // Assert
         Assert.That(original, Has.Count.EqualTo(1));
         Assert.That(other, Is.Empty);
+    }
+    [Test, Description("A duplicate submission by its owner reports a conflict rather than claiming a second signup was processed.")]
+    public async Task OwnerDuplicateReportsConflict()
+    {
+        // Arrange
+        await Register(Owner);
+        var form = Form();
+        form.FirstName = "Second";
+        // Act
+        var error = Assert.ThrowsAsync<GamenightException>(() => Service.SubmitAsync(new(Event.Id, form), Owner, default));
+        // Assert
+        Assert.That(error!.Message, Does.Contain("keine weitere Person"));
+        Assert.That(Db.Registrations.Count(), Is.EqualTo(1));
+    }
+
+    [Test, Description("A second person with a different email is saved and visible at the front desk without assigning someone else's email to the submitting account.")]
+    public async Task SecondEmailIsVisibleAtDesk()
+    {
+        // Arrange
+        await Register(Owner);
+        var form = Form("second@example.com");
+        form.FirstName = "Second";
+        // Act
+        await Service.SubmitAsync(new(Event.Id, form), Owner, default);
+        var desk = await Service.DeskAsync(Admin, default);
+        var mine = await Service.MineAsync(Owner, default);
+        // Assert
+        Assert.That(desk, Has.Count.EqualTo(2));
+        Assert.That(desk.Any(row => row.Form.Email == "second@example.com"), Is.True);
+        Assert.That(mine, Has.Count.EqualTo(1));
+    }
+    [Test, Description("The first-step email check rejects existing emails but accepts a new email without saving a registration.")]
+    public async Task EmailCheckValidatesWithoutSaving()
+    {
+        // Arrange
+        await Register();
+        // Act
+        var error = Assert.ThrowsAsync<GamenightException>(() => Service.ValidateSignupEmailAsync(new(Event.Id, " VISITOR@example.com "), default));
+        await Service.ValidateSignupEmailAsync(new(Event.Id, "new@example.com"), default);
+        // Assert
+        Assert.That(error!.Status, Is.EqualTo(409));
+        Assert.That(Db.Registrations.Count(), Is.EqualTo(1));
     }
 }
 

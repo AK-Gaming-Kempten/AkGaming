@@ -1,6 +1,6 @@
 @page "/"
 <PageTitle>Game Night · AK Gaming</PageTitle>
-@if (_error is not null) { <p role="alert" class="error">@_error</p> }
+<Toast Visible="@(_error is not null)" Message="@_error" Title="Anmeldung nicht möglich" AppName="AK Gaming · Game Night" AutoDismissMilliseconds="0" OnDismiss="() => _error = null" />
 @if (_active is null) { <p role="status">Game Night wird geladen …</p> }
 @if (_active is { Event: null }) { <p>Aktuell ist keine Game Night zur Anmeldung ausgewählt.</p> }
 @if (_active?.Event is { } gameNight)
@@ -14,10 +14,9 @@
                     <div class="event-fact"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2" /><path d="M7 3v4m10-4v4M3 10h18" /></svg><div><span>Beginn</span><strong>@BerlinTime(gameNight.StartsAt)</strong></div></div>
                     <div class="event-fact"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0Z" /><circle cx="12" cy="10" r="2.5" /></svg><div><span>Ort</span><strong>@gameNight.Location</strong></div></div>
                 </div>
-                @{ var information = gameNight.Information?.Replace("Für ein eigenes Setup bitte ein mindestens 5 m langes LAN-Kabel mitbringen.", string.Empty).Trim(); }
-                @if (!string.IsNullOrWhiteSpace(information))
+                @if (!string.IsNullOrWhiteSpace(gameNight.Information))
                 {
-                    <p class="event-description preserve">@information</p>
+                    <p class="event-description preserve">@gameNight.Information</p>
                 }
             </div>
             <section class="event-info-section" aria-labelledby="event-prices-title">
@@ -25,7 +24,7 @@
                 <dl class="event-prices">
                     <div><dt>Frühbucher <button type="button" class="deadline-info-button" popovertarget="event-deadline-info" aria-label="Fristen für Frühbucher und Essenswünsche">i</button></dt><dd><div><span>Ohne Setup</span><strong>@Money(gameNight.EarlyPriceCents)</strong></div><div><span>Mit Setup</span><strong>@Money(gameNight.EarlySetupPriceCents)</strong></div></dd></div>
                     <div><dt>Regulär</dt><dd><div><span>Ohne Setup</span><strong>@Money(gameNight.RegularPriceCents)</strong></div><div><span>Mit Setup</span><strong>@Money(gameNight.RegularSetupPriceCents)</strong></div></dd></div>
-                    <div><dt>Mitglieder</dt><dd><div><span>Frühbucher</span><strong>@Money(gameNight.MemberEarlyPriceCents)</strong></div><div><span>Regulär</span><strong>@Money(gameNight.MemberRegularPriceCents)</strong></div></dd></div>
+                    <div><dt>Mitgliederrabatt</dt><dd><div><span>Frühbucher ohne / mit Setup</span><strong>@Money(gameNight.MemberEarlyDiscountCents) / @Money(gameNight.MemberEarlySetupDiscountCents)</strong></div><div><span>Regulär ohne / mit Setup</span><strong>@Money(gameNight.MemberRegularDiscountCents) / @Money(gameNight.MemberRegularSetupDiscountCents)</strong></div></dd></div>
                 </dl>
             </section>
             <div id="event-deadline-info" popover class="deadline-info-popover">
@@ -47,7 +46,7 @@
         </aside>
         <section class="card">
         @if (_receipt is not null) { <h2>Danke!</h2><p role="status">@_receipt</p><a href="/mine">Meine Anmeldung</a> }
-        @if (_receipt is null && DateTime.UtcNow <= gameNight.SignupDeadline) { <SignupEditor Form="_form" Busy="_busy" Submit="Submit" /> }
+        @if (_receipt is null && DateTime.UtcNow <= gameNight.SignupDeadline) { <SignupEditor Form="_form" Busy="_busy" Submit="Submit" ValidateEmail="ValidateEmail" /> }
         @if (_receipt is null && DateTime.UtcNow > gameNight.SignupDeadline) { <h2>Anmeldung geschlossen</h2><p>Die Anmeldefrist ist abgelaufen.</p> }
         </section>
     </div>

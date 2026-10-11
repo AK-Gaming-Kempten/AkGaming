@@ -14,6 +14,10 @@ public partial class Home
         try { var user = await Session.UserAsync(); _signedIn = user.Identity?.IsAuthenticated == true; _form.Email = user.FindFirst("email")?.Value ?? ""; _active = await Client.SendAsync<ActiveEvent>(HttpMethod.Get, "api/events/active"); }
         catch (HttpRequestException ex) { _error = ex.Message; }
     }
+    private async Task ValidateEmail(string email)
+    {
+        await Client.SendAsync<Receipt>(HttpMethod.Post, "api/registrations/check-email", new CheckSignupEmail(_active!.Event!.Id, email));
+    }
     private async Task Submit()
     {
         if (_busy) return;

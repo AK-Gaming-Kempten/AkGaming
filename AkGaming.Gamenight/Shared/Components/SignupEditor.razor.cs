@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.JSInterop;
 using System.ComponentModel.DataAnnotations;
 namespace AkGaming.Gamenight.Shared.Components;
-public partial class SignupEditor
+public partial class SignupEditor : IDisposable
 {
     [Parameter, EditorRequired] public SignupForm Form { get; set; } = default!;
     [Parameter] public bool Editing { get; set; }
@@ -13,14 +13,64 @@ public partial class SignupEditor
     [Inject] private IJSRuntime JS { get; set; } = default!;
     private ElementReference _formTop;
     private bool _scrollToForm;
+    [Parameter] public Func<string, Task>? ValidateEmail { get; set; }
+    private bool _checkingEmail;
     private int _step;
     private int StepCount => Form.Attendance == "Karaoke" ? 2 : 3;
     private int StepNumber => Form.Attendance == "Karaoke" && _step == 2 ? 2 : _step + 1;
     private List<string> _stepErrors = [];
+    private CancellationTokenSource? _emailCheckCancellation;
+    private string? _emailNotice;
+    private bool _disposed;
 
-    private void Next()
+    protected override Task OnInitializedAsync()
     {
+        return CheckEnteredEmail();
+    }
+
+    private async Task CheckEnteredEmail()
+    {
+        _emailCheckCancellation?.Cancel();
+        _emailCheckCancellation?.Dispose();
+        _emailNotice = null;
+        if (Editing || ValidateEmail is null || string.IsNullOrWhiteSpace(Form.Email)
+            || !new EmailAddressAttribute().IsValid(Form.Email.Trim())) return;
+
+        var cancellation = new CancellationTokenSource();
+        _emailCheckCancellation = cancellation;
+        var token = cancellation.Token;
+        var email = Form.Email.Trim();
+        try
+        {
+            await Task.Delay(500, token);
+            await ValidateEmail(email);
+        }
+        catch (OperationCanceledException) when (token.IsCancellationRequested) { }
+        catch (HttpRequestException ex)
+        {
+            if (!token.IsCancellationRequested && !_disposed) _emailNotice = ex.Message;
+        }
+    }
+
+    public void Dispose()
+    {
+        _disposed = true;
+        _emailCheckCancellation?.Cancel();
+        _emailCheckCancellation?.Dispose();
+    }
+
+
+    private async Task Next()
+    {
+        if (_checkingEmail) return;
         _stepErrors = _step == 0 ? ValidateContact() : ValidateEvening();
+        if (_step == 0 && _stepErrors.Count == 0 && !Editing && ValidateEmail is not null)
+        {
+            _checkingEmail = true;
+            try { await ValidateEmail(Form.Email); }
+            catch (HttpRequestException ex) { _stepErrors.Add(ex.Message); }
+            finally { _checkingEmail = false; }
+        }
         if (_stepErrors.Count == 0)
         {
             _step = _step == 0 && Form.Attendance == "Karaoke" ? 2 : _step + 1;

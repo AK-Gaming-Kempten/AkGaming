@@ -1,4 +1,4 @@
-<section class="card">
+<section class="card registration-overview">
     <div class="section-heading">
         <div><p class="eyebrow">ANMELDUNG</p><h2>@Registration.Form.FirstName @Registration.Form.LastName</h2><p>@Registration.Form.Email</p></div>
         <ContextMenu AriaLabel="Anmeldung verwalten">
@@ -22,9 +22,33 @@
         </ContextMenu>
     </div>
     <div class="badges"><span>@(Registration.Cancelled ? "Storniert" : "Angemeldet")</span><span>@(Registration.CheckedIn ? "Eingecheckt" : "Noch nicht eingecheckt")</span><span>@(Registration.PriceCents == 0 ? "Keine Zahlung nötig" : Registration.Paid ? "Bezahlt" : "Zahlung offen")</span></div>
-    <h3>@Registration.Admission</h3><p class="price">@(Registration.PriceCents is { } cents ? (cents / 100m).ToString("0.00") + " €" : "Preisprüfung ausstehend")</p>
-    <dl class="details"><dt>Teilnahme</dt><dd>@(Registration.Form.Attendance == "Karaoke" ? "Nur Karaoke" : "Game Night und Karaoke")</dd><dt>Steckdosenbedarf</dt><dd>@(Registration.Form.Sockets == 4 ? "3–4" : Registration.Form.Sockets?.ToString() ?? "—")</dd><dt>Essenswunsch</dt><dd>@FoodSummary()</dd><dt>Pen &amp; Paper</dt><dd>@YesNo(Registration.Form.PenAndPaper)</dd><dt>Orga-Selbstauskunft</dt><dd>@YesNo(Registration.Form.OrganizerDeclaration)</dd><dt>Anmerkungen</dt><dd class="preserve">@Registration.Form.Notes</dd><dt>Vom Event erfahren durch</dt><dd>@string.Join(", ", Registration.Form.DiscoverySources) @Registration.Form.DiscoveryOther</dd></dl>
-    <p class="muted">@(Registration.CheckedIn ? "Die Anmeldung ist nach dem Check-in für Besucher gesperrt." : "Änderungen sind mit dem zugeordneten Konto bis zur Änderungsfrist möglich.")</p>
+    <div class="registration-overview-grid">
+        <section class="registration-price-summary">
+            <h3>@Registration.Admission</h3>
+            <div class="registration-prices">
+                <div class="registration-rate @(Registration.Form.Sockets is null or 0 ? "selected-rate" : "")"><span>Ohne Setup</span><strong>@Money(Registration.PriceWithoutSetupCents)</strong></div>
+                <div class="registration-rate @(Registration.Form.Sockets > 0 ? "selected-rate" : "")"><span>Mit Setup / Sitzplatz</span><strong>@Money(Registration.PriceWithSetupCents)</strong></div>
+            </div>
+            <p class="muted">Dein Eintritt: <strong>@Money(Registration.PriceCents)</strong></p>
+        </section>
+        <section class="registration-plan" aria-label="Dein Abend">
+            <p class="registration-attendance">@(Registration.Form.Attendance == "Karaoke" ? "Nur Karaoke" : "Game Night + Karaoke")</p>
+            <div class="registration-stat-grid">
+                @if (Registration.Form.Attendance != "Karaoke")
+                {
+                    <div class="registration-stat"><RegistrationStatIcon Kind="power" /><div><span>Steckdosen</span><strong>@(Registration.Form.Sockets == 4 ? "3–4" : Registration.Form.Sockets?.ToString() ?? "—")</strong></div></div>
+                    <div class="registration-stat"><RegistrationStatIcon Kind="doner" /><div><span>Döner</span><strong>@FoodQuantity("Döner")</strong></div></div>
+                    <div class="registration-stat"><RegistrationStatIcon Kind="pizza" /><div><span>Pizza</span><strong>@FoodQuantity("Pizza")</strong></div></div>
+                    <div class="registration-stat"><RegistrationStatIcon Kind="pnp" /><div><span>Pen &amp; Paper</span><strong>@YesNo(Registration.Form.PenAndPaper)</strong></div></div>
+                }
+                <div class="registration-stat"><RegistrationStatIcon Kind="orga" /><div><span>Orga-Selbstauskunft</span><strong>@YesNo(Registration.Form.OrganizerDeclaration)</strong></div></div>
+            </div>
+        </section>
+    </div>
+    @if (!string.IsNullOrWhiteSpace(Registration.Form.Notes))
+    {
+        <div class="registration-notes"><strong>Anmerkungen</strong><p class="preserve">@Registration.Form.Notes</p></div>
+    }
     @if (_error is not null) { <p class="error" role="alert">@_error</p> }
 </section>
 @if (_edit is not null)

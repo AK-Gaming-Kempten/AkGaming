@@ -44,6 +44,18 @@ public sealed class GamenightController(IGamenightService service, IMembershipCl
         var result = await membership.PeriodsAsync(ct);
         return Ok(result);
     }
+    [HttpPost("registrations/check-email"), AllowAnonymous, EnableRateLimiting("guest")]
+    public async Task<ActionResult<Receipt>> CheckEmail(CheckSignupEmail request, CancellationToken ct)
+    {
+        if (User.Identity?.IsAuthenticated == true && !User.FindAll("scope").SelectMany(c => c.Value.Split(' ')).Contains("gamenight_api"))
+        {
+            return Forbid();
+        }
+        await service.ValidateSignupEmailAsync(request, ct);
+        var receipt = new Receipt("Diese E-Mail-Adresse kann angemeldet werden.");
+        return Ok(receipt);
+    }
+
     [HttpPost("registrations"), AllowAnonymous, EnableRateLimiting("guest")]
     public async Task<ActionResult<Receipt>> Submit(SubmitSignup request, CancellationToken ct)
     {
@@ -51,7 +63,7 @@ public sealed class GamenightController(IGamenightService service, IMembershipCl
         if (User.Identity?.IsAuthenticated == true && !User.FindAll("scope").SelectMany(c => c.Value.Split(' ')).Contains("gamenight_api"))
             return Forbid();
         await service.SubmitAsync(request, Actor, ct);
-        return Accepted(new Receipt("Wenn diese E-Mail neu angemeldet wurde, erhältst du eine Bestätigung mit einem privaten Ansichtslink. Bestehende Anmeldungen kannst du über dein Konto verwalten."));
+        return Accepted(new Receipt("Deine Anmeldung wurde gespeichert. Du erhältst eine Bestätigung mit einem privaten Ansichtslink. Mit passender verifizierter E-Mail kannst du sie über dein Konto verwalten."));
     }
     [HttpPost("registrations/mine"), Authorize]
     public async Task<ActionResult<List<RegistrationView>>> Mine(CancellationToken ct)
