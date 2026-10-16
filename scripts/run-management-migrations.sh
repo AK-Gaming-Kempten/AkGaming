@@ -5,7 +5,7 @@ MODE="${1:-list}"
 
 export DOTNET_CLI_HOME=/tmp
 export DOTNET_SKIP_FIRST_TIME_EXPERIENCE=1
-export PATH="$PATH:/root/.dotnet/tools"
+export PATH="$PATH:/tmp/.dotnet/tools"
 
 if ! command -v dotnet-ef >/dev/null 2>&1; then
     dotnet tool install --global dotnet-ef --version '10.*'
