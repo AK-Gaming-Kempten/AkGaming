@@ -21,7 +21,7 @@ Es gibt auch Dinge, die noch in Planung sind, es soll zum Beispiel eine gemeinsa
 ❓​🔔​
 
 Du bist neugierig geworden und willst auch spielen?
-Dann tritt doch unserem [Discord-Server](https://discord.gg/CYkFQ7JNXj) bei. Unter der Kategorie “MINECRAFT_SERVER” stehen die wichtigsten Infos, die du brauchst, um auf dem Server anzukommen. Außerdem kannst du dich hier auch mit Mitspielern unterhalten.
+Dann tritt doch unserem [Discord-Server](https://discord.akgaming.de/) bei. Unter der Kategorie “MINECRAFT_SERVER” stehen die wichtigsten Infos, die du brauchst, um auf dem Server anzukommen. Außerdem kannst du dich hier auch mit Mitspielern unterhalten.
 
 ☝️​👍​
 

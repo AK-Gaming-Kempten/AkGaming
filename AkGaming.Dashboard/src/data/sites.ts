@@ -21,7 +21,7 @@ export const CATEGORY_ORDER = [
 
 export const SHORTCUTS: SiteShortcut[] = [
   { id: 'website', title: 'Website', color: '#131', url: 'https://akgaming.de', category: 'Public', presets: ['vorstand', 'eventleitung', 'all'] },
-  { id: 'discord', title: 'Discord', color: '#5865f2', url: 'https://discord.gg/5J5uJKJAhT', category: 'Public', presets: ['vorstand', 'dev', 'eventleitung', 'all'] },
+  { id: 'discord', title: 'Discord', color: '#5865f2', url: 'https://discord.akgaming.de/', category: 'Public', presets: ['vorstand', 'dev', 'eventleitung', 'all'] },
   { id: 'instagram', title: 'Instagram', color: '#d62976', url: 'https://www.instagram.com/akgamingkempten/', category: 'Public', presets: ['vorstand', 'dev', 'eventleitung', 'all'] },
   { id: 'youtube', title: 'YouTube', color: '#ff0000', url: 'https://youtube.com/@akgamingkempten', category: 'Public', presets: ['vorstand', 'dev', 'eventleitung', 'all'] },
   { id: 'linkedin', title: 'LinkedIn', color: '#0a66c2', url: 'https://www.linkedin.com/company/akgaming', category: 'Public', presets: ['vorstand', 'dev', 'eventleitung', 'all'] },

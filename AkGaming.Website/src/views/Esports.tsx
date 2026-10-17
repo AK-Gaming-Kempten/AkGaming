@@ -32,7 +32,7 @@ export default function Esports() {
                         </p>
                         <div className="esports-hero-actions">
                             <a href="#esports-teams" className="esports-btn esports-btn-primary">Teams ansehen</a>
-                            <a href="https://discord.gg/5J5uJKJAhT" target="_blank" rel="noreferrer" className="esports-btn esports-btn-secondary">
+                            <a href="https://discord.akgaming.de/" target="_blank" rel="noreferrer" className="esports-btn esports-btn-secondary">
                                 Auf Discord bewerben
                             </a>
                         </div>

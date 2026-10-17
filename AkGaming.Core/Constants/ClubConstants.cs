@@ -37,7 +37,7 @@ public static class ClubConstants
         public const string ArticlesOfAssociation = Website + "/Vereinssatzung-AK-Gaming-e.V..pdf";
         public const string MembershipFeeRegulations = Website + "/Beitragsordnung-AK-Gaming-e.V..pdf";
         public const string LogoAsset = Website + "/assets/akgaming_logo.png";
-        public const string DiscordInvite = "https://discord.com/invite/5J5uJKJAhT";
+        public const string DiscordInvite = "https://discord.akgaming.de/";
 
         public const string ManagementBase = "https://management.akgaming.de";
         public const string ManagementMembership = ManagementBase + "/membership/";

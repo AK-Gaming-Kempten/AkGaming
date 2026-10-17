@@ -98,11 +98,11 @@ export const mdxComponentDocs: MdxComponentDoc[] = [
                 description: "Visible link label between the Markdown brackets.",
             },
         ],
-        example: "[Eventseite](/events)\n[Discord](https://discord.gg/5J5uJKJAhT)",
+        example: "[Eventseite](/events)\n[Discord](https://discord.akgaming.de/)",
         preview: (
             <Stack>
                 <p><SmartLink href="/events">Eventseite</SmartLink></p>
-                <p><SmartLink href="https://discord.gg/5J5uJKJAhT">Discord</SmartLink></p>
+                <p><SmartLink href="https://discord.akgaming.de/">Discord</SmartLink></p>
             </Stack>
         ),
     },
