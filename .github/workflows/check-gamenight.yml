@@ -7,6 +7,7 @@ on:
       - 'AkGaming.Identity/**'
       - 'AkGaming.Management/**'
       - '.github/workflows/*gamenight.yml'
+      - 'scripts/run-gamenight-migrations.sh'
       - 'Directory.Build.props'
   workflow_dispatch:
 jobs:

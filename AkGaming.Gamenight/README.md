@@ -189,19 +189,61 @@ Gamenight's member pricing.
 
 ### CI/CD
 
-`deploy-gamenight.yml` follows the existing workflow: relevant `develop`
-changes deploy to test; `gamenight/*` tags deploy to production. Tests and web
-build run before deployment. PostgreSQL migrations use the existing optional
-SSH tunnel settings. Configure:
+`deploy-gamenight.yml` deploys relevant `develop` changes to test and
+`gamenight/*` tags to production. Tests and the web build run on GitHub-hosted
+runners. Deployment uses the `self-hosted`, `akgaming-deploy` runner, matching
+Management and Tournaments.
 
-- `GAMENIGHT_TEST_DB_CONNECTION_STRING`, `GAMENIGHT_PRODUCTION_DB_CONNECTION_STRING`
-- `COOLIFY_WEBHOOK_GAMENIGHT_BACKEND_TEST`, `COOLIFY_WEBHOOK_GAMENIGHT_FRONTEND_TEST`
-- `COOLIFY_WEBHOOK_GAMENIGHT_BACKEND`, `COOLIFY_WEBHOOK_GAMENIGHT_FRONTEND`
-- existing `COOLIFY_TOKEN` and optional `DB_SSH_*`/`DB_TUNNEL_TARGET_*`
+The runner updates `/opt/akgaming/deployment/repo/test` or
+`/opt/akgaming/deployment/repo/prod`, then runs Docker Compose from
+`/opt/akgaming/deployment/compose/test` or
+`/opt/akgaming/deployment/compose/prod`. Each Compose stack must define:
 
-Raw Npgsql connection strings are required. With SSH tunnelling, the test
-connection targets localhost:55432 and production localhost:55433.
-`check-gamenight.yml` additionally builds Android on PRs and manual dispatch.
+- `gamenight-webapi`, built from `AkGaming.Gamenight/Dockerfile.api` with the
+  corresponding repository checkout as its build context.
+- `gamenight-frontend`, built from `AkGaming.Gamenight/Dockerfile.frontend` with
+  the same build context. Set `Api__BaseUrl=http://gamenight-webapi:8080/`.
+- `gamenight-migrations`, an SDK 10.0 tools service running
+  `scripts/run-gamenight-migrations.sh` from the mounted repository root.
+  Supply `ConnectionStrings__Gamenight` using the same PostgreSQL database as
+  the API, reachable on the Compose network.
+
+For example, add this tools service to each server-managed Compose file,
+adjusting the checkout path for production and using the stack's database
+network:
+
+```yaml
+services:
+  gamenight-migrations:
+    image: mcr.microsoft.com/dotnet/sdk:10.0
+    profiles: [tools]
+    working_dir: /src
+    volumes:
+      - /opt/akgaming/deployment/repo/test:/src
+    environment:
+      ConnectionStrings__Gamenight: ${GAMENIGHT_DB_CONNECTION_STRING:?Set the Gamenight database connection string}
+    entrypoint: ["bash", "scripts/run-gamenight-migrations.sh"]
+```
+
+The workflow applies migrations before building and starting both services.
+It checks their Docker health status and prints service logs on failure. Use
+Compose project names `akgaming-test` and `akgaming-prod` so container names
+match the verification steps. Both images provide `/health` checks.
+Compose files and runtime secrets are managed on the deployment server;
+Gamenight deployment no longer requires Coolify webhooks or GitHub database/SSH
+secrets.
+
+To inspect or apply migrations manually from the Compose directory:
+
+```sh
+docker compose --profile tools run --rm gamenight-migrations list
+docker compose --profile tools run --rm gamenight-migrations update
+```
+
+The script defaults to `list` and uses `GamenightDbContext` with the PostgreSQL
+migration project as both target and startup project. Raw Npgsql connection
+strings are required. `check-gamenight.yml` additionally builds Android on PRs
+and manual dispatch.
 
 Add future migrations to both providers:
 
@@ -227,6 +269,6 @@ events through the existing Core notification pattern.
 Automated tests cover ownership, deadlines, free admission, member-price
 calculation, payment/check-in locking, concurrent writes, active-event switching,
 and SQLite Management queries. Browser smoke checks cover guest submission,
-Karaoke branching and narrow-screen overflow. Live production OIDC/SMTP/Coolify
-connections require deployment secrets. Android is build-validated; iOS/device
+Karaoke branching and narrow-screen overflow. Live production OIDC/SMTP/database
+connections require deployment configuration. Android is build-validated; iOS/device
 runtime and store publication require their platform environments.
