@@ -1,0 +1,53 @@
+@page "/"
+<PageTitle>Game Night · AK Gaming</PageTitle>
+<Toast Visible="@(_error is not null)" Message="@_error" Title="Anmeldung nicht möglich" AppName="AK Gaming · Game Night" AutoDismissMilliseconds="0" OnDismiss="() => _error = null" />
+@if (_active is null) { <p role="status">Game Night wird geladen …</p> }
+@if (_active is { Event: null }) { <p>Aktuell ist keine Game Night zur Anmeldung ausgewählt.</p> }
+@if (_active?.Event is { } gameNight)
+{
+    <div class="signup-layout">
+        <aside class="card event-info">
+            <div class="event-info-intro">
+                <p class="eyebrow">AUF EINEN BLICK</p>
+                <h1 class="event-title">@gameNight.Name</h1>
+                <div class="event-facts">
+                    <div class="event-fact"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2" /><path d="M7 3v4m10-4v4M3 10h18" /></svg><div><span>Beginn</span><strong>@BerlinTime(gameNight.StartsAt)</strong></div></div>
+                    <div class="event-fact"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0Z" /><circle cx="12" cy="10" r="2.5" /></svg><div><span>Ort</span><strong>@gameNight.Location</strong></div></div>
+                </div>
+                @if (!string.IsNullOrWhiteSpace(gameNight.Information))
+                {
+                    <p class="event-description preserve">@gameNight.Information</p>
+                }
+            </div>
+            <section class="event-info-section" aria-labelledby="event-prices-title">
+                <h3 id="event-prices-title">Eintritt</h3>
+                <dl class="event-prices">
+                    <div><dt>Frühbucher <button type="button" class="deadline-info-button" popovertarget="event-deadline-info" aria-label="Fristen für Frühbucher und Essenswünsche">i</button></dt><dd><div><span>Ohne Setup</span><strong>@Money(gameNight.EarlyPriceCents)</strong></div><div><span>Mit Setup</span><strong>@Money(gameNight.EarlySetupPriceCents)</strong></div></dd></div>
+                    <div><dt>Regulär</dt><dd><div><span>Ohne Setup</span><strong>@Money(gameNight.RegularPriceCents)</strong></div><div><span>Mit Setup</span><strong>@Money(gameNight.RegularSetupPriceCents)</strong></div></dd></div>
+                    <div><dt>Mitgliederrabatt</dt><dd><div><span>Frühbucher ohne / mit Setup</span><strong>@Money(gameNight.MemberEarlyDiscountCents) / @Money(gameNight.MemberEarlySetupDiscountCents)</strong></div><div><span>Regulär ohne / mit Setup</span><strong>@Money(gameNight.MemberRegularDiscountCents) / @Money(gameNight.MemberRegularSetupDiscountCents)</strong></div></dd></div>
+                </dl>
+            </section>
+            <div id="event-deadline-info" popover class="deadline-info-popover">
+                <h3>Wichtige Termine</h3>
+                <dl>
+                    <dt>Frühbucherpreis bis</dt><dd>@BerlinTime(gameNight.EarlyBirdDeadline)</dd>
+                    <dt>Essenswünsche bis</dt><dd>@BerlinTime(gameNight.FoodDeadline)</dd>
+                </dl>
+            </div>
+            @if (!_signedIn)
+            {
+                <section class="event-account">
+                    <h3>Mit Konto anmelden</h3>
+                    <p>Mit einem Konto kannst du deine Anmeldung später bearbeiten oder stornieren. Bei verknüpfter Mitgliedschaft und bezahltem Beitrag prüfen wir den Mitgliedspreis automatisch.</p>
+                    <p class="muted">Eine Gastanmeldung kannst du später mit derselben verifizierten E-Mail übernehmen.</p>
+                    <button class="secondary" @onclick="Login">Anmelden oder Konto erstellen</button>
+                </section>
+            }
+        </aside>
+        <section class="card">
+        @if (_receipt is not null) { <h2>Danke!</h2><p role="status">@_receipt</p><a href="/mine">Meine Anmeldung</a> }
+        @if (_receipt is null && DateTime.UtcNow <= gameNight.SignupDeadline) { <SignupEditor Form="_form" Busy="_busy" Submit="Submit" ValidateEmail="ValidateEmail" /> }
+        @if (_receipt is null && DateTime.UtcNow > gameNight.SignupDeadline) { <h2>Anmeldung geschlossen</h2><p>Die Anmeldefrist ist abgelaufen.</p> }
+        </section>
+    </div>
+}

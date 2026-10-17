@@ -1,0 +1,67 @@
+<section class="card registration-overview">
+    <div class="section-heading">
+        <div><p class="eyebrow">ANMELDUNG</p><h2>@Registration.Form.FirstName @Registration.Form.LastName</h2><p>@Registration.Form.Email</p></div>
+        <ContextMenu AriaLabel="Anmeldung verwalten">
+            @if (Registration.CanEdit || Has(Permissions.Manage))
+            {
+                <ContextMenuItem Text="Bearbeiten" OnClick="Edit" IsDisabled="@Registration.Cancelled" />
+                <ContextMenuItem Text="Stornieren" OnClick='() => Confirm("cancel", "Anmeldung stornieren")' IsDestructive="true" IsDisabled="@Registration.Cancelled" />
+            }
+            @if (Has(Permissions.Admission))
+            {
+                <ContextMenuItem Text="Als Personal freigeben" OnClick='() => Confirm("staff", "Freien Personaleintritt freigeben")' IsDisabled="@Registration.StaffApproved" />
+                <ContextMenuItem Text="Personalstatus entfernen" OnClick='() => Confirm("unstaff", "Personalstatus entfernen")' IsDisabled="@(!Registration.StaffApproved)" />
+            }
+            @if (Has(Permissions.Frontdesk))
+            {
+                <ContextMenuItem Text="Zahlung erfassen" OnClick='() => Confirm("pay", "Barzahlung als erhalten verbuchen")' IsDisabled="@(Registration.Paid || Registration.PriceCents is null or 0)" />
+                <ContextMenuItem Text="Check-in" OnClick='() => Confirm("checkin", "Besucher einchecken")' IsDisabled="@(Registration.CheckedIn || (!Registration.Paid && Registration.PriceCents != 0))" />
+                <ContextMenuItem Text="Check-in zurücknehmen" OnClick='() => Confirm("uncheckin", "Check-in zurücknehmen")' IsDisabled="@(!Registration.CheckedIn)" />
+                <ContextMenuItem Text="Zahlung zurücknehmen" OnClick='() => Confirm("unpay", "Zahlung zurücknehmen")' IsDisabled="@(!Registration.Paid || Registration.CheckedIn)" />
+            }
+        </ContextMenu>
+    </div>
+    <div class="badges"><span>@(Registration.Cancelled ? "Storniert" : "Angemeldet")</span><span>@(Registration.CheckedIn ? "Eingecheckt" : "Noch nicht eingecheckt")</span><span>@(Registration.PriceCents == 0 ? "Keine Zahlung nötig" : Registration.Paid ? "Bezahlt" : "Zahlung offen")</span></div>
+    <div class="registration-overview-grid">
+        <section class="registration-price-summary">
+            <h3>@Registration.Admission</h3>
+            <div class="registration-prices">
+                <div class="registration-rate @(Registration.Form.Sockets is null or 0 ? "selected-rate" : "")"><span>Ohne Setup</span><strong>@Money(Registration.PriceWithoutSetupCents)</strong></div>
+                <div class="registration-rate @(Registration.Form.Sockets > 0 ? "selected-rate" : "")"><span>Mit Setup / Sitzplatz</span><strong>@Money(Registration.PriceWithSetupCents)</strong></div>
+            </div>
+            <p class="muted">Dein Eintritt: <strong>@Money(Registration.PriceCents)</strong></p>
+        </section>
+        <section class="registration-plan" aria-label="Dein Abend">
+            <p class="registration-attendance">@(Registration.Form.Attendance == "Karaoke" ? "Nur Karaoke" : "Game Night + Karaoke")</p>
+            <div class="registration-stat-grid">
+                @if (Registration.Form.Attendance != "Karaoke")
+                {
+                    <div class="registration-stat"><RegistrationStatIcon Kind="power" /><div><span>Steckdosen</span><strong>@(Registration.Form.Sockets == 4 ? "3–4" : Registration.Form.Sockets?.ToString() ?? "—")</strong></div></div>
+                    <div class="registration-stat"><RegistrationStatIcon Kind="doner" /><div><span>Döner</span><strong>@FoodQuantity("Döner")</strong></div></div>
+                    <div class="registration-stat"><RegistrationStatIcon Kind="pizza" /><div><span>Pizza</span><strong>@FoodQuantity("Pizza")</strong></div></div>
+                    <div class="registration-stat"><RegistrationStatIcon Kind="pnp" /><div><span>Pen &amp; Paper</span><strong>@YesNo(Registration.Form.PenAndPaper)</strong></div></div>
+                }
+                <div class="registration-stat"><RegistrationStatIcon Kind="orga" /><div><span>Orga-Selbstauskunft</span><strong>@YesNo(Registration.Form.OrganizerDeclaration)</strong></div></div>
+            </div>
+        </section>
+    </div>
+    @if (!string.IsNullOrWhiteSpace(Registration.Form.Notes))
+    {
+        <div class="registration-notes"><strong>Anmerkungen</strong><p class="preserve">@Registration.Form.Notes</p></div>
+    }
+    @if (_error is not null) { <p class="error" role="alert">@_error</p> }
+</section>
+@if (_edit is not null)
+{
+    <FormDialog Title="Anmeldung bearbeiten" OnClose="Close">
+        <ChildContent><SignupEditor Form="_edit" Editing="true" Busy="_busy" Submit="Save" />@if (_error is not null) { <p role="alert">@_error</p> }</ChildContent>
+        <Footer><button class="secondary" disabled="@_busy" @onclick="Close">Schließen</button></Footer>
+    </FormDialog>
+}
+@if (_action is not null)
+{
+    <FormDialog Title="@_title" OnClose="Close">
+        <ChildContent><p>@Registration.Form.FirstName @Registration.Form.LastName · @Registration.Form.Email</p><p>@_title bestätigen? Tarif: @Registration.Admission, @(Registration.PriceCents / 100m) €.</p>@if (_error is not null) { <p role="alert">@_error</p> }</ChildContent>
+        <Footer><button class="secondary" disabled="@_busy" @onclick="Close">Abbrechen</button><button disabled="@_busy" @onclick="Apply">Bestätigen</button></Footer>
+    </FormDialog>
+}

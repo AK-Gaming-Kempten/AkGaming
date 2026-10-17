@@ -1,8 +1,8 @@
 <Project>
   <PropertyGroup>
-    <!-- None of the projects in this repo require .NET workloads; disabling the
-         workload resolver avoids MSB4276 resolver failures during graph restore. -->
-    <MSBuildEnableWorkloadResolver>false</MSBuildEnableWorkloadResolver>
+    <!-- Server builds do not need workloads; the MAUI host does. -->
+    <MSBuildEnableWorkloadResolver Condition="'$(MSBuildProjectName)' != 'AkGaming.Gamenight.Mobile'">false</MSBuildEnableWorkloadResolver>
+    <MSBuildEnableWorkloadResolver Condition="'$(MSBuildProjectName)' == 'AkGaming.Gamenight.Mobile'">true</MSBuildEnableWorkloadResolver>
     <!-- Work around static restore graph failures after cross-project moves. -->
     <RestoreUseStaticGraphEvaluation>false</RestoreUseStaticGraphEvaluation>
   </PropertyGroup>

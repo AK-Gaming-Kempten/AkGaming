@@ -1,0 +1,12 @@
+<Solution>
+  <Project Path="Contracts/AkGaming.Gamenight.Contracts.csproj" />
+  <Project Path="Domain/AkGaming.Gamenight.Domain.csproj" />
+  <Project Path="Application/AkGaming.Gamenight.Application.csproj" />
+  <Project Path="Infrastructure/AkGaming.Gamenight.Infrastructure.csproj" />
+  <Project Path="Migrations/Sqlite/AkGaming.Gamenight.Migrations.Sqlite.csproj" />
+  <Project Path="Migrations/Postgres/AkGaming.Gamenight.Migrations.Postgres.csproj" />
+  <Project Path="Shared/AkGaming.Gamenight.Shared.csproj" />
+  <Project Path="Frontend/AkGaming.Gamenight.Frontend.csproj" />
+  <Project Path="WebApi/AkGaming.Gamenight.WebApi.csproj" />
+  <Project Path="Tests/AkGaming.Gamenight.Tests.csproj" />
+</Solution>

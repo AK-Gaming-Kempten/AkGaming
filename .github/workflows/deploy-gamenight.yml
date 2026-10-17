@@ -1,0 +1,289 @@
+name: Deploy Gamenight
+
+on:
+  push:
+    branches: ["develop"]
+    tags: ["gamenight/*"]
+
+concurrency:
+  group: deploy-gamenight-${{ github.ref_name }}
+  cancel-in-progress: false
+
+jobs:
+  should-deploy:
+    if: github.ref == 'refs/heads/develop'
+    runs-on: ubuntu-latest
+    outputs:
+      deploy: ${{ steps.evaluate.outputs.deploy }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Evaluate Gamenight Deploy Trigger
+        id: evaluate
+        env:
+          BEFORE_SHA: ${{ github.event.before }}
+          CURRENT_SHA: ${{ github.sha }}
+        run: |
+          set -eu
+
+          zero_sha="0000000000000000000000000000000000000000"
+          if [ "$BEFORE_SHA" = "$zero_sha" ]; then
+            changed_files="$(git show --pretty='' --name-only "$CURRENT_SHA")"
+            commit_messages="$(git log --format=%B -n 1 "$CURRENT_SHA")"
+          else
+            changed_files="$(git diff --name-only "$BEFORE_SHA" "$CURRENT_SHA")"
+            commit_messages="$(git log --format=%B "$BEFORE_SHA..$CURRENT_SHA")"
+          fi
+
+          deploy=false
+
+          if printf '%s\n' "$changed_files" | grep -Eq '^(AkGaming\.Gamenight/|AkGaming\.Core/|\.github/workflows/deploy-gamenight\.yml|Directory\.Build\.props)'; then
+            deploy=true
+          fi
+
+          if printf '%s\n' "$commit_messages" | grep -Eiq '\[[^]]*(Gamenight|All Projects|Core)[^]]*\]'; then
+            deploy=true
+          fi
+
+          echo "deploy=$deploy" >> "$GITHUB_OUTPUT"
+
+  test:
+    needs: should-deploy
+    if: ${{ always() && ((github.ref == 'refs/heads/develop' && needs.should-deploy.outputs.deploy == 'true') || startsWith(github.ref, 'refs/tags/gamenight/')) }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+      - name: Restore Gamenight Tests
+        env:
+          DOTNET_CLI_HOME: /tmp
+          DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
+        run: dotnet restore AkGaming.Gamenight/Tests/AkGaming.Gamenight.Tests.csproj
+      - name: Run Gamenight Tests
+        env:
+          DOTNET_CLI_HOME: /tmp
+          DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
+        run: dotnet test AkGaming.Gamenight/Tests/AkGaming.Gamenight.Tests.csproj --configuration Release --no-restore
+
+      - name: Build Gamenight Web Frontend
+        run: dotnet build AkGaming.Gamenight/Frontend --configuration Release -m:1
+
+  deploy-test:
+    needs:
+      - should-deploy
+      - test
+    if: github.ref == 'refs/heads/develop' && needs.should-deploy.outputs.deploy == 'true'
+    runs-on: ubuntu-latest
+    env:
+      GAMENIGHT_TEST_DB_CONNECTION_STRING: ${{ secrets.GAMENIGHT_TEST_DB_CONNECTION_STRING }}
+      DB_SSH_HOST: ${{ secrets.DB_SSH_HOST }}
+      DB_SSH_PORT: ${{ secrets.DB_SSH_PORT }}
+      DB_SSH_USER: ${{ secrets.DB_SSH_USER }}
+      DB_SSH_PRIVATE_KEY: ${{ secrets.DB_SSH_PRIVATE_KEY }}
+      DB_SSH_KNOWN_HOSTS: ${{ secrets.DB_SSH_KNOWN_HOSTS }}
+      DB_TUNNEL_TARGET_HOST: ${{ secrets.DB_TUNNEL_TARGET_HOST }}
+      DB_TUNNEL_TARGET_PORT: ${{ secrets.DB_TUNNEL_TARGET_PORT }}
+      TEST_DB_TUNNEL_LOCAL_PORT: "55432"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+      - name: Install dotnet-ef
+        run: dotnet tool install --global dotnet-ef --version 10.*
+      - name: Add .NET tools to PATH
+        run: echo "$HOME/.dotnet/tools" >> "$GITHUB_PATH"
+      - name: Restore Gamenight Postgres Project
+        env:
+          DOTNET_CLI_HOME: /tmp
+          DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
+        run: dotnet restore AkGaming.Gamenight/Migrations/Postgres/AkGaming.Gamenight.Migrations.Postgres.csproj
+      - name: Restore Gamenight Web API Project
+        env:
+          DOTNET_CLI_HOME: /tmp
+          DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
+        run: dotnet restore AkGaming.Gamenight/WebApi/AkGaming.Gamenight.WebApi.csproj
+      - name: Configure SSH For Test Database Tunnel
+        if: ${{ env.DB_SSH_HOST != '' && env.DB_SSH_USER != '' && env.DB_SSH_PRIVATE_KEY != '' && env.DB_SSH_KNOWN_HOSTS != '' }}
+        run: |
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "$DB_SSH_PRIVATE_KEY" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          printf '%s\n' "$DB_SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
+          chmod 600 ~/.ssh/known_hosts
+      - name: Open Test Database SSH Tunnel
+        if: ${{ env.DB_SSH_HOST != '' && env.DB_SSH_USER != '' && env.DB_SSH_PRIVATE_KEY != '' && env.DB_SSH_KNOWN_HOSTS != '' }}
+        run: |
+          target_host="${DB_TUNNEL_TARGET_HOST:-127.0.0.1}"
+          target_port="${DB_TUNNEL_TARGET_PORT:-5432}"
+          ssh -i ~/.ssh/id_ed25519 \
+            -p "${DB_SSH_PORT:-22}" \
+            -o IdentitiesOnly=yes \
+            -o ExitOnForwardFailure=yes \
+            -o ServerAliveInterval=30 \
+            -o StrictHostKeyChecking=yes \
+            -fN \
+            -L "127.0.0.1:${TEST_DB_TUNNEL_LOCAL_PORT}:${target_host}:${target_port}" \
+            "${DB_SSH_USER}@${DB_SSH_HOST}"
+      - name: Validate Gamenight Test Connection String
+        env:
+          CONNECTION_STRING: ${{ env.GAMENIGHT_TEST_DB_CONNECTION_STRING }}
+        run: |
+          case "$CONNECTION_STRING" in
+            Host=*|Server=*)
+              ;;
+            *)
+              echo "::error::GAMENIGHT_TEST_DB_CONNECTION_STRING must be a raw Npgsql connection string like Host=...;Port=5432;Database=...;Username=...;Password=..."
+              echo "::error::Do not include surrounding quotes, a ConnectionStrings__Gamenight= prefix, or a postgres:// URL."
+              exit 1
+              ;;
+          esac
+
+          if [ -n "$DB_SSH_HOST" ]; then
+            if ! printf '%s\n' "$CONNECTION_STRING" | grep -Eiq '(^|;)(Host|Server)=(127\.0\.0\.1|localhost)(;|$)'; then
+              echo "::error::GAMENIGHT_TEST_DB_CONNECTION_STRING must use Host=127.0.0.1 or Host=localhost when DB_SSH_* tunnel secrets are configured."
+              exit 1
+            fi
+
+            if ! printf '%s\n' "$CONNECTION_STRING" | grep -Eiq "(^|;)Port=${TEST_DB_TUNNEL_LOCAL_PORT}(;|$)"; then
+              echo "::error::GAMENIGHT_TEST_DB_CONNECTION_STRING must use Port=${TEST_DB_TUNNEL_LOCAL_PORT} when DB_SSH_* tunnel secrets are configured."
+              exit 1
+            fi
+          fi
+      - name: Apply Test Database Migrations
+        if: ${{ env.GAMENIGHT_TEST_DB_CONNECTION_STRING != '' }}
+        env:
+          DOTNET_CLI_HOME: /tmp
+          DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
+          ConnectionStrings__Gamenight: ${{ env.GAMENIGHT_TEST_DB_CONNECTION_STRING }}
+        run: |
+          if find AkGaming.Gamenight/Migrations/Postgres -path '*/Migrations/*.cs' -print -quit | grep -q .; then
+            dotnet ef database update \
+              --project AkGaming.Gamenight/Migrations/Postgres/AkGaming.Gamenight.Migrations.Postgres.csproj \
+              --startup-project AkGaming.Gamenight/Migrations/Postgres/AkGaming.Gamenight.Migrations.Postgres.csproj \
+              --context GamenightDbContext
+          else
+            echo "No gamenight migrations were found. Skipping database update."
+          fi
+      - name: Trigger Coolify Test Deploy for Backend
+        run: |
+          curl --fail --request GET "${{ secrets.COOLIFY_WEBHOOK_GAMENIGHT_BACKEND_TEST }}" \
+            --header "Authorization: Bearer ${{ secrets.COOLIFY_TOKEN }}"
+      - name: Trigger Coolify Test Deploy for Frontend
+        run: |
+          curl --fail --request GET "${{ secrets.COOLIFY_WEBHOOK_GAMENIGHT_FRONTEND_TEST }}" \
+            --header "Authorization: Bearer ${{ secrets.COOLIFY_TOKEN }}"
+
+  deploy-production:
+    needs: test
+    if: ${{ always() && startsWith(github.ref, 'refs/tags/gamenight/') && needs.test.result == 'success' }}
+    runs-on: ubuntu-latest
+    env:
+      GAMENIGHT_PRODUCTION_DB_CONNECTION_STRING: ${{ secrets.GAMENIGHT_PRODUCTION_DB_CONNECTION_STRING }}
+      DB_SSH_HOST: ${{ secrets.DB_SSH_HOST }}
+      DB_SSH_PORT: ${{ secrets.DB_SSH_PORT }}
+      DB_SSH_USER: ${{ secrets.DB_SSH_USER }}
+      DB_SSH_PRIVATE_KEY: ${{ secrets.DB_SSH_PRIVATE_KEY }}
+      DB_SSH_KNOWN_HOSTS: ${{ secrets.DB_SSH_KNOWN_HOSTS }}
+      DB_TUNNEL_TARGET_HOST: ${{ secrets.DB_TUNNEL_TARGET_HOST }}
+      DB_TUNNEL_TARGET_PORT: ${{ secrets.DB_TUNNEL_TARGET_PORT }}
+      PRODUCTION_DB_TUNNEL_LOCAL_PORT: "55433"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+      - name: Install dotnet-ef
+        run: dotnet tool install --global dotnet-ef --version 10.*
+      - name: Add .NET tools to PATH
+        run: echo "$HOME/.dotnet/tools" >> "$GITHUB_PATH"
+      - name: Restore Gamenight Postgres Project
+        env:
+          DOTNET_CLI_HOME: /tmp
+          DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
+        run: dotnet restore AkGaming.Gamenight/Migrations/Postgres/AkGaming.Gamenight.Migrations.Postgres.csproj
+      - name: Restore Gamenight Web API Project
+        env:
+          DOTNET_CLI_HOME: /tmp
+          DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
+        run: dotnet restore AkGaming.Gamenight/WebApi/AkGaming.Gamenight.WebApi.csproj
+      - name: Configure SSH For Production Database Tunnel
+        if: ${{ env.DB_SSH_HOST != '' && env.DB_SSH_USER != '' && env.DB_SSH_PRIVATE_KEY != '' && env.DB_SSH_KNOWN_HOSTS != '' }}
+        run: |
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "$DB_SSH_PRIVATE_KEY" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          printf '%s\n' "$DB_SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
+          chmod 600 ~/.ssh/known_hosts
+      - name: Open Production Database SSH Tunnel
+        if: ${{ env.DB_SSH_HOST != '' && env.DB_SSH_USER != '' && env.DB_SSH_PRIVATE_KEY != '' && env.DB_SSH_KNOWN_HOSTS != '' }}
+        run: |
+          target_host="${DB_TUNNEL_TARGET_HOST:-127.0.0.1}"
+          target_port="${DB_TUNNEL_TARGET_PORT:-5432}"
+          ssh -i ~/.ssh/id_ed25519 \
+            -p "${DB_SSH_PORT:-22}" \
+            -o IdentitiesOnly=yes \
+            -o ExitOnForwardFailure=yes \
+            -o ServerAliveInterval=30 \
+            -o StrictHostKeyChecking=yes \
+            -fN \
+            -L "127.0.0.1:${PRODUCTION_DB_TUNNEL_LOCAL_PORT}:${target_host}:${target_port}" \
+            "${DB_SSH_USER}@${DB_SSH_HOST}"
+      - name: Validate Gamenight Production Connection String
+        env:
+          CONNECTION_STRING: ${{ env.GAMENIGHT_PRODUCTION_DB_CONNECTION_STRING }}
+        run: |
+          case "$CONNECTION_STRING" in
+            Host=*|Server=*)
+              ;;
+            *)
+              echo "::error::GAMENIGHT_PRODUCTION_DB_CONNECTION_STRING must be a raw Npgsql connection string like Host=...;Port=5432;Database=...;Username=...;Password=..."
+              echo "::error::Do not include surrounding quotes, a ConnectionStrings__Gamenight= prefix, or a postgres:// URL."
+              exit 1
+              ;;
+          esac
+
+          if [ -n "$DB_SSH_HOST" ]; then
+            if ! printf '%s\n' "$CONNECTION_STRING" | grep -Eiq '(^|;)(Host|Server)=(127\.0\.0\.1|localhost)(;|$)'; then
+              echo "::error::GAMENIGHT_PRODUCTION_DB_CONNECTION_STRING must use Host=127.0.0.1 or Host=localhost when DB_SSH_* tunnel secrets are configured."
+              exit 1
+            fi
+
+            if ! printf '%s\n' "$CONNECTION_STRING" | grep -Eiq "(^|;)Port=${PRODUCTION_DB_TUNNEL_LOCAL_PORT}(;|$)"; then
+              echo "::error::GAMENIGHT_PRODUCTION_DB_CONNECTION_STRING must use Port=${PRODUCTION_DB_TUNNEL_LOCAL_PORT} when DB_SSH_* tunnel secrets are configured."
+              exit 1
+            fi
+          fi
+      - name: Apply Production Database Migrations
+        if: ${{ env.GAMENIGHT_PRODUCTION_DB_CONNECTION_STRING != '' }}
+        env:
+          DOTNET_CLI_HOME: /tmp
+          DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
+          ConnectionStrings__Gamenight: ${{ env.GAMENIGHT_PRODUCTION_DB_CONNECTION_STRING }}
+        run: |
+          if find AkGaming.Gamenight/Migrations/Postgres -path '*/Migrations/*.cs' -print -quit | grep -q .; then
+            dotnet ef database update \
+              --project AkGaming.Gamenight/Migrations/Postgres/AkGaming.Gamenight.Migrations.Postgres.csproj \
+              --startup-project AkGaming.Gamenight/Migrations/Postgres/AkGaming.Gamenight.Migrations.Postgres.csproj \
+              --context GamenightDbContext
+          else
+            echo "No gamenight migrations were found. Skipping database update."
+          fi
+      - name: Trigger Coolify Production Deploy for Backend
+        run: |
+          curl --fail --request GET "${{ secrets.COOLIFY_WEBHOOK_GAMENIGHT_BACKEND }}" \
+            --header "Authorization: Bearer ${{ secrets.COOLIFY_TOKEN }}"
+      - name: Trigger Coolify Production Deploy for Frontend
+        run: |
+          curl --fail --request GET "${{ secrets.COOLIFY_WEBHOOK_GAMENIGHT_FRONTEND }}" \
+            --header "Authorization: Bearer ${{ secrets.COOLIFY_TOKEN }}"

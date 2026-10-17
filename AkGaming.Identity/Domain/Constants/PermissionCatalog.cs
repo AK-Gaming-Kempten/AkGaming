@@ -7,6 +7,12 @@ public static class PermissionCatalog
     public static IReadOnlyList<PermissionDefinition> All { get; } =
     [
         new(PermissionNames.IdentityUsersRead, "identity", "users", "read", "View identity users."),
+        new(PermissionNames.GamenightEventsManage, "gamenight", "events", "manage", "Configure and activate Game Night events."),
+        new(PermissionNames.GamenightRegistrationsRead, "gamenight", "registrations", "read", "View Game Night registrations."),
+        new(PermissionNames.GamenightRegistrationsManage, "gamenight", "registrations", "manage", "Edit and cancel visitor registrations."),
+        new(PermissionNames.GamenightRegistrationsExport, "gamenight", "registrations", "export", "Export visitor registrations."),
+        new(PermissionNames.GamenightAdmissionManage, "gamenight", "admission", "manage", "Approve event staff and free staff admission."),
+        new(PermissionNames.GamenightFrontdeskManage, "gamenight", "frontdesk", "manage", "Record and correct entry payments and check-ins."),
         new(PermissionNames.IdentityUsersManage, "identity", "users", "manage", "Manage identity users and their role assignments."),
         new(PermissionNames.IdentityRolesRead, "identity", "roles", "read", "View roles and their permissions."),
         new(PermissionNames.IdentityRolesManage, "identity", "roles", "manage", "Create, update, delete, and configure roles."),

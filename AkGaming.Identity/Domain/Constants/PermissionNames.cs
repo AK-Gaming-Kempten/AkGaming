@@ -3,6 +3,12 @@ namespace AkGaming.Identity.Domain.Constants;
 public static class PermissionNames
 {
     public const string ClaimType = "permission";
+    public const string GamenightEventsManage = "gamenight.events.manage";
+    public const string GamenightRegistrationsRead = "gamenight.registrations.read";
+    public const string GamenightRegistrationsManage = "gamenight.registrations.manage";
+    public const string GamenightRegistrationsExport = "gamenight.registrations.export";
+    public const string GamenightAdmissionManage = "gamenight.admission.manage";
+    public const string GamenightFrontdeskManage = "gamenight.frontdesk.manage";
 
     public const string IdentityUsersRead = "identity.users.read";
     public const string IdentityUsersManage = "identity.users.manage";

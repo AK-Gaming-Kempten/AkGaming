@@ -149,7 +149,9 @@ public sealed class OpenIddictSeeder
             || string.Equals(scope, ManagementBoardInteractionsScope, StringComparison.OrdinalIgnoreCase)
             || string.Equals(scope, ManagementDisbursementInteractionsScope, StringComparison.OrdinalIgnoreCase)
             || string.Equals(scope, IdentityAuditSummariesScope, StringComparison.OrdinalIgnoreCase)
-            || string.Equals(scope, ManagementAuditSummariesScope, StringComparison.OrdinalIgnoreCase));
+            || string.Equals(scope, ManagementAuditSummariesScope, StringComparison.OrdinalIgnoreCase)
+            || string.Equals(scope, "gamenight_api", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(scope, "management_gamenight_membership", StringComparison.OrdinalIgnoreCase));
 
     private static bool IsProtectedScope(OpenIddictScopeSeed scope)
         => string.Equals(scope.Name, ManagementApiScope, StringComparison.OrdinalIgnoreCase)
@@ -158,7 +160,9 @@ public sealed class OpenIddictSeeder
             || string.Equals(scope.Name, ManagementBoardInteractionsScope, StringComparison.OrdinalIgnoreCase)
             || string.Equals(scope.Name, ManagementDisbursementInteractionsScope, StringComparison.OrdinalIgnoreCase)
             || string.Equals(scope.Name, IdentityAuditSummariesScope, StringComparison.OrdinalIgnoreCase)
-            || string.Equals(scope.Name, ManagementAuditSummariesScope, StringComparison.OrdinalIgnoreCase);
+            || string.Equals(scope.Name, ManagementAuditSummariesScope, StringComparison.OrdinalIgnoreCase)
+            || string.Equals(scope.Name, "gamenight_api", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(scope.Name, "management_gamenight_membership", StringComparison.OrdinalIgnoreCase);
 
     private static string NormalizeConsentType(string? value)
     {
