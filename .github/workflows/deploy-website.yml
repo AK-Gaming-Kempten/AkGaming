@@ -52,18 +52,111 @@ jobs:
   deploy-test:
     needs: should-deploy
     if: github.ref == 'refs/heads/develop' && needs.should-deploy.outputs.deploy == 'true'
-    runs-on: ubuntu-latest
+
+    runs-on:
+      - self-hosted
+      - akgaming-deploy
+
     steps:
-      - name: Trigger Coolify Test Deploy
+      - name: Update test checkout
         run: |
-          curl --fail --request GET "${{ secrets.COOLIFY_WEBHOOK_WEBSITE_TEST }}" \
-            --header "Authorization: Bearer ${{ secrets.COOLIFY_TOKEN }}"
+          set -euo pipefail
+
+          cd /opt/akgaming/deployment/repo/test
+
+          git fetch origin develop
+          git reset --hard origin/develop
+          git clean -fdx
+
+      - name: Build Website test
+        run: |
+          set -euo pipefail
+
+          cd /opt/akgaming/deployment/compose/test
+          docker compose build website
+
+      - name: Deploy Website test
+        run: |
+          set -euo pipefail
+
+          cd /opt/akgaming/deployment/compose/test
+          docker compose up -d --no-deps website
+
+      - name: Verify Website test
+        run: |
+          set -euo pipefail
+
+          cd /opt/akgaming/deployment/compose/test
+
+          for attempt in $(seq 1 30); do
+              if curl --fail --silent \
+                  http://127.0.0.1:18087/ \
+                  >/dev/null
+              then
+                  echo "Website test is healthy"
+                  exit 0
+              fi
+
+              echo "Waiting for Website test ($attempt/30)..."
+              sleep 2
+          done
+
+          echo "Website test failed health check"
+          docker compose logs --tail=100 website
+          exit 1
+
 
   deploy-production:
     if: startsWith(github.ref, 'refs/tags/website/')
-    runs-on: ubuntu-latest
+
+    runs-on:
+      - self-hosted
+      - akgaming-deploy
+
     steps:
-      - name: Trigger Coolify Production Deploy
+      - name: Update production checkout
         run: |
-          curl --fail --request GET "${{ secrets.COOLIFY_WEBHOOK_WEBSITE }}" \
-            --header "Authorization: Bearer ${{ secrets.COOLIFY_TOKEN }}"
+          set -euo pipefail
+
+          cd /opt/akgaming/deployment/repo/prod
+
+          git fetch origin --tags
+          git reset --hard "$GITHUB_SHA"
+          git clean -fdx
+
+      - name: Build Website production
+        run: |
+          set -euo pipefail
+
+          cd /opt/akgaming/deployment/compose/prod
+          docker compose build website
+
+      - name: Deploy Website production
+        run: |
+          set -euo pipefail
+
+          cd /opt/akgaming/deployment/compose/prod
+          docker compose up -d --no-deps website
+
+      - name: Verify Website production
+        run: |
+          set -euo pipefail
+
+          cd /opt/akgaming/deployment/compose/prod
+
+          for attempt in $(seq 1 30); do
+              if curl --fail --silent \
+                  http://127.0.0.1:18107/ \
+                  >/dev/null
+              then
+                  echo "Website production is healthy"
+                  exit 0
+              fi
+
+              echo "Waiting for Website production ($attempt/30)..."
+              sleep 2
+          done
+
+          echo "Website production failed health check"
+          docker compose logs --tail=100 website
+          exit 1
