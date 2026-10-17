@@ -49,21 +49,58 @@ jobs:
 
           echo "deploy=$deploy" >> "$GITHUB_OUTPUT"
 
-  deploy-test:
-    needs: should-deploy
-    if: github.ref == 'refs/heads/develop' && needs.should-deploy.outputs.deploy == 'true'
-    runs-on: ubuntu-latest
-    steps:
-      - name: Trigger Coolify Test Deploy
-        run: |
-          curl --fail --request GET "${{ secrets.COOLIFY_WEBHOOK_DASHBOARD_TEST }}" \
-            --header "Authorization: Bearer ${{ secrets.COOLIFY_TOKEN }}"
+  name: Deploy Dashboard
 
-  deploy-production:
-    if: startsWith(github.ref, 'refs/tags/dashboard/')
-    runs-on: ubuntu-latest
-    steps:
-      - name: Trigger Coolify Production Deploy
-        run: |
-          curl --fail --request GET "${{ secrets.COOLIFY_WEBHOOK_DASHBOARD }}" \
-            --header "Authorization: Bearer ${{ secrets.COOLIFY_TOKEN }}"
+  on:
+    push:
+      tags: [ "dashboard/*" ]
+
+  concurrency:
+    group: deploy-dashboard-${{ github.ref_name }}
+    cancel-in-progress: false
+
+  jobs:
+    deploy-production:
+      runs-on:
+        - self-hosted
+        - akgaming-deploy
+
+      steps:
+        - name: Update production checkout
+          run: |
+            set -euo pipefail
+
+            cd /opt/akgaming/deployment/repo/prod
+
+            git fetch origin --tags
+            git reset --hard "$GITHUB_SHA"
+
+        - name: Build and deploy Dashboard production
+          run: |
+            set -euo pipefail
+
+            cd /opt/akgaming/deployment/compose/prod
+
+            docker compose build dashboard
+            docker compose up -d --no-deps dashboard
+
+        - name: Verify Dashboard production
+          run: |
+            set -euo pipefail
+
+            for attempt in $(seq 1 30); do
+                if curl --fail --silent \
+                    http://127.0.0.1:18100/ \
+                    >/dev/null
+                then
+                    echo "Dashboard production is healthy"
+                    exit 0
+                fi
+
+                echo "Waiting for Dashboard production ($attempt/30)..."
+                sleep 2
+            done
+
+            cd /opt/akgaming/deployment/compose/prod
+            docker compose logs --tail=100 dashboard
+            exit 1
