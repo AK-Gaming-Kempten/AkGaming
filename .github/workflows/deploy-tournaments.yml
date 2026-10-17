@@ -76,213 +76,109 @@ jobs:
       - should-deploy
       - test
     if: github.ref == 'refs/heads/develop' && needs.should-deploy.outputs.deploy == 'true'
-    runs-on: ubuntu-latest
-    env:
-      TOURNAMENTS_TEST_DB_CONNECTION_STRING: ${{ secrets.TOURNAMENTS_TEST_DB_CONNECTION_STRING }}
-      DB_SSH_HOST: ${{ secrets.DB_SSH_HOST }}
-      DB_SSH_PORT: ${{ secrets.DB_SSH_PORT }}
-      DB_SSH_USER: ${{ secrets.DB_SSH_USER }}
-      DB_SSH_PRIVATE_KEY: ${{ secrets.DB_SSH_PRIVATE_KEY }}
-      DB_SSH_KNOWN_HOSTS: ${{ secrets.DB_SSH_KNOWN_HOSTS }}
-      DB_TUNNEL_TARGET_HOST: ${{ secrets.DB_TUNNEL_TARGET_HOST }}
-      DB_TUNNEL_TARGET_PORT: ${{ secrets.DB_TUNNEL_TARGET_PORT }}
-      TEST_DB_TUNNEL_LOCAL_PORT: "55432"
+    runs-on: [ self-hosted, akgaming-deploy ]
+
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: 10.0.x
-      - name: Install dotnet-ef
-        run: dotnet tool install --global dotnet-ef --version 10.*
-      - name: Add .NET tools to PATH
-        run: echo "$HOME/.dotnet/tools" >> "$GITHUB_PATH"
-      - name: Restore Tournaments Postgres Project
-        env:
-          DOTNET_CLI_HOME: /tmp
-          DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
-        run: dotnet restore AkGaming.Tournaments/Infrastructure/Postgres/AkGaming.Tournaments.Infrastructure.Postgres.csproj
-      - name: Restore Tournaments Web API Project
-        env:
-          DOTNET_CLI_HOME: /tmp
-          DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
-        run: dotnet restore AkGaming.Tournaments/WebApi/AkGaming.Tournaments.WebApi.csproj
-      - name: Configure SSH For Test Database Tunnel
-        if: ${{ env.DB_SSH_HOST != '' && env.DB_SSH_USER != '' && env.DB_SSH_PRIVATE_KEY != '' && env.DB_SSH_KNOWN_HOSTS != '' }}
+      - name: Update test checkout
         run: |
-          install -m 700 -d ~/.ssh
-          printf '%s\n' "$DB_SSH_PRIVATE_KEY" > ~/.ssh/id_ed25519
-          chmod 600 ~/.ssh/id_ed25519
-          printf '%s\n' "$DB_SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
-          chmod 600 ~/.ssh/known_hosts
-      - name: Open Test Database SSH Tunnel
-        if: ${{ env.DB_SSH_HOST != '' && env.DB_SSH_USER != '' && env.DB_SSH_PRIVATE_KEY != '' && env.DB_SSH_KNOWN_HOSTS != '' }}
-        run: |
-          target_host="${DB_TUNNEL_TARGET_HOST:-127.0.0.1}"
-          target_port="${DB_TUNNEL_TARGET_PORT:-5432}"
-          ssh -i ~/.ssh/id_ed25519 \
-            -p "${DB_SSH_PORT:-22}" \
-            -o IdentitiesOnly=yes \
-            -o ExitOnForwardFailure=yes \
-            -o ServerAliveInterval=30 \
-            -o StrictHostKeyChecking=yes \
-            -fN \
-            -L "127.0.0.1:${TEST_DB_TUNNEL_LOCAL_PORT}:${target_host}:${target_port}" \
-            "${DB_SSH_USER}@${DB_SSH_HOST}"
-      - name: Validate Tournaments Test Connection String
-        if: ${{ env.TOURNAMENTS_TEST_DB_CONNECTION_STRING != '' }}
-        env:
-          CONNECTION_STRING: ${{ env.TOURNAMENTS_TEST_DB_CONNECTION_STRING }}
-        run: |
-          case "$CONNECTION_STRING" in
-            Host=*|Server=*)
-              ;;
-            *)
-              echo "::error::TOURNAMENTS_TEST_DB_CONNECTION_STRING must be a raw Npgsql connection string like Host=...;Port=5432;Database=...;Username=...;Password=..."
-              echo "::error::Do not include surrounding quotes, a ConnectionStrings__Postgres= prefix, or a postgres:// URL."
-              exit 1
-              ;;
-          esac
+          set -euo pipefail
+          cd /opt/akgaming/deployment/repo/test
+          git fetch origin develop
+          git reset --hard origin/develop
 
-          if [ -n "$DB_SSH_HOST" ]; then
-            if ! printf '%s\n' "$CONNECTION_STRING" | grep -Eiq '(^|;)(Host|Server)=(127\.0\.0\.1|localhost)(;|$)'; then
-              echo "::error::TOURNAMENTS_TEST_DB_CONNECTION_STRING must use Host=127.0.0.1 or Host=localhost when DB_SSH_* tunnel secrets are configured."
-              exit 1
-            fi
+      - name: Apply Tournaments test migrations
+        run: |
+          set -euo pipefail
+          cd /opt/akgaming/deployment/compose/test
+          docker compose --profile tools run --rm tournaments-migrations update
 
-            if ! printf '%s\n' "$CONNECTION_STRING" | grep -Eiq "(^|;)Port=${TEST_DB_TUNNEL_LOCAL_PORT}(;|$)"; then
-              echo "::error::TOURNAMENTS_TEST_DB_CONNECTION_STRING must use Port=${TEST_DB_TUNNEL_LOCAL_PORT} when DB_SSH_* tunnel secrets are configured."
-              exit 1
-            fi
-          fi
-      - name: Apply Test Database Migrations
-        if: ${{ env.TOURNAMENTS_TEST_DB_CONNECTION_STRING != '' }}
-        env:
-          DOTNET_CLI_HOME: /tmp
-          DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
-          ConnectionStrings__Postgres: ${{ env.TOURNAMENTS_TEST_DB_CONNECTION_STRING }}
+      - name: Build and deploy Tournaments test
         run: |
-          if find AkGaming.Tournaments/Infrastructure/Postgres -path '*/Migrations/*.cs' -print -quit | grep -q .; then
-            dotnet ef database update \
-              --project AkGaming.Tournaments/Infrastructure/Postgres/AkGaming.Tournaments.Infrastructure.Postgres.csproj \
-              --startup-project AkGaming.Tournaments/WebApi/AkGaming.Tournaments.WebApi.csproj \
-              --context TournamentDbContext
-          else
-            echo "No tournaments migrations were found. Skipping database update."
-          fi
-      - name: Trigger Coolify Test Deploy for Backend
+          set -euo pipefail
+          cd /opt/akgaming/deployment/compose/test
+
+          docker compose build \
+            tournaments-webapi \
+            tournaments-frontend
+
+          docker compose up -d --no-deps \
+            tournaments-webapi \
+            tournaments-frontend
+
+      - name: Verify Tournaments test
         run: |
-          curl --fail --request GET "${{ secrets.COOLIFY_WEBHOOK_TOURNAMENTS_BACKEND_TEST }}" \
-            --header "Authorization: Bearer ${{ secrets.COOLIFY_TOKEN }}"
-      - name: Trigger Coolify Test Deploy for Frontend
-        run: |
-          curl --fail --request GET "${{ secrets.COOLIFY_WEBHOOK_TOURNAMENTS_FRONTEND_TEST }}" \
-            --header "Authorization: Bearer ${{ secrets.COOLIFY_TOKEN }}"
+          set -euo pipefail
+
+          for attempt in $(seq 1 30); do
+              api="$(docker inspect -f '{{.State.Health.Status}}' akgaming-test-tournaments-webapi-1)"
+              frontend="$(docker inspect -f '{{.State.Health.Status}}' akgaming-test-tournaments-frontend-1)"
+
+              if [ "$api" = "healthy" ] && [ "$frontend" = "healthy" ]; then
+                  echo "Tournaments test is healthy"
+                  exit 0
+              fi
+
+              echo "Waiting: API=$api Frontend=$frontend ($attempt/30)"
+              sleep 2
+          done
+
+          docker compose logs --tail=100 \
+            tournaments-webapi \
+            tournaments-frontend
+
+          exit 1
 
   deploy-production:
     needs: test
     if: ${{ always() && startsWith(github.ref, 'refs/tags/tournaments/') && needs.test.result == 'success' }}
-    runs-on: ubuntu-latest
-    env:
-      TOURNAMENTS_PRODUCTION_DB_CONNECTION_STRING: ${{ secrets.TOURNAMENTS_PRODUCTION_DB_CONNECTION_STRING }}
-      DB_SSH_HOST: ${{ secrets.DB_SSH_HOST }}
-      DB_SSH_PORT: ${{ secrets.DB_SSH_PORT }}
-      DB_SSH_USER: ${{ secrets.DB_SSH_USER }}
-      DB_SSH_PRIVATE_KEY: ${{ secrets.DB_SSH_PRIVATE_KEY }}
-      DB_SSH_KNOWN_HOSTS: ${{ secrets.DB_SSH_KNOWN_HOSTS }}
-      DB_TUNNEL_TARGET_HOST: ${{ secrets.DB_TUNNEL_TARGET_HOST }}
-      DB_TUNNEL_TARGET_PORT: ${{ secrets.DB_TUNNEL_TARGET_PORT }}
-      PRODUCTION_DB_TUNNEL_LOCAL_PORT: "55433"
+    runs-on: [ self-hosted, akgaming-deploy ]
+
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: 10.0.x
-      - name: Install dotnet-ef
-        run: dotnet tool install --global dotnet-ef --version 10.*
-      - name: Add .NET tools to PATH
-        run: echo "$HOME/.dotnet/tools" >> "$GITHUB_PATH"
-      - name: Restore Tournaments Postgres Project
-        env:
-          DOTNET_CLI_HOME: /tmp
-          DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
-        run: dotnet restore AkGaming.Tournaments/Infrastructure/Postgres/AkGaming.Tournaments.Infrastructure.Postgres.csproj
-      - name: Restore Tournaments Web API Project
-        env:
-          DOTNET_CLI_HOME: /tmp
-          DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
-        run: dotnet restore AkGaming.Tournaments/WebApi/AkGaming.Tournaments.WebApi.csproj
-      - name: Configure SSH For Production Database Tunnel
-        if: ${{ env.DB_SSH_HOST != '' && env.DB_SSH_USER != '' && env.DB_SSH_PRIVATE_KEY != '' && env.DB_SSH_KNOWN_HOSTS != '' }}
+      - name: Update production checkout
         run: |
-          install -m 700 -d ~/.ssh
-          printf '%s\n' "$DB_SSH_PRIVATE_KEY" > ~/.ssh/id_ed25519
-          chmod 600 ~/.ssh/id_ed25519
-          printf '%s\n' "$DB_SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
-          chmod 600 ~/.ssh/known_hosts
-      - name: Open Production Database SSH Tunnel
-        if: ${{ env.DB_SSH_HOST != '' && env.DB_SSH_USER != '' && env.DB_SSH_PRIVATE_KEY != '' && env.DB_SSH_KNOWN_HOSTS != '' }}
-        run: |
-          target_host="${DB_TUNNEL_TARGET_HOST:-127.0.0.1}"
-          target_port="${DB_TUNNEL_TARGET_PORT:-5432}"
-          ssh -i ~/.ssh/id_ed25519 \
-            -p "${DB_SSH_PORT:-22}" \
-            -o IdentitiesOnly=yes \
-            -o ExitOnForwardFailure=yes \
-            -o ServerAliveInterval=30 \
-            -o StrictHostKeyChecking=yes \
-            -fN \
-            -L "127.0.0.1:${PRODUCTION_DB_TUNNEL_LOCAL_PORT}:${target_host}:${target_port}" \
-            "${DB_SSH_USER}@${DB_SSH_HOST}"
-      - name: Validate Tournaments Production Connection String
-        if: ${{ env.TOURNAMENTS_PRODUCTION_DB_CONNECTION_STRING != '' }}
-        env:
-          CONNECTION_STRING: ${{ env.TOURNAMENTS_PRODUCTION_DB_CONNECTION_STRING }}
-        run: |
-          case "$CONNECTION_STRING" in
-            Host=*|Server=*)
-              ;;
-            *)
-              echo "::error::TOURNAMENTS_PRODUCTION_DB_CONNECTION_STRING must be a raw Npgsql connection string like Host=...;Port=5432;Database=...;Username=...;Password=..."
-              echo "::error::Do not include surrounding quotes, a ConnectionStrings__Postgres= prefix, or a postgres:// URL."
-              exit 1
-              ;;
-          esac
+          set -euo pipefail
+          cd /opt/akgaming/deployment/repo/prod
+          git fetch origin --tags
+          git reset --hard "$GITHUB_SHA"
 
-          if [ -n "$DB_SSH_HOST" ]; then
-            if ! printf '%s\n' "$CONNECTION_STRING" | grep -Eiq '(^|;)(Host|Server)=(127\.0\.0\.1|localhost)(;|$)'; then
-              echo "::error::TOURNAMENTS_PRODUCTION_DB_CONNECTION_STRING must use Host=127.0.0.1 or Host=localhost when DB_SSH_* tunnel secrets are configured."
-              exit 1
-            fi
+      - name: Apply Tournaments production migrations
+        run: |
+          set -euo pipefail
+          cd /opt/akgaming/deployment/compose/prod
+          docker compose --profile tools run --rm tournaments-migrations update
 
-            if ! printf '%s\n' "$CONNECTION_STRING" | grep -Eiq "(^|;)Port=${PRODUCTION_DB_TUNNEL_LOCAL_PORT}(;|$)"; then
-              echo "::error::TOURNAMENTS_PRODUCTION_DB_CONNECTION_STRING must use Port=${PRODUCTION_DB_TUNNEL_LOCAL_PORT} when DB_SSH_* tunnel secrets are configured."
-              exit 1
-            fi
-          fi
-      - name: Apply Production Database Migrations
-        if: ${{ env.TOURNAMENTS_PRODUCTION_DB_CONNECTION_STRING != '' }}
-        env:
-          DOTNET_CLI_HOME: /tmp
-          DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
-          ConnectionStrings__Postgres: ${{ env.TOURNAMENTS_PRODUCTION_DB_CONNECTION_STRING }}
+      - name: Build and deploy Tournaments production
         run: |
-          if find AkGaming.Tournaments/Infrastructure/Postgres -path '*/Migrations/*.cs' -print -quit | grep -q .; then
-            dotnet ef database update \
-              --project AkGaming.Tournaments/Infrastructure/Postgres/AkGaming.Tournaments.Infrastructure.Postgres.csproj \
-              --startup-project AkGaming.Tournaments/WebApi/AkGaming.Tournaments.WebApi.csproj \
-              --context TournamentDbContext
-          else
-            echo "No tournaments migrations were found. Skipping database update."
-          fi
-      - name: Trigger Coolify Production Deploy for Backend
+          set -euo pipefail
+          cd /opt/akgaming/deployment/compose/prod
+
+          docker compose build \
+            tournaments-webapi \
+            tournaments-frontend
+
+          docker compose up -d --no-deps \
+            tournaments-webapi \
+            tournaments-frontend
+
+      - name: Verify Tournaments production
         run: |
-          curl --fail --request GET "${{ secrets.COOLIFY_WEBHOOK_TOURNAMENTS_BACKEND }}" \
-            --header "Authorization: Bearer ${{ secrets.COOLIFY_TOKEN }}"
-      - name: Trigger Coolify Production Deploy for Frontend
-        run: |
-          curl --fail --request GET "${{ secrets.COOLIFY_WEBHOOK_TOURNAMENTS_FRONTEND }}" \
-            --header "Authorization: Bearer ${{ secrets.COOLIFY_TOKEN }}"
+          set -euo pipefail
+
+          for attempt in $(seq 1 30); do
+              api="$(docker inspect -f '{{.State.Health.Status}}' akgaming-prod-tournaments-webapi-1)"
+              frontend="$(docker inspect -f '{{.State.Health.Status}}' akgaming-prod-tournaments-frontend-1)"
+
+              if [ "$api" = "healthy" ] && [ "$frontend" = "healthy" ]; then
+                  echo "Tournaments production is healthy"
+                  exit 0
+              fi
+
+              echo "Waiting: API=$api Frontend=$frontend ($attempt/30)"
+              sleep 2
+          done
+
+          docker compose logs --tail=100 \
+            tournaments-webapi \
+            tournaments-frontend
+
+          exit 1
