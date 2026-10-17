@@ -2,105 +2,54 @@ name: Deploy Dashboard
 
 on:
   push:
-    branches: ["develop"]
-    tags: ["dashboard/*"]
+    tags: [ "dashboard/*" ]
 
 concurrency:
   group: deploy-dashboard-${{ github.ref_name }}
   cancel-in-progress: false
 
 jobs:
-  should-deploy:
-    if: github.ref == 'refs/heads/develop'
-    runs-on: ubuntu-latest
-    outputs:
-      deploy: ${{ steps.evaluate.outputs.deploy }}
+  deploy-production:
+    runs-on:
+      - self-hosted
+      - akgaming-deploy
+    
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      - name: Evaluate Dashboard Deploy Trigger
-        id: evaluate
-        env:
-          BEFORE_SHA: ${{ github.event.before }}
-          CURRENT_SHA: ${{ github.sha }}
+      - name: Update production checkout
         run: |
-          set -eu
+          set -euo pipefail
+          
+          cd /opt/akgaming/deployment/repo/prod
+          
+          git fetch origin --tags
+          git reset --hard "$GITHUB_SHA"
 
-          zero_sha="0000000000000000000000000000000000000000"
-          if [ "$BEFORE_SHA" = "$zero_sha" ]; then
-            changed_files="$(git show --pretty='' --name-only "$CURRENT_SHA")"
-            commit_messages="$(git log --format=%B -n 1 "$CURRENT_SHA")"
-          else
-            changed_files="$(git diff --name-only "$BEFORE_SHA" "$CURRENT_SHA")"
-            commit_messages="$(git log --format=%B "$BEFORE_SHA..$CURRENT_SHA")"
-          fi
+      - name: Build and deploy Dashboard production
+        run: |
+          set -euo pipefail
+          
+          cd /opt/akgaming/deployment/compose/prod
+          
+          docker compose build dashboard
+          docker compose up -d --no-deps dashboard
 
-          deploy=false
-
-          if printf '%s\n' "$changed_files" | grep -Eq '^(AkGaming\.Dashboard/|AkGaming\.Core/)'; then
-            deploy=true
-          fi
-
-          if printf '%s\n' "$commit_messages" | grep -Eiq '\[[^]]*(Dashboard|All Projects|Core)[^]]*\]'; then
-            deploy=true
-          fi
-
-          echo "deploy=$deploy" >> "$GITHUB_OUTPUT"
-
-  name: Deploy Dashboard
-
-  on:
-    push:
-      tags: [ "dashboard/*" ]
-
-  concurrency:
-    group: deploy-dashboard-${{ github.ref_name }}
-    cancel-in-progress: false
-
-  jobs:
-    deploy-production:
-      runs-on:
-        - self-hosted
-        - akgaming-deploy
-
-      steps:
-        - name: Update production checkout
-          run: |
-            set -euo pipefail
-
-            cd /opt/akgaming/deployment/repo/prod
-
-            git fetch origin --tags
-            git reset --hard "$GITHUB_SHA"
-
-        - name: Build and deploy Dashboard production
-          run: |
-            set -euo pipefail
-
-            cd /opt/akgaming/deployment/compose/prod
-
-            docker compose build dashboard
-            docker compose up -d --no-deps dashboard
-
-        - name: Verify Dashboard production
-          run: |
-            set -euo pipefail
-
-            for attempt in $(seq 1 30); do
-                if curl --fail --silent \
-                    http://127.0.0.1:18100/ \
-                    >/dev/null
-                then
-                    echo "Dashboard production is healthy"
-                    exit 0
-                fi
-
-                echo "Waiting for Dashboard production ($attempt/30)..."
-                sleep 2
-            done
-
-            cd /opt/akgaming/deployment/compose/prod
-            docker compose logs --tail=100 dashboard
-            exit 1
+      - name: Verify Dashboard production
+        run: |
+          set -euo pipefail
+          
+          for attempt in $(seq 1 30); do
+              if curl --fail --silent \
+                  http://127.0.0.1:18100/ \
+                  >/dev/null
+              then
+                  echo "Dashboard production is healthy"
+                  exit 0
+              fi
+          
+              echo "Waiting for Dashboard production ($attempt/30)..."
+              sleep 2
+          done
+          
+          cd /opt/akgaming/deployment/compose/prod
+          docker compose logs --tail=100 dashboard
+          exit 1
