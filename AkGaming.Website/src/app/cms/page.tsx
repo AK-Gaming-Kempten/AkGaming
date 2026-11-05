@@ -4,6 +4,8 @@ import CmsPostsEditor from "./CmsPostsEditor";
 import { canAccessCms } from "../../content/cmsAuthorization";
 import CmsAccessThemeControls from "./CmsAccessThemeControls";
 
+export const dynamic = "force-dynamic";
+
 export default async function CmsPage() {
     if (!isCmsAuthenticationConfigured())
         return <CmsPageShell><ConfigurationRequiredPanel /></CmsPageShell>;
