@@ -53,7 +53,7 @@
 }
 @if (_activate)
 {
-    <FormDialog Title="Aktive Game Night wechseln" OnClose="Close">
+    <FormDialog Compact="true" Title="Aktive Game Night wechseln" OnClose="Close">
         <ChildContent><p>Alle operativen Ansichten wechseln zur ausgewählten Veranstaltung. Alte Anmeldungen bleiben gespeichert. Bereits geöffnete Formulare werden beim Absenden auf die Änderung hingewiesen.</p>@if (_error is not null) { <p role="alert">@_error</p> }</ChildContent>
         <Footer><button class="secondary" disabled="@_busy" @onclick="Close">Abbrechen</button><button disabled="@_busy" @onclick="Activate">Global aktivieren</button></Footer>
     </FormDialog>

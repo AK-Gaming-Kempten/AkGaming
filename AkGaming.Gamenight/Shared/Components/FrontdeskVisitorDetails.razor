@@ -1,5 +1,25 @@
-<RegistrationDetails @key="Registration.Version" Registration="Registration" Granted="Granted" Changed="Changed" />
-@if (Menu is not null && Catering is not null)
+<section class="desk-visitor card">
+    <RegistrationDetails Compact="true" @key="Registration.Version" Registration="Registration" Granted="Granted" Changed="Changed" />
+    @if (Menu is not null && Catering is not null)
+    {
+        <CateringAccountPanel Compact="true" CanOrder="false" Account="Catering" Menu="Menu" Registration="Registration" Staff="@Granted.Contains(Permissions.Frontdesk)" Changed="Changed" />
+    }
+    else
+    {
+        <p class="desk-price-fallback">Eintritt <strong>@Money(Registration.PriceCents)</strong><DeskStatus Icon="payment" Tone="@(Registration.Paid || Registration.PriceCents == 0 ? "success" : "warning")" Text="@(Registration.Paid ? "Bezahlt" : Registration.PriceCents == 0 ? "Kostenlos" : "Zahlung offen")" /></p>
+    }
+    <div class="desk-checkin-actions">
+        <button class="secondary" @onclick="() => _details = true">Anmeldedetails</button>
+        @if (Granted.Contains(Permissions.Frontdesk))
+        {
+            <button disabled="@(_busy || Registration.Cancelled || Registration.CheckedIn || (!Registration.Paid && Registration.PriceCents != 0))" @onclick="CheckIn"><span aria-hidden="true">✓</span> @(Registration.CheckedIn ? "Bereits eingecheckt" : "Einchecken")</button>
+        }
+    </div>
+    @if (!Registration.CheckedIn && !Registration.Paid && Registration.PriceCents != 0) { <p class="desk-next-step">Zuerst den Eintritt bezahlen, dann einchecken.</p> }
+    @if (!string.IsNullOrWhiteSpace(Registration.Form.Notes)) { <button class="desk-note" @onclick="() => _details = true"><span aria-hidden="true">ⓘ</span><span>@Registration.Form.Notes</span></button> }
+    @if (_error is not null) { <p class="error" role="alert">@_error</p> }
+</section>
+@if (_details)
 {
-    <CateringAccountPanel CanOrder="false" Account="Catering" Menu="Menu" Registration="Registration" Staff="@Granted.Contains(Permissions.Frontdesk)" Changed="Changed" />
+    <FormDialog Title="Anmeldedetails" OnClose="() => _details = false"><ChildContent><RegistrationDetails Registration="Registration" Granted="Granted" Changed="Changed" /></ChildContent><Footer><button class="secondary" @onclick="() => _details = false">Schließen</button></Footer></FormDialog>
 }

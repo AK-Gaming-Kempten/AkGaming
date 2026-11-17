@@ -11,7 +11,7 @@ public partial class Frontdesk
     private List<CateringView> _catering = [];
     private CateringMenu? _menu;
     private HashSet<string> _permissions = [];
-    private bool _allowed;
+    private bool _allowed, _planning;
     private Guid? _selected;
     private string _search = "", _filter = "";
     private string? _error;

@@ -7,11 +7,12 @@ public partial class CateringAccountPanel
     [Parameter, EditorRequired] public CateringView Account { get; set; } = default!;
     [Parameter, EditorRequired] public CateringMenu Menu { get; set; } = default!;
     [Parameter] public RegistrationView? Registration { get; set; }
+    [Parameter] public bool Compact { get; set; }
     [Parameter] public bool CanOrder { get; set; } = true;
     [Parameter] public bool Staff { get; set; }
     [Parameter] public bool ShowPerson { get; set; }
     [Parameter] public EventCallback Changed { get; set; }
-    private bool _ordering, _busy;
+    private bool _ordering, _busy, _showOrders;
     private string? _action, _error;
     private string _reason = "", _eligibility = "auto";
     private Guid? _lineId;

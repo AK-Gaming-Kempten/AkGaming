@@ -1,6 +1,6 @@
-<section class="card registration-overview">
+<section class="@(Compact ? "desk-registration" : "card registration-overview")">
     <div class="section-heading">
-        <div><p class="eyebrow">ANMELDUNG</p><h2>@Registration.Form.FirstName @Registration.Form.LastName</h2><p>@Registration.Form.Email</p></div>
+        <div>@if (!Compact) { <p class="eyebrow">ANMELDUNG</p> }<h2>@Registration.Form.FirstName @Registration.Form.LastName</h2>@if (!Compact) { <p>@Registration.Form.Email</p> }</div>
         <ContextMenu AriaLabel="Anmeldung verwalten">
             @if (Registration.CanEdit || Has(Permissions.Manage))
             {
@@ -21,6 +21,13 @@
             }
         </ContextMenu>
     </div>
+    @if (Compact)
+    {
+        <div class="desk-statuses"><DeskStatus Icon="@(Registration.Cancelled ? "cancel" : "check")" Tone="@(Registration.Cancelled ? "danger" : "success")" Text="@(Registration.Cancelled ? "Storniert" : "Angemeldet")" /><DeskStatus Icon="@(Registration.CheckedIn ? "check" : "clock")" Tone="@(Registration.CheckedIn ? "success" : "neutral")" Text="@(Registration.CheckedIn ? "Eingecheckt" : "Check-in offen")" /></div>
+        <p class="desk-attendance">@(Registration.Form.Attendance == "Karaoke" ? "Nur Karaoke" : "Game Night + Karaoke") · @(Registration.StaffApproved ? "Personal" : Registration.Admission)@if (Registration.Form.Attendance != "Karaoke") { <span> · @(Registration.Form.Sockets > 0 ? $"Setup · {Registration.Form.Sockets} Steckdosen" : "Ohne Setup")</span> }</p>
+    }
+    else
+    {
     <div class="badges"><span>@(Registration.Cancelled ? "Storniert" : "Angemeldet")</span><span>@(Registration.CheckedIn ? "Eingecheckt" : "Noch nicht eingecheckt")</span><span>@(Registration.PriceCents == 0 ? "Keine Zahlung nötig" : Registration.Paid ? "Bezahlt" : "Zahlung offen")</span></div>
     <div class="registration-overview-grid">
         <section class="registration-price-summary">
@@ -49,6 +56,7 @@
     {
         <div class="registration-notes"><strong>Anmerkungen</strong><p class="preserve">@Registration.Form.Notes</p></div>
     }
+    }
     @if (_error is not null) { <p class="error" role="alert">@_error</p> }
 </section>
 @if (_edit is not null)
@@ -60,7 +68,7 @@
 }
 @if (_action is not null)
 {
-    <FormDialog Title="@_title" OnClose="Close">
+    <FormDialog Compact="true" Title="@_title" OnClose="Close">
         <ChildContent><p>@Registration.Form.FirstName @Registration.Form.LastName · @Registration.Form.Email</p><p>@_title bestätigen? Tarif: @Registration.Admission, @(Registration.PriceCents / 100m) €.</p>@if (_error is not null) { <p role="alert">@_error</p> }</ChildContent>
         <Footer><button class="secondary" disabled="@_busy" @onclick="Close">Abbrechen</button><button disabled="@_busy" @onclick="Apply">Bestätigen</button></Footer>
     </FormDialog>

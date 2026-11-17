@@ -6,6 +6,7 @@ public partial class RegistrationDetails
 {
     [Inject] private GamenightClient Client { get; set; } = default!;
     [Parameter, EditorRequired] public RegistrationView Registration { get; set; } = default!;
+    [Parameter] public bool Compact { get; set; }
     [Parameter] public HashSet<string> Granted { get; set; } = [];
     [Parameter] public EventCallback Changed { get; set; }
     private SignupForm? _edit;

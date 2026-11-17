@@ -24,7 +24,7 @@ else if (_itemDraft is not null)
 }
 else if (_deleteCategory is { } deleteId)
 {
-    <FormDialog Title="Kategorie entfernen" OnClose="CloseEditor">
+    <FormDialog Compact="true" Title="Kategorie entfernen" OnClose="CloseEditor">
         <ChildContent><p>„@Path(deleteId)“ und alle Unterkategorien samt Menüeinträgen entfernen? Bestehende Bestellungen bleiben gespeichert.</p></ChildContent>
         <Footer><button class="secondary" @onclick="CloseEditor">Abbrechen</button><button @onclick="DeleteCategory">Entfernen</button></Footer>
     </FormDialog>

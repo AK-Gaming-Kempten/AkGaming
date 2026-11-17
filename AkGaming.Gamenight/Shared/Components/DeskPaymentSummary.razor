@@ -1,0 +1,8 @@
+<section class="desk-payment" aria-label="Preis und Zahlung">
+    <div class="desk-charge"><span>Eintritt</span><strong>@Money(Registration.PriceCents)</strong><DeskStatus Icon="payment" Tone="@(Registration.Paid || Registration.PriceCents == 0 ? "success" : "warning")" Text="@(Registration.PriceCents is null ? "Preis ungeklärt" : Registration.PriceCents == 0 ? "Kostenlos" : Registration.Paid ? "Bezahlt" : "Offen")" /></div>
+    <div class="desk-charge"><span>Catering</span><strong>@Money(Account.Lines.Sum(l => l.TotalCents))</strong><DeskStatus Icon="payment" Tone="@(Account.Lines.Count == 0 ? "neutral" : Account.Lines.Any(l => !l.Paid) ? "warning" : "success")" Text="@(Account.Lines.Count == 0 ? "Keine Bestellung" : Account.Lines.Any(l => !l.Paid) ? $"{Money(Account.OutstandingCents)} offen" : "Bezahlt")" /></div>
+    <div class="desk-charge desk-charge-total"><span>Gesamt zu zahlen</span><strong>@Money(Registration.PriceCents is null ? null : (Registration.Paid ? 0 : Registration.PriceCents.Value) + Account.OutstandingCents)</strong>
+        @if (CanPay) { <button aria-label="Gesamtzahlung erfassen" disabled="@Busy" @onclick="Pay">Zahlung erfassen</button> }
+        else if (Registration.PriceCents is not null && (Registration.Paid || Registration.PriceCents == 0) && !Account.Lines.Any(l => !l.Paid)) { <DeskStatus Icon="check" Tone="success" Text="Alles beglichen" /> }
+    </div>
+</section>

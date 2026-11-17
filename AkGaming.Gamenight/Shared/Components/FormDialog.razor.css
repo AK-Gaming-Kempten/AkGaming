@@ -83,3 +83,25 @@
         border-radius:var(--radius-panel);
     }
 }
+
+.meeting-dialog.meeting-dialog-compact {
+    width: min(440px, calc(100vw - 2rem));
+    height: auto;
+    max-height: calc(100dvh - 2rem);
+    padding: 1rem;
+    border: 1px solid var(--color-border-subtle);
+}
+
+.meeting-dialog-compact .meeting-dialog-content {
+    padding: .75rem 0;
+}
+
+.meeting-dialog-compact .meeting-dialog-content ::deep p {
+    margin: .5rem 0;
+}
+
+.meeting-dialog-compact footer {
+    padding-top: .75rem;
+    gap: .5rem;
+    flex-wrap: wrap;
+}

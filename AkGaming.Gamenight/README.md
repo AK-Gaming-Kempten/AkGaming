@@ -54,7 +54,7 @@ Tariff-affecting changes after payment/check-in require reversing those states
 first. Cancellation does not automatically refund or erase recorded payments.
 There is no online payment processing.
 
-Front Desk provides name/email search, status filters, admission details,
+Front Desk provides name/email search, a name-only visitor list, status filters, admission details,
 food/setup totals, CSV export, and permission-controlled context-menu actions.
 Staff approval, registration, payment, and check-in are separate states.
 The form's organizer declaration does not grant staff status or free admission.

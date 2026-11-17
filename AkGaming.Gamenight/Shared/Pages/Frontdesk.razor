@@ -1,24 +1,33 @@
 @page "/frontdesk"
-<p class="eyebrow">AK GAMING · EINLASS</p><h1>Front Desk</h1>
-@if (_error is not null) { <p class="error" role="alert">@_error</p> }
-@if (_allowed)
+<div class="frontdesk-workspace">
+    <header class="desk-page-header"><h1>Front Desk</h1><div class="desk-inline-actions"><button class="secondary" @onclick="Load"><span aria-hidden="true">↻</span> Aktualisieren</button>@if (_permissions.Contains(Permissions.Export)) { <ContextMenu AriaLabel="Frontdesk verwalten"><ContextMenuItem Text="CSV exportieren" OnClick="Export" /></ContextMenu> }</div></header>
+    @if (_error is not null) { <p class="error" role="alert">@_error</p> }
+    @if (_allowed)
+    {
+        <div class="desk-layout">
+            <section class="desk-visitors" aria-label="Besucherliste">
+                <div class="desk-search"><label class="visually-hidden" for="desk-search">Besucher suchen</label><input id="desk-search" type="search" @bind="_search" @bind:event="oninput" placeholder="Name oder E-Mail suchen" /><label class="visually-hidden" for="desk-filter">Status</label><select id="desk-filter" @bind="_filter"><option value="">Alle Besucher</option><option value="waiting">Check-in offen</option><option value="checked">Eingecheckt</option><option value="unpaid">Zahlung offen</option><option value="staff">Personal</option><option value="cancelled">Storniert</option></select></div>
+                <div class="desk-list-body">
+                    @foreach (var r in Filtered)
+                    {
+                        <button class="visitor-row @(r.Id == _selected ? "selected" : "")" aria-pressed="@(r.Id == _selected)" @onclick="() => _selected = r.Id">@r.Form.LastName, @r.Form.FirstName</button>
+                    }
+                    @if (!Filtered.Any()) { <p class="muted">Keine passenden Anmeldungen.</p> }
+                </div>
+                <small class="desk-list-count">@Filtered.Count() Besucher</small>
+            </section>
+            <div class="desk-detail-area">
+                @if (_rows.FirstOrDefault(r => r.Id == _selected) is { } selected)
+                {
+                    <FrontdeskVisitorDetails @key="selected.Id" Registration="selected" Granted="_permissions" Menu="_menu" Catering="_catering.FirstOrDefault(c => c.RegistrationId == selected.Id)" Changed="Load" />
+                }
+                else { <section class="desk-empty"><h2>Besucher auswählen</h2><p>Nach Namen suchen, Zahlung prüfen und einchecken.</p></section> }
+            </div>
+        </div>
+        <footer class="desk-summary"><span><strong>@_rows.Count(r => !r.Cancelled)</strong> angemeldet</span><span><strong>@_rows.Count(r => r.CheckedIn)</strong> eingecheckt</span><span><strong>@_rows.Count(r => r.StaffApproved && !r.Cancelled)</strong> Personal</span><button class="desk-summary-link" @onclick="() => _planning = true">Planungsübersicht</button></footer>
+    }
+</div>
+@if (_planning)
 {
-    <div class="metrics"><div class="card"><strong>@_rows.Count(r => !r.Cancelled)</strong> angemeldet</div><div class="card"><strong>@_rows.Count(r => r.CheckedIn)</strong> eingecheckt</div><div class="card"><strong>@_rows.Count(r => r.StaffApproved && !r.Cancelled)</strong> Personal</div></div>
-    <div class="toolbar"><label>Besucher suchen<input type="search" @bind="_search" @bind:event="oninput" placeholder="Name oder E-Mail" /></label><label>Status<select @bind="_filter"><option value="">Alle</option><option value="waiting">Noch nicht eingecheckt</option><option value="checked">Eingecheckt</option><option value="unpaid">Zahlung offen</option><option value="staff">Personal</option><option value="cancelled">Storniert</option></select></label><button class="secondary" @onclick="Load">Aktualisieren</button>
-    @if (_permissions.Contains(Permissions.Export)) { <button class="secondary" @onclick="Export">CSV exportieren</button> }
-    </div>
-    <div class="desk-layout"><section class="card visitor-list" aria-label="Besucherliste">
-        @foreach (var r in Filtered)
-        {
-            <button class="visitor-row @(r.Id == _selected ? "selected" : "")" @onclick="() => _selected = r.Id"><strong>@r.Form.LastName, @r.Form.FirstName</strong><span>@r.Form.Email</span><small>@(r.Cancelled ? "Storniert" : r.CheckedIn ? "Eingecheckt" : "Erwartet") · @(r.StaffApproved ? "Personal" : r.Admission)</small></button>
-        }
-        @if (!Filtered.Any()) { <p>Keine passenden Anmeldungen.</p> }
-    </section><div>
-        @if (_rows.FirstOrDefault(r => r.Id == _selected) is { } selected)
-        {
-            <FrontdeskVisitorDetails @key="selected.Id" Registration="selected" Granted="_permissions" Menu="_menu" Catering="_catering.FirstOrDefault(c => c.RegistrationId == selected.Id)" Changed="Load" />
-        }
-        @if (_selected is null) { <section class="card"><h2>Willkommen am Einlass</h2><p>Wähle eine Anmeldung aus. Tarif, Zahlung und Check-in findest du in den Besucherdetails.</p></section> }
-    </div></div>
-    <section class="card"><h2>Planungsübersicht</h2><p>@_rows.Count(r => !r.Cancelled && r.Form.Sockets > 0) Setups · Pizza: @TotalMeals("Pizza") · Döner: @TotalMeals("Döner") · Eis: @TotalIceCream Kugeln</p><p class="muted">Dies sind unverbindliche Interessen aus den Anmeldungen, keine verbindlichen Bestellungen.</p></section>
+    <FormDialog Compact="true" Title="Planungsübersicht" OnClose="() => _planning = false"><ChildContent><p>@_rows.Count(r => !r.Cancelled && r.Form.Sockets > 0) Setups · Pizza: @TotalMeals("Pizza") · Döner: @TotalMeals("Döner") · Eis: @TotalIceCream Kugeln</p><p class="muted">Unverbindliche Interessen aus den Anmeldungen. Verbindliche Bestellungen stehen in der Catering-Verwaltung.</p></ChildContent><Footer><button class="secondary" @onclick="() => _planning = false">Schließen</button></Footer></FormDialog>
 }

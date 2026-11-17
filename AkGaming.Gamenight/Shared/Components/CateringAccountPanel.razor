@@ -1,3 +1,19 @@
+@if (Compact && Registration is not null)
+{
+    <DeskPaymentSummary Registration="Registration" Account="Account" Staff="Staff" Busy="_busy" Pay='() => Open("settle")' />
+    <div class="desk-catering-actions">
+        <div><strong>Catering</strong><small>@Account.Lines.Sum(l => l.Quantity) Portionen · @(Account.DiscountEligible ? "Frühbucherrabatt" : "Kein Frühbucherrabatt")</small></div>
+        <div class="desk-inline-actions">
+            @if (Staff && !Account.Cancelled) { <button class="secondary" @onclick="() => _ordering = true">Essen bestellen</button> }
+            <ContextMenu AriaLabel="Catering verwalten"><ContextMenuItem Text="Bestellungen ansehen" OnClick="() => _showOrders = true" />
+                @if (Staff) { <ContextMenuItem Text="Rabattberechtigung ändern" OnClick='() => Open("eligibility")' /><ContextMenuItem Text="Nur Catering bezahlen" IsDisabled="@(!Account.Lines.Any(l => !l.Paid) || Account.Cancelled)" OnClick='() => Open("pay")' /> }
+            </ContextMenu>
+        </div>
+    </div>
+    @if (_error is not null) { <p class="error" role="alert">@_error</p> }
+}
+else
+{
 <section class="card catering-account">
     <div class="section-heading"><div><h2>@(ShowPerson ? Account.Person : "Catering")</h2><p>@(Account.DiscountEligible ? "Frühbucherrabatt berechtigt" : "Kein Frühbucherrabatt") @(Account.EligibilityOverride is null ? "" : "· Frontdesk-Korrektur")</p></div>
         <div class="toolbar">
@@ -33,12 +49,17 @@
     </div>
     @if (_error is not null) { <p class="error" role="alert">@_error</p> }
 </section>
+}
+@if (_showOrders)
+{
+    <FormDialog Title="Catering-Bestellungen" OnClose="() => _showOrders = false"><ChildContent><CateringAccountPanel CanOrder="false" Account="Account" Menu="Menu" Staff="Staff" Changed="Changed" /></ChildContent><Footer><button class="secondary" @onclick="() => _showOrders = false">Schließen</button></Footer></FormDialog>
+}
 @if (_ordering) { <CateringOrderDialog Menu="Menu" Account="Account" OnClose="CloseOrder" Changed="Ordered" /> }
 @if (_action is not null && _action != "collect")
 {
-    <FormDialog Title="@ActionTitle" OnClose="CloseAction">
+    <FormDialog Compact="true" Title="@ActionTitle" OnClose="CloseAction">
         <ChildContent>
-            <p>@Account.Person</p>
+            @if (_action is not "pay" and not "settle") { <p>@Account.Person</p> }
             @if (_action == "eligibility")
             {
                 <label>Frühbucherrabatt<select @bind="_eligibility"><option value="auto">Automatisch anhand der Anmeldung</option><option value="yes">Berechtigt</option><option value="no">Nicht berechtigt</option></select></label>
@@ -48,11 +69,11 @@
             @if (_action == "partial") { <label>Anzahl<input type="number" min="1" max="@Remaining" @bind="_quantity" /></label> }
             @if (_action is "pay" or "settle")
             {
-                <p>Erhaltene Barzahlung: <strong>@Money(PaymentCents)</strong></p><p>Bitte erst bestätigen, wenn das Geld erhalten wurde.</p>
+                <div class="desk-payment-confirmation"><strong>@Money(PaymentCents)</strong><span>Barzahlung von @Account.Person</span></div><p class="muted">Geld erhalten?</p>
             }
             @if (_action == "cancel") { <p>Diese unbezahlte Bestellposition stornieren?</p> }
             @if (_error is not null) { <p class="error" role="alert">@_error</p> }
         </ChildContent>
-        <Footer><button class="secondary" disabled="@_busy" @onclick="CloseAction">Abbrechen</button><button disabled="@_busy" @onclick="Apply">Bestätigen</button></Footer>
+        <Footer><button class="secondary" disabled="@_busy" @onclick="CloseAction">Abbrechen</button><button disabled="@_busy" @onclick="Apply">@(_action is "pay" or "settle" ? "Zahlung erhalten" : "Bestätigen")</button></Footer>
     </FormDialog>
 }

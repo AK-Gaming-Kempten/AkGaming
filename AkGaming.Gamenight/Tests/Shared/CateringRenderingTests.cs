@@ -76,6 +76,30 @@ public sealed class CateringRenderingTests
         Assert.That(html, Does.Not.Contain("Essen bestellen"));
         Assert.That(html, Does.Not.Contain("Stornieren"));
     }
+    [Test, Description("Frontdesk blocks its primary check-in action until admission payment is resolved.")]
+    public async Task UnpaidAdmissionBlocksPrimaryCheckIn()
+    {
+        // Arrange
+        var registration = new RegistrationView(Account.RegistrationId, Guid.NewGuid(), new(), Guid.NewGuid(), false, false, false, false, 500, "Frühbucher", DateTime.UtcNow, false, false);
+        // Act
+        var html = await Render<FrontdeskVisitorDetails>(new() { ["Catering"] = Account, ["Menu"] = new CateringMenu(), ["Registration"] = registration, ["Granted"] = new HashSet<string> { Permissions.Frontdesk } });
+        // Assert
+        Assert.That(html, Does.Match("<button disabled[^>]*>.*?Einchecken</button>"));
+        Assert.That(html, Does.Contain("Zuerst den Eintritt bezahlen"));
+    }
+    [Test, Description("Frontdesk permits free admission check-in while keeping unpaid catering visible and separate.")]
+    public async Task FreeAdmissionAllowsCheckInWithoutWaivingCatering()
+    {
+        // Arrange
+        var registration = new RegistrationView(Account.RegistrationId, Guid.NewGuid(), new(), Guid.NewGuid(), false, false, false, false, 0, "Karaoke", DateTime.UtcNow, false, false);
+        // Act
+        var html = await Render<FrontdeskVisitorDetails>(new() { ["Catering"] = Account, ["Menu"] = new CateringMenu(), ["Registration"] = registration, ["Granted"] = new HashSet<string> { Permissions.Frontdesk } });
+        // Assert
+        Assert.That(html, Does.Not.Match("<button disabled[^>]*>.*?Einchecken</button>"));
+        Assert.That(html, Does.Contain("21,00"));
+        Assert.That(html, Does.Contain("Kostenlos"));
+        Assert.That(html, Does.Contain("Gesamtzahlung erfassen"));
+    }
     [TearDown]
     public async Task Cleanup()
     {
