@@ -31,17 +31,13 @@
                 </div>
                 <h3>Eintrittspreise in Cent</h3><div class="form-grid">
                     <label>Frühbucher<InputNumber @bind-Value="_draft.EarlyPriceCents" min="0" /></label>
-                    <label>Frühbucher mit Setup<InputNumber @bind-Value="_draft.EarlySetupPriceCents" min="0" /></label>
                     <label>Regulär<InputNumber @bind-Value="_draft.RegularPriceCents" min="0" /></label>
-                    <label>Regulär mit Setup<InputNumber @bind-Value="_draft.RegularSetupPriceCents" min="0" /></label>
                 </div>
                 <h3>Mitgliederrabatte in Cent</h3>
                 <p class="muted">Der Rabatt wird vom jeweiligen Eintrittspreis abgezogen.</p>
                 <div class="form-grid">
-                    <label>Frühbucher ohne Setup<InputNumber @bind-Value="_draft.MemberEarlyDiscountCents" min="0" max="@_draft.EarlyPriceCents" /></label>
-                    <label>Frühbucher mit Setup<InputNumber @bind-Value="_draft.MemberEarlySetupDiscountCents" min="0" max="@_draft.EarlySetupPriceCents" /></label>
-                    <label>Regulär ohne Setup<InputNumber @bind-Value="_draft.MemberRegularDiscountCents" min="0" max="@_draft.RegularPriceCents" /></label>
-                    <label>Regulär mit Setup<InputNumber @bind-Value="_draft.MemberRegularSetupDiscountCents" min="0" max="@_draft.RegularSetupPriceCents" /></label>
+                    <label>Frühbucher<InputNumber @bind-Value="_draft.MemberEarlyDiscountCents" min="0" max="@_draft.EarlyPriceCents" /></label>
+                    <label>Regulär<InputNumber @bind-Value="_draft.MemberRegularDiscountCents" min="0" max="@_draft.RegularPriceCents" /></label>
                 </div>
                 <label>Beitragszeitraum für Mitgliedspreis<InputSelect @bind-Value="_draft.MembershipPaymentPeriodId"><option value="">Bitte auswählen</option>@foreach (var period in _periods) { <option value="@period.Id">@period.Name</option> }</InputSelect></label>
                 <p class="muted">Nur ein in Management bezahlter Beitrag für diesen Zeitraum berechtigt zum Mitgliedspreis.</p>

@@ -331,3 +331,9 @@ and SQLite Management queries. Browser smoke checks cover guest submission,
 Karaoke branching and narrow-screen overflow. Live production OIDC/SMTP/database
 connections require deployment configuration. Android is build-validated; iOS/device
 runtime and store publication require their platform environments.
+
+Admission has one early-bird and one regular price, each with a matching member
+discount. Setup/socket requirements are planning information and do not affect
+admission. Existing unpaid registrations use the former base prices; previously
+settled admission amounts remain fixed. Legacy setup-price JSON fields are ignored
+and disappear when event settings are next saved; no database migration is needed.

@@ -26,25 +26,20 @@ public sealed class EventSettings : IValidatableObject
     [Required, StringLength(200)] public string Location { get; set; } = "Hochschule Kempten, S-Gebäude";
     [StringLength(8000)] public string Information { get; set; } = "Einlass von 17:00 bis 22:00 Uhr. Teilnahme ab 18 Jahren; bitte einen gültigen Lichtbildausweis mitbringen. Zahlung vor Ort in bar.";
     [Range(0, 100000)] public int EarlyPriceCents { get; set; } = 500;
-    [Range(0, 100000)] public int EarlySetupPriceCents { get; set; } = 700;
     [Range(0, 100000)] public int RegularPriceCents { get; set; } = 700;
-    [Range(0, 100000)] public int RegularSetupPriceCents { get; set; } = 900;
     [Range(0, 100000)] public int MemberEarlyDiscountCents { get; set; }
-    [Range(0, 100000)] public int MemberEarlySetupDiscountCents { get; set; } = 200;
     [Range(0, 100000)] public int MemberRegularDiscountCents { get; set; }
-    [Range(0, 100000)] public int MemberRegularSetupDiscountCents { get; set; } = 200;
-    public int MemberPrice(bool early, bool setup)
+    public int MemberPrice(bool early)
     {
-        var price = early ? (setup ? EarlySetupPriceCents : EarlyPriceCents) : (setup ? RegularSetupPriceCents : RegularPriceCents);
-        var discount = early ? (setup ? MemberEarlySetupDiscountCents : MemberEarlyDiscountCents) : (setup ? MemberRegularSetupDiscountCents : MemberRegularDiscountCents);
+        var price = early ? EarlyPriceCents : RegularPriceCents;
+        var discount = early ? MemberEarlyDiscountCents : MemberRegularDiscountCents;
         return Math.Max(0, price - discount);
     }
     [Range(1, int.MaxValue)] public int? MembershipPaymentPeriodId { get; set; }
     public Guid Version { get; set; }
     public IEnumerable<ValidationResult> Validate(ValidationContext context)
     {
-        if (MemberEarlyDiscountCents > EarlyPriceCents || MemberEarlySetupDiscountCents > EarlySetupPriceCents
-            || MemberRegularDiscountCents > RegularPriceCents || MemberRegularSetupDiscountCents > RegularSetupPriceCents)
+        if (MemberEarlyDiscountCents > EarlyPriceCents || MemberRegularDiscountCents > RegularPriceCents)
             yield return new("Mitgliederrabatte dürfen den jeweiligen Eintrittspreis nicht überschreiten.");
         if (EndsAt <= StartsAt) yield return new("Das Ende muss nach dem Beginn liegen.");
         if (SignupDeadline > EndsAt || EditDeadline > EndsAt || FoodDeadline > EndsAt || EarlyBirdDeadline > EndsAt)
@@ -107,11 +102,7 @@ public sealed record ActivateEvent(Guid EventId, Guid SelectionVersion);
 public sealed record Receipt(string Message);
 public sealed record RegistrationView(Guid Id, Guid EventId, SignupForm Form, Guid Version,
     bool Cancelled, bool StaffApproved, bool CheckedIn, bool Paid, int? PriceCents, string Admission,
-    DateTime CreatedAt, bool CanEdit, bool MemberEligible)
-{
-    public int? PriceWithoutSetupCents { get; init; }
-    public int? PriceWithSetupCents { get; init; }
-}
+    DateTime CreatedAt, bool CanEdit, bool MemberEligible);
 public sealed record MembershipEligibility(bool Eligible, string Reason);
 public sealed record PaymentPeriodOption(int Id, string Name);
 

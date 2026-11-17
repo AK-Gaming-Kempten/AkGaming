@@ -346,3 +346,6 @@ button.desk-summary-link { background:transparent; color:var(--color-text-second
 .desk-payment-confirmation { display:flex; flex-direction:column; gap:.3rem; }
 .desk-payment-confirmation > strong { font-size:1.75rem; font-variant-numeric:tabular-nums; }
 .desk-payment-confirmation > span { font-size:.9rem; color:var(--color-text-secondary); }
+
+.registration-single-price { display:flex; align-items:center; gap:.75rem; margin:.5rem 0; }
+.registration-single-price > strong { font-size:1.5rem; font-variant-numeric:tabular-nums; }

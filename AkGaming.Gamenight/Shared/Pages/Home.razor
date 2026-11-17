@@ -22,9 +22,9 @@
             <section class="event-info-section" aria-labelledby="event-prices-title">
                 <h3 id="event-prices-title">Eintritt</h3>
                 <dl class="event-prices">
-                    <div><dt>Frühbucher <button type="button" class="deadline-info-button" popovertarget="event-deadline-info" aria-label="Fristen für Frühbucher und Essenswünsche">i</button></dt><dd><div><span>Ohne Setup</span><strong>@Money(gameNight.EarlyPriceCents)</strong></div><div><span>Mit Setup</span><strong>@Money(gameNight.EarlySetupPriceCents)</strong></div></dd></div>
-                    <div><dt>Regulär</dt><dd><div><span>Ohne Setup</span><strong>@Money(gameNight.RegularPriceCents)</strong></div><div><span>Mit Setup</span><strong>@Money(gameNight.RegularSetupPriceCents)</strong></div></dd></div>
-                    <div><dt>Mitgliederrabatt</dt><dd><div><span>Frühbucher ohne / mit Setup</span><strong>@Money(gameNight.MemberEarlyDiscountCents) / @Money(gameNight.MemberEarlySetupDiscountCents)</strong></div><div><span>Regulär ohne / mit Setup</span><strong>@Money(gameNight.MemberRegularDiscountCents) / @Money(gameNight.MemberRegularSetupDiscountCents)</strong></div></dd></div>
+                    <div><dt>Frühbucher <button type="button" class="deadline-info-button" popovertarget="event-deadline-info" aria-label="Fristen für Frühbucher und Essenswünsche">i</button></dt><dd><strong>@Money(gameNight.EarlyPriceCents)</strong></dd></div>
+                    <div><dt>Regulär</dt><dd><strong>@Money(gameNight.RegularPriceCents)</strong></dd></div>
+                    <div><dt>Mitgliederrabatt</dt><dd><div><span>Frühbucher</span><strong>@Money(gameNight.MemberEarlyDiscountCents)</strong></div><div><span>Regulär</span><strong>@Money(gameNight.MemberRegularDiscountCents)</strong></div></dd></div>
                 </dl>
             </section>
             <div id="event-deadline-info" popover class="deadline-info-popover">

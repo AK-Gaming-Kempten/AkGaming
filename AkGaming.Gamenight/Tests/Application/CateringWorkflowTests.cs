@@ -163,7 +163,7 @@ public sealed class CateringWorkflowTests : CateringFixture
     {
         // Arrange
         var order = await Order(new CateringQuantity(Pizza.Id, 1));
-        Event.EarlySetupPriceCents += 100;
+        Event.EarlyPriceCents += 100;
         await Service.SaveEventAsync(Event, Admin, default);
         // Act
         var error = Assert.ThrowsAsync<GamenightException>(() => Catering.SettleAsync(Visitor.Id,

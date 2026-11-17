@@ -14,10 +14,8 @@ public sealed class AdmissionTests : RegistrationFixture
         // Act
         var r = await Register(Owner);
         // Assert
-        Assert.That(r.PriceCents, Is.EqualTo(Event.MemberPrice(true, true)));
+        Assert.That(r.PriceCents, Is.EqualTo(Event.MemberPrice(true)));
         Assert.That(r.MemberEligible, Is.True);
-        Assert.That(r.PriceWithoutSetupCents, Is.EqualTo(Event.MemberPrice(true, false)));
-        Assert.That(r.PriceWithSetupCents, Is.EqualTo(Event.MemberPrice(true, true)));
     }
     [Test, Description("Organizer self-declaration does not grant free admission; authorized staff approval does.")]
     public async Task OnlyAdminApprovalGrantsStaffEntry()
@@ -29,7 +27,7 @@ public sealed class AdmissionTests : RegistrationFixture
         // Act
         var approved = await Service.ActionAsync(r.Id, new(r.Version, "staff"), Admin, default);
         // Assert
-        Assert.That(r.PriceCents, Is.EqualTo(700));
+        Assert.That(r.PriceCents, Is.EqualTo(Event.EarlyPriceCents));
         Assert.That(approved.PriceCents, Is.Zero);
     }
     [Test, Description("Check-in requires admission payment and locks visitor edits and cancellation afterwards.")]
@@ -78,44 +76,39 @@ public sealed class AdmissionTests : RegistrationFixture
         // Assert
         Assert.That(error!.Status, Is.EqualTo(403));
     }
-    [Test, Description("The overview exposes both early-bird setup tariffs while retaining the selected payable amount.")]
-    public async Task OverviewShowsBothSetupPrices()
+    [TestCase(0), TestCase(1), TestCase(2), TestCase(4)]
+    [Description("The admission price is identical for all setup requirements.")]
+    public async Task SetupDoesNotChangeAdmissionPrice(int sockets)
     {
         // Arrange
         var form = Form();
-        form.Sockets = 0;
+        form.Sockets = sockets;
         // Act
         await Service.SubmitAsync(new(Event.Id, form), Guest, default);
         var registration = (await Service.DeskAsync(Admin, default)).Single();
         // Assert
-        Assert.That(registration.PriceWithoutSetupCents, Is.EqualTo(Event.EarlyPriceCents));
-        Assert.That(registration.PriceWithSetupCents, Is.EqualTo(Event.EarlySetupPriceCents));
         Assert.That(registration.PriceCents, Is.EqualTo(Event.EarlyPriceCents));
     }
-    [TestCase(true, 0, 100), TestCase(true, 2, 150), TestCase(false, 0, 200), TestCase(false, 2, 250)]
-    [Description("Each of the four member discounts is deducted from its matching standard tariff.")]
+    [TestCase(true, 0, 100), TestCase(true, 2, 100), TestCase(false, 0, 200), TestCase(false, 2, 200)]
+    [Description("The booking-period member discount applies equally with or without a setup.")]
     public async Task MemberDiscountMatchesCategory(bool early, int sockets, int discount)
     {
         // Arrange
         Event.MemberEarlyDiscountCents = 100;
-        Event.MemberEarlySetupDiscountCents = 150;
         Event.MemberRegularDiscountCents = 200;
-        Event.MemberRegularSetupDiscountCents = 250;
         Event.EarlyBirdDeadline = early ? Now.AddDays(1) : Now.AddDays(-1);
         await Service.SaveEventAsync(Event, Admin, default);
         Membership.Setup(m => m.GetAsync("owner", 1, It.IsAny<CancellationToken>())).ReturnsAsync(new MembershipEligibility(true, "paid"));
         var form = Form();
         form.Sockets = sockets;
-        var standard = early ? (sockets > 0 ? Event.EarlySetupPriceCents : Event.EarlyPriceCents) : (sockets > 0 ? Event.RegularSetupPriceCents : Event.RegularPriceCents);
+        var standard = early ? Event.EarlyPriceCents : Event.RegularPriceCents;
         // Act
         await Service.SubmitAsync(new(Event.Id, form), Owner, default);
         var registration = (await Service.MineAsync(Owner, default)).Single();
         // Assert
         Assert.That(registration.PriceCents, Is.EqualTo(standard - discount));
-        Assert.That(registration.PriceWithoutSetupCents, Is.EqualTo(Event.MemberPrice(early, false)));
-        Assert.That(registration.PriceWithSetupCents, Is.EqualTo(Event.MemberPrice(early, true)));
     }
-    [Test, Description("Legacy fixed member prices are read as equivalent discounts for both setup categories.")]
+    [Test, Description("Legacy fixed member prices are read as equivalent discounts for each booking period.")]
     public async Task LegacyMemberPricesBecomeDiscounts()
     {
         // Arrange
@@ -130,10 +123,40 @@ public sealed class AdmissionTests : RegistrationFixture
         // Act
         var settings = (await Service.ActiveAsync(default)).Event!;
         // Assert
-        Assert.That(settings.MemberPrice(true, false), Is.EqualTo(300));
-        Assert.That(settings.MemberPrice(true, true), Is.EqualTo(300));
-        Assert.That(settings.MemberPrice(false, false), Is.EqualTo(400));
-        Assert.That(settings.MemberPrice(false, true), Is.EqualTo(400));
+        Assert.That(settings.MemberPrice(true), Is.EqualTo(300));
+        Assert.That(settings.MemberPrice(false), Is.EqualTo(400));
     }
+    [Test, Description("Removing setup tariffs preserves previously settled admission amounts.")]
+    public async Task ExistingPaidSetupPriceRemainsSettled()
+    {
+        // Arrange
+        var registration = await Register(Owner);
+        var entity = await Db.RegistrationAsync(registration.Id, default);
+        entity!.Paid = true;
+        entity.SettledPriceCents = 700;
+        entity.SettledAdmission = "Frühbucher";
+        await Db.SaveAsync(default);
+        // Act
+        var view = (await Service.MineAsync(Owner, default)).Single();
+        // Assert
+        Assert.That(view.Paid, Is.True);
+        Assert.That(view.PriceCents, Is.EqualTo(700));
+    }
+    [Test, Description("Changing setup requirements after payment does not change the settled admission price.")]
+    public async Task SetupCanChangeWithoutReopeningPayment()
+    {
+        // Arrange
+        var registration = await Register(Owner);
+        var paid = await Service.ActionAsync(registration.Id, new(registration.Version, "pay"), Admin, default);
+        var form = Form();
+        form.Sockets = 4;
+        // Act
+        var updated = await Service.UpdateAsync(registration.Id, new(paid.Version, form), Owner, default);
+        // Assert
+        Assert.That(updated.Form.Sockets, Is.EqualTo(4));
+        Assert.That(updated.Paid, Is.True);
+        Assert.That(updated.PriceCents, Is.EqualTo(paid.PriceCents));
+    }
+
 }
 

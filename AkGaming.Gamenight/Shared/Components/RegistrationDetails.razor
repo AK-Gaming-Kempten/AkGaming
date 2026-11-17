@@ -32,11 +32,7 @@
     <div class="registration-overview-grid">
         <section class="registration-price-summary">
             <h3>@Registration.Admission</h3>
-            <div class="registration-prices">
-                <div class="registration-rate @(Registration.Form.Sockets is null or 0 ? "selected-rate" : "")"><span>Ohne Setup</span><strong>@Money(Registration.PriceWithoutSetupCents)</strong></div>
-                <div class="registration-rate @(Registration.Form.Sockets > 0 ? "selected-rate" : "")"><span>Mit Setup / Sitzplatz</span><strong>@Money(Registration.PriceWithSetupCents)</strong></div>
-            </div>
-            <p class="muted">Dein Eintritt: <strong>@Money(Registration.PriceCents)</strong></p>
+            <p class="registration-single-price"><strong>@Money(Registration.PriceCents)</strong><DeskStatus Icon="payment" Tone="@(Registration.Paid || Registration.PriceCents == 0 ? "success" : "warning")" Text="@(Registration.PriceCents == 0 ? "Kostenlos" : Registration.Paid ? "Bezahlt" : "Offen")" /></p>
         </section>
         <section class="registration-plan" aria-label="Dein Abend">
             <p class="registration-attendance">@(Registration.Form.Attendance == "Karaoke" ? "Nur Karaoke" : "Game Night + Karaoke")</p>

@@ -19,12 +19,10 @@ public sealed class GamenightService(IGamenightStore store, IMembershipClient me
         if (!json.TryGetProperty(nameof(EventSettings.MemberEarlyDiscountCents), out _) && json.TryGetProperty("MemberEarlyPriceCents", out var earlyPrice))
         {
             settings.MemberEarlyDiscountCents = Math.Max(0, settings.EarlyPriceCents - earlyPrice.GetInt32());
-            settings.MemberEarlySetupDiscountCents = Math.Max(0, settings.EarlySetupPriceCents - earlyPrice.GetInt32());
         }
         if (!json.TryGetProperty(nameof(EventSettings.MemberRegularDiscountCents), out _) && json.TryGetProperty("MemberRegularPriceCents", out var regularPrice))
         {
             settings.MemberRegularDiscountCents = Math.Max(0, settings.RegularPriceCents - regularPrice.GetInt32());
-            settings.MemberRegularSetupDiscountCents = Math.Max(0, settings.RegularSetupPriceCents - regularPrice.GetInt32());
         }
         settings.Version = e.Version;
         return settings;
@@ -202,7 +200,7 @@ public sealed class GamenightService(IGamenightStore store, IMembershipClient me
                 && old.MealQuantity == form.MealQuantity
                 && old.IceCream == form.IceCream
                 && old.Scoops == form.Scoops, 409, "Die Frist für Essenswünsche ist abgelaufen.");
-        Require((!r.Paid && !r.CheckedIn) || (old.Attendance == form.Attendance && old.Sockets == form.Sockets), 409, "Vor einer Tarifänderung bitte Zahlung und Check-in zurücknehmen.");
+        Require((!r.Paid && !r.CheckedIn) || old.Attendance == form.Attendance, 409, "Vor einer Tarifänderung bitte Zahlung und Check-in zurücknehmen.");
         r.AnswersJson = JsonSerializer.Serialize(form);
         r.Version = Guid.NewGuid();
         Audit(r.EventId, id, actor, "registration.updated");
@@ -284,17 +282,10 @@ public sealed class GamenightService(IGamenightStore store, IMembershipClient me
             }
             member = eligibility?.Eligible == true;
             if (eligibility?.Reason == "unavailable") { price = null; admission = "Mitgliedsprüfung derzeit nicht verfügbar"; }
-            else if (member) { price = e.MemberPrice(early, form.Sockets > 0); admission = "Mitglied – Beitrag in Management bezahlt"; }
-            else { price = form.Sockets > 0 ? (early ? e.EarlySetupPriceCents : e.RegularSetupPriceCents) : (early ? e.EarlyPriceCents : e.RegularPriceCents); admission = early ? "Frühbucher" : "Regulär"; }
+            else if (member) { price = e.MemberPrice(early); admission = "Mitglied – Beitrag in Management bezahlt"; }
+            else { price = early ? e.EarlyPriceCents : e.RegularPriceCents; admission = early ? "Frühbucher" : "Regulär"; }
         }
-        var sameRate = r.StaffApproved || form.Attendance == "Karaoke";
-        int? withoutSetup = price is null ? null : sameRate ? price : member ? e.MemberPrice(early, false) : early ? e.EarlyPriceCents : e.RegularPriceCents;
-        int? withSetup = price is null ? null : sameRate ? price : member ? e.MemberPrice(early, true) : early ? e.EarlySetupPriceCents : e.RegularSetupPriceCents;
-        return new RegistrationView(r.Id, r.EventId, form, r.Version, r.Cancelled, r.StaffApproved, r.CheckedIn, r.Paid, price, admission, r.CreatedAt, CanEdit(r, e, actor), member)
-        {
-            PriceWithoutSetupCents = withoutSetup,
-            PriceWithSetupCents = withSetup
-        };
+        return new RegistrationView(r.Id, r.EventId, form, r.Version, r.Cancelled, r.StaffApproved, r.CheckedIn, r.Paid, price, admission, r.CreatedAt, CanEdit(r, e, actor), member);
     }
     private static string Hash(string token) => Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(token)));
     private static DateTime Utc(DateTime date) => date.Kind == DateTimeKind.Local ? date.ToUniversalTime() : DateTime.SpecifyKind(date, DateTimeKind.Utc);
