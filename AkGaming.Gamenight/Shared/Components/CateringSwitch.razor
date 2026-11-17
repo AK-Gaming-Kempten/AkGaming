@@ -1,0 +1,8 @@
+<div class="catering-switch-row">
+    <span>@Label</span>
+    <div class="catering-switcher-control @(Value ? "is-on" : "")" role="group" aria-label="@Label">
+        <span class="catering-switcher-thumb" aria-hidden="true"></span>
+        <button type="button" aria-pressed="@Value" disabled="@Disabled" @onclick="() => ValueChanged.InvokeAsync(true)">An</button>
+        <button type="button" aria-pressed="@(!Value)" disabled="@Disabled" @onclick="() => ValueChanged.InvokeAsync(false)">Aus</button>
+    </div>
+</div>

@@ -1,0 +1,58 @@
+<section class="card catering-account">
+    <div class="section-heading"><div><h2>@(ShowPerson ? Account.Person : "Catering")</h2><p>@(Account.DiscountEligible ? "Frühbucherrabatt berechtigt" : "Kein Frühbucherrabatt") @(Account.EligibilityOverride is null ? "" : "· Frontdesk-Korrektur")</p></div>
+        <div class="toolbar">
+            @if (!Account.Cancelled && (Menu.OrdersOpen && CanOrder || Staff)) { <button @onclick="() => _ordering = true">Essen bestellen</button> }
+            @if (Staff)
+            {
+                <ContextMenu AriaLabel="Catering verwalten"><ContextMenuItem Text="Rabattberechtigung ändern" OnClick='() => Open("eligibility")' /></ContextMenu>
+            }
+        </div>
+    </div>
+    @if (Account.Cancelled) { <p class="catering-warning">Anmeldung storniert. Bestehende Bestellungen bitte prüfen.</p> }
+    @if (!Menu.OrdersOpen) { <p class="muted">Bestellungen sind aktuell gesperrt.</p> }
+    @foreach (var line in Account.Lines.OrderBy(l => l.OrderedAt))
+    {
+        <CateringOrderLine @key="line.Id" Line="line" Staff="Staff" OrdersOpen="@(Menu.OrdersOpen && CanOrder)" Busy="_busy" Action="LineAction" />
+    }
+    @if (Account.Lines.Count == 0) { <p class="muted">Noch keine verbindlichen Bestellungen.</p> }
+    <div class="catering-balance">
+        @if (Registration is not null)
+        {
+            <p>Eintritt offen <strong>@(Registration.PriceCents is null ? "Preisprüfung ausstehend" : Money(Registration.Paid ? 0 : Registration.PriceCents.Value))</strong></p>
+        }
+        <p>Catering offen <strong>@Money(Account.OutstandingCents)</strong></p>
+        @if (Registration is not null && Registration.PriceCents is { } entry)
+        {
+            <p class="catering-total">Gesamt zu zahlen <strong>@Money((Registration.Paid ? 0 : entry) + Account.OutstandingCents)</strong></p>
+        }
+        @if (Staff && !Account.Cancelled && Account.Lines.Any(l => !l.Paid)) { <button disabled="@_busy" @onclick='() => Open("pay")'>Catering-Zahlung erfassen</button> }
+        @if (Staff && Registration is not null && !Account.Cancelled && Registration.PriceCents is not null && ((!Registration.Paid && Registration.PriceCents > 0) || Account.Lines.Any(l => !l.Paid)))
+        {
+            <button disabled="@_busy" @onclick='() => Open("settle")'>Gesamtzahlung erfassen</button>
+        }
+    </div>
+    @if (_error is not null) { <p class="error" role="alert">@_error</p> }
+</section>
+@if (_ordering) { <CateringOrderDialog Menu="Menu" Account="Account" OnClose="CloseOrder" Changed="Ordered" /> }
+@if (_action is not null && _action != "collect")
+{
+    <FormDialog Title="@ActionTitle" OnClose="CloseAction">
+        <ChildContent>
+            <p>@Account.Person</p>
+            @if (_action == "eligibility")
+            {
+                <label>Frühbucherrabatt<select @bind="_eligibility"><option value="auto">Automatisch anhand der Anmeldung</option><option value="yes">Berechtigt</option><option value="no">Nicht berechtigt</option></select></label>
+                <p class="muted">Gilt für offene und künftige Bestellungen. Bereits bezahlte Preise bleiben fest. Die Rabattregeln der Artikel gelten weiterhin.</p>
+            }
+            @if (_action is "eligibility" or "uncollect") { <label>Grund<input @bind="_reason" maxlength="500" /></label> }
+            @if (_action == "partial") { <label>Anzahl<input type="number" min="1" max="@Remaining" @bind="_quantity" /></label> }
+            @if (_action is "pay" or "settle")
+            {
+                <p>Erhaltene Barzahlung: <strong>@Money(PaymentCents)</strong></p><p>Bitte erst bestätigen, wenn das Geld erhalten wurde.</p>
+            }
+            @if (_action == "cancel") { <p>Diese unbezahlte Bestellposition stornieren?</p> }
+            @if (_error is not null) { <p class="error" role="alert">@_error</p> }
+        </ChildContent>
+        <Footer><button class="secondary" disabled="@_busy" @onclick="CloseAction">Abbrechen</button><button disabled="@_busy" @onclick="Apply">Bestätigen</button></Footer>
+    </FormDialog>
+}

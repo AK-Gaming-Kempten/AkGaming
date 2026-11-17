@@ -1,0 +1,49 @@
+@if (_categoryDraft is not null)
+{
+    <FormDialog Title="Kategorie bearbeiten" OnClose="CloseEditor">
+        <ChildContent><EditForm Model="_categoryDraft" OnValidSubmit="SaveCategory" id="catering-category-form"><DataAnnotationsValidator /><ValidationSummary /><label>Name<InputText @bind-Value="_categoryDraft.Name" /></label><p>@(_categoryDraft.ParentId is { } parent ? $"Unterkategorie von {Path(parent)}" : "Hauptkategorie")</p></EditForm></ChildContent>
+        <Footer><button class="secondary" @onclick="CloseEditor">Abbrechen</button><button type="submit" form="catering-category-form">Übernehmen</button></Footer>
+    </FormDialog>
+}
+else if (_itemDraft is not null)
+{
+    <FormDialog Title="Gericht bearbeiten" OnClose="CloseEditor">
+        <ChildContent>
+            <EditForm Model="_itemDraft" OnValidSubmit="SaveItem" id="catering-item-form"><DataAnnotationsValidator /><ValidationSummary />
+                <p>@Path(_itemDraft.CategoryId)</p>
+                <label>Name<InputText @bind-Value="_itemDraft.Name" /></label><label>Beschreibung<InputTextArea @bind-Value="_itemDraft.Description" /></label>
+                <label>Preis in Euro<InputNumber @bind-Value="ItemPrice" min="0" max="1000" step="0.01" /></label>
+                <CateringSwitch Label="Bestellbar" @bind-Value="_itemDraft.Available" />
+                <CateringSwitch Label="Für Frühbucherrabatt berechtigt" @bind-Value="_itemDraft.DiscountEligible" />
+                @if (_itemDraft.DiscountEligible) { <label>Abweichender Rabatt in Euro (leer = Standard)<InputNumber @bind-Value="ItemDiscount" placeholder="@DefaultDiscountPlaceholder" min="0" max="1000" step="0.01" /></label> }
+                <fieldset><legend>Symbol</legend><div class="catering-icon-picker">@foreach (var icon in CateringIcons.All) { <button type="button" class="secondary @(_itemDraft.Icon == icon ? "selected" : "")" aria-pressed="@(_itemDraft.Icon == icon)" @onclick="() => _itemDraft.Icon = icon"><CateringIcon Kind="@icon" />@IconName(icon)</button> }</div></fieldset>
+            </EditForm>
+        </ChildContent>
+        <Footer><button class="secondary" @onclick="CloseEditor">Abbrechen</button><button type="submit" form="catering-item-form">Übernehmen</button></Footer>
+    </FormDialog>
+}
+else if (_deleteCategory is { } deleteId)
+{
+    <FormDialog Title="Kategorie entfernen" OnClose="CloseEditor">
+        <ChildContent><p>„@Path(deleteId)“ und alle Unterkategorien samt Menüeinträgen entfernen? Bestehende Bestellungen bleiben gespeichert.</p></ChildContent>
+        <Footer><button class="secondary" @onclick="CloseEditor">Abbrechen</button><button @onclick="DeleteCategory">Entfernen</button></Footer>
+    </FormDialog>
+}
+else if (_menu is not null)
+{
+    <FormDialog Title="Catering konfigurieren" OnClose="Close">
+        <ChildContent>
+            <CateringSwitch Label="Bestellungen freigeben" @bind-Value="_menu.OrdersOpen" />
+            <label>Standard-Frühbucherrabatt in Euro<input type="number" min="0" max="1000" step="0.01" @bind="DefaultDiscount" /></label>
+            <p class="muted">Eine Portion pro Person erhält automatisch den höchsten verfügbaren Rabatt. Preise und Rabatte bestehender Bestellungen bleiben gespeichert.</p>
+            <div class="section-heading catering-tree-toolbar"><h4>Speisekarte</h4><div class="toolbar"><button type="button" class="secondary" @onclick="() => CreateCategory(null)">+ Kategorie</button><button type="button" disabled="@(_selected is null)" @onclick="() => CreateItem(_selected!.Value)">+ Gericht</button></div></div>
+            <CateringMenuTree Menu="_menu" Selected="_selected" SelectedChanged="id => _selected = id" EditCategory="EditCategory" CreateCategory="CreateCategory" CreateItem="CreateItem" DeleteCategory="id => _deleteCategory = id" EditItem="EditItem" />
+            @if (_error is not null) { <p class="error" role="alert">@_error</p> }
+        </ChildContent>
+        <Footer><button class="secondary" disabled="@_busy" @onclick="Close">Abbrechen</button><button disabled="@_busy" @onclick="Save">Speichern</button></Footer>
+    </FormDialog>
+}
+else if (_error is not null)
+{
+    <FormDialog Title="Catering" OnClose="Close"><ChildContent><p class="error" role="alert">@_error</p></ChildContent><Footer><button @onclick="Close">Schließen</button></Footer></FormDialog>
+}

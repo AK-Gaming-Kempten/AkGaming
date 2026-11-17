@@ -8,7 +8,7 @@
         <label>Veranstaltung auswählen<select @bind="_selected"><option value="">Bitte auswählen</option>@foreach (var e in _events) { <option value="@e.Id">@e.Name</option> }</select></label>
         @if (_events.FirstOrDefault(e => e.Id == _selected) is { } selected)
         {
-            <div class="section-heading"><div><h3>@selected.Name</h3><p>@selected.StartsAt.ToLocalTime().ToString("dd.MM.yyyy HH:mm") · @selected.Location</p></div><ContextMenu AriaLabel="Veranstaltung verwalten"><ContextMenuItem Text="Bearbeiten" OnClick="() => Edit(selected)" /><ContextMenuItem Text="Global aktivieren" OnClick="() => _activate = true" IsDisabled="@(_active?.Event?.Id == selected.Id)" /></ContextMenu></div>
+            <div class="section-heading"><div><h3>@selected.Name</h3><p>@selected.StartsAt.ToLocalTime().ToString("dd.MM.yyyy HH:mm") · @selected.Location</p></div><ContextMenu AriaLabel="Veranstaltung verwalten"><ContextMenuItem Text="Bearbeiten" OnClick="() => Edit(selected)" /><ContextMenuItem Text="Catering konfigurieren" OnClick="() => _cateringEvent = selected.Id" /><ContextMenuItem Text="Global aktivieren" OnClick="() => _activate = true" IsDisabled="@(_active?.Event?.Id == selected.Id)" /></ContextMenu></div>
         }
     </section>
 }
@@ -59,3 +59,5 @@
     </FormDialog>
 }
 
+
+@if (_cateringEvent is { } cateringId) { <CateringMenuDialog EventId="cateringId" OnClose="() => _cateringEvent = null" /> }

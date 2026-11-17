@@ -10,7 +10,7 @@ public partial class Admin
     private List<EventSettings> _events = [];
     private List<PaymentPeriodOption> _periods = [];
     private ActiveEvent? _active;
-    private Guid? _selected;
+    private Guid? _selected, _cateringEvent;
     private EventSettings? _draft;
     private bool _allowed, _activate, _busy;
     private string? _error;

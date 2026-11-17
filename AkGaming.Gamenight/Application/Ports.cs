@@ -13,6 +13,8 @@ public interface IGamenightStore
     Task<List<GamenightEvent>> EventsAsync(CancellationToken ct);
     Task<Registration?> RegistrationAsync(Guid id, CancellationToken ct);
     Task<List<Registration>> RegistrationsAsync(Guid eventId, CancellationToken ct);
+    Task<CateringSettings?> CateringSettingsAsync(Guid eventId, CancellationToken ct);
+    Task<CateringAccount?> CateringAccountAsync(Guid registrationId, CancellationToken ct);
     void Add(object entity);
     Task SaveAsync(CancellationToken ct);
 }

@@ -1,0 +1,29 @@
+@page "/admin/catering"
+<p class="eyebrow">AK GAMING · CATERINGVERWALTUNG</p><h1>Catering-Bestellungen</h1>
+@if (_error is not null) { <p class="error" role="alert">@_error</p> }
+@if (_allowed && _menu is not null)
+{
+    <div class="toolbar"><label>Ansicht<select @bind="_view"><option value="orders">Bestellungen</option><option value="supplier">Lieferantenübersicht</option></select></label><button class="secondary" @onclick="Load">Aktualisieren</button></div>
+    @if (_view == "supplier") { <CateringSupplierOverview Accounts="_accounts" /> }
+    else
+    {
+        <div class="toolbar">
+            <label>Person suchen<input type="search" @bind="_search" @bind:event="oninput" placeholder="Name oder E-Mail" /></label>
+            <label>Gericht<select @bind="_item"><option value="">Alle Gerichte</option>@foreach (var item in Meals) { <option value="@item.Key">@item.Value</option> }</select></label>
+            <label>Zahlung<select @bind="_payment"><option value="">Alle</option><option value="unpaid">Unbezahlt</option><option value="paid">Bezahlt</option></select></label>
+            <label>Abholung<select @bind="_collection"><option value="">Alle</option><option value="pending">Noch offen</option><option value="partial">Teilweise</option><option value="collected">Abgeholt</option></select></label>
+            <label>Sortierung<select @bind="_sort"><option value="person">Person A–Z</option><option value="person-desc">Person Z–A</option><option value="meal">Gericht A–Z</option><option value="meal-desc">Gericht Z–A</option><option value="oldest">Älteste zuerst</option><option value="newest">Neueste zuerst</option></select></label>
+        </div>
+        <div class="catering-table-scroll"><table class="catering-table"><thead><tr><th>Person</th><th>Gericht</th><th>Menge</th><th>Preis</th><th>Zahlung</th><th>Abholung</th></tr></thead><tbody>
+            @foreach (var row in Filtered)
+            {
+                <tr class="@(row.Line.Paid ? "" : "catering-unpaid")"><td><button class="secondary" @onclick="() => _selected = row.Account.RegistrationId">@row.Account.Person</button>@if (row.Account.Cancelled) { <small>ANMELDUNG STORNIERT</small> }</td><td>@row.Line.ItemName</td><td>@row.Line.Quantity</td><td>@Money(row.Line.TotalCents)</td><td><span class="@(row.Line.Paid ? "" : "catering-unpaid-badge")">@(row.Line.Paid ? "Bezahlt" : "UNBEZAHLT")</span></td><td>
+                    <span>@row.Line.CollectedQuantity / @row.Line.Quantity</span>
+                    @if (_staff && row.Line.CollectedQuantity < row.Line.Quantity) { <button disabled="@(!row.Line.Paid || _busy)" title="@(row.Line.Paid ? "Restliche Menge abholen" : "Zuerst bezahlen")" @onclick="() => Collect(row.Account, row.Line)">Abgeholt</button> }
+                </td></tr>
+            }
+        </tbody></table></div>
+        @if (!Filtered.Any()) { <p>Keine passenden Bestellungen.</p> }
+        @if (_accounts.FirstOrDefault(a => a.RegistrationId == _selected) is { } selected) { <CateringAccountPanel CanOrder="false" @key="selected.RegistrationId" Account="selected" Menu="_menu" Staff="_staff" ShowPerson="true" Changed="Load" /> }
+    }
+}

@@ -252,12 +252,71 @@ dotnet ef migrations add <Name> --project AkGaming.Gamenight/Migrations/Sqlite -
 dotnet ef migrations add <Name> --project AkGaming.Gamenight/Migrations/Postgres --startup-project AkGaming.Gamenight/Migrations/Postgres
 ```
 
-## Future modules
+## Catering
 
-Food answers are signup preferences, not orders. A later ordering module should
-reference `EventId` and `RegistrationId`, own menus/order lines/payment/collection,
-and consume signup preferences explicitly. It should not overwrite the original
-registration answers or repurpose entry-payment fields.
+Authenticated attendees order at `/catering` for their noncancelled registration in
+the active event, including Karaoke and staff registrations. A verified email can
+claim an existing guest registration, using the same ownership flow as My
+Registration. Signup food preferences remain planning information; they are never
+converted into orders automatically.
+
+In **Verwaltung**, select an event and choose **Catering konfigurieren** in its
+context menu. This opens a separate modal for the event's menu and ordering lock.
+Menus start locked with a zero default discount; configure the amount before
+opening orders. Categories can nest, and drag handles allow reordering and moving
+categories or meals. Highlighted targets preview the exact placement. Menu items
+have availability, integer-cent prices (edited in euros), and a code-defined
+generic meal, Pizza, Döner, or Dürüm SVG icon. New items use the generic icon. Categories and items are created or edited through
+focused dialogs. Menus can be prepared for inactive events.
+
+The fixed early-bird discount applies to **one meal unit per registration per
+event**. Each eligible item may override the menu default, including an explicit
+zero. The discount is capped at the unit price and automatically allocated to the
+unpaid item with the largest saving, including outstanding items from earlier
+orders. Cancelling an unpaid position reallocates the discount. Once a discounted
+meal is paid, that event's discount is consumed; settled prices never change.
+Existing orders retain snapshots of item names, category paths, icons, prices, and
+discount amounts when the menu changes.
+
+Frontdesk can order for any visitor, including guest registrations. A locked menu
+shows a warning and requires explicit acknowledgement before staff submit an
+order. Staff can grant, deny, or reset early-bird eligibility with a recorded
+reason. Overrides affect open and future charges; paid charges remain fixed and
+a used discount cannot be claimed twice. Item-level eligibility still applies.
+
+The visitor details show outstanding admission, catering, and their combined
+balance. **Gesamtzahlung erfassen** atomically settles admission and all open
+catering positions; **Catering-Zahlung erfassen** settles food only. Admission's
+existing payment fields keep their entry-only meaning. New food orders after
+admission payment create a catering balance without reopening admission. The
+combined payment rejects stale order/registration versions and changed displayed
+admission prices.
+
+`/admin/catering` lists order lines with person/meal/payment/collection filters and
+sorting. Fully paid positions can be collected with one click or in partial
+quantities. Unpaid positions cannot be collected, including through the API.
+Unpaid, uncollected positions may be cancelled; collection corrections require a
+reason. Paid cancellations/refunds are not supported by this initial cash-payment
+workflow. Cancelling an event registration retains its catering records and flags
+them for review.
+
+The supplier overview shows all placed quantities, separate paid and **UNBEZAHLT**
+quantities, and collected counts. It deliberately includes unpaid orders and orders
+for cancelled registrations with prominent warnings. It is unaffected by the
+individual-order search filters, so a supplier total cannot silently omit a meal.
+
+Permissions reuse the existing event and frontdesk roles: `gamenight.events.manage`
+manages menus, `gamenight.registrations.read` reads the catering administration,
+and `gamenight.frontdesk.manage` permits ordering for others, eligibility overrides,
+food payments and collection. Combined settlement additionally requires registration
+read access. No new Identity claims or deployment secrets are required.
+
+Apply the new `AddCatering` migration for SQLite or PostgreSQL before deploying
+the application. Existing migration tooling picks it up automatically. Catering
+uses the same Gamenight database and optimistic concurrency/active-event write
+checks. No additional service or database is needed.
+
+## Future modules
 
 `GamelyBotConnection` is registered with service-token support.
 `GamelyBot:Enabled` defaults to false; signup sends no bot events. Configure its

@@ -1,0 +1,9 @@
+<ul class="catering-category-tree">
+    @foreach (var category in Categories.Where(c => c.ParentId == ParentId).OrderBy(c => c.Position).ThenBy(c => c.Name))
+    {
+        <li @key="category.Id">
+            <button type="button" class="secondary @(Selected == category.Id ? "selected" : "")" @onclick="() => SelectedChanged.InvokeAsync(category.Id)">@category.Name</button>
+            <CateringCategoryTree Categories="Categories" ParentId="category.Id" Selected="Selected" SelectedChanged="SelectedChanged" />
+        </li>
+    }
+</ul>

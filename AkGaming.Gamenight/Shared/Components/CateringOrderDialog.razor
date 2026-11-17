@@ -1,0 +1,31 @@
+<FormDialog Title="@($"Essen bestellen · {Account.Person}")" Class="catering-order-dialog" OnClose="Close">
+    <ChildContent>
+        @if (!Menu.OrdersOpen)
+        {
+            <div class="catering-lock-notice"><p class="catering-warning" role="alert">Bestellungen sind gesperrt. Als Frontdesk kannst du trotzdem bestellen.</p><CateringSwitch Label="Trotz Bestellsperre bestellen" @bind-Value="_acknowledged" /></div>
+        }
+        <div class="catering-order-workspace">
+            <section class="catering-scroll-panel" aria-label="Speisekarte">
+                <h4>Speisekarte</h4>
+                <div class="catering-scroll-content" tabindex="0" aria-label="Kategorien und Gerichte">
+                    <CateringOrderTree Menu="Menu" Quantities="_quantities" QuantityChanged="ChangeQuantity" />
+                    @if (!Menu.Items.Any(i => i.Available)) { <p class="muted">Aktuell sind keine Gerichte verfügbar.</p> }
+                </div>
+            </section>
+            <section class="catering-scroll-panel catering-selection" aria-label="Neue Bestellung">
+                <h4>Deine Auswahl <small>@_quantities.Sum(q => q.Value) Portionen</small></h4>
+                <div class="catering-scroll-content" tabindex="0" aria-label="Ausgewählte Gerichte">
+                    @foreach (var item in Menu.Items.Where(i => Quantity(i.Id) > 0)) { <p><span>@Quantity(item.Id) × @item.Name</span><strong>@Money(item.PriceCents * Quantity(item.Id))</strong></p> }
+                    @if (!_quantities.Any(q => q.Value > 0)) { <p class="muted">Wähle Gerichte aus der Speisekarte.</p> }
+                </div>
+            </section>
+        </div>
+        @if (_error is not null) { <p class="error catering-order-error" role="alert">@_error</p> }
+    </ChildContent>
+    <Footer>
+        <div class="catering-order-footer" aria-live="polite">
+            <div class="catering-compact-total"><div><strong title="Neue und bisher unbezahlte Bestellungen">Catering offen gesamt</strong><small>Neue Gerichte @Money(NewSubtotal) · Rabatt −@Money(PreviewDiscount)</small></div><strong>@Money(PreviewTotal)</strong></div>
+            <div class="catering-order-actions"><small>@(Account.DiscountEligible ? "Ein Frühbucherrabatt pro Person; bezahlte Preise bleiben fest." : "Kein Frühbucherrabatt.")</small><button class="secondary" disabled="@_busy" @onclick="Close">Abbrechen</button><button disabled="@(_busy || !_quantities.Any(q => q.Value > 0) || !Menu.OrdersOpen && !_acknowledged)" @onclick="Submit">Verbindlich bestellen</button></div>
+        </div>
+    </Footer>
+</FormDialog>

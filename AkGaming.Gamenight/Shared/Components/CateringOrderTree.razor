@@ -1,0 +1,13 @@
+@foreach (var category in Menu.Categories.Where(c => c.ParentId == ParentId).OrderBy(c => c.Position).ThenBy(c => c.Name))
+{
+    <details class="catering-order-category" open @key="category.Id">
+        <summary>@category.Name</summary>
+        <div class="catering-order-branch">
+            @foreach (var item in Menu.Items.Where(i => i.CategoryId == category.Id && i.Available).OrderBy(i => i.Position).ThenBy(i => i.Name))
+            {
+                <CateringMealCard @key="item.Id" Item="item" DefaultDiscountCents="Menu.DefaultDiscountCents" Quantity="Quantities.GetValueOrDefault(item.Id)" QuantityChanged="q => QuantityChanged.InvokeAsync(new CateringQuantity(item.Id, q))" />
+            }
+            <CateringOrderTree Menu="Menu" ParentId="category.Id" Quantities="Quantities" QuantityChanged="QuantityChanged" />
+        </div>
+    </details>
+}

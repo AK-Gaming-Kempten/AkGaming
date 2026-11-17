@@ -1,0 +1,5 @@
+<RegistrationDetails @key="Registration.Version" Registration="Registration" Granted="Granted" Changed="Changed" />
+@if (Menu is not null && Catering is not null)
+{
+    <CateringAccountPanel CanOrder="false" Account="Catering" Menu="Menu" Registration="Registration" Staff="@Granted.Contains(Permissions.Frontdesk)" Changed="Changed" />
+}

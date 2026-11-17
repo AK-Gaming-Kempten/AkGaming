@@ -8,6 +8,8 @@ public partial class Frontdesk
     [Inject] private IUserSession Session { get; set; } = default!;
     [Inject] private IRegistrationExport Exporter { get; set; } = default!;
     private List<RegistrationView> _rows = [];
+    private List<CateringView> _catering = [];
+    private CateringMenu? _menu;
     private HashSet<string> _permissions = [];
     private bool _allowed;
     private Guid? _selected;
@@ -21,7 +23,7 @@ public partial class Frontdesk
     }
     private IEnumerable<RegistrationView> Filtered => _rows.Where(r =>
         (r.Form.FirstName + " " + r.Form.LastName + " " + r.Form.Email).Contains(_search, StringComparison.OrdinalIgnoreCase))
-        .Where(r => _filter switch { "waiting" => !r.CheckedIn && !r.Cancelled, "checked" => r.CheckedIn, "unpaid" => !r.Paid && r.PriceCents != 0 && !r.Cancelled, "staff" => r.StaffApproved && !r.Cancelled, "cancelled" => r.Cancelled, _ => true })
+        .Where(r => _filter switch { "waiting" => !r.CheckedIn && !r.Cancelled, "checked" => r.CheckedIn, "unpaid" => !r.Cancelled && ((!r.Paid && r.PriceCents != 0) || _catering.Any(c => c.RegistrationId == r.Id && c.Lines.Any(l => !l.Paid))), "staff" => r.StaffApproved && !r.Cancelled, "cancelled" => r.Cancelled, _ => true })
         .OrderBy(r => r.Form.LastName).ThenBy(r => r.Form.FirstName);
     private int TotalMeals(string meal) => _rows.Where(r => !r.Cancelled).Sum(r => r.Form.WantsToOrder is null
         ? r.Form.Meal == meal ? r.Form.MealQuantity ?? 0 : 0
@@ -30,7 +32,14 @@ public partial class Frontdesk
     private async Task Load()
     {
         _error = null;
-        try { _rows = await Client.SendAsync<List<RegistrationView>>(HttpMethod.Get, "api/registrations"); if (!_rows.Any(r => r.Id == _selected)) _selected = null; }
+        try
+        {
+            _rows = await Client.SendAsync<List<RegistrationView>>(HttpMethod.Get, "api/registrations");
+            _catering = await Client.SendAsync<List<CateringView>>(HttpMethod.Get, "api/catering/orders");
+            var active = await Client.SendAsync<ActiveEvent>(HttpMethod.Get, "api/events/active");
+            _menu = active.Event is null ? null : await Client.SendAsync<CateringMenu>(HttpMethod.Get, $"api/catering/menu/{active.Event.Id}");
+            if (!_rows.Any(r => r.Id == _selected)) _selected = null;
+        }
         catch (HttpRequestException ex) { _error = ex.Message; }
     }
     private async Task Export()

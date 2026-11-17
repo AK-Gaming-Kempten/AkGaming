@@ -50,6 +50,45 @@ namespace AkGaming.Gamenight.Migrations.Postgres.Migrations
                     b.ToTable("Audit");
                 });
 
+            modelBuilder.Entity("AkGaming.Gamenight.Domain.CateringAccount", b =>
+                {
+                    b.Property<Guid>("RegistrationId")
+                        .HasColumnType("uuid");
+
+                    b.Property<bool?>("EligibilityOverride")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("LinesJson")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("Version")
+                        .IsConcurrencyToken()
+                        .HasColumnType("uuid");
+
+                    b.HasKey("RegistrationId");
+
+                    b.ToTable("CateringAccount");
+                });
+
+            modelBuilder.Entity("AkGaming.Gamenight.Domain.CateringSettings", b =>
+                {
+                    b.Property<Guid>("EventId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("MenuJson")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("Version")
+                        .IsConcurrencyToken()
+                        .HasColumnType("uuid");
+
+                    b.HasKey("EventId");
+
+                    b.ToTable("CateringSettings");
+                });
+
             modelBuilder.Entity("AkGaming.Gamenight.Domain.EmailOutbox", b =>
                 {
                     b.Property<Guid>("Id")
@@ -190,6 +229,24 @@ namespace AkGaming.Gamenight.Migrations.Postgres.Migrations
                         .IsUnique();
 
                     b.ToTable("Registrations");
+                });
+
+            modelBuilder.Entity("AkGaming.Gamenight.Domain.CateringAccount", b =>
+                {
+                    b.HasOne("AkGaming.Gamenight.Domain.Registration", null)
+                        .WithOne()
+                        .HasForeignKey("AkGaming.Gamenight.Domain.CateringAccount", "RegistrationId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("AkGaming.Gamenight.Domain.CateringSettings", b =>
+                {
+                    b.HasOne("AkGaming.Gamenight.Domain.GamenightEvent", null)
+                        .WithOne()
+                        .HasForeignKey("AkGaming.Gamenight.Domain.CateringSettings", "EventId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("AkGaming.Gamenight.Domain.EventSelection", b =>

@@ -12,6 +12,12 @@ public sealed class GamenightDbContext(DbContextOptions<GamenightDbContext> opti
     public DbSet<EmailOutbox> Emails => Set<EmailOutbox>();
     protected override void OnModelCreating(ModelBuilder model)
     {
+        model.Entity<CateringSettings>().HasKey(c => c.EventId);
+        model.Entity<CateringSettings>().Property(c => c.Version).IsConcurrencyToken();
+        model.Entity<CateringSettings>().HasOne<GamenightEvent>().WithOne().HasForeignKey<CateringSettings>(c => c.EventId).OnDelete(DeleteBehavior.Restrict);
+        model.Entity<CateringAccount>().HasKey(c => c.RegistrationId);
+        model.Entity<CateringAccount>().Property(c => c.Version).IsConcurrencyToken();
+        model.Entity<CateringAccount>().HasOne<Registration>().WithOne().HasForeignKey<CateringAccount>(c => c.RegistrationId).OnDelete(DeleteBehavior.Restrict);
         model.Entity<GamenightEvent>().Property(e => e.Version).IsConcurrencyToken();
         model.Entity<EventSelection>().Property(e => e.Version).IsConcurrencyToken();
         model.Entity<EventSelection>().HasData(new EventSelection { Id = 1, Version = new Guid("237c513f-48ae-4b2d-b6bd-a17c3338a1e0") });
@@ -28,6 +34,8 @@ public sealed class GamenightDbContext(DbContextOptions<GamenightDbContext> opti
     public Task<List<GamenightEvent>> EventsAsync(CancellationToken ct) => Events.ToListAsync(ct);
     public Task<Registration?> RegistrationAsync(Guid id, CancellationToken ct) => Registrations.SingleOrDefaultAsync(r => r.Id == id, ct);
     public Task<List<Registration>> RegistrationsAsync(Guid eventId, CancellationToken ct) => Registrations.Where(r => r.EventId == eventId).ToListAsync(ct);
+    public Task<CateringSettings?> CateringSettingsAsync(Guid eventId, CancellationToken ct) => Set<CateringSettings>().SingleOrDefaultAsync(c => c.EventId == eventId, ct);
+    public Task<CateringAccount?> CateringAccountAsync(Guid registrationId, CancellationToken ct) => Set<CateringAccount>().SingleOrDefaultAsync(c => c.RegistrationId == registrationId, ct);
     void IGamenightStore.Add(object entity) => Add(entity);
     public async Task SaveAsync(CancellationToken ct)
     {

@@ -49,3 +49,17 @@ public sealed class EmailOutbox
     public int Attempts { get; set; }
 }
 
+
+public sealed class CateringSettings
+{
+    public Guid EventId { get; set; }
+    public string MenuJson { get; set; } = "";
+    public Guid Version { get; set; } = Guid.NewGuid();
+}
+public sealed class CateringAccount
+{
+    public Guid RegistrationId { get; set; }
+    public string LinesJson { get; set; } = "[]";
+    public bool? EligibilityOverride { get; set; }
+    public Guid Version { get; set; } = Guid.NewGuid();
+}

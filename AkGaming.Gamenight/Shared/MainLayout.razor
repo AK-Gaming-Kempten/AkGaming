@@ -12,7 +12,8 @@
     <nav id="primary-nav" class="@(_menuOpen ? "is-open" : "")" aria-label="Hauptnavigation" @onclick="CloseMenu">
         <NavLink href="/" Match="NavLinkMatch.All">Anmeldung</NavLink>
         <NavLink href="/mine">Meine Anmeldung</NavLink>
-        @if (Has(Permissions.Read)) { <NavLink href="/frontdesk">Front Desk</NavLink> }
+        @if (_signedIn) { <NavLink href="/catering">Catering</NavLink> }
+        @if (Has(Permissions.Read)) { <NavLink href="/frontdesk">Front Desk</NavLink><NavLink href="/admin/catering">Catering-Verwaltung</NavLink> }
         @if (Has(Permissions.Events)) { <NavLink href="/admin">Verwaltung</NavLink> }
         <button class="secondary" @onclick="ToggleLogin">@(_signedIn ? "Abmelden" : "Anmelden / Konto erstellen")</button>
     </nav>

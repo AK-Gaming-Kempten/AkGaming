@@ -1,0 +1,29 @@
+<div class="catering-menu-tree" aria-label="Kategorien und Gerichte">
+    @foreach (var entry in Entries(null, 0))
+    {
+        <div @key="(entry.Id, entry.End, entry.Category is not null)" class="catering-tree-entry" style="@($"--tree-depth:{entry.Depth}")">
+            @if (entry.End)
+            {
+                <div class="catering-insertion @(_dropTarget == Into(entry.Id) ? "active" : "")" title="Am Ende dieser Kategorie einfügen" @ondragover:preventDefault @ondragover="() => HoverCategory(entry.Id)" @ondrop="() => DropInto(entry.Id)"></div>
+            }
+            else
+            {
+                <div class="catering-insertion @(_dropTarget == Before(entry.Id) ? "active" : "")" title="Vor dieser Position einfügen" @ondragover:preventDefault @ondragover="() => HoverBefore(entry)" @ondrop="() => DropBefore(entry)"></div>
+                @if (entry.Category is { } category)
+                {
+                    <div class="catering-editor-row catering-category-row @(Selected == category.Id ? "selected" : "") @(_dropTarget == Into(category.Id) ? "drop-active" : "")" @ondragover:preventDefault @ondragover="() => HoverCategory(category.Id)" @ondrop="() => DropInto(category.Id)">
+                        <span class="catering-drag-handle" draggable="true" @ondragstart="() => StartCategory(category.Id)" @ondragend="EndDrag" title="Kategorie verschieben">⠿</span>
+                        <button type="button" class="catering-category-select" aria-pressed="@(Selected == category.Id)" @onclick="() => SelectedChanged.InvokeAsync(category.Id)"><strong><span aria-hidden="true">▾</span> @category.Name</strong><small>@Menu.Items.Count(i => i.CategoryId == category.Id) Gerichte</small></button>
+                        <ContextMenu AriaLabel="Kategorie verwalten"><ContextMenuItem Text="Gericht erstellen" OnClick="() => CreateItem.InvokeAsync(category.Id)" /><ContextMenuItem Text="Bearbeiten" OnClick="() => EditCategory.InvokeAsync(category)" /><ContextMenuItem Text="Unterkategorie erstellen" OnClick="() => CreateCategory.InvokeAsync(category.Id)" /><ContextMenuItem Text="Entfernen" IsDestructive="true" OnClick="() => DeleteCategory.InvokeAsync(category.Id)" /></ContextMenu>
+                    </div>
+                }
+                else if (entry.Item is { } item)
+                {
+                    <div class="catering-editor-row catering-item-row"><span class="catering-drag-handle" draggable="true" @ondragstart="() => StartItem(item.Id)" @ondragend="EndDrag" title="Gericht verschieben">⠿</span><CateringIcon Kind="@item.Icon" /><div><strong>@item.Name</strong><small>@Money(item.PriceCents) · @(item.Available ? "Bestellbar" : "Nicht verfügbar")</small></div><ContextMenu AriaLabel="Gericht verwalten"><ContextMenuItem Text="Bearbeiten" OnClick="() => EditItem.InvokeAsync(item)" /><ContextMenuItem Text="Entfernen" IsDestructive="true" OnClick="() => Menu.Items.Remove(item)" /></ContextMenu></div>
+                }
+            }
+        </div>
+    }
+    <div class="catering-insertion @(_dropTarget == "root" ? "active" : "")" title="Als letzte Hauptkategorie einfügen" @ondragover:preventDefault @ondragover="HoverRoot" @ondrop="DropRoot"></div>
+    @if (Menu.Categories.Count == 0) { <p class="muted">Erstelle eine Kategorie für deine Gerichte.</p> }
+</div>

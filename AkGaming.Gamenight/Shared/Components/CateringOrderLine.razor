@@ -1,0 +1,19 @@
+<div class="catering-order-line @(Line.Paid ? "" : "catering-unpaid")">
+    <CateringIcon Kind="@Line.Icon" />
+    <div><strong>@Line.Quantity × @Line.ItemName</strong><small>@Line.CategoryName · @Line.OrderedAt.ToLocalTime().ToString("dd.MM. HH:mm")</small>
+        <span>@Money(Line.TotalCents) @if (Line.DiscountApplied) { <small>inkl. @Money(Line.DiscountCents) Frühbucherrabatt</small> }</span>
+        <div class="badges"><span class="@(Line.Paid ? "" : "catering-unpaid-badge")">@(Line.Paid ? "Bezahlt" : "UNBEZAHLT")</span><span>@Line.CollectedQuantity / @Line.Quantity abgeholt</span></div>
+    </div>
+    @if (Staff && Line.CollectedQuantity < Line.Quantity)
+    {
+        <button disabled="@(!Line.Paid || Busy)" title="@(Line.Paid ? "Restliche Portionen als abgeholt markieren" : "Abholung erst nach Bezahlung")" @onclick='() => Action.InvokeAsync(new CateringLineCommand("collect", Line.Id, Line.Quantity - Line.CollectedQuantity))'>Abgeholt</button>
+    }
+    @if (Staff || !Line.Paid && OrdersOpen)
+    {
+        <ContextMenu AriaLabel="Bestellposition verwalten">
+            @if (!Line.Paid) { <ContextMenuItem Text="Stornieren" IsDestructive="true" IsDisabled="Busy" OnClick='() => Action.InvokeAsync(new CateringLineCommand("cancel", Line.Id))' /> }
+            @if (Staff && Line.CollectedQuantity > 0) { <ContextMenuItem Text="Abholung korrigieren" IsDisabled="Busy" OnClick='() => Action.InvokeAsync(new CateringLineCommand("uncollect", Line.Id))' /> }
+            @if (Staff && Line.Paid && Line.CollectedQuantity < Line.Quantity) { <ContextMenuItem Text="Teilmenge abholen" IsDisabled="Busy" OnClick='() => Action.InvokeAsync(new CateringLineCommand("partial", Line.Id))' /> }
+        </ContextMenu>
+    }
+</div>

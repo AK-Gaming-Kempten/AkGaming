@@ -1,0 +1,10 @@
+@page "/catering"
+<p class="eyebrow">AK GAMING · ESSEN</p><h1>Catering</h1>
+@if (_error is not null) { <p class="error" role="alert">@_error</p> }
+@if (!_signedIn) { <section class="card"><p>Bitte melde dich an, um für deine Anmeldung Essen zu bestellen.</p><button @onclick="Session.LoginAsync">Anmelden</button></section> }
+else if (_menu is not null)
+{
+    <div class="toolbar"><button class="secondary" @onclick="Load">Aktualisieren</button></div>
+    @foreach (var account in _accounts) { <CateringAccountPanel @key="account.RegistrationId" Account="account" Menu="_menu" ShowPerson="true" Changed="Load" /> }
+    @if (_accounts.Count == 0) { <p>Zum Bestellen benötigst du eine Anmeldung zur aktiven Game Night. Nutze dieselbe verifizierte E-Mail-Adresse wie bei deiner Anmeldung.</p><a href="/">Zur Anmeldung</a> }
+}

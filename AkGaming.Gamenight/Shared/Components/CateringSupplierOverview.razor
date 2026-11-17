@@ -1,0 +1,13 @@
+<section class="card">
+    <h2>Lieferantenbestellung</h2>
+    <p>Alle verbindlichen Bestellungen dieser Veranstaltung, einschließlich bereits abgeholter Portionen. Unbezahlte Mengen werden gesondert ausgewiesen.</p>
+    @if (Accounts.Any(a => a.Lines.Any(l => !l.Paid))) { <p class="catering-warning" role="alert"><strong>Achtung: unbezahlte Bestellungen enthalten.</strong> Vor der Weitergabe die Spalte „Unbezahlt“ prüfen.</p> }
+    @if (Accounts.Any(a => a.Cancelled && a.Lines.Count > 0)) { <p class="catering-warning">Es bestehen Bestellungen für stornierte Anmeldungen. Diese sind enthalten und müssen geprüft werden.</p> }
+    <div class="catering-table-scroll"><table class="catering-table"><thead><tr><th>Gericht</th><th>Kategorie bei Bestellung</th><th>Gesamt</th><th>Bezahlt</th><th>Unbezahlt</th><th>Abgeholt</th></tr></thead><tbody>
+        @foreach (var group in Accounts.SelectMany(a => a.Lines).GroupBy(l => new { l.ItemId, l.ItemName, l.CategoryName }).OrderBy(g => g.Key.CategoryName).ThenBy(g => g.Key.ItemName))
+        {
+            var unpaid = group.Where(l => !l.Paid).Sum(l => l.Quantity);
+            <tr class="@(unpaid > 0 ? "catering-unpaid" : "")"><td>@group.Key.ItemName</td><td>@group.Key.CategoryName</td><td>@group.Sum(l => l.Quantity)</td><td>@group.Where(l => l.Paid).Sum(l => l.Quantity)</td><td><strong class="@(unpaid > 0 ? "catering-unpaid-badge" : "")">@unpaid @(unpaid > 0 ? "UNBEZAHLT" : "")</strong></td><td>@group.Sum(l => l.CollectedQuantity)</td></tr>
+        }
+    </tbody></table></div>
+</section>

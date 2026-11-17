@@ -37,6 +37,7 @@ builder.Services.AddDbContext<GamenightDbContext>(options =>
 });
 builder.Services.AddScoped<IGamenightStore>(s => s.GetRequiredService<GamenightDbContext>());
 builder.Services.AddScoped<IGamenightService, GamenightService>();
+builder.Services.AddScoped<ICateringService, CateringService>();
 builder.Services.AddScoped<IMembershipClient, ManagementMembershipClient>();
 builder.Services.AddScoped<IGuestEmail, GuestEmail>();
 builder.Services.AddSingleton(TimeProvider.System);
