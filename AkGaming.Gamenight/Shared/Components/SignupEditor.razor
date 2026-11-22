@@ -75,7 +75,7 @@
     <div class="actions">
         @if (_step > 0) { <button type="button" class="secondary" @onclick="Back">Zurück</button> }
         @if (_step < 2) { <button type="button" @onclick="Next">Weiter</button> }
-        @if (_step == 2) { <button type="submit">@(Editing ? "Änderungen speichern" : "Verbindlich anmelden")</button> }
+        @if (_step == 2) { <button type="submit">@(Editing ? "Änderungen speichern" : "Unverbindlich Anmelden")</button> }
     </div>
     </fieldset>
 </EditForm>
