@@ -83,8 +83,8 @@ public sealed class SignupForm : IValidatableObject
             if (Sockets is not (0 or 1 or 2 or 4)) yield return new("Bitte den Steckdosenbedarf auswählen.");
             if (WantsToOrder is null && Meal is not ("Döner" or "Pizza" or "Nichts"))
                 yield return new("Bitte angeben, ob du etwas bestellen möchtest.");
-            if (WantsToOrder == true && (DonerQuantity is null || PizzaQuantity is null || IceCreamQuantity is null))
-                yield return new("Bitte die gewünschten Mengen für Döner, Pizza und Eis auswählen.");
+            if (WantsToOrder == true && (DonerQuantity is null || PizzaQuantity is null))
+                yield return new("Bitte die gewünschten Mengen für Döner und Pizza auswählen.");
             if (WantsToOrder == true && (DonerQuantity ?? 0) + (PizzaQuantity ?? 0) + (IceCreamQuantity ?? 0) == 0)
                 yield return new("Bitte wähle mindestens eine Portion aus.");
             if (PenAndPaper is null || !GameNightRules) yield return new("Bitte Pen & Paper beantworten und die Game-Night-Regeln bestätigen.");

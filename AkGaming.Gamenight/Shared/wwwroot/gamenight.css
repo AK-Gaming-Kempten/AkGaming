@@ -51,7 +51,7 @@ h2 { margin-top:0; } .eyebrow { color:var(--color-highlight-secondary); font-siz
 .callout { padding:1.1rem; border-left:4px solid var(--color-highlight-primary); background:color-mix(in srgb,var(--color-highlight-primary) 10%,transparent); border-radius:var(--radius-panel); margin:1.5rem 0; }
 .food-order { padding:1.25rem; margin:1.4rem 0; border:1px solid color-mix(in srgb,var(--color-highlight-primary) 35%,var(--color-gray)); border-radius:var(--radius-panel); background:linear-gradient(135deg,color-mix(in srgb,var(--color-highlight-primary) 9%,var(--color-background-secondary)),var(--color-background-secondary) 70%); }
 .food-order h3 { margin:.1rem 0 1rem; }
-.food-counters { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:.75rem; margin:1rem 0; }
+.food-counters { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:.75rem; margin:1rem 0; }
 .food-counter { display:flex; flex-direction:column; justify-content:space-between; gap:1rem; padding:1rem; border:1px solid color-mix(in srgb,var(--color-gray) 60%,transparent); border-radius:var(--radius-panel); background:var(--color-background-primary); }
 .food-counter strong,.food-counter .muted { display:block; }
 .counter-controls { display:flex; align-items:center; justify-content:space-between; gap:.6rem; }

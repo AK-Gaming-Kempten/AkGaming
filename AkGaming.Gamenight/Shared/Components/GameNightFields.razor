@@ -28,7 +28,7 @@
 <p class="muted">Unverbindliche Angabe für unsere Planung. Bitte bring für ein eigenes Setup ein mindestens 5 m langes LAN-Kabel mit.</p>
 
 <section class="food-order" aria-labelledby="food-order-title">
-    <h3 id="food-order-title">Essen &amp; Eis</h3>
+    <h3 id="food-order-title">Essen</h3>
     <fieldset class="choice-fieldset">
         <legend>Möchtest du etwas bestellen? *</legend>
         <InputRadioGroup TValue="bool?" @bind-Value="Form.WantsToOrder" @bind-Value:after="OrderChoiceChanged">
@@ -44,15 +44,8 @@
         <div class="food-counters">
             <div class="food-counter"><div><strong>Döner</strong><span class="muted">Anzahl</span></div><div class="counter-controls"><button type="button" class="secondary" aria-label="Döner Anzahl verringern" disabled="@((Form.DonerQuantity ?? 0) == 0)" @onclick="() => ChangeDoner(-1)">−</button><output aria-live="polite">@(Form.DonerQuantity ?? 0)</output><button type="button" class="secondary" aria-label="Döner Anzahl erhöhen" disabled="@((Form.DonerQuantity ?? 0) >= 5)" @onclick="() => ChangeDoner(1)">+</button></div></div>
             <div class="food-counter"><div><strong>Pizza</strong><span class="muted">Anzahl</span></div><div class="counter-controls"><button type="button" class="secondary" aria-label="Pizza Anzahl verringern" disabled="@((Form.PizzaQuantity ?? 0) == 0)" @onclick="() => ChangePizza(-1)">−</button><output aria-live="polite">@(Form.PizzaQuantity ?? 0)</output><button type="button" class="secondary" aria-label="Pizza Anzahl erhöhen" disabled="@((Form.PizzaQuantity ?? 0) >= 5)" @onclick="() => ChangePizza(1)">+</button></div></div>
-            <div class="food-counter"><div><strong>Eis</strong><span class="muted">Kugeln</span></div><div class="counter-controls"><button type="button" class="secondary" aria-label="Eiskugeln verringern" disabled="@((Form.IceCreamQuantity ?? 0) == 0)" @onclick="() => ChangeIceCream(-1)">−</button><output aria-live="polite">@(Form.IceCreamQuantity ?? 0)</output><button type="button" class="secondary" aria-label="Eiskugeln erhöhen" disabled="@((Form.IceCreamQuantity ?? 0) >= 10)" @onclick="() => ChangeIceCream(1)">+</button></div></div>
         </div>
-        @if ((Form.IceCreamQuantity ?? 0) > 0)
-        {
-            <label>Eiswunsch
-                <InputSelect @bind-Value="Form.IceCream"><option value="Ja">Normales Eis</option><option value="Nur Laktosefreies Eis">Nur laktosefreies Eis</option></InputSelect>
-            </label>
-        }
-        <p class="muted">Die Mengen sind unverbindlich. Bitte bring Bargeld für deine Bestellung mit. Eigene saubere Schüsseln, Becher und Löffel für Eis sind willkommen. Pizzakartons und Reste gehören zum ausgewiesenen Müllplatz; bei Nichteinhaltung können Verwarnungen oder ein Verweis folgen.</p>
+        <p class="muted">Die Mengen sind unverbindlich. Bitte bring Bargeld für deine Bestellung mit. Pizzakartons und Reste gehören zum ausgewiesenen Müllplatz; bei Nichteinhaltung können Verwarnungen oder ein Verweis folgen.</p>
     }
 </section>
 
